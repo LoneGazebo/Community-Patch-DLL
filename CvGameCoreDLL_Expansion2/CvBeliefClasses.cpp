@@ -36,6 +36,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCityStateFriendshipModifier(0),
 	m_iLandBarbarianConversionPercent(0),
 	m_iWonderProductionModifier(0),
+	m_iUnitProductionModifier(0),
 	m_iPlayerHappiness(0),
 	m_iPlayerCultureModifier(0),
 	m_fHappinessPerFollowingCity(0),
@@ -49,6 +50,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iProphetCostModifier(0),
 	m_iMissionaryStrengthModifier(0),
 	m_iMissionaryCostModifier(0),
+	m_iInquisitorCostModifier(0),
 	m_iFriendlyCityStateSpreadModifier(0),
 	m_iGreatPersonExpendedFaith(0),
 	m_iCityStateMinimumInfluence(0),
@@ -57,6 +59,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iSpyPressure(0),
 	m_iInquisitorPressureRetention(0),
 	m_iFaithBuildingTourism(0),
+	m_iFullyConvertedHappiness(0),
 
 	m_bPantheon(false),
 	m_bFounder(false),
@@ -74,6 +77,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	m_iHappinessFromForeignSpies(0),
 	m_iGetPressureChangeTradeRoute(0),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
@@ -103,7 +107,8 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iFollowerScalerLimiter(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
 	m_piMaxYieldPerFollower(NULL),
-	m_piMaxYieldPerFollowerHalved(NULL),
+	m_piMaxYieldPerFollowerPercent(NULL),
+	m_piImprovementVoteChange(NULL),
 	m_bIgnorePolicyRequirements(false),
 	m_iCSYieldBonus(0),
 #endif
@@ -149,6 +154,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piCoastalCityYieldChange(NULL),
 	m_piGreatWorkYieldChange(NULL),
 	m_piYieldFromKills(NULL),
+	m_piYieldFromRemoveHeresy(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
@@ -162,7 +168,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldModifierNaturalWonder(NULL),
 	m_piMaxYieldModifierPerFollower(NULL),
-	m_piMaxYieldModifierPerFollowerHalved(NULL),
+	m_piMaxYieldModifierPerFollowerPercent(NULL),
 	m_pbFaithPurchaseUnitEraEnabled(NULL),
 	m_pbBuildingClassEnabled(NULL)
 {
@@ -296,6 +302,11 @@ int CvBeliefEntry::GetWonderProductionModifier() const
 	return m_iWonderProductionModifier;
 }
 
+int CvBeliefEntry::GetUnitProductionModifier() const
+{
+	return m_iUnitProductionModifier;
+}
+
 /// Accessor:: boost in production speed for wonders prior to obsolete era
 int CvBeliefEntry::GetPlayerHappiness() const
 {
@@ -374,6 +385,13 @@ int CvBeliefEntry::GetMissionaryCostModifier() const
 	return m_iMissionaryCostModifier;
 }
 
+/// Accessor:: missionary cost discount
+int CvBeliefEntry::GetInquisitorCostModifier() const
+{
+	return m_iInquisitorCostModifier;
+}
+
+
 /// Accessor: speed increase of spread to friendly city states
 int CvBeliefEntry::GetFriendlyCityStateSpreadModifier() const
 {
@@ -420,6 +438,11 @@ int CvBeliefEntry::GetInquisitorPressureRetention() const
 int CvBeliefEntry::GetFaithBuildingTourism() const
 {
 	return m_iFaithBuildingTourism;
+}
+
+int CvBeliefEntry::GetFullyConvertedHappiness() const
+{
+	return m_iFullyConvertedHappiness;
 }
 
 /// Accessor: is this a belief a pantheon can adopt
@@ -494,6 +517,10 @@ bool CvBeliefEntry::RequiresNoFeature() const
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+int CvBeliefEntry::GetHappinessFromForeignSpies() const
+{
+	return m_iHappinessFromForeignSpies;
+}
 int CvBeliefEntry::GetPressureChangeTradeRoute() const
 {
 	return m_iGetPressureChangeTradeRoute;
@@ -640,11 +667,11 @@ int CvBeliefEntry::GetMaxYieldPerFollower(int i) const
 	return m_piMaxYieldPerFollower ? m_piMaxYieldPerFollower[i] : -1;
 }
 /// Accessor:: Yield from Followers Halved
-int CvBeliefEntry::GetMaxYieldPerFollowerHalved(int i) const
+int CvBeliefEntry::GetMaxYieldPerFollowerPercent(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMaxYieldPerFollowerHalved ? m_piMaxYieldPerFollowerHalved[i] : -1;
+	return m_piMaxYieldPerFollowerPercent ? m_piMaxYieldPerFollowerPercent[i] : -1;
 }
 
 bool CvBeliefEntry::IsIgnorePolicyRequirements() const
@@ -654,6 +681,14 @@ bool CvBeliefEntry::IsIgnorePolicyRequirements() const
 int CvBeliefEntry::GetCSYieldBonus() const
 {
 	return m_iCSYieldBonus;
+}
+
+/// Accessor:: Extra yield from an improvement
+int CvBeliefEntry::GetImprovementVoteChange(ImprovementTypes eIndex1) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	return m_piImprovementVoteChange ? m_piImprovementVoteChange[eIndex1] : 0;
 }
 
 /// Accessor: combat bonus v. other in own lands
@@ -960,6 +995,13 @@ int CvBeliefEntry::GetYieldFromKills(YieldTypes eYield) const
 	return m_piYieldFromKills[(int)eYield];
 }
 
+int CvBeliefEntry::GetYieldFromRemoveHeresy(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_piYieldFromRemoveHeresy[(int)eYield];
+}
+
 /// Do we get one of our yields from defeating a barbarian?
 int CvBeliefEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
@@ -1047,11 +1089,11 @@ int CvBeliefEntry::GetMaxYieldModifierPerFollower(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piMaxYieldModifierPerFollower ? m_piMaxYieldModifierPerFollower[i] : -1;
 }
-int CvBeliefEntry::GetMaxYieldModifierPerFollowerHalved(int i) const
+int CvBeliefEntry::GetMaxYieldModifierPerFollowerPercent(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMaxYieldModifierPerFollowerHalved ? m_piMaxYieldModifierPerFollowerHalved[i] : -1;
+	return m_piMaxYieldModifierPerFollowerPercent ? m_piMaxYieldModifierPerFollowerPercent[i] : -1;
 }
 
 /// Can we buy units of this era with faith?
@@ -1107,6 +1149,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityStateFriendshipModifier    = kResults.GetInt("CityStateFriendshipModifier");
 	m_iLandBarbarianConversionPercent = kResults.GetInt("LandBarbarianConversionPercent");
 	m_iWonderProductionModifier       = kResults.GetInt("WonderProductionModifier");
+	m_iUnitProductionModifier		  = kResults.GetInt("UnitProductionModifier");
 	m_iPlayerHappiness			      = kResults.GetInt("PlayerHappiness");
 	m_iPlayerCultureModifier          = kResults.GetInt("PlayerCultureModifier");
 	m_fHappinessPerFollowingCity      = kResults.GetFloat("HappinessPerFollowingCity");
@@ -1120,6 +1163,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iProphetCostModifier            = kResults.GetInt("ProphetCostModifier");
 	m_iMissionaryStrengthModifier     = kResults.GetInt("MissionaryStrengthModifier");
 	m_iMissionaryCostModifier         = kResults.GetInt("MissionaryCostModifier");
+	m_iInquisitorCostModifier		  = kResults.GetInt("InquisitorCostModifier");
 	m_iFriendlyCityStateSpreadModifier= kResults.GetInt("FriendlyCityStateSpreadModifier");
 	m_iGreatPersonExpendedFaith       = kResults.GetInt("GreatPersonExpendedFaith");
 	m_iCityStateMinimumInfluence      = kResults.GetInt("CityStateMinimumInfluence");
@@ -1128,6 +1172,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iSpyPressure					  = kResults.GetInt("SpyPressure");
 	m_iInquisitorPressureRetention    = kResults.GetInt("InquisitorPressureRetention");
 	m_iFaithBuildingTourism           = kResults.GetInt("FaithBuildingTourism");
+	m_iFullyConvertedHappiness		  = kResults.GetInt("FullyConvertedHappiness");
 
 	m_bPantheon						  = kResults.GetBool("Pantheon");
 	m_bFounder						  = kResults.GetBool("Founder");
@@ -1145,6 +1190,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	m_iHappinessFromForeignSpies = kResults.GetInt("HappinessFromForeignSpies");
 	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
 	m_iCombatVersusOtherReligionOwnLands = kResults.GetInt("CombatVersusOtherReligionOwnLands");
 	m_iCombatVersusOtherReligionTheirLands = kResults.GetInt("CombatVersusOtherReligionTheirLands");
@@ -1198,13 +1244,15 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKnownPantheons, "Belief_YieldFromKnownPantheons", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
-	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerHalved, "Yields", "Belief_MaxYieldPerFollowerHalved", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerPercent, "Yields", "Belief_MaxYieldPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 
-	m_bIgnorePolicyRequirements = kResults.GetBool("IgnorePolicyRequirementsUpToEra");
+	kUtility.PopulateArrayByValue(m_piImprovementVoteChange, "Improvements", "Belief_VotePerXImprovementOwned", "ImprovementType", "BeliefType", szBeliefType, "Amount");
+
+	m_bIgnorePolicyRequirements = kResults.GetBool("IgnorePolicyRequirements");
 	m_iCSYieldBonus = kResults.GetInt("CSYieldBonusFromSharedReligion");
 #endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
-	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollowerHalved, "Yields", "Belief_MaxYieldModifierPerFollowerHalved", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollowerPercent, "Yields", "Belief_MaxYieldModifierPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piResourceHappiness, "Resources", "Belief_ResourceHappiness", "ResourceType", "BeliefType", szBeliefType, "HappinessChange");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Belief_ResourceQuantityModifiers", "ResourceType", "BeliefType", szBeliefType, "ResourceQuantityModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Belief_BuildingClassHappiness", "BuildingClassType", "BeliefType", szBeliefType, "Happiness");
@@ -1504,6 +1552,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piCoastalCityYieldChange, "Belief_CoastalCityYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Belief_GreatWorkYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKills, "Belief_YieldFromKills", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromRemoveHeresy, "Belief_YieldFromRemoveHeresy", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromBarbarianKills, "Belief_YieldFromBarbarianKills", "BeliefType", szBeliefType);
 #endif
 
@@ -2200,6 +2249,25 @@ int CvReligionBeliefs::GetMissionaryCostModifier(PlayerTypes ePlayer, const CvCi
 
 	return rtnValue;
 }
+
+int CvReligionBeliefs::GetInquisitorCostModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetInquisitorCostModifier();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 int CvReligionBeliefs::GetFriendlyCityStateSpreadModifier(PlayerTypes ePlayer, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -2336,6 +2404,25 @@ int CvReligionBeliefs::GetFaithBuildingTourism(PlayerTypes ePlayer, const CvCity
 
 	return rtnValue;
 }
+
+int CvReligionBeliefs::GetFullyConvertedHappiness(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetFullyConvertedHappiness();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 int CvReligionBeliefs::GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -2608,6 +2695,23 @@ int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTy
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetWonderProductionModifier();
 		}
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetUnitProductionModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetUnitProductionModifier();
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
@@ -3286,6 +3390,23 @@ int CvReligionBeliefs::GetYieldFromKills(YieldTypes eYieldType, PlayerTypes ePla
 	return rtnValue;
 }
 
+int CvReligionBeliefs::GetYieldFromRemoveHeresy(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromRemoveHeresy(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 int CvReligionBeliefs::GetGreatPersonPoints(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -3470,17 +3591,19 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, Pla
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldModifierPerFollowerPercent(int& iMaxVal, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+	iMaxVal = 1;
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollowerHalved(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollowerPercent(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
+			iMaxVal = max(iMaxVal, pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType));
 		}
 	}
 
@@ -3706,6 +3829,24 @@ int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, const Cv
 
 	return rtnValue;
 }
+/// Get bonus pressure from trade routes
+int CvReligionBeliefs::GetHappinessFromForeignSpies(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetHappinessFromForeignSpies();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 /// Get yield modifier from beliefs for gpt
 int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
@@ -4046,14 +4187,14 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 	return rtnValue;
 }
 /// Get yield from beliefs from # of followers halved
-int CvReligionBeliefs::GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldPerFollowerPercent(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerHalved(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerPercent(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
@@ -4070,7 +4211,11 @@ bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes eP
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (pBeliefs->GetEntry(*it)->IsIgnorePolicyRequirements() && ((int)eEra < (int)pBeliefs->GetEntry(*it)->GetObsoleteEra()) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		int iEra = (int)pBeliefs->GetEntry(*it)->GetObsoleteEra();
+		if (iEra <= 0)
+			iEra = GC.getNumEraInfos()+1;
+
+		if (pBeliefs->GetEntry(*it)->IsIgnorePolicyRequirements() && ((int)eEra < iEra) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return true;
 		}
@@ -4088,6 +4233,24 @@ int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity,
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCSYieldBonus();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+
+int CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetImprovementVoteChange(eImprovement);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

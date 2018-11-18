@@ -74,7 +74,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +5 HP when Healing.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_OIL">
-			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +5 XP after combat.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +2 XP after combat.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_URANIUM">
 			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
@@ -194,7 +194,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +6 [ICON_HAPPINESS_1] Global Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length, +2 [ICON_GOLDEN_AGE] Golden Age Points from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>

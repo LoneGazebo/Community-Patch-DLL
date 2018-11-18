@@ -206,7 +206,6 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	int iWeight;
 	int iTurnsRequired;
 	int iEstimatedProductionPerTurn;
-	int iCityLoop;
 	BuildingTypes eSelection;
 
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
@@ -215,56 +214,46 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	m_Buildables.clear();
 
 	// Guess which city will be producing this (doesn't matter that much since weights are all relative)
-	CvCity* pWonderCity = m_pPlayer->GetCitySpecializationAI()->GetWonderBuildCity();
-	if(pWonderCity == NULL)
+	CvCity* pLoopCity;
+	int iLoop;
+	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		pWonderCity = m_pPlayer->firstCity(&iCityLoop);
-	}
 
-	CvAssertMsg(pWonderCity, "Trying to choose the next wonder to build and the player has no cities!");
-	if(pWonderCity == NULL)
-		return NO_BUILDING;
-
-	iEstimatedProductionPerTurn = pWonderCity->getCurrentProductionDifference(true, false);
-	if(iEstimatedProductionPerTurn < 1)
-	{
-		iEstimatedProductionPerTurn = 1;
-	}
-
-	// Loop through adding the available wonders
-	for(iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
-		CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eBuilding);
-		if(pkBuildingInfo)
+		iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
+		if(iEstimatedProductionPerTurn < 1)
 		{
-			CvBuildingEntry& kBuilding = *pkBuildingInfo;
-//			const CvBuildingClassInfo& kBuildingClassInfo = kBuilding.GetBuildingClassInfo();
+			iEstimatedProductionPerTurn = 1;
+		}
 
-			// Make sure this wonder can be built now
-#if defined(MOD_AI_SMART_V3)
-			bool bWonder = MOD_AI_SMART_V3 ? IsWonderNotNationalUnique(kBuilding) : IsWonder(kBuilding);
-			if(bWonder && HaveCityToBuild((BuildingTypes)iBldgLoop))
-#else
-			if(IsWonder(kBuilding) && HaveCityToBuild((BuildingTypes)iBldgLoop))
-#endif
-			{
-				iTurnsRequired = std::max(1, kBuilding.GetProductionCost() / iEstimatedProductionPerTurn);
+		// Loop through adding the available wonders
+		for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
+		{
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
+			CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eBuilding);
+			if (!pkBuildingInfo)
+				continue;
 
-				// if we are forced to restart a wonder, give one that has been started already a huge bump
-				bool bAlreadyStarted = pWonderCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
-				int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
+			if (!pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+				continue;
 
-				iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
+			iTurnsRequired = std::max(1, pkBuildingInfo->GetProductionCost() / iEstimatedProductionPerTurn);
+
+			// if we are forced to restart a wonder, give one that has been started already a huge bump
+			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
+			int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
+
+			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
+
 #if defined(MOD_BALANCE_CORE)
-				if(iWeight > 0)
-				{
-					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
-				}
-#endif
-
-				m_Buildables.push_back(iBldgLoop, iWeight);
+			if(iWeight > 0)
+			{
+				iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
 			}
+#endif
+			if (iWeight <= 0)
+				continue;
+
+			m_Buildables.push_back(iBldgLoop, iWeight);
 		}
 	}
 
@@ -277,7 +266,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 		if(m_Buildables.GetTotalWeight() > 0)
 		{
 			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-			if (pWonderCity->isBarbarian())
+			if (m_pPlayer->isBarbarian())
 			{
 				eSelection = (BuildingTypes)m_Buildables.GetElement(0);
 			}
@@ -307,147 +296,33 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 /// Recommend highest-weighted wonder and what city to build it at
 BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWeight, CvCity*& pCityToBuildAt)
 {
-	int iBldgLoop;
 	int iWeight;
-	int iCityLoop;
-	BuildingTypes eSelection;
+	BuildingTypes eSelection = ChooseWonder(false, iWeight);
 
-	pCityToBuildAt = 0;
-	iWonderWeight = 0;
+	iWonderWeight = iWeight;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	if (eSelection == NO_BUILDING)
+		return eSelection;
 
-	// Reset list of all the possible wonders
-	m_Buildables.clear();
-
-	// Guess which city will be producing this
-	CvCity* pWonderCity = m_pPlayer->GetCitySpecializationAI()->GetWonderBuildCity();
-	if (pWonderCity == NULL)
+	CvCity* pLoopCity;
+	int iLoop;
+	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		pWonderCity = m_pPlayer->firstCity(&iCityLoop);
+		CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eSelection);
+		if (!pkBuildingInfo)
+			continue;
+
+		if (!pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			continue;
+
+		pCityToBuildAt = pLoopCity;
+		break; // todo: find the best city 
 	}
 
-	CvAssertMsg(pWonderCity, "Trying to choose the next wonder to build and the player has no cities!");
-	if (pWonderCity == NULL)
+	if (pCityToBuildAt == NULL)
 		return NO_BUILDING;
 
-	// Loop through adding the available wonders
-	for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
-		CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eBuilding);
-		if (pkBuildingInfo)
-		{
-			CvBuildingEntry& kBuilding = *pkBuildingInfo;
-			// Make sure this wonder can be built now
-			if (IsWonder(kBuilding) && HaveCityToBuild((BuildingTypes)iBldgLoop))
-			{
-				iWeight = m_WonderAIWeights.GetWeight((UnitTypes)iBldgLoop); // use raw weight since this wonder is essentially free
-				// Don't build the UN if you aren't going for the diplo victory and have a chance of winning it
-#if !defined(MOD_BALANCE_CORE)
-				if(pkBuildingInfo->IsDiplomaticVoting())
-				{
-					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-					int iSecuredVotes = 0;
-					TeamTypes myTeamID = m_pPlayer->getTeam();
-					PlayerTypes myPlayerID = m_pPlayer->GetID();
-
-					// Loop through Players to see if they'll vote for this player
-					PlayerTypes eLoopPlayer;
-					TeamTypes eLoopTeam;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-						if(GET_PLAYER(eLoopPlayer).isAlive())
-						{
-							eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
-
-							// Liberated?
-							if(GET_TEAM(eLoopTeam).GetLiberatedByTeam() == myTeamID)
-							{
-								iSecuredVotes++;
-							}
-
-							// Minor civ?
-							else if(GET_PLAYER(eLoopPlayer).isMinorCiv())
-							{
-								// Best Relations?
-								if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() == myPlayerID)
-								{
-									iSecuredVotes++;
-								}
-							}
-						}
-					}
-
-					int iNumberOfPlayersWeNeedToBuyOff = MAX(0, iVotesNeededToWin - iSecuredVotes);
-
-					if(!m_pPlayer->GetDiplomacyAI() || !m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetTreasury()->GetGold() < iNumberOfPlayersWeNeedToBuyOff * 500 )
-					{
-						iWeight = 0;
-					}
-				}
-#endif
-#if defined(MOD_BALANCE_CORE)
-				if(iWeight > 0)
-				{
-					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
-				}
-#endif
-				// ??? do we want to weight it more for more expensive wonders?
-				m_Buildables.push_back(iBldgLoop, iWeight);
-			}
-		}
-	}
-
-	// Sort items and grab the first one
-	if(m_Buildables.size() > 0)
-	{
-		m_Buildables.SortItems();
-		LogPossibleWonders();
-
-		if(m_Buildables.GetTotalWeight() > 0)
-		{
-			int iNumChoices = 1;
-			eSelection = (BuildingTypes)m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing wonder from Top Choices");
-			iWonderWeight = m_Buildables.GetTotalWeight();
-
-			// first check if the wonder city can build it
-			if (pWonderCity->canConstruct(eSelection))
-			{
-				pCityToBuildAt = pWonderCity;
-			}
-			// if it can't then check for other cities
-			else
-			{
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-				{
-					if(pLoopCity->canConstruct(eSelection))
-					{
-						pCityToBuildAt = pLoopCity;
-						break; // todo: find the best city 
-					}
-				}
-			}
-
-			return eSelection;
-		}
-
-		// Nothing with any weight
-		else
-		{
-			return NO_BUILDING;
-		}
-	}
-
-	// Unless we didn't find any
-	else
-	{
-		return NO_BUILDING;
-	}
+	return eSelection;
 }
 
 

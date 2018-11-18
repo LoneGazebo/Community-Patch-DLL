@@ -38,6 +38,7 @@ class CvPathNode;
 class CvTacticalMove;
 #endif
 
+typedef std::vector<int> UnitIdContainer; //use a vector as most of the time this will be empty
 typedef FFastSmallFixedList< MissionData, 12, true, c_eCiv5GameplayDLL > MissionQueue;
 
 struct CvUnitCaptureDefinition
@@ -140,7 +141,7 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
-		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible
+		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible (not relevant for pathfinder, only for actual movement)
 	};
 
 	enum MoveResult
@@ -172,11 +173,11 @@ public:
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 #if defined(MOD_BALANCE_CORE)
-	void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
+	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #else
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #endif
-	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
+	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
@@ -342,7 +343,7 @@ public:
 	void doHeal();
 	void DoAttrition();
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
-	int GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const;
+	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
@@ -459,6 +460,7 @@ public:
 	bool DoBuildSpaceship();
 
 	bool CanCultureBomb(const CvPlot* pPlot, bool bTestVisible = false) const;
+	bool isCultureBomb() const;
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
 
@@ -481,7 +483,10 @@ public:
 	int getBuilderStrength() const;
 	void setBuilderStrength(const int newPower);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int getNumberOfCultureBombs() const;
+	void setNumberOfCultureBombs(const int iBombs);
+#endif
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
 
@@ -601,7 +606,7 @@ public:
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
-	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, 
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot, 
 									bool bFromRangedAttack = false, bool bQuickAndDirty = false) const;
 
 	int GetEmbarkedUnitDefense() const;
@@ -703,9 +708,6 @@ public:
 	int getNearbyFriendlyCityCombatMod() const;
 	void ChangeNearbyEnemyCityCombatMod(int iValue);
 	int getNearbyEnemyCityCombatMod() const;
-	void ChangeIsFriendlyLands(int iValue);
-	int GetIsFriendlyLands() const;
-	bool isFriendlyLands() const;
 	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
 	int getStackedGreatGeneralExperience() const;
@@ -729,12 +731,18 @@ public:
 	void ChangeGiveExperiencePercent(int iValue);
 	int getGiveOutsideFriendlyLandsModifier() const;
 	void ChangeGiveOutsideFriendlyLandsModifier(int iValue);
-	const bool IsGiveDomainBonus(DomainTypes eDomain) const;
-	void ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue);
+	const DomainTypes getGiveDomain() const;
+	void ChangeGiveDomain(DomainTypes eDomain);
 	int getGiveExtraAttacks() const;
 	void ChangeGiveExtraAttacks(int iValue);
 	int getGiveDefenseMod() const;
 	void ChangeGiveDefenseMod(int iValue);
+	int getNearbyHealEnemyTerritory() const;
+	void ChangeNearbyHealEnemyTerritory(int iValue);
+	int getNearbyHealNeutralTerritory() const;
+	void ChangeNearbyHealNeutralTerritory(int iValue);
+	int getNearbyHealFriendlyTerritory() const;
+	void ChangeNearbyHealFriendlyTerritory(int iValue);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -758,6 +766,8 @@ public:
 	void ChangeDamageThreshold(int iValue);
 	const UnitTypes getConvertDamageOrFullHPUnit() const;
 	void ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit);
+	bool canIntercept() const;
+	int GetAirInterceptRange() const;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -799,8 +809,15 @@ public:
 
 	bool IsGainsYieldFromScouting() const;
 
+	int GetCaptureDefeatedEnemyChance() const;
+	void ChangeCaptureDefeatedEnemyChance(int iValue);
+	
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
+
+	int GetAdjacentEnemySapMovement() const;
+	void ChangeAdjacentEnemySapMovement(int iValue);
+
 #endif
 
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
@@ -868,11 +885,11 @@ public:
 	void changeNukeImmuneCount(int iValue);
 	int getNukeImmuneCount() const;
 
-	int maxInterceptionProbability() const;
-	int currInterceptionProbability() const;
+	int interceptionProbability() const;
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
+	int GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
 	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
@@ -1133,8 +1150,8 @@ public:
 	int getExtraRange() const;
 	void changeExtraRange(int iChange);
 
-	int getExtraIntercept() const;
-	void changeExtraIntercept(int iChange);
+	int getInterceptChance() const;
+	void changeInterceptChance(int iChange);
 
 	int getExtraEvasion() const;
 	void changeExtraEvasion(int iChange);
@@ -1155,6 +1172,20 @@ public:
 	int getPlaguedCount() const;
 	void changePlagued(int iChange);
 	bool isPlagued() const;
+
+	int getPlagueID() const;
+	void setPlagueID(int iValue);
+
+	int getPlaguePriority() const;
+	void setPlaguePriority(int iValue);
+
+	int getPlagueIDImmunity() const;
+	void setPlagueIDImmunity(int iValue);
+
+	int getPlaguePromotion() const;
+	void setPlaguePromotion(int iValue);
+
+	bool CanPlague(CvUnit* pOtherUnit) const;
 
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
@@ -1257,12 +1288,15 @@ public:
 	void changeExtraAttacks(int iChange);
 
 	// Citadel
-	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
+	bool IsNearEnemyCitadel(const CvPlot* pInPlot = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveDefenseModToUnit() const;
+	int GetHealEnemyTerritoryFromNearbyUnit() const;
+	int GetHealNeutralTerritoryFromNearbyUnit() const;
+	int GetHealFriendlyTerritoryFromNearbyUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
@@ -1462,6 +1496,7 @@ public:
 	const UnitTypes getUnitType() const;
 	CvUnitEntry& getUnitInfo() const;
 	UnitClassTypes getUnitClassType() const;
+	bool isUnitAI(UnitAITypes eType) const;
 
 	const UnitTypes getLeaderUnitType() const;
 	void setLeaderUnitType(UnitTypes leaderUnitType);
@@ -1750,6 +1785,7 @@ public:
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
+	int GetMovementPointsAtCachedTarget() const;
 
 	bool IsIgnoringDangerWakeup() const;
 	void SetIgnoreDangerWakeup(bool bState);
@@ -1957,7 +1993,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraMoves;
 	FAutoVariable<int, CvUnit> m_iExtraMoveDiscount;
 	FAutoVariable<int, CvUnit> m_iExtraRange;
-	FAutoVariable<int, CvUnit> m_iExtraIntercept;
+	FAutoVariable<int, CvUnit> m_iInterceptChance;
 	FAutoVariable<int, CvUnit> m_iExtraEvasion;
 	FAutoVariable<int, CvUnit> m_iExtraFirstStrikes;
 	FAutoVariable<int, CvUnit> m_iExtraChanceFirstStrikes;
@@ -1965,6 +2001,10 @@ protected:
 #if defined(MOD_BALANCE_CORE_JFD)
 	FAutoVariable<int, CvUnit> m_iPlagueChance;
 	FAutoVariable<int, CvUnit> m_iIsPlagued;
+	FAutoVariable<int, CvUnit> m_iPlagueID;
+	FAutoVariable<int, CvUnit> m_iPlaguePriority;
+	FAutoVariable<int, CvUnit> m_iPlagueIDImmunity;
+	FAutoVariable<int, CvUnit> m_iPlaguePromotion;
 	FAutoVariable<ContractTypes, CvUnit> m_eUnitContract;
 	FAutoVariable<int, CvUnit> m_iNegatorPromotion;
 #endif
@@ -2040,7 +2080,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_inearbyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
@@ -2052,7 +2091,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
 	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
 	FAutoVariable<int, CvUnit> m_igiveOutsideFriendlyLandsModifier;
-	FAutoVariable<std::vector<int>, CvUnit> m_pabGiveDomainBonus;
+	FAutoVariable<int, CvUnit> m_eGiveDomain;
 	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
 	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
@@ -2064,6 +2103,10 @@ protected:
 	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
 	FAutoVariable<int, CvUnit> m_idamageThreshold;
 	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
+	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
+	FAutoVariable<int, CvUnit> m_inearbyHealEnemyTerritory;
+	FAutoVariable<int, CvUnit> m_inearbyHealNeutralTerritory;
+	FAutoVariable<int, CvUnit> m_inearbyHealFriendlyTerritory;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2080,7 +2123,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
+	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyChance;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
+	FAutoVariable<int, CvUnit> m_iAdjacentEnemySapMovement;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	FAutoVariable<int, CvUnit> m_iGGFromBarbariansCount;
@@ -2298,13 +2343,9 @@ protected:
 	void DoCargoPromotions(CvUnit& cargounit);
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
-	// these are do to a unit using Heavy Charge against you
-	bool CanFallBackFromMelee(CvUnit& pAttacker, bool bCheckChances);
-	bool DoFallBackFromMelee(CvUnit& pAttacker);
-#if defined(MOD_BALANCE_CORE)
-	bool CanFallBackFromRanged(CvUnit& pAttacker);
-	bool DoFallBackFromRanged(CvUnit& pAttacker);
-#endif
+
+	bool CanFallBack(CvUnit& pAttacker, bool bCheckChances);
+	bool DoFallBack(CvUnit& pAttacker);
 
 private:
 

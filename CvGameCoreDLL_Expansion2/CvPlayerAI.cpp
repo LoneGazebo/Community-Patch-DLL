@@ -30,6 +30,7 @@
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
+#include "CvBarbarians.h"
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
@@ -147,6 +148,9 @@ void CvPlayerAI::AI_doTurnPost()
 
 	if(isBarbarian())
 	{
+		CvBarbarians::DoCampSpawnCounter();
+		CvBarbarians::DoCamps();
+		CvBarbarians::DoUnits();
 		return;
 	}
 
@@ -1517,7 +1521,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScientist*/)
 {
-	if (!IsAtWarAnyMajor() || GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
+	if (!IsAtWarAnyMajor() || GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING)
 	{
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -1625,7 +1629,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		}
 #else
 		// Spread religion if there is any city that needs it
-		if (GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/))
+		if (GetReligionAI()->ChooseProphetConversionCity())
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -1642,15 +1646,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	{
 		//always enhance
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		// Spread religion if there is a city that needs it CRITICALLY
-		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
-		}
-		else
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		}
 	}
 
 	// CASE 3: No religion for me yet
@@ -2557,10 +2552,8 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
 			continue;
 
-#if defined(MOD_BALANCE_CORE)
 		if(pUnit->GetDanger(pLoopPlot)>0)
 			continue;
-#endif
 
 		// Make sure this is still owned by target and is revealed to us
 		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
@@ -2599,7 +2592,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	CvCity* pBestTargetCity = NULL;
 
 	// Find target civ
-#if defined(MOD_BALANCE_CORE)
 	PlayerTypes eTargetPlayer = NO_PLAYER;
 	if(pMusician->isRivalTerritory())
 	{
@@ -2607,28 +2599,28 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	}
 	else
 	{
-#endif
 		eTargetPlayer = GetCulture()->GetCivLowestInfluence(true /*bCheckOpenBorders*/);
-#if defined(MOD_BALANCE_CORE)
 	}
-#endif
+
 	if (eTargetPlayer == NO_PLAYER)
 		return NULL;
 
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
-	int iMoveFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
+	SPathFinderUserData data(pMusician, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 23);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusician->getX(), pMusician->getY(), data);
+		
 	// Loop through each of that player's cities
 	int iLoop;
 	for(CvCity *pLoopCity = kTargetPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kTargetPlayer.nextCity(&iLoop))
 	{
-		int iPathTurns;
-		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,iBestTurnsToReach,&iPathTurns))
+		ReachablePlots::iterator it = reachablePlots.find(pLoopCity->plot()->GetPlotIndex());
+		if ( it != reachablePlots.end() )
 		{
-			if(iPathTurns < iBestTurnsToReach)
+			if( it->iTurns < iBestTurnsToReach)
 			{
-				iBestTurnsToReach = iPathTurns;
+				iBestTurnsToReach = it->iTurns;
 				pBestTargetCity = pLoopCity;
 			}
 		}
@@ -2639,7 +2631,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	{
 		int iBestDistance = INT_MAX;
 		CvPlot* pBestPlot = NULL;
-
 
 		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
 		{
@@ -2666,26 +2657,40 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 
 	return NULL;
 }
-
 CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
 {
-	if(!pUnit)
+	if (!pUnit)
 		return NULL;
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
 	std::set<int> setCandidates;
-	
-	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-	if(!pkBuildInfo)
-		return NULL;
+	CvImprovementEntry* pkImprovementInfo = NULL;
+	int iRange = 0;
 
-	ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	if (!pkImprovementInfo)
-		return NULL;
+	if (eBuild == NO_BUILD)
+	{
+		CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
+		if (!pkUnitEntry || !pUnit->isCultureBomb())
+			return NULL;
+
+		iRange = range(pkUnitEntry->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
+	}
+	else
+	{
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (!pkBuildInfo)
+			return NULL;
+
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo)
+			return NULL;
+
+		iRange = range(pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
+	}
 
 	// loop through plots and wipe out ones that are invalid
-	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)
@@ -2727,11 +2732,11 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			// can't build on some plots
 			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidMovePlot(GetID()) )
 				continue;
-			if(!pAdjacentPlot->canBuild(eBuild, GetID()))
+			if(eBuild != NO_BUILD && !pAdjacentPlot->canBuild(eBuild, GetID()))
 				continue;
 
 			//citadel special
-			if (pkImprovementInfo->GetDefenseModifier() > 0)
+			if (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0)
 			{
 				//we want to steal at least one plot
 				if (!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
@@ -2745,8 +2750,8 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
-				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-				if(pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson())
+				CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
+				if(pkImprovementInfo2 && pkImprovementInfo2->IsCreatedByGreatPerson())
 					continue;
 			}
 
@@ -2790,14 +2795,12 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 	}
 
 	std::priority_queue<SPlotWithScore> goodPlots;
-	int iRange = pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost();
-	iRange = range(iRange, 1, 5);
 
 	//now that we have a number of possible plots, score each
 	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		int iScore = pkImprovementInfo->GetDefenseModifier() > 0 ? pPlot->GetDefenseBuildValue(GetID()) : 0;
+		int iScore = (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0) ? pPlot->GetDefenseBuildValue(GetID()) : 0;
 
 		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 		{
@@ -2828,8 +2831,8 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
 				if (eExistingImprovement != NO_IMPROVEMENT)
 				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-					if (pkImprovementInfo && pkImprovementInfo->GetCultureBombRadius() > 1)
+					CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
+					if (pkImprovementInfo2 && pkImprovementInfo2->GetCultureBombRadius() > 1)
 					{
 						iScore = 0;
 						break;

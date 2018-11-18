@@ -983,7 +983,10 @@ bool GetGameOption(const char* szOptionName, int& iValue)
 		if(kLookup.Step())
 		{
 			iValue = kLookup.GetInt(0);
-			s_GameOptions.push_back(CustomOption(szOptionName, iValue));
+
+			if (GC.getGame().getGameTurn() > 0)
+				s_GameOptions.push_back(CustomOption(szOptionName, iValue));
+
 			return true;
 		}
 	}

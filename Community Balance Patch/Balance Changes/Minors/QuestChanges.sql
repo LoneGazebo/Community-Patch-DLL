@@ -40,7 +40,7 @@ UPDATE Defines SET Value = '3' WHERE Name = 'FRIENDS_RAND_TURNS_UNIT_SPAWN';
 
 -- Route
 UPDATE SmallAwards SET Influence = '40' WHERE Type = 'MINOR_CIV_QUEST_ROUTE';
-UPDATE SmallAwards SET Production = '75' WHERE Type = 'MINOR_CIV_QUEST_ROUTE';
+UPDATE SmallAwards SET Production = '70' WHERE Type = 'MINOR_CIV_QUEST_ROUTE';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_ROUTE';
 
 -- Camp
@@ -50,17 +50,17 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_KILL_CAMP'
 
 -- Resource
 UPDATE SmallAwards SET Influence = '25' WHERE Type = 'MINOR_CIV_QUEST_CONNECT_RESOURCE';
-UPDATE SmallAwards SET Gold = '100' WHERE Type = 'MINOR_CIV_QUEST_CONNECT_RESOURCE';
+UPDATE SmallAwards SET Gold = '90' WHERE Type = 'MINOR_CIV_QUEST_CONNECT_RESOURCE';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONNECT_RESOURCE';
 
 -- Wonder
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_WONDER';
-UPDATE SmallAwards SET Faith = '75' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_WONDER';
+UPDATE SmallAwards SET Faith = '65' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_WONDER';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_WONDER';
 
 -- GP
 UPDATE SmallAwards SET Influence = '25' WHERE Type = 'MINOR_CIV_QUEST_GREAT_PERSON';
-UPDATE SmallAwards SET Culture = '75' WHERE Type = 'MINOR_CIV_QUEST_GREAT_PERSON';
+UPDATE SmallAwards SET Culture = '65' WHERE Type = 'MINOR_CIV_QUEST_GREAT_PERSON';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_GREAT_PERSON';
 
 -- Kill CS
@@ -72,7 +72,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_KILL_CITY_
 
 -- Find Player
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
-UPDATE SmallAwards SET Science = '75' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
+UPDATE SmallAwards SET Science = '50' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
 
 -- Find NW
@@ -87,7 +87,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_GIVE_GOLD'
 
 -- PtP
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
-UPDATE SmallAwards SET CapitalGPPoints = '75' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
+UPDATE SmallAwards SET CapitalGPPoints = '20' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
 
 -- Culture Contest
@@ -97,7 +97,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_CU
 
 -- Faith Contest
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_FAITH';
-UPDATE SmallAwards SET GlobalGPPoints = '50' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_FAITH';
+UPDATE SmallAwards SET GlobalGPPoints = '20' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_FAITH';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_FAITH';
 
 -- Tech Contest
@@ -118,7 +118,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_DENOUNCE_M
 
 -- Religion
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_SPREAD_RELIGION';
-UPDATE SmallAwards SET Faith = '75' WHERE Type = 'MINOR_CIV_QUEST_SPREAD_RELIGION';
+UPDATE SmallAwards SET Faith = '70' WHERE Type = 'MINOR_CIV_QUEST_SPREAD_RELIGION';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_SPREAD_RELIGION';
 
 -- Trade Route
@@ -133,12 +133,12 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_WAR';
 
 -- Build NW
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER';
-UPDATE SmallAwards SET GoldenAgePoints = '150' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER';
+UPDATE SmallAwards SET GoldenAgePoints = '125' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER';
 
 -- Find a CS
 UPDATE SmallAwards SET Influence = '15' WHERE Type = 'MINOR_CIV_QUEST_FIND_CITY_STATE';
-UPDATE SmallAwards SET Production = '75' WHERE Type = 'MINOR_CIV_QUEST_FIND_CITY_STATE';
+UPDATE SmallAwards SET Production = '60' WHERE Type = 'MINOR_CIV_QUEST_FIND_CITY_STATE';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_FIND_CITY_STATE';
 
 -- Contest Tourism
@@ -148,7 +148,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TO
 
 -- Archaeology
 UPDATE SmallAwards SET Influence = '25' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOGY';
-UPDATE SmallAwards SET Tourism = '250' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOGY';
+UPDATE SmallAwards SET Tourism = '200' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOGY';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOGY';
 
 -- Circumnavigation

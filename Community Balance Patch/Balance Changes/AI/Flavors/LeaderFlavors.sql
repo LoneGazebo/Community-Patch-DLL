@@ -35,7 +35,7 @@ INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_ARCHAEOLOGY',              Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_RELIGION',                 Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_GREAT_PEOPLE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_HAPPINESS',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_HAPPINESS',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_EXPANSION',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_TILE_IMPROVEMENT',         Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_INFRASTRUCTURE',           Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
@@ -245,6 +245,7 @@ UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GOLD'						 A
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_GROWTH'						 AND LeaderType = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_I_SEA_TRADE_ROUTE'						 AND LeaderType = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_RELIGION'				     AND LeaderType = 'LEADER_GANDHI';
+UPDATE Leader_Flavors SET Flavor =   12 WHERE FlavorType = 'FLAVOR_NUKE'				     AND LeaderType = 'LEADER_GANDHI';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GROWTH'				     AND LeaderType = 'LEADER_GANDHI';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_OFFENSE'				     AND LeaderType = 'LEADER_GENGHIS_KHAN';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_MOBILE'				     AND LeaderType = 'LEADER_GENGHIS_KHAN';

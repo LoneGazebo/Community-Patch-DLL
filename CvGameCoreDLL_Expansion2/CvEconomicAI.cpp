@@ -1279,9 +1279,9 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 {
 	int iNumValidPlots = 0;
 	int iNumImprovedPlots = 0;
-	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = m_pPlayer->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -1449,9 +1449,9 @@ void CvEconomicAI::LogMonitor(void)
 	int iTiles = 0;
 	int iWorkedTiles = 0;
 	int iImprovedTiles = 0;
-	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = m_pPlayer->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -1766,9 +1766,9 @@ void CvEconomicAI::LogCityMonitor()
 		int iTiles = 0;
 		int iWorkedTiles = 0;
 		int iImprovedTiles = 0;
-		const set<int>& aiPlots = m_pPlayer->GetPlots();
+		const PlotIndexContainer& aiPlots = m_pPlayer->GetPlots();
 		// go through all the plots the player has under their control
-		for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+		for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 			if (!pPlot)
@@ -2656,9 +2656,9 @@ void CvEconomicAI::DisbandExtraWorkboats()
 
 	int iNumValidPlots = 0;
 	int iNumUnimprovedPlots = 0;
-	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = m_pPlayer->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -2812,9 +2812,9 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	int iNumValidPlots = 0;
 	int iNumImprovedPlots = 0;
-	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = m_pPlayer->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -4279,9 +4279,9 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 			}
 
 			bool bCanBuild = false;
-			const set<int>& aiPlots = pPlayer->GetPlots();
+			const PlotIndexContainer& aiPlots = pPlayer->GetPlots();
 			// go through all the plots the player has under their control
-			for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+			for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 				if (!pPlot)
@@ -4913,6 +4913,9 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 
 		if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 		{
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsNoAlly())
+				continue;
+
 			if(GET_PLAYER(eMinor).GetMinorCivAI()->IsHasMetPlayer(ePlayer))
 			{
 				iNumCities++;
@@ -4929,6 +4932,10 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 	}
 	if(iNumCities > 0)
 	{
+		//are we allied with everyone? Well, we don't need any diplo units then!
+		if (iNumAllies == iNumCities)
+			return 0;
+
 		int iNumApConq = 0;
 		int iNumApBully = 0;
 		int iNumCloseNotAllies = 0;

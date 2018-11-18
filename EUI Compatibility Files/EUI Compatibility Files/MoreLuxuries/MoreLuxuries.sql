@@ -7,7 +7,9 @@ INSERT INTO Resource_YieldChangeFromMonopoly
 VALUES
 	('RESOURCE_PERFUME', 'YIELD_GOLD', 3),
 	('RESOURCE_TOBACCO', 'YIELD_FAITH', 2),
-	('RESOURCE_CORAL', 'YIELD_SCIENCE', 2);
+	('RESOURCE_CORAL', 'YIELD_SCIENCE', 2),
+	('RESOURCE_LAPIS', 'YIELD_GOLDEN_AGE_POINTS', 2),
+	('RESOURCE_JADE', 'YIELD_GOLDEN_AGE_POINTS', 2);
 
 INSERT INTO Resource_CityYieldModFromMonopoly
 	(ResourceType, YieldType, Yield)
@@ -99,7 +101,7 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 SELECT 'BUILDING_COLOSSEUM', 'RESOURCE_OLIVE' , 'YIELD_GOLD' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '2';
+SELECT 'BUILDING_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_OLIVE' , 'YIELD_GOLD' , '1';
@@ -108,7 +110,7 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_OLIVE' , 'YIELD_FOOD' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '2';
+SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '1';
 
 
 -- Coral -- Covered by Lighthouse

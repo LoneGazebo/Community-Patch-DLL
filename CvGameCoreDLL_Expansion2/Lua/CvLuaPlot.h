@@ -387,6 +387,8 @@ protected:
 	LUAAPIEXTN(IsWithinDistanceOfResource, bool, iResourceType, iDistance);
 	LUAAPIEXTN(IsAdjacentToTerrain, bool, iTerrainType);
 	LUAAPIEXTN(IsWithinDistanceOfTerrain, bool, iTerrainType, iDistance);
+	LUAAPIEXTN(GetEffectiveFlankingBonus, int, CvUnit*, CvUnit*, CvPlot*);
+
 #endif
 };
 #endif

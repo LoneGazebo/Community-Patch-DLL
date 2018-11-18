@@ -1171,6 +1171,7 @@ void CvGame::uninit()
 	m_iScienceAverage = 0;
 	m_iDefenseAverage = 0;
 	m_iGoldAverage = 0;
+	m_iGlobalTechAvg = 0;
 	m_iGlobalPopulation = 0;
 	m_iLastTurnCSSurrendered = 0;
 #endif
@@ -1446,7 +1447,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	CvCityManager::Reset();
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	m_iGlobalAssetCounter = 1000; //0 is invalid
+	m_iGlobalAssetCounterAllPreviousTurns = 1000; //0 is invalid
+	m_iGlobalAssetCounterCurrentTurn = 0;
 #endif
 }
 
@@ -5874,7 +5876,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
+		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5905,7 +5907,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
+		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -8087,25 +8089,18 @@ void CvGame::removeGreatPersonBornName(const CvString& szName)
 }
 #endif
 
-
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
-	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
-
 #if defined(MOD_BALANCE_CORE) && defined(MOD_UNIT_KILL_STATS)
 	GC.getMap().DoKillCountDecay();
 #endif
 
-	int aiShuffle[MAX_PLAYERS];
-	int iLoopPlayer;
-	int iI;
-
-	//create an autosave
-	if(!isNetworkMultiPlayer())
-		gDLL->AutoSave(false, false);
+	//create an autosave when ending the turn
+	if(isNetworkMultiPlayer())
+		gDLL->AutoSave(false, true);
 
 	// END OF TURN
 
@@ -8120,13 +8115,11 @@ void CvGame::doTurn()
 
 	gDLL->DoTurn();
 
-	CvBarbarians::BeginTurn();
-
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	// Dodgy business to cleanup all the completed requests from last turn. Any still here should just be ones that were processed on other clients anyway.
 	if (MOD_ACTIVE_DIPLOMACY)
 	{
-		for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
 			CvAssertMsg((kPlayer.isLocalPlayer() && !kPlayer.GetDiplomacyRequests()->HasPendingRequests()) || !kPlayer.isLocalPlayer(), "Clearing requests, expected local player to be empty.");
@@ -8143,7 +8136,7 @@ void CvGame::doTurn()
 
 	m_kGameDeals.DoTurn();
 
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
@@ -8154,10 +8147,6 @@ void CvGame::doTurn()
 	GC.getMap().doTurn();
 
 	GC.GetEngineUserInterface()->doTurn();
-
-	CvBarbarians::DoCamps();
-
-	CvBarbarians::DoUnits();
 
 	GetGameReligions()->DoTurn();
 	GetGameTrade()->DoTurn();
@@ -8175,7 +8164,7 @@ void CvGame::doTurn()
 		if (pkResource && pkResource->isMonopoly())
 		{
 			UpdateGreatestPlayerResourceMonopoly(eResource);
-			for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
 				if (GET_PLAYER((PlayerTypes)iI).isAlive())
 				{
@@ -8216,8 +8205,18 @@ void CvGame::doTurn()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	RollOverAssetCounter();
+#endif
+
+	//-------------------------------------------------------------
+	// old turn ends here, new turn starts
+	//-------------------------------------------------------------
+
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
 	incrementGameTurn();
 	incrementElapsedGameTurns();
+	gDLL->PublishNewGameTurn(getGameTurn());
 
 	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
 	{// update turn mode for dynamic turn mode.
@@ -8233,15 +8232,16 @@ void CvGame::doTurn()
 	{// In multi-player with simultaneous turns, we activate all of the AI players
 	 // at the same time.  The human players who are playing simultaneous turns will be activated in updateMoves after all
 	 // the AI players are processed.
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		int aiShuffle[MAX_PLAYERS];
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			aiShuffle[iI] = iI;
 
 		//use the pre-game RNG here
 		shuffleArray(aiShuffle, MAX_PLAYERS, getMapRand());
 
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			iLoopPlayer = aiShuffle[iI];
+			int iLoopPlayer = aiShuffle[iI];
 			CvPlayer& player = GET_PLAYER((PlayerTypes)iLoopPlayer);
 			// activate AI here, when they are done, activate human players in
 			// updateMoves
@@ -8254,7 +8254,7 @@ void CvGame::doTurn()
 
 	if(isSimultaneousTeamTurns())
 	{//We're doing simultaneous team turns, activate the first team in sequence.
-		for(iI = 0; iI < MAX_TEAMS; iI++)
+		for(int iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
 			if(kTeam.isAlive() && !kTeam.isSimultaneousTurns()) 
@@ -8267,7 +8267,7 @@ void CvGame::doTurn()
 	else if(!isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 	{// player sequential turns.
 		// Sequential turns.  Activate the first player we find from the start, human or AI, who wants a sequential turn.
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
 			if(GET_PLAYER((PlayerTypes)iI).isAlive() 
 				&& !GET_PLAYER((PlayerTypes)iI).isSimultaneousTurns()) //we don't want to be a person who's doing a simultaneous turn for dynamic turn mode.
@@ -8340,11 +8340,9 @@ void CvGame::doTurn()
 
 	LogGameState();
 
-	//autosave after doing a turn
-	if (isNetworkMultiPlayer())
-		gDLL->AutoSave(false, true);
-
-	gDLL->PublishNewGameTurn(getGameTurn());
+	//autosave when starting the turn
+	if (!isNetworkMultiPlayer())
+		gDLL->AutoSave(false, false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8469,7 +8467,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, GC.getGame().getGameTurn())) * 100;
+			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop)) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -10112,7 +10110,7 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isConquest())
 			continue;
 
-		int iScore = getSmallFakeRandNum(10, GC.getGame().GetGameCulture()->GetNumGreatWorks()+ iVictoryLoop) * 10;
+		int iScore = getSmallFakeRandNum(100, GC.getGame().GetGameCulture()->GetNumGreatWorks()+ iVictoryLoop);
 		
 		if (pkVictoryInfo->isDiploVote())
 		{
@@ -10338,7 +10336,7 @@ unsigned long hash32(unsigned long a)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + m_iGlobalAssetCounter;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*3;
 	
 	int iResult = 0;
 	if (iNum > 0)
@@ -10346,7 +10344,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsXor.csv", FILogFile::kDontTimeStamp);
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls1.csv", FILogFile::kDontTimeStamp);
 	//if (pLog)
 	//{
 	//	char szOut[1024] = { 0 };
@@ -10359,7 +10357,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getGameTurn() + m_iGlobalAssetCounter + abs(iExtraSeed);
+	unsigned long iState = getGameTurn() + abs(iExtraSeed);
 
 	int iResult = 0;
 	if (iNum > 0)
@@ -10367,7 +10365,7 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsHash.csv", FILogFile::kDontTimeStamp);
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
 	//if (pLog)
 	//{
 	//	char szOut[1024] = { 0 };
@@ -10674,11 +10672,20 @@ void CvGame::updateGlobalAverage()
 	std::vector<float> vfDefenseYield;
 	std::vector<float> vfGoldYield;
 
+	std::vector<int> viTechMedian;
+
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 		{
+			if (GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+			{
+				int iTechProgress = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+
+				viTechMedian.push_back(iTechProgress);
+			}
+
 			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 			{
 				if(pLoopCity != NULL)
@@ -10698,7 +10705,7 @@ void CvGame::updateGlobalAverage()
 					vfScienceYield.push_back((float)iScienceAvg);
 					
 					//Disorder
-					iDefenseYield = pLoopCity->getStrengthValue(false);
+					iDefenseYield = (pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true)) / 2;
 					float iDefenseAvg = iDefenseYield / (float)iPopulation;
 					vfDefenseYield.push_back((float)iDefenseAvg);
 
@@ -10711,19 +10718,22 @@ void CvGame::updateGlobalAverage()
 		}
 	}
 	//Cannot define median if calculations are at zero.
-	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty())
+	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty() || viTechMedian.empty())
 	{	
 		return;
 	}
 	
 	//Select n-th percentile of each category
 	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
+	
+	size_t nt = (viTechMedian.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
 
 	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
+	std::nth_element(viTechMedian.begin(), viTechMedian.begin() + nt, viTechMedian.end());
 	
 	//And set it.
 	SetCultureAverage((int)vfCultureYield[n]);
@@ -10731,6 +10741,9 @@ void CvGame::updateGlobalAverage()
 	SetDefenseAverage((int)vfDefenseYield[n]);
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
+
+	if ((int)viTechMedian[nt] > m_iGlobalTechAvg)
+		m_iGlobalTechAvg = (int)viTechMedian[nt];
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)
@@ -10786,7 +10799,11 @@ int CvGame::GetGoldAverage() const
 int CvGame::GetGlobalPopulation() const
 {
 	return m_iGlobalPopulation;
-}	
+}
+int CvGame::GetGlobalTechAvg() const
+{
+	return m_iGlobalTechAvg;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvGame::SetHighestPotential()
@@ -10974,7 +10991,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream >> m_iGlobalAssetCounter;
+	kStream >> m_iGlobalAssetCounterAllPreviousTurns;
+	kStream >> m_iGlobalAssetCounterCurrentTurn;
 #endif
 	kStream >> m_iUnused1;
 	kStream >> m_iUnused2;
@@ -11040,6 +11058,7 @@ void CvGame::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(55, kStream, m_iScienceAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iGlobalTechAvg, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iLastTurnCSSurrendered, 0);
 
@@ -11245,7 +11264,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream << m_iGlobalAssetCounter;
+	kStream << m_iGlobalAssetCounterAllPreviousTurns;
+	kStream << m_iGlobalAssetCounterCurrentTurn;
 #endif
 	kStream << m_iUnused1;
 	kStream << m_iUnused2;
@@ -11302,6 +11322,7 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iScienceAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iGlobalTechAvg);
 	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
 	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
 	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
@@ -13370,7 +13391,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
 
 		// Hidden site?
-		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < GC.getPERCENT_SITES_HIDDEN();
+		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(100, *pPlot)  < GC.getPERCENT_SITES_HIDDEN();
 		if (bHiddenSite)
 		{
 			pPlot->setResourceType(eHiddenArtifactResourceType, 1);
@@ -13407,8 +13428,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
 
 			// Erase that writing from future consideration
-			vector<GreatWorkType>::const_iterator it;
-			it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
+			vector<GreatWorkType>::const_iterator it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
 			aWorksWriting.erase(it);
 
 			// One less writing to give out
@@ -13463,7 +13483,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 		return NO_COMBAT_PREDICTION;
 	}
 
-	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, false);
+	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false);
 
 	//iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
 	int iAttackingDamageInflicted = pAttackingUnit->getCombatDamage(iAttackingStrength, iDefenderStrength, pAttackingUnit->getDamage(), false, false, false);

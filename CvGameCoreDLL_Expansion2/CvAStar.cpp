@@ -864,49 +864,50 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
-	kToNodeCacheData.bContainsEnemyCity = false;
+	kToNodeCacheData.bIsEnemyCity = false;
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
 		CvCity* pCity = pPlot->getPlotCity();
 		if (pCity  && pUnit->getOwner() != pCity->getOwner())
 		{
 			if (kUnitTeam.isAtWar(pCity->getTeam()))
-				kToNodeCacheData.bContainsEnemyCity = true;
+				kToNodeCacheData.bIsEnemyCity = true;
 			else
 				kToNodeCacheData.bContainsOtherFriendlyTeamCity = true;
 		}
 	}
+
+	kToNodeCacheData.bIsVisibleEnemyUnit = false;
+	kToNodeCacheData.bIsVisibleEnemyCombatUnit = false;
+	kToNodeCacheData.bIsVisibleNeutralCombatUnit = false;
 
 	bool bPlotOccupancyOverride = false;
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
 		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
 		{
-			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
-			bPlotOccupancyOverride = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+			const PlotIndexContainer& ignorePlots = finder->GetData().plotsToIgnoreForZOC;
+			bPlotOccupancyOverride = ( std::find(ignorePlots.begin(),ignorePlots.end(),pPlot->GetPlotIndex()) != ignorePlots.end());
 		}
 
 		if (!bPlotOccupancyOverride)
 		{
-			kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
-			kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
+			kToNodeCacheData.bIsVisibleEnemyUnit = pPlot->isVisibleEnemyUnit(pUnit);
+			kToNodeCacheData.bIsVisibleEnemyCombatUnit = pPlot->isVisibleEnemyDefender(pUnit);
 		}
-	}
-	else
-	{
-		kToNodeCacheData.bContainsVisibleEnemy = false;
-		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
+
+		kToNodeCacheData.bIsVisibleNeutralCombatUnit = pPlot->isNeutralUnit(pUnit->getOwner(), true, false);
 	}
 
 	//ignore this unit when counting!
 	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
 	//for civilians we don't actually need to subtract one here, but it doesn't hurt
 	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
-	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
+	kToNodeCacheData.bUnitStackingLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 
 	//small hack to prevent civilians from stacking although they could
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL) && pPlot->isNeutralUnit(pUnit->getOwner(),true,true))
-		kToNodeCacheData.bFriendlyUnitLimitReached = true;
+		kToNodeCacheData.bUnitStackingLimitReached = true;
 
 	//do not use DestinationReached() here, approximate destination won't do
 	bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
@@ -923,13 +924,13 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 			if (pUnit->isRanged())
 			{
 				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
+				if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 			else
 			{
 				//melee units attack enemy cities and units 
-				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity || bPlotOccupancyOverride)
+				if (kToNodeCacheData.bIsVisibleEnemyUnit || kToNodeCacheData.bIsEnemyCity || bPlotOccupancyOverride)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 		}
@@ -1223,7 +1224,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 	bool bIsPathDest = finder->IsPathDest(iToPlotX, iToPlotY);
 	bool bCheckZOC =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ZOC);
-	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
+	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || kToNodeCacheData.bIsVisibleNeutralCombatUnit; //always check stacking for neutral units
 
 	const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pUnitDataCache->pUnit;
@@ -1247,7 +1248,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//calculate move cost
 	int iMovementCost = 0;
-	if(node->m_kCostCacheData.bContainsVisibleEnemyDefender || node->m_kCostCacheData.bContainsEnemyCity)
+	if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
 	else
@@ -1286,7 +1287,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam && !kToNodeCacheData.bCanEnterTerrainPermanent)
 			return -1; //forbidden
 		// check stacking (if visible)
-		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached && iTurns==0)
+		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bUnitStackingLimitReached && iTurns==0)
 			return -1; //forbidden
 		// can't stay in other players' cities
 		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
@@ -1322,7 +1323,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
 	{
 		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
-		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && pUnitDataCache->isAIControl())
+		if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && pUnitDataCache->isAIControl())
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false, false)))));
 
@@ -1356,14 +1357,14 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
-	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
+	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || kFromNodeCacheData.bIsVisibleNeutralCombatUnit; //always check stacking for neutral units
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman() && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		return FALSE;
 #endif
 
-	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
+	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || kToNodeCacheData.bIsVisibleEnemyCombatUnit;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
 	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the _parent_ plot
@@ -1387,7 +1388,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			}
 
 			// check stacking (if visible)
-			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
+			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bUnitStackingLimitReached)
 				return FALSE;
 		}
 	}
@@ -1418,7 +1419,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
 
 		//don't allow moves through enemy cities (but allow them as attack targets for melee)
-		if (kToNodeCacheData.bContainsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
+		if (kToNodeCacheData.bIsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
 			return FALSE;
 
 		if(pCacheData->CanEverEmbark())
@@ -1849,7 +1850,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 //	--------------------------------------------------------------------------------
 // Route - Return the x, y plot of the node that we want to access
-int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
+int CityConnectionGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
 {
 	iX = -1;
 	iY = -1;
@@ -1894,7 +1895,7 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 
 //	---------------------------------------------------------------------------
 /// Route path finder - check validity of a coordinate
-int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL || data.ePlayer==NO_PLAYER)
 		return TRUE;
@@ -1919,53 +1920,25 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFi
 				ePlotRoute = ROUTE_ROAD;
 	}
 
-	if(!pNewPlot->IsFriendlyTerritory(ePlayer))
-	{
-		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
-		if(ePlotOwnerPlayer != NO_PLAYER)
-		{
-			PlayerTypes eMajorPlayer = NO_PLAYER;
-			PlayerTypes eMinorPlayer = NO_PLAYER;
-			CvPlayer& kPlotOwner = GET_PLAYER(ePlotOwnerPlayer);
-			if(kPlayer.isMinorCiv() && !kPlotOwner.isMinorCiv())
-			{
-				eMajorPlayer = ePlotOwnerPlayer;
-				eMinorPlayer = ePlayer;
-			}
-			else if(kPlotOwner.isMinorCiv() && !kPlayer.isMinorCiv())
-			{
-				eMajorPlayer = ePlayer;
-				eMinorPlayer = ePlotOwnerPlayer;
-			}
-			else
-			{
-				return FALSE;
-			}
-
-			if(!GET_PLAYER(eMinorPlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMajorPlayer, MINOR_CIV_QUEST_ROUTE))
-			{
-				return FALSE;
-			}
-		}
-	}
-
 	if(ePlotRoute == NO_ROUTE)
 	{
 		return FALSE;
 	}
-
-	//which route types are allowed?
-	if ( eRoute == ROUTE_ANY )
+	else if ( eRoute == ROUTE_ANY || ePlotRoute >= eRoute ) //a railroad is also a road!
 	{
-		return TRUE;
-	}
-	else
-	{
-		//a railroad is also a road!
-		if(ePlotRoute >= eRoute)
+		//finally check plot ownership
+		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
+		if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
 		{
-			return TRUE;
+			if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+				//major player without open borders is not ok
+				return pNewPlot->IsFriendlyTerritory(ePlayer);
+			else
+				//minor player is ok as long as no war
+				return kPlayer.IsAtPeaceWith(ePlotOwnerPlayer);
 		}
+
+		return TRUE;
 	}
 
 	return FALSE;
@@ -1974,7 +1947,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFi
 //	---------------------------------------------------------------------------
 // Route - find the number of additional children. 
 // In this case, count the (pre-computed!) harbor connections from the city.
-int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
+int CityConnectionGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 {
 	PlayerTypes ePlayer = finder->GetData().ePlayer;
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -2003,7 +1976,7 @@ int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 
 //	--------------------------------------------------------------------------------
 /// Water route valid finder - check the validity of a coordinate
-int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL)
 		return TRUE;
@@ -2016,17 +1989,28 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
-	if(pNewPlot->getOwner()!=NO_PLAYER && !pNewPlot->IsFriendlyTerritory(ePlayer))
+	if (!pNewPlot->isWater() && !pNewPlot->isCityOrPassableImprovement(ePlayer,true))
 		return FALSE;
 
-	CvCity* pCity = pNewPlot->getPlotCity();
-	if(pCity && pCity->getTeam() == eTeam)
-		return TRUE;
+	//finally check plot ownership
+	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
+	if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
+	{
+		if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+		{
+			//major player without open borders is not ok
+			if (!pNewPlot->IsFriendlyTerritory(ePlayer))
+				return FALSE;
+		}
+		else
+		{
+			//minor player is ok as long as no war
+			if (GET_PLAYER(ePlayer).IsAtWarWith(ePlotOwnerPlayer))
+				return FALSE;
+		}
+	}
 
-	if(pNewPlot->isWater())
-		return TRUE;
-
-	return FALSE;
+	return TRUE;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2240,11 +2224,11 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 		return false;
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && !temp->m_kCostCacheData.bCanEnterTerrainPermanent)
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && temp->m_kCostCacheData.bFriendlyUnitLimitReached)
-		return false;
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
+		return (temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit; //never ignore stacking for neutral units
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && (temp->m_kCostCacheData.bContainsEnemyCity || temp->m_kCostCacheData.bContainsVisibleEnemyDefender))
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && (temp->m_kCostCacheData.bIsEnemyCity || temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit))
 		return false;
 
 	return true;
@@ -2270,17 +2254,30 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	//there are two conditions where we might want to end the turn before proceeding
 	// - next nodes is temporarily blocked because of stacking
 	// - one or more tiles which cannot be entered permanently are ahead
+	// - we would suffer attrition
 
 	bool bBlockAhead = 
+		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && //obvious
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
 		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
-		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) &&
-		next->m_kCostCacheData.bFriendlyUnitLimitReached;
+		!next->m_kCostCacheData.bIsVisibleNeutralCombatUnit && //don't let ourselves be blocked by other players' units
+		next->m_kCostCacheData.bUnitStackingLimitReached; //finally
 
 	bool bTempPlotAhead =
 		!next->m_kCostCacheData.bCanEnterTerrainPermanent;
 
-	if (bBlockAhead || bTempPlotAhead)
+	bool bAttrition = false;
+	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+	{
+		CvPlot* pCurrentPlot = GC.getMap().plotUnchecked(current->m_iX, current->m_iY);
+		CvPlot* pNextPlot = GC.getMap().plotUnchecked(next->m_iX, next->m_iY);
+		bool bAttritionCurrent = (pCurrentPlot->isOwned() && !pCurrentPlot->IsFriendlyTerritory(pUnitDataCache->m_ePlayerID));
+		bool bAttritionNext = (pNextPlot->isOwned() && !pNextPlot->IsFriendlyTerritory(pUnitDataCache->m_ePlayerID));
+
+		bAttrition = (!bAttritionCurrent && bAttritionNext);
+	}
+
+	if (bBlockAhead || bTempPlotAhead || bAttrition)
 	{
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
 		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
@@ -2409,15 +2406,15 @@ bool CvStepFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_WATER:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionWaterValid, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_MIXED:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RouteValid, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, CityConnectionGetNumExtraChildren, CityConnectionGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AIR_REBASE:

@@ -141,6 +141,10 @@ public:
 #if defined(MOD_BALANCE_CORE_JFD)
 	int GetPlagueChance() const;
 	bool IsPlague() const;
+	int GetPlaguePromotion() const;
+	int GetPlagueID() const;
+	int GetPlaguePriority() const;
+	int GetPlagueIDImmunity() const;
 #endif
 	int GetEmbarkExtraVisibility() const;
 	int GetEmbarkDefenseModifier() const;
@@ -152,6 +156,7 @@ public:
 	int GetTradeMissionInfluenceModifier() const;
 	int GetTradeMissionGoldModifier() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetCaptureDefeatedEnemyChance() const;
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
 	bool IsGainsXPFromScouting() const;
@@ -257,9 +262,7 @@ public:
 	int GetNearbyFriendlyCityCombatMod() const;
 	int GetNearbyEnemyCityCombatMod() const;
 	bool IsNearbyPromotion() const;
-	bool IsFriendlyLands() const;
 	int GetNearbyRange() const;
-	UnitTypes getRequiredUnit() const;
 	bool IsConvertEnemyUnitToBarbarian() const;
 	bool IsConvertOnFullHP() const;
 	bool IsConvertOnDamage() const;
@@ -280,10 +283,14 @@ public:
 	int GetGiveHPIfEnemyKilled() const;
 	int GetGiveExperiencePercent() const;
 	int GetGiveOutsideFriendlyLandsModifier() const;
-	DomainTypes GetGiveDomain() const;
+	int GetGiveDomain() const;
 	int GetGiveExtraAttacks() const;
 	int GetGiveDefenseMod() const;
 	bool IsGiveInvisibility() const;
+	int GetNearbyHealEnemyTerritory() const;
+	int GetNearbyHealNeutralTerritory() const;
+	int GetNearbyHealFriendlyTerritory() const;
+	int GetAdjacentEnemySapMovement() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -440,6 +447,10 @@ protected:
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueChance;
 	bool m_bIsPlague;
+	int m_iPlaguePromotion;
+	int m_iPlagueID;
+	int m_iPlaguePriority;
+	int m_iPlagueIDImmunity;
 #endif
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefenseModifier;
@@ -451,6 +462,7 @@ protected:
 	int m_iTradeMissionGoldModifier;
 
 #if defined(MOD_BALANCE_CORE)
+	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbarianCombatBonus;
 	int m_iGoodyHutYieldBonus;
 	bool m_bGainsXPFromScouting;
@@ -559,7 +571,6 @@ protected:
 	int m_iNearbyFriendlyCityCombatMod;
 	int m_iNearbyEnemyCityCombatMod;
 	bool m_bIsNearbyPromotion;
-	bool m_bIsFriendlyLands;
 	int m_iNearbyRange;
 	UnitTypes m_eRequiredUnit;
 	int m_iConvertDomainUnit;
@@ -582,10 +593,14 @@ protected:
 	int m_iGiveHPHealedIfEnemyKilled;
 	int m_iGiveExperiencePercent;
 	int m_iGiveOutsideFriendlyLandsModifier;
-	DomainTypes m_eGiveDomain;
+	int m_iGiveDomain;
 	int m_iGiveExtraAttacks;
 	int m_iGiveDefenseMod;
 	bool m_bGiveInvisibility;
+	int m_iNearbyHealEnemyTerritory;
+	int m_iNearbyHealNeutralTerritory;
+	int m_iNearbyHealFriendlyTerritory;
+	int m_iAdjacentEnemySapMovement;
 #endif
 	bool m_bCanHeavyCharge;
 

@@ -31,7 +31,7 @@ const int iSpyTurnsToRevive = 5;
 #endif
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
-const int iRandomRollSpyAction = 30;
+const int iRandomRollSpyAction = 300;
 const int iChancetoIdentifyCounterSpy = 275;
 const int iChancetoDetectCounterSpy = 175;
 const int iChancetoIdentifyNoCounterSpy = 275;
@@ -429,7 +429,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		}
 		else
 		{
-			pSpy->ChangeAdvancedActionsCooldown(-1 * GC.getGame().getSmallFakeRandNum(GC.getBALANCE_SPY_SABOTAGE_RATE(), m_pPlayer->GetEconomicMight()));
+			pSpy->ChangeAdvancedActionsCooldown(-1 * GC.getGame().getSmallFakeRandNum(GC.getBALANCE_SPY_SABOTAGE_RATE(), m_pPlayer->getGlobalAverage(YIELD_CULTURE)));
 		}
 	}
 #endif
@@ -794,7 +794,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			if(pCityEspionage->HasCounterSpy())
 			{
 				//Higher better for defense; lower better for offense.
-				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot()) * 10;
+				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -843,7 +843,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
-				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot()) * 10;
+				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
 				if (iSpyResult < iChancetoDetectNoCounterSpy /* 150 */ )
@@ -1222,7 +1222,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				int iSpyResult;
 				if (pCityEspionage->HasCounterSpy())
 				{
-					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot()) * 10;
+					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -1255,7 +1255,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				else
 				{
-					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot()) * 10;
+					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
 					if (iSpyResult < iChancetoDetectNoCounterSpy)
@@ -1634,41 +1634,49 @@ bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdva
 			{
 				if (pCity->GetBlockBuildingDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_WW:
 			{
 				if (pCity->GetBlockWWDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_UNIT:
 			{
 				if (pCity->GetBlockUDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_GP:
 			{
 				if (pCity->GetBlockGPDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_GOLD_THEFT:
 			{
 				if (pCity->GetBlockGold() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_SCIENCE_THEFT:
 			{
 				if (pCity->GetBlockScience() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_UNREST:
 			{
 				if (pCity->GetBlockUnrest() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_REBELLION:
 			{
 				if (pCity->GetBlockRebellion() > 0)
 					return false;
+				break;
 			}
 		}
 	}
@@ -1843,7 +1851,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 		//Do we have at least something good in here?
 		if(aiAdvancedAction.size() > 1)
 		{
-			int iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot()) * 10;
+			int iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 			if (iSpyResult <= 50)
 				return;
 			iSpyResult += (pCity->GetEspionageModifier() + GET_PLAYER(eCityOwner).GetEspionageModifier() * -1);
@@ -2305,7 +2313,7 @@ void CvPlayerEspionage::DoAdvancedActionLevelUp(CvAdvancedAction eAdvancedAction
 		}
 	}
 
-	int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+	int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 	int iValueNeeded = 101;
 	switch (eAdvancedAction)
 	{
@@ -3253,7 +3261,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 				if(iNewResult >= 80)
 				{
 					LevelUpSpy(uiSpyIndex);
@@ -3268,7 +3276,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 				if(iNewResult >= 80)
 				{
 					LevelUpSpy(uiSpyIndex);
@@ -3283,7 +3291,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 				if(iNewResult >= 80)
 				{
 					LevelUpSpy(uiSpyIndex);
@@ -3312,7 +3320,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 				if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 				{
-					int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+					int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 					if(iNewResult >= 85)
 					{
 						LevelUpSpy(uiSpyIndex);
@@ -3325,7 +3333,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 				if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 				{
-					int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+					int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 					if(iNewResult >= 85)
 					{
 						LevelUpSpy(uiSpyIndex);
@@ -3381,7 +3389,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+						int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 						if(iNewResult >= 90)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -3395,7 +3403,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+						int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 						if(iNewResult >= 90)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -3434,7 +3442,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			int iNewResult = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+			int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 			if(iNewResult >= 90)
 			{
 				LevelUpSpy(uiSpyIndex);
@@ -3716,8 +3724,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 
 	// Try to locate a spy name not in use by a civ not in the game
 	int iMaxCivs = GC.getNumCivilizationInfos();
-	int iCivOffset = GC.getGame().getSmallFakeRandNum(iMaxCivs, m_pPlayer->GetEconomicMight());
-
+	int iCivOffset = GC.getGame().getSmallFakeRandNum(iMaxCivs, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 	for (int i = 0; i < GC.getNumCivilizationInfos(); i++) {
 		const CivilizationTypes eCiv = static_cast<CivilizationTypes>((i + iCivOffset) % iMaxCivs);
 		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
@@ -3734,7 +3741,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 	}
 
 	// Try to locate a spy name not in use by a civ in the game
-	int iPlayerOffset = GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, m_pPlayer->GetEconomicMight());
+	int iPlayerOffset = GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
@@ -4872,116 +4879,39 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	{
 		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
 		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].m_eRank;
-		bNoAllySpy = true;
+		bNoAllySpy = false;
 	}
 
-	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(eAllyPlayer);
-	int iMyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(m_pPlayer->GetID());
-	int iDeltaInfluence = iAllyInfluence - iMyInfluence;
-#if defined(MOD_BALANCE_CORE)
-	if(iDeltaInfluence >  50000)
-	{
-		iDeltaInfluence = 50000;
-	}
-#endif
-	//float fNobodyBonus = 0.5;
-	//float fMultiplyConstant = 3.0f;
-	//float fSpyLevelDeltaZero = 0.0f;
-	//float fSpyLevelDeltaOne = 1.5f;
-	//float fSpyLevelDeltaTwo = 2.25;
-	//float fSpyLevelDeltaThree = 3.0f;
+	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
+	int iMyInfluence = max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
 
-	float fNobodyBonus = GC.getESPIONAGE_COUP_NOBODY_BONUS();
-	float fMultiplyConstant = GC.getESPIONAGE_COUP_MULTIPLY_CONSTANT();
-	float fSpyLevelDeltaZero = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ZERO();
-	float fSpyLevelDeltaOne = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ONE();
-	float fSpyLevelDeltaTwo = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_TWO();
-	float fSpyLevelDeltaThree = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_THREE();
-	float fSpyLevelDeltaFour = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_FOUR();
+	int iMaxChance = 100;
 
-	float fAllySpyValue = 0.0f;
-	float fMySpyValue = 0.0;
+	iMaxChance -= iAllyInfluence / 10;
+	
+	iMaxChance += iMyInfluence / 10;
+
+	if (iMaxChance <= 5)
+		iMaxChance = 5;
+	else if (iMaxChance >= 30)
+		iMaxChance = 30;
 
 	int iMySpyRank = m_aSpyList[uiSpyIndex].m_eRank;
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
-	switch (iMySpyRank)
-	{
-	case 0:
-		fMySpyValue = fSpyLevelDeltaZero;
-		break;
-	case 1:
-		fMySpyValue = fSpyLevelDeltaOne;
-		break;
-	case 2:
-		fMySpyValue = fSpyLevelDeltaTwo;
-		break;
-	case 3:
-		fMySpyValue = fSpyLevelDeltaThree;
-		break;
-	case 4:
-		fMySpyValue = fSpyLevelDeltaFour;
-		break;
-	}
+	iMySpyRank -= iAllySpyRank;
+	
+	iMaxChance += (iMySpyRank * (int)GC.getESPIONAGE_COUP_MULTIPLY_CONSTANT());
 
-	switch (iAllySpyRank)
-	{
-	case 0:
-		fAllySpyValue = fSpyLevelDeltaZero;
-		break;
-	case 1:
-		fAllySpyValue = fSpyLevelDeltaOne;
-		break;
-	case 2:
-		fAllySpyValue = fSpyLevelDeltaTwo;
-		break;
-	}	
+	iMaxChance *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
+	iMaxChance /= 100;
 
-	float fSpyMultipier = fAllySpyValue - fMySpyValue + fMultiplyConstant;
-	if (bNoAllySpy)
-	{
-		fSpyMultipier *= fNobodyBonus;
-	}
-
-	int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultipier) / 100);
-
-
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		iResultPercentage *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
-		iResultPercentage /= 100;
-	}
-#endif
-
-	if(iResultPercentage > 70)
-	{
-		iResultPercentage = 70;
-	}
-#if defined(MOD_BALANCE_CORE)
-	else if(iResultPercentage < 5)
-	{
-		iResultPercentage = 5;
-	}
 	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
 		int iTurnBonus = (m_aSpyList[uiSpyIndex].GetSpyActiveTurn() - GC.getGame().getGameTurn()) / 5;
-		iResultPercentage += iTurnBonus;
+		iMaxChance += iTurnBonus;
 	}
-#else
-	else if(iResultPercentage < 0)
-	{
-		iResultPercentage = 0;
-	}
-#endif
-	//int iAdjustedAllyInfluenceTimes100 = iAllyInfluence * (100 + m_aSpyList[uiSpyIndex].m_eRank * 100);
-	//int iAdjustedAllyInfluence = iAdjustedAllyInfluenceTimes100 / 100;
-	//int iResultPercentage = 0;
-	//if (iAdjustedAllyInfluence != 0)
-	//{
-	//	iResultPercentage = 100 - ((iDeltaInfluence * 100) / iAdjustedAllyInfluence);
-	//}
 
-	return iResultPercentage;
+	return iMaxChance;
 }
 
 /// AttemptCoup - Have a spy try to overthrow a city state. If success, the spy's owner becomes the ally. If failure, the spy dies.
@@ -5036,7 +4966,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	}
 
 	bool bAttemptSuccess = false;
-	int iRandRoll = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+	int iRandRoll = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
 	{
 		// swap influence from ally to 2nd place ally
@@ -9113,7 +9043,7 @@ void CvEspionageAI::StealGreatWork()
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0, "pEspionage->m_aPlayerStealableGWList[uiPlayer] list is empty. Not good");
 			
-			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->GetEconomicMight() + uiDefendingPlayer);
+			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->getGlobalAverage(YIELD_CULTURE) + uiDefendingPlayer);
 			int iCityLoop;
 			CvCity* pPlayerCity = NULL;
 			int iGreatWorkIndex;
@@ -9353,7 +9283,7 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + uiSpy) * 10;
+		int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->getGlobalAverage(YIELD_CULTURE) + uiSpy);
 		if (iRoll < iChanceOfSuccess)
 		{
 			pEspionage->AttemptCoup(uiSpy);
@@ -9916,6 +9846,21 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					}
 				}
 			}
+
+			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
+			if (eReligion != NO_RELIGION)
+			{
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
+
+				CvCity* pHolyCity = NULL;
+				CvPlot* pPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+				if (pPlot != NULL)
+					pHolyCity = pPlot->getPlotCity();
+
+				iDiploModifier += pMyReligion->m_Beliefs.GetHappinessFromForeignSpies(m_pPlayer->GetID(), pHolyCity, true) * 25;
+			}
+
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 

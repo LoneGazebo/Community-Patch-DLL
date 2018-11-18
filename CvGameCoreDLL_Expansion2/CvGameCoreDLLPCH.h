@@ -26,8 +26,8 @@
 #pragma warning(disable:4091) //typedef ignored
 #pragma warning(disable:4180) //qualifier applied to function type has no meaning
 
-// Take off iterator security checks in release mode
-#if (defined(_MSC_VER) && (_MSC_VER >= 1300) && !defined(_DEBUG))
+// Take off iterator security checks
+#if (defined(_MSC_VER) && (_MSC_VER >= 1300))
 #  if !defined(_SECURE_SCL)
 #    define _SECURE_SCL 0
 #  endif

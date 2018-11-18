@@ -517,14 +517,13 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 	cell.SetWater(pPlot->isWater());
 	cell.SetOcean(pPlot->isWater() && !pPlot->isShallowWater());
 
-	bool bImpassableTerritory = false;
 	if(pPlot->isOwned())
 	{
 		TeamTypes ePlotTeam = pPlot->getTeam();
 
 		if(ourTeam != ePlotTeam && !GET_TEAM(ourTeam).isAtWar(ePlotTeam) && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(ourTeam))
 		{
-			bImpassableTerritory = true;
+			cell.SetImpassableTerritory(true);
 		}
 		else if(pPlot->isCity())
 		{
@@ -545,6 +544,8 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 		if(m_ePlayer == pPlot->getOwner())
 		{
 			cell.SetOwnTerritory(true);
+			if (!pPlot->IsAdjacentOwnedByOtherTeam(ourTeam))
+				cell.SetInteriorPlot(true);
 		}
 		else if(GET_TEAM(ourTeam).isFriendlyTerritory(ePlotTeam))
 		{
@@ -555,12 +556,6 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 			cell.SetEnemyTerritory(true);
 		}
 	}
-	else
-	{
-		cell.SetUnclaimedTerritory(true);
-	}
-
-	cell.SetImpassableTerritory(bImpassableTerritory);
 
 	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER,m_ePlayer);
 	if (pDefender)

@@ -32,4 +32,6 @@ UPDATE Yields
 SET MinCityMountainNoFreshWater = 1
 WHERE Type = 'YIELD_PRODUCTION';
 
+--MinCityHillNoFreshWater = 1, MinCityHillFreshWater = 1
+
 

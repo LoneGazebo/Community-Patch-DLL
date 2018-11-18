@@ -329,6 +329,10 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 /// Is it actually possible for a player to offer up this trade item?
 bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1, bool bCheckOtherPlayerValidity, bool bFinalizing)
 {
+	//failsafe
+	if (ePlayer == NO_PLAYER || eToPlayer == NO_PLAYER)
+		return false;
+
 	// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
 	CvPlayer* pFromPlayer = &GET_PLAYER(ePlayer);
 	CvPlayer* pToPlayer = &GET_PLAYER(eToPlayer);
@@ -445,13 +449,29 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//	return false;
 	}
 	// Map
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	else if(!MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_MAPS)
-#else
 	else if(eItem == TRADE_ITEM_MAPS)
-#endif
 	{
-		return false;
+		if(!MOD_DIPLOMACY_CIV4_FEATURES)
+			return false;
+
+		// Does not have tech for Embassy trading
+		if (!pToTeam->isMapTrading())
+			return false;
+
+		CvPlot* pPlot;
+		// Look at every tile on map
+		bool unrevealed = false;
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			pPlot = GC.getMap().plotByIndexUnchecked(iI);
+			if (pPlot && !pPlot->isRevealed(GET_PLAYER(eToPlayer).getTeam()))
+			{
+				unrevealed = true; 
+				break;
+			}
+		}
+		if (!unrevealed)
+			return false;
 	}
 	// Resource
 	else if(eItem == TRADE_ITEM_RESOURCES)
@@ -897,6 +917,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 				return false;
+
+			//vassals get out!
+			if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
+				return false;
 		
 			//Can't already be offering this.
 			if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
@@ -1063,21 +1087,31 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
-		//Can't already be offering this
-		if (!bFinalizing && IsThirdPartyWarTrade( ePlayer, eThirdTeam))
-			return false;
-
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
-			return false;
-
-		//Need embassy.
-		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 			return false;
 
 		//Not allowed in peace deals.
 		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
 			return false;
+
+		//vassals get out!
+		if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
+			return false;
+
+		//If not at war, need embassy.
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		{
+			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
+				return false;
+
+			//Can't already be offering this.
+			if (!bFinalizing && IsThirdPartyWarTrade(ePlayer, eThirdTeam))
+				return false;
+		}
 
 		// Can't ask teammates
 		if(eToTeam == eFromTeam)
@@ -3301,13 +3335,13 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 #endif
 		}
 		// Third Party War
-		else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
+		else if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 		{
 			TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
+			GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
 #else
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
+			GET_TEAM(eFromTeam).declareWar(eTargetTeam);
 #endif
 
 			int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
@@ -3419,166 +3453,27 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		// **** Peace Treaty **** this should always be the last item processed!!!
 		else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).makePeace(eToTeam);
-#endif
-			GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE)
 			{
-				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
+				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 				{
-					int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-					if(iTurns > 0)
-					{
-						if(iTurns < GC.getGame().goldenAgeLength())
-						{
-							iTurns = GC.getGame().goldenAgeLength();
-						}
-						// Player modifier
-						int iLengthModifier = GET_PLAYER(eAcceptedToPlayer).getGoldenAgeModifier();
-
-						// Trait modifier
-						iLengthModifier += GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						// Do we get increased Golden Ages from a resource monopoly?
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						{
-							for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-							{
-								ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-								if(eResourceLoop != NO_RESOURCE)
-								{
-									CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-									if (pInfo && pInfo->isMonopoly())
-									{
-										if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-										{
-											int iTemp = pInfo->getMonopolyGALength();
-											iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
-											iLengthModifier += iTemp;
-										}
-									}
-								}
-							}
-						}
-#endif
-						if(iLengthModifier != 0)
-						{
-							iTurns = iTurns * (100 + iLengthModifier) / 100;
-						}
-						int iValue = GET_PLAYER(eAcceptedToPlayer).GetGoldenAgeProgressMeter();
-						GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns, iValue);
-					}
-
-					int iTourism = GET_PLAYER(eAcceptedToPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-					GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
-					// Culture boost based on previous turns
-					if(iTourism > 0)
-					{
-						GET_PLAYER(eAcceptedToPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-						if(eAcceptedToPlayer == GC.getGame().getActivePlayer())
-						{
-							CvCity* pCity = GET_PLAYER(eAcceptedToPlayer).getCapitalCity();
-							if(pCity != NULL)
-							{
-								char text[256] = {0};
-								float fDelay = 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-								CvNotifications* pNotification = GET_PLAYER(eAcceptedToPlayer).GetNotifications();
-								if(pNotification)
-								{
-									CvString strMessage;
-									CvString strSummary;
-									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
-									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedToPlayer);
-								}
-							}
-						}
-					}
+					GET_PLAYER(eAcceptedToPlayer).DoWarVictoryBonuses();
 					bDone = true;
 				}
-				else if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
+				else if (GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 				{
-					int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-					if(iTurns > 0)
-					{
-						if(iTurns < GC.getGame().goldenAgeLength())
-						{
-							iTurns = GC.getGame().goldenAgeLength();
-						}
-						// Player modifier
-						int iLengthModifier = GET_PLAYER(eAcceptedFromPlayer).getGoldenAgeModifier();
-
-						// Trait modifier
-						iLengthModifier += GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						// Do we get increased Golden Ages from a resource monopoly?
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						{
-							for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-							{
-								ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-								if(eResourceLoop != NO_RESOURCE)
-								{
-									CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-									if (pInfo && pInfo->isMonopoly())
-									{
-										if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-										{
-											int iTemp = pInfo->getMonopolyGALength();
-											iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
-											iLengthModifier += iTemp;
-										}
-									}
-								}
-							}
-						}
-#endif
-						if(iLengthModifier != 0)
-						{
-							iTurns = iTurns * (100 + iLengthModifier) / 100;
-						}
-								
-						int iValue = GET_PLAYER(eAcceptedFromPlayer).GetGoldenAgeProgressMeter();
-						GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns, iValue);
-					}
-
-					int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-					GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
-					if(iTourism > 0)
-					{
-						GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-						if(eAcceptedFromPlayer == GC.getGame().getActivePlayer())
-						{
-							CvCity* pCity = GET_PLAYER(eAcceptedFromPlayer).getCapitalCity();
-							if(pCity != NULL)
-							{
-								char text[256] = {0};
-								float fDelay = 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-								CvNotifications* pNotification = GET_PLAYER(eAcceptedFromPlayer).GetNotifications();
-								if(pNotification)
-								{
-									CvString strMessage;
-									CvString strSummary;
-									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
-									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedFromPlayer);
-								}
-							}
-						}
-					}
+					GET_PLAYER(eAcceptedFromPlayer).DoWarVictoryBonuses();
 					bDone = true;
 				}
 			}
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
+#else
+			GET_TEAM(eFromTeam).makePeace(eToTeam);
+#endif
+			GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 #endif
 		}
 		//////////////////////////////////////////////////////////////////////
@@ -4162,27 +4057,27 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// **** Peace Treaty **** this should always be the last item processed!!!
 				else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).makePeace(eToTeam);
-#endif
-					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 #if defined(MOD_BALANCE_CORE)
 					if(MOD_BALANCE_CORE)
 					{
-						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
+						if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 						{
 							GET_PLAYER(eAcceptedToPlayer).DoWarVictoryBonuses();
 							bDone = true;
 						}
-						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
+						else if (GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 						{
 							GET_PLAYER(eAcceptedFromPlayer).DoWarVictoryBonuses();
 							bDone = true;
 						}
 					}
 #endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
+#else
+					GET_TEAM(eFromTeam).makePeace(eToTeam);
+#endif
+					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 				}
 				//////////////////////////////////////////////////////////////////////
 				// **** DO NOT PUT ANYTHING AFTER THIS LINE ****

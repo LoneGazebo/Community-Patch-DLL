@@ -10,34 +10,32 @@
 #ifndef CIV5_DANGER_PLOTS_H
 #define CIV5_DANGER_PLOTS_H
 
-#include "CvDiplomacyAIEnums.h"
+#include <vector>
+#include <set>
+#include "CvEnums.h"
 
-#include "CvDLLUtilDefines.h"
 // Stores all possible damage sources on a tile (terrain, improvements, cities, units)
-
 typedef std::vector<std::pair<PlayerTypes,int>> DangerUnitVector;
 typedef std::vector<std::pair<PlayerTypes,int>> DangerCityVector;
 typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
 struct SUnitInfo
 {
-	SUnitInfo(const CvUnit* pUnit=NULL, const set<int>& enemyUnitsToIgnore=set<int>()) : m_enemyUnitsToIgnore(enemyUnitsToIgnore)
+	SUnitInfo(const CvUnit* pUnit=NULL, const UnitIdContainer& enemyUnitsToIgnore=UnitIdContainer()) : m_enemyUnitsToIgnore(enemyUnitsToIgnore)
 	{
 		m_iUnitID = pUnit ? pUnit->GetID() : 0;
-		m_x = pUnit ? pUnit->plot()->getX() : 0;
-		m_y = pUnit ? pUnit->plot()->getY() : 0;
+		m_iPlotIndex = pUnit ? pUnit->plot()->GetPlotIndex() : -1;
 		m_damage = pUnit ? pUnit->getDamage() : 0;
 	}
 	const bool operator==(const SUnitInfo& rhs) const
 	{
-		return (m_iUnitID==rhs.m_iUnitID && m_x==rhs.m_x && m_y==rhs.m_y && m_damage==rhs.m_damage && m_enemyUnitsToIgnore==rhs.m_enemyUnitsToIgnore);
+		return (m_iUnitID==rhs.m_iUnitID && m_iPlotIndex==rhs.m_iPlotIndex && m_damage==rhs.m_damage && m_enemyUnitsToIgnore==rhs.m_enemyUnitsToIgnore);
 	}
 
 	int m_iUnitID;
-	int m_x;
-	int m_y;
+	int m_iPlotIndex;
 	int m_damage;
-	set<int> m_enemyUnitsToIgnore;
+	UnitIdContainer m_enemyUnitsToIgnore;
 };
 
 struct CvDangerPlotContents
@@ -77,7 +75,7 @@ struct CvDangerPlotContents
 		m_lastResults.clear();
 	}
 
-	int GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction);
+	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 	bool isEnemyCombatUnitAdjacent(PlayerTypes ePlayer, bool bSameDomain) const;
@@ -145,7 +143,7 @@ public:
 	void Reset();
 
 	void UpdateDanger(bool bKeepKnownUnits=true);
-	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
 	bool isEnemyCombatUnitAdjacent(const CvPlot& pPlot, bool bSameDomain) const;
@@ -167,8 +165,8 @@ public:
 protected:
 
 	void AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam);
-	void UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC);
-	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC);
+	void UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexContainer& plotsToIgnoreForZOC);
+	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, const PlotIndexContainer& plotsToIgnoreForZOC);
 
 	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
 	bool ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility = false);

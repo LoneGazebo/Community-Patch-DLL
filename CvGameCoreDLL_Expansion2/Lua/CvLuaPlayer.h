@@ -198,7 +198,7 @@ protected:
 	static int lGetStartingPlot(lua_State* L);
 	static int lSetStartingPlot(lua_State* L);
 	static int lGetTotalPopulation(lua_State* L);
-	static int lGetAveragePopulation(lua_State* L);
+	static int lGetAveragePopulation100(lua_State* L);
 	static int lGetRealPopulation(lua_State* L);
 
 	static int lGetNewCityExtraPopulation(lua_State* L);
@@ -354,6 +354,7 @@ protected:
 	static int lGetHappinessFromResources(lua_State* L);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	LUAAPIEXTN(GetHappinessFromResourceMonopolies, int);
+	LUAAPIEXTN(GetUnhappinessFromCitizenNeeds, int);
 #endif
 	static int lGetHappinessFromResourceVariety(lua_State* L);
 	static int lGetExtraHappinessPerLuxury(lua_State* L);
@@ -769,10 +770,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
-	LUAAPIEXTN(GetPopNeededForLux, int);
-	LUAAPIEXTN(GetCurrentTotalPop, int);
 	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
-	LUAAPIEXTN(GetBaseLuxuryHappiness, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	LUAAPIEXTN(CalculateUnhappinessTooltip, int);

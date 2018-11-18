@@ -159,6 +159,7 @@ public:
 	int GetSupplyCapBoost() const;
 #endif
 	int GetCultureBombRadius() const;
+	int GetNumberOfCultureBombs() const;
 	int GetGoldenAgeTurns() const;
 	int GetFreePolicies() const;
 	int GetOneShotTourism() const;
@@ -204,6 +205,7 @@ public:
 	int GetCooldown() const;
 	int GetGlobalFaithCooldown() const;
 	int GetLocalFaithCooldown() const;
+	PromotionTypes GetFriendlyLandsPromotion() const;
 	bool IsMounted() const;
 	bool IsCultureFromExperienceDisbandUpgrade() const;
 	bool IsUnitEraUpgrade() const;
@@ -389,6 +391,7 @@ private:
 	int m_iCooldown;
 	int m_iGlobalFaithCooldown;
 	int m_iLocalFaithCooldown;
+	int m_iFriendlyLandsPromotion;
 	int m_iBeliefUnlock;
 	bool m_bCultureFromExperienceOnDisband;
 	bool m_bIsConvertUnit;
@@ -401,6 +404,7 @@ private:
 	bool m_bHighSeaRaider;
 #endif
 	int m_iCultureBombRadius;
+	int m_iNumberOfCultureBombs;
 	int m_iGoldenAgeTurns;
 	int m_iFreePolicies;
 	int m_iOneShotTourism;

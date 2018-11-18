@@ -738,7 +738,7 @@ function UpdateUnitStats(unit)
         local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName());
         Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
         Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
-	elseif unit:GetBuilderStrength() > 0 then
+    elseif unit:GetBuilderStrength() > 0 then
 		iRangedStrength = unit:GetBuilderStrength() .. "      ";
 		Controls.UnitRangedAttackBox:SetHide(false);
 		local rangeStrengthStr = Locale.ConvertTextKey( "TXT_KEY_UPANEL_BUILDER_STRENGTH" );
@@ -747,7 +747,7 @@ function UpdateUnitStats(unit)
 		local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_BUILDER_STRENGTH_TT" );
         Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
         Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
-    else
+	else
         Controls.UnitRangedAttackBox:SetHide(true);
     end        
     
@@ -761,7 +761,8 @@ function UpdateUnitHealthBar(unit)
 	local damage = unit:GetDamage();
 	if damage == 0 then
 		Controls.HealthBar:SetHide(true);	
-	else	
+	else
+		MaxDamage = unit:GetMaxHitPoints();
 		local healthPercent = 1.0 - (damage / MaxDamage);
 		local healthTimes100 =  math.floor(100 * healthPercent + 0.5);
 		local barSize = { x = 9, y = math.floor(123 * healthPercent) };

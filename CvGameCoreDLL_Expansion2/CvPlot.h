@@ -47,7 +47,6 @@ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
 
 typedef FFastVector<IDInfo, true, c_eCiv5GameplayDLL, 0> IDInfoVector;
 
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  STRUCT: CvArchaeologyData
 //!  \brief All the archaeological data stored for a plot
@@ -177,13 +176,16 @@ public:
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
-	int GetInterceptorCount(PlayerTypes ePlayer, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
-	CvUnit* GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
+	int GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
+	CvUnit* GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
 
-	bool isFortification(TeamTypes eTeam) const;
+	CvCity* GetNukeInterceptor(PlayerTypes eAttackingPlayer) const;
+
+	bool isRevealedFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
+	int GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
@@ -667,14 +669,14 @@ public:
 
 	int getYield(YieldTypes eIndex) const;
 
-	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, bool bIgnoreFeature = false) const;
+	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature = false, bool bDisplay = false) const;
 
 	int calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const;
 	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 
-	int calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
+	int calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
 
-	int calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const;
+	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const;
 
 	int calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 	int calculateReligionImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
@@ -690,7 +692,6 @@ public:
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
-	int countNumAntiAirUnits(TeamTypes eTeam) const;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit);
@@ -832,9 +833,7 @@ public:
 	CvString getScriptData() const;
 	void setScriptData(const char* szNewValue);
 
-#if defined(SHOW_PLOT_POPUP)
 	void showPopupText(PlayerTypes ePlayer, const char* szMessage);
-#endif
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
@@ -891,7 +890,8 @@ public:
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
 
-	bool IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage=NULL) const;
+	bool IsNearEnemyCitadel(PlayerTypes ePlayer) const;
+	int GetDangerPlotDamage(PlayerTypes ePlayer) const;
 
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
@@ -1060,20 +1060,12 @@ protected:
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
-
 	short m_iLastTurnBuildChanged;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere3;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere3;
 #endif
 
 	char* m_szScriptData;
-	short* m_paiBuildProgress;
+	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
 	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];

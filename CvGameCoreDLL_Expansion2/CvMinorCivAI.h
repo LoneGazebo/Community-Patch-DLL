@@ -492,14 +492,14 @@ public:
 
 	int GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer);
 
-	int GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer);
+	int GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer, bool bIgnoreWar = false);
 	int GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const;
-	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromCoup = false);
+	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromCoup = false, bool bFromWar = false);
 	void ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
 
 	int GetEffectiveFriendshipWithMajor(PlayerTypes ePlayer);
 	int GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const;
-	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false);
+	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromWar = false);
 	void ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
 
 	int GetFriendshipAnchorWithMajor(PlayerTypes ePlayer);

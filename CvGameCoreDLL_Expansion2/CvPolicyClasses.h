@@ -97,6 +97,7 @@ public:
 	int GetHappinessPerXPopulationGlobal() const;
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
+	bool IsNoXPLossUnitPurchase() const;
 	bool IsCorporationOfficesAsFranchises() const;
 	bool IsCorporationFreeFranchiseAbovePopular() const;
 	bool IsCorporationRandomForeignFranchise() const;
@@ -182,6 +183,8 @@ public:
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	int GetTradeRouteYieldModifierCapital() const;
+	BuildingClassTypes GetNewFoundCityFreeBuilding() const;
+	UnitClassTypes GetNewFoundCityFreeUnit() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
 	BuildingClassTypes GetAllCityFreeBuilding() const;
 	
@@ -318,7 +321,7 @@ public:
 	int GetYieldGPExpend(int i) const;
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	int GetTradeReligionModifier() const;
-	int GetBestRangedUnitSpawnSettle() const;
+	int GetXPopulationConscription() const;
 	int GetBestNumberLandCombatUnitClass() const;
 	int GetBestNumberLandRangedUnitClass() const;
 	int GetBestNumberSeaCombatUnitClass() const;
@@ -329,6 +332,7 @@ public:
 	int GetReligionYieldMod(int i) const;
 	int GetGoldenAgeYieldMod(int i) const;
 	int GetFreePopulation() const;
+	int GetFreePopulationCapital() const;
 	int GetExtraMoves() const;
 	int GetMaxCorps() const;
 	int GetRazingSpeedBonus() const;
@@ -513,6 +517,7 @@ private:
 	int m_iHappinessPerXPopulationGlobal;
 	EraTypes m_ePolicyEraUnlock;
 	int m_iIdeologyPoint;
+	bool m_bNoXPLossUnitPurchase;
 #endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
@@ -579,9 +584,12 @@ private:
 	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifierCapital;
+#if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eNewCityFreeBuilding;
 	BuildingClassTypes m_eAllCityFreeBuilding;
-
+	UnitClassTypes m_eNewFoundCityFreeUnit;
+	BuildingClassTypes m_eNewFoundCityFreeBuilding;
+#endif
 	bool m_bNoCSDecayAtWar;
 	bool m_bBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;
@@ -731,12 +739,13 @@ private:
 	int* m_piYieldGPExpend;
 	int m_iGarrisonsOccupiedUnhapppinessMod;
 	int m_iTradeReligionModifier;
-	int m_iBestRangedUnitSpawnSettle;
+	int m_iXPopulationConscription;
 	int m_iBestNumberLandCombatUnitClass;
 	int m_iBestNumberLandRangedUnitClass;
 	int m_iBestNumberSeaCombatUnitClass;
 	int m_iBestNumberSeaRangedUnitClass;
 	int m_iFreePopulation;
+	int m_iFreePopulationCapital;
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;

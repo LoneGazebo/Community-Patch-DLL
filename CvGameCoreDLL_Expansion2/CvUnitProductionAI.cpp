@@ -211,7 +211,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 			}
 #endif
 			// Make sure this unit can be built now
-			if(m_pCity->canTrain(eUnit))
+			if(m_pCity->canTrain(eUnit, (m_pCity->isProductionUnit() && eUnit == m_pCity->getProductionUnit())))
 			{
 				// Make sure it matches the requested unit AI type
 				if(eUnitAIType == NO_UNITAI || pkUnitInfo->GetUnitAIType(eUnitAIType))
@@ -999,7 +999,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(iGPT <= 0)
 			{
-				iBonus += (iGPT * -50);
+				iBonus += (iGPT * iGPT * -100);
 			}
 			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
 			if (iUnhappyGold > 0)
@@ -1009,7 +1009,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//Less often if at war.
 			if (bAtWar && iGPT > 0)
 			{
-				iBonus /= (iGPT * 2);
+				iBonus /= 10;
 			}
 
 			if (kPlayer.GetPlayerTraits()->IsDiplomat())
@@ -1099,7 +1099,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	//Settlers? Let's see...
-	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
+	if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 		EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
@@ -1111,34 +1111,40 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 
-		EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-		if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+		//There's a settler waiting here? Abort!
+		if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, m_pCity->getOwner()) > 0)
 		{
 			return 0;
 		}
 
-		//There's a settler waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE,m_pCity->getOwner()) > 0)
+		if (kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman()))
 		{
 			return 0;
 		}
-		//Don't build a settler if we're about to grow.
-		if(m_pCity->getFoodTurnsLeft() <= 1)
+		if (kPlayer.IsEmpireSuperUnhappy())
 		{
 			return 0;
 		}
-		//Or if we're small.
-		if(m_pCity->getPopulation() <= 3)
+
+		if (GC.getGame().getGameTurn() >= 50)
 		{
-			return 0;
-		}
-		if(kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman()))
-		{
-			return 0;
-		}
-		if(kPlayer.IsEmpireSuperUnhappy())
-		{
-			return 0;
+			//Don't build a settler if we're about to grow.
+			if (m_pCity->getFoodTurnsLeft() <= 1)
+			{
+				return 0;
+			}
+
+			EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+			if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+			{
+				return 0;
+			}
+
+			//Or if we're small.
+			if (m_pCity->getPopulation() <= 3)
+			{
+				return 0;
+			}
 		}
 
 		//Already have an idle settler out? Ignore.
@@ -1229,7 +1235,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if (kPlayer.IsAtWar())
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 3;
 		}
 
 		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
@@ -1238,15 +1244,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 		{
-			iFlavorExpansion -= 15;
+			iFlavorExpansion -= 10;
 		}
 		if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true)) > 0)
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 5;
 		}
 		else if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true)) > 0 || kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AUTHORITY", true)) > 0)
 		{
-			iFlavorExpansion += 10;
+			iFlavorExpansion += 5;
 		}
 
 		// scale based on flavor and world size
@@ -1654,34 +1660,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	if (!kPlayer.isMinorCiv())
-	{
-		//Debt is worth considering.
-		bool bCloseToDebt = false;
-		int iAverageGoldPerUnit = 0;
-
-		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
-		{
-			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
-			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
-
-			if (iGPT < iAverageGoldPerUnit * 2 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 10)
-			{
-				bCloseToDebt = true;
-			}
-		}
-		//Every -1 GPT = -400 penalty.
-		if ((!bAtWar || bCloseToDebt) && iAverageGoldPerUnit != 0)
-		{
-			iBonus += iAverageGoldPerUnit * -400;
-			//At zero? Even more negative!
-			if (kPlayer.GetTreasury()->GetGold() <= 0)
-			{
-				iBonus += -1000;
-			}
-		}
-	}
-
 	if (bCombat)
 	{
 		if (m_pCity->IsPuppet())
@@ -1735,6 +1713,36 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
 	{
 		iBonus /= max(1, 10 - m_pCity->getProductionTurnsLeft());
+	}
+
+	if (!kPlayer.isMinorCiv())
+	{
+		//Debt is worth considering.
+		bool bCloseToDebt = false;
+		int iAverageGoldPerUnit = 0;
+
+		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
+		{
+			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
+			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
+
+			if (iGPT < iAverageGoldPerUnit * 2 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 10)
+			{
+				bCloseToDebt = true;
+			}
+		}
+		//Every -1 GPT = -400 penalty.
+		if ((!bAtWar || bCloseToDebt) && iAverageGoldPerUnit != 0)
+		{
+			iBonus += iAverageGoldPerUnit * -1000;
+			//At zero? Even more negative!
+			if (kPlayer.GetTreasury()->GetGold() <= 0)
+			{
+				iBonus += -5000;
+			}
+			if (iBonus <= 0)
+				iBonus = 0;
+		}
 	}
 
 	/////

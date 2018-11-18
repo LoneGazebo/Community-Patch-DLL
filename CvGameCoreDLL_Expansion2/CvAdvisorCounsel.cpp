@@ -1733,9 +1733,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	ResourceTypes eRecommendedResource = NO_RESOURCE;
 	CvPlot* pResourcePlot = NULL;
 	int iNumOfResource = MAX_INT;
-	const set<int>& aiPlots = GET_PLAYER(ePlayer).GetPlots();
+	const PlotIndexContainer& aiPlots = GET_PLAYER(ePlayer).GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)

@@ -100,18 +100,18 @@ function UpdateData()
 			else
 				local iHappiness = pPlayer:GetExcessHappiness();
 				local tHappinessTextColor;
+				local population = pPlayer:GetCurrentTotalPop();
+				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds();
 
-				-- Empire is Happiness
-				if (not pPlayer:IsEmpireUnhappy()) then
-					strHappiness = string.format("[ICON_HAPPINESS_1][COLOR:60:255:60:255]%i[/COLOR]", iHappiness);
-				
 				-- Empire Really Unhappy
-				elseif (pPlayer:IsEmpireSuperUnhappy()) then
-					strHappiness = string.format("[ICON_HAPPINESS_4][COLOR:255:60:60:255]%i[/COLOR]", -iHappiness);
-				
+				if (pPlayer:IsEmpireSuperUnhappy()) then
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
 				-- Empire Unhappy
+				elseif (pPlayer:IsEmpireUnhappy()) then
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
+				-- Empire is Happiness
 				else
-					strHappiness = string.format("[ICON_HAPPINESS_3][COLOR:255:60:60:255]%i[/COLOR]", -iHappiness);
+					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", iHappiness, unhappypop, population);
 				end
 			end
 			
@@ -987,7 +987,7 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCityCount() / 100, "#.##" );
 		local iUnhappinessFromCapturedCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCapturedCityCount() / 100, "#.##" );
 		
-		local iUnhappinessFromPupetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation();
+		local iUnhappinessFromPupetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation() * 100;
 		local unhappinessFromSpecialists = pPlayer:GetUnhappinessFromCitySpecialists();
 -- COMMUNITY PATCH CHANGES BELOW
 		--local unhappinessFromPop = pPlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - iUnhappinessFromPupetCities;

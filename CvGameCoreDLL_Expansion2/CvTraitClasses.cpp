@@ -81,6 +81,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iNearbyImprovementBonusRange(0),
 	m_iCultureBuildingYieldChange(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iWarWearinessModifier(0),
+	m_iEnemyWarWearinessModifier(0),
 	m_iCombatBonusVsHigherPop(0),
 	m_bBuyOwnedTiles(false),
 	m_bReconquista(false),
@@ -141,6 +143,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCanGoldInternalTradeRoutes(false),
 	m_iExtraTradeRoutesPerXOwnedCities(0),
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
+	m_bIsCapitalOnly(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -193,6 +196,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_eFreeBuildingOnConquest(NO_BUILDING),
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex(false),
+	m_iBullyYieldMultiplierAnnex(0),
 #endif
 	m_bFightWellDamaged(false),
 	m_bWoodlandMovementBonus(false),
@@ -267,6 +271,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_piFreeUnitClassesDOW(NULL),
 	m_piDomainFreeExperienceModifier(NULL),
 	m_ppiYieldFromTileEarnTerrainType(NULL),
+	m_ppiYieldFromTilePurchaseTerrainType(NULL),
+	m_ppiYieldFromTileConquest(NULL),
+	m_ppiYieldFromTileCultureBomb(NULL),
+	m_ppiYieldFromTileStealCultureBomb(NULL),
+	m_ppiYieldFromTileSettle(NULL),
 	m_ppiYieldChangePerImprovementBuilt(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -280,6 +289,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piArtYieldChanges(NULL),
 	m_piLitYieldChanges(NULL),
 	m_piMusicYieldChanges(NULL),
+	m_piSeaPlotYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
 	m_ppiTerrainYieldChanges(NULL),
@@ -330,6 +340,11 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
 #if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileEarnTerrainType);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTilePurchaseTerrainType);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileConquest);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileCultureBomb);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileStealCultureBomb);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileSettle);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldChangePerImprovementBuilt);
 #endif
 }
@@ -644,6 +659,15 @@ int CvTraitEntry::GetCultureBuildingYieldChange() const
 
 #if defined(MOD_BALANCE_CORE)
 /// Accessor: combat bonus vs. civ with more citizens
+int CvTraitEntry::GetWarWearinessModifier() const
+{
+	return m_iWarWearinessModifier;
+}
+int CvTraitEntry::GetEnemyWarWearinessModifier() const
+{
+	return m_iEnemyWarWearinessModifier;
+}
+
 int CvTraitEntry::GetCombatBonusVsHigherPop() const
 {
 	return m_iCombatBonusVsHigherPop;
@@ -871,6 +895,10 @@ int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
 int CvTraitEntry::GetExtraTradeRoutesPerXOwnedVassals() const
 {
 	return m_iExtraTradeRoutesPerXOwnedVassals;
+}
+bool CvTraitEntry::IsCapitalOnly() const
+{
+	return m_bIsCapitalOnly;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1111,6 +1139,10 @@ BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 bool CvTraitEntry::IsBullyAnnex() const
 {
 	return m_bBullyAnnex;
+}
+int CvTraitEntry::GetBullyYieldMultiplierAnnex() const
+{
+	return m_iBullyYieldMultiplierAnnex;
 }
 #endif
 /// Accessor:: does this civ get combat bonuses when damaged?
@@ -1398,6 +1430,51 @@ int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTyp
 	return m_ppiYieldFromTileEarnTerrainType ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
 }
 
+int CvTraitEntry::GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTilePurchaseTerrainType ? m_ppiYieldFromTilePurchaseTerrainType[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileConquest(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileConquest ? m_ppiYieldFromTileConquest[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileCultureBomb ? m_ppiYieldFromTileCultureBomb[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileStealCultureBomb ? m_ppiYieldFromTileStealCultureBomb[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileSettle ? m_ppiYieldFromTileSettle[eIndex1][eIndex2] : 0;
+}
+
 int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
@@ -1573,6 +1650,12 @@ int CvTraitEntry::GetLitYieldChanges(int i) const
 int CvTraitEntry::GetMusicYieldChanges(int i) const
 {
 	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetSeaPlotYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piSeaPlotYieldChanges ? m_piSeaPlotYieldChanges[i] : 0;
 }
 int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -2068,6 +2151,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iNearbyImprovementBonusRange			= kResults.GetInt("NearbyImprovementBonusRange");
 	m_iCultureBuildingYieldChange			= kResults.GetInt("CultureBuildingYieldChange");
 #if defined(MOD_BALANCE_CORE)
+	m_iWarWearinessModifier					= kResults.GetInt("WarWearinessModifier");
+	m_iEnemyWarWearinessModifier			= kResults.GetInt("EnemyWarWearinessModifier");
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 	m_bReconquista							= kResults.GetBool("Reconquista");
@@ -2126,6 +2211,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
 	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
+	m_bIsCapitalOnly						= kResults.GetBool("IsCapitalOnly");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2281,6 +2367,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = kResults.GetBool("BullyAnnex");
+	m_iBullyYieldMultiplierAnnex = kResults.GetInt("BullyYieldMultiplierAnnex");
 #endif
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bWoodlandMovementBonus = kResults.GetBool("MoveFriendlyWoodsAsRoad");
@@ -2475,6 +2562,116 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			const int yield = pResults->GetInt(2);
 
 			m_ppiYieldFromTileEarnTerrainType[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTilePurchaseTerrainType
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTilePurchaseTerrainType, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTilePurchaseTerrainType");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTilePurchaseTerrainType inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTilePurchaseTerrainType[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileConquest
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileConquest, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileConquest");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileConquest inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileConquest[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileCultureBomb
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileCultureBomb, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileCultureBomb");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileCultureBomb inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileCultureBomb[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileStealCultureBomb
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileStealCultureBomb, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileStealCultureBomb");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileStealCultureBomb inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileStealCultureBomb[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileSettle
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileSettle, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileSettle");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileSettle inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileSettle[TerrainID][YieldID] = yield;
 		}
 	}
 	//Populate m_ppiYieldChangePerImprovementBuilt
@@ -2718,6 +2915,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piArtYieldChanges, "Trait_ArtYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piLitYieldChanges, "Trait_LitYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piMusicYieldChanges, "Trait_MusicYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piSeaPlotYieldChanges, "Trait_SeaPlotYieldChanges", "TraitType", szTraitType);
 
 	//FeatureYieldChanges
 	if (MOD_API_UNIFIED_YIELDS)
@@ -3138,6 +3336,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetNavalUnitMaintenanceModifier() != 0 ||
 		GetProductionBonusModifierConquest() != 0 ||
 		GetGoldenAgeFromVictory() != 0 ||
+		GetWarWearinessModifier() != 0 ||
+		GetEnemyWarWearinessModifier() != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0)
 	{
@@ -3153,6 +3353,18 @@ void CvPlayerTraits::SetIsWarmonger()
 		{
 			m_bIsWarmonger = true;
 			return;
+		}
+
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+			if (GetYieldChangeFromTileConquest(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTileCultureBomb(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield) > 0)
+			{
+				m_bIsWarmonger = true;
+				return;
+			}
 		}
 	}
 
@@ -3170,6 +3382,7 @@ void CvPlayerTraits::SetIsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
+		GetBullyYieldMultiplierAnnex() != 0 ||
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
@@ -3379,6 +3592,18 @@ void CvPlayerTraits::SetIsExpansionist()
 				return;
 			}
 		}
+
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+			if (GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0)
+			{
+				m_bIsExpansionist = true;
+				return;
+			}
+		}
 	}
 
 	if (IsBuyOwnedTiles() ||
@@ -3522,6 +3747,8 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			m_iEnemyWarSawPactPromotion = trait->GetEnemyWarSawPactPromotion();
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
+			m_iWarWearinessModifier += trait->GetWarWearinessModifier();
+			m_iEnemyWarWearinessModifier += trait->GetEnemyWarWearinessModifier();
 			if(trait->IsBuyOwnedTiles())
 			{
 				m_bBuyOwnedTiles = true;
@@ -3668,6 +3895,11 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
 			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
+			if (trait->IsCapitalOnly())
+			{
+				m_bIsCapitalOnly = true;
+			}
+
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -3712,6 +3944,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bBullyAnnex = true;
 			}
+			m_iBullyYieldMultiplierAnnex += trait->GetBullyYieldMultiplierAnnex();
 #endif
 			if(trait->IsFightWellDamaged())
 			{
@@ -3908,6 +4141,41 @@ void CvPlayerTraits::InitPlayerTraits()
 						yields[iYield] = (m_ppiYieldFromTileEarnTerrainType[iTerrainLoop][iYield] + iChange);
 						m_ppiYieldFromTileEarnTerrainType[iTerrainLoop] = yields;
 					}
+					iChange = trait->GetYieldFromTilePurchaseTerrainType((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileConquest((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileConquest[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileConquest[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileConquest[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileCultureBomb((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileCultureBomb[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileCultureBomb[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileCultureBomb[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileStealCultureBomb((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileStealCultureBomb[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileStealCultureBomb[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileStealCultureBomb[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileSettle((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileSettle[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileSettle[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileSettle[iTerrainLoop] = yields;
+					}
 				}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -3977,6 +4245,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iArtYieldChanges[iYield] = trait->GetArtYieldChanges(iYield);
 				m_iLitYieldChanges[iYield] = trait->GetLitYieldChanges(iYield);
 				m_iMusicYieldChanges[iYield] = trait->GetMusicYieldChanges(iYield);
+				m_iSeaPlotYieldChanges[iYield] = trait->GetSeaPlotYieldChanges(iYield);
 #if defined(MOD_BALANCE_CORE)
 				m_iGAPToYield[iYield] = trait->GetGAPToYield(iYield);
 				m_iMountainRangeYield[iYield] = trait->GetMountainRangeYield(iYield);
@@ -4155,6 +4424,11 @@ void CvPlayerTraits::Uninit()
 	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
 	m_ppiYieldFromTileEarnTerrainType.clear();
+	m_ppiYieldFromTilePurchaseTerrainType.clear();
+	m_ppiYieldFromTileConquest.clear();
+	m_ppiYieldFromTileCultureBomb.clear();
+	m_ppiYieldFromTileStealCultureBomb.clear();
+	m_ppiYieldFromTileSettle.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
@@ -4257,6 +4531,8 @@ void CvPlayerTraits::Reset()
 	m_iNearbyImprovementBonusRange = 0;
 	m_iCultureBuildingYieldChange = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iWarWearinessModifier = 0;
+	m_iEnemyWarWearinessModifier = 0;
 	m_iCombatBonusVsHigherPop = 0;
 	m_bBuyOwnedTiles = false;
 	m_bReconquista = false;
@@ -4317,6 +4593,7 @@ void CvPlayerTraits::Reset()
 	m_bCanGoldInternalTradeRoutes = false;
 	m_iExtraTradeRoutesPerXOwnedCities = 0;
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
+	m_bIsCapitalOnly = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -4359,6 +4636,7 @@ void CvPlayerTraits::Reset()
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = false;
+	m_iBullyYieldMultiplierAnnex = 0;
 #endif
 	m_bFightWellDamaged = false;
 	m_bWoodlandMovementBonus = false;
@@ -4414,6 +4692,16 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_ppiYieldFromTileEarnTerrainType.clear();
 	m_ppiYieldFromTileEarnTerrainType.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTilePurchaseTerrainType.clear();
+	m_ppiYieldFromTilePurchaseTerrainType.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileConquest.clear();
+	m_ppiYieldFromTileConquest.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileCultureBomb.clear();
+	m_ppiYieldFromTileCultureBomb.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileStealCultureBomb.clear();
+	m_ppiYieldFromTileStealCultureBomb.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileSettle.clear();
+	m_ppiYieldFromTileSettle.resize(GC.getNumTerrainInfos());
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
 #endif
@@ -4514,6 +4802,7 @@ void CvPlayerTraits::Reset()
 		m_iArtYieldChanges[iYield] = 0;
 		m_iLitYieldChanges[iYield] = 0;
 		m_iMusicYieldChanges[iYield] = 0;
+		m_iSeaPlotYieldChanges[iYield] = 0;
 #if defined(MOD_BALANCE_CORE)
 		m_iGAPToYield[iYield] = 0;
 		m_iMountainRangeYield[iYield] = 0;
@@ -4530,6 +4819,13 @@ void CvPlayerTraits::Reset()
 		{
 			m_ppiTerrainYieldChange[iTerrain] = yield;
 			m_ppiYieldFromTileEarnTerrainType[iTerrain] = yield;
+#if defined(MOD_BALANCE_CORE)
+			m_ppiYieldFromTilePurchaseTerrainType[iTerrain] = yield;
+			m_ppiYieldFromTileConquest[iTerrain] = yield;
+			m_ppiYieldFromTileCultureBomb[iTerrain] = yield;
+			m_ppiYieldFromTileStealCultureBomb[iTerrain] = yield;
+			m_ppiYieldFromTileSettle[iTerrain] = yield;
+#endif
 		}
 		m_iYieldFromKills[iYield] = 0;
 		m_iYieldFromBarbarianKills[iYield] = 0;
@@ -4799,6 +5095,61 @@ int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain,
 	return m_ppiYieldFromTileEarnTerrainType[(int)eTerrain][(int)eYield];
 }
 #if defined(MOD_BALANCE_CORE)
+int CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTilePurchaseTerrainType[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileConquest(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileConquest[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileCultureBomb[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileStealCultureBomb[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileSettle[(int)eTerrain][(int)eYield];
+}
 int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
 	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
@@ -5157,7 +5508,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		return false;
 
 	//choose one
-	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().getNumCities() );
+	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage() );
 	ResourceTypes eResourceToGive = vPossibleResources[iChoice];
 		
 	//first round. place on owned non-city, non-resource plots without improvement
@@ -6234,6 +6585,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_iCultureBuildingYieldChange;
 
 #if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(66, kStream, m_iWarWearinessModifier, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iEnemyWarWearinessModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iCombatBonusVsHigherPop, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bReconquista, false);
@@ -6294,6 +6647,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bCanGoldInternalTradeRoutes, false);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedCities, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedVassals, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_bIsCapitalOnly, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6429,6 +6783,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	MOD_SERIALIZE_READ(55, kStream, m_bBullyAnnex, false);
+	kStream >> m_iBullyYieldMultiplierAnnex;
 #endif
 	kStream >> m_bFightWellDamaged;
 	kStream >> m_bWoodlandMovementBonus;
@@ -6600,6 +6955,11 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiFreeUnitClassesDOW;
 	kStream >> m_aiDomainFreeExperienceModifier;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
+	kStream >> m_ppiYieldFromTilePurchaseTerrainType;
+	kStream >> m_ppiYieldFromTileConquest;
+	kStream >> m_ppiYieldFromTileCultureBomb;
+	kStream >> m_ppiYieldFromTileStealCultureBomb;
+	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 
 	kStream >> iNumEntries;
@@ -6684,8 +7044,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_eGPFaithPurchaseEra, NO_ERA);
 	MOD_SERIALIZE_READ(66, kStream, m_iFaithCostModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iChanceToConvertReligiousUnits, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -6717,6 +7077,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> kMusicYieldChangesWrapper(NUM_YIELD_TYPES, m_iMusicYieldChanges);
 	kStream >> kMusicYieldChangesWrapper;
+
+	ArrayWrapper<int> kSeaPlotYieldChangesWrapper(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
+	kStream >> kSeaPlotYieldChangesWrapper;
 
 	kStream >> m_ppiFeatureYieldChange;
 	kStream >> m_ppiResourceYieldChange;
@@ -6830,6 +7193,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iNearbyImprovementBonusRange;
 	kStream << m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_iWarWearinessModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iEnemyWarWearinessModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iCombatBonusVsHigherPop);
 	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
 	MOD_SERIALIZE_WRITE(kStream, m_bReconquista);
@@ -6890,6 +7255,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bCanGoldInternalTradeRoutes);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedCities);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedVassals);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsCapitalOnly);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -6932,6 +7298,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	MOD_SERIALIZE_WRITE(kStream, m_bBullyAnnex);
+	kStream << m_iBullyYieldMultiplierAnnex;
 #endif
 	kStream << m_bFightWellDamaged;
 	kStream << m_bWoodlandMovementBonus;
@@ -7027,6 +7394,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiFreeUnitClassesDOW;
 	kStream << m_aiDomainFreeExperienceModifier;
 	kStream << m_ppiYieldFromTileEarnTerrainType;
+	kStream << m_ppiYieldFromTilePurchaseTerrainType;
+	kStream << m_ppiYieldFromTileConquest;
+	kStream << m_ppiYieldFromTileCultureBomb;
+	kStream << m_ppiYieldFromTileStealCultureBomb;
+	kStream << m_ppiYieldFromTileSettle;
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
@@ -7094,6 +7466,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
 	kStream << m_ppiFeatureYieldChange;
 	kStream << m_ppiResourceYieldChange;
 	kStream << m_ppiTerrainYieldChange;
@@ -7136,7 +7509,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 	}
 
 	// Roll die to see if it converts
-	if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < m_iLandBarbarianConversionPercent)
+	if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < m_iLandBarbarianConversionPercent)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
@@ -7227,7 +7600,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().getSmallFakeRandNum(10, *pUnit->plot()) * 100 < m_iSeaBarbarianConversionPercent)
+	if(GC.getGame().getSmallFakeRandNum(100, *pUnit->plot()) < m_iSeaBarbarianConversionPercent)
 	{
 		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);

@@ -350,6 +350,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
 	LUAAPIEXTN(getHappinessDelta, int);
+	LUAAPIEXTN(getHappinessThresholdMod, int);
 	LUAAPIEXTN(getThresholdSubtractions, int);
 	LUAAPIEXTN(getThresholdAdditions, int);
 	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
@@ -372,6 +373,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillaged, int);
 	LUAAPIEXTN(GetUnhappinessFromStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromMinority, int);
+	LUAAPIEXTN(getPotentialUnhappinessWithGrowth, int);
 #endif
 
 	static int lChangeHealRate(lua_State* L);
