@@ -112,6 +112,10 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
 	m_bIsPlague(false),
+	m_iPlaguePromotion(NO_PROMOTION),
+	m_iPlagueID(NO_PROMOTION),
+	m_iPlaguePriority(0),
+	m_iPlagueIDImmunity(-1),
 #endif
 	m_iEmbarkExtraVisibility(0),
 	m_iEmbarkDefenseModifier(0),
@@ -122,6 +126,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
 	m_iGoodyHutYieldBonus(0),
 	m_bGainsXPFromScouting(false),
@@ -230,9 +235,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyFriendlyCityCombatMod(0),
 	m_iNearbyEnemyCityCombatMod(0),
 	m_bIsNearbyPromotion(false),
-	m_bIsFriendlyLands(false),
 	m_iNearbyRange(0),
-	m_eRequiredUnit(NO_UNIT),
 	m_iConvertDomainUnit(NO_UNIT),
 	m_iConvertDomain(NO_DOMAIN),
 	m_bIsConvertUnit(false),
@@ -255,10 +258,14 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGiveHPHealedIfEnemyKilled(0),
 	m_iGiveExperiencePercent(0),
 	m_iGiveOutsideFriendlyLandsModifier(0),
-	m_eGiveDomain(NO_DOMAIN),
+	m_iGiveDomain(NO_DOMAIN),
 	m_iGiveExtraAttacks(0),
 	m_iGiveDefenseMod(0),
 	m_bGiveInvisibility(false),
+	m_iNearbyHealEnemyTerritory(0),
+	m_iNearbyHealNeutralTerritory(0),
+	m_iNearbyHealFriendlyTerritory(0),
+	m_iAdjacentEnemySapMovement(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -364,6 +371,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	//Basic Properties
 #if defined(MOD_BALANCE_CORE)
+	m_iCaptureDefeatedEnemyChance = kResults.GetInt("CaptureDefeatedEnemyChance");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
@@ -486,10 +494,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
 	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
-	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
-	const char* szUnitType = kResults.GetText("RequiredUnit");
-	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
 	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
@@ -514,10 +519,15 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGiveExperiencePercent = kResults.GetInt("GiveExperiencePercent");
 	m_iGiveOutsideFriendlyLandsModifier = kResults.GetInt("GiveOutsideFriendlyLandsModifier");
 	const char* szGiveDomain = kResults.GetText("GiveDomain");
-	m_eGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
+	m_iGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
 	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
 	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
 	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
+	m_iNearbyHealEnemyTerritory = kResults.GetInt("NearbyHealEnemyTerritory");
+	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
+	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
+
+	m_iAdjacentEnemySapMovement = kResults.GetInt("AdjacentEnemySapMovement");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -609,6 +619,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
 	m_bIsPlague = kResults.GetBool("IsPlague");
+
+	const char* szPlaguePromotion = kResults.GetText("PlaguePromotion");
+	m_iPlaguePromotion = GC.getInfoTypeForString(szPlaguePromotion, true);
+
+	m_iPlagueID = kResults.GetInt("PlagueID");
+	m_iPlaguePriority = kResults.GetInt("PlaguePriority");
+	m_iPlagueIDImmunity = kResults.GetInt("PlagueIDImmunity");
 #endif
 	m_iEmbarkExtraVisibility = kResults.GetInt("EmbarkExtraVisibility");
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
@@ -1699,6 +1716,26 @@ bool CvPromotionEntry::IsPlague() const
 {
 	return m_bIsPlague;
 }
+
+int CvPromotionEntry::GetPlaguePromotion() const
+{
+	return m_iPlaguePromotion;
+}
+
+int CvPromotionEntry::GetPlagueID() const
+{
+	return m_iPlagueID;
+}
+
+int CvPromotionEntry::GetPlaguePriority() const
+{
+	return m_iPlaguePriority;
+}
+
+int CvPromotionEntry::GetPlagueIDImmunity() const
+{
+	return m_iPlagueIDImmunity;
+}
 #endif
 
 /// Accessor: extra sight range when embarked
@@ -1772,7 +1809,10 @@ bool CvPromotionEntry::IsGainsXPFromSpotting() const
 	return m_bGainsXPFromSpotting;
 }
 
-
+int CvPromotionEntry::GetCaptureDefeatedEnemyChance() const
+{
+	return m_iCaptureDefeatedEnemyChance;
+}
 /// Accessor: Can this Promotion grant bonuses v. barbarians?
 int CvPromotionEntry::GetBarbarianCombatBonus() const
 {
@@ -2239,17 +2279,9 @@ bool CvPromotionEntry::IsNearbyPromotion() const
 {
 	return m_bIsNearbyPromotion;
 }
-bool CvPromotionEntry::IsFriendlyLands() const
-{
-	return m_bIsFriendlyLands;
-}
 int CvPromotionEntry::GetNearbyRange() const
 {
 	return m_iNearbyRange;
-}
-UnitTypes CvPromotionEntry::getRequiredUnit() const
-{
-	return m_eRequiredUnit;
 }
 bool CvPromotionEntry::IsConvertEnemyUnitToBarbarian() const
 {
@@ -2331,9 +2363,9 @@ int CvPromotionEntry::GetGiveOutsideFriendlyLandsModifier() const
 {
 	return m_iGiveOutsideFriendlyLandsModifier;
 }
-DomainTypes CvPromotionEntry::GetGiveDomain() const
+int CvPromotionEntry::GetGiveDomain() const
 {
-	return m_eGiveDomain;
+	return m_iGiveDomain;
 }
 int CvPromotionEntry::GetGiveExtraAttacks() const
 {
@@ -2346,6 +2378,23 @@ int CvPromotionEntry::GetGiveDefenseMod() const
 bool CvPromotionEntry::IsGiveInvisibility() const
 {
 	return m_bGiveInvisibility;
+}
+int CvPromotionEntry::GetNearbyHealEnemyTerritory() const
+{
+	return m_iNearbyHealEnemyTerritory;
+}
+int CvPromotionEntry::GetNearbyHealNeutralTerritory() const
+{
+	return m_iNearbyHealNeutralTerritory;
+}
+int CvPromotionEntry::GetNearbyHealFriendlyTerritory() const
+{
+	return m_iNearbyHealFriendlyTerritory;
+}
+
+int CvPromotionEntry::GetAdjacentEnemySapMovement() const
+{
+	return m_iAdjacentEnemySapMovement;
 }
 #endif
 
@@ -3266,7 +3315,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, m_pUnit->plot()->GetPlotIndex() + GET_PLAYER(m_pUnit->getOwner()).GetEconomicMight());
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, m_pUnit->plot()->GetPlotIndex() + m_pUnit->getExperienceTimes100());
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 

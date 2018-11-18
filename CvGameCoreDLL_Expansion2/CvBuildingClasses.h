@@ -189,10 +189,12 @@ public:
 	int GetCityWorkingChange() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetNumRequiredTier3Tenets() const;
 	bool IsNoWater() const;
 	bool IsNoRiver() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
+	int GetReformationFollowerReduction() const;
 	bool IsBuildAnywhere() const;
 	int GetTradeReligionModifier() const;
 	int GetNumFreeArtifacts() const;
@@ -242,6 +244,9 @@ public:
 	int GetCitySupplyModifierGlobal() const;
 	int GetCitySupplyFlat() const;
 	int GetCitySupplyFlatGlobal() const;
+	int CityRangedStrikeRange() const;
+	int CityIndirectFire() const;
+	int CityRangedStrikeModifier() const;
 #endif
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPolicies() const;
@@ -343,6 +348,7 @@ public:
 	int GetSeaTourismEnd() const;
 	int GetAlwaysHeal() const;
 	bool IsCorp() const;
+	int GetNukeInterceptionChance() const;
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool IsPlayerBorderGainlessPillage() const;
@@ -662,6 +668,9 @@ private:
 	int m_iCitySupplyModifierGlobal;
 	int m_iCitySupplyFlat;
 	int m_iCitySupplyFlatGlobal;
+	int m_iCityRangedStrikeRange;
+	int m_iCityIndirectFire;
+	int m_iRangedStrikeModifier;
 #endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;
@@ -748,10 +757,12 @@ private:
 	int* m_piGreatWorkYieldChangeLocal;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;
 	bool m_bIsNoRiver;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
+	int m_iReformationFollowerReduction;
 	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
 	int m_iFreeArtifacts;
@@ -808,6 +819,7 @@ private:
 	int m_iSeaTourism;
 	int m_iAlwaysHeal;
 	bool m_bIsCorp;
+	int m_iNukeInterceptionChance;
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool m_bPlayerBorderGainlessPillage;

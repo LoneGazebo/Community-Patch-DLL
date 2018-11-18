@@ -644,6 +644,8 @@ public:
 	EnactProposalList m_vEnactProposals;
 	RepealProposalList m_vRepealProposals;
 	ActiveResolutionList m_vActiveResolutions;
+	EnactProposalList m_vLastTurnEnactProposals;
+	RepealProposalList m_vLastTurnRepealProposals;
 	MemberList m_vMembers;
 	PlayerTypes m_eHost;
 	ProjectList m_vProjects;

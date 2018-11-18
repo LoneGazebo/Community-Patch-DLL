@@ -260,8 +260,8 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 				iResistanceUnhappiness = (city:GetPopulation() / 2);
 			elseif(city:IsResistance()) then
 				iResistanceUnhappiness = (city:GetPopulation() / 2);
-			elseif(pCity:IsPuppet()) then
-				iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+			elseif(city:IsPuppet()) then
+				iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
 			elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance()) then
 				iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 			end
@@ -316,7 +316,9 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			end
 			if(iCultureUnhappiness ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
-			end	
+			end
+
+			strToolTip = strToolTip .. city:getPotentialUnhappinessWithGrowth();
 		end
 -- END
 
@@ -445,7 +447,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			else
 				controls.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_WILL_GROW_TT", localizedCityName, cityPopulation, cityPopulation+1, cityGrowth));
 			end
-			
+	
 			controls.CityGrowth:SetText(cityGrowth);
 		end
 		

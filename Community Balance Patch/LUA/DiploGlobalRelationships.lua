@@ -353,7 +353,19 @@ function InitMajorCivList()
 						end
 					end
 				end
-
+				
+				-- Promises (Vox Populi)
+				local function ShowPromiseTurns(iNumTurns, sDiploText)
+					if iNumTurns <= 0 then return end -- do not display "0 turns"
+					local textControls = {};
+					ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
+					textControls.Text:LocalizeAndSetText(sDiploText, iNumTurns);
+				end
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsMilitaryPromise(g_iUs),  "TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsExpansionPromise(g_iUs), "TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsBorderPromise(g_iUs),    "TXT_KEY_DIPLO_BORDER_PROMISE_TURNS");
+				-- Promises END
+				
 				--controlTable.NothingLabel:SetHide(bHasEntry);
 				controlTable.PactStack:CalculateSize();
 				controlTable.PoliciesStack:CalculateSize();

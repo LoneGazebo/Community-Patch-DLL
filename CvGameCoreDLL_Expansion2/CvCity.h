@@ -42,8 +42,12 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_API_EXTENSIONS)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
+#elif defined(MOD_BALANCE_CORE)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
@@ -108,6 +112,13 @@ public:
 	void SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain);
 
 	bool AreOurBordersTouching(PlayerTypes ePlayer);
+
+	void UpdateGlobalStaticYields();
+	void SetGlobalStaticYield(YieldTypes eYield, int iValue);
+	int GetGlobalStaticYield(YieldTypes eYield) const;
+
+	void SetStaticNeedAdditives(YieldTypes eYield, int iValue);
+	int GetStaticNeedAdditives(YieldTypes eYield) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -826,26 +837,27 @@ public:
 	int GetBuildingClassHappinessFromReligion() const;
 	void UpdateBuildingClassHappinessFromReligion();
 	int getHappinessDelta() const;
-	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
+	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
+	int getThresholdSubtractions(YieldTypes eYield) const;
 	int getThresholdAdditions(YieldTypes eYield = NO_YIELD) const;
 	int getUnhappyCitizenCount() const;
 
-	int getUnhappinessFromCultureYield() const;
-	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
-	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromCulture() const;
-	int getUnhappinessFromScienceYield() const;
-	int getUnhappinessFromScienceNeeded(int iMod = 0) const;
-	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromScience() const;
-	int getUnhappinessFromDefenseYield() const;
-	int getUnhappinessFromDefenseNeeded(int iMod = 0) const;
-	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromDefense() const;
-	int getUnhappinessFromGoldYield() const;
-	int getUnhappinessFromGoldNeeded(int iMod = 0) const;
-	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromGold() const;
+	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
+	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromCulture(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScienceYield(int iPopMod = 0) const;
+	int getUnhappinessFromScienceNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScience(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefenseYield(int iPopMod = 0) const;
+	int getUnhappinessFromDefenseNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefense(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGoldYield(int iPopMod = 0) const;
+	int getUnhappinessFromGoldNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGold(int iPopMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromConnectionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromConnection() const;
 	int getUnhappinessFromPillagedRaw(int iLimit = INT_MAX) const;
@@ -856,6 +868,9 @@ public:
 	int getUnhappinessFromReligion() const;
 
 	int getUnhappinessAggregated() const;
+
+	CvString getPotentialUnhappinessWithGrowth();
+	int getPotentialUnhappinessWithGrowthVal() const;
 	
 	int GetNumPillagedPlots() const;
 	void SetNumPillagedPlots(int iValue);
@@ -1229,6 +1244,10 @@ public:
 	void ChangeBlockGold(int iNewValue);
 	void SetBlockGold(int iNewValue);
 	int GetBlockGold() const;
+
+
+	void changeNukeInterceptionChance(int iValue);
+	int getNukeInterceptionChance() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
@@ -1351,7 +1370,7 @@ public:
 	void changeSpecialistFreeExperience(int iChange);
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildingDefense = false) const;
 	int GetPower() const;
 
 	int getDamage() const;
@@ -1365,6 +1384,14 @@ public:
 	int getBombardRange(bool& bIndirectFireAllowed) const;
 	int getBombardRange() const;
 #endif
+
+	int getCityBuildingBombardRange() const;
+	void changeCityBuildingBombardRange(int iValue);
+	bool getCityIndirectFire() const;
+	void changeCityIndirectFire(int iValue);
+
+	int getCityBuildingRangeStrikeModifier() const;
+	void changeCityBuildingRangeStrikeModifier(int iValue);
 
 	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
@@ -1438,7 +1465,8 @@ public:
 
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
-	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //slow version
+	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
 	PlayerTypes getLiberationPlayer() const;
@@ -1565,6 +1593,7 @@ public:
 	int CountWorkedResource(ResourceTypes iResourceType) const;
 	int CountTerrain(TerrainTypes iTerrainType) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
+	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1689,6 +1718,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iAdditionalFood;
+	FAutoVariable<int, CvCity> m_iCityBuildingBombardRange;
+	FAutoVariable<int, CvCity> m_iCityIndirectFire;
+	FAutoVariable<int, CvCity> m_iCityBuildingRangeStrikeModifier;
 #endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;
@@ -1788,6 +1820,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
@@ -1850,6 +1884,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
 	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
 	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
+	FAutoVariable<int, CvCity> m_iNukeInterceptionChance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEconomicValue;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;

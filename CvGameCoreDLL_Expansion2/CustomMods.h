@@ -85,9 +85,6 @@
 
 #define MOD_CORE_RESILIENT_PANTHEONS
 
-///	air units take a flat amount of damage in each air strike (plus interceptions)
-#define MOD_CORE_AIRCOMBAT_SIMPLIFIED
-
 #define MOD_BALANCE_CORE_OBSERVER_CHANGES
 	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
@@ -414,7 +411,11 @@
 #define MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_CITY_DEFENSE_SWITCH())
 #define MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_ARCHAEOLOGY_FROM_GP())
 #define MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES())
+#define MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BOMBARD_RANGE_BUILDINGS())
 #endif
+
+#define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
+
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
@@ -507,8 +508,6 @@
 #define MOD_UNITS_MAX_HP                            gCustomMods.isUNITS_MAX_HP()
 // Enables the XP times 100 API (v77)
 #define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
-// Restricts worker suggestions to local tiles
-#define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
 
@@ -972,8 +971,6 @@
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 // Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
-// Fixes issue where explore plot list was not being consistently updated when a plot was revealed
-#define MOD_BUGFIX_EXPLORE_REVEALED_PLOT	(true)
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1067,7 +1064,7 @@ enum BattleTypeTypes
 #define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
 #define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, pUnit->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
 #define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, pPlot->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage, fDelay)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
+#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
 
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name
@@ -1281,6 +1278,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
+#define GAMEEVENT_ConquerorValidBuilding	"ConquerorValidBuilding", "iiii"
 // City and Player Events
 #define GAMEEVENT_EventActivated			"EventActivated", "ii"
 #define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"
@@ -1525,6 +1523,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_CITY_DEFENSE_SWITCH);
 	MOD_OPT_DECL(BALANCE_CORE_ARCHAEOLOGY_FROM_GP);
 	MOD_OPT_DECL(BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES);
+	MOD_OPT_DECL(BALANCE_CORE_BOMBARD_RANGE_BUILDINGS);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);
@@ -1707,6 +1706,8 @@ public:
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
 	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
+
+	MOD_OPT_DECL(ISKA_HERITAGE);
 
 protected:
 	bool m_bInit;

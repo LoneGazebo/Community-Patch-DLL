@@ -307,6 +307,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IgnoreFeatureDamage);
 	Method(ExtraTerrainDamage);
 	Method(ExtraFeatureDamage);
+	Method(GetMovementRules);
+	Method(GetZOCStatus);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	Method(GetNearbyImprovementCombatBonus);
@@ -680,12 +682,8 @@ int CvLuaUnit::lConvert(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkUnitToConvert = GetInstance(L, 2);
 	bool bIsUpgrade = lua_toboolean(L, 3);
-#if defined(MOD_BALANCE_CORE)
-	bool bSupply = luaL_optbool(L, 4, true);
-	pkUnit->convert(pkUnitToConvert, bIsUpgrade, bSupply);
-#else
 	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
-#endif
+
 #if defined(MOD_BUGFIX_MINOR)
 	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
 #endif
@@ -2704,9 +2702,10 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pInPlot = CvLuaPlot::GetInstance(L, 2, false);
 	CvUnit* pkAttacker = GetInstance(L, 3, false);
+	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 3, false);
 	bool bFromRangedAttack = luaL_optbool(L, 4, false);
 
-	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, bFromRangedAttack);
+	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3265,6 +3264,110 @@ int CvLuaUnit::lExtraFeatureDamage(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+int CvLuaUnit::lGetMovementRules(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+
+	if (pkUnit == NULL || pkOtherUnit == NULL || pkOtherUnit->getPlagueChance() <= 0)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
+
+	if (!pkUnit->CanPlague(pkOtherUnit))
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
+
+	PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
+	if (ePlague == NO_PROMOTION)
+	{
+		//Next let's grab the promotion.
+		int iI;
+		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		{
+			const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
+			if (ePromotion != NO_PROMOTION && pkOtherUnit->HasPromotion(ePromotion))
+			{
+				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
+				if (pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
+				{
+					if (!pkUnit->HasPromotion(ePromotion) && (pkUnit->getPlagueIDImmunity() == -1 || pkUnit->getPlagueIDImmunity() != pkPlaguePromotionInfo->GetPlagueID()))
+					{
+						ePlague = ePromotion;
+						break;
+					}
+				}
+			}
+		}
+	}
+	if (ePlague != NO_PROMOTION)
+	{
+		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
+		if (pkPlaguePromotionInfo == NULL)
+		{
+			lua_pushstring(L, "");
+			return 1;
+		}
+
+		if (pkUnit->HasPromotion(ePlague))
+		{
+			lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText()));
+			return 1;
+		}
+
+		int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
+
+		//we're immune to this?
+		if (pkUnit->getPlagueIDImmunity() != -1 && pkUnit->getPlagueIDImmunity() == pkPlaguePromotionInfo->GetPlagueID())
+		{
+			lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText()));
+			return 1;
+		}
+
+		//we already have this plague? let's see if we've been hit with a more severe version of the same plague...
+		if (iPlagueID == pkUnit->getPlagueID())
+		{
+			//weaker? ignore.
+			if (pkPlaguePromotionInfo->GetPlaguePriority() <= pkUnit->getPlaguePriority())
+			{
+				lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText()));
+				return 1;
+			}
+		}
+	
+		lua_pushstring(L, GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText(), pkOtherUnit->getPlagueChance()));
+		return 1;
+	}
+
+	lua_pushstring(L, "");
+	return 1;
+}
+
+int CvLuaUnit::lGetZOCStatus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	if (pkUnit == NULL)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
+
+	if (pkUnit->IsIgnoreZOC())
+	{
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_IGNORE_ZOC");
+		
+		lua_pushstring(L, strMessage.toUTF8());
+		return 1;
+	}
+
+	lua_pushstring(L, "");
+	return 1;
+}
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 //------------------------------------------------------------------------------
@@ -3392,7 +3495,7 @@ int CvLuaUnit::lMaxInterceptionProbability(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->maxInterceptionProbability();
+	const int iResult = pkUnit->getInterceptChance();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3402,7 +3505,7 @@ int CvLuaUnit::lCurrInterceptionProbability(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->currInterceptionProbability();
+	const int iResult = pkUnit->interceptionProbability();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4581,7 +4684,7 @@ int CvLuaUnit::lGetExtraIntercept(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->getExtraIntercept();
+	const int iResult = pkUnit->getInterceptChance();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5186,7 +5289,8 @@ int CvLuaUnit::lGetNearbyImprovementModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	const int bResult = pkUnit->GetNearbyImprovementModifier(pkUnit->plot());
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2, false);
+	const int bResult = pkUnit->GetNearbyImprovementModifier(pkPlot);
 #else
 	const int bResult = pkUnit->GetNearbyImprovementModifier();
 #endif

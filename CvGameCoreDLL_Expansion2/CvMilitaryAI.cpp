@@ -2323,6 +2323,35 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		fDesirability *= 1 + ( m_pPlayer->GetCityDistanceInPlots(pTargetPlot) / float(iDistToCapital) );
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//If we get instant yields from conquering specific terrain types, look for cities with those
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+
+		if (eYield == NO_YIELD)
+			continue;
+
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+
+			if (eTerrain == NO_TERRAIN)
+				continue;
+
+			if (m_pPlayer->GetPlayerTraits()->GetYieldChangeFromTileConquest(eTerrain, eYield) > 0)
+			{
+				int iNumTerrain = target.m_pTargetCity->CountTerrain(eTerrain); // not using CountAllOwnedTerrain to save performance
+				if (iNumTerrain > 0)
+				{
+					fDesirability *= 100 + (3 * iNumTerrain);
+					fDesirability /= 100;
+				}
+			}
+		}
+	}
+#endif
+
 	//Muster already targeted by operation? De-emphasize.
 	if (m_pPlayer->IsMusterCityAlreadyTargeted(target.m_pMusterCity, eDomain, 0, -1))
 	{
@@ -2464,7 +2493,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0))
+			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID()))
 				bHarmful = true;
 
 			//makes us slow
@@ -3204,9 +3233,8 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					m_iNumRangedLandUnits++;
 				}
-				else if(pLoopUnit->getExtraIntercept() > 0)
+				else if(pLoopUnit->canIntercept())
 				{
-					// I'm an anti-air unit
 					m_iNumAntiAirUnits++;
 				}
 				else if(pLoopUnit->getUnitInfo().GetMoves() > 2)
@@ -3921,8 +3949,8 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				if (bRollForNuke)
 				{
 					int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-					int iRoll = GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(ePlayer).getNumUnits());
-					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getNumUnits());
+					int iRoll = GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(ePlayer).getGlobalAverage(YIELD_CULTURE));
+					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 					if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
 					{
 						bLaunchNuke = true;

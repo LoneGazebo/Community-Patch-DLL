@@ -426,22 +426,15 @@ local function UpdateTopPanelNow()
 			local excessHappiness = g_activePlayer:GetExcessHappiness()
 			local turnsRemaining = ""
 
-			if not g_activePlayer:IsEmpireUnhappy() then
+			local population = g_activePlayer:GetCurrentTotalPop()
+			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
 
-				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1]", excessHappiness)
-
-			elseif g_activePlayer:IsEmpireSuperUnhappy() then
-
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4]", -excessHappiness)
-				--unhappyFoodModifier = GameDefines.VERY_UNHAPPY_GROWTH_PENALTY
-				--if not bnw_mode then
-				--	unhappyProductionModifier = GameDefines.VERY_UNHAPPY_PRODUCTION_PENALTY
-				--end
-
-			else -- IsEmpireUnhappy
-
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3]", -excessHappiness)
-				--unhappyFoodModifier = GameDefines.UNHAPPY_GROWTH_PENALTY
+			if g_activePlayer:IsEmpireSuperUnhappy() then
+				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
+			elseif g_activePlayer:IsEmpireUnhappy() then
+				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
+			else
+				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", excessHappiness, unhappypop, population)
 			end
 			Controls.HappinessString:SetText(happinessText)
 
@@ -1302,7 +1295,7 @@ if civ5_mode then
 
 			--------------
 			-- Unhappiness
-			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation()
+			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
 			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
 --CBP
 		--local unhappinessFromPop = g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - unhappinessFromPupetCities

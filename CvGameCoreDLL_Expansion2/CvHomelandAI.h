@@ -262,11 +262,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool MoveCivilianToGarrison(CvUnit* pUnit);
 #endif
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
-#else
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false);
-#endif
+	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 private:
 
@@ -294,12 +290,9 @@ private:
 #endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
-#else
-	void PlotWorkerMoves();
-#endif
-#if defined(MOD_BALANCE_CORE)
 	void PlotWorkerSeaMoves(bool bSecondary = false);
 #else
+	void PlotWorkerMoves();
 	void PlotWorkerSeaMoves();
 #endif
 	void PlotPatrolMoves();
@@ -336,11 +329,7 @@ private:
 	void ExecuteFirstTurnSettlerMoves();
 	void ExecuteExplorerMoves();
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	void ExecuteWorkerMoves(bool bSecondary = false);
-#else
 	void ExecuteWorkerMoves();
-#endif
 	void ExecuteMovesToSafestPlot();
 	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bFinishMoves = false);
 
@@ -369,10 +358,7 @@ private:
 	void ExecuteAircraftMoves();
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
-	void ExecutePatrolMoves();
-#if defined(MOD_BALANCE_CORE)
-	void ExecuteAggressivePatrolMoves();
-#endif
+	void ExecutePatrolMoves(bool bAtWar);
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
@@ -392,11 +378,7 @@ private:
 	CvPlot* FindUnassignedTarget(CvUnit *pUnit);
 #endif
 	void UnitProcessed(int iID);
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool ExecuteWorkerMove(CvUnit* pUnit, bool bSecondary = false);
-#else
 	bool ExecuteWorkerMove(CvUnit* pUnit);
-#endif
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
@@ -410,6 +392,7 @@ private:
 	// Class data
 	CvPlayer* m_pPlayer;
 	std::list<int> m_CurrentTurnUnits;
+	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
 
 	MoveUnitsArray m_CurrentMoveUnits;
 	MoveUnitsArray m_CurrentMoveHighPriorityUnits;
@@ -448,10 +431,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
-std::vector<CvPlot*> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
-
-std::vector<CvPlot*> GetAggressivePatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
-
+std::vector<CvPlot*> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, bool bAtWar, int nMaxTargets = 5);
 }
 
 #endif //CIV5_HOMELAND_AI_H

@@ -118,6 +118,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCitySupplyModifierGlobal(0),
 	m_iCitySupplyFlat(0),
 	m_iCitySupplyFlatGlobal(0),
+	m_iCityRangedStrikeRange(0),
+	m_iCityIndirectFire(0),
+	m_iRangedStrikeModifier(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -206,12 +209,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piGreatWorkYieldChangeLocal(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iNumRequiredTier3Tenets(0),
 	m_bIsNoWater(false),
 	m_bIsNoRiver(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
 	m_bBuildAnywhere(false),
 	m_iTradeReligionModifier(-1),
+	m_iReformationFollowerReduction(0),
 	m_iFreeArtifacts(0),
 	m_iResourceDiversityModifier(0),
 #endif
@@ -261,6 +266,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLandTourism(0),
 	m_iSeaTourism(0),
 	m_iAlwaysHeal(0),
+	m_iNukeInterceptionChance(0),
 	m_bIsCorp(false),
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
@@ -529,12 +535,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsNoRiver = kResults.GetBool("IsNoRiver");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
+	m_iReformationFollowerReduction = kResults.GetInt("ReformationFollowerReduction");
 	m_iFreeArtifacts = kResults.GetInt("FreeArtifacts");
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 #endif
@@ -584,6 +592,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
 	m_bIsCorp = kResults.GetBool("IsCorporation");
+	m_iNukeInterceptionChance = kResults.GetInt("NukeInterceptionChance");
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_bPlayerBorderGainlessPillage = kResults.GetBool("PlayerBorderGainlessPillage");
@@ -645,6 +654,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCitySupplyModifierGlobal = kResults.GetInt("CitySupplyModifierGlobal");
 	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
 	m_iCitySupplyFlatGlobal = kResults.GetInt("CitySupplyFlatGlobal");
+	m_iCityRangedStrikeRange = kResults.GetInt("CityRangedStrikeRange");
+	m_iCityIndirectFire = kResults.GetInt("CityIndirectFire");
+	m_iRangedStrikeModifier = kResults.GetInt("RangedStrikeModifier");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -1958,6 +1970,22 @@ bool CvBuildingEntry::IsAllowsRangeStrike() const
 {
 	return m_bAllowsRangeStrike;
 }
+
+/// Does this Building allow us to Range Strike?
+int CvBuildingEntry::CityRangedStrikeRange() const
+{
+	return m_iCityRangedStrikeRange;
+}
+/// Does this Building allow us to Range Strike?
+int CvBuildingEntry::CityIndirectFire() const
+{
+	return m_iCityIndirectFire;
+}
+/// Does this Building allow us to Range Strike?
+int CvBuildingEntry::CityRangedStrikeModifier() const
+{
+	return m_iRangedStrikeModifier;
+}
 #if defined(MOD_BALANCE_CORE)
 // This is an actual Modifier where as GetDefenseModifier is just building Hit Points
 int CvBuildingEntry::GetBuildingDefenseModifier() const
@@ -2401,6 +2429,10 @@ int CvBuildingEntry::GetAlwaysHeal() const
 bool CvBuildingEntry::IsCorp() const
 {
 	return m_bIsCorp;
+}
+int CvBuildingEntry::GetNukeInterceptionChance() const
+{
+	return m_iNukeInterceptionChance;
 }
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
@@ -3536,6 +3568,11 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 }
 
 #if defined(MOD_BALANCE_CORE)
+int CvBuildingEntry::GetNumRequiredTier3Tenets() const
+{
+	return m_iNumRequiredTier3Tenets;
+}
+
 /// Does a city need to lack fresh water?
 bool CvBuildingEntry::IsNoWater() const
 {
@@ -3555,6 +3592,12 @@ bool CvBuildingEntry::IsReformation() const
 {
 	return m_bIsReformation;
 }
+/// Does this building boost religious spread via trade?
+int CvBuildingEntry::GetReformationFollowerReduction() const
+{
+	return m_iReformationFollowerReduction;
+}
+
 /// Can this building ignore most restrictions?
 bool CvBuildingEntry::IsBuildAnywhere() const
 {
@@ -4046,6 +4089,9 @@ int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 /// Is the player allowed to sell building eIndex in this city?
 bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 {
+	if (m_pCity->IsResistance())
+		return false;
+
 	// Can't sell more than one building per turn
 	if(IsSoldBuildingThisTurn())
 		return false;

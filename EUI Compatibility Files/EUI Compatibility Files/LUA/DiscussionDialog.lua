@@ -223,10 +223,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			
 			-- Discussion Root Mode
 			if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-				
-				-------------------
-				-- END VASSALAGE --
-				-------------------
 				local strLeaderName;
 				if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 					strLeaderName = pAIPlayer:GetNickName();
@@ -234,26 +230,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 					strLeaderName = pAIPlayer:GetName();
 				end
 
-				-- AI vassal
-				if (pAITeam:CanEndVassal(Game.GetActiveTeam())) then
-					strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL", strLeaderName );
-					strButton1Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL_TT", strLeaderName );
-				-- Human vassal
-				elseif (pActiveTeam:CanEndVassal(g_iAITeam)) then
-					strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL", strLeaderName );
-					strButton1Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL_TT", strLeaderName );
-				end
-				
-				-- End Vassal button valid? (only when human is the Vassal)
-				if (pActiveTeam:IsVassal(g_iAITeam)) then
-					if(pActiveTeam:CanEndVassal(g_iAITeam)) then
-						Controls.Button1:SetDisabled(false);
-					else
-						Controls.Button1:SetDisabled(true);
-						strButton1Tooltip = strButton1Tooltip .. "[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_CANT_END_VASSAL" , strLeaderName ) .. "[ENDCOLOR]";
-					end
-				end
-				
 				--------------------
 				-- SHARE INTRIGUE --
 				--------------------
@@ -820,15 +796,8 @@ function OnButton1()
 	
 	local iButtonID = 1;	-- This format is also used in DiploTrade.lua in the OnBack() function.  If functionality here changes it should be updated there as well.
         
-    -- Human-invoked discussion
-	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
-		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			-- End Vassalage with AI Player
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_ENDS_VASSALAGE, g_iAIPlayer, 2, 0 );
-		end
-        
     -- Fluff discussion mode
-	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
+	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 		OnBack(true);
     -- Fluff discussion mode 2
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then

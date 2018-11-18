@@ -228,19 +228,16 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			iRegularCost /= 2;
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if (pToPlot->isMountain() && pUnit->isMountainsDoubleMove())
 		{
 			iRegularCost /= 2;
 		}
-#endif
-		else if ((eToFeature == NO_FEATURE) ? pUnit->isTerrainDoubleMove(eToTerrain) : pUnit->isFeatureDoubleMove(eToFeature))
+		else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
 		{
 			iRegularCost /= 2;
 		}
-
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		else if ((pToPlot->getFeatureType() == NO_FEATURE) ? pUnit->isTerrainHalfMove(pToPlot->getTerrainType()) : pUnit->isFeatureHalfMove(pToPlot->getFeatureType()))
+		else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
 		{
 			iRegularCost *= 2;
 		}
@@ -293,7 +290,7 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, const set<int>& plotsToIgnore)
+int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, const PlotIndexContainer& plotsToIgnore)
 {
 	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot, plotsToIgnore))
 		return iMovesRemaining;
@@ -316,7 +313,7 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const set<int>& plotsToIgnore)
+bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const PlotIndexContainer& plotsToIgnore)
 {
 	if (pUnit->IsIgnoreZOC())
 		return false;
@@ -343,7 +340,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			continue;
 
 		//this is the only difference to the regular version below
-		if (plotsToIgnore.find(pAdjPlot->GetPlotIndex()) != plotsToIgnore.end())
+		if ( std::find(plotsToIgnore.begin(),plotsToIgnore.end(),pAdjPlot->GetPlotIndex()) != plotsToIgnore.end() )
 			continue;
 
 		// check city zone of control

@@ -900,7 +900,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{	
 		// Make sure this unit can be built now
-		if((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop))
+		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
@@ -937,7 +937,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			continue;
 
 		// Make sure this building can be built now
-		if((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding,vTotalBuildingCount))
+		if ((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding, vTotalBuildingCount, (m_pCity->isProductionBuilding() && (BuildingTypes)iBldgLoop == m_pCity->getProductionBuilding())))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 			buildable.m_iIndex = iBldgLoop;
@@ -956,7 +956,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	// Loop through adding the available projects
 	for(iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		if(m_pCity->canCreate((ProjectTypes)iProjectLoop))
+		if (m_pCity->canCreate((ProjectTypes)iProjectLoop, (m_pCity->isProductionProject() && (ProjectTypes)iProjectLoop == m_pCity->getProductionProject())))
 		{
 			int iTempWeight = m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop);
 			if(iTempWeight > 0)
@@ -983,7 +983,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		{
 			ProcessTypes eProcess = (ProcessTypes)iProcessLoop;
 			
-			if (m_pCity->canMaintain(eProcess))
+			if (m_pCity->canMaintain(eProcess, (m_pCity->isProductionProcess() && eProcess == m_pCity->getProductionProcess())))
 			{		
 				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
 				if (eProcess == GC.getInfoTypeForString("PROCESS_DEFENSE"))
@@ -1145,14 +1145,62 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		iRushIfMoreThanXTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iRushIfMoreThanXTurns /= 100;
 
-		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-		if (m_pCity->isBarbarian())
+		bool bContinueSelection = false;
+		for (int i = 0; i < m_Buildables.size(); i++)
 		{
-			selection = m_Buildables.GetElement(0);
+			if (bContinueSelection)
+				break;
+
+			switch (m_Buildables.GetElement(i).m_eBuildableType)
+			{
+				case CITY_BUILDABLE_UNIT:
+				case CITY_BUILDABLE_UNIT_FOR_ARMY:
+				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+				{
+					UnitTypes eUnitType = (UnitTypes)m_Buildables.GetElement(i).m_iIndex;
+					if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnitType)
+					{
+						selection = m_Buildables.GetElement(i);
+						bContinueSelection = true;
+					}
+					break;
+				}
+
+				case CITY_BUILDABLE_BUILDING:
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)m_Buildables.GetElement(i).m_iIndex;
+					if (m_pCity->isProductionBuilding() && !bInterruptBuildings && m_pCity->getProductionBuilding() == eBuildingType)
+					{
+						selection = m_Buildables.GetElement(i);
+						bContinueSelection = true;
+					}
+					break;
+				}
+
+				case CITY_BUILDABLE_PROJECT:
+				{
+					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
+					if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProjectType)
+					{
+						selection = m_Buildables.GetElement(i);
+						bContinueSelection = true;
+					}
+					break;
+				}
+			}
 		}
-		else
+
+		if (!bContinueSelection)
 		{
-			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top 2 Choices");
+			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+			if (m_pCity->isBarbarian())
+			{
+				selection = m_Buildables.GetElement(0);
+			}
+			else
+			{
+				selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top 2 Choices");
+			}
 		}
 
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
@@ -1325,6 +1373,15 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	// Loop through adding the available buildings
 	if (!bUnitOnly)
 	{
+		std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
+		int iLoop;
+		for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t i=0; i<vBuildings.size(); i++)
+				vTotalBuildingCount[ vBuildings[i] ]++;
+		}
+
 		for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
 			const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iBldgLoop);
@@ -1335,7 +1392,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 				continue;
 
 			// Make sure this building can be built now
-			if (m_pCity->IsCanPurchase(true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
+			if (m_pCity->IsCanPurchase(vTotalBuildingCount, true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
 			{
 				buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 				buildable.m_iIndex = iBldgLoop;
@@ -4727,10 +4784,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
-	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
-	{
-		iFlatYield += pkBuildingInfo->GetScienceFromYield(eYield);
-	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
@@ -4742,7 +4795,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
-		iFlatYield += ((pkBuildingInfo->GetYieldChangePerReligion(eYield) * pCity->GetCityReligions()->GetNumReligionsWithFollowers()) / 100);
+		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers(); 
+		int tempYield = (pkBuildingInfo->GetYieldChangePerReligion(eYield) * numReligions) / 100;
+		iFlatYield += numReligions == 1 ? tempYield/2 : tempYield;
 	}
 
 	if (pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
@@ -4765,10 +4820,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
 	{
-		if (iYieldRate > pkBuildingInfo->GetScienceFromYield(eYield))
-		{
-			iFlatYield += (iYieldRate * pkBuildingInfo->GetScienceFromYield(eYield) / 100);
-		}
+		iFlatYield += iYieldRate / pkBuildingInfo->GetScienceFromYield(eYield);
 	}
 	if (pkBuildingInfo->GetGreatWorkYieldChange(eYield) > 0)
 	{
@@ -5289,7 +5341,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//Era = higher era, less valuable in game.
 		iActualIncrease = (iFlatYield * (100 - (iEra * 3)));
 		iActualIncrease /= 100;
-		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
 	}
@@ -6089,7 +6140,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
 		iValue += (pkBuildingInfo->GetNumThemingBonuses());
-		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 25);
+		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 10);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)
 		{
 			if (pCity != NULL && pCity->isCapital())
@@ -6118,7 +6169,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += (pkBuildingInfo->GetBuildingProductionModifier() + pCity->getPopulation()) * 5;
 	}
-	if (pkBuildingInfo->IsReformation())
+	if (pkBuildingInfo->IsReformation() || pkBuildingInfo->GetReformationFollowerReduction() != 0)
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
 		if (eReligion != NO_RELIGION)
@@ -6218,21 +6269,21 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
     }
 	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities * 2);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}

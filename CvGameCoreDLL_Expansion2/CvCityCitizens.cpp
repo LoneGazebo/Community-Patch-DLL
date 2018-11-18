@@ -146,6 +146,7 @@ void CvCityCitizens::Reset()
 	}
 
 	m_bForceAvoidGrowth = false;
+	m_bDiscourageGrowth = false;
 }
 
 /// Serialization read
@@ -169,6 +170,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	kStream >> m_eCityAIFocusTypes;
 
 	kStream >> m_bForceAvoidGrowth;
+	kStream >> m_bDiscourageGrowth;
 
 	kStream >> m_pabWorkingPlot;
 	kStream >> m_pabForcedWorkingPlot;
@@ -223,6 +225,7 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	kStream << m_eCityAIFocusTypes;
 
 	kStream << m_bForceAvoidGrowth;
+	kStream << m_bDiscourageGrowth;
 
 	kStream << m_pabWorkingPlot;
 	kStream << m_pabForcedWorkingPlot;
@@ -654,37 +657,54 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 	}
-	if (!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy())
+
+
+	if (!thisPlayer.isHuman() && thisPlayer.IsEmpireUnhappy())
 	{
-		int iUnhappyAverage = 0;
-		CvCity* pLoopCity;
-		int iLoop = 0;
-		int iNumCities = 0;
-		int iThisCityValue = 0;
-		for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
+		int iExcessHappiness = thisPlayer.GetExcessHappiness();
+		int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal();
+		
+		bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= -10;
+
+		m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= 0;
+
+		if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
 		{
-			if (pLoopCity != NULL)
+			int iUnhappyAverage = 0;
+			CvCity* pLoopCity;
+			int iLoop = 0;
+			int iNumCities = 0;
+			int iThisCityValue = 0;
+
+			for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
 			{
-				//mind the sign change
-				int iUnhappiness = pLoopCity->getHappinessDelta() * -1;
-
-				iNumCities++;
-
-				if (iUnhappiness > 0)
+				if (pLoopCity != NULL)
 				{
-					iUnhappyAverage += iUnhappiness;
-				}
-				if (pLoopCity == m_pCity)
-				{
-					iThisCityValue = iUnhappiness;
+					//mind the sign change
+					int iUnhappiness = pLoopCity->getHappinessDelta() * -1;
+
+					iNumCities++;
+
+					if (iUnhappiness > 0)
+					{
+						iUnhappyAverage += iUnhappiness;
+					}
+					if (pLoopCity == m_pCity)
+					{
+						iThisCityValue = iUnhappiness;
+					}
 				}
 			}
+			if (iNumCities > 0 && iUnhappyAverage > 0)
+			{
+				iUnhappyAverage /= iNumCities;
+			}
+			if (iThisCityValue > iUnhappyAverage)
+			{
+				bLockCity = true;
+			}
 		}
-		if (iNumCities > 0 && iUnhappyAverage > 0)
-		{
-			iUnhappyAverage /= iNumCities;
-		}
-		if (iThisCityValue > iUnhappyAverage)
+		if (bLockCity)
 		{
 			if (!IsForcedAvoidGrowth())
 			{
@@ -847,6 +867,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				{
 					iFoodEmphasisModifier *= 2;
 				}
+
+				if (m_bDiscourageGrowth)
+					iFoodEmphasisModifier /= 10;
 
 				iYield *= max(1, iFoodEmphasisModifier);
 				iYield /= 100;
@@ -1972,7 +1995,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 		}
 	}
-	if (GetCity()->isCapital())
+	if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
 		// Loop through all minors and get the total number we've met.
@@ -1982,13 +2005,13 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 
 			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
 				{
 					iNumMarried++;
 				}
 			}
 		}
-		if (GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+		if (iNumMarried > 0)
 		{
 			iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 		}
@@ -3401,7 +3424,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if (GetCity()->isCapital())
+				if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 				{
 					int iNumMarried = 0;
 					// Loop through all minors and get the total number we've met.
@@ -3411,13 +3434,13 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 
 						if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 						{
-							if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+							if (GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
 							{
 								iNumMarried++;
 							}
 						}
 					}
-					if (GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+					if (iNumMarried > 0)
 					{
 						iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 					}

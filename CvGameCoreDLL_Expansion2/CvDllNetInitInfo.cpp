@@ -143,7 +143,7 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        , CvPreGame::gameName().c_str()
 	        , CvPreGame::syncRandomSeed()
 	        , CvPreGame::mapRandomSeed()
-			, CvPreGame::GetKnownPlayersTable()
+			, CvPreGame::GetKnownPlayersTable().size()
 	       );
 #else
 	sprintf(m_szDebugString, "NetInitInfo : m_szLoadFileName=\"%s\", "\
