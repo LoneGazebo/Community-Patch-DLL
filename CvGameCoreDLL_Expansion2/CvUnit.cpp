@@ -14567,10 +14567,12 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 				if (MOD_EVENTS_UNIT_UPGRADES) {
 					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanHaveUpgrade, getOwner(), GetID(), iI, eUpgradeUnitType) == GAMEEVENTRETURN_FALSE) {
+						eUpgradeUnitType = NO_UNIT;
 						continue;
 					}
 
 					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveUpgrade, getOwner(), GetID(), iI, eUpgradeUnitType) == GAMEEVENTRETURN_FALSE) {
+						eUpgradeUnitType = NO_UNIT;
 						continue;
 					}
 				} else {
@@ -14589,6 +14591,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 					{
 						if (bResult == false) 
 						{
+							eUpgradeUnitType = NO_UNIT;
 							continue;
 						}
 					}
