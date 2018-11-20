@@ -268,19 +268,19 @@ WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US
-SET Text = 'Antônio'
+SET Text = 'AntÃ´nio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estêvão'
+SET Text = 'EstÃªvÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernão'
+SET Text = 'FernÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomé'
+SET Text = 'TomÃ©'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 UPDATE Language_en_US
@@ -565,10 +565,6 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNI
 UPDATE Language_en_US
 SET Text = 'Very well. Not that it will help either of us in the long run...we will all die soon enough.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
-
-UPDATE Language_en_US
-SET Text = 'You must be insane to insult me with such an offer. We refuse.'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
 
 UPDATE Language_en_US
 SET Text = 'You must be insane to insult me with such an offer. We refuse.'
