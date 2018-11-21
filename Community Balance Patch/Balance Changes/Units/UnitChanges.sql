@@ -77,14 +77,14 @@
 
 	-- cap for archaeologists
 	UPDATE UnitClasses SET MaxPlayerInstances = '3' WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
-
+--modder please note customs_house_venice still does +2 turns just like custom house, but weird bug i dont ask why.
 INSERT INTO Unit_ScalingFromOwnedImprovements
 	(UnitType, ImprovementType, Amount)
 VALUES
 	('UNIT_SCIENTIST', 'IMPROVEMENT_ACADEMY', '10'),
 	('UNIT_ENGINEER', 'IMPROVEMENT_MANUFACTORY', '20'),
-	('UNIT_MERCHANT', 'IMPROVEMENT_CUSTOMS_HOUSE', '100'),
-	('UNIT_VENETIAN_MERCHANT',	'IMPROVEMENT_CUSTOMS_HOUSE_VENICE',	'100');
+	('UNIT_MERCHANT', 'IMPROVEMENT_CUSTOMS_HOUSE', '10'),
+	('UNIT_VENETIAN_MERCHANT',	'IMPROVEMENT_CUSTOMS_HOUSE_VENICE',	'20');
 
 INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)
