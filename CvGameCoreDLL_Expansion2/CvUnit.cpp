@@ -5602,7 +5602,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
 	//will fail for barbarians ...
-	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
+	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner(),NO_TEAM,false,getDomainType()==DOMAIN_SEA);
 	if (!pNearestCity)
 		pNearestCity = GET_PLAYER(getOwner()).getCapitalCity();
 	
@@ -5617,6 +5617,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 
+	//inefficient but called infrequently
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);

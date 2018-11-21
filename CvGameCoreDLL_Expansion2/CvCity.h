@@ -1465,9 +1465,6 @@ public:
 	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
-	PlayerTypes getLiberationPlayer() const;
-	void liberate();
-
 	CvCityStrategyAI* GetCityStrategyAI() const;
 	CvCityCitizens* GetCityCitizens() const;
 	CvCityReligions* GetCityReligions() const;
