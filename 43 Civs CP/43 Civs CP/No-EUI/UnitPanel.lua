@@ -1627,7 +1627,7 @@ function TipHandler( control )
 					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_GGP_STRING", iYieldChange);
 				elseif (iYield == YieldTypes.YIELD_GREAT_ADMIRAL_POINTS) then
 					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_GAP2_STRING", iYieldChange);
-				elseif (iYield == YieldTypes.YIELD_CULTURE_LOCAL) then
+				elseif (iYield == YieldTypes.YIELD_CULTURE_LOCAL) then 
 					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_CULTURE_LOCAL_STRING", iYieldChange);
 				end
 				
