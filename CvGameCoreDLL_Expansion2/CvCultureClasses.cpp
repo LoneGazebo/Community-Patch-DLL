@@ -4045,7 +4045,7 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflu
         iInfluence = iInfluence * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
     }
     
-    if (bApplyModifiers) {
+    if (bApplyModifiers && m_pPlayer->getCapitalCity()) {
         int iModifier = m_pPlayer->getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
         if (iModifier != 0) {
             iInfluence = iInfluence * (100 + iModifier) / 100;

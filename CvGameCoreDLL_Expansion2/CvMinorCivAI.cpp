@@ -11385,7 +11385,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if (iBaseFriendship > iFriendshipAnchor)
+	if (iBaseFriendship > iFriendshipAnchor && !GET_PLAYER(ePlayer).IsAtWarWith(GetPlayer()->GetID()))
 	{
 		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
 		{

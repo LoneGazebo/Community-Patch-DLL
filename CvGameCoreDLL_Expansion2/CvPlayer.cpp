@@ -2761,8 +2761,8 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 	}
 
-	// slewis
-	// If we're Venice
+#if !defined(MOD_VENETIAN_SETTLERS)
+	// Venice can receive settlers but not build any ...
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
 		// if we're trying to drop a settler
@@ -2796,6 +2796,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 		}	
 	}
+#endif
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -11733,11 +11734,6 @@ void CvPlayer::RespositionInvalidUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
-
 		if(pLoopUnit->isDelayedDeath())
 		{
 			continue;
@@ -14531,12 +14527,6 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 	// Has the AI agreed to not settle here?
 	if(IsNoSettling(pPlot->GetPlotIndex()))
 		return false;
-
-	// Haxor for Venice to prevent secondary founding
-	if (GetPlayerTraits()->IsNoAnnexing() && getCapitalCity())
-	{
-		return false;
-	}
 
 	// Settlers cannot found cities while empire is very unhappy
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
@@ -21352,7 +21342,18 @@ void CvPlayer::DoCityRevolt()
 					CvPlayer &kRecipient = GET_PLAYER(eRecipient);
 					for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
 						PlayerTypes eNotifyPlayer = (PlayerTypes)iNotifyLoop;
+
+						if (eNotifyPlayer == NO_PLAYER)
+							continue;
+
 						CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+
+						if (!kCurNotifyPlayer.isAlive())
+							continue;
+
+						if (!GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(getTeam()))
+							continue;
+
 						CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
 						if (pNotifications)
 						{
@@ -26760,8 +26761,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BULLY:
 				{
-					if (eYield != ePassYield)
-					continue;
+					if (eYield != ePassYield && ePassYield != NO_YIELD)
+						continue;
 
 					if (iPassYield == 0)
 						iValue += GetYieldFromMinorDemand(eYield);
@@ -41761,7 +41762,6 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 					if(pCity->getPopulation() > 1)
 					{
 						pCity->setFood(pCity->growthThreshold() / 2);
-						pCity->setFoodKept((pCity->getFood() * pCity->getMaxFoodKeptPercent()) / 100);
 					}
 				}
 			}
@@ -41774,7 +41774,6 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				if(pCity->getPopulation() == 1)
 				{
 					pCity->setFood(0);
-					pCity->setFoodKept(0);
 				}
 			}
 		}
@@ -41810,10 +41809,6 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				{
 					pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, pCity->GetCityBuildings()->GetNumRealBuilding(eBuilding)+1);
 					changeAdvancedStartPoints(-iCost);
-					if(pkBuildingInfo->GetFoodKept() != 0)
-					{
-						pCity->setFoodKept((pCity->getFood() * pCity->getMaxFoodKeptPercent()) / 100);
-					}
 				}
 			}
 
@@ -41822,10 +41817,6 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, pCity->GetCityBuildings()->GetNumRealBuilding(eBuilding)-1);
 				changeAdvancedStartPoints(iCost);
-				if(pkBuildingInfo->GetFoodKept() != 0)
-				{
-					pCity->setFoodKept((pCity->getFood() * pCity->getMaxFoodKeptPercent()) / 100);
-				}
 			}
 		}
 
@@ -44020,9 +44011,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							for(int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 							{
+#if defined(MOD_VENETIAN_SETTLERS)
+								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
+#else
 								CvUnit* pNewUnit = NULL;
-
-								// slewis
 								// for venice
 								if (pUnitEntry->IsFound() && GetPlayerTraits()->IsNoAnnexing())
 								{
@@ -44051,9 +44043,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
 								}
+#endif
 
 								CvAssert(pNewUnit);
-
 								if (pNewUnit)
 								{
 #if defined(MOD_BALANCE_CORE)
@@ -47104,7 +47096,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	}
 
 	//in case we're not getting the cached data, we need to prepare some things
-	vector<int> ignorePlots(GC.getMap().numPlots(), 0);
+	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
 	if (bLogging)
 	{
 		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
@@ -47113,7 +47105,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 			if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
 				ignorePlots[iI] = 1;
-			else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
+			else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
 				ignorePlots[iI] = 1;
 		}
 	}
@@ -49762,11 +49754,17 @@ void CvPlayer::computeAveragePlotFoundValue()
 		}
 	}
 
-	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
-	OutputDebugString(CvString::format("Average city site value for player %d is %d\n", m_eID.get(), iAvg).c_str());
-
 	//assuming a normal distribution, this should allow all but the worst plots
+	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
 	m_iReferenceFoundValue = iAvg - iAvg / 3;
+
+	//some flavor adjustment
+	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
+	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
+	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
+
+	OutputDebugString(CvString::format("Average city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID.get(), iAvg, m_iReferenceFoundValue.get()).c_str());
 }
 
 void CvPlayer::updatePlotFoundValues()
@@ -49787,12 +49785,11 @@ void CvPlayer::updatePlotFoundValues()
 		return;
 
 	//don't need to update if never going to settle again
-	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-	if (EconomicAIHelpers::CannotMinorCiv(this, eCanSettle) || bVenice)
+	if (EconomicAIHelpers::CannotMinorCiv(this, eCanSettle))
 #else
-	if (isMinorCiv() || bVenice)
+	if (isMinorCiv())
 #endif
 	{
 		if (GetNumCitiesFounded()>0)
@@ -49801,7 +49798,7 @@ void CvPlayer::updatePlotFoundValues()
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-	vector<int> ignorePlots(GC.getMap().numPlots(), 0);
+	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
@@ -49810,16 +49807,9 @@ void CvPlayer::updatePlotFoundValues()
 			if (pPlot->getOwner() != m_eID) //if we own it, it's fine
 				ignorePlots[iI] = 1;
 		}
-		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
+		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
 			ignorePlots[iI] = 1;
 	}
-
-	//what is the worst plot we would settle?
-	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
-	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
-	//todo: take into account previously settled cities?
-	int iGoodEnoughToBeWorthOurTime = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
 	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
@@ -49830,7 +49820,7 @@ void CvPlayer::updatePlotFoundValues()
 			continue;
 
 		int iValue = pCalc->PlotFoundValue(pPlot, this, ignorePlots);
-		if (iValue > iGoodEnoughToBeWorthOurTime)
+		if (iValue > m_iReferenceFoundValue)
 			m_viPlotFoundValues[iI] = iValue;
 	}
 
@@ -49841,9 +49831,8 @@ void CvPlayer::updatePlotFoundValues()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iRefValue = m_viPlotFoundValues[iI];
-
-		if (iRefValue < iGoodEnoughToBeWorthOurTime)
+		int iCurrentValue = m_viPlotFoundValues[iI];
+		if (iCurrentValue < m_iReferenceFoundValue)
 			continue;
 
 		for (int iCount = RING0_PLOTS; iCount<RING3_PLOTS; iCount++)
@@ -49852,7 +49841,7 @@ void CvPlayer::updatePlotFoundValues()
 			if (pLoopPlot == NULL)
 				continue;
 
-			if (m_viPlotFoundValues[pLoopPlot->GetPlotIndex()] > iRefValue)
+			if (m_viPlotFoundValues[pLoopPlot->GetPlotIndex()] > iCurrentValue)
 			{
 				//this is not a local maximum
 				pPlot = NULL;
@@ -49866,7 +49855,7 @@ void CvPlayer::updatePlotFoundValues()
 			if (pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
 			{
 				//one supercity counts more than two mediocre ones
-				int iAddValue = (int)pow((float)iRefValue-iGoodEnoughToBeWorthOurTime,1.5f);
+				int iAddValue = (int)pow((float)iCurrentValue-m_iReferenceFoundValue,1.5f);
 				int newValue = pLoopArea->getTotalFoundValue() + iAddValue;
 				pLoopArea->setTotalFoundValue(newValue);
 				

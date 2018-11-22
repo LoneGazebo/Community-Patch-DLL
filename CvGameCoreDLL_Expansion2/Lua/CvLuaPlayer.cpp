@@ -11091,31 +11091,21 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 
 	CvUnit* pWorkerUnit = NULL;
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
-	if (MOD_UNITS_LOCAL_WORKERS) {
-		//Get head selected unit (which will be a worker).
-		auto_ptr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
-		pWorkerUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
-	} else {
-#endif
-		//Get first selected worker.
-		CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
-		while(selectedUnits.MoveNext())
+	//Get first selected worker.
+	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
+	while(selectedUnits.MoveNext())
+	{
+		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
+		if(pUnit.get() != NULL)
 		{
-			auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
-			if(pUnit.get() != NULL)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(pUnit->GetUnitType());
+			if(pUnitEntry && pUnitEntry->GetWorkRate() > 0)
 			{
-				CvUnitEntry* pUnitEntry = GC.getUnitInfo(pUnit->GetUnitType());
-				if(pUnitEntry && pUnitEntry->GetWorkRate() > 0)
-				{
-					pWorkerUnit = GC.UnwrapUnitPointer(pUnit.get());
-					break;
-				}
+				pWorkerUnit = GC.UnwrapUnitPointer(pUnit.get());
+				break;
 			}
 		}
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
 	}
-#endif
 
 	//Early out
 	if(pWorkerUnit == NULL)
@@ -11129,16 +11119,7 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	bool bUseDirective[cuiDirectiveSize];
 	CvPlot* pDirectivePlots[cuiDirectiveSize] = {0};
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
-	if (MOD_UNITS_LOCAL_WORKERS) {
-		pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true, false, pkPlayer->isHuman());
-	} else {
-#endif
-		pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
-	}
-#endif
-
+	pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true, false);
 	for(uint ui = 0; ui < cuiDirectiveSize; ui++)
 	{
 		bUseDirective[ui] = false;

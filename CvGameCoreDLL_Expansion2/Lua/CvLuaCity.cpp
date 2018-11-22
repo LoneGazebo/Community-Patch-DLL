@@ -3999,7 +3999,10 @@ int CvLuaCity::lChangeFood(lua_State* L)
 //int getFoodKept();
 int CvLuaCity::lGetFoodKept(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getFoodKept);
+	CvCity* pkCity = GetInstance(L);
+	int iFoodKept = (min(pkCity->getFood(),pkCity->growthThreshold())*pkCity->getMaxFoodKeptPercent()) / 100;
+	lua_pushinteger(L, iFoodKept);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getMaxFoodKeptPercent();
