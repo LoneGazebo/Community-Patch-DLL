@@ -5843,7 +5843,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	{
 		LogMinorCivApproachUpdate(ePlayer, viApproachWeights.begin(), eApproach, eOldApproach);
 	}
-
 	return eApproach;
 }
 
@@ -7897,32 +7896,53 @@ void CvDiplomacyAI::MakeWar()
 				for(int iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_MAJOR_CIVS; iThirdPlayerLoop++)
 				{
 					PlayerTypes eThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
-					if (IsPlayerValid(eThirdPlayer))
-					{
-						if(GetCoopWarCounter(eLoopPlayer, eThirdPlayer) >= 0)
-						{
-							ChangeCoopWarCounter(eLoopPlayer, eThirdPlayer, 1);
 
-							// AI players will always declare war at 10 turns, so we simplify things here - humans are handled by DoCoopWarTimeStatement()
-							if(!GET_PLAYER(eLoopPlayer).isHuman())
+					bool bInvalid = false;
+					if (!IsPlayerValid(eThirdPlayer))
+					{
+						bInvalid = true;
+					}
+
+					if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), GetPlayer()->GetID()))
+					{
+						bInvalid = true;
+					}
+
+					if (bInvalid)
+					{
+						if (GetCoopWarCounter(eLoopPlayer, eThirdPlayer) >= 0)
+						{
+							SetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer, NO_COOP_WAR_STATE);
+							SetCoopWarCounter(eLoopPlayer, eThirdPlayer, -666);
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(GetPlayer()->GetID(), eThirdPlayer, NO_COOP_WAR_STATE);
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarCounter(GetPlayer()->GetID(), eThirdPlayer, -666);
+						}
+						continue;
+					}
+
+					if(GetCoopWarCounter(eLoopPlayer, eThirdPlayer) >= 0)
+					{
+						ChangeCoopWarCounter(eLoopPlayer, eThirdPlayer, 1);
+
+						// AI players will always declare war at 10 turns, so we simplify things here - humans are handled by DoCoopWarTimeStatement()
+						if(!GET_PLAYER(eLoopPlayer).isHuman())
+						{
+							if(GetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer) == COOP_WAR_STATE_SOON &&
+								GetCoopWarCounter(eLoopPlayer, eThirdPlayer) == /*10*/ GC.getCOOP_WAR_SOON_COUNTER())
 							{
-								if(GetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer) == COOP_WAR_STATE_SOON &&
-									GetCoopWarCounter(eLoopPlayer, eThirdPlayer) == /*10*/ GC.getCOOP_WAR_SOON_COUNTER())
+								// Us
+								SetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer, COOP_WAR_STATE_ACCEPTED);
+								SetCoopWarCounter(eLoopPlayer, eThirdPlayer, 0);
+								if (DeclareWar(eThirdPlayer))
 								{
-									// Us
-									SetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer, COOP_WAR_STATE_ACCEPTED);
-									SetCoopWarCounter(eLoopPlayer, eThirdPlayer, 0);
-									if (DeclareWar(eThirdPlayer))
-									{
 #if defined(MOD_BALANCE_CORE)
-										GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eThirdPlayer, 2);
+									GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eThirdPlayer, 2);
 #else
-										GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eThirdPlayer);
+									GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eThirdPlayer);
 #endif
 
-										int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
-										GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdPlayer).getTeam(), iLockedTurns);
-									}
+									int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
+									GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdPlayer).getTeam(), iLockedTurns);
 								}
 							}
 						}
@@ -20131,6 +20151,29 @@ void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTy
 		for(int iTargetLoop = 0; iTargetLoop < MAX_MAJOR_CIVS; iTargetLoop++)
 		{
 			eTargetPlayer = (PlayerTypes) iTargetLoop;
+
+			bool bInvalid = false;
+			if (!IsPlayerValid(eTargetPlayer))
+			{
+				bInvalid = true;
+			}
+
+			if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
+			{
+				bInvalid = true;
+			}
+
+			if (bInvalid)
+			{
+				if (GetCoopWarAcceptedState(ePlayer, eTargetPlayer) == COOP_WAR_STATE_SOON)
+				{
+					SetCoopWarAcceptedState(ePlayer, eTargetPlayer, NO_COOP_WAR_STATE);
+					SetCoopWarCounter(ePlayer, eTargetPlayer, -666);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(GetPlayer()->GetID(), eTargetPlayer, NO_COOP_WAR_STATE);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarCounter(GetPlayer()->GetID(), eTargetPlayer, -666);
+				}
+				continue;
+			}
 
 			// Agreed to go to war soon... what's the counter at?
 			if(GetCoopWarAcceptedState(ePlayer, eTargetPlayer) == COOP_WAR_STATE_SOON)

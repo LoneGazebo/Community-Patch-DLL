@@ -570,10 +570,6 @@ UPDATE Language_en_US
 SET Text = 'You must be insane to insult me with such an offer. We refuse.'
 WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
 
-UPDATE Language_en_US
-SET Text = 'You must be insane to insult me with such an offer. We refuse.'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
-
 
 UPDATE Language_en_US
 SET Text = 'It honors my people, helping those in need.'

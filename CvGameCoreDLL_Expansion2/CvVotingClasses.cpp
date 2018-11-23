@@ -4457,22 +4457,26 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 #if defined(MOD_BALANCE_CORE)
 		int iNumMarried = 0;
-		// Loop through all minors and get the total number we've met.
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		if (GET_PLAYER(ePlayer).IsDiplomaticMarriage())
 		{
-			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-			if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			
+			// Loop through all minors and get the total number we've met.
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				if (GET_PLAYER(ePlayer).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(ePlayer))
+				PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+
+				if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 				{
-					iNumMarried++;
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(ePlayer) && !GET_PLAYER(eMinor).IsAtWarWith(ePlayer))
+					{
+						iNumMarried++;
+					}
 				}
 			}
-		}
-		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && iNumMarried > 0)
-		{
-			iVotes += iNumMarried;
+			if (iNumMarried > 0)
+			{
+				iVotes += iNumMarried;
+			}
 		}
 #endif
 
@@ -10813,6 +10817,9 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 				vVotesAllocated.push_back(chosen, 1);
 			}
 		}
+
+		if (vVotesAllocated.size() <= 0)
+			return;
 
 		// Logging
 		vVotesAllocated.SortItems();

@@ -1,5 +1,5 @@
 UPDATE Resources
-SET Happiness = '1'
+SET Happiness = '2'
 WHERE Happiness = '4';
 
 INSERT INTO Resource_YieldChangeFromMonopoly

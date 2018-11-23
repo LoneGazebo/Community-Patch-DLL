@@ -17005,7 +17005,7 @@ int CvCity::getGreatPeopleRateModifier() const
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_CORE)
 	int iNewValue = 0;
-	if(isCapital())
+	if (isCapital() && GET_PLAYER(getOwner()).IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
 		// Loop through all minors and get the total number we've met.
@@ -17015,13 +17015,13 @@ int CvCity::getGreatPeopleRateModifier() const
 
 			if (eMinor != getOwner() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
+				if (!GET_PLAYER(eMinor).IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
 				{
 					iNumMarried++;
 				}
 			}
 		}
-		if(GET_PLAYER(getOwner()).IsDiplomaticMarriage() && iNumMarried > 0)
+		if(iNumMarried > 0)
 		{
 			iNewValue = (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 		}
@@ -25846,7 +25846,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const 
 		}
 
 
-		int iModifier = /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
+		int iModifier = /*-40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 
 		if(HasGarrison())
 		{

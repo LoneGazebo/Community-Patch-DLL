@@ -3915,7 +3915,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		// Minor
 		if(bMinor)
 		{
-			if (eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_PROTECTIVE || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_IGNORE)
+			if (eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_PROTECTIVE || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_IGNORE || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_BULLY)
 				iItemValue = INT_MAX;
 		}
 		// Major

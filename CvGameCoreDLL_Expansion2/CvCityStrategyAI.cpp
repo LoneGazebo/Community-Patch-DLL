@@ -4366,7 +4366,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
 						}
 					}
-					if(pCity->isCapital())
+					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).IsDiplomaticMarriage())
 					{
 						int iNumMarried = 0;
 						// Loop through all minors and get the total number we've met.
@@ -4376,13 +4376,13 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 							if (eMinor != pCity->GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 							{
-								if (pCity->GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
+								if (!GET_PLAYER(eMinor).IsAtWarWith(pCity->GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
 								{
 									iNumMarried++;
 								}
 							}
 						}
-						if(pCity->GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+						if(iNumMarried > 0)
 						{
 							iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 						}

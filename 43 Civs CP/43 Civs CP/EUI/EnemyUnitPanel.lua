@@ -377,7 +377,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				iMyDamageInflicted = maxCityHitPoints;
 			end
 			-- Unit's max HP
-			local maxUnitHitPoints = GameDefines["MAX_HIT_POINTS"];
+			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
 			if (iTheirDamageInflicted > maxUnitHitPoints) then
 				iTheirDamageInflicted = maxUnitHitPoints;
 			end
@@ -2097,7 +2097,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
 	local myCityStrength = myCity:GetStrengthValue(true);
 	
-	local theirUnitMaxHP = GameDefines["MAX_HIT_POINTS"];
+	local theirUnitMaxHP = theirUnit:GetMaxHitPoints();
 	local theirUnitCurHP = theirUnit:GetDamage();
 	local theirUnitDamageInflicted = 0;
 	local theirUnitStrength = myCity:RangeCombatUnitDefense(theirUnit);

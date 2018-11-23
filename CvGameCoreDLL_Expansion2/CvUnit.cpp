@@ -14555,10 +14555,12 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 				if (MOD_EVENTS_UNIT_UPGRADES) {
 					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanHaveUpgrade, getOwner(), GetID(), iI, eUpgradeUnitType) == GAMEEVENTRETURN_FALSE) {
+						eUpgradeUnitType = NO_UNIT;
 						continue;
 					}
 
 					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveUpgrade, getOwner(), GetID(), iI, eUpgradeUnitType) == GAMEEVENTRETURN_FALSE) {
+						eUpgradeUnitType = NO_UNIT;
 						continue;
 					}
 				} else {
@@ -14577,6 +14579,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 					{
 						if (bResult == false) 
 						{
+							eUpgradeUnitType = NO_UNIT;
 							continue;
 						}
 					}
@@ -14676,20 +14679,6 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	int iDivisor = /*5*/ GC.getUNIT_UPGRADE_COST_VISIBLE_DIVISOR();
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
-	if(pCity != NULL)
-	{
-		int iMaxPrice = pCity->GetPurchaseCost(eUnit);
-		if(iMaxPrice > 0)
-		{
-			if(iPrice > iMaxPrice)
-			{
-				iPrice = iMaxPrice;
-			}
-		}
-	}
-#endif
 
 	return max(1, iPrice);
 }

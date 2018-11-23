@@ -21342,7 +21342,18 @@ void CvPlayer::DoCityRevolt()
 					CvPlayer &kRecipient = GET_PLAYER(eRecipient);
 					for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
 						PlayerTypes eNotifyPlayer = (PlayerTypes)iNotifyLoop;
+
+						if (eNotifyPlayer == NO_PLAYER)
+							continue;
+
 						CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+
+						if (!kCurNotifyPlayer.isAlive())
+							continue;
+
+						if (!GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(getTeam()))
+							continue;
+
 						CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
 						if (pNotifications)
 						{
@@ -26750,8 +26761,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BULLY:
 				{
-					if (eYield != ePassYield)
-					continue;
+					if (eYield != ePassYield && ePassYield != NO_YIELD)
+						continue;
 
 					if (iPassYield == 0)
 						iValue += GetYieldFromMinorDemand(eYield);
