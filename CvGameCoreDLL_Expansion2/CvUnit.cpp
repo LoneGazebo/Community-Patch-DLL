@@ -26371,7 +26371,13 @@ int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_yieldFromScouting[eIndex];
+	if ((size_t)eIndex < m_yieldFromScouting.size())
+		return m_yieldFromScouting[eIndex];
+	else
+	{
+		OutputDebugString("invalid index!\n");
+		return 0;
+	}
 }
 
 
