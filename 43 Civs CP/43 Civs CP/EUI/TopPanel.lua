@@ -2231,7 +2231,8 @@ local function ResourcesToolTip( control )
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)
 			local numResourceExport = g_activePlayer:GetResourceExport( resourceID )
 			local numResourceImport = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
-			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport
+			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
+			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc
 
 			tips:insert( ColorizeAbs(numResourceAvailable) .. resource.IconString .. " " .. Locale.ToUpper(resource.Description) )
 			tips:insert( "----------------" )
@@ -2323,14 +2324,13 @@ local function ResourcesToolTip( control )
 				end
 			end
 
-			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
 			local tip2 = ""
 			if numResourceMisc > 0 then
 				tip2 = " " .. ColorizeAbs( numResourceMisc ) .. resource.IconString
 			end
 			if #tip2 > 0 then
 				tips:insert( "" )
-				tips:insert( Colorize(numResourceLocal) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
+				tips:insert( Colorize(numResourceMisc) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
 				tips:insert( "[ICON_BULLET]" .. tip2 )
 			end
 			----------------------------
