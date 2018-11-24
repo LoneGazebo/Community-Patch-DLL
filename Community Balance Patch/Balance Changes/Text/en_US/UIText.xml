@@ -489,7 +489,9 @@
 		<Row Tag="TXT_KEY_BUILD_GAP2_STRING">
 			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_ADMIRAL] Great Admiral Points</Text>
 		</Row>
-
+		<Row Tag="TXT_KEY_BUILD_CULTURE_LOCAL_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_CULTURE_LOCAL] Border Growth Points</Text>
+		</Row>
 		<Row Tag="TXT_KEY_UPANEL_REPAIR_CHARGES">
 			<Text>Fleet Repair Charges</Text>
 		</Row>

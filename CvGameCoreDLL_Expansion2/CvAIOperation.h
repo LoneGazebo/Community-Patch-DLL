@@ -582,6 +582,7 @@ public:
 protected:
 	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
+	virtual void	LogSettleTarget(const char* hint, CvPlot* pTarget) const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

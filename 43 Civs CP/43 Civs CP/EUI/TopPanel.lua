@@ -426,7 +426,7 @@ local function UpdateTopPanelNow()
 			local excessHappiness = g_activePlayer:GetExcessHappiness()
 			local turnsRemaining = ""
 
-			local population = g_activePlayer:GetCurrentTotalPop()
+			local population = g_activePlayer:GetTotalPopulation()
 			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
 
 			if g_activePlayer:IsEmpireSuperUnhappy() then
@@ -1379,7 +1379,7 @@ if civ5_mode then
 			tips:insert( "[ENDCOLOR]" )
 -- COMMUNITY PATCH CHANGE
 			-- Happiness/Population calculation.
-			local iPopulation = g_activePlayer:GetCurrentTotalPop();
+			local iPopulation = g_activePlayer:GetTotalPopulation();
 			local iPopNeeded = g_activePlayer:GetPopNeededForLux();
 			local iGetLuxuryBonus = g_activePlayer:GetBaseLuxuryHappiness();
 			if(iGetLuxuryBonus > 0) then

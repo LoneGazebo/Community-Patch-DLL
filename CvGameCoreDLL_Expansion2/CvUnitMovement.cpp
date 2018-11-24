@@ -10,6 +10,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 {
 	int iMoveDenominator = GC.getMOVE_DENOMINATOR();
 	int iRegularCost = iMoveDenominator;
+	int iRouteCost = INT_MAX; //assume no route
 
 	//some easy checks first
 	if (pUnit->isHuman() && !pToPlot->isRevealed(pUnit->getTeam()))
@@ -70,10 +71,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//routes only on land
 		int iBaseMoves = pUnit->baseMoves(DOMAIN_LAND);
 
-		int iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromRoute), iToMovementCost + kUnitTeam.getRouteChange(eToRoute));
+		int iRouteVariableCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromRoute), iToMovementCost + kUnitTeam.getRouteChange(eToRoute));
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
 
-		return std::min(iRegularCost, std::min(iRouteCost, iRouteFlatCost));
+		iRouteCost = std::min(iRouteVariableCost, iRouteFlatCost);
 	}
 
 	//check embarkation
@@ -183,7 +184,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return INT_MAX;
 	}
-	else if (pToPlot->isCity()) //this applies only if fromPlot has no route
+	else if (pToPlot->isCity() && iRouteCost<INT_MAX) //make sure this applies only if there is no route
 	{
 		return iMoveDenominator;
 	}
@@ -277,7 +278,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		}
 	}
 
-	return iRegularCost;
+	//sometimes the route cost can be higher than what we get with promotions
+	return min(iRegularCost,iRouteCost);
 }
 
 //	---------------------------------------------------------------------------

@@ -5602,7 +5602,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
 	//will fail for barbarians ...
-	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
+	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner(),NO_TEAM,false,getDomainType()==DOMAIN_SEA);
 	if (!pNearestCity)
 		pNearestCity = GET_PLAYER(getOwner()).getCapitalCity();
 	
@@ -5617,6 +5617,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 
+	//inefficient but called infrequently
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
@@ -6420,8 +6421,6 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 		{
 			return true;
 		}
-		if (pPlot->isCity())
-			return false;
 		break;
 	case DOMAIN_AIR:
 		if(!pPlot->isFriendlyCity(*this, true))
@@ -6434,17 +6433,6 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 		break;
 	default:
 		break;
-	}
-
-	if(isTerrainImpassable(pPlot->getTerrainType()))
-	{
-		bool bCanPass = false;
-		bCanPass = m_Promotions.GetAllowTerrainPassable(pPlot->getTerrainType());
-
-		if(!bCanPass)
-		{
-			return true;
-		}
 	}
 
 	return false;
@@ -14691,20 +14679,6 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	int iDivisor = /*5*/ GC.getUNIT_UPGRADE_COST_VISIBLE_DIVISOR();
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
-	if(pCity != NULL)
-	{
-		int iMaxPrice = pCity->GetPurchaseCost(eUnit);
-		if(iMaxPrice > 0)
-		{
-			if(iPrice > iMaxPrice)
-			{
-				iPrice = iMaxPrice;
-			}
-		}
-	}
-#endif
 
 	return max(1, iPrice);
 }
@@ -17713,8 +17687,8 @@ bool CvUnit::immuneToFirstStrikes() const
 //	--------------------------------------------------------------------------------
 bool CvUnit::ignoreBuildingDefense() const
 {
-	VALIDATE_OBJECT
-	return m_pUnitInfo->IsIgnoreBuildingDefense();
+	//return m_pUnitInfo->IsIgnoreBuildingDefense();
+	return false; //always return false - this is too powerful
 }
 
 
@@ -29456,7 +29430,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
 	{
 		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
-		if (HaveRepetition(pToPlot->GetPlotIndex(), GC.getGame().getGameTurn()))
+		if (plot()!=pToPlot && HaveRepetition(pToPlot->GetPlotIndex(), GC.getGame().getGameTurn()))
 		{
 			OutputDebugString("warning, unit moving in a loop!\n");
 		}
