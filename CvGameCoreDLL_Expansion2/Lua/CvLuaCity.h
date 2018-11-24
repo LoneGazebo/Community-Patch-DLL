@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -231,6 +231,11 @@ protected:
 	static int lSetPopulation(lua_State* L);
 	static int lChangePopulation(lua_State* L);
 	static int lGetRealPopulation(lua_State* L);
+	
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	LUAAPIEXTN(GetAutomatons, int);
+	LUAAPIEXTN(SetAutomatons, void, iAutomatons, bReassignPop);
+#endif
 
 	static int lGetHighestPopulation(lua_State* L);
 	static int lSetHighestPopulation(lua_State* L);
