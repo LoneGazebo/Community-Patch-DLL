@@ -5350,15 +5350,6 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		{
 			CvAssert(ePlotTeam != NO_TEAM);
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam, getOwner())))
-#else
-			if(!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam)))
-#endif
-			{
-				return false;
-			}
-
 			if(isHuman())
 			{
 				if(!(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
@@ -5367,6 +5358,15 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				}
 			}
 			else
+			{
+				return false;
+			}
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			if(!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam, getOwner())))
+#else
+			if(!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam)))
+#endif
 			{
 				return false;
 			}
