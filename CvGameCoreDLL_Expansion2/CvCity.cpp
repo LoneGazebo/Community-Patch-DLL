@@ -51,6 +51,8 @@
 
 OBJECT_VALIDATE_DEFINITION(CvCity)
 
+int g_iCityToTrace = 0;
+
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
@@ -15431,10 +15433,9 @@ void CvCity::CheckForOperationUnits()
 	VALIDATE_OBJECT
 	UnitTypes eBestUnit;
 	UnitAITypes eUnitAI;
-	if((IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing()) || IsRazing() || this == NULL)
-	{
+	if((IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing()) || IsRazing())
 		return;
-	}
+
 	if (GET_PLAYER(getOwner()).isMinorCiv() || isBarbarian())
 		return;
 
@@ -17004,7 +17005,7 @@ int CvCity::getGreatPeopleRateModifier() const
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_CORE)
 	int iNewValue = 0;
-	if(isCapital())
+	if (isCapital() && GET_PLAYER(getOwner()).IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
 		// Loop through all minors and get the total number we've met.
@@ -17014,13 +17015,13 @@ int CvCity::getGreatPeopleRateModifier() const
 
 			if (eMinor != getOwner() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
+				if (!GET_PLAYER(eMinor).IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
 				{
 					iNumMarried++;
 				}
 			}
 		}
-		if(GET_PLAYER(getOwner()).IsDiplomaticMarriage() && iNumMarried > 0)
+		if(iNumMarried > 0)
 		{
 			iNewValue = (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 		}
@@ -17060,6 +17061,12 @@ int CvCity::GetJONSCultureStored() const
 void CvCity::SetJONSCultureStored(int iValue)
 {
 	VALIDATE_OBJECT
+
+	if (GetID() == g_iCityToTrace)
+	{
+		OutputDebugString(CvString::format("Turn %d, culture %d, delta %d\n",GC.getGame().getGameTurn(),m_iJONSCultureStored.get(),iValue-m_iJONSCultureStored.get()).c_str());
+	}
+		
 	m_iJONSCultureStored = iValue;
 }
 
@@ -19153,6 +19160,11 @@ void CvCity::setFood(int iNewValue)
 void CvCity::setFoodTimes100(int iNewValue)
 {
 	VALIDATE_OBJECT
+	if (GetID() == g_iCityToTrace)
+	{
+		OutputDebugString(CvString::format("Turn %d, food %d, delta %d\n",GC.getGame().getGameTurn(),getFood(),iNewValue/100-getFood()).c_str());
+	}
+		
 	if(getFoodTimes100() != iNewValue)
 	{
 		m_iFood = iNewValue;
@@ -19174,30 +19186,6 @@ void CvCity::changeFoodTimes100(int iChange)
 	VALIDATE_OBJECT
 	setFoodTimes100(getFoodTimes100() + iChange);
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::getFoodKept() const
-{
-	VALIDATE_OBJECT
-	return m_iFoodKept;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::setFoodKept(int iNewValue)
-{
-	VALIDATE_OBJECT
-	m_iFoodKept = iNewValue;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvCity::changeFoodKept(int iChange)
-{
-	VALIDATE_OBJECT
-	setFoodKept(getFoodKept() + iChange);
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvCity::getMaxFoodKeptPercent() const
@@ -19405,7 +19393,7 @@ void CvCity::ChangeMaxAirUnits(int iChange)
 int CvCity::getCitySupplyModifier() const
 {
 	VALIDATE_OBJECT
-		return m_iCitySupplyModifier;
+	return m_iCitySupplyModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19418,14 +19406,14 @@ void CvCity::changeCitySupplyModifier(int iChange)
 int CvCity::getCitySupplyFlat() const
 {
 	VALIDATE_OBJECT
-		return m_iCitySupplyFlat;
+	return m_iCitySupplyFlat;
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::changeCitySupplyFlat(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iCitySupplyFlat += iChange;
+	m_iCitySupplyFlat += iChange;
 }
 
 void CvCity::SetProductionRoutes(bool bValue)
@@ -24355,7 +24343,7 @@ void CvCity::DoBarbIncursion()
 	{
 		if(CvBarbarians::ShouldSpawnBarbFromCity(plot()))
 		{
-			CvBarbarians::DoSpawnBarbarianUnit(plot(), false, false);
+			CvBarbarians::DoSpawnBarbarianUnit(plot(), false, true);
 			CvBarbarians::DoCityActivationNotice(plot());
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -25858,7 +25846,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const 
 		}
 
 
-		int iModifier = /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
+		int iModifier = /*-40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 
 		if(HasGarrison())
 		{
@@ -29471,6 +29459,7 @@ void CvCity::doGrowth()
 	}
 #endif
 	int iFoodPerTurn100 = foodDifferenceTimes100();
+	int iFoodReqForGrowth = growthThreshold();
 
 	if(iFoodPerTurn100 < 0)
 	{
@@ -29486,13 +29475,15 @@ void CvCity::doGrowth()
 		}
 	}
 
-	changeFoodTimes100(iFoodPerTurn100);
-	changeFoodKept(iFoodPerTurn100 /100);
+	if (GetID() == g_iCityToTrace)
+	{
+		OutputDebugString(CvString::format("Turn %d, Pre Growth food %d, change %d, threshold %d\n",GC.getGame().getGameTurn(),getFood(),iFoodPerTurn100/100, iFoodReqForGrowth).c_str());
+	}
 
-	setFoodKept(range(getFoodKept(), 0, ((growthThreshold() * getMaxFoodKeptPercent()) / 100)));
+	changeFoodTimes100(iFoodPerTurn100);
 
 	//can't grow while starving
-	if(getFood() >= growthThreshold())
+	if(getFood() >= iFoodReqForGrowth)
 	{
 		if(GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
 		{
@@ -29500,8 +29491,16 @@ void CvCity::doGrowth()
 		}
 		else
 		{
-			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
+			int iFoodKept = (iFoodReqForGrowth * getMaxFoodKeptPercent())/100;
+			int iFoodStoreChange = max(0,iFoodReqForGrowth - iFoodKept);
+
+			changeFood( -iFoodStoreChange );
 			changePopulation(1);
+
+			if (GetID() == g_iCityToTrace)
+			{
+				OutputDebugString(CvString::format("Growth used %d, new store %d, new pop %d, new threshold %d\n",iFoodStoreChange,getFood(),getPopulation(),growthThreshold()).c_str());
+			}
 
 			// Only show notification if the city is small
 			if(getPopulation() <= 5)

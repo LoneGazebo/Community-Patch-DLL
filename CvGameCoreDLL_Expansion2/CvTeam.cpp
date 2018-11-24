@@ -6707,7 +6707,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											continue;
 
 										iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-										iValue /= 2;
 
 										if (iValue > iBiggestValue)
 										{
@@ -6870,10 +6869,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
 														continue;
 
-					
-
 													iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-													iValue /= 2;
 
 													if (iValue > iBiggestValue)
 													{
@@ -9866,7 +9862,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 			if(!isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
-				DoDeclareWar(getLeaderID(), false, eTeam, true);
+				DoDeclareWar(getLeaderID(), false, eTeam, false);
 			}
 #else
 				DoDeclareWar(eTeam, false, false, true);

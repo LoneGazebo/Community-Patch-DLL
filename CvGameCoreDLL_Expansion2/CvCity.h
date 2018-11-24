@@ -740,10 +740,6 @@ public:
 	void changeFood(int iChange);
 	void changeFoodTimes100(int iChange);
 
-	int getFoodKept() const;
-	void setFoodKept(int iNewValue);
-	void changeFoodKept(int iChange);
-
 	int getMaxFoodKeptPercent() const;
 	void changeMaxFoodKeptPercent(int iChange);
 
@@ -1469,9 +1465,6 @@ public:
 	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
-	PlayerTypes getLiberationPlayer() const;
-	void liberate();
-
 	CvCityStrategyAI* GetCityStrategyAI() const;
 	CvCityCitizens* GetCityCitizens() const;
 	CvCityReligions* GetCityReligions() const;
@@ -1745,7 +1738,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iLocalGainlessPillageCount;
 #endif
 	FAutoVariable<int, CvCity> m_iFood;
-	FAutoVariable<int, CvCity> m_iFoodKept;
+	FAutoVariable<int, CvCity> m_iFoodKept; //unused
 	FAutoVariable<int, CvCity> m_iMaxFoodKeptPercent;
 	FAutoVariable<int, CvCity> m_iOverflowProduction;
 	FAutoVariable<int, CvCity> m_iFeatureProduction;

@@ -942,6 +942,7 @@ local g_yieldString = {
 [YieldTypes.YIELD_GOLDEN_AGE_POINTS or false] = "TXT_KEY_BUILD_GAP_STRING",
 [YieldTypes.YIELD_GREAT_GENERAL_POINTS or false] = "TXT_KEY_BUILD_GGP_STRING",
 [YieldTypes.YIELD_GREAT_ADMIRAL_POINTS or false] = "TXT_KEY_BUILD_GAP2_STRING",
+[YieldTypes.YIELD_CULTURE_LOCAL or false] = "TXT_KEY_BUILD_CULTURE_LOCAL_STRING", 
 } g_yieldString[false] = nil
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------

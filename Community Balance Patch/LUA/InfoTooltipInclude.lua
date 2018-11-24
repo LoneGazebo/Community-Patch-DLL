@@ -181,7 +181,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		if(pActivePlayer) then
 			local iNumNationalPop = pActivePlayer:GetScalingNationalPopulationRequrired(iBuildingID);
 			if(iNumNationalPop > 0) then
-				local iNumHave = pActivePlayer:GetCurrentTotalPop();
+				local iNumHave = pActivePlayer:GetTotalPopulation();
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave));
 			end
 		end

@@ -3384,7 +3384,7 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit);
 
 	if(iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
-		return /*15*/ (GC.getBONUS_PER_ADJACENT_FRIEND() + pUnit->GetFlankAttackModifier()) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
+		return /*5*/ (GC.getBONUS_PER_ADJACENT_FRIEND() + pUnit->GetFlankAttackModifier()) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
 
 	return 0;
 }
@@ -3795,8 +3795,8 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 
 bool CvPlot::IsChokePoint() const
 {
-	//only passable land plots can be chokepoints
-	if(isWater() || isImpassable(BARBARIAN_TEAM))
+	//only passable hill plots can be chokepoints
+	if(!isHills() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];

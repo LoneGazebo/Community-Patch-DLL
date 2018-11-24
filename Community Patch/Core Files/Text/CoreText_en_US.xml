@@ -6416,7 +6416,7 @@
 			<Text>Your {1_Unit} inflicted a Status Effect!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PROMOTION_TRANSFER_THEM">
-			<Text>{3_Promotion} Status Effect was inflicted on our {1_Unit} by an enemy {2_Unit} during combat!</Text>
+			<Text>{3_Promotion} Status Effect was inflicted on our {2_Unit} by an enemy {1_Unit} during combat!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PROMOTION_TRANSFER_S_THEM_S">
 			<Text>Your {1_Unit} received a Status Effect!</Text>

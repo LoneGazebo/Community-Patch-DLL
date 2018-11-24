@@ -100,7 +100,7 @@ function UpdateData()
 			else
 				local iHappiness = pPlayer:GetExcessHappiness();
 				local tHappinessTextColor;
-				local population = pPlayer:GetCurrentTotalPop();
+				local population = pPlayer:GetTotalPopulation();
 				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds();
 
 				-- Empire Really Unhappy
@@ -816,7 +816,7 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
 		end
 		-- Happiness/Population calculation.
-		local iPopulation = pPlayer:GetCurrentTotalPop();
+		local iPopulation = pPlayer:GetTotalPopulation();
 		local iPopNeeded = pPlayer:GetPopNeededForLux();
 		local iGetLuxuryBonus = pPlayer:GetBaseLuxuryHappiness();
 		if(iGetLuxuryBonus > 0) then

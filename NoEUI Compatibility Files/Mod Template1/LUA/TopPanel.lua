@@ -100,7 +100,7 @@ function UpdateData()
 			else
 				local iHappiness = pPlayer:GetExcessHappiness();
 				local tHappinessTextColor;
-				local population = pPlayer:GetCurrentTotalPop();
+				local population = pPlayer:GetTotalPopulation();
 				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds();
 
 				-- Empire Really Unhappy

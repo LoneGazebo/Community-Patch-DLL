@@ -400,7 +400,7 @@ function GetUnitsString(plot)
 			
 			-- Hit Points
 			if (unit:GetDamage() > 0) then
-				strUnitText = strUnitText .. ", " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_UNIT_HP", GameDefines["MAX_HIT_POINTS"] - unit:GetDamage());
+				strUnitText = strUnitText .. ", " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_UNIT_HP", unit:GetMaxHitPoints() - unit:GetDamage());
 			end
 			
 			-- Embarked?
