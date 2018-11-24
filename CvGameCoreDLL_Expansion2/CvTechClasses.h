@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -76,6 +76,9 @@ public:
 	bool IsPermanentAllianceTrading() const;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
 #endif
 	bool IsBridgeBuilding() const;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -160,6 +163,9 @@ private:
 	bool m_bPermanentAllianceTrading;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int m_iCityAutomatonWorkersChange;
 #endif
 	bool m_bBridgeBuilding;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
