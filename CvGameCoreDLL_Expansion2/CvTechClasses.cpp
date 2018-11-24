@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -59,6 +59,9 @@ CvTechEntry::CvTechEntry(void):
 	m_bPermanentAllianceTrading(false),
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange(0),
 #endif
 	m_bBridgeBuilding(false),
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -146,6 +149,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bPermanentAllianceTrading = kResults.GetBool("PermanentAllianceTradingAllowed");
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 #endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -511,6 +517,14 @@ bool CvTechEntry::IsPermanentAllianceTrading() const
 int CvTechEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
+}
+#endif
+
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+/// Change the number of automaton workers a city can have
+int CvTechEntry::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
 }
 #endif
 
