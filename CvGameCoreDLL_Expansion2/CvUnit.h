@@ -792,9 +792,6 @@ public:
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
 
-	void SetSpottedEnemy(bool bValue);
-	bool IsSpottedEnemy();
-
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
@@ -2119,7 +2116,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
-	FAutoVariable<int, CvUnit> m_bSpottedEnemy;
+	FAutoVariable<int, CvUnit> m_bSpottedEnemy; //unused
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;

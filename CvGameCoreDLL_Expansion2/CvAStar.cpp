@@ -739,7 +739,7 @@ bool CvAStar::VerifyPath(const SPath& path)
 	CvGuard guard(m_cs);
 
 	//set the right config
-	if (!Configure(path.sConfig.ePathType))
+	if (!Configure(path.sConfig))
 		return false;
 
 	//a single plot is always valid
@@ -2305,9 +2305,18 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 //	--------------------------------------------------------------------------------
 /// can do only certain types of path here
-bool CvTwoLayerPathFinder::Configure(PathType ePathType)
+bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 {
-	switch(ePathType)
+	//there is no good place to do this but we need to make sure the dangerplots are not dirty
+	//otherwise there will be a recursive pathfinding call with unpredictable results
+	if (config.ePlayer != NO_PLAYER)
+	{
+		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
+		if (pUnit) //force an update before starting the actual pathfinding
+			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer());
+	}
+
+	switch(config.ePathType)
 	{
 	case PT_UNIT_MOVEMENT:
 		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
@@ -2322,7 +2331,7 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 		return false;
 	}
 
-	m_sData.ePathType = ePathType;
+	m_sData.ePathType = config.ePathType;
 	return true;
 }
 
@@ -2357,9 +2366,9 @@ bool CvStepFinder::AddStopNodeIfRequired(const CvAStarNode*, const CvAStarNode*)
 //////////////////////////////////////////////////////////////////////////
 // CvPathFinder convenience functions
 //////////////////////////////////////////////////////////////////////////
-bool CvStepFinder::Configure(PathType ePathType)
+bool CvStepFinder::Configure(const SPathFinderUserData& config)
 {
-	switch(ePathType)
+	switch(config.ePathType)
 	{
 	case PT_GENERIC_REACHABLE_PLOTS:
 		SetFunctionPointers(NULL, StepHeuristic, StepCostEstimate, StepValidAnyArea, NULL, NULL, NULL, NULL);
@@ -2426,7 +2435,7 @@ bool CvStepFinder::Configure(PathType ePathType)
 		return false;
 	}
 
-	m_sData.ePathType = ePathType;
+	m_sData.ePathType = config.ePathType;
 	return true;
 }
 
@@ -2438,7 +2447,7 @@ SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, co
 	//make sure we don't call this from dll and lua at the same time
 	CvGuard guard(m_cs);
 
-	if (!Configure(data.ePathType))
+	if (!Configure(data))
 		return SPath();
 
 	if (CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
@@ -2517,7 +2526,7 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 	//make sure we don't call this from dll and lua at the same time
 	CvGuard guard(m_cs);
 
-	if (!Configure(data.ePathType))
+	if (!Configure(data))
 		return ReachablePlots();
 
 	ReachablePlots plots;
@@ -2566,7 +2575,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 
 	map<CvPlot*,SPath> result;
 
-	if (!Configure(data.ePathType) || !pStartPlot)
+	if (!Configure(data) || !pStartPlot)
 		return result;
 
 	//sort for fast search

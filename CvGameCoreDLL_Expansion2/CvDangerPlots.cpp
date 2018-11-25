@@ -179,6 +179,9 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	if(!m_bArrayAllocated)
 		return;
 
+	// important. do this first to avoid recursion
+	m_bDirty = false;
+
 	// wipe out values
 	int iGridSize = GC.getMap().numPlots();
 	//	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
@@ -333,8 +336,6 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 
 		pLoopCity->SetThreatValue(iThreatValue);
 	}
-
-	m_bDirty = false;
 }
 
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot

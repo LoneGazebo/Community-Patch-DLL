@@ -3958,7 +3958,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 		CvPlot* pAdjacentPlot;
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
 
 			if(pAdjacentPlot == NULL)
 				continue;
@@ -18346,29 +18346,16 @@ int CvUnit::GetNumTilesRevealedThisTurn()
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::SetSpottedEnemy(bool bValue)
-{
-	VALIDATE_OBJECT
-	m_bSpottedEnemy = bValue;
-}
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsSpottedEnemy()
-{
-	VALIDATE_OBJECT
-	return m_bSpottedEnemy;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::IsGainsYieldFromScouting() const
 {
 	VALIDATE_OBJECT
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for (int iI = 0; iI < YIELD_TOURISM; iI++)
+	{
+		if (getYieldFromScouting((YieldTypes)iI) > 0)
 		{
-			if (getYieldFromScouting((YieldTypes)iI) > 0)
-			{
-				return true;
-			}
+			return true;
 		}
+	}
 	return false;
 }
 
@@ -20191,6 +20178,15 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false); // will delete the pointer
 					pNewCity = NULL;
+
+					//it might happen that we liberate the city right after acquiring it
+					//in that case our unit is teleported somewhere or killed if that fails
+					//if it's killed, we have an invalid pointer here, let's hope that the plot() check catches it
+					//other workarounds: 
+					//	- don't instakill unit after failed teleport (might have other side effects)
+					//  - don't liberate immediately after conquest ...
+					if (plot() == NULL)
+						return;
 				}
 			}
 		}
