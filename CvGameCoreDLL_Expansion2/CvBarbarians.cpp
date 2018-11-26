@@ -1121,10 +1121,11 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 				{
 					if (!pUnit->jumpToNearestValidPlot())
 						pUnit->kill(false);	// Could not find a valid spot!
+
 #if defined(MOD_EVENTS_BARBARIANS)
-				if (pUnit != NULL && MOD_EVENTS_BARBARIANS) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnit);
-				}
+					if (pUnit != NULL && MOD_EVENTS_BARBARIANS) {
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnit);
+					}
 #endif
 				}
 #endif

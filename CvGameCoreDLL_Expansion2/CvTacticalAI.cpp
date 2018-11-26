@@ -568,6 +568,8 @@ void CvTacticalAI::CommandeerUnits()
 		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if (!pUnit)
+				continue;
 			CvString msg = CvString::format("current turn tactical unit %s %d at %d,%d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY() );
 			LogTacticalMessage( msg );
 		}
@@ -7261,7 +7263,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if(pUnit->IsGarrisoned() && pUnit->canRangeStrikeAt(kTarget.GetTargetX(), kTarget.GetTargetY()))
+			if(pUnit && pUnit->IsGarrisoned() && pUnit->canRangeStrikeAt(kTarget.GetTargetX(), kTarget.GetTargetY()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), kTarget.GetTargetX(), kTarget.GetTargetY());
 
@@ -9630,11 +9632,8 @@ void CvTacticalAI::UnitProcessed(int iID, bool bMarkTacticalMap)
 {
 	m_CurrentTurnUnits.remove(iID);
 	CvUnit* pUnit = m_pPlayer->getUnit(iID);
-
-#if defined(MOD_BALANCE_CORE)
 	if (!pUnit)
 		return;
-#endif
 
 	pUnit->SetTurnProcessed(true);
 

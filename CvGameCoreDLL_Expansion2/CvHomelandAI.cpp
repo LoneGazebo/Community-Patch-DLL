@@ -156,6 +156,8 @@ void CvHomelandAI::RecruitUnits()
 		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if (!pUnit)
+				continue;
 			CvString msg = CvString::format("current turn homeland unit %s %d at %d,%d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY() );
 			LogHomelandMessage( msg );
 		}
@@ -1227,6 +1229,7 @@ void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			if (pUnit)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				UnitProcessed(pUnit->GetID());
@@ -1266,6 +1269,7 @@ void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			if (pUnit)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				UnitProcessed(pUnit->GetID());
@@ -2230,21 +2234,15 @@ void CvHomelandAI::PlotUpgradeMoves()
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		if(iNumUpgraded > iFlavorMilitaryTraining)
-#else
-		if(iNumUpgraded > 0)
-#endif
 		{
 			return;
 		}
 
 		// Couldn't do all upgrades this turn, get ready for highest priority unit to upgrade
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-#if defined(MOD_BALANCE_CORE)
 		if(!pUnit)
 			return;
-#endif
 
 		int iAmountRequired = pUnit->upgradePrice(pUnit->GetUpgradeUnitType());
 		bool bRequiresGold = (iAmountRequired > 0);
@@ -2260,12 +2258,10 @@ void CvHomelandAI::PlotUpgradeMoves()
 				{
 					iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(m_pPlayer->IsAtWar())
 				{
 					iCurrentFlavorMilitaryTraining *= 50;
 				}
-#endif
 			}
 			iGoldPriority = GC.getAI_GOLD_PRIORITY_UPGRADE_BASE();
 			iGoldPriority += GC.getAI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT() * iCurrentFlavorMilitaryTraining;
