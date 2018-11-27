@@ -2702,8 +2702,8 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pInPlot = CvLuaPlot::GetInstance(L, 2, false);
 	CvUnit* pkAttacker = GetInstance(L, 3, false);
-	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 3, false);
-	bool bFromRangedAttack = luaL_optbool(L, 4, false);
+	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 4, false);
+	bool bFromRangedAttack = luaL_optbool(L, 5, false);
 
 	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack);
 	lua_pushinteger(L, iResult);

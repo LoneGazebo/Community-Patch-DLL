@@ -1219,7 +1219,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
 						{
-							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
+							int iRand = GC.getGame().getSmallFakeRandNum(10, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex()) * 10;
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBack(*pkAttacker);
@@ -1642,7 +1642,8 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 #endif
 	}
 
-	if(pkAttacker)
+	//extra checks in case the attacking unit was killed because of a failed teleport
+	if(pkAttacker && !pkAttacker->isDelayedDeath() && pkAttacker->plot())
 	{
 		pkAttacker->PublishQueuedVisualizationMoves();
 		if(!pkAttacker->canMoveAfterAttacking() && pkAttacker->isOutOfAttacks())
@@ -3653,13 +3654,13 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 	else
 	// RED: Attack has been aborted, report that to tactical AI and reset attacker/defender states.
 	{	
-		if (pAttacker)
+		if (pAttacker && pAttacker->plot()) //try and make sure this isn't an invalid pointer (unit might have been killed in a conquer/liberate combo)
 		{
 			pAttacker->setCombatUnit(NULL);
 			pAttacker->ClearMissionQueue( false, /*iUnitCycleTimer*/ 110);
 		}
 		
-		if (pDefender)
+		if (pDefender && pDefender->plot())
 		{
 			pDefender->setCombatUnit(NULL);
 			pDefender->ClearMissionQueue();

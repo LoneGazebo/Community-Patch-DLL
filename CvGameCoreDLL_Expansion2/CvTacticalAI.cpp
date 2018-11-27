@@ -12815,7 +12815,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 	for (size_t i = 0; i < vAssignments.size(); i++)
 	{
 		CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(vAssignments[i].iUnitID);
-		if (!pUnit)
+		//be extra careful with the unit here, if we capture cities and liberate them strange instakills can happen
+		//so we need to guess whether the pointer is still valid
+		if (!pUnit || pUnit->isDelayedDeath() || pUnit->plot()==NULL )
 			continue;
 
 		CvPlot* pFromPlot = GC.getMap().plotByIndexUnchecked(vAssignments[i].iFromPlotIndex);
