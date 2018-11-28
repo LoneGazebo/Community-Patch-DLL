@@ -35389,21 +35389,24 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				{
 					pUnit->kill(false);	// Could not find a valid spot!
 				}
-				pUnit->finishMoves();
-				CvNotifications* pNotifications = GetNotifications();
-				if (pUnit && pNotifications)
+				else
 				{
-					Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
-					localizedText << pCity->getNameKey() << pCity->getPopulation() << pUnit->getNameKey();
-					Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-					localizedSummary << getNameKey() << pUnit->getNameKey();
-					pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
-				}
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), pCity->getName().GetCString(), pCity->getPopulation());
-					GetHomelandAI()->LogHomelandMessage(strLogString);
+					pUnit->finishMoves();
+					CvNotifications* pNotifications = GetNotifications();
+					if (pUnit && pNotifications)
+					{
+						Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+						localizedText << pCity->getNameKey() << pCity->getPopulation() << pUnit->getNameKey();
+						Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+						localizedSummary << getNameKey() << pUnit->getNameKey();
+						pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
+					}
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), pCity->getName().GetCString(), pCity->getPopulation());
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}

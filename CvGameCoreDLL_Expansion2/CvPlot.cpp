@@ -775,7 +775,7 @@ void CvPlot::verifyUnitValidPlot()
 							{
 								if (!pLoopUnit->jumpToNearestValidPlot())
 								{
-									pLoopUnit->kill(false);
+									pLoopUnit->kill(true);
 									pLoopUnit = NULL;
 								}
 							}
@@ -785,7 +785,7 @@ void CvPlot::verifyUnitValidPlot()
 								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/)))
 								{
 									if (!pLoopUnit->jumpToNearestValidPlot())
-										pLoopUnit->kill(false);
+										pLoopUnit->kill(true);
 								}
 							}
 						}
@@ -816,7 +816,7 @@ void CvPlot::verifyUnitValidPlot()
 									if(!(pLoopUnit->isInvisible(getTeam(), false)))
 									{
 										if (!pLoopUnit->jumpToNearestValidPlot())
-											pLoopUnit->kill(false);
+											pLoopUnit->kill(true);
 									}
 								}
 							}
@@ -860,13 +860,13 @@ void CvPlot::verifyUnitValidPlot()
 														{
 															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
 															if (!pLoopUnit->jumpToNearestValidPlot())
-																pLoopUnit->kill(false);
+																pLoopUnit->kill(true);
 														}
 														else
 														{
 															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
 															if (!pLoopUnit2->jumpToNearestValidPlot())
-																pLoopUnit2->kill(false);
+																pLoopUnit2->kill(true);
 														}
 													}
 												}

@@ -5601,58 +5601,35 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
-	//will fail for barbarians ...
-	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner(),NO_TEAM,false,getDomainType()==DOMAIN_SEA);
-	if (!pNearestCity)
-		pNearestCity = GET_PLAYER(getOwner()).getCapitalCity();
-	
-	ReachablePlots reachablePlots;
-	if (pNearestCity)
-	{
-		SPathFinderUserData data(this, 0, 42);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pNearestCity->plot(), data);
-	}
+	//remember we're calling this because the unit is trapped, so use really permissive flags
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE|CvUnit::MOVEFLAG_IGNORE_STACKING, 23);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
-
-	//inefficient but called infrequently
-	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-		//needs to be visible so we don't run into problems with stacking
-		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
-			continue;
-
-		if (pLoopPlot->isValidDomainForLocation(*this) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
+		//need to check for everything, including invisible units
+		if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
-			//need to check for invisible units as well ...
-			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+			int iValue = it->iNormalizedDistance;
+
+			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
+			if (getDomainType() == DOMAIN_SEA )
+				if (pLoopPlot->area()->getNumTiles()<GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+					iValue += 20;
+
+			//avoid embarkation
+			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+				iValue += 5;
+
+			if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 			{
-				//if we cannot reach this plot, we would maroon our unit there - so skip it
-				if (!reachablePlots.empty() && reachablePlots.find(pLoopPlot->GetPlotIndex()) == reachablePlots.end())
-					continue;
-
-				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
-
-				if(pNearestCity != NULL)
-					iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
-
-				//avoid putting ships on lakes etc
-				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-					iValue += 12;
-
-				//avoid embarkation
-				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 6;
-
-				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
-				{
-					iBestValue = iValue;
-					pBestPlot = pLoopPlot;
-				}
+				iBestValue = iValue;
+				pBestPlot = pLoopPlot;
 			}
 		}
 	}
@@ -26356,13 +26333,7 @@ int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	if ((size_t)eIndex < m_yieldFromScouting.size())
-		return m_yieldFromScouting[eIndex];
-	else
-	{
-		OutputDebugString("invalid index!\n");
-		return 0;
-	}
+	return m_yieldFromScouting[eIndex];
 }
 
 
