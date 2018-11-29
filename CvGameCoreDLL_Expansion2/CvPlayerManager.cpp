@@ -39,7 +39,6 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 		if (bWarStateChanged)
 		{
 			kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
-			kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 			GC.getGame().GetGameTrade()->InvalidateTradePathCache(iPlayerCivLoop);
 		}
 	}

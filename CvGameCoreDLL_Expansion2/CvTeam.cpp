@@ -1902,6 +1902,8 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			}
 		}
 	}
+
+	CvPlayerManager::Refresh(true);
 }
 
 //	------------------------------------------------------------------------------------------------
@@ -1916,8 +1918,6 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 #else
 	DoMakePeace(eTeam, bBumpUnits, bSuppressNotification);
 #endif
-
-	CvPlayerManager::Refresh(true);
 }
 
 //	------------------------------------------------------------------------------------------------
