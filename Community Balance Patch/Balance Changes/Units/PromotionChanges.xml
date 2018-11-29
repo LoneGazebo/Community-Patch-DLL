@@ -4054,7 +4054,7 @@
 			<Help>TXT_KEY_PROMOTION_MINELAYER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<TechPrereq>TECH_COMBUSTION</TechPrereq>
-			<AdjacentEnemySapMovement>2</AdjacentEnemySapMovement>
+			<AdjacentEnemySapMovement>120</AdjacentEnemySapMovement>
 			<RangedDefenseMod>-10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
