@@ -9434,7 +9434,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 							continue;
 						}
 
-						GC.getGame().DoSpawnUnitsAroundTargetCity(GetID(), pLoopCity, iNumRecruits, true, false, false, true);
+						GC.getGame().DoSpawnUnitsAroundTargetCity(GetID(), pLoopCity, iNumRecruits, true, pLoopCity->isCoastal(), false, true);
 					}
 				}
 			}
@@ -17703,7 +17703,7 @@ int CvPlayer::GetNumUnitsSupplied() const
 #if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 		{
-			int iWarWeariness = GetCulture()->GetWarWeariness();
+			int iWarWeariness = GetCulture()->GetWarWeariness()/2;
 			int iMod = (100 - min(75, iWarWeariness));
 			iFreeUnits *= iMod;
 			iFreeUnits /= 100;
@@ -31736,7 +31736,7 @@ int CvPlayer::GetTechDeviation() const
 	int iTechDeviation = iOurTech - iAvgTech;
 
 	//Using the num of techs to get a % - num of techs artificially increased to slow rate of runaways
-	int iTech = (int)((iTechDeviation * iTechDeviation * iTechDeviation) * /*.1*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+	int iTech = (int)((iTechDeviation * iTechDeviation) * /*.1*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 
 	if (iTech > 0 && iTech > (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100))
 		iTech = ((int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100);
@@ -35389,21 +35389,24 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				{
 					pUnit->kill(false);	// Could not find a valid spot!
 				}
-				pUnit->finishMoves();
-				CvNotifications* pNotifications = GetNotifications();
-				if (pUnit && pNotifications)
+				else
 				{
-					Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
-					localizedText << pCity->getNameKey() << pCity->getPopulation() << pUnit->getNameKey();
-					Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-					localizedSummary << getNameKey() << pUnit->getNameKey();
-					pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
-				}
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), pCity->getName().GetCString(), pCity->getPopulation());
-					GetHomelandAI()->LogHomelandMessage(strLogString);
+					pUnit->finishMoves();
+					CvNotifications* pNotifications = GetNotifications();
+					if (pUnit && pNotifications)
+					{
+						Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+						localizedText << pCity->getNameKey() << pCity->getPopulation() << pUnit->getNameKey();
+						Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+						localizedSummary << getNameKey() << pUnit->getNameKey();
+						pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
+					}
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), pCity->getName().GetCString(), pCity->getPopulation());
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}
@@ -44011,9 +44014,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							for(int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 							{
-#if defined(MOD_VENETIAN_SETTLERS)
-								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
-#else
+//#if defined(MOD_VENETIAN_SETTLERS)
+//								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
+//#else
 								CvUnit* pNewUnit = NULL;
 								// for venice
 								if (pUnitEntry->IsFound() && GetPlayerTraits()->IsNoAnnexing())
@@ -44043,7 +44046,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
 								}
-#endif
+//#endif
 
 								CvAssert(pNewUnit);
 								if (pNewUnit)

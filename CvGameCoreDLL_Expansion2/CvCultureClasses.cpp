@@ -5363,7 +5363,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	//but if we have a war going, it will generate rising unhappiness	
 	if(iMostWarTurns > 0)
 	{
-		int iInfluenceModifier = max(3, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 5));
+		int iInfluenceModifier = max(3, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 2));
 
 		int iWarValue = 0;
 
@@ -5371,7 +5371,6 @@ int CvPlayerCulture::ComputeWarWeariness()
 		iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
 		
 		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iTechProgress *= 2;
 
 		iWarValue *= (100 + iTechProgress);
 		iWarValue /= 100;
@@ -7065,7 +7064,15 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
 	if (iPercent != 0)
 	{
-		int iFromCity = m_pCity->getYieldRate(YIELD_CULTURE, false);
+		int iFromWonders = GetCultureFromWonders();
+		int iFromNaturalWonders = GetCultureFromNaturalWonders();
+#if defined(MOD_API_UNIFIED_YIELDS)
+		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
+#else
+		int iFromImprovements = GetCultureFromImprovements();
+#endif
+
+		int iFromCity = iFromWonders + iFromNaturalWonders + iFromImprovements;
 
 		iBase += iFromCity * iPercent / 100;
 	}

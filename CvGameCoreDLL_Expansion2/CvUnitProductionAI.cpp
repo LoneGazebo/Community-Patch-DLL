@@ -309,10 +309,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (!pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 					iFreePlots++;
 			}
-
-			if (iFreePlots == 0)
-				return 0;
 		}
+
+		if (iFreePlots == 0)
+			return 0;
 	}
 
 	//% Value that will modify the base value.

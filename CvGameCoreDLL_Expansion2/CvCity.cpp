@@ -6845,7 +6845,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				// In hundreds
 				int iNumRecruits = pkEventChoiceInfo->getFreeScaledUnits();
 
-				GC.getGame().DoSpawnUnitsAroundTargetCity(getOwner(), this, iNumRecruits, false, false, false, false);
+				GC.getGame().DoSpawnUnitsAroundTargetCity(getOwner(), this, iNumRecruits, true, isCoastal(), false, false);
 			}
 			//Let's do our notification stuff here.
 			for(int iI = 0; iI < pkEventChoiceInfo->GetNumNotifications(); iI++)
@@ -20460,10 +20460,6 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	iModifier += kPlayer.GetTechDeviation();
 
-	//Increase threshold based on # of citizens and cities. Makes larger cities more and more difficult to maintain.
-	
-	iModifier += GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
-
 	switch (eYield)
 	{
 	case YIELD_CULTURE:
@@ -20485,6 +20481,13 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 		iModifier += kPlayer.GetCapitalUnhappinessModCBP();
 	}
 
+	int iPop = getPopulation();
+
+	int iPopMod = GC.getBALANCE_HAPPINESS_POP_MULTIPLIER() * iPop;
+	iPopMod /= 100 + (iPop + (iPop/2));
+
+	iModifier += iPopMod;
+
 	return iModifier;
 }
 int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod, bool bForceGlobal) const
@@ -20493,20 +20496,8 @@ int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod, bool bForceGlo
 
 	int iNegativeModifier = getThresholdSubtractions(eYield);
 	iNegativeModifier += iMod;
-	//iNegativeModifier *= -1;
 
-	int iPop = getPopulation();
-	int iThresholdMod = iPop;
-
-	iThresholdMod *= 100 + iPositiveModifier;
-	iThresholdMod /= 100 + (iPop + (iPop / 2));
-
-	iThresholdMod += iNegativeModifier;
-
-	//iThresholdMod *= 100 + (iPop + (iPop / 2));
-	//iThresholdMod /= 100 + iNegativeModifier;
-
-	return iThresholdMod;
+	return iPositiveModifier + iNegativeModifier;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getThresholdSubtractions(YieldTypes eYield) const
@@ -20759,7 +20750,7 @@ int CvCity::getUnhappinessFromScienceNeeded(int iMod, bool bForceGlobal) const
 {
 	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_SCIENCE) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
-	int iModifier = getHappinessThresholdMod(YIELD_SCIENCE, iMod, !bForceGlobal);
+	int iModifier = getHappinessThresholdMod(YIELD_SCIENCE, iMod, bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20844,7 +20835,7 @@ int CvCity::getUnhappinessFromDefenseNeeded(int iMod, bool bForceGlobal) const
 
 		
 	
-	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod, !bForceGlobal);
+	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod, bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20921,7 +20912,7 @@ int CvCity::getUnhappinessFromGoldNeeded(int iMod, bool bForceGlobal) const
 {
 	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_GOLD) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
-	int iModifier = getHappinessThresholdMod(YIELD_GOLD, iMod, !bForceGlobal);
+	int iModifier = getHappinessThresholdMod(YIELD_GOLD, iMod, bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -23859,6 +23850,9 @@ int CvCity::GetTradeRouteCityMod(YieldTypes eIndex) const
 	if (pkCorporationInfo->GetTradeRouteCityMod(eIndex) == 0)
 		return 0;
 
+	if (!IsHasOffice())
+		return 0;
+
 	int iMod = 0;
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 	for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
@@ -23871,11 +23865,10 @@ int CvCity::GetTradeRouteCityMod(YieldTypes eIndex) const
 		if(pGameTrade->GetOriginCity(pGameTrade->GetTradeConnection(ui)) != this)
 			continue;
 
-		CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->GetTradeConnection(ui));
 		CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
-		if (pOriginCity != NULL && pDestCity != NULL)
+		if (pDestCity != NULL)
 		{
-			if (pOriginCity->IsHasOffice() && pDestCity->IsHasFranchise(eCorporation))
+			if (pDestCity->IsHasFranchise(eCorporation))
 			{
 				iMod += pkCorporationInfo->GetTradeRouteCityMod(eIndex);
 			}
