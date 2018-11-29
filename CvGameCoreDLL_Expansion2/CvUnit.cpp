@@ -25749,6 +25749,9 @@ int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 bool CvUnit::isTerrainDoubleMove(TerrainTypes eIndex) const
 {
 	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
+	if (m_map.empty())
+		return false;
+
 	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second > 0;
@@ -25776,6 +25779,9 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 {
 	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
+	if (m_map.empty())
+		return false;
+
 	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second;
@@ -25788,6 +25794,9 @@ int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 bool CvUnit::isFeatureDoubleMove(FeatureTypes eIndex) const
 {
 	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
+	if (m_map.empty())
+		return false;
+
 	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second > 0;
@@ -25828,6 +25837,9 @@ int CvUnit::getTerrainHalfMoveCount(TerrainTypes eIndex) const
 bool CvUnit::isTerrainHalfMove(TerrainTypes eIndex) const
 {
 	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
+	if (m_map.empty())
+		return false;
+
 	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second > 0;
@@ -25867,6 +25879,9 @@ int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
 bool CvUnit::isFeatureHalfMove(FeatureTypes eIndex) const
 {
 	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
+	if (m_map.empty())
+		return false;
+
 	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second > 0;
@@ -26026,6 +26041,9 @@ int CvUnit::getTerrainImpassableCount(TerrainTypes eIndex) const
 bool CvUnit::isTerrainImpassable(TerrainTypes eIndex) const
 {
 	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
+	if (m_map.empty())
+		return false;
+
 	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
 		return it->second > 0;

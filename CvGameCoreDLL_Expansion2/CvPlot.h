@@ -486,11 +486,11 @@ public:
 
 	bool isBlockaded(PlayerTypes ePlayer);
 
-	TerrainTypes getTerrainType() const
+	inline TerrainTypes getTerrainType() const
 	{
 		return (TerrainTypes)m_eTerrainType;
 	}
-	FeatureTypes getFeatureType() const
+	inline FeatureTypes getFeatureType() const
 	{
 		return (FeatureTypes)m_eFeatureType.get();
 	}
@@ -705,7 +705,7 @@ public:
 	bool isPlayerCityRadius(PlayerTypes eIndex) const;
 	void changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange);
 
-	int getVisibilityCount(TeamTypes eTeam) const
+	inline int getVisibilityCount(TeamTypes eTeam) const
 	{
 		CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 		CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");

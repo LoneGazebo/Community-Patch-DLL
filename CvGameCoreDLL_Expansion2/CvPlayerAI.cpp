@@ -49,7 +49,7 @@
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
 
 // inlined for performance reasons
-CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");

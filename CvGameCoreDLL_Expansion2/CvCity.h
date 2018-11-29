@@ -335,7 +335,7 @@ public:
 
 	// End Resource Demanded
 
-	int getFoodTurnsLeft() const;
+	int getFoodTurnsLeft(int iCorpMod = -1) const;
 	bool isProduction() const;
 	bool isProductionLimited() const;
 	bool isProductionUnit() const;
@@ -508,7 +508,7 @@ public:
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
-	int foodDifferenceTimes100(bool bBottom = true, CvString* toolTipSink = NULL) const;
+	int foodDifferenceTimes100(bool bBottom = true, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromCitySpecialists();
