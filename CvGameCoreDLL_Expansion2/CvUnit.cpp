@@ -28366,9 +28366,6 @@ bool CvUnit::SentryAlert() const
 #endif
 {
 	VALIDATE_OBJECT
-	if (GetActivityType() == ACTIVITY_SLEEP)
-		return false;
-
 	int iRange = visibilityRange();
 #if defined(MOD_BALANCE_CORE)
 	if (getDomainType() == DOMAIN_AIR)
@@ -30200,7 +30197,7 @@ bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
 		iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
 
 		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex()+GetID()+getDamage());
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
 		return iRoll < iWithdrawChance;
 	}
 	else

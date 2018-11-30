@@ -10761,35 +10761,23 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 				pLeague->DoVoteRepeal(chosen.iID, GetPlayer()->GetID(), 1, chosen.iChoice);
 			}
 
-			for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); it++)
+			//count how often we voted for one thing already
+			//and reduce the weight for what we chose by 10%, so we introduce more variety into our options.
+			for (int i = 0; i < vConsiderations.size(); i++)
 			{
-				if (it->GetID() == chosen.iID)
+				VoteConsideration vc = vConsiderations.GetElement(i);
+				if (vc.iID == chosen.iID)
 				{
-					//reduce the weight for what we chose by 10%, so we introduce more variety into our options.
-					int chosenWeight = vConsiderations.GetWeight(it->GetID());
+					chosen.iNumAllocated++;
+					vConsiderations.SetElement(i, chosen);
 
-					chosenWeight *= 85;
-					chosenWeight /= 100;
-
-					vConsiderations.SetWeight(it->GetID(), max(1, chosenWeight));
+					int iWeight = vConsiderations.GetWeight(i);
+					iWeight *= 85;
+					iWeight /= 100;
+					vConsiderations.SetWeight(i, iWeight);
+					break;
 				}
 			}
-
-			for (RepealProposalList::iterator it = pLeague->m_vRepealProposals.begin(); it != pLeague->m_vRepealProposals.end(); it++)
-			{
-				if (it->GetID() == chosen.iID)
-				{
-					//reduce the weight for what we chose by 10%, so we introduce more variety into our options.
-					int chosenWeight = vConsiderations.GetWeight(it->GetID());
-
-					chosenWeight *= 85;
-					chosenWeight /= 100;
-
-					vConsiderations.SetWeight(it->GetID(), max(1, chosenWeight));
-				}
-			}
-
-			chosen.iNumAllocated++;
 
 			if (chosen.iNumAllocated >= iVotesAllOthersCombined)
 			{

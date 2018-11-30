@@ -23859,17 +23859,20 @@ int CvCity::GetTradeRouteCityMod(YieldTypes eIndex) const
 	for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
 	{
 		if (pGameTrade->IsTradeRouteIndexEmpty(ui))
-		{
-			continue;
-		}
-
-		if(pGameTrade->GetOriginCity(pGameTrade->GetTradeConnection(ui)) != this)
 			continue;
 
-		CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
-		if (pDestCity != NULL)
+		const TradeConnection& conn = pGameTrade->GetTradeConnection(ui);
+		if (conn.m_eOriginOwner != getOwner()) //fast check
+			continue;
+
+		CvCity* pOriginCity = CvGameTrade::GetOriginCity(conn);
+		if (pOriginCity != this)
+			continue;
+
+		CvCity* pDestCity = CvGameTrade::GetDestCity(conn);
+		if (pOriginCity != NULL && pDestCity != NULL)
 		{
-			if (pDestCity->IsHasFranchise(eCorporation))
+			if (pOriginCity->IsHasOffice() && pDestCity->IsHasFranchise(eCorporation))
 			{
 				iMod += pkCorporationInfo->GetTradeRouteCityMod(eIndex);
 			}
@@ -25978,7 +25981,12 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 #if defined(MOD_BALANCE_CORE)
 		if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 		{
-			if(pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
+			ImprovementTypes eImprovement = pTargetPlot->getImprovementType();
+			CvImprovementEntry* pInfo = (eImprovement == NO_IMPROVEMENT) ? NULL : GC.getImprovementInfo(eImprovement);
+			bool bIsGPTI = (pInfo && pInfo->IsCreatedByGreatPerson());
+
+			//can't buy cities or great person improvements
+			if(pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity() || bIsGPTI)
 			{
 				return false;
 			}
