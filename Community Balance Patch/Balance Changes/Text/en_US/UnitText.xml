@@ -696,7 +696,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II">
-			<Text>Navigator I</Text>
+			<Text>Navigator II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II_HELP">
 			<Text>+1 [ICON_MOVES] Movement and Vision.</Text>
