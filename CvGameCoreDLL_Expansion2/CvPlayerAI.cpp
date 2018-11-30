@@ -49,7 +49,7 @@
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
 
 // inlined for performance reasons
-CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
@@ -285,11 +285,6 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		return;
 	}
-
-	//do this only after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
-	//despite the name, the tactical map is used by homeland AI as well.
-	//DN: If the above comment is still true then it sounds like there is an issue since CvPlayer::UpdateCityThreatCriteria is called just before doPostTurnDiplomacy and it refreshes the tacmamp
-	GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
 
 	//so that workers know where to build roads
 	GetBuilderTaskingAI()->Update();

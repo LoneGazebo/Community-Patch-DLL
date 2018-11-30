@@ -797,11 +797,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 	return iBonus;
 }
 /// What is the overall value of the current Plot?
-#if defined(MOD_BALANCE_CORE)
-int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100)
-#else
-int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
-#endif
+int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFoodCorpMod)
 {
 	int iValue = 0;
 
@@ -856,7 +852,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				else if (!bAvoidGrowth)
 				{
 					int iMultiplier = iExcessFoodTimes100 <= 0 ? 10 : 5;
-					int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft());
+					int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
 					int iPopulation = m_pCity->getPopulation();
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
@@ -1423,6 +1419,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 		return NO_BUILDING;
 
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
+	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1445,16 +1442,12 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 						iValue = specialistValueCache[eSpecialist];
 					else
 					{
-						iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100);
+						iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100, iFoodCorpMod);
 						specialistValueCache[eSpecialist] = iValue;
 					}
 
 					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
-#if defined(MOD_BALANCE_CORE)
 					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15);
-#else
-					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 10);
-#endif
 					iTemp /= 100;
 					iValue += iTemp;
 
@@ -1500,6 +1493,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 	int iValue;
 
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
+	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1519,7 +1513,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 					iValue = specialistValueCache[eSpecialist];
 				else
 				{
-					iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100);
+					iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100, iFoodCorpMod);
 					specialistValueCache[eSpecialist] = iValue;
 				}
 
@@ -1544,7 +1538,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 #endif
 
 /// How valuable is eSpecialist?
-int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100)
+int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100, int iFoodCorpMod)
 {
 
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
@@ -1616,7 +1610,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
 		int iMultiplier = iExcessFoodTimes100 <= 0 ? 10 : 5;
-		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft());
+		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
 		int iPopulation = m_pCity->getPopulation();
 
 		//Smaller cities want to grow fast - larger cities can slow down a bit.
@@ -2448,9 +2442,8 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 
 	CvPlot* pLoopPlot;
 
-#if defined(MOD_BALANCE_CORE)
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-#endif
+	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
 	// Look at all workable Plots
 
@@ -2472,11 +2465,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 						// Working the Plot or CAN work the Plot?
 						if (bWantWorked || IsCanWork(pLoopPlot))
 						{
-#if defined(MOD_BALANCE_CORE)
-							iValue = GetPlotValue(pLoopPlot, iExcessFoodTimes100);
-#else
-							iValue = GetPlotValue(pLoopPlot, bWantBest);
-#endif
+							iValue = GetPlotValue(pLoopPlot, iExcessFoodTimes100, iFoodCorpMod);
 
 							if (bLogging && (GC.getLogging() && GC.getAILogging()))
 							{
@@ -3130,6 +3119,7 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 
 #if defined(MOD_BALANCE_CORE)
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
 #endif
 
 	// Look at all workable Plots
@@ -3144,11 +3134,7 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 			{
 				if (IsForcedWorkingPlot(pLoopPlot))
 				{
-#if defined(MOD_BALANCE_CORE)
-					iValue = GetPlotValue(pLoopPlot, iExcessFoodTimes100);
-#else
-					iValue = GetPlotValue(pLoopPlot, false);
-#endif
+					iValue = GetPlotValue(pLoopPlot, iExcessFoodTimes100, iFoodCorpMod);
 
 					// First, or worst yet?
 					if (iBestPlotValue == -1 || iValue < iBestPlotValue)

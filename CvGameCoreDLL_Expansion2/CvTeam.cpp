@@ -37,16 +37,10 @@
 // statics
 CvTeam* CvTeam::m_aTeams = NULL;
 
-CvTeam& CvTeam::getTeam(TeamTypes eTeam)
+inline CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
-
-	if (eTeam==NO_TEAM)
-	{
-		OutputDebugString("Warning: Invalid argument for getTeam()!\n");
-		return m_aTeams[BARBARIAN_TEAM];
-	}
 
 	return m_aTeams[eTeam];
 }
@@ -1908,6 +1902,8 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			}
 		}
 	}
+
+	CvPlayerManager::Refresh(true);
 }
 
 //	------------------------------------------------------------------------------------------------
@@ -1922,8 +1918,6 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 #else
 	DoMakePeace(eTeam, bBumpUnits, bSuppressNotification);
 #endif
-
-	CvPlayerManager::Refresh(true);
 }
 
 //	------------------------------------------------------------------------------------------------

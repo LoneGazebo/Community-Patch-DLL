@@ -1537,7 +1537,7 @@ int CvGameTrade::GetIndexFromID (int iID)
 PlayerTypes CvGameTrade::GetOwnerFromID (int iID)
 {
 	int iIndex = GetIndexFromID(iID);
-	if (iIndex < -1)
+	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return NO_PLAYER;
 	}
@@ -1550,7 +1550,7 @@ PlayerTypes CvGameTrade::GetOwnerFromID (int iID)
 PlayerTypes CvGameTrade::GetDestFromID (int iID)
 {
 	int iIndex = GetIndexFromID(iID);
-	if (iIndex < -1)
+	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return NO_PLAYER;
 	}

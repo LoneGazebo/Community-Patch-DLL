@@ -6535,7 +6535,7 @@
 			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
-			<Text>[ICON_RAzING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_RAZING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
 			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>

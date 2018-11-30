@@ -1902,12 +1902,12 @@ public:
 
 	EraTypes GetCurrentEra() const;
 
-	PlayerTypes GetID() const
+	inline PlayerTypes GetID() const
 	{
 		return m_eID;
 	}
 
-	TeamTypes getTeam() const
+	inline TeamTypes getTeam() const
 	{
 		return CvPreGame::teamType(m_eID);
 	}

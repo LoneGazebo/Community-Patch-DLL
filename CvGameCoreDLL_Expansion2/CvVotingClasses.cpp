@@ -10761,12 +10761,33 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 				pLeague->DoVoteRepeal(chosen.iID, GetPlayer()->GetID(), 1, chosen.iChoice);
 			}
 
-			//reduce the weight for what we chose by 10%, so we introduce more variety into our options.
-			int chosenWeight = vConsiderations.GetWeight(chosen.iID);
-			chosenWeight *= 85;
-			chosenWeight /= 100;
+			for (EnactProposalList::iterator it = pLeague->m_vEnactProposals.begin(); it != pLeague->m_vEnactProposals.end(); it++)
+			{
+				if (it->GetID() == chosen.iID)
+				{
+					//reduce the weight for what we chose by 10%, so we introduce more variety into our options.
+					int chosenWeight = vConsiderations.GetWeight(it->GetID());
 
-			vConsiderations.SetWeight(chosen.iID, max(1, chosenWeight));
+					chosenWeight *= 85;
+					chosenWeight /= 100;
+
+					vConsiderations.SetWeight(it->GetID(), max(1, chosenWeight));
+				}
+			}
+
+			for (RepealProposalList::iterator it = pLeague->m_vRepealProposals.begin(); it != pLeague->m_vRepealProposals.end(); it++)
+			{
+				if (it->GetID() == chosen.iID)
+				{
+					//reduce the weight for what we chose by 10%, so we introduce more variety into our options.
+					int chosenWeight = vConsiderations.GetWeight(it->GetID());
+
+					chosenWeight *= 85;
+					chosenWeight /= 100;
+
+					vConsiderations.SetWeight(it->GetID(), max(1, chosenWeight));
+				}
+			}
 
 			chosen.iNumAllocated++;
 

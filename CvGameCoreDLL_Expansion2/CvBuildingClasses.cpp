@@ -5483,9 +5483,7 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 {
 	int iRtnValue = 0;
-
 	int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
-	
 	if (iCityStates==0)
 		return 0;
 

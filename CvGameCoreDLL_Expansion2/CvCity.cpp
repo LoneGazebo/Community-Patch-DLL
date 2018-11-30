@@ -9653,22 +9653,20 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getFoodTurnsLeft() const
+int CvCity::getFoodTurnsLeft(int iCorpMod) const
 {
 	VALIDATE_OBJECT
-	int iFoodLeft;
-	int iTurnsLeft;
+	int iFoodLeft = (growthThreshold() * 100 - getFoodTimes100());
+	int iDeltaPerTurn = foodDifferenceTimes100(true, iCorpMod);
 
-	iFoodLeft = (growthThreshold() * 100 - getFoodTimes100());
-
-	if(foodDifferenceTimes100() <= 0)
+	if(iDeltaPerTurn <= 0)
 	{
 		return iFoodLeft;
 	}
 
-	iTurnsLeft = (iFoodLeft / foodDifferenceTimes100());
+	int iTurnsLeft = (iFoodLeft / iDeltaPerTurn);
 
-	if((iTurnsLeft * foodDifferenceTimes100()) <  iFoodLeft)
+	if((iTurnsLeft * iDeltaPerTurn) <  iFoodLeft)
 	{
 		iTurnsLeft++;
 	}
@@ -15777,7 +15775,7 @@ int CvCity::foodDifference(bool bBottom) const
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
+int CvCity::foodDifferenceTimes100(bool bBottom, int iCorpMod, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
 	int iDifference;
@@ -15823,7 +15821,10 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PLAYER", iCityGrowthMod);
 		}
 #if defined(MOD_BALANCE_CORE)
-		int iCorpMod = (GetTradeRouteCityMod(YIELD_FOOD));
+		//override default only if necessary - this call is quite expensive
+		if (iCorpMod==-1)
+			iCorpMod = (GetTradeRouteCityMod(YIELD_FOOD));
+
 		if(iCorpMod > 0)
 		{
 			iTotalMod += iCorpMod;
@@ -29444,13 +29445,12 @@ void CvCity::doGrowth()
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
 	//No growth or starvation if in resistance
 	if(IsResistance())
 	{
 		return;
 	}
-#endif
+
 	int iFoodPerTurn100 = foodDifferenceTimes100();
 	int iFoodReqForGrowth = growthThreshold();
 
@@ -29466,11 +29466,6 @@ void CvCity::doGrowth()
 
 			pNotifications->Add(NOTIFICATION_STARVING, text.toUTF8(), summary.toUTF8(), getX(), getY(), -1);
 		}
-	}
-
-	if (GetID() == g_iCityToTrace)
-	{
-		OutputDebugString(CvString::format("Turn %d, Pre Growth food %d, change %d, threshold %d\n",GC.getGame().getGameTurn(),getFood(),iFoodPerTurn100/100, iFoodReqForGrowth).c_str());
 	}
 
 	changeFoodTimes100(iFoodPerTurn100);
@@ -29489,11 +29484,6 @@ void CvCity::doGrowth()
 
 			changeFood( -iFoodStoreChange );
 			changePopulation(1);
-
-			if (GetID() == g_iCityToTrace)
-			{
-				OutputDebugString(CvString::format("Growth used %d, new store %d, new pop %d, new threshold %d\n",iFoodStoreChange,getFood(),getPopulation(),growthThreshold()).c_str());
-			}
 
 			// Only show notification if the city is small
 			if(getPopulation() <= 5)

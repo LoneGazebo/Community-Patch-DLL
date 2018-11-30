@@ -2142,7 +2142,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	{	
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
-		pkCity->foodDifferenceTimes100(true, &toolTip);
+		pkCity->foodDifferenceTimes100(true, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
 	}
 
 	lua_pushstring(L, toolTip.c_str());
@@ -2402,7 +2402,10 @@ int CvLuaCity::lFoodDifference(lua_State* L)
 //int foodDifferenceTimes100(bool bBottom);
 int CvLuaCity::lFoodDifferenceTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::foodDifferenceTimes100);
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->foodDifferenceTimes100(true,-1,NULL);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int growthThreshold();

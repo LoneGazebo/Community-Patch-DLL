@@ -11422,7 +11422,7 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
+inline bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");

@@ -215,25 +215,6 @@ end
 -- Help text for Units
 -------------------------------------------------
 
--- How much does it cost to upgrade a Unit to a shiny new eUnit?
-local function unitUpgradePrice( unit, unitUpgrade, unitProductionCost, unitUpgradeProductionCost )
-	local upgradePrice = GameDefines.BASE_UNIT_UPGRADE_COST
-		+ math_max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
-	-- Upgrades for later units are more expensive
-	local tech = unitUpgrade.PrereqTech and GameInfo.Technologies[ unitUpgrade.PrereqTech ]
-	if tech then
-		upgradePrice = math_floor( upgradePrice * ( GameInfo.Eras[ tech.Era ].ID * GameDefines.UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA + 1 ) )
-	end
-	-- Discount
-	-- upgradePrice = upgradePrice - math_floor( upgradePrice * unit:UpgradeDiscount() / 100)
-	-- Mod (Policies, etc.)
-	-- upgradePrice = math_floor( (upgradePrice * (100 + activePlayer:GetUnitUpgradeCostMod()))/100 )
-	-- Apply exponent
-	upgradePrice = math_floor( upgradePrice ^ GameDefines.UNIT_UPGRADE_COST_EXPONENT )
-	-- Make the number not be funky
-	return math_floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
-end
-
 local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	local unit = GameInfo.Units[ unitID ]
 	if not unit then
@@ -469,43 +450,9 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	item = unit.PrereqTech and GameInfo.Technologies[ unit.PrereqTech ]
 	tips:insertIf( item and item.ID > 0 and L"TXT_KEY_PEDIA_PREREQ_TECH_LABEL" .. " " .. TechColor( L(item.Description) ) )
 
-	-- Upgrade from:
-	local unitClassUpgrades = {}
-	for unitUpgrade in GameInfo.Unit_ClassUpgrades( thisUnitClass ) do
-		unitUpgrade = GameInfo.Units[ unitUpgrade.UnitType ]
-		SetKey( unitClassUpgrades, unitUpgrade and unitUpgrade.Class )
-	end
-	local unitUpgrades = table()
-	for unitToUpgrade in pairs( unitClassUpgrades ) do
-		unitToUpgrade = GetCivUnit( activeCivilizationType, unitToUpgrade )
-		unitUpgrades:insertIf( unitToUpgrade and UnitColor( L(unitToUpgrade.Description) ) .. " ("..unitUpgradePrice( unitToUpgrade, unit, activePlayer and activePlayer:GetUnitProductionNeeded( unitToUpgrade.ID ), productionCost )..g_currencyIcon..")" )
-	end
-	tips:insertIf( #unitUpgrades > 0 and L"TXT_KEY_GOLD_UPGRADE_UNITS_HEADING3_TITLE" .. ": " .. unitUpgrades:concat(", ") )
-
 	-- Becomes Obsolete with:
 	local obsoleteTech = unit.ObsoleteTech and GameInfo.Technologies[ unit.ObsoleteTech ]
 	tips:insertIf( obsoleteTech and L"TXT_KEY_PEDIA_OBSOLETE_TECH_LABEL" .. " " .. TechColor( L(obsoleteTech.Description) ) )
-
-	-- Upgrade unit
-	if Game then
-		local unitUpgrade = Game.GetUnitUpgradesTo( unit.ID )
-		unitUpgrade = unitUpgrade and GameInfo.Units[ unitUpgrade ]
-		if activeCivilizationType and unitUpgrade then
-			unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade.Class )
-			tips:insert( L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. UnitColor( L(unitUpgrade.Description) ) .. " ("..unitUpgradePrice( unit, unitUpgrade, productionCost, activePlayer:GetUnitProductionNeeded( unitUpgrade.ID ) )..g_currencyIcon..")" )
-		end
-	else
-		local unitClassUpgrades = {}
-		for unitClassUpgrade in GameInfo.Unit_ClassUpgrades( thisUnitType ) do
-			SetKey( unitClassUpgrades, unitClassUpgrade and unitClassUpgrade.UnitClassType )
-		end
-		local unitUpgrades = table()
-		for unitUpgrade in pairs( unitClassUpgrades ) do
-			unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade )
-			unitUpgrades:insertIf( unitUpgrade and UnitColor( L(unitUpgrade.Description) ) .. " ("..unitUpgradePrice( unit, unitUpgrade, productionCost )..g_currencyIcon..")" )
-		end
-		tips:insertIf( #unitUpgrades > 0 and L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. unitUpgrades:concat(", ") )
-	end
 
 	-- Pre-written Help text
 	return AddPreWrittenHelpTextAndConcat( tips, unit )
