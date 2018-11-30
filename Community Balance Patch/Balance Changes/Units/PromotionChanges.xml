@@ -3970,7 +3970,6 @@
 			<Help>TXT_KEY_PROMOTION_NAVAL_SENTRY_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_NAVAL_SENTRY</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr2>
 			<OrderPriority>3</OrderPriority>
 			<VisibilityChange>1</VisibilityChange>
 			<MovesChange>1</MovesChange>
