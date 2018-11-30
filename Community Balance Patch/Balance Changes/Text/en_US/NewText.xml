@@ -151,7 +151,7 @@
 		
 		<!-- Sweden Grenadiers -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
-			<Text>Grenadiers</Text>
+			<Text>Area Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY">
 			<Text>Pilum</Text>

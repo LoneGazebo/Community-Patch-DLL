@@ -975,7 +975,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	int iBaseYield = GetCity()->getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
-	iModifiedYield /= 1000;
+	iModifiedYield /= 10000;
 
 	if (iModifiedYield >= 5 || m_BuildablesPrecheck.size() <= 0)
 	{

@@ -13656,7 +13656,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	}
 
-	iYield += calculatePlayerYield(eYield, iYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 
@@ -13671,7 +13671,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 
 	if(eRoute != NO_ROUTE)
 	{
-		eImprovement = getImprovementType();
+		eImprovement = getImprovementType(); // potentially problematic - will ALWAYS calculate for existing improvement, no matter what the build is
 		if(eImprovement != NO_IMPROVEMENT)
 		{
 			if(ePlayer != NO_PLAYER)
