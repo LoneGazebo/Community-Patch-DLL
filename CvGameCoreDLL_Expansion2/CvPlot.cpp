@@ -215,7 +215,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
 	m_iUpgradeProgress = 0;
-	m_iCulture = 0;
 	m_iNumMajorCivsRevealed = 0;
 	m_iCityRadiusCount = 0;
 	m_iReconCount = 0;
@@ -13011,7 +13010,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iOwnershipDuration;
 	kStream >> m_iImprovementDuration;
 	kStream >> m_iUpgradeProgress;
-	kStream >> m_iCulture;
+	kStream >> m_iUpgradeProgress; //dummy
 	kStream >> m_iNumMajorCivsRevealed;
 	kStream >> m_iCityRadiusCount;
 	kStream >> m_iReconCount;
@@ -13222,7 +13221,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iOwnershipDuration;
 	kStream << m_iImprovementDuration;
 	kStream << m_iUpgradeProgress;
-	kStream << m_iCulture;
+	kStream << m_iUpgradeProgress; //dummy
 	kStream << m_iNumMajorCivsRevealed;
 	kStream << m_iCityRadiusCount;
 	kStream << m_iReconCount;
