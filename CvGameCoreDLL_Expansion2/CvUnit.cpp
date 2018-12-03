@@ -5346,7 +5346,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 		ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
-		if(!canEnterTerritory(ePlotTeam, false /*bIgnoreRightOfPassage*/))
+		if(!canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 		{
 			CvAssert(ePlotTeam != NO_TEAM);
 
