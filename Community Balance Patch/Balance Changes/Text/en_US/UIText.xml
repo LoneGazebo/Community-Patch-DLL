@@ -845,7 +845,7 @@
 			<Text>Logging Camp</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE">
-			<Text>A Logging Camp allows you to improve the production output of Jungle hexes.</Text>
+			<Text>A Logging Camp allows you to improve the Gold output of Jungle tiles. Gains additional Gold for every two adjacent Logging Camps, so try to build them in clusters of three if possible.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_JUNGLE">
 			<Text>Construct a [LINK=IMPROVEMENT_LUMBERMILL]Logging Camp[\LINK]</Text>
@@ -1288,6 +1288,10 @@
 
 		<Row Tag="TXT_KEY_BUILD_COST_REDUCTION">
 			<Text>{1_Build} needs {2_Turns} Turn(s) to complete.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">
+			<Text>Resolution proposed prior Session, cannot be proposed again until next Session.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

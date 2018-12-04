@@ -203,8 +203,8 @@ public:
 	int* GetAdjacentResourceYieldChangesArray (int i);
 	int GetAdjacentTerrainYieldChanges(int i, int j) const;
 	int* GetAdjacentTerrainYieldChangesArray(int i);
-	int GetAdjacentPlotYieldChanges(int i, int j) const;
-	int* GetAdjacentPlotYieldChangesArray(int i);
+	int GetAdjacentFeatureYieldChanges(int i, int j) const;
+	int* GetAdjacentFeatureYieldChangesArray(int i);
 
 	int GetFeatureYieldChanges(int i, int j) const;
 	int* GetFeatureYieldChangesArray(int i);
@@ -355,7 +355,7 @@ protected:
 	int** m_ppiAdjacentImprovementYieldChanges;
 	int** m_ppiAdjacentTerrainYieldChanges;
 	int** m_ppiAdjacentResourceYieldChanges;
-	int** m_ppiAdjacentPlotYieldChanges;
+	int** m_ppiAdjacentFeatureYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 #endif
 

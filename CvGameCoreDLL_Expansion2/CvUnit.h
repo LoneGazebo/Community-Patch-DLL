@@ -1544,6 +1544,11 @@ public:
 
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
+
+	int GetGAPBlastStrength() const;
+	void SetGAPBlastStrength(int iValue);
+
+	int getGAPBlast();
 #endif
 
 	// Arbitrary Script Data
@@ -2306,6 +2311,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
 	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
+	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;
 #endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

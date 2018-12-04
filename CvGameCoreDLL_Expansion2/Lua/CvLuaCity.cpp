@@ -239,7 +239,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetPopulation);
 	Method(ChangePopulation);
 	Method(GetRealPopulation);
-
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	Method(GetAutomatons);
+	Method(SetAutomatons);
+#endif
 	Method(GetHighestPopulation);
 	Method(SetHighestPopulation);
 	//Method(GetWorkingPopulation);
@@ -1880,7 +1883,6 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 	int iTotalPoliciesNeeded = 0;
 	CvCity* pkCity = GetInstance(L);
 
-	bool bIgnoreRequirements = false;
 	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
 	if (eBuilding != NO_BUILDING)
 	{
@@ -1923,44 +1925,32 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 								eEra = (EraTypes)pEntry->GetEra();
 								if (eEra != NO_ERA)
 								{
-									bIgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, pkCity->getOwner(), pHolyCity);
+									iNumPoliciesReduced += pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, pkCity->getOwner(), pHolyCity);
 								}
 							}
 						}
-						if (!bIgnoreRequirements)
+						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
+						if (iReligionPolicyReduction > 0)
 						{
-							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
-							if (iReligionPolicyReduction > 0)
+							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+							if (iNumFollowerCities > 0)
 							{
-								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
-								if (iNumFollowerCities > 0)
-								{
-									iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
-								}
+								iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
 							}
 						}
 					}
 				}
-				if (!bIgnoreRequirements)
+
+				int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
+				if (iCSPolicyReduction > 0)
 				{
-					int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
-					if (iCSPolicyReduction > 0)
-					{
-						int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
-						iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
-					}
+					int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
+					iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
 				}
 			}
 		}
 	}
-	if (bIgnoreRequirements)
-	{
-		iTotalPoliciesNeeded = 0;
-	}
-	else
-	{
-		iTotalPoliciesNeeded -= iNumPoliciesReduced;
-	}
+	iTotalPoliciesNeeded -= iNumPoliciesReduced;
 
 	lua_pushinteger(L, iTotalPoliciesNeeded);
 	return 1;
@@ -2874,6 +2864,20 @@ int CvLuaCity::lSetHighestPopulation(lua_State* L)
 //{
 //	return BasicLuaMethod(L, &CvCity::getSpecialistPopulation);
 //}
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+//------------------------------------------------------------------------------
+//int getAutomatons();
+int CvLuaCity::lGetAutomatons(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getAutomatons);
+}
+//------------------------------------------------------------------------------
+//void setAutomatons(int iNewValue, bool bReassignPop);
+int CvLuaCity::lSetAutomatons(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::setAutomatons);
+}
+#endif
 //------------------------------------------------------------------------------
 //int getNumGreatPeople();
 int CvLuaCity::lGetNumGreatPeople(lua_State* L)

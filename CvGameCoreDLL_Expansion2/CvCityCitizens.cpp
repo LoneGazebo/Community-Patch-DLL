@@ -735,15 +735,25 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 	}
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+#else
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
-
+#endif
 	DoReallocateCitizens(bForceCheck);
 
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+#else
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
-
+#endif
 	DoSpecialists();
 
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+#else
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+#endif
 }
 
 int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
@@ -2343,11 +2353,19 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 {
 	if (iCurrentCityPopulation == -1)
 	{
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+		iCurrentCityPopulation = GetCity()->getPopulation(true);
+#else
 		iCurrentCityPopulation = GetCity()->getPopulation();
+#endif
 	}
 
 	// Are all of our guys already not working Plots?
-	if (GetNumUnassignedCitizens() == GetCity()->getPopulation())
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	if(GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
+#else
+	if(GetNumUnassignedCitizens() == GetCity()->getPopulation())
+#endif
 	{
 		return false;
 	}
@@ -3517,7 +3535,11 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 
 	int iNumSpecialistsAssigned = GetNumSpecialistsInBuilding(eBuilding);
 
-	if (iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	if(iNumSpecialistsAssigned < GetCity()->getPopulation(true) &&	// Limit based on Pop of City
+#else
+	if(iNumSpecialistsAssigned < GetCity()->getPopulation() &&	// Limit based on Pop of City
+#endif
 		iNumSpecialistsAssigned < GC.getBuildingInfo(eBuilding)->GetSpecialistCount() &&				// Limit for this particular Building
 		iNumSpecialistsAssigned < GC.getMAX_SPECIALISTS_FROM_BUILDING())	// Overall Limit
 	{

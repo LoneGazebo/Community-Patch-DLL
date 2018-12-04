@@ -8776,6 +8776,36 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		UnitTypes eUnit = GetCompetitiveSpawnUnitType(ePlayer, /*bIncludeUUs*/ bIncludeUUs, /*bIncludeRanged*/ true, bIncludeShips, bNoResource, bIncludeOwnUUsOnly);
 		UnitTypes emUnit = GetCompetitiveSpawnUnitType(ePlayer, /*bIncludeUUs*/ bIncludeUUs, /*bIncludeRanged*/ false, bIncludeShips, bNoResource, bIncludeOwnUUsOnly);
 
+		CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType());
+		if (pkInfo)
+		{
+			CvUnitEntry* eUnitEntry = GC.getUnitInfo(eUnit);
+			
+			if (pkInfo->isCivilizationUnitOverridden(eUnitEntry->GetUnitClassType()))
+			{
+				UnitTypes eCivilizationUnit = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(eUnitEntry->GetUnitClassType()));
+				if (eCivilizationUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
+					if (pkUnitEntry)
+						eUnit = eCivilizationUnit;
+				}
+			}
+
+			CvUnitEntry* emUnitEntry = GC.getUnitInfo(emUnit);
+
+			if (pkInfo->isCivilizationUnitOverridden(emUnitEntry->GetUnitClassType()))
+			{
+				UnitTypes eCivilizationUnit = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(emUnitEntry->GetUnitClassType()));
+				if (eCivilizationUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
+					if (pkUnitEntry)
+						emUnit = eCivilizationUnit;
+				}
+			}
+		}
+
 		CvUnit* pstartUnit = GET_PLAYER(ePlayer).initUnit(emUnit, pPlot->getX(), pPlot->getY());
 		CvAssert(pstartUnit);
 		if (pstartUnit)

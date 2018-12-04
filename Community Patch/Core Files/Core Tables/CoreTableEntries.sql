@@ -604,7 +604,7 @@ ALTER TABLE Beliefs ADD COLUMN 'CityScalerLimiter' INTEGER DEFAULT 0;
 ALTER TABLE Beliefs ADD COLUMN 'FollowerScalerLimiter' INTEGER DEFAULT 0;
 
 -- Ignore Policy Requirements (number) for wonders up to a set era
-ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirements' BOOLEAN DEFAULT 0;
+ALTER TABLE Beliefs ADD COLUMN 'ReducePolicyRequirements' INTEGER DEFAULT 0;
 
 -- Increase yields from friendship/alliance for CS sharing your religion by x%
 ALTER TABLE Beliefs ADD COLUMN 'CSYieldBonusFromSharedReligion' INTEGER DEFAULT 0;
@@ -751,6 +751,9 @@ ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap.
 ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
+
+-- Replacement for free GA on Artists, etc.
+ALTER TABLE Units ADD COLUMN 'BaseTurnsForGAPToCount' INTEGER DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
@@ -1384,6 +1387,7 @@ ALTER TABLE Buildings ADD COLUMN 'RAToVotes' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'GPExpendInfluence' integer default 0;
 
 ALTER TABLE Units ADD COLUMN 'NumInfPerEra' integer default 0;
+ALTER TABLE Units ADD COLUMN 'ProductionCostAddedPerEra' integer default 0;
 
 ALTER TABLE Policies ADD COLUMN 'GreatDiplomatRateModifier' integer default 0;
 

@@ -465,7 +465,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>0</BarbarianBonus>
 			<AIBarbarianBonus>25</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>5</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>

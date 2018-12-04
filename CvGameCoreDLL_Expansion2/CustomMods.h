@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v88 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 88)
+#define MOD_DLL_NAME "Community Patch v89 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 89)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -239,6 +239,8 @@
 #define MOD_GLOBAL_CITY_FOREST_BONUS                gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
 // Give initial production boost for cities founded on jungle, as if the jungle had been chopped down by a worker (v72)
 #define MOD_GLOBAL_CITY_JUNGLE_BONUS                gCustomMods.isGLOBAL_CITY_JUNGLE_BONUS()
+// Permit cities to have automaton workers (v89)
+#define MOD_GLOBAL_CITY_AUTOMATON_WORKERS           gCustomMods.isGLOBAL_CITY_AUTOMATON_WORKERS()
 // Enables rebasing to and airlifting to/from improvements (v74)
 #define MOD_GLOBAL_RELOCATION                       gCustomMods.isGLOBAL_RELOCATION()
 // Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
@@ -1400,6 +1402,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_CITY_FOREST_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_JUNGLE_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_WORKING);
+	MOD_OPT_DECL(GLOBAL_CITY_AUTOMATON_WORKERS);
 	MOD_OPT_DECL(GLOBAL_RELOCATION);
 	MOD_OPT_DECL(GLOBAL_ALPINE_PASSES);
 	MOD_OPT_DECL(GLOBAL_CS_GIFT_SHIPS);

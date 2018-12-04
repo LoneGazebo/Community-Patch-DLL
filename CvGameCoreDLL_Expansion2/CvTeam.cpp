@@ -188,6 +188,9 @@ void CvTeam::uninit()
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
 #endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkers = 0;
+#endif
 	m_iBridgeBuildingCount = 0;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_iCityLessEmbarkCost = 0;
@@ -3799,6 +3802,35 @@ void CvTeam::changeCityWorkingChange(int iChange)
 }
 #endif
 
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+//	--------------------------------------------------------------------------------
+int CvTeam::getCityAutomatonWorkers() const
+{
+	CUSTOMLOG("CvTeam::getCityAutomatonWorkers = %i", m_iCityAutomatonWorkers);
+	return m_iCityAutomatonWorkers;
+}
+ //	--------------------------------------------------------------------------------
+void CvTeam::changeCityAutomatonWorkers(int iChange)
+{
+	if (iChange != 0) {
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) {
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kLoopPlayer.isAlive()) {
+				if (kLoopPlayer.getTeam() == GetID()) {
+					CvCity* pLoopCity;
+					int iLoop;
+		
+					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
+						pLoopCity->changeAutomatons(iChange);
+					}
+				}
+			}
+		}
+ 		m_iCityAutomatonWorkers = (m_iCityAutomatonWorkers + iChange);
+	}
+}
+#endif
+	
 //	--------------------------------------------------------------------------------
 int CvTeam::getBridgeBuildingCount() const
 {
@@ -7778,6 +7810,13 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		changeCityWorkingChange(pTech->GetCityWorkingChange() * iChange);
 	}
 #endif
+	
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	if(pTech->GetCityAutomatonWorkersChange() != 0)
+	{
+		changeCityAutomatonWorkers(pTech->GetCityAutomatonWorkersChange() * iChange);
+	}
+#endif
 
 	if(pTech->IsBridgeBuilding())
 	{
@@ -9016,6 +9055,9 @@ void CvTeam::Read(FDataStream& kStream)
 #if defined(MOD_TECHS_CITY_WORKING)
 	MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
 #endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	MOD_SERIALIZE_READ(89, kStream, m_iCityAutomatonWorkers, 0);
+#endif
 	kStream >> m_iBridgeBuildingCount;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	MOD_SERIALIZE_READ(66, kStream, m_iCityLessEmbarkCost, 0);
@@ -9242,6 +9284,9 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_iPermanentAllianceTradingCount;
 #if defined(MOD_TECHS_CITY_WORKING)
 	MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	MOD_SERIALIZE_WRITE(kStream, m_iCityAutomatonWorkers);
 #endif
 	kStream << m_iBridgeBuildingCount;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)

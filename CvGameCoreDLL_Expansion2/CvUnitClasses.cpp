@@ -42,6 +42,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iNumFreeTechs(0),
 	m_iBaseBeakersTurnsToCount(0),
 	m_iBaseCultureTurnsToCount(0),
+	m_iBaseTurnsForGAPToCount(0),
 	m_iBaseHurry(0),
 	m_iHurryMultiplier(0),
 	m_bRushBuilding(false),
@@ -51,6 +52,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iNumGoldPerEra(0),
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra(0),
+	m_iProductionCostPerEra(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux(0),
@@ -285,6 +287,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumFreeTechs = kResults.GetInt("NumFreeTechs");
 	m_iBaseBeakersTurnsToCount = kResults.GetInt("BaseBeakersTurnsToCount");
 	m_iBaseCultureTurnsToCount = kResults.GetInt("BaseCultureTurnsToCount");
+	m_iBaseTurnsForGAPToCount = kResults.GetInt("BaseTurnsForGAPToCount");
 	m_iBaseHurry = kResults.GetInt("BaseHurry");
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
 	m_bRushBuilding= kResults.GetInt("RushBuilding");
@@ -294,6 +297,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
+	m_iProductionCostPerEra = kResults.GetInt("ProductionCostAddedPerEra");
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
@@ -847,6 +851,12 @@ int CvUnitEntry::GetBaseCultureTurnsToCount() const
 	return m_iBaseCultureTurnsToCount;
 }
 
+/// How many previous turns worth of culture does this Unit give us?
+int CvUnitEntry::GetBaseTurnsForGAPToCount() const
+{
+	return m_iBaseTurnsForGAPToCount;
+}
+
 /// What is the base amount of production provided by this unit?
 int CvUnitEntry::GetBaseHurry() const
 {
@@ -893,6 +903,10 @@ int CvUnitEntry::GetNumGoldPerEra() const
 int CvUnitEntry::GetNumInfPerEra() const
 {
 	return m_iNumInfPerEra;
+}
+int CvUnitEntry::GetProductionCostPerEra() const
+{
+	return m_iProductionCostPerEra;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)

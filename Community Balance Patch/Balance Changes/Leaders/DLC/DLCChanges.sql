@@ -263,7 +263,7 @@ INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
 VALUES 
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 5),
-	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 5);
+	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 5);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
 	(BuildingType, YieldType, Yield)

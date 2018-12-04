@@ -2556,7 +2556,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			int iAdjacentOtherValue = 0;
 			int iAdjacentResourceValue = 0;
 			int iAdjacentTerrainValue = 0;
-			int iAdjacentPlotValue = 0;
+			int iAdjacentFeatureValue = 0;
 			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 			{
 				ImprovementTypes eImprovement = (ImprovementTypes)iJ;
@@ -2581,12 +2581,12 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					iAdjacentTerrainValue += pImprovement->GetAdjacentTerrainYieldChanges(eTerrain, eYield);
 				}
 			}
-			for(int iJ = 0; iJ < GC.getNumPlotInfos(); iJ++)
+			for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 			{
-				PlotTypes ePlot = (PlotTypes)iJ;
-				if(ePlot != NO_PLOT)
+				FeatureTypes eFeature = (FeatureTypes)iJ;
+				if (eFeature != NO_FEATURE)
 				{
-					iAdjacentPlotValue += pImprovement->GetAdjacentPlotYieldChanges(ePlot, eYield);
+					iAdjacentFeatureValue += pImprovement->GetAdjacentFeatureYieldChanges(eFeature, eYield);
 				}
 			}
 
@@ -2610,9 +2610,9 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			{
 				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
 			}
-			if(iAdjacentPlotValue > 0)
+			if (iAdjacentFeatureValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentPlot(*pImprovement, eYield));
+				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
 			}
 
 		}

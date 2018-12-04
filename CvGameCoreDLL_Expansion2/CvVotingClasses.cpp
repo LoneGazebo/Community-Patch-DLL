@@ -2995,6 +2995,52 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			}
 			bValid = false;
 		}
+
+		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		{
+			for (EnactProposalList::iterator it = m_vLastTurnEnactProposals.begin(); it != m_vLastTurnEnactProposals.end(); it++)
+			{
+				if (it->GetType() == eResolution)
+				{
+					CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
+					if (pInfo != NULL)
+					{
+						if (it->GetProposerDecision()->GetDecision() == iChoice)
+						{
+							if (sTooltipSink != NULL)
+							{
+								(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+								(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION").toUTF8();
+								(*sTooltipSink) += "[ENDCOLOR]";
+							}
+							bValid = false;
+						}
+					}
+				}
+
+			}
+
+			for (RepealProposalList::iterator it = m_vLastTurnRepealProposals.begin(); it != m_vLastTurnRepealProposals.end(); it++)
+			{
+				if (it->GetType() == eResolution)
+				{
+					CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
+					if (pInfo != NULL)
+					{
+						if (it->GetProposerDecision()->GetDecision() == iChoice)
+						{
+							if (sTooltipSink != NULL)
+							{
+								(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+								(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ALREADY_ENACTED").toUTF8();
+								(*sTooltipSink) += "[ENDCOLOR]";
+							}
+							bValid = false;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	// Prereq tech
@@ -5120,7 +5166,7 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 				if (eEmbargoedMajor == eTrader || eEmbargoedMajor == eRecipient)
 				{
 					//does not affect vassals
-					if (GET_TEAM(GET_PLAYER(eEmbargoedMajor).getTeam()).IsVassal(GET_PLAYER(eRecipient).getTeam()) || GET_TEAM(GET_PLAYER(eRecipient).getTeam()).IsVassal(GET_PLAYER(eEmbargoedMajor).getTeam()))
+					if (GET_TEAM(GET_PLAYER(eTrader).getTeam()).IsVassal(GET_PLAYER(eRecipient).getTeam()) || GET_TEAM(GET_PLAYER(eRecipient).getTeam()).IsVassal(GET_PLAYER(eTrader).getTeam()))
 						continue;
 
 					return true;

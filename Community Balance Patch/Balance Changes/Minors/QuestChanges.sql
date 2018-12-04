@@ -153,7 +153,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOG
 
 -- Circumnavigation
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
-UPDATE SmallAwards SET AdmiralPoints = '80' WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
+UPDATE SmallAwards SET AdmiralPoints = '25' WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
 
 -- Liberation

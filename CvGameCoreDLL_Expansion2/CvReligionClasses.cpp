@@ -10013,6 +10013,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		// Yields for followers and follower cities
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			iSpreadYields += pEntry->GetYieldFromFaithPurchase(iI) * 2;
+
 			iSpreadYields += pEntry->GetYieldChangePerForeignCity(iI) * 2;
 
 			iSpreadYields += pEntry->GetYieldChangePerXForeignFollowers(iI) * 2;
@@ -10514,14 +10516,14 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				bHasPolicyBelief = true;
 				break;
 			}
-			else if (GC.GetGameBeliefs()->GetEntry((BeliefTypes)iI)->IsIgnorePolicyRequirements())
+			else if (GC.GetGameBeliefs()->GetEntry((BeliefTypes)iI)->GetIgnorePolicyRequirementsAmount() != 0)
 			{
 				bHasPolicyBelief = true;
 				break;
 			}
 		}
 	}
-	if (pEntry->IsIgnorePolicyRequirements() && !bHasPolicyBelief)
+	if (pEntry->GetIgnorePolicyRequirementsAmount() != 0 && !bHasPolicyBelief)
 	{
 		iPolicyGainTemp += m_pPlayer->getWonderProductionModifier() + m_pPlayer->GetPlayerTraits()->GetWonderProductionModifier();
 		if (m_pPlayer->getCapitalCity() != NULL)
