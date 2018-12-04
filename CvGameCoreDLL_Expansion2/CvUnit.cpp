@@ -481,6 +481,7 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE)
 	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
 	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
+	, m_iGAPBlastStrength("CvUnit::m_iGAPBlastStrength", m_syncArchive)
 	, m_terrainDoubleHeal("CvUnit::m_terrainDoubleHeal", m_syncArchive)
 	, m_featureDoubleHeal("CvUnit::m_featureDoubleHeal", m_syncArchive)
 #endif
@@ -1170,6 +1171,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetCultureBlastStrength(getGivePoliciesCulture());
 	}
+
+	if (getUnitInfo().GetBaseTurnsForGAPToCount() > 0)
+	{
+		SetGAPBlastStrength(getGAPBlast());
+	}
 #endif
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
@@ -1740,6 +1746,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_BALANCE_CORE)
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
+	m_iGAPBlastStrength = 0;
 #endif
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
@@ -2138,6 +2145,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
 	else
 		SetCultureBlastStrength(getGivePoliciesCulture());
+
+	if (pUnit->getGAPBlast() > getGAPBlast())
+		SetGAPBlastStrength(pUnit->getGAPBlast());
+	else
+		SetCultureBlastStrength(getGAPBlast());
 
 	if (pUnit->getOriginCity() == NULL)
 	{
@@ -5346,7 +5358,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 		ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
-		if(!canEnterTerritory(ePlotTeam, false /*bIgnoreRightOfPassage*/))
+		if(!canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 		{
 			CvAssert(ePlotTeam != NO_TEAM);
 
@@ -10366,7 +10378,8 @@ bool CvUnit::pillage()
 			{
 #if defined(MOD_BALANCE_CORE)
 
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE);
+				if (pPlot->getTeam() != NO_TEAM && !GET_TEAM(pPlot->getTeam()).isMinorCiv())
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE);
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
@@ -12863,7 +12876,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 bool CvUnit::canGoldenAge(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-	if(!isGoldenAge())
+	if(!isGoldenAge() && GetGAPBlastStrength() <= 0)
 	{
 		return false;
 	}
@@ -12901,52 +12914,26 @@ bool CvUnit::goldenAge()
 		return false;
 	}
 
-	int iGoldenAgeTurns = GetGoldenAgeTurns();
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		// Player modifier
-		int iLengthModifier = GET_PLAYER(getOwner()).getGoldenAgeModifier();
-
-		// Trait modifier
-		iLengthModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-		// Do we get increased Golden Ages from a resource monopoly?
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		{
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-				if(eResourceLoop != NO_RESOURCE)
-				{
-					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-					if (pInfo && pInfo->isMonopoly())
-					{
-						if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-						{
-							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += GET_PLAYER(getOwner()).GetMonopolyModPercent();
-							iLengthModifier += iTemp;
-						}
-					}
-				}
-			}
-		}
-		if(iLengthModifier != 0)
-		{
-			iGoldenAgeTurns = ((iGoldenAgeTurns * (100 + iLengthModifier)) / 100);
-		}
-	}
-#endif
-
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+
+	if (GetGAPBlastStrength() > 0)
+	{
+		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, GetGAPBlastStrength(), false, NO_PLAYER, plot(), false, getOriginCity(), false, true, true, YIELD_GOLDEN_AGE_POINTS);
+	}
+
+
+	int iGoldenAgeTurns = GetGoldenAgeTurns();
+	if (iGoldenAgeTurns > 0)
+	{
+
 #if defined(MOD_BALANCE_CORE)
-	int iValue = kPlayer.GetGoldenAgeProgressMeter();
-	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
+		int iValue = kPlayer.GetGoldenAgeProgressMeter();
+		kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
 #else
-	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns);
+		kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns);
 #endif
-	kPlayer.changeNumUnitGoldenAges(1);
+		kPlayer.changeNumUnitGoldenAges(1);
+	}
 
 	if(pPlot->isActiveVisible(false))
 	{
@@ -25703,6 +25690,59 @@ void CvUnit::SetCultureBlastStrength(int iValue)
 {
 	m_iCultureBlastStrength = iValue;
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetGAPBlastStrength() const
+{
+	return m_iGAPBlastStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetGAPBlastStrength(int iValue)
+{
+	m_iGAPBlastStrength = iValue;
+}
+int CvUnit::getGAPBlast()
+{
+	int iValue = 0;
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	if (pPlayer)
+	{
+		// Beakers boost based on previous turns
+		int iPreviousTurnsToCount = m_pUnitInfo->GetBaseTurnsForGAPToCount();
+		iValue = pPlayer->GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+		iValue += pPlayer->GetGAPYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		//GA Mod
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumThemes() > 0)
+		{
+			int iTotalThemes = 0;
+			int iCityLoop;
+			// Loop through owner's cities.
+			for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+			{
+				if (pLoopCity != NULL)
+				{
+					iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+				}
+			}
+
+			iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
+			iValue *= (iTotalThemes + 100);
+			iValue /= 100;
+		}
+#endif
+		if (iValue <= GC.getGOLDEN_AGE_BASE_THRESHOLD_HAPPINESS()/2)
+			iValue = GC.getGOLDEN_AGE_BASE_THRESHOLD_HAPPINESS() / 2;
+
+		// Modify based on game speed
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue /= 100;
+	}
+	return iValue;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -26994,7 +27034,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_BALANCE_CORE_JFD)
 		changePlagueChance(thisPromotion.GetPlagueChance() * iChange);
 		changePlagued((thisPromotion.IsPlague()) ? iChange: 0);
-		if (thisPromotion.GetPlagueIDImmunity() != -1)
+		if (thisPromotion.GetPlagueIDImmunity() > 0)
 		{
 			setPlagueIDImmunity(iChange > 0 ? thisPromotion.GetPlagueIDImmunity() : -1);
 		}
@@ -30469,13 +30509,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetPlagueChance();
 	if (iTemp != 0)
 	{
-		iValue += iTemp/2 + iFlavorOffense;
+		iValue += iTemp + (iTemp/2) + iFlavorOffense;
 	}
 
 	iTemp = pkPromotionInfo->GetPlagueIDImmunity();
 	if (iTemp != 0)
 	{
-		iValue += iFlavorDefense;
+		iValue += iFlavorDefense + (iFlavorDefense/3);
 	}
 
 	iTemp = pkPromotionInfo->GetCaptureDefeatedEnemyChance();

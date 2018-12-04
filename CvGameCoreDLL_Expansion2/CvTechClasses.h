@@ -77,6 +77,9 @@ public:
 #if defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
 #endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
+#endif
 	bool IsBridgeBuilding() const;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	bool IsCityLessEmbarkCost() const;
@@ -160,6 +163,9 @@ private:
 	bool m_bPermanentAllianceTrading;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int m_iCityAutomatonWorkersChange;
 #endif
 	bool m_bBridgeBuilding;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)

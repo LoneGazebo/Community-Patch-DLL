@@ -143,6 +143,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(CanGoldenAge);
 	Method(GetGoldenAgeTurns);
+	Method(GetGAPAmount);
 	Method(GetGivePoliciesCulture);
 	Method(GetBlastTourism);
 	Method(CanBuild);
@@ -1861,7 +1862,23 @@ int CvLuaUnit::lCanGoldenAge(lua_State* L)
 int CvLuaUnit::lGetGoldenAgeTurns(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const int iResult = pkUnit->GetGoldenAgeTurns();
+	int iResult = 0;
+	if (pkUnit->GetGAPBlastStrength() > 0)
+	{
+		iResult = pkUnit->GetGAPBlastStrength();
+	}
+	else
+		iResult = pkUnit->GetGoldenAgeTurns();
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//int GetGoldenAgeTurns();
+int CvLuaUnit::lGetGAPAmount(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->GetGAPBlastStrength();
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3270,13 +3287,13 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
 
-	if (pkUnit == NULL || pkOtherUnit == NULL || pkOtherUnit->getPlagueChance() <= 0)
+	if (pkUnit == NULL || pkOtherUnit == NULL)
 	{
 		lua_pushstring(L, "");
 		return 1;
 	}
 
-	if (!pkUnit->CanPlague(pkOtherUnit))
+	if (!pkOtherUnit->CanPlague(pkUnit))
 	{
 		lua_pushstring(L, "");
 		return 1;

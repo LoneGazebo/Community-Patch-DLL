@@ -215,7 +215,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
 	m_iUpgradeProgress = 0;
-	m_iCulture = 0;
 	m_iNumMajorCivsRevealed = 0;
 	m_iCityRadiusCount = 0;
 	m_iReconCount = 0;
@@ -5654,24 +5653,24 @@ int CvPlot::ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, Yi
 	return iRtnValue;
 }
 
-int CvPlot::ComputeYieldFromAdjacentPlot(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+int CvPlot::ComputeYieldFromAdjacentFeature(CvImprovementEntry& kImprovement, YieldTypes eYield) const
 {
 	CvPlot* pAdjacentPlot;
 	int iRtnValue = 0;
 
-	for(int iJ = 0; iJ < GC.getNumPlotInfos(); iJ++)
+	for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 	{
-		PlotTypes ePlot = (PlotTypes)iJ;
-		if(ePlot != NO_PLOT)
+		FeatureTypes eFeature = (FeatureTypes)iJ;
+		if (eFeature != NO_FEATURE)
 		{
-			if (kImprovement.GetAdjacentPlotYieldChanges(ePlot, eYield) > 0)
+			if (kImprovement.GetAdjacentFeatureYieldChanges(eFeature, eYield) > 0)
 			{
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
 					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot && pAdjacentPlot->getPlotType() == ePlot)
+					if (pAdjacentPlot && pAdjacentPlot->getFeatureType() == eFeature)
 					{
-						iRtnValue += kImprovement.GetAdjacentPlotYieldChanges(ePlot, eYield);
+						iRtnValue += kImprovement.GetAdjacentFeatureYieldChanges(eFeature, eYield);
 					}
 				}
 			}
@@ -8523,7 +8522,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							pAdjacentPlot->updateYield();
 						}
 					}
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getPlotType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_FEATURE && pAdjacentPlot->getOwner() == eBuilder)
 					{	
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
@@ -8532,7 +8531,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 								break;
 
-							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
+							if (pImprovement2->GetAdjacentFeatureYieldChanges(pAdjacentPlot->getFeatureType(), (YieldTypes)iK) > 0)
 							{
 								bUp2 = true;								
 								break;
@@ -8575,7 +8574,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							pAdjacentPlot->updateYield();
 						}
 					}
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getPlotType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
 					{	
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
@@ -8584,7 +8583,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 								break;
 
-							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
+							if (pImprovement2->GetAdjacentFeatureYieldChanges(pAdjacentPlot->getFeatureType(), (YieldTypes)iK) > 0)
 							{
 								bUp2 = true;								
 								break;
@@ -10154,23 +10153,6 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 			}
 		}
 
-		if (getPlotType() != NO_PLOT)
-		{
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-				{
-					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-					if (pImprovement2 && pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield) > 0)
-					{
-						iYield += pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield);
-					}
-				}
-			}
-		}
-
 		int iYieldChangePerEra = pImprovement->GetYieldChangePerEra(eYield);
 		if (iYieldChangePerEra > 0)
 		{
@@ -10192,16 +10174,21 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 				if (pAdjacentPlot == NULL)
 					continue;
 
-				if(pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+				if (pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
 				{
 					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-					if (pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+					if (pImprovement2)
 					{
 						iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
 					}
 				}
 
-				if(pAdjacentPlot->getResourceType() != NO_RESOURCE)
+				if (pAdjacentPlot->getFeatureType() != NO_FEATURE)
+				{
+					iYield += pImprovement->GetAdjacentFeatureYieldChanges(pAdjacentPlot->getFeatureType(), eYield);
+				}
+
+				if (pAdjacentPlot->getResourceType() != NO_RESOURCE)
 				{
 					iYield += pImprovement->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), eYield);
 				}
@@ -13011,7 +12998,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iOwnershipDuration;
 	kStream >> m_iImprovementDuration;
 	kStream >> m_iUpgradeProgress;
-	kStream >> m_iCulture;
+	kStream >> m_iUpgradeProgress; //dummy
 	kStream >> m_iNumMajorCivsRevealed;
 	kStream >> m_iCityRadiusCount;
 	kStream >> m_iReconCount;
@@ -13222,7 +13209,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iOwnershipDuration;
 	kStream << m_iImprovementDuration;
 	kStream << m_iUpgradeProgress;
-	kStream << m_iCulture;
+	kStream << m_iUpgradeProgress; //dummy
 	kStream << m_iNumMajorCivsRevealed;
 	kStream << m_iCityRadiusCount;
 	kStream << m_iReconCount;

@@ -223,6 +223,11 @@ public:
 	bool isCityWorkingChange() const;
 	void changeCityWorkingChange(int iChange);
 #endif
+	
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int getCityAutomatonWorkers() const;
+	void changeCityAutomatonWorkers(int iChange);
+#endif
 
 	int getBridgeBuildingCount() const;
 	bool isBridgeBuilding() const;
@@ -566,6 +571,9 @@ protected:
 	int m_iPermanentAllianceTradingCount;
 #if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int m_iCityAutomatonWorkers;
 #endif
 	int m_iBridgeBuildingCount;
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)

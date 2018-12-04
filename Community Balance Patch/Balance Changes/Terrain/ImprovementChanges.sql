@@ -30,7 +30,9 @@ VALUES
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
+	('IMPROVEMENT_FARM', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_LUMBERMILL_JUNGLE', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1);
 
 -- Delete things we replace below.
 DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_URANIUM';

@@ -97,6 +97,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromProposal(NULL),
 	m_piYieldFromHost(NULL),
+	m_piYieldFromFaithPurchase(NULL),
 	m_piYieldFromKnownPantheons(NULL),
 	m_iCombatVersusOtherReligionOwnLands(0),
 	m_iCombatVersusOtherReligionTheirLands(0),
@@ -109,7 +110,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piMaxYieldPerFollower(NULL),
 	m_piMaxYieldPerFollowerPercent(NULL),
 	m_piImprovementVoteChange(NULL),
-	m_bIgnorePolicyRequirements(false),
+	m_iReducePolicyRequirements(0),
 	m_iCSYieldBonus(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -652,6 +653,13 @@ int CvBeliefEntry::GetYieldFromHost(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromHost ? m_piYieldFromHost[i] : -1;
 }
+
+int CvBeliefEntry::GetYieldFromFaithPurchase(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromFaithPurchase ? m_piYieldFromFaithPurchase[i] : -1;
+}
 /// Accessor:: Yield from Known Pantheons
 int CvBeliefEntry::GetYieldFromKnownPantheons(int i) const
 {
@@ -674,9 +682,9 @@ int CvBeliefEntry::GetMaxYieldPerFollowerPercent(int i) const
 	return m_piMaxYieldPerFollowerPercent ? m_piMaxYieldPerFollowerPercent[i] : -1;
 }
 
-bool CvBeliefEntry::IsIgnorePolicyRequirements() const
+int CvBeliefEntry::GetIgnorePolicyRequirementsAmount() const
 {
-	return m_bIgnorePolicyRequirements;
+	return m_iReducePolicyRequirements;
 }
 int CvBeliefEntry::GetCSYieldBonus() const
 {
@@ -1242,13 +1250,14 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromWLTKD, "Belief_YieldFromWLTKD", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromProposal, "Belief_YieldFromProposal", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromFaithPurchase, "Belief_YieldFromFaithPurchase", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKnownPantheons, "Belief_YieldFromKnownPantheons", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerPercent, "Yields", "Belief_MaxYieldPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 
 	kUtility.PopulateArrayByValue(m_piImprovementVoteChange, "Improvements", "Belief_VotePerXImprovementOwned", "ImprovementType", "BeliefType", szBeliefType, "Amount");
 
-	m_bIgnorePolicyRequirements = kResults.GetBool("IgnorePolicyRequirements");
+	m_iReducePolicyRequirements = kResults.GetInt("ReducePolicyRequirements");
 	m_iCSYieldBonus = kResults.GetInt("CSYieldBonusFromSharedReligion");
 #endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
@@ -4151,6 +4160,26 @@ int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlay
 
 	return rtnValue;
 }
+
+/// Get yield modifier from beliefs from Hosting WC
+int CvReligionBeliefs::GetYieldFromFaithPurchase(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromFaithPurchase(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+
 /// Get yield modifier from beliefs from Hosting WC
 int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
@@ -4205,7 +4234,7 @@ int CvReligionBeliefs::GetMaxYieldPerFollowerPercent(YieldTypes eYieldType, Play
 }
 
 /// Get yield from beliefs from # of followers halved
-bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -4215,7 +4244,7 @@ bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes eP
 		if (iEra <= 0)
 			iEra = GC.getNumEraInfos()+1;
 
-		if (pBeliefs->GetEntry(*it)->IsIgnorePolicyRequirements() && ((int)eEra < iEra) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->GetIgnorePolicyRequirementsAmount() && ((int)eEra < iEra) && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			return true;
 		}

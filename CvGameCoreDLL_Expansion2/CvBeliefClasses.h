@@ -108,6 +108,7 @@ public:
 	int GetYieldFromWLTKD(int i) const;
 	int GetYieldFromProposal(int i) const;
 	int GetYieldFromHost(int i) const;
+	int GetYieldFromFaithPurchase(int i) const;
 	int GetYieldFromKnownPantheons(int i) const;
 	int GetCombatVersusOtherReligionOwnLands() const;
 	int GetCombatVersusOtherReligionTheirLands() const;
@@ -119,7 +120,7 @@ public:
 	int GetPolicyReductionWonderXFollowerCities() const;
 	int GetMaxYieldPerFollower(int i) const;
 	int GetMaxYieldPerFollowerPercent(int i) const;
-	bool IsIgnorePolicyRequirements() const;
+	int GetIgnorePolicyRequirementsAmount() const;
 	int GetCSYieldBonus() const;
 	int GetImprovementVoteChange(ImprovementTypes eImprovement) const;
 #endif
@@ -342,11 +343,12 @@ protected:
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromProposal;
 	int* m_piYieldFromHost;
+	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromKnownPantheons;
 	int* m_piMaxYieldPerFollower;
 	int* m_piMaxYieldPerFollowerPercent;
 	int* m_piImprovementVoteChange;
-	bool m_bIgnorePolicyRequirements;
+	int m_iReducePolicyRequirements;
 	int m_iCSYieldBonus;
 	int m_iCombatVersusOtherReligionOwnLands;
 	int m_iCombatVersusOtherReligionTheirLands;
@@ -564,11 +566,12 @@ public:
 	int GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldFromFaithPurchase(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMaxYieldPerFollowerPercent(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
-	bool IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCSYieldBonus(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif

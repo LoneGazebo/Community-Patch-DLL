@@ -558,6 +558,7 @@ public:
 	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
 #if defined(MOD_BALANCE_CORE)
 	int GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
+	int GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
 #endif
 
 	int GetNumCitiesFreeCultureBuilding() const;

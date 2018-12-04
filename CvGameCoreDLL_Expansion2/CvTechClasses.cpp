@@ -60,6 +60,9 @@ CvTechEntry::CvTechEntry(void):
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
 #endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange(0),
+#endif
 	m_bBridgeBuilding(false),
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_bCityLessEmbarkCost(false),
@@ -146,6 +149,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bPermanentAllianceTrading = kResults.GetBool("PermanentAllianceTradingAllowed");
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
+#endif
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 #endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -511,6 +517,14 @@ bool CvTechEntry::IsPermanentAllianceTrading() const
 int CvTechEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
+}
+#endif
+
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+/// Change the number of automaton workers a city can have
+int CvTechEntry::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
 }
 #endif
 

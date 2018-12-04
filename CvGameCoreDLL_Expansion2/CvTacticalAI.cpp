@@ -5285,25 +5285,16 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 /// Mark units that can damage key items as priority targets
 void CvTacticalAI::IdentifyPriorityTargets()
 {
-	CvCity* pLoopCity;
-	int iCityLoop;
-	FFastVector<CvTacticalTarget> possibleAttackers;
-	int iExpectedDamage;
-	int iExpectedTotalDamage;
-
 	//calculate this only once
 	std::map<int,ReachablePlots> unitMovePlots;
 
 	// Loop through each of our cities
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	int iCityLoop;
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		// Compile a list of units that can attack it this turn and what their expected damage is
-#if defined(MOD_BALANCE_CORE)
-		if(pLoopCity == NULL)
-			continue;
-#endif
-		possibleAttackers.clear();
-		iExpectedTotalDamage = 0;
+		vector<CvTacticalTarget> possibleAttackers;
+		int iExpectedTotalDamage = 0;
 
 		CvTacticalTarget* pTarget = GetFirstUnitTarget();
 		while(pTarget != NULL)
@@ -5312,7 +5303,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 			CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 			if(pEnemyUnit)
 			{
-				iExpectedDamage = 0;
+				int iExpectedDamage = 0;
 
 				if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->canEverRangeStrikeAt(pLoopCity->getX(), pLoopCity->getY()))
 				{
@@ -6083,7 +6074,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 		{
 			CvUnit* pUnit = vUnits[0];
 			CvPlot* pEndTurnPlot = TacticalAIHelpers::EndTurnPlot(vAssignments, pUnit->GetID());
-			if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() && !TacticalAIHelpers::IsEnemyKilled(vAssignments))
+			if (pEndTurnPlot && (3*pUnit->GetDanger(pEndTurnPlot) > 2*pUnit->GetCurrHitPoints()) && !TacticalAIHelpers::IsEnemyKilled(vAssignments))
 				break;
 		}
 		
@@ -7079,7 +7070,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 			{
 				pTarget = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				if (pTarget)
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), 0 /*no approximate flags*/, false, false, MISSIONAI_TACTMOVE, pTarget);
 			}
 
 			//for inspection in GUI
@@ -10908,9 +10899,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					return result;
 
 				if ( pCurrentPlot==assumedPosition.getTarget() || IsEnemyCitadel(pCurrentPlot,kPlayer.getTeam()) )
-					result.iScore += 8; //a slight boost for attacking the "real" target or a citadel
+					result.iScore += 5; //a slight boost for attacking the "real" target or a citadel
 				else
-					result.iScore += 5; //a bonus to make attacks more competive with moves - each frontline plot gets a +8
+					result.iScore += 2; //a bonus to make attacks more competive with moves - each frontline plot gets a +8 anyway
 
 				//combo bonus
 				if (result.eType==STacticalAssignment::A_MELEEKILL && currentPlot.isEnemyCivilian())

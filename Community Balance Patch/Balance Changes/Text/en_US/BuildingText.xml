@@ -680,10 +680,10 @@
 			<Text>A runestone is typically a raised stone with a runic inscription, but the term can also be applied to inscriptions on boulders and on bedrock. The tradition began in the 4th century and lasted into the 12th century, but most of the runestones date from the late Viking Age. Most runestones are located in Scandinavia, but there are also scattered runestones in locations that were visited by Norsemen during the Viking Age. Runestones are often memorials to dead men. Runestones were usually brightly coloured when erected, though this is no longer evident as the colour has worn off.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>Whenever you pillage a Tile Improvement, gain +5 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]+25% [ICON_PRODUCTION] Production towards Land and Naval Melee units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water.</Text>
+			<Text>Whenever you pillage a Tile Improvement owned by a Major Civilization, gain +5 [ICON_GOLD] Gold and [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]+25% [ICON_PRODUCTION] Production towards Land and Naval Melee units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
-			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Runestones produce [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production when you pillage a Tile Improvement (Roads and Railroads do not count), generates more Food from ocean tiles, and increases production of melee land and naval units. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
+			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Runestones produce [ICON_CULTURE] Culture and [ICON_GOLD] Gold when you pillage a Tile Improvement owned by a Major Civ (Roads and Railroads do not count), generates more Food from ocean tiles, and increases production of melee land and naval units. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON">
 			<Text>Seowon</Text>

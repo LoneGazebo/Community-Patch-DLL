@@ -9434,7 +9434,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 							continue;
 						}
 
-						GC.getGame().DoSpawnUnitsAroundTargetCity(GetID(), pLoopCity, iNumRecruits, true, pLoopCity->isCoastal(), false, true);
+						GC.getGame().DoSpawnUnitsAroundTargetCity(GetID(), pLoopCity, iNumRecruits, false, pLoopCity->isCoastal(), false, true);
 					}
 				}
 			}
@@ -15550,50 +15550,18 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 #if defined(MOD_BALANCE_CORE)
 		if(GetPlayerPolicies() && !isMinorCiv() && !isBarbarian())
 		{
-			bool IgnoreRequirements = false;
-			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
-			if (eFoundedReligion == NO_RELIGION)
+			int iNumPoliciesNeeded = pBuildingInfo.GetNumPoliciesNeeded();
+			if (iNumPoliciesNeeded > 0)
 			{
-				eFoundedReligion = GetReligions()->GetReligionInMostCities();
-			}
-			if (eFoundedReligion != NO_RELIGION)
-			{
-				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
-				if (pReligion)
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+				if (eFoundedReligion == NO_RELIGION)
 				{
-					// Depends on era of wonder
-					EraTypes eEra;
-					TechTypes eTech = (TechTypes)pBuildingInfo.GetPrereqAndTech();
-					if (eTech != NO_TECH)
-					{
-						CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
-						if (pEntry)
-						{
-							eEra = (EraTypes)pEntry->GetEra();
-							if (eEra != NO_ERA)
-							{
-								CvCity* pHolyCity = NULL;
-								CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-								if (pHolyCityPlot)
-								{
-									pHolyCity = pHolyCityPlot->getPlotCity();
-								}
-								if (pHolyCity == NULL)
-								{
-									pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-								}
-								IgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, GetID(), pHolyCity);
-							}
-						}
-					}
+					eFoundedReligion = GetReligions()->GetReligionInMostCities();
 				}
-			}
-			if (!IgnoreRequirements)
-			{
-				//If # of policies will do it, then we need to see the either/or here.
-				if (pBuildingInfo.GetNumPoliciesNeeded() > 0)
+				if (eFoundedReligion != NO_RELIGION)
 				{
+					//If # of policies will do it, then we need to see the either/or here.
 					int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
 					int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
 					if (iCSPolicyReduction > 0)
@@ -15622,14 +15590,40 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
 								if (iNumFollowerCities > 0)
 								{
-									iNumPolicies += (iNumFollowerCities / iReligionPolicyReduction);
+									iNumPoliciesNeeded -= (iNumFollowerCities / iReligionPolicyReduction);
+								}
+							}
+
+							// Depends on era of wonder
+							EraTypes eEra;
+							TechTypes eTech = (TechTypes)pBuildingInfo.GetPrereqAndTech();
+							if (eTech != NO_TECH)
+							{
+								CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+								if (pEntry)
+								{
+									eEra = (EraTypes)pEntry->GetEra();
+									if (eEra != NO_ERA)
+									{
+										CvCity* pHolyCity = NULL;
+										CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+										if (pHolyCityPlot)
+										{
+											pHolyCity = pHolyCityPlot->getPlotCity();
+										}
+										if (pHolyCity == NULL)
+										{
+											pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+										}
+										iNumPoliciesNeeded -= pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, GetID(), pHolyCity);
+									}
 								}
 							}
 						}
-					}				
-					if (iNumPolicies < pBuildingInfo.GetNumPoliciesNeeded())
+					}
+					if (iNumPolicies < iNumPoliciesNeeded)
 					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies);
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", iNumPoliciesNeeded - iNumPolicies);
 						if (toolTipSink == NULL)
 							return false;
 					}
@@ -16193,6 +16187,11 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	int iProductionNeeded = pkUnitEntry->GetProductionCost();
 	iProductionNeeded *= 100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier();
 	iProductionNeeded /= 100;
+
+	if (pkUnitEntry->GetProductionCostPerEra() != 0)
+	{
+		iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * GetCurrentEra();
+	}
 
 	if(isMinorCiv())
 	{
@@ -16896,13 +16895,12 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		if(iMinorFriendshipChange != 0)
 		{
 			int iNewValue;
-			iMinorFriendshipChange += 100;	// Make it a mod
+			//iMinorFriendshipChange += 100;	// Make it a mod
 
 			for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
 				iNewValue = GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetBaseFriendshipWithMajorTimes100(GetID());
-				iNewValue *= iMinorFriendshipChange;
-				iNewValue /= 100;
+				iNewValue += iMinorFriendshipChange * 100;
 
 				GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->SetFriendshipWithMajorTimes100(GetID(), iNewValue);
 			}
@@ -19129,6 +19127,32 @@ int CvPlayer::GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTu
 		else if (iTurnTourism == -1) // No data for this turn (ex. late era start)
 		{
 			iSum += (3 * GetCulture()->GetTourism() / 100);
+		}
+	}
+
+	return iSum;
+}
+
+int CvPlayer::GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount)
+{
+	// Culture per turn yield is tracked in replay data, so use that
+	int iSum = 0;
+	for (int iI = 1; iI < iNumPreviousTurnsToCount + 1; iI++)
+	{
+		int iTurn = iGameTurn - iI;
+		if (iTurn < 0)
+		{
+			break;
+		}
+
+		int iTurnGAP = getReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GAPPERTURN"), iTurn);
+		if (iTurnGAP >= 0)
+		{
+			iSum += iTurnGAP;
+		}
+		else if (iTurnGAP == -1) // No data for this turn (ex. late era start)
+		{
+			iSum += (3 * GetGoldenAgePointsFromEmpire() + GetExcessHappiness());
 		}
 	}
 
@@ -26901,6 +26925,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+
+				case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
+				{
+					if (pReligion)
+					{
+						int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity, true);
+						iTempVal *= iPassYield;
+						iTempVal /= 100;
+						iValue += iTempVal;
+					}
+					break;
+				}
 				
 			}
 			//Now, let's apply these yields here as total yields.
@@ -27732,7 +27768,24 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				return;
 			}
-			
+			case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
 		}
 		if(pCity == NULL)
 		{
@@ -43310,6 +43363,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldFromwonderConstruction(eYield, (pPolicy->GetYieldFromWonderConstruction(iI) * iChange));
 
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
+		if (pPolicy->GetYieldFromTech(iI) * iChange > 0)
+		{
+			int iTechValue = GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown() * pPolicy->GetYieldFromTech(iI);
+			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+		}
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
 		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
 		changeConquerorYield(eYield, (pPolicy->GetConquerorYield(iI) * iChange));
@@ -48559,6 +48617,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		
 #if defined(MOD_BALANCE_CORE)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iGameTurn, GetCulture()->GetTourism() / 100);
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GAPPERTURN"), iGameTurn, GetGoldenAgePointsFromEmpire() + GetExcessHappiness());
 #endif
 
 		// 	Happiness

@@ -25,7 +25,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>3</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -39,7 +39,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>3</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<PortraitIndex>45</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -53,7 +53,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<FlankAttackModifier>3</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -2247,7 +2247,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_CHEST</PediaEntry>
 			<CombatPercent>5</CombatPercent>
-			<FlankAttackModifier>3</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<RangedDefenseMod>5</RangedDefenseMod>
 		</Replace>
 		<Replace>
@@ -2261,7 +2261,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_LOINS</PediaEntry>
 			<CombatPercent>5</CombatPercent>
-			<FlankAttackModifier>3</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<RangedDefenseMod>5</RangedDefenseMod>
 		</Replace>
 		<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
@@ -2275,7 +2275,7 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_HORNS</PediaEntry>
-			<FlankAttackModifier>3</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<MovesChange>1</MovesChange>
 			<RangedDefenseMod>5</RangedDefenseMod>
 		</Replace>
@@ -2463,7 +2463,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SNEAK_ATTACK</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<FlankAttackModifier>5</FlankAttackModifier>
+			<FlankAttackModifier>10</FlankAttackModifier>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_HEROISM</Type>
@@ -2627,7 +2627,7 @@
 			<Help>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<FlankAttackModifier>5</FlankAttackModifier>
+			<FlankAttackModifier>10</FlankAttackModifier>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
@@ -2845,7 +2845,7 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RAIDER</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<FlankAttackModifier>15</FlankAttackModifier>
+			<FlankAttackModifier>20</FlankAttackModifier>
 			<CityAttackPlunderModifier>50</CityAttackPlunderModifier>
 		</Row>
 		<Row>
@@ -3069,7 +3069,7 @@
 			<IgnoreZOC>true</IgnoreZOC>
 			<CannotBeChosen>true</CannotBeChosen>
 			<AttackWoundedMod>50</AttackWoundedMod>
-			<FlankAttackModifier>5</FlankAttackModifier>
+			<FlankAttackModifier>10</FlankAttackModifier>
 			<FriendlyHealChange>10</FriendlyHealChange>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -3310,7 +3310,7 @@
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_3</PromotionPrereqOr1>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<FlankAttackModifier>5</FlankAttackModifier>
+			<FlankAttackModifier>10</FlankAttackModifier>
 			<IgnoreZOC>true</IgnoreZOC>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDING_PARTY_4</PediaEntry>
@@ -3970,7 +3970,6 @@
 			<Help>TXT_KEY_PROMOTION_NAVAL_SENTRY_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_NAVAL_SENTRY</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr2>
 			<OrderPriority>3</OrderPriority>
 			<VisibilityChange>1</VisibilityChange>
 			<MovesChange>1</MovesChange>
@@ -3996,7 +3995,7 @@
 			<Description>TXT_KEY_PROMOTION_ENCIRCLEMENT</Description>
 			<Help>TXT_KEY_PROMOTION_ENCIRCLEMENT_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<AOEDamageOnKill>10</AOEDamageOnKill>
+			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
@@ -4054,13 +4053,28 @@
 			<Help>TXT_KEY_PROMOTION_MINELAYER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<TechPrereq>TECH_COMBUSTION</TechPrereq>
-			<AdjacentEnemySapMovement>2</AdjacentEnemySapMovement>
+			<AdjacentEnemySapMovement>120</AdjacentEnemySapMovement>
 			<RangedDefenseMod>-10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MINELAYER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_HEAVY_SHIP</Type>
+			<Description>TXT_KEY_PROMOTION_HEAVY_SHIP</Description>
+			<Help>TXT_KEY_PROMOTION_HEAVY_SHIP_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<OrderPriority>1</OrderPriority>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<AttackMod>25</AttackMod>
+			<CityAttack>100</CityAttack>
+			<PortraitIndex>20</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_HEAVY_SHIP</PediaEntry>
 		</Row>
 	</UnitPromotions>
 </GameData>

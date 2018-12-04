@@ -564,6 +564,11 @@ SET Text = 'Found in the Earth''s crust and upper mantle, stone is perhaps the m
 WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_STONE_TEXT';
 
 
+UPDATE Language_en_US
+SET Text = 'A Lumbermill allows you to improve the Production output of forest tiles. Gains additional Production for every two adjacent Lumbermills, so try to build them in clusters of three if possible.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT';
+
+
 -- Founding Cities
 
 UPDATE Language_en_US

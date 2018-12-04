@@ -1400,6 +1400,12 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	//some checks about units etc. they need to be visible, else we leak information in the UI
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
+		//some quick checks first (redundant with canMoveInto but faster)
+		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
+			return FALSE;
+		if(!kToNodeCacheData.bCanEnterTerritory)
+			return FALSE;
+
 		//we check stacking once we know whether we end the turn here (in PathCost)
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
 			return FALSE;

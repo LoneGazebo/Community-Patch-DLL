@@ -377,6 +377,12 @@
 		<Column name="Max" type="integer" default="0"/>
 	</Table>
 
+	<Table name="Belief_YieldFromFaithPurchase">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	
 	<!-- POLICY: Allows you to define a resource gained from having a CS Ally) -->
 	<Table name="Policy_ResourcefromCSAlly">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
@@ -963,10 +969,10 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Improvement: allows an improvement to boost the base yield of an adjacent plot (works with hills where Improvement_AdjacentTerrainYieldChanges doesn't) -->
-	<Table name="Improvement_AdjacentPlotYieldChanges">
+	<!-- Improvement: allows an improvement to boost the base yield of an adjacent feature -->
+	<Table name="Improvement_AdjacentFeatureYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
-		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>

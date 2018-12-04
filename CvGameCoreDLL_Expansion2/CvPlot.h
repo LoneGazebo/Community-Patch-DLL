@@ -393,7 +393,7 @@ public:
 	int ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
-	int ComputeYieldFromAdjacentPlot(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
+	int ComputeYieldFromAdjacentFeature(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 #else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
 #endif
@@ -1069,7 +1069,6 @@ protected:
 	CvUnit* m_pCenterUnit;
 
 	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
-
 	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
 
 	short m_iArea;
@@ -1087,13 +1086,13 @@ protected:
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
-
-	short m_iCulture;
-
 	uint m_uiCityConnectionBitFlags;
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
-	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;
+	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 
+	//why only one autovariable? probably should extend this to everything the players may change about the plot
+	//ie improvements, routes, etc
+
 #if defined(MOD_BALANCE_CORE)
 	char m_iUnitPlotExperience;
 	char m_iUnitPlotGAExperience;
