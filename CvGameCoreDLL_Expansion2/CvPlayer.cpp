@@ -15553,6 +15553,16 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 			int iNumPoliciesNeeded = pBuildingInfo.GetNumPoliciesNeeded();
 			if (iNumPoliciesNeeded > 0)
 			{
+				//If # of policies will do it, then we need to see the either/or here.
+				int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
+
+				int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
+				if (iCSPolicyReduction > 0)
+				{
+					int iNumAllies = GetNumCSAllies();
+					iNumPoliciesNeeded -= (iNumAllies / iCSPolicyReduction);
+				}
+
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
 				if (eFoundedReligion == NO_RELIGION)
@@ -15561,72 +15571,61 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 				}
 				if (eFoundedReligion != NO_RELIGION)
 				{
-					//If # of policies will do it, then we need to see the either/or here.
-					int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
-					int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
-					if (iCSPolicyReduction > 0)
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
+					if (pReligion)
 					{
-						int iNumAllies = GetNumCSAllies();
-						iNumPolicies += (iNumAllies / iCSPolicyReduction);
-					}
-					if (eFoundedReligion != NO_RELIGION)
-					{
-						const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
-						if (pReligion)
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
 						{
-							CvCity* pHolyCity = NULL;
-							CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-							if (pHolyCityPlot)
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						if (pHolyCity == NULL)
+						{
+							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+						}
+						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID(), pHolyCity);
+						if (iReligionPolicyReduction > 0)
+						{
+							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+							if (iNumFollowerCities > 0)
 							{
-								pHolyCity = pHolyCityPlot->getPlotCity();
+								iNumPoliciesNeeded -= (iNumFollowerCities / iReligionPolicyReduction);
 							}
-							if (pHolyCity == NULL)
-							{
-								pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-							}
-							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID(), pHolyCity);
-							if (iReligionPolicyReduction > 0)
-							{
-								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
-								if (iNumFollowerCities > 0)
-								{
-									iNumPoliciesNeeded -= (iNumFollowerCities / iReligionPolicyReduction);
-								}
-							}
+						}
 
-							// Depends on era of wonder
-							EraTypes eEra;
-							TechTypes eTech = (TechTypes)pBuildingInfo.GetPrereqAndTech();
-							if (eTech != NO_TECH)
+						// Depends on era of wonder
+						EraTypes eEra;
+						TechTypes eTech = (TechTypes)pBuildingInfo.GetPrereqAndTech();
+						if (eTech != NO_TECH)
+						{
+							CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+							if (pEntry)
 							{
-								CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
-								if (pEntry)
+								eEra = (EraTypes)pEntry->GetEra();
+								if (eEra != NO_ERA)
 								{
-									eEra = (EraTypes)pEntry->GetEra();
-									if (eEra != NO_ERA)
+									CvCity* pHolyCity = NULL;
+									CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+									if (pHolyCityPlot)
 									{
-										CvCity* pHolyCity = NULL;
-										CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-										if (pHolyCityPlot)
-										{
-											pHolyCity = pHolyCityPlot->getPlotCity();
-										}
-										if (pHolyCity == NULL)
-										{
-											pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-										}
-										iNumPoliciesNeeded -= pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, GetID(), pHolyCity);
+										pHolyCity = pHolyCityPlot->getPlotCity();
 									}
+									if (pHolyCity == NULL)
+									{
+										pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+									}
+									iNumPoliciesNeeded -= pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, GetID(), pHolyCity);
 								}
 							}
 						}
 					}
-					if (iNumPolicies < iNumPoliciesNeeded)
-					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", iNumPoliciesNeeded - iNumPolicies);
-						if (toolTipSink == NULL)
-							return false;
-					}
+				}
+				if (iNumPolicies < iNumPoliciesNeeded)
+				{
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", iNumPoliciesNeeded - iNumPolicies);
+					if (toolTipSink == NULL)
+						return false;
 				}
 			}
 		}
@@ -43363,7 +43362,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldFromwonderConstruction(eYield, (pPolicy->GetYieldFromWonderConstruction(iI) * iChange));
 
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
-		if (pPolicy->GetYieldFromTech(iI) * iChange > 0)
+		if (pPolicy->IsOpener() && pPolicy->GetYieldFromTech(iI) * iChange > 0)
 		{
 			int iTechValue = GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown() * pPolicy->GetYieldFromTech(iI);
 			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
