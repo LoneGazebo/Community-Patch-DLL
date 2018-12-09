@@ -25772,6 +25772,10 @@ void CvCity::updateStrengthValue()
 		iStrengthFromUnits = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
 		iStrengthFromUnits = (iStrengthFromUnits * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
+		//special check for naval garrison in city
+		if (pGarrisonedUnit->getDomainType() == DOMAIN_SEA)
+			iStrengthFromUnits /= 2;
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY)
 		{

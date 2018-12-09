@@ -10869,6 +10869,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
 		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<int>());
 
+	//will we end the turn here?
+	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
+
 	//this is only for melee attacks - ranged attacks are handled separately
 	if (currentPlot.isEnemy() && !pUnit->isRanged())
 	{
@@ -10949,24 +10952,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		if (currentPlot.getNumAdjacentEnemies()>3 || (assumedPosition.getUnitNumberRatio()<1 && currentPlot.getNumAdjacentEnemies()==3) )
 			return result;
 
-		//lookup by unit strategy / plot type
-		//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
-		int iPlotTypeScores[5][5] = {
-			{ -1,-1,-1,-1,-1 }, //none (should not occur)
-			{ -1,-1, 8, 2, 1 }, //firstline
-			{ -1,-1, 2, 8, 1 }, //secondline
-			{ -1,-1, 1, 4, 8 }, //thirdline
-			{ -1,-1, 1, 4, 4 }, //support (should not occur)
-		};
-
-		int iPlotTypeScore = iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
-		//parthian moves: no use staying close after we made our attack
-		if (unit.iMovesLeft>0 && iMaxAttacks==0)
-			iPlotTypeScore = currentPlot.getNumAdjacentEnemies() > 0 ? -1 : 2;
-
-		if (iPlotTypeScore<0)
-			return result;
-
 		//check all plots we could possibly attack from here
 		std::vector<int> vDamageRatios;
 		std::vector<CvPlot*> vAttackPlots;
@@ -11030,48 +11015,41 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//the best target comes last
 			std::sort(vDamageRatios.begin(), vDamageRatios.end());
 
-			//if we have attacks to spare, pretend we'll hit the same target again
-			while (vDamageRatios.size()<iAttacksHereThisTurn)
-				vDamageRatios.push_back( vDamageRatios.back() );
+			//for simplicity assume we will get the same score for multiple attacks
+			//add a small discount, the attack is still hypothetical
+			if (iAttacksHereThisTurn > 0)
+				iDamageScore += (iAttacksHereThisTurn * vDamageRatios.back() * 4) / 5;
+			else
+				iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
 
-			//this is a bit tricky, for simplicity assume we attack each taget only once
-			//important: we also score targets which can only be attacked next turn!
-			std::reverse(vDamageRatios.begin(), vDamageRatios.end());
-			for (size_t i = 0; i<vDamageRatios.size(); i++)
+			if (bEndTurn)
 			{
-				if (i < iAttacksHereThisTurn)
-					//add a small discount, the attack is still hypothetical
-					iDamageScore += (vDamageRatios[i] * 3) / 4;
-				else if (i < iAttacksHereThisTurn+pUnit->getNumAttacks())
-					//if we can't attack this turn, we don't like it as much
-					iDamageScore += vDamageRatios[i] / 4;
-			}
+				//ranged specialties (don't check range because it's about skirmishers as well)
+				if (pUnit->isRanged())
+				{
+					//try to stay away from enemies if we can attack from afar
+					if (currentPlot.getNumAdjacentEnemies() > 0 && iMaxRange > 1)
+						iDamageScore /= 4;
 
-			//ranged specialties (don't check range because it's about skirmishers as well)
-			if (pUnit->isRanged())
-			{
-				//try to stay away from enemies if we can attack from afar
-				if (currentPlot.getNumAdjacentEnemies()>0 && iMaxRange>1)
-					iDamageScore /= 4;
+					//ranged units are vulnerable without melee
+					if (currentPlot.getNumAdjacentFirstlineFriendlies() == 0)
+						iDamageScore /= 4;
+				}
+				else //melee wants to engage the enemy but not too many at once
+				{
+					//we exclude plots with >3 enemies around anyway. three is a corner case
+					if (currentPlot.getNumAdjacentEnemies() == 3)
+						iDamageScore /= 2;
+				}
 
-				//ranged units are vulnerable without melee
-				if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
-					iDamageScore /= 4;
-			}
-			else //melee
-			{
-				//we exclude plots with >3 enemies around anyway. three is a corner case
-				if (currentPlot.getNumAdjacentEnemies() == 3)
+				//isolated unit? bad. chicken and egg problem for the algorithm though.
+				if (currentPlot.getNumAdjacentFriendlies() == 0)
 					iDamageScore /= 2;
 			}
-
-			//isolated unit? bad. chicken and egg problem for the algorithm though.
-			if (currentPlot.getNumAdjacentFriendlies()==0)
-				iDamageScore /= 2;
 		}
 
 		//temporary score
-		result.iScore = iDamageScore + iPlotTypeScore;
+		result.iScore = iDamageScore;
 
 		//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
 		if (pCurrentPlot->isHills() || pCurrentPlot->isMountain())
@@ -11112,9 +11090,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		}
 	}
 
-	//will we end the turn here?
-	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
-
 	//try to close the lines (todo: make sure the friendlies intend to stay there ...)
 	if (bEndTurn && currentPlot.getNumAdjacentFriendlies()>0)
 		result.iScore++;
@@ -11123,6 +11098,17 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 	int iDanger = 0;
 	if (bEndTurn)
 	{
+		//lookup by unit strategy / plot type
+		//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
+		int iPlotTypeScores[5][5] = {
+			{ -1,-1,-1,-1,-1 }, //none (should not occur)
+			{ -1,-1, 8, 2, 1 }, //firstline
+			{ -1,-1, 2, 8, 1 }, //secondline
+			{ -1,-1, 1, 4, 8 }, //thirdline
+			{ -1,-1, 1, 4, 4 }, //support (should not occur)
+		};
+		result.iScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
+
 		if (result.eType == STacticalAssignment::A_MELEEATTACK) 
 			//we stay where we were before
 			iDanger = pUnit->GetDanger(pAssumedUnitPlot, assumedPosition.getKilledEnemies());
@@ -11652,6 +11638,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
 		unitAfterAttack.iMovesLeft = 0;
+		unitAfterAttack.iAttacksLeft--;
 		ReachablePlots::iterator itCurPlot = reachablePlots.find(unit.iPlotIndex);
 
 		//this should definitely not happen
@@ -11682,13 +11669,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 				else
 					move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
-				int endTurnMoveScore = 0;
+				int endTurnMoveScore = 0; //may be hypothetical, just to make sure the total scores are comparable
 				if (move.eType == STacticalAssignment::A_RANGEATTACK)
 					endTurnMoveScore = ScorePlotForCombatUnitOffensive(unitAfterAttack, *itCurPlot, *this, true).iScore;
 				else if (move.eType == STacticalAssignment::A_RANGEKILL)
 				{
 					CvTacticalPosition newPos(*this);
-					newPos.addAssignment(move);
+					newPos.addAssignment(move); //make sure we score a position where the enemy unit is gone!
 					endTurnMoveScore = ScorePlotForCombatUnitOffensive(unitAfterAttack, *itCurPlot, newPos, true).iScore;
 				}
 
@@ -11697,7 +11684,10 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 					continue;
 
 				if ( *it==getTarget()->GetPlotIndex() )
-					move.iScore += 3; //a slight boost for attacking the "real" target
+					move.iScore += 2; //a slight boost for attacking the "real" target
+
+				//another bonus the further we can disengage after attacking
+				move.iScore += (move.iRemainingMoves * 2) / GC.getMOVE_DENOMINATOR();
 
 				//times 10 to match with ScorePlotForCombatUnitOffensive() and always better than ending the turn!
 				move.iScore = move.iScore*10 + endTurnMoveScore;
@@ -12348,12 +12338,11 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 				eStrategy = SUnitStats::MS_SECONDLINE;
 			else
 			{
-				//the unit AI type is unreliable, so it's a but tricky to handle melee vs skirmishers
+				//the unit AI type is unreliable, so we do this manually
 				if (pUnit->isRanged())
-					//if we don't intend to attack, treat skirmishers as second line units
-					eStrategy = (eAggression > AL_NONE) ? SUnitStats::MS_FIRSTLINE : SUnitStats::MS_SECONDLINE;
+					eStrategy = SUnitStats::MS_SECONDLINE; //skirmishers are second line always
 				else
-					eStrategy = SUnitStats::MS_FIRSTLINE;
+					eStrategy = SUnitStats::MS_FIRSTLINE; //regular melee
 			}
 			break;
 
