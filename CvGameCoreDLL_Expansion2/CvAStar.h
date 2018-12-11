@@ -181,7 +181,7 @@ public:
 protected:
 
 	// Pure virtual method to set up function pointers. needs to be implemented in derived class
-	virtual bool Configure(PathType eType) = 0;
+	virtual bool Configure(const SPathFinderUserData& config) = 0;
 
 	// Failsafe. Check if the passed flags make sense
 	virtual void SanitizeFlags() = 0;
@@ -374,7 +374,7 @@ class CvStepFinder : public CvPathFinder
 	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation);
 
 protected:
-	virtual bool Configure(PathType ePathType);
+	virtual bool Configure(const SPathFinderUserData& config);
 	virtual void SanitizeFlags() {} //no-op
 };
 
@@ -399,7 +399,7 @@ public:
 
 protected:
 	// set the function pointers which do the actual work
-	virtual bool Configure(PathType ePathType);
+	virtual bool Configure(const SPathFinderUserData& config);
 	// Failsafe. Check if the passed flags make sense
 	virtual void SanitizeFlags();
 private:

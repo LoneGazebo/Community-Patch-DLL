@@ -1876,16 +1876,16 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			if(pCenterOfMass && pTarget && IsOffensive())
+			if (pCenterOfMass && pTarget && IsOffensive())
 			{
 				bool bInPlace = false;
-				if(plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
+				if (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) != WAR_GOAL_DEMAND)
 				{
 					bInPlace = true;
 				}
 
 				//check for nearby enemy (for sneak attacks)
-				if (!bInPlace && (GetOperationType()==AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType()==AI_OPERATION_CITY_SNEAK_ATTACK) ) 
+				if (!bInPlace && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) != WAR_GOAL_DEMAND && (GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK))
 				{
 					int nVisible = 0;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit(pUnit))
@@ -2146,7 +2146,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 
 	CvPlot* pMusterPlot = pOurCivilian->plot();
 	//don't wait for the escort in the wild (happens with settlers a lot)
-	if (IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner))
+	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || pOurCivilian->GetDanger(pMusterPlot)>0)
 	{
 		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
 		if (pClosestCity)
@@ -2445,6 +2445,7 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* p
 	if (pResult == NULL && iTargetArea != -1)
 		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe, this);
 
+	LogSettleTarget("BestWithCurrent", pResult);
 	return pResult;
 }
 
@@ -2458,7 +2459,24 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int
 	if (pResult == NULL && iAreaID != -1 )
 		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe);
 
+	LogSettleTarget("BestNew", pResult);
 	return pResult;
+}
+
+void CvAIOperationCivilianFoundCity::LogSettleTarget(const char* hint, CvPlot* pTarget) const
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		FILogFile* pLog = LOGFILEMGR.GetLog("SettleLog.csv", FILogFile::kDontTimeStamp);
+		CvString strMsg;
+		if (pTarget)
+			strMsg.Format("%03d, %s, op %d, %s, target %d:%d, score %d, ", GC.getGame().getElapsedGameTurns(), GET_PLAYER(m_eOwner).getName(),
+				m_iID, hint, pTarget->getX(), pTarget->getY(), GET_PLAYER(m_eOwner).getPlotFoundValue(pTarget->getX(), pTarget->getY()));
+		else
+			strMsg.Format("%03d, %s, op %d, %s, no target, ", GC.getGame().getElapsedGameTurns(), GET_PLAYER(m_eOwner).getName(), m_iID, hint);
+
+		pLog->Msg(strMsg.c_str());
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

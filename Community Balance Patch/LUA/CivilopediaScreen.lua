@@ -3225,6 +3225,8 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("CanChangePort");
 		AnalyzeUnit("NumberStackingUnits");
 		AnalyzeUnit("StackCombat");
+		AnalyzeUnit("FriendlyLandsPromotion");
+		AnalyzeUnit("NumberOfCultureBombs");
 		--AnalyzeUnit("MaxHitPoints"); -- internal
 		AnalyzeUnit("CargoCombat");
 		--AnalyzeUnit("ObsoleteTech");
@@ -3565,12 +3567,15 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("NearbyEnemyCityCombatMod");
 		AnalyzePromotion("AirInterceptRangeChange", "");
 		AnalyzePromotion("ConvertDomainUnit");
-		AnalyzePromotion("ConvertDomain");
-		AnalyzePromotion("IsConvertUnit");
+		AnalyzePromotion("ConvertDomain")
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
 		AnalyzePromotion("PlagueChance");
 		AnalyzePromotion("IsPlague");
+		AnalyzePromotion("PlaguePriority");
+		AnalyzePromotion("PlagueID");
+		AnalyzePromotion("PlaguePromotion");
+		AnalyzePromotion("PlagueIDImmunity");
 		AnalyzePromotion("StackedGreatGeneralXP");
 		AnalyzePromotion("GoodyHutYieldBonus");
 		--AnalyzePromotion("GainsXPFromScouting");
@@ -3589,6 +3594,9 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("HighSeaRaider");
 		AnalyzePromotion("AuraRangeChange", "");
 		AnalyzePromotion("AuraEffectChange", "");
+		AnalyzePromotion("NearbyHealEnemyTerritory");
+		AnalyzePromotion("NearbyHealNeutralTerritory");
+		AnalyzePromotion("NearbyHealFriendlyTerritory");
 		AnalyzePromotion("IgnoreTerrainDamage");
 		--if thisPromotion.CanCrossIce == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Can enter Ice tiles"; end
 		--AnalyzePromotion("IgnoreFeatureDamage");
@@ -4403,6 +4411,12 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("CitySupplyModifierGlobal");
 		AnalyzeBuilding("CitySupplyFlat", "[ICON_SILVER_FIST]");
 		AnalyzeBuilding("CitySupplyFlatGlobal", "[ICON_SILVER_FIST]");
+		AnalyzeBuilding("CityRangedStrikeRange", "");
+		AnalyzeBuilding("CityIndirectFire", "");
+		AnalyzeBuilding("RangedStrikeModifier");
+		AnalyzeBuilding("ExtraMissionaryStrengthGlobal");
+		AnalyzeBuilding("ReformationFollowerReduction");
+		AnalyzeBuilding("ResourceDiversityModifier");
 		AnalyzeBuilding("FinishLandTRTourism", "[ICON_TOURISM]");
 		AnalyzeBuilding("FinishSeaTRTourism", "[ICON_TOURISM]");
 		AnalyzeBuilding("VotesPerGPT", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");
@@ -4458,8 +4472,10 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("CityGainlessPillage");
 		AnalyzeBuilding("HurryCostModifier");
 		AnalyzeBuilding("NeverCapture");
+		AnalyzeBuilding("NukeInterceptionChance");
 		AnalyzeBuilding("NukeImmune");
 		AnalyzeBuilding("ConquestProb", "");
+		AnalyzeBuilding("NumRequiredTier3Tenets");
 		--AnalyzeBuilding("FreeStartEra");
 		if thisBuilding.FreeStartEra ~= nil then
 			local sDesc = ""

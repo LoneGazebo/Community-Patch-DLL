@@ -215,25 +215,6 @@ end
 -- Help text for Units
 -------------------------------------------------
 
--- How much does it cost to upgrade a Unit to a shiny new eUnit?
-local function unitUpgradePrice( unit, unitUpgrade, unitProductionCost, unitUpgradeProductionCost )
-	local upgradePrice = GameDefines.BASE_UNIT_UPGRADE_COST
-		+ math_max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
-	-- Upgrades for later units are more expensive
-	local tech = unitUpgrade.PrereqTech and GameInfo.Technologies[ unitUpgrade.PrereqTech ]
-	if tech then
-		upgradePrice = math_floor( upgradePrice * ( GameInfo.Eras[ tech.Era ].ID * GameDefines.UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA + 1 ) )
-	end
-	-- Discount
-	-- upgradePrice = upgradePrice - math_floor( upgradePrice * unit:UpgradeDiscount() / 100)
-	-- Mod (Policies, etc.)
-	-- upgradePrice = math_floor( (upgradePrice * (100 + activePlayer:GetUnitUpgradeCostMod()))/100 )
-	-- Apply exponent
-	upgradePrice = math_floor( upgradePrice ^ GameDefines.UNIT_UPGRADE_COST_EXPONENT )
-	-- Make the number not be funky
-	return math_floor( upgradePrice / GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR ) * GameDefines.UNIT_UPGRADE_COST_VISIBLE_DIVISOR
-end
-
 local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	local unit = GameInfo.Units[ unitID ]
 	if not unit then
@@ -469,43 +450,9 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	item = unit.PrereqTech and GameInfo.Technologies[ unit.PrereqTech ]
 	tips:insertIf( item and item.ID > 0 and L"TXT_KEY_PEDIA_PREREQ_TECH_LABEL" .. " " .. TechColor( L(item.Description) ) )
 
-	-- Upgrade from:
-	local unitClassUpgrades = {}
-	for unitUpgrade in GameInfo.Unit_ClassUpgrades( thisUnitClass ) do
-		unitUpgrade = GameInfo.Units[ unitUpgrade.UnitType ]
-		SetKey( unitClassUpgrades, unitUpgrade and unitUpgrade.Class )
-	end
-	local unitUpgrades = table()
-	for unitToUpgrade in pairs( unitClassUpgrades ) do
-		unitToUpgrade = GetCivUnit( activeCivilizationType, unitToUpgrade )
-		unitUpgrades:insertIf( unitToUpgrade and UnitColor( L(unitToUpgrade.Description) ) .. " ("..unitUpgradePrice( unitToUpgrade, unit, activePlayer and activePlayer:GetUnitProductionNeeded( unitToUpgrade.ID ), productionCost )..g_currencyIcon..")" )
-	end
-	tips:insertIf( #unitUpgrades > 0 and L"TXT_KEY_GOLD_UPGRADE_UNITS_HEADING3_TITLE" .. ": " .. unitUpgrades:concat(", ") )
-
 	-- Becomes Obsolete with:
 	local obsoleteTech = unit.ObsoleteTech and GameInfo.Technologies[ unit.ObsoleteTech ]
 	tips:insertIf( obsoleteTech and L"TXT_KEY_PEDIA_OBSOLETE_TECH_LABEL" .. " " .. TechColor( L(obsoleteTech.Description) ) )
-
-	-- Upgrade unit
-	if Game then
-		local unitUpgrade = Game.GetUnitUpgradesTo( unit.ID )
-		unitUpgrade = unitUpgrade and GameInfo.Units[ unitUpgrade ]
-		if activeCivilizationType and unitUpgrade then
-			unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade.Class )
-			tips:insert( L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. UnitColor( L(unitUpgrade.Description) ) .. " ("..unitUpgradePrice( unit, unitUpgrade, productionCost, activePlayer:GetUnitProductionNeeded( unitUpgrade.ID ) )..g_currencyIcon..")" )
-		end
-	else
-		local unitClassUpgrades = {}
-		for unitClassUpgrade in GameInfo.Unit_ClassUpgrades( thisUnitType ) do
-			SetKey( unitClassUpgrades, unitClassUpgrade and unitClassUpgrade.UnitClassType )
-		end
-		local unitUpgrades = table()
-		for unitUpgrade in pairs( unitClassUpgrades ) do
-			unitUpgrade = GetCivUnit( activeCivilizationType, unitUpgrade )
-			unitUpgrades:insertIf( unitUpgrade and UnitColor( L(unitUpgrade.Description) ) .. " ("..unitUpgradePrice( unit, unitUpgrade, productionCost )..g_currencyIcon..")" )
-		end
-		tips:insertIf( #unitUpgrades > 0 and L"TXT_KEY_COMMAND_UPGRADE" .. ": " .. unitUpgrades:concat(", ") )
-	end
 
 	-- Pre-written Help text
 	return AddPreWrittenHelpTextAndConcat( tips, unit )
@@ -1454,7 +1401,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	if(activePlayer) then
 		local iNumNationalPop = activePlayer:GetScalingNationalPopulationRequrired(buildingID);
 		if(iNumNationalPop > 0) then
-			local iNumHave = activePlayer:GetCurrentTotalPop();
+			local iNumHave = activePlayer:GetTotalPopulation();
 			tips:insert(L("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave))
 		end
 	end
@@ -2056,6 +2003,8 @@ local function GetFoodTooltip( city )
 		tipText =  S( "%s%s%s[ENDCOLOR] %+g[ICON_FOOD]", tipText, foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]", Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ), foodOverflowTimes100 / 100 )
 	end
 
+    tipText = tipText .. city:getPotentialUnhappinessWithGrowth(); 
+
 	if isNoob then
 		return L"TXT_KEY_FOOD_HELP_INFO" .. "[NEWLINE][NEWLINE]" .. tipText
 	else
@@ -2423,20 +2372,10 @@ local function GetCityHappinessTooltip(city)
 		iCapitalMod = Players[city:GetOwner()]:GetCapitalUnhappinessModCBP();
 	end
 
-	local iThresholdAdditionsGold = (city:getThresholdAdditions(YieldTypes.YIELD_GOLD) - iCapitalMod);
-	local iThresholdAdditionsDefense = (city:getThresholdAdditions(YieldTypes.YIELD_PRODUCTION) - iCapitalMod);
-	local iThresholdAdditionsScience = (city:getThresholdAdditions(YieldTypes.YIELD_SCIENCE) - iCapitalMod);
-	local iThresholdAdditionsCulture = (city:getThresholdAdditions(YieldTypes.YIELD_CULTURE) - iCapitalMod);
-
-	local iThresholdSubtractionsGold = city:getThresholdSubtractions(YieldTypes.YIELD_GOLD);
-	local iThresholdSubtractionsDefense = city:getThresholdSubtractions(YieldTypes.YIELD_PRODUCTION);
-	local iThresholdSubtractionsScience = city:getThresholdSubtractions(YieldTypes.YIELD_SCIENCE);
-	local iThresholdSubtractionsCulture = city:getThresholdSubtractions(YieldTypes.YIELD_CULTURE);
-
-	iThresholdSubtractionsGold = iThresholdAdditionsGold + (iThresholdSubtractionsGold + (iPuppetMod * -1));
-	iThresholdSubtractionsDefense = iThresholdAdditionsDefense + (iThresholdSubtractionsDefense + (iPuppetMod * -1));
-	iThresholdSubtractionsScience = iThresholdAdditionsScience + (iThresholdSubtractionsScience + (iPuppetMod * -1));
-	iThresholdSubtractionsCulture = iThresholdAdditionsCulture + (iThresholdSubtractionsCulture + (iPuppetMod * -1));
+	local iThresholdGold = city:getHappinessThresholdMod(YieldTypes.YIELD_GOLD);
+	local iThresholdDefense = city:getHappinessThresholdMod(YieldTypes.YIELD_PRODUCTION);
+	local iThresholdScience = city:getHappinessThresholdMod(YieldTypes.YIELD_SCIENCE);
+	local iThresholdCulture = city:getHappinessThresholdMod(YieldTypes.YIELD_CULTURE);
 
 	local iCultureYield = city:GetUnhappinessFromCultureYield() / 100;
 	local iDefenseYield = city:GetUnhappinessFromDefenseYield() / 100;
@@ -2484,19 +2423,19 @@ local function GetCityHappinessTooltip(city)
 	if (iPillagedUnhappiness ~= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
 	end
-	-- Gold tooltip
-	if (iGoldUnhappiness > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
-	end
-	if ((iGoldYield - iGoldNeeded) >= 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
-	end
 	-- Defense tooltip
 	if (iDefenseUnhappiness > 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
 	end
 	if ((iDefenseYield - iDefenseNeeded) >= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
+	end
+	-- Gold tooltip
+	if (iGoldUnhappiness > 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
+	end
+	if ((iGoldYield - iGoldNeeded) >= 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
 	end
 	-- Connection tooltip
 	if (iConnectionUnhappiness ~= 0) then
@@ -2542,33 +2481,36 @@ local function GetCityHappinessTooltip(city)
 		return strHappinessBreakdown;
 	end
 
-	if(iThresholdSubtractionsGold > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iThresholdSubtractionsGold);
-	elseif(iThresholdSubtractionsGold < 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdSubtractionsGold);
+	
+	if(iThresholdDefense > 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdDefense);
+	elseif(iThresholdDefense < 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdDefense);
 	end
 
-	if(iThresholdSubtractionsDefense > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdSubtractionsDefense);
-	elseif(iThresholdSubtractionsDefense < 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdSubtractionsDefense);
+	if(iThresholdGold > 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iThresholdGold);
+	elseif(iThresholdGold < 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdGold);
 	end
 
-	if(iThresholdSubtractionsScience > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdSubtractionsScience);
-	elseif(iThresholdSubtractionsScience < 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdSubtractionsScience);
+	if(iThresholdScience > 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdScience);
+	elseif(iThresholdScience < 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdScience);
 	end
 
-	if(iThresholdSubtractionsCulture > 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdSubtractionsCulture);
-	elseif(iThresholdSubtractionsCulture < 0) then
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdSubtractionsCulture);
+	if(iThresholdCulture > 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdCulture);
+	elseif(iThresholdCulture < 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdCulture);
 	end
 	
 	if (not OptionsManager.IsNoBasicHelp()) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION");
 	end
+
+	strHappinessBreakdown = strHappinessBreakdown .. city:getPotentialUnhappinessWithGrowth();
 	
 	return strHappinessBreakdown;
 end

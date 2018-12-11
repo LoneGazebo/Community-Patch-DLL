@@ -79,7 +79,6 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	if(!pPlot)
 		return false;
 
-	CvPlot* pLoopPlot(NULL);
 	bool bValid(false);
 
 	// Used to have a Python hook: CANNOT_FOUND_CITY_CALLBACK
@@ -190,10 +189,8 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 
 	if(!bIgnoreDistanceToExistingCities)
 	{
-		int iMinDist(0), iDX(0), iDY(0);
-		// look at same land mass
+		int iMinDist = /*3*/ GC.getMIN_CITY_RANGE();
 
-		iMinDist = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer && pPlayer->isMinorCiv())
 		{
 			if(GC.getMap().getWorldInfo().getMinDistanceCityStates() > 0)
@@ -206,26 +203,20 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 			iMinDist = GC.getMap().getWorldInfo().getMinDistanceCities();
 		}
 
-		for(iDX = -(iMinDist); iDX <= iMinDist; iDX++)
+		CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pPlot);
+		if (pClosestCity)
 		{
-			for(iDY = -(iMinDist); iDY <= iMinDist; iDY++)
+			int iDist = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pPlot->getX(), pPlot->getY());
+			//watch out, it's <=
+			if (pClosestCity->getArea() == pPlot->getArea())
 			{
-				pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iMinDist);
-
-				if(pLoopPlot != NULL)
-				{
-					if(pLoopPlot->isCity())
-					{
-						if(pLoopPlot->getLandmass() == pPlot->getLandmass())
-						{
-							return false; //we know that distance <= iMinDist here
-						}
-						else if(hexDistance(iDX, iDY) < iMinDist)  // one less for off shore
-						{
-							return false;
-						}
-					}
-				}
+				if (iDist <= iMinDist)
+					return false;
+			}
+			else
+			{
+				if (iDist <= iMinDist-1) //one less for islands
+					return false;
 			}
 		}
 	}
@@ -590,7 +581,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		return 0;
 	if (nFoodPlots < 4)
 		return 0;
-	if (nHammerPlots < 4)
+	if (nHammerPlots < 3)
 		return 0;
 
 	//civ-specific bonuses
@@ -690,11 +681,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	}
 
 	// Finally, look at the city plot itself
-	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
-	{
-		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
-	}
 	if (pPlot->IsNaturalWonder())
 	{
 		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;

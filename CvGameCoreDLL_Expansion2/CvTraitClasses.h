@@ -107,6 +107,8 @@ public:
 	int GetNearbyImprovementBonusRange() const;
 	int GetCultureBuildingYieldChange() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetWarWearinessModifier() const;
+	int GetEnemyWarWearinessModifier() const;
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
 	bool IsReconquista() const;
@@ -225,6 +227,7 @@ public:
 	BuildingTypes GetFreeBuildingOnConquest() const;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool IsBullyAnnex() const;
+	int GetBullyYieldMultiplierAnnex() const;
 #endif
 	bool IsFightWellDamaged() const;
 	bool IsWoodlandMovementBonus() const;
@@ -302,6 +305,11 @@ public:
 	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromTileConquest(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromTileCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
@@ -453,6 +461,8 @@ protected:
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	int m_iWarWearinessModifier;
+	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
 	bool m_bReconquista;
@@ -566,6 +576,7 @@ protected:
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
+	int m_iBullyYieldMultiplierAnnex;
 #endif
 	bool m_bFightWellDamaged;
 	bool m_bWoodlandMovementBonus;
@@ -630,6 +641,11 @@ protected:
 	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
 	int** m_ppiYieldFromTileEarnTerrainType;
+	int** m_ppiYieldFromTilePurchaseTerrainType;
+	int** m_ppiYieldFromTileConquest;
+	int** m_ppiYieldFromTileCultureBomb;
+	int** m_ppiYieldFromTileStealCultureBomb;
+	int** m_ppiYieldFromTileSettle;
 	int** m_ppiYieldChangePerImprovementBuilt;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
@@ -1000,6 +1016,14 @@ public:
 		return m_iCultureBuildingYieldChange;
 	};
 #if defined(MOD_BALANCE_CORE)
+	int GetWarWearinessModifier() const
+	{
+		return m_iWarWearinessModifier;
+	};
+	int GetEnemyWarWearinessModifier() const
+	{
+		return m_iEnemyWarWearinessModifier;
+	};
 	int GetCombatBonusVsHigherPop() const
 	{
 		return m_iCombatBonusVsHigherPop;
@@ -1376,6 +1400,10 @@ public:
 	{
 		return m_bBullyAnnex;
 	};
+	int GetBullyYieldMultiplierAnnex() const
+	{
+		return m_iBullyYieldMultiplierAnnex;
+	}
 #endif
 
 	bool IsFightWellDamaged() const
@@ -1613,6 +1641,11 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangeFromTileConquest(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangeFromTileCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
@@ -1939,6 +1972,8 @@ private:
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	int m_iWarWearinessModifier;
+	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
 	bool m_bReconquista;
@@ -2097,6 +2132,7 @@ private:
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
+	int m_iBullyYieldMultiplierAnnex;
 	std::vector<bool> m_abTerrainClaimBoost;
 #endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
@@ -2126,6 +2162,11 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiMovesChangeUnitClass;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileEarnTerrainType;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTilePurchaseTerrainType;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileConquest;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileCultureBomb;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileStealCultureBomb;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileSettle;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
 #endif
 

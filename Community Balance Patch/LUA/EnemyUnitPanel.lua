@@ -337,7 +337,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, nil);
 		end
 		
-		iTheirStrength = pCity:GetStrengthValue();
+		iTheirStrength = pCity:GetStrengthValue(false,pMyUnit:IgnoreBuildingDefense());
 		
 		if (iMyStrength > 0) then
 			
@@ -377,7 +377,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				iMyDamageInflicted = maxCityHitPoints;
 			end
 			-- Unit's max HP
-			local maxUnitHitPoints = GameDefines["MAX_HIT_POINTS"];
+			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
 			if (iTheirDamageInflicted > maxUnitHitPoints) then
 				iTheirDamageInflicted = maxUnitHitPoints;
 			end
@@ -818,7 +818,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				if (iTheirStrength == 0 or pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pTheirUnit:IsRangedSupportFire()) then
-					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, true);
+					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
 				end
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
@@ -836,7 +836,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- Normal Melee Combat
 			else
 				
-				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit);
+				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot);
 				
 				local pFireSupportUnit = pMyUnit:GetFireSupportUnit(pTheirUnit:GetOwner(), pToPlot:GetX(), pToPlot:GetY());
 				if (pFireSupportUnit ~= nil) then
@@ -965,6 +965,22 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- BONUSES MY UNIT GETS
 			----------------------------------------------------------------------------
 
+			-------------------------
+			-- Movement Immunity --
+			-------------------------
+			local movementRules = pMyUnit:GetMovementRules(pTheirUnit);
+			if(movementRules ~= "") then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+			movementRules = pMyUnit:GetZOCStatus();
+			if(movementRules ~= "") then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+
 			local iModifier;
 			
 			if (not bRanged) then
@@ -1072,15 +1088,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Flanking bonus
 			if (not bRanged) then
-				local iNumAdjacentFriends = pTheirUnit:GetNumEnemyUnitsAdjacent(pMyUnit);
-				if (iNumAdjacentFriends > 0) then
-					iModifier = iNumAdjacentFriends * GameDefines["BONUS_PER_ADJACENT_FRIEND"];
-						
-					local iFlankModifier = pMyUnit:FlankAttackModifier();
-					if (iFlankModifier ~= 0) then
-						iModifier = iModifier * (100 + iFlankModifier) / 100;
-					end
-
+				iModifier = pFromPlot:GetEffectiveFlankingBonus(pMyUnit,pTheirUnit,pToPlot);
+				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FLANKING_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -1576,6 +1585,51 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				--Controls.TheirDamage:SetHide(false);
 			--end
 
+			--------------------------
+			-- AIR INTERCEPT PREVIEW --
+			--------------------------
+			if (bInterceptPossible) then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING1");
+				controlTable.Value:SetText("");
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
+				controlTable.Value:SetText("");
+			end
+			if (iNumVisibleAAUnits > 0) then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
+				controlTable.Value:SetText("");
+			end
+			
+			-------------------------
+			-- Movement Immunity --
+			-------------------------
+			local movementRules = pTheirUnit:GetMovementRules(pMyUnit);
+			if(movementRules ~= "") then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+			movementRules = pTheirUnit:GetZOCStatus();
+			if(movementRules ~= "") then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+			-------------------------
+			-- PRIZE SHIPS PREVIEW --
+			-------------------------
+			if (not bRanged) then
+				local iChance;
+				iChance = pMyUnit:GetCaptureChance(pTheirUnit);
+				if (iChance > 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
+						controlTable.Value:SetText("");
+				end
+			end
+
 			if (pTheirUnit:IsCombatUnit()) then
 
 				-- Empire Unhappy
@@ -1655,15 +1709,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 				-- Plot Defense
 				iModifier = pToPlot:DefenseModifier(pTheirUnit:GetTeam(), false, false);
-				if (iModifier < 0 or not pTheirUnit:NoDefensiveBonus()) then
 
-					if (iModifier ~= 0) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-	--					strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_TILE_MOD", iModifier));
-					end
+				-- special treatment for mobile units
+				if (pTheirUnit:NoDefensiveBonus() and iModifier>0) then
+					-- only improvements (forts) count
+					iModifier = iModifier - pToPlot:DefenseModifier(pTheirUnit:GetTeam(), true, false);
 				end
+
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end	
 
 				-- FortifyModifier
 				iModifier = pTheirUnit:FortifyModifier();
@@ -1740,9 +1797,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Flanking bonus
 				if (not bRanged) then
-					iNumAdjacentFriends = pMyUnit:GetNumEnemyUnitsAdjacent(pTheirUnit);
-					if (iNumAdjacentFriends > 0) then
-						iModifier = iNumAdjacentFriends * GameDefines["BONUS_PER_ADJACENT_FRIEND"];
+					iModifier = pToPlot:GetEffectiveFlankingBonus(pTheirUnit,pMyUnit,pFromPlot);
+					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_FLANKING_BONUS" );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
@@ -2008,75 +2064,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 				end
 				
-				---- hillsDefenseModifier
-				--if (pToPlot:isHills())
-				--then
-					--iModifier = pTheirUnit:hillsDefenseModifier();
-	--
-					--if (iModifier ~= 0)
-					--then
-						--strString.append(NEWLINE);
-						--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_HILLS_MOD", iModifier));
-					--end
-				--end
-	--
-				---- featureDefenseModifier
-				--if (pToPlot:getFeatureType() ~= NO_FEATURE)
-				--then
-					--iModifier = pTheirUnit:featureDefenseModifier(pToPlot:getFeatureType());
-	--
-					--if (iModifier ~= 0)
-					--then
-						--strString.append(NEWLINE);
-						--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getFeatureInfo(pToPlot:getFeatureType()).GetTextKey()));
-					--end
-				---- terrainDefenseModifier
-				--else
-					--iModifier = pTheirUnit:terrainDefenseModifier(pToPlot:getTerrainType());
-	--
-					--if (iModifier ~= 0)
-					--then
-						--strString.append(NEWLINE);
-						--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getTerrainInfo(pToPlot:getTerrainType()).GetTextKey()));
-					--end
-				--end
-				
 				-- Civ Trait Bonus
 				iModifier = pTheirPlayer:GetTraitGoldenAgeCombatModifier();
 				if (iModifier ~= 0 and pTheirPlayer:IsGoldenAge()) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-				end
-			end
-			
-			--------------------------
-			-- AIR INTERCEPT PREVIEW --
-			--------------------------
-			if (bInterceptPossible) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING1");
-				controlTable.Value:SetText("");
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
-				controlTable.Value:SetText("");
-			end
-			if (iNumVisibleAAUnits > 0) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
-				controlTable.Value:SetText("");
-			end
-			
-			-------------------------
-			-- PRIZE SHIPS PREVIEW --
-			-------------------------
-			if (not bRanged) then
-				local iChance;
-				iChance = pMyUnit:GetCaptureChance(pTheirUnit);
-				if (iChance > 0) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
-						controlTable.Value:SetText("");
 				end
 			end
 		end
@@ -2104,7 +2097,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
 	local myCityStrength = myCity:GetStrengthValue(true);
 	
-	local theirUnitMaxHP = GameDefines["MAX_HIT_POINTS"];
+	local theirUnitMaxHP = theirUnit:GetMaxHitPoints();
 	local theirUnitCurHP = theirUnit:GetDamage();
 	local theirUnitDamageInflicted = 0;
 	local theirUnitStrength = myCity:RangeCombatUnitDefense(theirUnit);
@@ -2198,12 +2191,17 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- Plot Defense
 		iModifier = theirPlot:DefenseModifier(theirUnit:GetTeam(), false, false);
-		if (iModifier < 0 or not theirUnit:NoDefensiveBonus()) then
-			if (iModifier ~= 0) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-			end
+
+		-- special treatment for mobile units
+		if (theirUnit:NoDefensiveBonus() and iModifier>0) then
+			-- only improvements (forts) count
+			iModifier = iModifier - theirPlot:DefenseModifier(theirUnit:GetTeam(), true, false);
+		end
+
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
 
 		-- FortifyModifier

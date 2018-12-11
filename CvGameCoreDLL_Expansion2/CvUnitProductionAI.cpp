@@ -309,10 +309,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (!pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 					iFreePlots++;
 			}
-
-			if (iFreePlots == 0)
-				return 0;
 		}
+
+		if (iFreePlots == 0)
+			return 0;
 	}
 
 	//% Value that will modify the base value.
@@ -1099,7 +1099,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	//Settlers? Let's see...
-	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
+	if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 		EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
@@ -1111,34 +1111,40 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 
-		EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-		if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+		//There's a settler waiting here? Abort!
+		if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, m_pCity->getOwner()) > 0)
 		{
 			return 0;
 		}
 
-		//There's a settler waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE,m_pCity->getOwner()) > 0)
+		if (kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman()))
 		{
 			return 0;
 		}
-		//Don't build a settler if we're about to grow.
-		if(m_pCity->getFoodTurnsLeft() <= 1)
+		if (kPlayer.IsEmpireSuperUnhappy())
 		{
 			return 0;
 		}
-		//Or if we're small.
-		if(m_pCity->getPopulation() <= 3)
+
+		if (GC.getGame().getGameTurn() >= 50)
 		{
-			return 0;
-		}
-		if(kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman()))
-		{
-			return 0;
-		}
-		if(kPlayer.IsEmpireSuperUnhappy())
-		{
-			return 0;
+			//Don't build a settler if we're about to grow.
+			if (m_pCity->getFoodTurnsLeft() <= 1)
+			{
+				return 0;
+			}
+
+			EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+			if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+			{
+				return 0;
+			}
+
+			//Or if we're small.
+			if (m_pCity->getPopulation() <= 3)
+			{
+				return 0;
+			}
 		}
 
 		//Already have an idle settler out? Ignore.
@@ -1229,7 +1235,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if (kPlayer.IsAtWar())
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 3;
 		}
 
 		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
@@ -1238,15 +1244,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 		{
-			iFlavorExpansion -= 15;
+			iFlavorExpansion -= 10;
 		}
 		if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true)) > 0)
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 5;
 		}
 		else if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true)) > 0 || kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AUTHORITY", true)) > 0)
 		{
-			iFlavorExpansion += 10;
+			iFlavorExpansion += 5;
 		}
 
 		// scale based on flavor and world size

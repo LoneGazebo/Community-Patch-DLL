@@ -374,9 +374,11 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 				if (m_aTradeConnections[i].m_eOriginOwner != pOriginCity->getOwner())
 					continue;
 
+				//only one TR per player and city. unless venice is involved.
 				if (m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY)
 				{
-					return false;
+					if (!GET_PLAYER(m_aTradeConnections[i].m_eOriginOwner).GetPlayerTraits()->IsNoAnnexing() && !GET_PLAYER(m_aTradeConnections[i].m_eDestOwner).GetPlayerTraits()->IsNoAnnexing() )
+						return false;
 				}
 			}
 		}
@@ -1410,12 +1412,10 @@ void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
 		if (IsTradeRouteIndexEmpty(ui))
-		{
-			continue;
-		}
-		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsRecalledUnit(ui))
 			continue;
 
+		if (IsRecalledUnit(ui))
+			continue;
 
 		TeamTypes eOriginTeam = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam();
 		TeamTypes eDestTeam = GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam();
@@ -1449,8 +1449,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 		// walk through each player on the team
 		for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 		{
-			PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
-			if (GET_PLAYER(ePlayer).getTeam() != eTRTeam)
+			PlayerTypes eTRPlayer = (PlayerTypes)uiPlayer;
+			if (GET_PLAYER(eTRPlayer).getTeam() != eTRTeam)
 			{
 				continue;
 			}
@@ -1464,7 +1464,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				}
 
 				// if it's not my trade route
-				if (m_aTradeConnections[uiTradeRoute].m_eOriginOwner != ePlayer)
+				if (m_aTradeConnections[uiTradeRoute].m_eOriginOwner != eTRPlayer)
 				{
 					continue;
 				}
@@ -1475,7 +1475,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 					continue;
 				}
 
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				//venice recalls their trade units
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -1536,7 +1537,7 @@ int CvGameTrade::GetIndexFromID (int iID)
 PlayerTypes CvGameTrade::GetOwnerFromID (int iID)
 {
 	int iIndex = GetIndexFromID(iID);
-	if (iIndex < -1)
+	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return NO_PLAYER;
 	}
@@ -1549,7 +1550,7 @@ PlayerTypes CvGameTrade::GetOwnerFromID (int iID)
 PlayerTypes CvGameTrade::GetDestFromID (int iID)
 {
 	int iIndex = GetIndexFromID(iID);
-	if (iIndex < -1)
+	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
 	{
 		return NO_PLAYER;
 	}
@@ -1995,10 +1996,6 @@ bool CvGameTrade::StepUnit (int iIndex)
 						// Unowned plot, someone has to foot the bill
 						if (pPlot->getOwner() == NO_PLAYER)
 						{
-							if (pPlot->MustPayMaintenanceHere(kTradeConnection.m_eOriginOwner))
-							{
-								GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
-							}
 							pPlot->SetPlayerResponsibleForRoute(kTradeConnection.m_eOriginOwner);
 						}
 					}
@@ -2524,8 +2521,8 @@ void CvPlayerTrade::MoveUnits (void)
 
 												char text[256] = { 0 };
 												sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
-												float fDelay = 3.0f;
-												DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+												SHOW_PLOT_POPUP(pDestCity->plot(), pOriginCity->getOwner(), text);
+
 												CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
 												if (pNotification)
 												{
@@ -2582,8 +2579,7 @@ void CvPlayerTrade::MoveUnits (void)
 
 												char text[256] = { 0 };
 												sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
-												float fDelay = 4.0f;
-												DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+												SHOW_PLOT_POPUP(pDestCity->plot(), pOriginCity->getOwner(), text);
 
 												CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
 												if (pNotification)
@@ -2696,7 +2692,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				if (iTechDifference > 0)
 				{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-					int iCeilTechDifference = iTechDifference * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 #else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -2749,7 +2745,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				if (iCultureDifference > 0)
 				{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-					int iCeilCultureDifference = iCultureDifference * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 #else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -2785,7 +2781,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (iTechDifference > 0)
 			{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-				int iCeilTechDifference = iTechDifference * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 #else
 				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -2801,7 +2797,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (iCultureDifference > 0)
 			{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-				int iCeilCultureDifference = iCultureDifference * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 #else
 				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -3237,17 +3233,34 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 		if(pReligion)
 		{
+			int iEra = m_pPlayer->GetCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
+
 			CvCity* pHolyCity = NULL;
 			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 			if (pHolyCityPlot)
 			{
 				pHolyCity = pHolyCityPlot->getPlotCity();
 			}
-			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
-			BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-			if (eSecondaryPantheon != NO_BELIEF)
+			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
-				iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
+				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
+				}
+			}
+
+			if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_PRODUCTION || eYield == YIELD_FOOD))
+			{
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
+				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
+				}
 			}
 		}
 	}
@@ -4600,6 +4613,29 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 
 	return iNumConnections;
 }
+
+int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if (pConnection->m_iOriginX == pCity->getX() && pConnection->m_iOriginY == pCity->getY())
+			{
+				if (GET_PLAYER(pConnection->m_eDestOwner).isMinorCiv())
+				{
+					iNumConnections++;
+				}
+			}
+		}
+	}
+
+	return iNumConnections;
+}
 #if defined(MOD_BALANCE_CORE_POLICIES)
 //Returns the number of internal trade routes in your empire
 int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
@@ -5034,6 +5070,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	iPlunderGoldValue /= 100;
 #if defined(MOD_BALANCE_CORE)
 	iPlunderGoldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	int iEra = m_pPlayer->GetCurrentEra();
+	if (iEra <= 0)
+		iEra = 1;
+	iPlunderGoldValue *= iEra;
 	if(pUnit && pUnit->isHighSeaRaiderUnit())
 	{
 		iPlunderGoldValue *= 3;
@@ -5059,14 +5099,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	{
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iPlunderGoldValue);
-#if defined(SHOW_PLOT_POPUP)
-		SHOW_PLOT_POPUP(pPlunderPlot, m_pPlayer->GetID(), text, 0.0f);
-#else
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(pPlunderPlot->getX(), pPlunderPlot->getY(), text, fDelay);
-#endif
-		CvString strBuffer;
+		SHOW_PLOT_POPUP(pPlunderPlot, m_pPlayer->GetID(), text);
 
+		CvString strBuffer;
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPlunderGoldValue, GC.getUnitInfo(GetTradeUnit(eDomain, m_pPlayer))->GetDescriptionKey());
 #else

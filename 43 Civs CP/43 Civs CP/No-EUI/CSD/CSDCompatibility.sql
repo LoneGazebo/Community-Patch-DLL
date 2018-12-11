@@ -9,10 +9,16 @@ UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_AMBASSADOR';
 UPDATE Units SET PurchaseCooldown =		1  WHERE Type = 'UNIT_GREAT_DIPLOMAT';
 
-UPDATE Units SET Cost = '110' WHERE Type = 'UNIT_EMISSARY';
-UPDATE Units SET Cost = '200' WHERE Type = 'UNIT_ENVOY';
-UPDATE Units SET Cost = '700' WHERE Type = 'UNIT_DIPLOMAT';
-UPDATE Units SET Cost = '1200' WHERE Type = 'UNIT_AMBASSADOR';
+UPDATE Units SET Cost = '100' WHERE Type = 'UNIT_EMISSARY';
+UPDATE Units SET Cost = '100' WHERE Type = 'UNIT_ENVOY';
+UPDATE Units SET Cost = '100' WHERE Type = 'UNIT_DIPLOMAT';
+UPDATE Units SET Cost = '100' WHERE Type = 'UNIT_AMBASSADOR';
+
+UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_EMISSARY';
+UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_ENVOY';
+UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_DIPLOMAT';
+UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_AMBASSADOR';
+
 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
 
@@ -67,10 +73,19 @@ VALUES
 INSERT INTO Belief_GreatPersonExpendedYield
 	(BeliefType, GreatPersonType, YieldType, Yield)
 VALUES
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_SCIENCE', 1),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 1),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 1),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 1);
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_SCIENCE', 3),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 3),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 3);
+
+INSERT INTO Belief_GreatPersonPoints
+	(BeliefType, GreatPersonType, Value)
+VALUES
+	('BELIEF_ITINERANT_PREACHERS', 'GREATPERSON_DIPLOMAT', 2);
+
+INSERT INTO Belief_GoldenAgeGreatPersonRateModifier
+	(BeliefType, GreatPersonType, Modifier)
+VALUES
+	('BELIEF_ITINERANT_PREACHERS', 'GREATPERSON_DIPLOMAT', 15);
 
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)

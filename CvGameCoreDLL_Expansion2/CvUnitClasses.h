@@ -57,6 +57,7 @@ public:
 	int GetNumFreeTechs() const;
 	int GetBaseBeakersTurnsToCount() const;
 	int GetBaseCultureTurnsToCount() const;
+	int GetBaseTurnsForGAPToCount() const;
 	int GetBaseHurry() const;
 	int GetHurryMultiplier() const;
 	bool IsRushBuilding() const;
@@ -66,6 +67,7 @@ public:
 	int GetNumGoldPerEra() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetNumInfPerEra() const;
+	int GetProductionCostPerEra() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeLux() const;
@@ -285,6 +287,7 @@ private:
 	int m_iNumFreeTechs;
 	int m_iBaseBeakersTurnsToCount;
 	int m_iBaseCultureTurnsToCount;
+	int m_iBaseTurnsForGAPToCount;
 	int m_iBaseHurry;
 	int m_iHurryMultiplier;
 	bool m_bRushBuilding;
@@ -294,6 +297,7 @@ private:
 	int m_iNumGoldPerEra;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iNumInfPerEra;
+	int m_iProductionCostPerEra;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeLux;

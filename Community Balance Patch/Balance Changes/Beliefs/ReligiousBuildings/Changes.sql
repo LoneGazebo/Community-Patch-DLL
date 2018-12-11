@@ -113,7 +113,8 @@ VALUES
 	('BUILDING_SYNAGOGUE', 'YIELD_PRODUCTION', 3),
 	('BUILDING_MOSQUE', 'YIELD_SCIENCE', 2),
 	('BUILDING_CATHEDRAL', 'YIELD_GOLD', 2),
-	('BUILDING_ORDER', 'YIELD_FAITH', 2);
+	('BUILDING_ORDER', 'YIELD_FAITH', 2),
+	('BUILDING_PAGODA', 'YIELD_FAITH', 2);
 
 INSERT INTO Building_YieldChangesPerReligion
 	(BuildingType, YieldType, Yield)
@@ -129,6 +130,11 @@ INSERT INTO Building_GoldenAgeYieldMod
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_MOSQUE', 'YIELD_CULTURE', 20);
+
+INSERT INTO Building_YieldFromBorderGrowth
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CATHEDRAL', 'YIELD_GOLD', 10);
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
@@ -166,7 +172,19 @@ VALUES
 	('BUILDING_PAGODA', 'FLAVOR_CULTURE', 4),
 	('BUILDING_PAGODA', 'FLAVOR_PRODUCTION', 4);
 
+INSERT INTO Building_YieldFromVictory
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ORDER', 'YIELD_FAITH', 2);
+
+INSERT INTO Building_GreatWorkYieldChangesLocal
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CHURCH', 'YIELD_FAITH', 1);
+
 INSERT INTO Building_DomainFreeExperiences
 	(BuildingType, DomainType, Experience)
 VALUES
-	('BUILDING_ORDER', 'DOMAIN_LAND', 15);
+	('BUILDING_ORDER', 'DOMAIN_LAND', 15),
+	('BUILDING_ORDER', 'DOMAIN_AIR', 15),
+	('BUILDING_ORDER', 'DOMAIN_SEA', 15);

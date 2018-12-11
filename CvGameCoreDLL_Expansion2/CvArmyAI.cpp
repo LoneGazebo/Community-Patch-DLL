@@ -425,9 +425,12 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 				continue;
 
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
-
 			if (pUnit == NULL)
 				continue;
+
+			//failsafe - make sure the army ID is set
+			if (pUnit->getArmyID() != GetID())
+				pUnit->setArmyID(GetID());
 
 			//let tactical AI handle those
 			if (pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() / 3)

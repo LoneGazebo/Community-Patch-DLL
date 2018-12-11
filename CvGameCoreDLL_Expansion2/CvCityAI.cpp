@@ -104,24 +104,28 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 
 	// Has the designated wonder been poached by another civ?
 	BuildingTypes eNextWonder = pSpecializationAI->GetNextWonderDesired();
-	if(!canConstruct(eNextWonder))
+
+	if (!bInterruptWonders)
 	{
-		// Reset city specialization
-		kOwner.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
-	}
-	else
-	{
-		CvBuildingEntry* pkBuilding = (eNextWonder != NO_BUILDING) ? GC.getBuildingInfo(eNextWonder) : NULL;
-		if (pkBuilding)
+		if (!canConstruct(eNextWonder))
 		{
-			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+			// Reset city specialization
+			kOwner.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
+		}
+		else
+		{
+			CvBuildingEntry* pkBuilding = (eNextWonder != NO_BUILDING) ? GC.getBuildingInfo(eNextWonder) : NULL;
+			if (pkBuilding)
 			{
-				// to prevent us from continuously locking into building wonders in one city when there are other high priority items to build
-				int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-				int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
-				int iFlavor = (iFlavorWonder > iFlavorGP) ? iFlavorWonder : iFlavorGP;
-				if (GC.getGame().getSmallFakeRandNum(9, plot()->GetPlotIndex() + getPopulation()) <= iFlavor)
-					bBuildWonder = true;
+				if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+				{
+					// to prevent us from continuously locking into building wonders in one city when there are other high priority items to build
+					int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+					int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
+					int iFlavor = (iFlavorWonder > iFlavorGP) ? iFlavorWonder : iFlavorGP;
+					if (GC.getGame().getSmallFakeRandNum(9, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE)) <= iFlavor)
+						bBuildWonder = true;
+				}
 			}
 		}
 	}

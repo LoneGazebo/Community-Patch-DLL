@@ -100,18 +100,18 @@ function UpdateData()
 			else
 				local iHappiness = pPlayer:GetExcessHappiness();
 				local tHappinessTextColor;
+				local population = pPlayer:GetTotalPopulation();
+				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds();
 
-				-- Empire is Happiness
-				if (not pPlayer:IsEmpireUnhappy()) then
-					strHappiness = string.format("[ICON_HAPPINESS_1][COLOR:60:255:60:255]%i[/COLOR]", iHappiness);
-				
 				-- Empire Really Unhappy
-				elseif (pPlayer:IsEmpireSuperUnhappy()) then
-					strHappiness = string.format("[ICON_HAPPINESS_4][COLOR:255:60:60:255]%i[/COLOR]", -iHappiness);
-				
+				if (pPlayer:IsEmpireSuperUnhappy()) then
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
 				-- Empire Unhappy
+				elseif (pPlayer:IsEmpireUnhappy()) then
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
+				-- Empire is Happiness
 				else
-					strHappiness = string.format("[ICON_HAPPINESS_3][COLOR:255:60:60:255]%i[/COLOR]", -iHappiness);
+					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", iHappiness, unhappypop, population);
 				end
 			end
 			
@@ -911,7 +911,7 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
 		end
 		-- Happiness/Population calculation.
-		local iPopulation = pPlayer:GetCurrentTotalPop();
+		local iPopulation = pPlayer:GetTotalPopulation();
 		local iPopNeeded = pPlayer:GetPopNeededForLux();
 		local iGetLuxuryBonus = pPlayer:GetBaseLuxuryHappiness();
 		if(iGetLuxuryBonus > 0) then

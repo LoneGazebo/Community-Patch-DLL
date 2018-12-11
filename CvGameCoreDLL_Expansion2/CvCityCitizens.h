@@ -38,11 +38,7 @@ public:
 	void DoTurn();
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
-#if defined(MOD_BALANCE_CORE)
-	int GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100);
-#else
-	int GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag);
-#endif
+	int GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFoodCorpMod); //precompute some expensive constants ...
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
@@ -63,7 +59,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
 #endif
-	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100);
+	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100, int iFoodCorpMod); //precompute some expensive values
 	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
 
 	// Citizen Assignment
@@ -216,6 +212,7 @@ private:
 
 	CityAIFocusTypes m_eCityAIFocusTypes;
 	bool m_bForceAvoidGrowth;
+	bool m_bDiscourageGrowth;
 
 	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];

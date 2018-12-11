@@ -29,7 +29,9 @@ SET MinCityFlatNoFreshWater = 1, MinCityMountainNoFreshWater = 1
 WHERE Type = 'YIELD_GOLD';
 
 UPDATE Yields
-SET MinCityMountainNoFreshWater = 1, MinCityHillNoFreshWater = 1, MinCityHillFreshWater = 1
+SET MinCityMountainNoFreshWater = 1
 WHERE Type = 'YIELD_PRODUCTION';
+
+--MinCityHillNoFreshWater = 1, MinCityHillFreshWater = 1
 
 

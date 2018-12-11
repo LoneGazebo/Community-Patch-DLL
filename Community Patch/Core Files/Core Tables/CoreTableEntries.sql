@@ -525,8 +525,8 @@ ALTER TABLE Traits ADD COLUMN 'MountainPass' BOOLEAN DEFAULT 0;
 -- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.
 ALTER TABLE Policies ADD COLUMN 'GarrisonsOccupiedUnhapppinessMod' INTEGER DEFAULT 0;
 
--- Spawns a free ranged unit with a new city.
-ALTER TABLE Policies ADD COLUMN 'BestRangedUnitSpawnSettle' INTEGER DEFAULT 0;
+-- Spawns a free unit at x population for a city.
+ALTER TABLE Policies ADD COLUMN 'XPopulationConscription' INTEGER DEFAULT 0;
 
 -- No Unhappiness from Expansion
 ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT 0;
@@ -539,6 +539,7 @@ ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
 
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'FreePopulationCapital' INTEGER DEFAULT 0;
 
 -- Extra Moves for Civilian Units
 ALTER TABLE Policies ADD COLUMN 'ExtraMoves' INTEGER DEFAULT 0;
@@ -587,6 +588,9 @@ ALTER TABLE Beliefs ADD COLUMN 'CombatVersusOtherReligionOwnLands' INTEGER DEFAU
 -- Combat bonus v. other religions in their lands
 ALTER TABLE Beliefs ADD COLUMN 'CombatVersusOtherReligionTheirLands' INTEGER DEFAULT 0;
 
+-- Production modifier for units
+ALTER TABLE Beliefs ADD COLUMN 'UnitProductionModifier' INTEGER DEFAULT 0;
+
 -- Influence with CS from missionary spread
 ALTER TABLE Beliefs ADD COLUMN 'MissionaryInfluenceCS' INTEGER DEFAULT 0;
 
@@ -600,10 +604,16 @@ ALTER TABLE Beliefs ADD COLUMN 'CityScalerLimiter' INTEGER DEFAULT 0;
 ALTER TABLE Beliefs ADD COLUMN 'FollowerScalerLimiter' INTEGER DEFAULT 0;
 
 -- Ignore Policy Requirements (number) for wonders up to a set era
-ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirementsUpToEra' BOOLEAN DEFAULT 0;
+ALTER TABLE Beliefs ADD COLUMN 'ReducePolicyRequirements' INTEGER DEFAULT 0;
 
 -- Increase yields from friendship/alliance for CS sharing your religion by x%
 ALTER TABLE Beliefs ADD COLUMN 'CSYieldBonusFromSharedReligion' INTEGER DEFAULT 0;
+
+-- Increase happiness from owned foreign spies active in other cities
+ALTER TABLE Beliefs ADD COLUMN 'HappinessFromForeignSpies' INTEGER DEFAULT 0;
+
+-- Decrease inquisitor cost. What it says on the tin ya git.
+ALTER TABLE Beliefs ADD COLUMN 'InquisitorCostModifier' INTEGER DEFAULT 0;
 
 
 -- New Buildings
@@ -619,6 +629,9 @@ ALTER TABLE Buildings ADD COLUMN 'NationalFollowerPopRequired' INTEGER DEFAULT 0
 
 -- Global Religious Followers Needed for a Building
 ALTER TABLE Buildings ADD COLUMN 'GlobalFollowerPopRequired' INTEGER DEFAULT 0;
+
+-- Reduces the value above by x value (a % reduction)
+ALTER TABLE Buildings ADD COLUMN 'ReformationFollowerReduction' INTEGER DEFAULT 0;
 
 -- Gives all current and future missionaries an extra x spread(s)
 ALTER TABLE Buildings ADD COLUMN 'ExtraMissionarySpreadsGlobal' INTEGER DEFAULT 0;
@@ -677,6 +690,11 @@ ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlat' INTEGER DEFAULT 0;
 -- Allows you to define an amount that a city will increase your unit supply cap by a flat value globally.
 ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlatGlobal' INTEGER DEFAULT 0;
 
+-- Allows buildings to modify a city's ranged strike parameters.
+ALTER TABLE Buildings ADD COLUMN 'CityRangedStrikeRange' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CityIndirectFire' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'RangedStrikeModifier' INTEGER DEFAULT 0;
+
 -- Missionaries built by a city gain % more strength
 ALTER TABLE Buildings ADD COLUMN 'ExtraMissionaryStrengthGlobal' INTEGER DEFAULT 0;
 
@@ -720,6 +738,9 @@ ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
 -- Allows you to set whether or not partisans spawn from razing cities (via policy)
 ALTER TABLE Policies ADD COLUMN 'NoPartisans' BOOLEAN DEFAULT 0;
 
+-- Allows you to set whether or not units gain full XP when purchased
+ALTER TABLE Policies ADD COLUMN 'NoXPLossUnitPurchase' BOOLEAN DEFAULT 0;
+
 -- Allows you to set a % of warscore that is added to a tourism bonus against a civ
 ALTER TABLE Policies ADD COLUMN 'PositiveWarScoreTourismMod' INTEGER DEFAULT 0;
 
@@ -730,6 +751,9 @@ ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap.
 ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
+
+-- Replacement for free GA on Artists, etc.
+ALTER TABLE Units ADD COLUMN 'BaseTurnsForGAPToCount' INTEGER DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
@@ -866,6 +890,11 @@ ALTER TABLE UnitPromotions ADD NearbyFriendlyCityCombatMod INTEGER DEFAULT 0;
 
 -- Unit gains Combat modifier when near enemy cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyEnemyCityCombatMod INTEGER DEFAULT 0;
+
+-- Unit Gives extra healing to nearby units? Must have set IsNearbyPromotion, NearbyRange, and GiveDomain for this promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealEnemyTerritory' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealNeutralTerritory' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFAULT 0;
 -- End
 
 -- Double Movement on Mountains
@@ -1029,6 +1058,9 @@ ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
 
+-- require x tier 3 tenets prior to construction
+ALTER TABLE Projects ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
 
 -- Advanced Action Spy Stuff (for CBP)
 
@@ -1101,9 +1133,13 @@ ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMax' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
 
--- Plague Stuff for JFD
+-- Plague Stuff
 ALTER TABLE UnitPromotions ADD COLUMN 'PlagueChance' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlaguePromotion' TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 ALTER TABLE UnitPromotions ADD COLUMN 'IsPlague' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlagueID' INTEGER DEFAULT -1;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlaguePriority' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlagueIDImmunity' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 
@@ -1194,6 +1230,15 @@ ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialU
 -- Does this Civ get a GG/GA Rate Modifier bonus from denunciations and wars?
 ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT 0;
 
+-- War Weariness Modifier
+ALTER TABLE Traits ADD COLUMN 'WarWearinessModifier' INTEGER DEFAULT 0;
+
+-- War Weariness Modifier
+ALTER TABLE Traits ADD COLUMN 'EnemyWarWearinessModifier' INTEGER DEFAULT 0;
+
+-- Bully Annex % Modifier for Yields for Mongolia UA
+ALTER TABLE Traits ADD COLUMN 'BullyYieldMultiplierAnnex' INTEGER DEFAULT 0;
+
 -- Does this civ get a free Unit.Type on Conquest? Must be able to train it first....
 ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Type);
 
@@ -1236,6 +1281,9 @@ ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
 -- Define a modifier for all great work tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
+-- Define a modifier for cities to be able to intercept nukes.
+ALTER TABLE Buildings ADD 'NukeInterceptionChance' INTEGER DEFAULT 0;
+
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
 ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
 
@@ -1262,6 +1310,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentCityDefenseMod' INTEGER DEFAULT 0
 
 -- Traveling Citadel.
 ALTER TABLE UnitPromotions ADD COLUMN 'NearbyEnemyDamage' INTEGER DEFAULT 0;
+
+-- Reduce Enemy Movement at start of turn.
+ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentEnemySapMovement' INTEGER DEFAULT 0;
 
 -- Enemy Units gain the "EnemyWarSawPactPromotion" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyWarSawPactPromotion" promotion type for this to work (see below).
 ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;
@@ -1336,6 +1387,7 @@ ALTER TABLE Buildings ADD COLUMN 'RAToVotes' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'GPExpendInfluence' integer default 0;
 
 ALTER TABLE Units ADD COLUMN 'NumInfPerEra' integer default 0;
+ALTER TABLE Units ADD COLUMN 'ProductionCostAddedPerEra' integer default 0;
 
 ALTER TABLE Policies ADD COLUMN 'GreatDiplomatRateModifier' integer default 0;
 

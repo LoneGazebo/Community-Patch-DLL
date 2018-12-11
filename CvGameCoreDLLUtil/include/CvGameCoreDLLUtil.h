@@ -30,5 +30,24 @@ using namespace std;
 #include "CvStructs.h"
 #include "CvAssert.h"
 
+struct CompareFirst
+{
+  CompareFirst(int val) : val_(val) {}
+  bool operator()(const std::pair<int,int>& elem) const {
+    return val_ == elem.first;
+  }
+  private:
+    int val_;
+};
+
+struct CompareSecond
+{
+  CompareSecond(int val) : val_(val) {}
+  bool operator()(const std::pair<int,int>& elem) const {
+    return val_ == elem.second;
+  }
+  private:
+    int val_;
+};
 
 #endif	// CvGameCoreDLLUtil_h

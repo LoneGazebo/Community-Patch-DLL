@@ -208,7 +208,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetStartingPlot);
 	Method(SetStartingPlot);
 	Method(GetTotalPopulation);
-	Method(GetAveragePopulation);
+	Method(GetAveragePopulation100);
 	Method(GetRealPopulation);
 
 	Method(GetNewCityExtraPopulation);
@@ -371,6 +371,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHappinessFromResources);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetHappinessFromResourceMonopolies);
+	Method(GetUnhappinessFromCitizenNeeds);
 #endif
 	Method(GetHappinessFromResourceVariety);
 	Method(GetExtraHappinessPerLuxury);
@@ -792,10 +793,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	Method(GetBonusHappinessFromLuxuries);
-	Method(GetPopNeededForLux);
-	Method(GetCurrentTotalPop);
 	Method(GetScalingNationalPopulationRequrired);
-	Method(GetBaseLuxuryHappiness);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	Method(CalculateUnhappinessTooltip);
@@ -2101,7 +2099,13 @@ int CvLuaPlayer::lCanFound(lua_State* L)
 //void found(int iX, int iY);
 int CvLuaPlayer::lFound(lua_State* L)
 {
-	return BasicLuaMethod<int,int>(L, &CvPlayerAI::found);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iX = lua_tointeger(L, 2);
+	const int iY = lua_tointeger(L, 3);
+
+	pkPlayer->found(iX, iY);
+
+	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -2704,9 +2708,11 @@ int CvLuaPlayer::lGetTotalPopulation(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getAveragePopulation();
-int CvLuaPlayer::lGetAveragePopulation(lua_State* L)
+int CvLuaPlayer::lGetAveragePopulation100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getAveragePopulation);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, (int)(pkPlayer->getAveragePopulation()*100));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //long getRealPopulation();
@@ -3863,6 +3869,12 @@ int CvLuaPlayer::lGetHappinessFromResources(lua_State* L)
 int CvLuaPlayer::lGetHappinessFromResourceMonopolies(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromResourceMonopolies);
+}
+
+//int getUnhappinessFromCitizenNeeds() const;
+int CvLuaPlayer::lGetUnhappinessFromCitizenNeeds(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getUnhappinessFromCitizenNeeds);
 }
 #endif
 //------------------------------------------------------------------------------
@@ -8933,9 +8945,10 @@ int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
 	return 1;
 }
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 //------------------------------------------------------------------------------
-//int getPopNeededForLux();
+//int getBonusHappinessFromLuxuries();
 int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -8944,26 +8957,7 @@ int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int getPopNeededForLux();
-int CvLuaPlayer::lGetPopNeededForLux(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getPopNeededForLux();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getCurrentTotalPop();
-int CvLuaPlayer::lGetCurrentTotalPop(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->getCurrentTotalPop();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 //------------------------------------------------------------------------------
 //int GetScalingNationalPopulationRequrired();
 int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
@@ -8975,29 +8969,8 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int GetBaseLuxuryHappiness();
-int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	int iNumHappinessResources = 0;
-	ResourceTypes eResource;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		eResource = (ResourceTypes)iResourceLoop;
-
-		if (eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
-		{
-			iNumHappinessResources++;
-		}
-	}
-	const int iResult = (iNumHappinessResources * pkPlayer->GetBaseLuxuryHappiness()) / max(1, (pkPlayer->getNumCities() / max(1, GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())));
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 //------------------------------------------------------------------------------
 //int CalculateUnhappinessTooltip(YieldTypes eYield);
@@ -11118,31 +11091,21 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 
 	CvUnit* pWorkerUnit = NULL;
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
-	if (MOD_UNITS_LOCAL_WORKERS) {
-		//Get head selected unit (which will be a worker).
-		auto_ptr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
-		pWorkerUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
-	} else {
-#endif
-		//Get first selected worker.
-		CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
-		while(selectedUnits.MoveNext())
+	//Get first selected worker.
+	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
+	while(selectedUnits.MoveNext())
+	{
+		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
+		if(pUnit.get() != NULL)
 		{
-			auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
-			if(pUnit.get() != NULL)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(pUnit->GetUnitType());
+			if(pUnitEntry && pUnitEntry->GetWorkRate() > 0)
 			{
-				CvUnitEntry* pUnitEntry = GC.getUnitInfo(pUnit->GetUnitType());
-				if(pUnitEntry && pUnitEntry->GetWorkRate() > 0)
-				{
-					pWorkerUnit = GC.UnwrapUnitPointer(pUnit.get());
-					break;
-				}
+				pWorkerUnit = GC.UnwrapUnitPointer(pUnit.get());
+				break;
 			}
 		}
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
 	}
-#endif
 
 	//Early out
 	if(pWorkerUnit == NULL)
@@ -11156,16 +11119,7 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	bool bUseDirective[cuiDirectiveSize];
 	CvPlot* pDirectivePlots[cuiDirectiveSize] = {0};
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
-	if (MOD_UNITS_LOCAL_WORKERS) {
-		pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true, false, pkPlayer->isHuman());
-	} else {
-#endif
-		pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UNITS_LOCAL_WORKERS)
-	}
-#endif
-
+	pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true, false);
 	for(uint ui = 0; ui < cuiDirectiveSize; ui++)
 	{
 		bUseDirective[ui] = false;

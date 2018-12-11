@@ -411,6 +411,8 @@ local function getUnitBuildProgressData( plot, buildID, unit )
 end
 
 local function updateSmallUnitIcons( unit, instance )
+
+	g_MaxDamage = unit:GetMaxHitPoints();
 	local movesLeft = unit:MovesLeft()
 	if movesLeft >= unit:MaxMoves() then
 		instance.MovementPip:SetTextureOffsetVal( 0, 0 )-- cyan (green)
@@ -492,6 +494,8 @@ end
 
 local function UnitToolTip( unit, ... )
 	if unit then
+		g_MaxDamage = unit:GetMaxHitPoints();
+
 		local unitTypeID = unit:GetUnitType()
 		local unitInfo = unitTypeID and GameInfo_Units[unitTypeID]
 
@@ -938,6 +942,7 @@ local g_yieldString = {
 [YieldTypes.YIELD_GOLDEN_AGE_POINTS or false] = "TXT_KEY_BUILD_GAP_STRING",
 [YieldTypes.YIELD_GREAT_GENERAL_POINTS or false] = "TXT_KEY_BUILD_GGP_STRING",
 [YieldTypes.YIELD_GREAT_ADMIRAL_POINTS or false] = "TXT_KEY_BUILD_GAP2_STRING",
+[YieldTypes.YIELD_CULTURE_LOCAL or false] = "TXT_KEY_BUILD_CULTURE_LOCAL_STRING", 
 } g_yieldString[false] = nil
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1346,6 +1351,7 @@ local function UpdateUnitHealthBar(unit)
 	if damage == 0 then
 		Controls.HealthBar:SetHide(true)
 	else
+		g_MaxDamage = unit:GetMaxHitPoints();
 		local healthPercent = 1.0 - (damage / g_MaxDamage)
 		local healthTimes100 =  math_floor(100 * healthPercent + 0.5)
 		local barSize = { x = 9, y = math_floor(123 * healthPercent) }

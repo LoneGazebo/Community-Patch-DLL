@@ -168,11 +168,11 @@
 			<Help>TXT_KEY_BUILDING_CHURCH_HELP</Help>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
+			<WLTKDTurns>15</WLTKDTurns>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-10</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<ExtraMissionaryStrengthGlobal>5</ExtraMissionaryStrengthGlobal>
 			<ReligiousPressureModifier>40</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -405,7 +405,7 @@
 			<SpecialistCount>1</SpecialistCount>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<NeverCapture>true</NeverCapture>
+			<NeverCapture>false</NeverCapture>
 			<PortraitIndex>49</PortraitIndex>
 		</Row>
 		<Row>
@@ -539,7 +539,7 @@
 			<Cost>300</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<PrereqTech>TECH_EDUCATION</PrereqTech>
+			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SEOWON_HELP</Help>
 			<FaithCost>200</FaithCost>
 			<ConquestProb>66</ConquestProb>

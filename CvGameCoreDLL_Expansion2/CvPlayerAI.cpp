@@ -30,6 +30,7 @@
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
+#include "CvBarbarians.h"
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
@@ -48,7 +49,7 @@
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
 
 // inlined for performance reasons
-CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
@@ -147,6 +148,9 @@ void CvPlayerAI::AI_doTurnPost()
 
 	if(isBarbarian())
 	{
+		CvBarbarians::DoCampSpawnCounter();
+		CvBarbarians::DoCamps();
+		CvBarbarians::DoUnits();
 		return;
 	}
 
@@ -281,11 +285,6 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		return;
 	}
-
-	//do this only after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
-	//despite the name, the tactical map is used by homeland AI as well.
-	//DN: If the above comment is still true then it sounds like there is an issue since CvPlayer::UpdateCityThreatCriteria is called just before doPostTurnDiplomacy and it refreshes the tacmamp
-	GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
 
 	//so that workers know where to build roads
 	GetBuilderTaskingAI()->Update();
@@ -1517,7 +1516,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScientist*/)
 {
-	if (!IsAtWarAnyMajor() || GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
+	if (!IsAtWarAnyMajor() || GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_LOSING)
 	{
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -1590,9 +1589,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	if(iGreatGeneralCount > 1 && pGreatGeneral->getArmyID() == -1)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
-		CvPlot* pTargetPlot2 = FindBestCultureBombExpend(pGreatGeneral, vDummy);
 		//build a citadel
-		if (pTargetPlot || (pGreatGeneral->isCultureBomb() && pTargetPlot2))
+		if (pTargetPlot)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
@@ -1626,7 +1624,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		}
 #else
 		// Spread religion if there is any city that needs it
-		if (GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/))
+		if (GetReligionAI()->ChooseProphetConversionCity())
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -1643,15 +1641,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	{
 		//always enhance
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		// Spread religion if there is a city that needs it CRITICALLY
-		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
-		}
-		else
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		}
 	}
 
 	// CASE 3: No religion for me yet
@@ -2558,10 +2547,8 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
 			continue;
 
-#if defined(MOD_BALANCE_CORE)
 		if(pUnit->GetDanger(pLoopPlot)>0)
 			continue;
-#endif
 
 		// Make sure this is still owned by target and is revealed to us
 		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
@@ -2600,7 +2587,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	CvCity* pBestTargetCity = NULL;
 
 	// Find target civ
-#if defined(MOD_BALANCE_CORE)
 	PlayerTypes eTargetPlayer = NO_PLAYER;
 	if(pMusician->isRivalTerritory())
 	{
@@ -2608,28 +2594,28 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	}
 	else
 	{
-#endif
 		eTargetPlayer = GetCulture()->GetCivLowestInfluence(true /*bCheckOpenBorders*/);
-#if defined(MOD_BALANCE_CORE)
 	}
-#endif
+
 	if (eTargetPlayer == NO_PLAYER)
 		return NULL;
 
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
-	int iMoveFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
+	SPathFinderUserData data(pMusician, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 23);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusician->getX(), pMusician->getY(), data);
+		
 	// Loop through each of that player's cities
 	int iLoop;
 	for(CvCity *pLoopCity = kTargetPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kTargetPlayer.nextCity(&iLoop))
 	{
-		int iPathTurns;
-		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,iBestTurnsToReach,&iPathTurns))
+		ReachablePlots::iterator it = reachablePlots.find(pLoopCity->plot()->GetPlotIndex());
+		if ( it != reachablePlots.end() )
 		{
-			if(iPathTurns < iBestTurnsToReach)
+			if( it->iTurns < iBestTurnsToReach)
 			{
-				iBestTurnsToReach = iPathTurns;
+				iBestTurnsToReach = it->iTurns;
 				pBestTargetCity = pLoopCity;
 			}
 		}
@@ -2640,7 +2626,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	{
 		int iBestDistance = INT_MAX;
 		CvPlot* pBestPlot = NULL;
-
 
 		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
 		{
@@ -2667,299 +2652,37 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 
 	return NULL;
 }
-CvPlot* CvPlayerAI::FindBestCultureBombExpend(CvUnit* pUnit, const std::vector<CvPlot*>& vPlotsToAvoid)
+CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
 {
 	if (!pUnit)
 		return NULL;
 
-	if(!pUnit->isCultureBomb())
-		return NULL;
-
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
-	PlotIndexContainer setCandidates;
+	std::set<int> setCandidates;
+	CvImprovementEntry* pkImprovementInfo = NULL;
+	int iRange = 0;
 
-	CvUnitEntry * pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
-	if (!pkUnitEntry)
-		return NULL;
-
-	// loop through plots and wipe out ones that are invalid
-	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	if (eBuild == NO_BUILD)
 	{
-		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
-		if (!pPlot)
-			continue;
-		if (!pUnit->CanCultureBomb(pPlot))
-			continue;
-		//don't consider plots we already targeted
-		bool bTooClose = false;
-		for (size_t i = 0; i<vPlotsToAvoid.size(); i++)
-			if (plotDistance(*vPlotsToAvoid[i], *pPlot)<3)
-				bTooClose = true;
-		if (bTooClose)
-			continue;
+		CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
+		if (!pkUnitEntry || !pUnit->isCultureBomb())
+			return NULL;
 
-		bool bGoodCandidate = true;
-		std::vector<int> vPossibleTiles;
-
-		//watch this! plotDirection[NUM_DIRECTION_TYPES] is the plot itself
-		//we need to include it as it may belong to us or the enemy
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES + 1; ++iI)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-			if (pAdjacentPlot == NULL)
-				continue;
-			if (!pUnit->canMoveInto(*pAdjacentPlot, CvUnit::MOVEFLAG_DESTINATION))
-				continue;
-
-			// not if we're about to give up the city
-			if (pAdjacentPlot->getOwningCity() && pAdjacentPlot->getOwningCity()->IsRazing())
-				continue;
-
-			// can't build on some plots
-			if (pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidMovePlot(GetID()))
-				continue;
-
-			//we want to steal at least one plot
-			if (!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
-				continue;
-
-			// make sure we don't step on the wrong toes
-			const PlayerTypes eOwner = pAdjacentPlot->getOwner();
-			if (eOwner != NO_PLAYER && eOwner != m_eID)
-			{
-				if (GET_PLAYER(eOwner).isMinorCiv())
-				{
-					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOwner);
-					// if we're friendly or protective, don't be a jerk
-					if (eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-					{
-						bGoodCandidate = false;
-						break;
-					}
-				}
-				else
-				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, false);
-					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
-
-					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
-
-					// only bomb if we're hostile
-					if (!bTicked && !bTickedAboutLand)
-					{
-						bGoodCandidate = false;
-						break;
-					}
-				}
-			}
-
-			vPossibleTiles.push_back(pAdjacentPlot->GetPlotIndex());
-		}
-
-		//a set guarantees uniqueness
-		if (bGoodCandidate)
-			setCandidates.insert(setCandidates.end(), vPossibleTiles.begin(), vPossibleTiles.end());
-	}
-
-	std::priority_queue<SPlotWithScore> goodPlots;
-	int iRange = pkUnitEntry->GetCultureBombRadius();
-	iRange = range(iRange, 1, 5);
-
-	//now that we have a number of possible plots, score each
-	for (PlotIndexContainer::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		int iScore = 0;
-
-		for (int iI = 0; iI<RING_PLOTS[iRange]; iI++)
-		{
-			CvPlot* pAdjacentPlot = iterateRingPlots(pPlot, iI);
-
-			if (pAdjacentPlot == NULL)
-				continue;
-
-			// don't evaluate city plots since we don't get ownership of them with the bomb
-			if (pAdjacentPlot->isCity())
-				continue;
-
-			//don't count the plot if we already own it
-			if (pAdjacentPlot->getOwner() == GetID())
-				continue;
-
-			//danger is bad - check even adjacent plots!
-			int iDanger = pUnit->GetDanger(pAdjacentPlot);
-			if (iDanger > 0)
-			{
-				iScore = 0;
-				break;
-			}
-
-			// don't bomb next to existing citadels
-			if (iRange == 1)
-			{
-				ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
-				if (eExistingImprovement != NO_IMPROVEMENT)
-				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-					if (pkImprovementInfo && pkImprovementInfo->GetCultureBombRadius() > 1)
-					{
-						iScore = 0;
-						break;
-					}
-				}
-			}
-
-			int iWeightFactor = 1;
-			// choke points are good, even if only adjacent to the citadel
-			if (pAdjacentPlot->IsChokePoint())
-			{
-				iWeightFactor += 3;
-			}
-
-			//Let's grab embassies if we can!
-			if (pAdjacentPlot->IsImprovementEmbassy())
-			{
-				iWeightFactor += 5;
-			}
-
-			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
-			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != GetID())
-			{
-				if (GET_PLAYER(eOtherPlayer).isMinorCiv())
-				{
-					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
-					// if we're friendly or protective, don't count the tile (but accept it as collateral damage)
-					if (eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-					{
-						continue;
-					}
-					else
-					{
-						// grabbing tiles away from minors is nice
-						iWeightFactor += 3;
-					}
-				}
-				else
-				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
-
-					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
-
-					// don't count the tile if we're not hostile (but accept it as collateral damage)
-					if (!bTicked && !bTickedAboutLand)
-					{
-						continue;
-					}
-					else
-					{
-						// grabbing tiles away from majors is really nice
-						iWeightFactor += 4;
-					}
-				}
-			}
-
-			// score resource
-			ResourceTypes eResource = pAdjacentPlot->getResourceType();
-			if (eResource != NO_RESOURCE)
-			{
-				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * iWeightFactor);
-			}
-
-			// score yield
-			for (int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
-			{
-				iScore += (pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor);
-			}
-		}
-
-		//require a certain minimum score ...
-		if (iScore > 0)
-		{
-			if (goodPlots.empty())
-			{
-				goodPlots.push(SPlotWithScore(pPlot, iScore));
-			}
-			else if (iScore > goodPlots.top().score * 0.8f)
-			{
-				//don't even keep it if it's much worse than the current best
-				goodPlots.push(SPlotWithScore(pPlot, iScore));
-
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Possible culture bomb location: X: %d, Y: %d. SCORE: %d", pPlot->getX(), pPlot->getY(), iScore);
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
-		}
-	}
-
-	if (goodPlots.size() == 0)
-	{
-		return NULL;
-	}
-	else if (goodPlots.size() == 1)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("Found a single culture bomb location, Location: X: %d, Y: %d. SCORE: %d", goodPlots.top().pPlot->getX(), goodPlots.top().pPlot->getY(), goodPlots.top().score);
-			GetHomelandAI()->LogHomelandMessage(strLogString);
-		}
-		return goodPlots.top().pPlot;
+		iRange = range(pkUnitEntry->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
 	}
 	else
 	{
-		//look at the top two and take the closer one
-		SPlotWithScore nr1 = goodPlots.top(); goodPlots.pop();
-		SPlotWithScore nr2 = goodPlots.top(); goodPlots.pop();
-		if (nr2.score < nr1.score * 0.8f)
-		{
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Found one good culture bomb location: X: %d, Y: %d. SCORE: %d", goodPlots.top().pPlot->getX(), goodPlots.top().pPlot->getY(), goodPlots.top().score);
-				GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
-			return nr1.pPlot;
-		}
-		else
-		{
-			SPlotWithScore chosen = nr1;
-			int iTurns1 = pUnit->TurnsToReachTarget(nr1.pPlot, true);
-			int iTurns2 = pUnit->TurnsToReachTarget(nr2.pPlot, true);
-			if (iTurns2*nr1.score < iTurns1*nr2.score)
-				chosen = nr2;
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (!pkBuildInfo)
+			return NULL;
 
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Found at least two similar culture bomb locations, chosen location: X: %d, Y: %d. SCORE: %d", chosen.pPlot->getX(), chosen.pPlot->getY(), chosen.score);
-				GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
-			return chosen.pPlot;
-		}
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo)
+			return NULL;
+
+		iRange = range(pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
 	}
-}
-CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
-{
-	if(!pUnit)
-		return NULL;
-
-	// we may build in one of our border tiles or in enemy tiles adjacent to them
-	std::set<int> setCandidates;
-	
-	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-	if(!pkBuildInfo)
-		return NULL;
-
-	ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	if (!pkImprovementInfo)
-		return NULL;
 
 	// loop through plots and wipe out ones that are invalid
 	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
@@ -3004,11 +2727,11 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			// can't build on some plots
 			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidMovePlot(GetID()) )
 				continue;
-			if(!pAdjacentPlot->canBuild(eBuild, GetID()))
+			if(eBuild != NO_BUILD && !pAdjacentPlot->canBuild(eBuild, GetID()))
 				continue;
 
 			//citadel special
-			if (pkImprovementInfo->GetDefenseModifier() > 0)
+			if (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0)
 			{
 				//we want to steal at least one plot
 				if (!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
@@ -3022,8 +2745,8 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
-				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-				if(pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson())
+				CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
+				if(pkImprovementInfo2 && pkImprovementInfo2->IsCreatedByGreatPerson())
 					continue;
 			}
 
@@ -3067,14 +2790,12 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 	}
 
 	std::priority_queue<SPlotWithScore> goodPlots;
-	int iRange = pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost();
-	iRange = range(iRange, 1, 5);
 
 	//now that we have a number of possible plots, score each
 	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		int iScore = pkImprovementInfo->GetDefenseModifier() > 0 ? pPlot->GetDefenseBuildValue(GetID()) : 0;
+		int iScore = (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0) ? pPlot->GetDefenseBuildValue(GetID()) : 0;
 
 		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 		{
@@ -3105,8 +2826,8 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
 				if (eExistingImprovement != NO_IMPROVEMENT)
 				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-					if (pkImprovementInfo && pkImprovementInfo->GetCultureBombRadius() > 1)
+					CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
+					if (pkImprovementInfo2 && pkImprovementInfo2->GetCultureBombRadius() > 1)
 					{
 						iScore = 0;
 						break;

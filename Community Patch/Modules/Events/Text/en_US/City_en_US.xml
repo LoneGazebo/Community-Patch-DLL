@@ -488,7 +488,7 @@
 			<Text>Design a bespoke fungicide to eradicate the disease.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_3_HELP">
-			<Text>Allocate {1_YieldCost} of researchers to permenantly increase the yield of nearby Farms by +1 [ICON_FOOD] Food.</Text>
+			<Text>Allocate {1_YieldCost} of researchers to permanently increase the yield of nearby Farms by +1 [ICON_FOOD] Food.</Text>
 		</Row>
 
 		<!-- Flooding -->

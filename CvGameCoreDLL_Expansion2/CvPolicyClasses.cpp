@@ -86,6 +86,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappinessPerXPopulationGlobal(0),
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
+	m_bNoXPLossUnitPurchase(false),
 	m_piGoldenAgeYieldMod(NULL),
 	m_bCorporationOfficesAsFranchises(false),
 	m_bCorporationFreeFranchiseAbovePopular(false),
@@ -308,12 +309,13 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldGPExpend(NULL),
 	m_iGarrisonsOccupiedUnhapppinessMod(0),
 	m_iTradeReligionModifier(0),
-	m_iBestRangedUnitSpawnSettle(0),
+	m_iXPopulationConscription(0),
 	m_iBestNumberLandCombatUnitClass(0),
 	m_iBestNumberLandRangedUnitClass(0),
 	m_iBestNumberSeaCombatUnitClass(0),
 	m_iBestNumberSeaRangedUnitClass(0),
 	m_iFreePopulation(0),
+	m_iFreePopulationCapital(0),
 	m_iExtraMoves(0),
 	m_iMaxCorporations(0),
 	m_iRazingSpeedBonus(0),
@@ -538,6 +540,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
 	}
 	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
+	m_bNoXPLossUnitPurchase = kResults.GetBool("NoXPLossUnitPurchase");
 	m_bCorporationOfficesAsFranchises = kResults.GetBool("CorporationOfficesAsFranchises");
 	m_bCorporationFreeFranchiseAbovePopular = kResults.GetBool("CorporationFreeFranchiseAbovePopular");
 	m_bCorporationRandomForeignFranchise = kResults.GetBool("CorporationRandomForeignFranchise");
@@ -698,12 +701,13 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
-	m_iBestRangedUnitSpawnSettle = kResults.GetInt("BestRangedUnitSpawnSettle");
+	m_iXPopulationConscription = kResults.GetInt("XPopulationConscription");
 	m_iBestNumberLandCombatUnitClass = kResults.GetInt("BestNumberLandCombatUnitClass");
 	m_iBestNumberLandRangedUnitClass = kResults.GetInt("BestNumberLandRangedUnitClass");
 	m_iBestNumberSeaCombatUnitClass = kResults.GetInt("BestNumberSeaCombatUnitClass");
 	m_iBestNumberSeaRangedUnitClass = kResults.GetInt("BestNumberSeaRangedUnitClass");
 	m_iFreePopulation = kResults.GetInt("FreePopulation");
+	m_iFreePopulationCapital = kResults.GetInt("FreePopulationCapital");
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
 	m_iRazingSpeedBonus = kResults.GetInt("RazingSpeedBonus");
@@ -1682,6 +1686,11 @@ EraTypes CvPolicyEntry::GetPolicyEraUnlock() const
 int CvPolicyEntry::GetIdeologyPoint() const
 {
 	return m_iIdeologyPoint;
+}
+
+bool CvPolicyEntry::IsNoXPLossUnitPurchase() const
+{
+	return m_bNoXPLossUnitPurchase;
 }
 
 /// Does this make Offices count as Franchises?
@@ -2947,9 +2956,9 @@ int CvPolicyEntry::GetTradeReligionModifier() const
 	return m_iTradeReligionModifier;
 }
 /// Does this Policy grant a free ranged unit upon settling?
-int CvPolicyEntry::GetBestRangedUnitSpawnSettle() const
+int CvPolicyEntry::GetXPopulationConscription() const
 {
-	return m_iBestRangedUnitSpawnSettle;
+	return m_iXPopulationConscription;
 }
 /// Policy Grants best number of land combat units
 int CvPolicyEntry::GetBestNumberLandCombatUnitClass() const
@@ -2975,6 +2984,10 @@ int CvPolicyEntry::GetBestNumberSeaRangedUnitClass() const
 int CvPolicyEntry::GetFreePopulation() const
 {
 	return m_iFreePopulation;
+}
+int CvPolicyEntry::GetFreePopulationCapital() const
+{
+	return m_iFreePopulationCapital;
 }
 /// Does this Policy grant free moves?
 int CvPolicyEntry::GetExtraMoves() const

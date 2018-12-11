@@ -659,7 +659,6 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						else if (iThisETA == CvUnit::MOVE_RESULT_NEXT_TURN)
 						{
 							bAction = true;
-							bDone = true;
 						}
 						else //cannot move or no need to move
 						{
@@ -805,6 +804,10 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
 			{
+				//in case we loaded a savegame, the cached path is gone. try to regenerate it before cancelling the mission
+				CvPlot* pDestPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
+				hUnit->VerifyCachedPath(pDestPlot, kMissionData.iFlags, INT_MAX);
+
 				//don't check against the target plot directly in case of approximate pathfinding
 				if(hUnit->m_kLastPath.empty())
 				{
@@ -1473,6 +1476,8 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		else if(pkQueueData->eMissionType == CvTypes::getMISSION_AIRPATROL())
 		{
 			hUnit->SetActivityType(ACTIVITY_INTERCEPT);
+			//make sure it's immediately included in the list of interceptors!
+			GET_PLAYER(hUnit->getOwner()).UpdateAreaEffectUnit(hUnit);
 			bDelete = true;
 		}
 
@@ -1536,9 +1541,13 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 			{
-				//make sure the path cache is current
+				//make sure the path cache is current (not for air units, their movement is actually an airstrike)
 				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
-				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX,NULL,true);
+				if (hUnit->getDomainType()!=DOMAIN_AIR && !hUnit->GeneratePath(pDestPlot, pkQueueData->iFlags, INT_MAX, NULL, true))
+				{
+					//uh? problem ... abort mission
+					bDelete = true;
+				}
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 				{

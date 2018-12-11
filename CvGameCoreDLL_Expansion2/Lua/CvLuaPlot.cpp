@@ -370,6 +370,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsWithinDistanceOfResource);
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
+	Method(GetEffectiveFlankingBonus);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -743,13 +744,30 @@ int CvLuaPlot::lGetUnitPower(lua_State* L)
 //int defenseModifier(TeamTypes iDefendTeam, bool bIgnoreBuilding, bool bHelp);
 int CvLuaPlot::lDefenseModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::defenseModifier);
+	return BasicLuaMethod<int,TeamTypes,bool,bool,bool>(L, &CvPlot::defenseModifier);
 }
 //------------------------------------------------------------------------------
 //int movementCost(CyUnit* pUnit, CyPlot* pFromPlot);
 int CvLuaPlot::lMovementCost(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::movementCost);
+}
+
+//------------------------------------------------------------------------------
+//int CvPlot::GetEffectiveFlankingBonus(CvUnit* pUnit, CvUnit* pOtherUnit, CvPlot* pOtherUnitPlot) const
+int CvLuaPlot::lGetEffectiveFlankingBonus(lua_State* L)
+{
+	CvPlot* pkPlot =  GetInstance(L);
+	CvUnit* pkUnit = CvLuaUnit::GetInstance(L,2);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 3);
+	CvPlot* pkOtherPlot =  GetInstance(L, 4);
+
+	int iResult = pkPlot->GetEffectiveFlankingBonus(pkUnit, pkOtherUnit, pkOtherPlot);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+
+	//return BasicLuaMethod<int,const CvUnit*,const CvUnit*,const CvPlot*>(L, &CvPlot::GetEffectiveFlankingBonus);
 }
 
 //------------------------------------------------------------------------------
@@ -2219,7 +2237,7 @@ int CvLuaPlot::lAddPopupMessage(lua_State* L)
 	const float fDelay = (float) luaL_optnumber(L, 3, 0.0);
 	const PlayerTypes ePlayer = (PlayerTypes) luaL_optinteger(L, 4, GC.getGame().getActivePlayer());
 
-	SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage, fDelay);
+	SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage);
 	return 0;
 }
 #endif

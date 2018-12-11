@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v88 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 88)
+#define MOD_DLL_NAME "Community Patch v89 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 89)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -85,9 +85,6 @@
 
 #define MOD_CORE_RESILIENT_PANTHEONS
 
-///	air units take a flat amount of damage in each air strike (plus interceptions)
-#define MOD_CORE_AIRCOMBAT_SIMPLIFIED
-
 #define MOD_BALANCE_CORE_OBSERVER_CHANGES
 	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
@@ -131,12 +128,8 @@
 /// Uses a different algorithm for scoring voting on world religion
 #define AUI_VOTING_TWEAKED_WORLD_RELIGION
 
-/// Checks all of player's cities for whether or not a city is within conversion target range, not just the player's capital
-#define AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
 /// Weighs different yield types differently depending on flavor and citizen value
 #define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
-/// When adding the terrain yield change of a belief, only do so if the current feature on the plot is additive (so eg. Dance with the Aurora won't be overvalued)
-#define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_SCORE_TERRAIN_CONSIDER_FEATURE
 /// Weighs different yield types differently depending on flavor and citizen value
 #define AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
 /// Considers grand strategies when scoring things like beliefs that only function when at peace
@@ -145,12 +138,8 @@
 #define AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
 /// If a building for which yield improvement is being calculated is a wonder of any kind, divide the yield by the city count (so there's effective only one instance being scored in the civ)
 #define AUI_RELIGION_SCORE_BELIEF_AT_CITY_YIELDS_FROM_WONDERS_COUNT_ONCE
-/// When scoring a belief that unlocks faith purchases of units, disregard eras that have already passed
-#define AUI_RELIGION_FIX_SCORE_BELIEF_FOR_PLAYER_UNLOCKS_UNITS_DISREGARD_OLD_ERAS
 /// Divides a city's targetting score for missionaries by this value if passive pressure is enough to eventually convert the city
 #define AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH (10)
-/// When finding a nearby conversion target, cities that will convert to the AI's religion passively are ignored
-#define AUI_RELIGION_HAVE_NEARBY_CONVERSION_TARGET_IGNORE_TARGET_THAT_WILL_CONVERT_PASSIVELY
 /// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
 #define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (1000.0 / 3.0)
 /// Fixes the bug where the AI scores inquisitors if it already has enough, not when it needs them
@@ -164,6 +153,9 @@
 
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
+
+// allow venice to receive settlers from wonders, policies etc (but not to build them)
+#define MOD_VENETIAN_SETTLERS
 
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
@@ -247,6 +239,8 @@
 #define MOD_GLOBAL_CITY_FOREST_BONUS                gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
 // Give initial production boost for cities founded on jungle, as if the jungle had been chopped down by a worker (v72)
 #define MOD_GLOBAL_CITY_JUNGLE_BONUS                gCustomMods.isGLOBAL_CITY_JUNGLE_BONUS()
+// Permit cities to have automaton workers (v89)
+#define MOD_GLOBAL_CITY_AUTOMATON_WORKERS           gCustomMods.isGLOBAL_CITY_AUTOMATON_WORKERS()
 // Enables rebasing to and airlifting to/from improvements (v74)
 #define MOD_GLOBAL_RELOCATION                       gCustomMods.isGLOBAL_RELOCATION()
 // Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
@@ -414,7 +408,11 @@
 #define MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_CITY_DEFENSE_SWITCH())
 #define MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_ARCHAEOLOGY_FROM_GP())
 #define MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES())
+#define MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BOMBARD_RANGE_BUILDINGS())
 #endif
+
+#define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
+
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
@@ -507,8 +505,6 @@
 #define MOD_UNITS_MAX_HP                            gCustomMods.isUNITS_MAX_HP()
 // Enables the XP times 100 API (v77)
 #define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
-// Restricts worker suggestions to local tiles
-#define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
 
@@ -972,8 +968,6 @@
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 // Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
-// Fixes issue where explore plot list was not being consistently updated when a plot was revealed
-#define MOD_BUGFIX_EXPLORE_REVEALED_PLOT	(true)
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1067,7 +1061,7 @@ enum BattleTypeTypes
 #define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
 #define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, pUnit->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
 #define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, pPlot->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage, fDelay)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
+#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
 
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name
@@ -1281,6 +1275,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
+#define GAMEEVENT_ConquerorValidBuilding	"ConquerorValidBuilding", "iiii"
 // City and Player Events
 #define GAMEEVENT_EventActivated			"EventActivated", "ii"
 #define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"
@@ -1407,6 +1402,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_CITY_FOREST_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_JUNGLE_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_WORKING);
+	MOD_OPT_DECL(GLOBAL_CITY_AUTOMATON_WORKERS);
 	MOD_OPT_DECL(GLOBAL_RELOCATION);
 	MOD_OPT_DECL(GLOBAL_ALPINE_PASSES);
 	MOD_OPT_DECL(GLOBAL_CS_GIFT_SHIPS);
@@ -1525,6 +1521,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_CITY_DEFENSE_SWITCH);
 	MOD_OPT_DECL(BALANCE_CORE_ARCHAEOLOGY_FROM_GP);
 	MOD_OPT_DECL(BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES);
+	MOD_OPT_DECL(BALANCE_CORE_BOMBARD_RANGE_BUILDINGS);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);
@@ -1707,6 +1704,8 @@ public:
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
 	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
+
+	MOD_OPT_DECL(ISKA_HERITAGE);
 
 protected:
 	bool m_bInit;

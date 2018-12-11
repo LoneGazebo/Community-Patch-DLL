@@ -41,7 +41,7 @@
 			<AIDeclareWarProb>50</AIDeclareWarProb>
 			<AIWorkRateModifier>0</AIWorkRateModifier>
 			<AIUnhappinessPercent>100</AIUnhappinessPercent>
-			<AIGrowthPercent>110</AIGrowthPercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>110</AITrainPercent>
 			<AIWorldTrainPercent>110</AIWorldTrainPercent>
 			<AIConstructPercent>110</AIConstructPercent>
@@ -57,9 +57,9 @@
 			<AIAdvancedStartPercent>100</AIAdvancedStartPercent>
 			<AIFreeXP>0</AIFreeXP>
 			<DifficultyBonusBase>0</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>0</PortraitIndex>
 		</Row>
@@ -117,9 +117,9 @@
 			<AIAdvancedStartPercent>135</AIAdvancedStartPercent>
 			<AIFreeXP>5</AIFreeXP>
 			<DifficultyBonusBase>1</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<AIFreeXPPercent>10</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
@@ -178,9 +178,9 @@
 			<AIAdvancedStartPercent>155</AIAdvancedStartPercent>
 			<AIFreeXP>10</AIFreeXP>
 			<DifficultyBonusBase>2</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<AIFreeXPPercent>25</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>2</PortraitIndex>
@@ -223,7 +223,7 @@
 			<AIDeclareWarProb>125</AIDeclareWarProb>
 			<AIWorkRateModifier>30</AIWorkRateModifier>
 			<AIUnhappinessPercent>90</AIUnhappinessPercent>
-			<AIGrowthPercent>90</AIGrowthPercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>90</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>90</AIConstructPercent>
@@ -239,9 +239,9 @@
 			<AIAdvancedStartPercent>170</AIAdvancedStartPercent>
 			<AIFreeXP>15</AIFreeXP>
 			<DifficultyBonusBase>3</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<AIFreeXPPercent>33</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
@@ -285,7 +285,7 @@
 			<AIDeclareWarProb>150</AIDeclareWarProb>
 			<AIWorkRateModifier>40</AIWorkRateModifier>
 			<AIUnhappinessPercent>85</AIUnhappinessPercent>
-			<AIGrowthPercent>90</AIGrowthPercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>90</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>90</AIConstructPercent>
@@ -300,9 +300,9 @@
 			<AIPerEraModifier>-7</AIPerEraModifier>
 			<AIAdvancedStartPercent>185</AIAdvancedStartPercent>
 			<DifficultyBonusBase>4</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<AIFreeXP>20</AIFreeXP>
 			<AIFreeXPPercent>50</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
@@ -348,7 +348,7 @@
 			<AIDeclareWarProb>175</AIDeclareWarProb>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
 			<AIUnhappinessPercent>80</AIUnhappinessPercent>
-			<AIGrowthPercent>80</AIGrowthPercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>80</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>80</AIConstructPercent>
@@ -364,9 +364,9 @@
 			<AIAdvancedStartPercent>200</AIAdvancedStartPercent>
 			<AIFreeXP>20</AIFreeXP>
 			<DifficultyBonusBase>5</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<AIFreeXPPercent>66</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
@@ -411,7 +411,7 @@
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
 			<AIUnhappinessPercent>75</AIUnhappinessPercent>
-			<AIGrowthPercent>80</AIGrowthPercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>80</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>80</AIConstructPercent>
@@ -427,9 +427,9 @@
 			<AIAdvancedStartPercent>215</AIAdvancedStartPercent>
 			<AIFreeXP>25</AIFreeXP>
 			<DifficultyBonusBase>6</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<AIFreeXPPercent>75</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
@@ -465,7 +465,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>0</BarbarianBonus>
 			<AIBarbarianBonus>25</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>5</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
@@ -474,7 +474,7 @@
 			<AIDeclareWarProb>225</AIDeclareWarProb>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIUnhappinessPercent>65</AIUnhappinessPercent>
-			<AIGrowthPercent>70</AIGrowthPercent>
+			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>70</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>70</AIConstructPercent>
@@ -491,9 +491,9 @@
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
 			<DifficultyBonusBase>7</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
@@ -544,9 +544,9 @@
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
 			<AIAdvancedStartPercent>100</AIAdvancedStartPercent>
 			<DifficultyBonusBase>0</DifficultyBonusBase>
-			<DifficultyBonusA>80</DifficultyBonusA>
-			<DifficultyBonusB>150</DifficultyBonusB>
-			<DifficultyBonusC>300</DifficultyBonusC>
+			<DifficultyBonusA>325</DifficultyBonusA>
+			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusC>100</DifficultyBonusC>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 		</Row>
 	</HandicapInfos>

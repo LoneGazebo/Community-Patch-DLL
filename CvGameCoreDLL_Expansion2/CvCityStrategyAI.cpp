@@ -975,7 +975,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	int iBaseYield = GetCity()->getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
-	iModifiedYield /= 1000;
+	iModifiedYield /= 10000;
 
 	if (iModifiedYield >= 5 || m_BuildablesPrecheck.size() <= 0)
 	{
@@ -1373,6 +1373,15 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	// Loop through adding the available buildings
 	if (!bUnitOnly)
 	{
+		std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
+		int iLoop;
+		for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t i=0; i<vBuildings.size(); i++)
+				vTotalBuildingCount[ vBuildings[i] ]++;
+		}
+
 		for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
 			const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iBldgLoop);
@@ -1383,7 +1392,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 				continue;
 
 			// Make sure this building can be built now
-			if (m_pCity->IsCanPurchase(true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
+			if (m_pCity->IsCanPurchase(vTotalBuildingCount, true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
 			{
 				buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 				buildable.m_iIndex = iBldgLoop;
@@ -4357,7 +4366,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
 						}
 					}
-					if(pCity->isCapital())
+					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).IsDiplomaticMarriage())
 					{
 						int iNumMarried = 0;
 						// Loop through all minors and get the total number we've met.
@@ -4367,13 +4376,13 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 							if (eMinor != pCity->GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 							{
-								if (pCity->GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
+								if (!GET_PLAYER(eMinor).IsAtWarWith(pCity->GetPlayer()->GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
 								{
 									iNumMarried++;
 								}
 							}
 						}
-						if(pCity->GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+						if(iNumMarried > 0)
 						{
 							iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 						}
@@ -4775,10 +4784,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
-	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
-	{
-		iFlatYield += pkBuildingInfo->GetScienceFromYield(eYield);
-	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
@@ -4790,7 +4795,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
-		iFlatYield += ((pkBuildingInfo->GetYieldChangePerReligion(eYield) * pCity->GetCityReligions()->GetNumReligionsWithFollowers()) / 100);
+		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers(); 
+		int tempYield = (pkBuildingInfo->GetYieldChangePerReligion(eYield) * numReligions) / 100;
+		iFlatYield += numReligions == 1 ? tempYield/2 : tempYield;
 	}
 
 	if (pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
@@ -4813,10 +4820,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
 	{
-		if (iYieldRate > pkBuildingInfo->GetScienceFromYield(eYield))
-		{
-			iFlatYield += (iYieldRate * pkBuildingInfo->GetScienceFromYield(eYield) / 100);
-		}
+		iFlatYield += iYieldRate / pkBuildingInfo->GetScienceFromYield(eYield);
 	}
 	if (pkBuildingInfo->GetGreatWorkYieldChange(eYield) > 0)
 	{
@@ -5337,7 +5341,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//Era = higher era, less valuable in game.
 		iActualIncrease = (iFlatYield * (100 - (iEra * 3)));
 		iActualIncrease /= 100;
-		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
 	}
@@ -6137,7 +6140,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
 		iValue += (pkBuildingInfo->GetNumThemingBonuses());
-		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 25);
+		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 10);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)
 		{
 			if (pCity != NULL && pCity->isCapital())
@@ -6166,7 +6169,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += (pkBuildingInfo->GetBuildingProductionModifier() + pCity->getPopulation()) * 5;
 	}
-	if (pkBuildingInfo->IsReformation())
+	if (pkBuildingInfo->IsReformation() || pkBuildingInfo->GetReformationFollowerReduction() != 0)
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
 		if (eReligion != NO_RELIGION)
@@ -6266,21 +6269,21 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
     }
 	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities * 2);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}

@@ -239,7 +239,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetPopulation);
 	Method(ChangePopulation);
 	Method(GetRealPopulation);
-
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	Method(GetAutomatons);
+	Method(SetAutomatons);
+#endif
 	Method(GetHighestPopulation);
 	Method(SetHighestPopulation);
 	//Method(GetWorkingPopulation);
@@ -361,6 +364,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetTheoreticalUnhappinessDecrease);
 	Method(getHappinessDelta);
+	Method(getHappinessThresholdMod);
 	Method(getThresholdSubtractions);
 	Method(getThresholdAdditions);
 	Method(GetUnhappinessFromCultureYield);
@@ -383,6 +387,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillaged);
 	Method(GetUnhappinessFromStarving);
 	Method(GetUnhappinessFromMinority);
+	Method(getPotentialUnhappinessWithGrowth);
 #endif
 
 	Method(ChangeHealRate);
@@ -1878,7 +1883,6 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 	int iTotalPoliciesNeeded = 0;
 	CvCity* pkCity = GetInstance(L);
 
-	bool bIgnoreRequirements = false;
 	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
 	if (eBuilding != NO_BUILDING)
 	{
@@ -1921,44 +1925,32 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 								eEra = (EraTypes)pEntry->GetEra();
 								if (eEra != NO_ERA)
 								{
-									bIgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, pkCity->getOwner(), pHolyCity);
+									iNumPoliciesReduced += pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, pkCity->getOwner(), pHolyCity);
 								}
 							}
 						}
-						if (!bIgnoreRequirements)
+						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
+						if (iReligionPolicyReduction > 0)
 						{
-							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
-							if (iReligionPolicyReduction > 0)
+							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+							if (iNumFollowerCities > 0)
 							{
-								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
-								if (iNumFollowerCities > 0)
-								{
-									iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
-								}
+								iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
 							}
 						}
 					}
 				}
-				if (!bIgnoreRequirements)
+
+				int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
+				if (iCSPolicyReduction > 0)
 				{
-					int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
-					if (iCSPolicyReduction > 0)
-					{
-						int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
-						iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
-					}
+					int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
+					iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
 				}
 			}
 		}
 	}
-	if (bIgnoreRequirements)
-	{
-		iTotalPoliciesNeeded = 0;
-	}
-	else
-	{
-		iTotalPoliciesNeeded -= iNumPoliciesReduced;
-	}
+	iTotalPoliciesNeeded -= iNumPoliciesReduced;
 
 	lua_pushinteger(L, iTotalPoliciesNeeded);
 	return 1;
@@ -2140,7 +2132,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	{	
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
-		pkCity->foodDifferenceTimes100(true, &toolTip);
+		pkCity->foodDifferenceTimes100(true, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
 	}
 
 	lua_pushstring(L, toolTip.c_str());
@@ -2400,7 +2392,10 @@ int CvLuaCity::lFoodDifference(lua_State* L)
 //int foodDifferenceTimes100(bool bBottom);
 int CvLuaCity::lFoodDifferenceTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::foodDifferenceTimes100);
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->foodDifferenceTimes100(true,-1,NULL);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int growthThreshold();
@@ -2869,6 +2864,20 @@ int CvLuaCity::lSetHighestPopulation(lua_State* L)
 //{
 //	return BasicLuaMethod(L, &CvCity::getSpecialistPopulation);
 //}
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+//------------------------------------------------------------------------------
+//int getAutomatons();
+int CvLuaCity::lGetAutomatons(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getAutomatons);
+}
+//------------------------------------------------------------------------------
+//void setAutomatons(int iNewValue, bool bReassignPop);
+int CvLuaCity::lSetAutomatons(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::setAutomatons);
+}
+#endif
 //------------------------------------------------------------------------------
 //int getNumGreatPeople();
 int CvLuaCity::lGetNumGreatPeople(lua_State* L)
@@ -3731,6 +3740,16 @@ int CvLuaCity::lgetHappinessDelta(lua_State* L)
 	lua_pushinteger(L, pkCity->getHappinessDelta());
 	return 1;
 }
+//int getHappinessThresholdMod();
+int CvLuaCity::lgetHappinessThresholdMod(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	int iResult = pkCity->getHappinessThresholdMod(eYield, 0);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //int getThresholdSubtractions();
 int CvLuaCity::lgetThresholdSubtractions(lua_State* L)
 {
@@ -3746,7 +3765,7 @@ int CvLuaCity::lgetThresholdAdditions(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkCity->getThresholdAdditions(eYield));
+	lua_pushinteger(L, pkCity->GetStaticNeedAdditives(eYield));
 	return 1;
 }
 //int getUnhappinessFromCultureYield();
@@ -3937,6 +3956,13 @@ int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
 	lua_pushinteger(L, pkCity->getUnhappinessFromReligion());
 	return 1;
 }
+
+int CvLuaCity::lgetPotentialUnhappinessWithGrowth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushstring(L, pkCity->getPotentialUnhappinessWithGrowth());
+	return 1;
+}
 #endif
 
 //------------------------------------------------------------------------------
@@ -3980,7 +4006,10 @@ int CvLuaCity::lChangeFood(lua_State* L)
 //int getFoodKept();
 int CvLuaCity::lGetFoodKept(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getFoodKept);
+	CvCity* pkCity = GetInstance(L);
+	int iFoodKept = (min(pkCity->getFood(),pkCity->growthThreshold())*pkCity->getMaxFoodKeptPercent()) / 100;
+	lua_pushinteger(L, iFoodKept);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getMaxFoodKeptPercent();
@@ -4824,13 +4853,31 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 	const int iIndex = lua_tointeger(L, 2);
 	int iResult = pkCity->GetSpecialistRateModifier(toValue<SpecialistTypes>(L, 2));
 
-	int iNumPuppets = GET_PLAYER(pkCity->getOwner()).GetNumPuppetCities();
-	if(iNumPuppets > 0)
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
+
+	if (eGreatPerson != NO_GREATPERSON)
 	{
-		GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
-		if(eGreatPerson != NO_GREATPERSON)
+
+		int iNumPuppets = GET_PLAYER(pkCity->getOwner()).GetNumPuppetCities();
+		if (iNumPuppets > 0)
 		{
-			iResult += (iNumPuppets * GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
+
+			iResult += (iNumPuppets * GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
+		}
+
+		ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+			if (pReligion)
+			{
+				iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pkCity->getOwner(), pkCity);
+				BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+				}
+			}
 		}
 	}
 
@@ -5020,7 +5067,8 @@ int CvLuaCity::lGetStrengthValue(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	bool bForRangeStrike = luaL_optbool(L, 2, false);
-	const int iResult = pkCity->getStrengthValue(bForRangeStrike);
+	bool bIgnoreBuildingDefense = luaL_optbool(L, 3, false);
+	const int iResult = pkCity->getStrengthValue(bForRangeStrike,bIgnoreBuildingDefense);
 
 	lua_pushinteger(L, iResult);
 	return 1;

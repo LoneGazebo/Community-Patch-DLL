@@ -179,10 +179,13 @@ public:
 	int GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
 	CvUnit* GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
 
-	bool isFortification(TeamTypes eTeam) const;
+	CvCity* GetNukeInterceptor(PlayerTypes eAttackingPlayer) const;
+
+	bool isRevealedFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
+	int GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
@@ -390,7 +393,7 @@ public:
 	int ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
-	int ComputeYieldFromAdjacentPlot(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
+	int ComputeYieldFromAdjacentFeature(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 #else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
 #endif
@@ -483,11 +486,11 @@ public:
 
 	bool isBlockaded(PlayerTypes ePlayer);
 
-	TerrainTypes getTerrainType() const
+	inline TerrainTypes getTerrainType() const
 	{
 		return (TerrainTypes)m_eTerrainType;
 	}
-	FeatureTypes getFeatureType() const
+	inline FeatureTypes getFeatureType() const
 	{
 		return (FeatureTypes)m_eFeatureType.get();
 	}
@@ -702,7 +705,7 @@ public:
 	bool isPlayerCityRadius(PlayerTypes eIndex) const;
 	void changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange);
 
-	int getVisibilityCount(TeamTypes eTeam) const
+	inline int getVisibilityCount(TeamTypes eTeam) const
 	{
 		CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 		CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -830,9 +833,7 @@ public:
 	CvString getScriptData() const;
 	void setScriptData(const char* szNewValue);
 
-#if defined(SHOW_PLOT_POPUP)
 	void showPopupText(PlayerTypes ePlayer, const char* szMessage);
-#endif
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
@@ -1059,24 +1060,15 @@ protected:
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
-
 	short m_iLastTurnBuildChanged;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere3;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere3;
 #endif
 
 	char* m_szScriptData;
-	short* m_paiBuildProgress;
+	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
 	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
-
 	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
 
 	short m_iArea;
@@ -1094,13 +1086,13 @@ protected:
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;
-
-	short m_iCulture;
-
 	uint m_uiCityConnectionBitFlags;
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
-	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;
+	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType; 
+	//why only one autovariable? probably should extend this to everything the players may change about the plot
+	//ie improvements, routes, etc
+
 #if defined(MOD_BALANCE_CORE)
 	char m_iUnitPlotExperience;
 	char m_iUnitPlotGAExperience;

@@ -69,25 +69,26 @@ public:
 	void SetElement (unsigned int iIndex, const T& iValue)
 	{
 		assert(iIndex < m_pItems.size());
-		m_pItems[iIndex].m_Element = iValue;
+		if (iIndex<m_pItems.size())
+			m_pItems[iIndex].m_Element = iValue;
 	};
 
 	/// Accessors for weight
 	int GetWeight (unsigned int	 iIndex) const
 	{
-		WeightedElement elem;
 		assert(iIndex < m_pItems.size());
-		elem = m_pItems[iIndex];
-		return elem.m_iWeight;
+		return m_pItems[iIndex].m_iWeight;
 	}
 	void IncreaseWeight (unsigned int iIndex, int iWeight)
 	{
-		m_pItems[iIndex].m_iWeight += iWeight;
+		if (iIndex<m_pItems.size())
+			m_pItems[iIndex].m_iWeight += iWeight;
 		CvAssertMsg(m_pItems[iIndex].m_iWeight >= 0, "Weight should not be negative.");
 	}
 	void SetWeight (unsigned int iIndex, int iWeight)
 	{
-		m_pItems[iIndex].m_iWeight = iWeight;
+		if (iIndex<m_pItems.size())
+			m_pItems[iIndex].m_iWeight = iWeight;
 		CvAssertMsg(m_pItems[iIndex].m_iWeight >= 0, "Weight should not be negative.");
 	}
 

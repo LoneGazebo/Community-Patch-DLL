@@ -97,8 +97,12 @@ public:
 	void addFreeUnitAI(UnitAITypes eUnitAI, int iCount);
 	CvPlot* addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI = NO_UNITAI);
 
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_API_EXTENSIONS)
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
+#elif defined(MOD_BALANCE_CORE)
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
@@ -115,6 +119,7 @@ public:
 	void acquireCity(CvCity* pCity, bool bConquest, bool bGift);
 #endif
 #endif
+	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bCapture);
 	void killCities();
 	CvString getNewCityName() const;
 	CvString GetBorrowedCityName(CivilizationTypes eCivToBorrowFrom) const;
@@ -346,8 +351,12 @@ public:
 	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
 	bool canFound(int iX, int iY) const;
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
+	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
+#elif defined(MOD_BALANCE_CORE)
+	void found(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void found(int iX, int iY);
 #endif
@@ -469,7 +478,7 @@ public:
 	void setStartingPlot(CvPlot* pNewValue);
 
 	int getTotalPopulation() const;
-	int getAveragePopulation() const;
+	float getAveragePopulation() const;
 	void changeTotalPopulation(int iChange);
 	long getRealPopulation() const;
 
@@ -549,6 +558,7 @@ public:
 	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
 #if defined(MOD_BALANCE_CORE)
 	int GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
+	int GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
 #endif
 
 	int GetNumCitiesFreeCultureBuilding() const;
@@ -573,29 +583,32 @@ public:
 	
 	void SetReformation(bool bValue);
 	bool IsReformation() const;
+
+	int GetReformationFollowerReduction() const;
+	void ChangeReformationFollowerReduction(int iValue);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY);
 #if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #else
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #endif
 #else
-	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
+	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #else
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #endif
 #endif
 #if defined(MOD_API_EXTENSIONS)
-	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY);
 #else
-	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY);
 #endif
-	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
+	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)
@@ -731,15 +744,12 @@ public:
 	int getGlobalAverage(YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	int getPopNeededForLux() const;
-	void setPopNeededForLux();
-	void CheckPopLuxUpgradeThreshold();
+	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
+	int GetPlayerHappinessLuxuryCountFactor1000() const;
 	int GetBonusHappinessFromLuxuries() const;
-	int GetBaseLuxuryHappiness() const;
-	void SetBaseLuxuryHappiness(int iValue);
+	int GetBonusHappinessFromLuxuriesGradient() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int getCurrentTotalPop() const;
 	int GetUnhappinessFromWarWeariness() const;
 #endif
 
@@ -800,6 +810,10 @@ public:
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
+
+	int GetNoXPLossUnitPurchase() const;
+	void SetNoXPLossUnitPurchase(int iValue);
+	void ChangeNoXPLossUnitPurchase(int iChange);
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
@@ -1209,7 +1223,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
@@ -1889,12 +1903,12 @@ public:
 
 	EraTypes GetCurrentEra() const;
 
-	PlayerTypes GetID() const
+	inline PlayerTypes GetID() const
 	{
 		return m_eID;
 	}
 
-	TeamTypes getTeam() const
+	inline TeamTypes getTeam() const
 	{
 		return CvPreGame::teamType(m_eID);
 	}
@@ -1993,8 +2007,9 @@ public:
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
 
-	int GetBestRangedUnitSpawnSettle() const;
-	void changeBestRangedUnitSpawnSettle(int iChange);
+	int GetXPopulationConscription() const;
+	void changeXPopulationConscription(int iChange);
+	void DoXPopulationConscription(CvCity* pCity);
 
 	int GetExtraMoves() const;
 	void changeExtraMoves(int iChange);
@@ -2992,12 +3007,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
+	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
-	FAutoVariable<int, CvPlayer> m_iPopNeededForLuxUpgrade;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3014,6 +3026,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
+	FAutoVariable<int, CvPlayer> m_iNoXPLossUnitPurchase;
 	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
 	FAutoVariable<int, CvPlayer> m_iHappinessFromMinorCivs;
 	FAutoVariable<int, CvPlayer> m_iPositiveWarScoreTourismMod;
@@ -3177,7 +3190,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iGarrisonsOccupiedUnhapppinessMod;
-	FAutoVariable<int, CvPlayer> m_iBestRangedUnitSpawnSettle;
+	FAutoVariable<int, CvPlayer> m_iXPopulationConscription;
 	FAutoVariable<int, CvPlayer> m_iExtraMoves;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappinessExpansion;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappyIsolation;

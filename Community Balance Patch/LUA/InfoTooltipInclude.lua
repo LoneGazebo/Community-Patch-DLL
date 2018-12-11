@@ -181,7 +181,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		if(pActivePlayer) then
 			local iNumNationalPop = pActivePlayer:GetScalingNationalPopulationRequrired(iBuildingID);
 			if(iNumNationalPop > 0) then
-				local iNumHave = pActivePlayer:GetCurrentTotalPop();
+				local iNumHave = pActivePlayer:GetTotalPopulation();
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave));
 			end
 		end
@@ -305,6 +305,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iCulture = iCulture + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_CULTURE);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iCulture = iCulture + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_CULTURE)
+		end
 -- END
 		-- Events
 		iCulture = iCulture + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
@@ -323,6 +327,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FAITH);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iFaith = iFaith + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FAITH)
+		end
 -- END
 		-- Events
 		iFaith = iFaith + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FAITH);
@@ -366,6 +374,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FOOD);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iFood = iFood + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FOOD)
+		end
 -- END
 		-- Events
 		iFood = iFood + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
@@ -391,6 +403,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iGold = iGold + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_GOLD);
 		iGold = iGold + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
 		iGold = iGold + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_GOLD);
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iGold = iGold + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_GOLD)
+		end
 -- END
 		-- Events
 		iGold = iGold + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
@@ -419,6 +434,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (pCity ~= nil) then
 		iScienceChange = iScienceChange + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		iScienceChange = iScienceChange + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
+-- Start Vox Populi
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iScienceChange = iScienceChange + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_SCIENCE)
+		end
+-- End Vox Populi
 		-- Events
 		iScienceChange = iScienceChange + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		-- End 
@@ -442,6 +463,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iProd = iProd + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		iProd = iProd + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		iProd = iProd + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+-- Start Vox Populi
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iProd = iProd + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_PRODUCTION)
+		end
+-- End Vox Populi
 	end
 -- END	
 	if (pCity ~= nil) then
@@ -696,6 +723,10 @@ function GetFoodTooltip(pCity)
 	
 	strFoodToolTip = strFoodToolTip .. "[NEWLINE][NEWLINE]";
 	strFoodToolTip = strFoodToolTip .. GetYieldTooltipHelper(pCity, iYieldType, "[ICON_FOOD]");
+
+	
+	strFoodToolTip = strFoodToolTip .. pCity:getPotentialUnhappinessWithGrowth();
+		
 	
 	return strFoodToolTip;
 end
@@ -1305,20 +1336,10 @@ function GetCityHappinessTooltip(pCity)
 			iCapitalMod = Players[pCity:GetOwner()]:GetCapitalUnhappinessModCBP();
 		end
 
-		local iThresholdAdditionsGold = (pCity:getThresholdAdditions(YieldTypes.YIELD_GOLD) - iCapitalMod);
-		local iThresholdAdditionsDefense = (pCity:getThresholdAdditions(YieldTypes.YIELD_PRODUCTION) - iCapitalMod);
-		local iThresholdAdditionsScience = (pCity:getThresholdAdditions(YieldTypes.YIELD_SCIENCE) - iCapitalMod);
-		local iThresholdAdditionsCulture = (pCity:getThresholdAdditions(YieldTypes.YIELD_CULTURE) - iCapitalMod);
-
-		local iThresholdSubtractionsGold = pCity:getThresholdSubtractions(YieldTypes.YIELD_GOLD);
-		local iThresholdSubtractionsDefense = pCity:getThresholdSubtractions(YieldTypes.YIELD_PRODUCTION);
-		local iThresholdSubtractionsScience = pCity:getThresholdSubtractions(YieldTypes.YIELD_SCIENCE);
-		local iThresholdSubtractionsCulture = pCity:getThresholdSubtractions(YieldTypes.YIELD_CULTURE);
-
-		iThresholdSubtractionsGold = iThresholdAdditionsGold + (iThresholdSubtractionsGold + (iPuppetMod * -1));
-		iThresholdSubtractionsDefense = iThresholdAdditionsDefense + (iThresholdSubtractionsDefense + (iPuppetMod * -1));
-		iThresholdSubtractionsScience = iThresholdAdditionsScience + (iThresholdSubtractionsScience + (iPuppetMod * -1));
-		iThresholdSubtractionsCulture = iThresholdAdditionsCulture + (iThresholdSubtractionsCulture + (iPuppetMod * -1));
+		local iThresholdGold = pCity:getHappinessThresholdMod(YieldTypes.YIELD_GOLD);
+		local iThresholdDefense = pCity:getHappinessThresholdMod(YieldTypes.YIELD_PRODUCTION);
+		local iThresholdScience = pCity:getHappinessThresholdMod(YieldTypes.YIELD_SCIENCE);
+		local iThresholdCulture = pCity:getHappinessThresholdMod(YieldTypes.YIELD_CULTURE);
 
 		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
 		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;
@@ -1367,19 +1388,19 @@ function GetCityHappinessTooltip(pCity)
 		if (iPillagedUnhappiness ~= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
 		end
+				-- Defense tooltip
+		if (iDefenseUnhappiness > 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
+		end
+		if ((iDefenseYield - iDefenseNeeded) >= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
+		end
 		-- Gold tooltip
 		if (iGoldUnhappiness > 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
 		end
 		if ((iGoldYield - iGoldNeeded) >= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
-		end
-		-- Defense tooltip
-		if (iDefenseUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
-		end
-		if ((iDefenseYield - iDefenseNeeded) >= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
 		end
 		-- Connection tooltip
 		if (iConnectionUnhappiness ~= 0) then
@@ -1425,35 +1446,38 @@ function GetCityHappinessTooltip(pCity)
 			return strHappinessBreakdown;
 		end
 
-		if(iThresholdSubtractionsGold > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iThresholdSubtractionsGold);
-		elseif(iThresholdSubtractionsGold < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdSubtractionsGold);
+		
+		if(iThresholdDefense > 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdDefense);
+		elseif(iThresholdDefense < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdDefense);
 		end
 
-		if(iThresholdSubtractionsDefense > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdSubtractionsDefense);
-		elseif(iThresholdSubtractionsDefense < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdSubtractionsDefense);
+		if(iThresholdGold > 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iThresholdGold);
+		elseif(iThresholdGold < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdGold);
 		end
 
-		if(iThresholdSubtractionsScience > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdSubtractionsScience);
-		elseif(iThresholdSubtractionsScience < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdSubtractionsScience);
+		if(iThresholdScience > 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdScience);
+		elseif(iThresholdScience < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdScience);
 		end
 
-		if(iThresholdSubtractionsCulture > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdSubtractionsCulture);
-		elseif(iThresholdSubtractionsCulture < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdSubtractionsCulture);
+		if(iThresholdCulture > 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdCulture);
+		elseif(iThresholdCulture < 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdCulture);
 		end
 
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION");
 		end
 
+		strHappinessBreakdown = strHappinessBreakdown .. pCity:getPotentialUnhappinessWithGrowth();
 	end
+
 
 	return strHappinessBreakdown;
 end

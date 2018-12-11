@@ -81,7 +81,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
-	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
@@ -178,6 +178,9 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	// danger plots have not been initialized yet, so no need to update
 	if(!m_bArrayAllocated)
 		return;
+
+	// important. do this first to avoid recursion
+	m_bDirty = false;
 
 	// wipe out values
 	int iGridSize = GC.getMap().numPlots();
@@ -333,8 +336,6 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 
 		pLoopCity->SetThreatValue(iThreatValue);
 	}
-
-	m_bDirty = false;
 }
 
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot
@@ -410,6 +411,10 @@ bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 {
 	if (!m_bArrayAllocated  || !pUnit)
+		return;
+
+	//don't do this for human players - they have to remember on their own
+	if (GET_PLAYER(m_ePlayer).isHuman())
 		return;
 
 	if (!IsKnownAttacker(pUnit))
@@ -491,11 +496,6 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 		return true;
 	}
 
-	if (pUnit->getDomainType() == DOMAIN_AIR)
-	{
-		return true;
-	}
-
 	//invisible but revealed camp. count the unit there anyways (for AI)
 	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !GET_PLAYER(m_ePlayer).isHuman());
 
@@ -553,7 +553,13 @@ void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 	if (!m_bArrayAllocated || !pUnit || !pPlot)
 		return;
 
-	m_DangerPlots[ pPlot->GetPlotIndex() ].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+	DangerUnitVector& v = m_DangerPlots[pPlot->GetPlotIndex()].m_apUnits;
+
+	//for (size_t i = 0; i < v.size(); i++)
+	//	if (v[i].second == pUnit->GetID())
+	//		OutputDebugString("problem!\n");
+
+	v.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -683,7 +689,7 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 
 int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction)
 {
-	if (pUnit->getDomainType() != DOMAIN_AIR)
+	if (pUnit->getDomainType() != DOMAIN_AIR || pUnit->isSuicide())
 		return 0;
 	
 	if (iAirAction == AIR_ACTION_INTERCEPT) // Max damage from a potential air sweep against our intercept
@@ -849,7 +855,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		// Damage from features (citadel)
 		iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 		iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
-		iPlotDamage += m_bEnemyAdjacent ? 1 : 0;
 
 		// Damage from cities
 		for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
@@ -904,8 +909,11 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			continue;
 
 		//there should be only very few of these, if any
-		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) == unitsToIgnore.end())
+		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) != unitsToIgnore.end())
 			continue;
+
+		//todo: if the attacker is an air unit and we have interceptors around, reduce the expected damage
+		//but interceptions are hard to keep track of and bad for performance ...
 
 		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)
@@ -937,7 +945,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	// Damage from surrounding features (citadel) and the plot itself
 	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
-	iPlotDamage += m_bEnemyAdjacent ? 1 : 0;
 
 	//update cache
 	m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));

@@ -148,6 +148,7 @@ protected:
 
 	static int lCanGoldenAge(lua_State* L);
 	static int lGetGoldenAgeTurns(lua_State* L);
+	static int lGetGAPAmount(lua_State* L);
 	static int lGetGivePoliciesCulture(lua_State* L);
 	static int lGetBlastTourism(lua_State* L);
 	static int lCanBuild(lua_State* L);
@@ -318,6 +319,8 @@ protected:
 	LUAAPIEXTN(IgnoreFeatureDamage, bool);
 	LUAAPIEXTN(ExtraTerrainDamage, bool);
 	LUAAPIEXTN(ExtraFeatureDamage, bool);
+	LUAAPIEXTN(GetMovementRules, int);
+	LUAAPIEXTN(GetZOCStatus, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	LUAAPIEXTN(GetNearbyImprovementCombatBonus, int);

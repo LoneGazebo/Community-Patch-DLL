@@ -134,6 +134,7 @@ public:
 
 	void DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal);
 
+	int GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	bool IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);

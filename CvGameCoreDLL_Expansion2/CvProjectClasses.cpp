@@ -51,6 +51,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bAllowsNukes = kResults.GetBool("AllowsNukes");
 
 #if defined(MOD_BALANCE_CORE)
+	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bInfluenceAllRequired = kResults.GetBool("InfluenceAllRequired");
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
 
@@ -227,6 +228,10 @@ PolicyTypes CvProjectEntry::GetFreePolicy() const
 	return m_eFreePolicy;
 }
 
+int CvProjectEntry::GetNumRequiredTier3Tenets() const
+{
+	return m_iNumRequiredTier3Tenets;
+}
 bool CvProjectEntry::InfluenceAllRequired() const
 {
 	return m_bInfluenceAllRequired;

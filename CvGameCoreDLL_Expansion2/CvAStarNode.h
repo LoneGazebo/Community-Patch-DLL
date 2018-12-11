@@ -86,10 +86,11 @@ struct CvPathNodeCacheData
 	bool bCanEnterTerrainPermanent:1;
 	bool bCanEnterTerritory:1;
 	bool bContainsOtherFriendlyTeamCity:1;
-	bool bContainsEnemyCity:1;
-	bool bContainsVisibleEnemy:1;
-	bool bContainsVisibleEnemyDefender:1;
-	bool bFriendlyUnitLimitReached:1;
+	bool bIsEnemyCity:1;
+	bool bIsVisibleEnemyUnit:1;
+	bool bIsVisibleEnemyCombatUnit:1;
+	bool bIsVisibleNeutralCombatUnit:1;
+	bool bUnitStackingLimitReached:1;
 	bool bIsValidRoute:1;
 
 	int iMoveFlags;

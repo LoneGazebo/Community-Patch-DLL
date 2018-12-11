@@ -42,8 +42,12 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_API_EXTENSIONS)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
+#elif defined(MOD_BALANCE_CORE)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
@@ -108,6 +112,13 @@ public:
 	void SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain);
 
 	bool AreOurBordersTouching(PlayerTypes ePlayer);
+
+	void UpdateGlobalStaticYields();
+	void SetGlobalStaticYield(YieldTypes eYield, int iValue);
+	int GetGlobalStaticYield(YieldTypes eYield) const;
+
+	void SetStaticNeedAdditives(YieldTypes eYield, int iValue);
+	int GetStaticNeedAdditives(YieldTypes eYield) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -324,7 +335,7 @@ public:
 
 	// End Resource Demanded
 
-	int getFoodTurnsLeft() const;
+	int getFoodTurnsLeft(int iCorpMod = -1) const;
 	bool isProduction() const;
 	bool isProductionLimited() const;
 	bool isProductionUnit() const;
@@ -497,7 +508,7 @@ public:
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
-	int foodDifferenceTimes100(bool bBottom = true, CvString* toolTipSink = NULL) const;
+	int foodDifferenceTimes100(bool bBottom = true, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromCitySpecialists();
@@ -556,13 +567,18 @@ public:
 
 	int getGameTurnLastExpanded() const;
 	void setGameTurnLastExpanded(int iNewValue);
-
+	
 #if defined(MOD_BALANCE_CORE)
 	int GetAdditionalFood() const;
 	void SetAdditionalFood(int iValue);
 #endif
 
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int getPopulation(bool bIncludeAutomatons = false) const;
+#else
 	int getPopulation() const;
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	void setPopulation(int iNewValue, bool bReassignPop = true, bool bNoBonus = false);
 #else
@@ -570,6 +586,11 @@ public:
 #endif
 	void changePopulation(int iChange, bool bReassignPop = true);
 
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int getAutomatons() const;
+	void setAutomatons(int iNewValue, bool bReassignPop = true);
+	void changeAutomatons(int iChange, bool bReassignPop = true);
+#endif
 	long getRealPopulation() const;
 
 	int getHighestPopulation() const;
@@ -729,10 +750,6 @@ public:
 	void changeFood(int iChange);
 	void changeFoodTimes100(int iChange);
 
-	int getFoodKept() const;
-	void setFoodKept(int iNewValue);
-	void changeFoodKept(int iChange);
-
 	int getMaxFoodKeptPercent() const;
 	void changeMaxFoodKeptPercent(int iChange);
 
@@ -826,26 +843,27 @@ public:
 	int GetBuildingClassHappinessFromReligion() const;
 	void UpdateBuildingClassHappinessFromReligion();
 	int getHappinessDelta() const;
-	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
+	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
+	int getThresholdSubtractions(YieldTypes eYield) const;
 	int getThresholdAdditions(YieldTypes eYield = NO_YIELD) const;
 	int getUnhappyCitizenCount() const;
 
-	int getUnhappinessFromCultureYield() const;
-	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
-	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromCulture() const;
-	int getUnhappinessFromScienceYield() const;
-	int getUnhappinessFromScienceNeeded(int iMod = 0) const;
-	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromScience() const;
-	int getUnhappinessFromDefenseYield() const;
-	int getUnhappinessFromDefenseNeeded(int iMod = 0) const;
-	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromDefense() const;
-	int getUnhappinessFromGoldYield() const;
-	int getUnhappinessFromGoldNeeded(int iMod = 0) const;
-	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromGold() const;
+	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
+	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromCulture(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScienceYield(int iPopMod = 0) const;
+	int getUnhappinessFromScienceNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScience(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefenseYield(int iPopMod = 0) const;
+	int getUnhappinessFromDefenseNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefense(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGoldYield(int iPopMod = 0) const;
+	int getUnhappinessFromGoldNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGold(int iPopMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromConnectionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromConnection() const;
 	int getUnhappinessFromPillagedRaw(int iLimit = INT_MAX) const;
@@ -856,6 +874,9 @@ public:
 	int getUnhappinessFromReligion() const;
 
 	int getUnhappinessAggregated() const;
+
+	CvString getPotentialUnhappinessWithGrowth();
+	int getPotentialUnhappinessWithGrowthVal() const;
 	
 	int GetNumPillagedPlots() const;
 	void SetNumPillagedPlots(int iValue);
@@ -1229,6 +1250,10 @@ public:
 	void ChangeBlockGold(int iNewValue);
 	void SetBlockGold(int iNewValue);
 	int GetBlockGold() const;
+
+
+	void changeNukeInterceptionChance(int iValue);
+	int getNukeInterceptionChance() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
@@ -1351,7 +1376,7 @@ public:
 	void changeSpecialistFreeExperience(int iChange);
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildingDefense = false) const;
 	int GetPower() const;
 
 	int getDamage() const;
@@ -1365,6 +1390,14 @@ public:
 	int getBombardRange(bool& bIndirectFireAllowed) const;
 	int getBombardRange() const;
 #endif
+
+	int getCityBuildingBombardRange() const;
+	void changeCityBuildingBombardRange(int iValue);
+	bool getCityIndirectFire() const;
+	void changeCityIndirectFire(int iValue);
+
+	int getCityBuildingRangeStrikeModifier() const;
+	void changeCityBuildingRangeStrikeModifier(int iValue);
 
 	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
@@ -1438,11 +1471,9 @@ public:
 
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
-	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //slow version
+	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
-
-	PlayerTypes getLiberationPlayer() const;
-	void liberate();
 
 	CvCityStrategyAI* GetCityStrategyAI() const;
 	CvCityCitizens* GetCityCitizens() const;
@@ -1565,6 +1596,7 @@ public:
 	int CountWorkedResource(ResourceTypes iResourceType) const;
 	int CountTerrain(TerrainTypes iTerrainType) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
+	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1664,6 +1696,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iGameTurnAcquired;
 	FAutoVariable<int, CvCity> m_iGameTurnLastExpanded;
 	FAutoVariable<int, CvCity> m_iPopulation;
+#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	int m_iAutomatons;
+#endif
 	FAutoVariable<int, CvCity> m_iHighestPopulation;
 	FAutoVariable<int, CvCity> m_iExtraHitPoints;
 
@@ -1689,6 +1724,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iAdditionalFood;
+	FAutoVariable<int, CvCity> m_iCityBuildingBombardRange;
+	FAutoVariable<int, CvCity> m_iCityIndirectFire;
+	FAutoVariable<int, CvCity> m_iCityBuildingRangeStrikeModifier;
 #endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;
@@ -1713,7 +1751,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iLocalGainlessPillageCount;
 #endif
 	FAutoVariable<int, CvCity> m_iFood;
-	FAutoVariable<int, CvCity> m_iFoodKept;
+	FAutoVariable<int, CvCity> m_iFoodKept; //unused
 	FAutoVariable<int, CvCity> m_iMaxFoodKeptPercent;
 	FAutoVariable<int, CvCity> m_iOverflowProduction;
 	FAutoVariable<int, CvCity> m_iFeatureProduction;
@@ -1788,6 +1826,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
@@ -1850,6 +1890,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
 	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
 	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
+	FAutoVariable<int, CvCity> m_iNukeInterceptionChance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEconomicValue;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;

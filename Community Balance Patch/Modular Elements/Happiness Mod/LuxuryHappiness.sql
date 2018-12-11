@@ -1,14 +1,16 @@
-
--- Scaler for bonus happiness from luxuies. Sets the base value, and the base 'jump' from tier to tier.
-	UPDATE Defines
-	SET Value = '22'
-	WHERE Name = 'BALANCE_HAPPINESS_LUXURY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
-
-	-- Scaler defines how many cities count against the bonus pop - higher = you can expand more.
-	UPDATE Defines
-	SET Value = '5'
-	WHERE Name = 'BALANCE_HAPPINESS_POPULATION_DIVISOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
-
+	-- resources give two happiness each
 	UPDATE Resources
-	SET Happiness = '1'
-	WHERE Happiness = '4' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
+	SET Happiness = '2'
+	WHERE Happiness > '0' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
+
+	-- avg pop to happiness conversion in 1/1000th
+	INSERT INTO Defines (
+	Name, Value)
+	SELECT 'BALANCE_HAPPINESS_LUXURY_POP_SCALER', '100' -- 100 means one tenth
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );	
+
+	INSERT INTO Defines (
+	Name, Value)
+	SELECT 'BALANCE_HAPPINESS_LUXURY_COUNT_SCALER', '1000' -- 1000 means no saturation
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );	
+

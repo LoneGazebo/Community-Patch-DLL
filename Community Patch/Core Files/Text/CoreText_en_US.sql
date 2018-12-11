@@ -324,6 +324,12 @@ SET Text = '[COLOR_NEGATIVE_TEXT]Your recent diplomatic actions disappoint them.
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
 
 -- Diplo Text for DoF changed
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
+
+
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
 WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US';
@@ -559,6 +565,11 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNI
 UPDATE Language_en_US
 SET Text = 'Very well. Not that it will help either of us in the long run...we will all die soon enough.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
+
+UPDATE Language_en_US
+SET Text = 'You must be insane to insult me with such an offer. We refuse.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
+
 
 UPDATE Language_en_US
 SET Text = 'It honors my people, helping those in need.'

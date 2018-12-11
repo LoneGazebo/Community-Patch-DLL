@@ -119,7 +119,7 @@ public:
 	{
 		//these values can be called via the dll external interface, don't modify them
 	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
-	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // exact meaning unclear, probably not required anymore?
+	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // allow movment into neutral territory (for manual moves)
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
 	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (or the target is a city)
 	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
@@ -141,7 +141,7 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
-		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible
+		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible (not relevant for pathfinder, only for actual movement)
 	};
 
 	enum MoveResult
@@ -173,11 +173,11 @@ public:
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 #if defined(MOD_BALANCE_CORE)
-	void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
+	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #else
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #endif
-	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
+	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
@@ -606,7 +606,7 @@ public:
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
-	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, 
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot, 
 									bool bFromRangedAttack = false, bool bQuickAndDirty = false) const;
 
 	int GetEmbarkedUnitDefense() const;
@@ -737,6 +737,12 @@ public:
 	void ChangeGiveExtraAttacks(int iValue);
 	int getGiveDefenseMod() const;
 	void ChangeGiveDefenseMod(int iValue);
+	int getNearbyHealEnemyTerritory() const;
+	void ChangeNearbyHealEnemyTerritory(int iValue);
+	int getNearbyHealNeutralTerritory() const;
+	void ChangeNearbyHealNeutralTerritory(int iValue);
+	int getNearbyHealFriendlyTerritory() const;
+	void ChangeNearbyHealFriendlyTerritory(int iValue);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -786,9 +792,6 @@ public:
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
 
-	void SetSpottedEnemy(bool bValue);
-	bool IsSpottedEnemy();
-
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
@@ -803,8 +806,15 @@ public:
 
 	bool IsGainsYieldFromScouting() const;
 
+	int GetCaptureDefeatedEnemyChance() const;
+	void ChangeCaptureDefeatedEnemyChance(int iValue);
+	
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
+
+	int GetAdjacentEnemySapMovement() const;
+	void ChangeAdjacentEnemySapMovement(int iValue);
+
 #endif
 
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
@@ -876,6 +886,7 @@ public:
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
+	int GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
 	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
@@ -1159,6 +1170,20 @@ public:
 	void changePlagued(int iChange);
 	bool isPlagued() const;
 
+	int getPlagueID() const;
+	void setPlagueID(int iValue);
+
+	int getPlaguePriority() const;
+	void setPlaguePriority(int iValue);
+
+	int getPlagueIDImmunity() const;
+	void setPlagueIDImmunity(int iValue);
+
+	int getPlaguePromotion() const;
+	void setPlaguePromotion(int iValue);
+
+	bool CanPlague(CvUnit* pOtherUnit) const;
+
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
 	ContractTypes getContract() const;
@@ -1266,6 +1291,9 @@ public:
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveDefenseModToUnit() const;
+	int GetHealEnemyTerritoryFromNearbyUnit() const;
+	int GetHealNeutralTerritoryFromNearbyUnit() const;
+	int GetHealFriendlyTerritoryFromNearbyUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
@@ -1465,6 +1493,7 @@ public:
 	const UnitTypes getUnitType() const;
 	CvUnitEntry& getUnitInfo() const;
 	UnitClassTypes getUnitClassType() const;
+	bool isUnitAI(UnitAITypes eType) const;
 
 	const UnitTypes getLeaderUnitType() const;
 	void setLeaderUnitType(UnitTypes leaderUnitType);
@@ -1515,6 +1544,11 @@ public:
 
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
+
+	int GetGAPBlastStrength() const;
+	void SetGAPBlastStrength(int iValue);
+
+	int getGAPBlast();
 #endif
 
 	// Arbitrary Script Data
@@ -1753,6 +1787,7 @@ public:
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
+	int GetMovementPointsAtCachedTarget() const;
 
 	bool IsIgnoringDangerWakeup() const;
 	void SetIgnoreDangerWakeup(bool bState);
@@ -1968,6 +2003,10 @@ protected:
 #if defined(MOD_BALANCE_CORE_JFD)
 	FAutoVariable<int, CvUnit> m_iPlagueChance;
 	FAutoVariable<int, CvUnit> m_iIsPlagued;
+	FAutoVariable<int, CvUnit> m_iPlagueID;
+	FAutoVariable<int, CvUnit> m_iPlaguePriority;
+	FAutoVariable<int, CvUnit> m_iPlagueIDImmunity;
+	FAutoVariable<int, CvUnit> m_iPlaguePromotion;
 	FAutoVariable<ContractTypes, CvUnit> m_eUnitContract;
 	FAutoVariable<int, CvUnit> m_iNegatorPromotion;
 #endif
@@ -2067,6 +2106,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_idamageThreshold;
 	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
 	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
+	FAutoVariable<int, CvUnit> m_inearbyHealEnemyTerritory;
+	FAutoVariable<int, CvUnit> m_inearbyHealNeutralTerritory;
+	FAutoVariable<int, CvUnit> m_inearbyHealFriendlyTerritory;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2079,11 +2121,13 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
-	FAutoVariable<int, CvUnit> m_bSpottedEnemy;
+	FAutoVariable<int, CvUnit> m_bSpottedEnemy; //unused
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
+	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyChance;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
+	FAutoVariable<int, CvUnit> m_iAdjacentEnemySapMovement;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	FAutoVariable<int, CvUnit> m_iGGFromBarbariansCount;
@@ -2267,6 +2311,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
 	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
+	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;
 #endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -2301,13 +2346,9 @@ protected:
 	void DoCargoPromotions(CvUnit& cargounit);
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
-	// these are do to a unit using Heavy Charge against you
-	bool CanFallBackFromMelee(CvUnit& pAttacker, bool bCheckChances);
-	bool DoFallBackFromMelee(CvUnit& pAttacker);
-#if defined(MOD_BALANCE_CORE)
-	bool CanFallBackFromRanged(CvUnit& pAttacker);
-	bool DoFallBackFromRanged(CvUnit& pAttacker);
-#endif
+
+	bool CanFallBack(CvUnit& pAttacker, bool bCheckChances);
+	bool DoFallBack(CvUnit& pAttacker);
 
 private:
 

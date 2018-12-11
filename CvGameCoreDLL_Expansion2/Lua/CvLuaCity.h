@@ -231,6 +231,11 @@ protected:
 	static int lSetPopulation(lua_State* L);
 	static int lChangePopulation(lua_State* L);
 	static int lGetRealPopulation(lua_State* L);
+	
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+	LUAAPIEXTN(GetAutomatons, int);
+	LUAAPIEXTN(SetAutomatons, void, iAutomatons, bReassignPop);
+#endif
 
 	static int lGetHighestPopulation(lua_State* L);
 	static int lSetHighestPopulation(lua_State* L);
@@ -350,6 +355,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
 	LUAAPIEXTN(getHappinessDelta, int);
+	LUAAPIEXTN(getHappinessThresholdMod, int);
 	LUAAPIEXTN(getThresholdSubtractions, int);
 	LUAAPIEXTN(getThresholdAdditions, int);
 	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
@@ -372,6 +378,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillaged, int);
 	LUAAPIEXTN(GetUnhappinessFromStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromMinority, int);
+	LUAAPIEXTN(getPotentialUnhappinessWithGrowth, int);
 #endif
 
 	static int lChangeHealRate(lua_State* L);
