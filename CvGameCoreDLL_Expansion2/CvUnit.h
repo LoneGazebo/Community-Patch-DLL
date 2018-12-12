@@ -39,6 +39,9 @@ class CvTacticalMove;
 #endif
 
 typedef std::vector<int> UnitIdContainer; //use a vector as most of the time this will be empty
+typedef std::vector<std::pair<TerrainTypes, int>> TerrainTypeCounter;
+typedef std::vector<std::pair<FeatureTypes, int>> FeatureTypeCounter;
+typedef std::vector<std::pair<UnitClassTypes, int>> UnitClassCounter;
 typedef FFastSmallFixedList< MissionData, 12, true, c_eCiv5GameplayDLL > MissionQueue;
 
 struct CvUnitCaptureDefinition
@@ -1558,20 +1561,20 @@ public:
 	void setScenarioData(int iNewValue);
 
 	int getTerrainDoubleMoveCount(TerrainTypes eIndex) const;
-	bool isTerrainDoubleMove(TerrainTypes eIndex) const;
+	inline bool isTerrainDoubleMove(TerrainTypes eIndex) const { return getTerrainDoubleMoveCount(eIndex) > 0; }
 	void changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange);
 
 	int getFeatureDoubleMoveCount(FeatureTypes eIndex) const;
-	bool isFeatureDoubleMove(FeatureTypes eIndex) const;
+	inline bool isFeatureDoubleMove(FeatureTypes eIndex) const { return getFeatureDoubleMoveCount(eIndex) > 0; }
 	void changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange);
 
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	int getTerrainHalfMoveCount(TerrainTypes eIndex) const;
-	bool isTerrainHalfMove(TerrainTypes eIndex) const;
+	inline bool isTerrainHalfMove(TerrainTypes eIndex) const { return getTerrainHalfMoveCount(eIndex) > 0; }
 	void changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange);
 
 	int getFeatureHalfMoveCount(FeatureTypes eIndex) const;
-	bool isFeatureHalfMove(FeatureTypes eIndex) const;
+	inline bool isFeatureHalfMove(FeatureTypes eIndex) const { return getFeatureHalfMoveCount(eIndex) > 0; }
 	void changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1595,8 +1598,6 @@ public:
 	int getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
 	void changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex, int iChange);
 #endif
-
-	int getImpassableCount() const;
 
 	int getTerrainImpassableCount(TerrainTypes eIndex) const;
 	bool isTerrainImpassable(TerrainTypes eIndex) const;
@@ -2245,24 +2246,25 @@ protected:
 	FAutoVariable<int, CvUnit> m_iBuilderStrength;
 #endif
 
-	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainDoubleMoveCount;
-	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureDoubleMoveCount;
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainDoubleMoveCount;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureDoubleMoveCount;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainHalfMoveCount;
-	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureHalfMoveCount;
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainHalfMoveCount;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureHalfMoveCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainDoubleHeal;
-	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureDoubleHeal;
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainDoubleHeal;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureDoubleHeal;
 #endif
-	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainImpassableCount;
-	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureImpassableCount;
-	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainAttackPercent;
-	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainDefensePercent;
-	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureAttackPercent;
-	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureDefensePercent;
-	FAutoVariable<std::map<UnitClassTypes, int>, CvUnit> m_extraUnitClassAttackMod;
-	FAutoVariable<std::map<UnitClassTypes, int>, CvUnit> m_extraUnitClassDefenseMod;
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainImpassableCount;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureImpassableCount;
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_extraTerrainAttackPercent;
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_extraTerrainDefensePercent;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_extraFeatureAttackPercent;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_extraFeatureDefensePercent;
+
+	FAutoVariable<UnitClassCounter, CvUnit> m_extraUnitClassAttackMod;
+	FAutoVariable<UnitClassCounter, CvUnit> m_extraUnitClassDefenseMod;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvUnit> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromScouting;
@@ -2400,6 +2402,35 @@ FDataStream & operator>>(FDataStream & readFrom, std::map<T, int> & writeTo)
 	}
 	return readFrom;
 }
+
+template<typename T>
+FDataStream & operator<<(FDataStream & writeTo, const std::vector<std::pair<T, int>> & readFrom)
+{
+	writeTo << readFrom.size();
+	for (std::vector<std::pair<T, int>>::const_iterator it = readFrom.begin(); it != readFrom.end(); ++it)
+	{
+		writeTo << (int)it->first;
+		writeTo << it->second;
+	}
+	return writeTo;
+}
+
+template<typename T>
+FDataStream & operator>>(FDataStream & readFrom, std::vector<std::pair<T, int>> & writeTo)
+{
+	int nItems;
+	readFrom >> nItems;
+
+	for (int i = 0; i<nItems; i++)
+	{
+		int first, second;
+		readFrom >> first;
+		readFrom >> second;
+		writeTo.push_back(std::make_pair(T(first), second));
+	}
+	return readFrom;
+}
+
 
 namespace FSerialization
 {
