@@ -31,6 +31,7 @@ bool gTacticalCombatDebugOutput = false;
 int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
 #endif
 
+CvTactPosStorage gTactPosStorage(10000);
 bool IsEnemyCitadel(CvPlot* pPlot, TeamTypes eMyTeam);
 
 CvTacticalUnit::CvTacticalUnit() :
@@ -4389,7 +4390,7 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	int iCount = 0;
 	do
 	{
-		TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pClosestEnemyPlot, AL_HIGH, iMaxBranches, iPositionsToCheck, vAssignments);
+		TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pClosestEnemyPlot, AL_HIGH, iMaxBranches, iPositionsToCheck, gTactPosStorage, vAssignments);
 		iCount++;
 	}
 	while (!vAssignments.empty() && !TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
@@ -6065,7 +6066,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	bool bSuccess = false;
 	do
 	{
-		TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pTargetPlot, eAggLvl, iMaxBranches, iPositionsToCheck, vAssignments);
+		TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pTargetPlot, eAggLvl, iMaxBranches, iPositionsToCheck, gTactPosStorage, vAssignments);
 		if (vAssignments.empty())
 			break;
 
@@ -6103,7 +6104,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 	bool bSuccess = false;
 	do
 	{
-		TacticalAIHelpers::FindBestDefensiveAssignment(vUnits, pTargetPlot, vAssignments);
+		TacticalAIHelpers::FindBestDefensiveAssignment(vUnits, pTargetPlot, gTactPosStorage, vAssignments);
 		if (vAssignments.empty())
 			break;
 		
@@ -10102,7 +10103,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 		vector<STacticalAssignment> vAssignments;
 		int iPositionsToCheck = GC.getGame().getHandicapType() < 2 ? 12 : 23;
 		int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
-		TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, iMaxBranches, iPositionsToCheck, vAssignments);
+		TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, iMaxBranches, iPositionsToCheck, gTactPosStorage, vAssignments);
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
 	}
 	else
@@ -10979,7 +10980,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		if (gTacticalCombatDebugOutput)
 		{
 			OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
-				assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), plot.iPlotIndex).c_str());
+				&assumedPosition, pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), plot.iPlotIndex).c_str());
 		}
 
 		//how often can we attack this turn (depending on moves left on the plot)
@@ -11607,7 +11608,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		if (gTacticalCombatDebugOutput)
 		{
 			stringstream ss;
-			ss << "pos " << iID << " unit " << unit.iUnitID << " moveto " << it->iPlotIndex << " score " << move.iScore << "\n";
+			ss << "pos " << (void*)this << " unit " << unit.iUnitID << " moveto " << it->iPlotIndex << " score " << move.iScore << "\n";
 			OutputDebugString(ss.str().c_str());
 		}
 	}
@@ -11699,7 +11700,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	return possibleMoves;
 }
 
-bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit)
+bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage)
 {
 	/*
 	abstract:
@@ -11781,7 +11782,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		if (!movesToAdd.empty())
 		{
-			CvTacticalPosition* pNewChild = addChild();
+			CvTacticalPosition* pNewChild = addChild(storage);
 			if (!pNewChild)
 				continue;
 
@@ -11954,25 +11955,56 @@ void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
 	}
 }
 
-CvTacticalPosition::CvTacticalPosition(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget) : 
-	ePlayer(player), dummyPlot(NULL,NO_PLAYER,set<int>()), pTargetPlot(pTarget), eAggression(eAggLvl), fUnitNumberRatio(1), iTotalScore(0), iScoreOverParent(0), parentPosition(NULL), iID(g_siTacticalPositionCount++)
+CvTacticalPosition::CvTacticalPosition()
 {
+	ePlayer = NO_PLAYER;
+	pTargetPlot = NULL;
+	eAggression = AL_NONE;
+	fUnitNumberRatio = 1;
+	iTotalScore = 0;
+	iScoreOverParent = 0; 
+	parentPosition = NULL;
+	//all the rest is default-initialized
 }
 
-CvTacticalPosition::CvTacticalPosition(const CvTacticalPosition& parent) : dummyPlot(NULL,NO_PLAYER,set<int>())
+void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget)
 {
+	ePlayer = player;
+	pTargetPlot = pTarget;
+	eAggression = eAggLvl;
+	fUnitNumberRatio = 1;
+	iTotalScore = 0;
+	iScoreOverParent = 0; 
+	parentPosition = NULL;
+
+	childPositions.clear();
+	reachablePlotLookup.clear();
+	rangeAttackPlotLookup.clear();
+	tacticalPlotLookup.clear();
+	tactPlots.clear();
+	availableUnits.clear();
+	assignedMoves.clear();
+	freedPlots.clear();
+	killedEnemies.clear();
+}
+
+void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
+{
+	dummyPlot = parent.dummyPlot;
 	ePlayer = parent.ePlayer;
+	pTargetPlot = parent.pTargetPlot;
 	eAggression = parent.eAggression;
 	fUnitNumberRatio = parent.fUnitNumberRatio;
-	pTargetPlot = parent.pTargetPlot;
 	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
-	iID = g_siTacticalPositionCount++;
 
 	//childPositions stays empty!
+	childPositions.clear();
 	//reachablePlotLookup stays empty for now
+	reachablePlotLookup.clear();
 	//rangeAttackPlotLookup stays empty for now
+	rangeAttackPlotLookup.clear();
 
 	//copied from parent, modified when addAssignment is called
 	tacticalPlotLookup = parent.tacticalPlotLookup;
@@ -11985,21 +12017,22 @@ CvTacticalPosition::CvTacticalPosition(const CvTacticalPosition& parent) : dummy
 
 bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
 {
+	//just unlink the child - do not delete it, the memory is allocated statically
 	vector<CvTacticalPosition*>::iterator it = find(childPositions.begin(), childPositions.end(), pChild);
 	if (it!=childPositions.end())
-	{
-		delete pChild;
 		childPositions.erase(it);
-	}
 
 	return false;
 }
 
-CvTacticalPosition* CvTacticalPosition::addChild()
+CvTacticalPosition* CvTacticalPosition::addChild(CvTactPosStorage& storage)
 {
-	CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
+	CvTacticalPosition* newPosition = storage.getNext();
 	if (newPosition)
+	{
+		newPosition->initFromParent(*this);
 		childPositions.push_back(newPosition);
+	}
 	return newPosition;
 }
 
@@ -12401,7 +12434,7 @@ ostream& operator << (ostream& out, const STacticalAssignment& arg)
 
 void CvTacticalPosition::dumpChildren(ofstream& out) const
 {
-	out << "n" << (void*)this << " [ label = \"id " << iID << ": score " << iTotalScore << ", " << availableUnits.size() << " units\" ";
+	out << "n" << (void*)this << " [ label = \"id " << (void*)this << ": score " << iTotalScore << ", " << availableUnits.size() << " units\" ";
 	if (isComplete())
 		out << " shape=box ";
 	if (!isOffensive())
@@ -12494,7 +12527,7 @@ struct PrPositionIsBetter
 };
 
 //try to position our units around a target so that we are optimally prepared for counterattacks. target may be friendly or hostile.
-bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, vector<STacticalAssignment>& result)
+bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage, vector<STacticalAssignment>& result)
 {
 	/*
 	abstract:
@@ -12509,8 +12542,11 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//set up the initial position
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
-	g_siTacticalPositionCount = 0;
-	CvTacticalPosition* initialPosition = new CvTacticalPosition(ePlayer,AL_NONE,pTarget);
+	storage.reset();
+	CvTacticalPosition* initialPosition = storage.getNext();
+	if (!initialPosition)
+		return false;
+	initialPosition->initFromScratch(ePlayer, AL_NONE, pTarget);
 
 	//add all our units
 	set<int> ourUnits;
@@ -12560,7 +12596,7 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
 		//here the magic happens
-		if (current->makeNextAssignments(3, 5))
+		if (current->makeNextAssignments(3, 5, storage))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -12596,13 +12632,12 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 			openPositionsHeap.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
 
-	delete initialPosition;
 	return !result.empty();
 }
 
 //try to find a combination of unit actions (move, attack etc) which does maximal damage to the enemy while exposing us to limited risk
 bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, 
-	int iMaxBranches, int iMaxFinishedPositions, vector<STacticalAssignment>& result)
+	int iMaxBranches, int iMaxFinishedPositions, CvTactPosStorage& storage, vector<STacticalAssignment>& result)
 {
 	/*
 	abstract:
@@ -12632,8 +12667,11 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	timer.StartPerfTest();
 
 	//set up the initial position
-	g_siTacticalPositionCount = 0;
-	CvTacticalPosition* initialPosition = new CvTacticalPosition(ePlayer,eAggLvl,pTarget);
+	storage.reset();
+	CvTacticalPosition* initialPosition = storage.getNext();
+	if (!initialPosition)
+		return false;
+	initialPosition->initFromScratch(ePlayer, eAggLvl, pTarget);
 
 	//add all our units and make sure there are no duplicates!
 	set<int> ourUnits;
@@ -12692,7 +12730,7 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
 		//here the magic happens
-		if (current->makeNextAssignments(iMaxBranches,iMaxChoicesPerUnit))
+		if (current->makeNextAssignments(iMaxBranches,iMaxChoicesPerUnit,storage))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -12762,8 +12800,6 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	//	buffer << result[i] << "\n";
 	//OutputDebugString( buffer.str().c_str() );
 
-	//this deletes the whole tree with all child positions
-	delete initialPosition;
 	return !result.empty();
 }
 
@@ -12894,8 +12930,6 @@ CvPlot * TacticalAIHelpers::EndTurnPlot(const vector<STacticalAssignment>& moves
 	return NULL;
 }
 #endif
-
-int g_siTacticalPositionCount = 0;
 
 const char* barbarianMoveNames[] =
 {

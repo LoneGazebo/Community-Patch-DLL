@@ -6176,7 +6176,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					continue;
 
 				//healing in cities only
-				if (!pUnit->canRebase(NULL) || !(it->pPlot->isCity()))
+				if (!pUnit->canRebase() || !(it->pPlot->isCity()))
 					continue;
 
 				//apparently we're already in the best possible base?
@@ -6255,7 +6255,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 
 			//make sure the unit fits the destination (ie missile to cruiser, fighter to carrier)
-			if (!pUnit->canRebase(NULL) || !pUnit->canLoad(*(it->pPlot)))
+			if (!pUnit->canRebase() || !pUnit->canLoad(*(it->pPlot)))
 				continue;
 
 			//apparently we're already in the best possible base?

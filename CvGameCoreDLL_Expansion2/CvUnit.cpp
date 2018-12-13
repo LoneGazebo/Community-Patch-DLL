@@ -6432,6 +6432,7 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 bool CvUnit::canLoad(const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
+
 	if(NO_SPECIALUNIT != getSpecialUnitType())
 	{
 		CvSpecialUnitInfo* pkSpecialUnitInfo = GC.getSpecialUnitInfo(getSpecialUnitType());
@@ -6482,13 +6483,17 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 		}
 	}
 
+	//this is a bug right here - the result should not depend on the current state of the unit!
+	if (isEmbarked())
+		return false;
+
 	const IDInfo* pUnitNode = targetPlot.headUnitNode();
 	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 		pUnitNode = targetPlot.nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot) && !isEmbarked())
+		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot))
 		{
 			return true;
 		}
@@ -9892,7 +9897,7 @@ bool CvUnit::sellExoticGoods()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
+bool CvUnit::canRebase() const
 {
 	// Must be an air unit
 	if(getDomainType() != DOMAIN_AIR)
@@ -9919,7 +9924,7 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 {
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
-	if(!canRebase(pPlot))
+	if(!canRebase())
 	{
 		return false;
 	}
@@ -9943,7 +9948,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 	iRange *= /*200*/ GC.getAIR_UNIT_REBASE_RANGE_MULTIPLIER();
 	iRange /= 100;
 
-	if(plotDistance(getX(), getY(), iX, iY) > iRange)
+	if(plotDistance(pPlot->getX(), pPlot->getY(), iX, iY) > iRange)
 	{
 		return false;
 	}

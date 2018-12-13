@@ -396,7 +396,7 @@ public:
 	int getExoticGoodsXPAmount();
 	bool sellExoticGoods();
 
-	bool canRebase(const CvPlot* pPlot) const;
+	bool canRebase() const;
 	bool canRebaseAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool rebase(int iX, int iY);
 
