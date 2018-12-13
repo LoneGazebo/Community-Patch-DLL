@@ -2139,7 +2139,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 			if (iSetback > 0)
 			{
 				pCity->setFood((pCity->getFood() - iSetback));
-				pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
+				pCity->ChangeResistanceTurns(1);
 
 				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
 				if (pDefendingPlayerEspionage)
@@ -2168,7 +2168,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 			int iNumRebelTotal = max(3, iNumRebels);
 			if (iNumRebelTotal > 0)
 			{
-				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, iNumRebelTotal, false, false, false, false);
+				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, min(6, iNumRebelTotal), false, false, false, false);
 
 				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
 				if (pDefendingPlayerEspionage)

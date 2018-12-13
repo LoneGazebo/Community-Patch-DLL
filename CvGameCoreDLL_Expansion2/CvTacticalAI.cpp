@@ -3767,10 +3767,8 @@ void CvTacticalAI::PlotCloseOnTarget()
 /// Log that we couldn't find assignments for some units
 void CvTacticalAI::ReviewUnassignedUnits()
 {
-	list<int>::iterator it;
-
 	// Loop through all remaining units
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && !pUnit->TurnProcessed())
@@ -3780,12 +3778,14 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			//there shouldn't be any danger but just in case
 			CvPlot* pSafePlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
 			if (pSafePlot)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pSafePlot->getX(),pSafePlot->getY());
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
+				if (!pUnit->canMove())
+					pUnit->SetTurnProcessed(true);
+			}
 
-			if (pUnit->canMove())
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-
-			pUnit->SetTurnProcessed(true);
+			//do not skip the turn, finish moves, set the turn processed flag for units which we didn't move
+			//homeland AI will take care of them!
 		}
 	}
 }
@@ -4250,9 +4250,10 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
 		if (!m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) && pOperation->GetEnemy()!=NO_PLAYER && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
 		{
-			m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
-			if (ClearEnemiesNearArmy(pThisArmy))
-				return;
+			m_pPlayer->GetDiplomacyAI()->SetMusteringForAttack(pOperation->GetEnemy(), true);
+			//m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
+			//if (ClearEnemiesNearArmy(pThisArmy))
+				//return;
 		}
 
 		// Request moves for all units
@@ -10842,7 +10843,7 @@ bool IsEnemyCitadel(CvPlot* pPlot, TeamTypes eMyTeam)
 	return false;
 }
 
-STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition, bool bForRangedAttack)
+STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition, bool bOverrideEndTurn)
 {
 	//default action is invalid
 	STacticalAssignment result(unit.iPlotIndex,plot.iPlotIndex,unit.iUnitID,plot.iMovesLeft,unit.isCombatUnit(),-INT_MAX,STacticalAssignment::A_FINISH);
@@ -10852,11 +10853,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 	if (!pUnit)
 		return result;
 		
-	//how often can we attack this turn
-	int iMaxAttacks = unit.iAttacksLeft;
-	if (unit.iMovesLeft == 0)
-		iMaxAttacks = 0;
-
 	//the plot we're checking right now
 	CvPlot* pCurrentPlot = GC.getMap().plotByIndexUnchecked(plot.iPlotIndex);
 	const CvTacticalPlot& currentPlot = assumedPosition.getTactPlot(plot.iPlotIndex);
@@ -10876,9 +10872,11 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		if (currentPlot.isEnemyCity() && assumedPosition.getTarget()!=pCurrentPlot)
 			return result;
 
-		int iAttacksHereThisTurn = NumAttacksForUnit(unit.iMovesLeft,iMaxAttacks);
+		//how often can we attack this turn (depending on moves left on the unit)
+		int iMaxAttacks = min(unit.iAttacksLeft,(unit.iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR());
+
 		//assume a single attack. if we have multiple attacks this will be called again
-		if (iAttacksHereThisTurn > 0)
+		if (iMaxAttacks > 0)
 		{
 			//check how much damage we could do - this is a melee attack, works only if we're adjacent
 			int iDistance = plotDistance(*pAssumedUnitPlot,*pCurrentPlot);
@@ -10899,88 +10897,54 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					return result;
 
 				if ( pCurrentPlot==assumedPosition.getTarget() || IsEnemyCitadel(pCurrentPlot,kPlayer.getTeam()) )
-					result.iScore += 5; //a slight boost for attacking the "real" target or a citadel
-				else
-					result.iScore += 2; //a bonus to make attacks more competive with moves - each frontline plot gets a +8 anyway
+					result.iScore += 3; //a slight boost for attacking the "real" target or a citadel
 
 				//combo bonus
 				if (result.eType==STacticalAssignment::A_MELEEKILL && currentPlot.isEnemyCivilian())
 					result.iScore += 5;
 			}
 		}
-	}
-	else if (currentPlot.isEnemyCivilian()) //unescorted civilian
-	{
-		if (plot.iMovesLeft > 0 || currentPlot.getNumAdjacentEnemies()==0)
-		{
-			CvUnit* pCivilian = pCurrentPlot->getUnitByIndex(0); //there should be only one ...
-			if (pCivilian)
-			{
-				//workers are not so important ...
-				result.iScore = (pCivilian->AI_getUnitAIType() == UNITAI_WORKER) ? 5 : 20;
-				result.eType = STacticalAssignment::A_CAPTURE;
-				result.iRemainingMoves = plot.iMovesLeft;
-			}
-		}
+
+		return result;
 	}
 	else //empty plot or friendly unit. the latter case will be handled by the isMoveBlockedByOtherUnit check
 	{
-		//check if this is actual movement or whether we simply end the turn
-		if (plot.iPlotIndex != unit.iPlotIndex || bForRangedAttack)
-		{
-			result.eType = STacticalAssignment::A_MOVE;
+		//if we stay on the same plot, we switch to "finish" later
+		result.eType = STacticalAssignment::A_MOVE;
 
-			//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
-			//we only consider plots which can be reached in one turn anyway. parthian moves still work.
-			if (!bForRangedAttack && unit.eLastAssignment == STacticalAssignment::A_MOVE)
-				return result;
-		}
+		//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
+		//we only consider plots which can be reached in one turn anyway. parthian moves still work.
+		if (!bOverrideEndTurn && unit.eLastAssignment == STacticalAssignment::A_MOVE)
+			return result;
 
 		//stay on target. hard cutoff!
-		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
-		if (iPlotDistance>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+		int iPlotDistance = plotDistance(*assumedPosition.getTarget(), *pCurrentPlot);
+		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			return result;
 
 		//careful with siege units, unseen enemies might be hiding behind the edge
 		if (pUnit->isUnitAI(UNITAI_CITY_BOMBARD) && plot.iMovesLeft == 0 && currentPlot.isEdgePlot())
 			return result;
 
-		//don't do it if it's a death trap
-		if (currentPlot.getNumAdjacentEnemies()>3 || (assumedPosition.getUnitNumberRatio()<1 && currentPlot.getNumAdjacentEnemies()==3) )
-			return result;
-
-		//lookup by unit strategy / plot type
-		//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
-		int iPlotTypeScores[5][5] = {
-			{ -1,-1,-1,-1,-1 }, //none (should not occur)
-			{ -1,-1, 8, 2, 1 }, //firstline
-			{ -1,-1, 2, 8, 1 }, //secondline
-			{ -1,-1, 1, 4, 8 }, //thirdline
-			{ -1,-1, 1, 4, 4 }, //support (should not occur)
-		};
-
-		int iPlotTypeScore = iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
-		//parthian moves: no use staying close after we made our attack
-		if (unit.iMovesLeft>0 && iMaxAttacks==0)
-			iPlotTypeScore = currentPlot.getNumAdjacentEnemies() > 0 ? -1 : 2;
-
-		if (iPlotTypeScore<0)
-			return result;
-
 		//check all plots we could possibly attack from here
 		std::vector<int> vDamageRatios;
 		std::vector<CvPlot*> vAttackPlots;
 
+		//different contributions
+		int iDamageScore = 0;
+		int iDangerScore = 0;
+		int iMiscScore = 0;
+
 		//works for both melee and ranged
 		int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
-		for (int iRange=1; iRange<iMaxRange+1; iRange++)
+		for (int iRange = 1; iRange < iMaxRange + 1; iRange++)
 		{
 			//performance optimization
-			if (iRange==1 && currentPlot.getType()!=CvTacticalPlot::TP_FRONTLINE)
+			if (iRange == 1 && currentPlot.getType() != CvTacticalPlot::TP_FRONTLINE)
 				continue;
 
-			vAttackPlots = GC.getMap().GetPlotsAtRange(pCurrentPlot,iRange,true,!pUnit->IsRangeAttackIgnoreLOS());
-			for(size_t iCount=0; iCount<vAttackPlots.size(); iCount++)
+			vAttackPlots = GC.getMap().GetPlotsAtRange(pCurrentPlot, iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
+			for (size_t iCount = 0; iCount < vAttackPlots.size(); iCount++)
 			{
 				CvPlot* pLoopPlot = vAttackPlots[iCount];
 				if (!pLoopPlot)
@@ -10990,22 +10954,22 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				if (enemyPlot.isValid() && enemyPlot.isEnemy())
 				{
 					//don't attack cities if the real target is something else
-					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget()!=pLoopPlot)
+					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot)
 						continue;
 
 					//we don't care for damage here but let's reuse the scoring function
-					STacticalAssignment temp; 
+					STacticalAssignment temp;
 					ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getUnitNumberRatio(), temp);
 
-					if (temp.iScore>0)
+					if (temp.iScore > 0)
 					{
 						//don't break formation if there are many enemies around
-						if (temp.eType == STacticalAssignment::A_MELEEKILL && enemyPlot.getNumAdjacentEnemies()>3)
+						if (temp.eType == STacticalAssignment::A_MELEEKILL && enemyPlot.getNumAdjacentEnemies() > 3)
 							continue;
 
 						vDamageRatios.push_back(temp.iScore);
 					}
-					else 
+					else
 						//for melee units the attack might be cancelled because of bad damage ratio. 
 						//nevertheless we need to cover our ranged units. so add a token amount.
 						vDamageRatios.push_back(4); //4 so that something remains after the /4 below
@@ -11013,167 +10977,170 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			}
 		}
 
-		//how often can we attack?
-		size_t iAttacksHereThisTurn = (size_t)NumAttacksForUnit(plot.iMovesLeft, iMaxAttacks);
-		if (result.eType == STacticalAssignment::A_FINISH)
-			iAttacksHereThisTurn = 0;
-
 		if (gTacticalCombatDebugOutput)
 		{
 			OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
 				assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), plot.iPlotIndex).c_str());
 		}
 
-		int iDamageScore = 0;
+		//how often can we attack this turn (depending on moves left on the plot)
+		int iMaxAttacks = min(unit.iAttacksLeft,(plot.iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR());
 		if (!vDamageRatios.empty())
 		{
-			//the best target comes last
-			std::sort(vDamageRatios.begin(), vDamageRatios.end());
-
-			//if we have attacks to spare, pretend we'll hit the same target again
-			while (vDamageRatios.size()<iAttacksHereThisTurn)
-				vDamageRatios.push_back( vDamageRatios.back() );
-
-			//this is a bit tricky, for simplicity assume we attack each taget only once
-			//important: we also score targets which can only be attacked next turn!
-			std::reverse(vDamageRatios.begin(), vDamageRatios.end());
-			for (size_t i = 0; i<vDamageRatios.size(); i++)
+			if (iMaxAttacks > 0)
 			{
-				if (i < iAttacksHereThisTurn)
-					//add a small discount, the attack is still hypothetical
-					iDamageScore += (vDamageRatios[i] * 3) / 4;
-				else if (i < iAttacksHereThisTurn+pUnit->getNumAttacks())
-					//if we can't attack this turn, we don't like it as much
-					iDamageScore += vDamageRatios[i] / 4;
+				//the best target comes last
+				std::sort(vDamageRatios.begin(), vDamageRatios.end());
+				//for simplicity assume we will get the same score for multiple attacks
+				//add a small discount, the attack is still hypothetical
+				iDamageScore += (iMaxAttacks * vDamageRatios.back() * 4) / 5;
+			}
+			else
+				iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
+		}
+
+		//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
+		if (pCurrentPlot->isHills() || pCurrentPlot->isMountain())
+			iMiscScore++;
+
+		if (currentPlot.isEnemyCivilian()) //unescorted civilian
+		{
+			if (plot.iMovesLeft > 0 || currentPlot.getNumAdjacentEnemies() == 0)
+			{
+				CvUnit* pCivilian = pCurrentPlot->getUnitByIndex(0); //there should be only one ...
+				if (pCivilian)
+				{
+					//workers are not so important ...
+					iMiscScore += (pCivilian->AI_getUnitAIType() == UNITAI_WORKER) ? 5 : 20;
+					result.eType = STacticalAssignment::A_CAPTURE; //important so that the next assigment can be a move again
+				}
+			}
+		}
+
+		//often there are multiple identical units which could move into a plot
+		//in that case we want to prefer the one which has more movement points left
+		if (result.eType == STacticalAssignment::A_MOVE)
+			iMiscScore += result.iRemainingMoves / 30;
+
+		//many considerations are only relevant if we intend to end the turn here (critical for skirmishers!)
+		bool bEndTurn = ( plot.iPlotIndex==unit.iPlotIndex ) || plot.iMovesLeft == 0;
+		if (bEndTurn && !bOverrideEndTurn)
+		{
+			//would it make sense to pillage here?
+			if (plot.iMovesLeft>0 && pUnit->canPillage(pCurrentPlot) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
+			{
+				//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
+				if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
+				{
+					iMiscScore += 50;
+					if (plot.iMovesLeft > 0) //if we can do it right away ...
+					{
+						iMiscScore += 50;
+						result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+						result.eType = STacticalAssignment::A_PILLAGE;
+					}
+				}
+				//if it's an improvement we pillage to heal if we have moves to spare
+				else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && plot.iMovesLeft > 0 && pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
+				{
+					iMiscScore += 20;
+					if (pUnit->IsGainsXPFromPillaging())
+						iMiscScore += 10;
+					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+					result.eType = STacticalAssignment::A_PILLAGE;
+				}
 			}
 
-			//ranged specialties (don't check range because it's about skirmishers as well)
+			//don't do it if it's a death trap
+			if (currentPlot.getNumAdjacentEnemies() > 3 || (assumedPosition.getUnitNumberRatio() < 1 && currentPlot.getNumAdjacentEnemies() == 3))
+				return result;
+
+			//try to close the lines (todo: make sure the friendlies intend to stay there ...)
+			if (currentPlot.getNumAdjacentFriendlies() > 0)
+				iMiscScore++;
+
+			if (plot.iPlotIndex == unit.iPlotIndex)
+			{
+				//we are not moving - so this is a finish assigment
+				result.eType = STacticalAssignment::A_FINISH;
+
+				//minor bonus for staying put and healing
+				if (unit.iMovesLeft == pUnit->maxMoves())
+				{
+					if (pUnit->noDefensiveBonus())
+						iMiscScore++; //cannot fortify, only heal
+					else
+						iMiscScore += 3; //fortification bonus!
+				}
+			}
+
+			//lookup by unit strategy / plot type
+			//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
+			int iPlotTypeScores[5][5] = {
+				{ -1,-1,-1,-1,-1 }, //none (should not occur)
+				{ -1,-1, 8, 2, 1 }, //firstline
+				{ -1,-1, 2, 8, 1 }, //secondline
+				{ -1,-1, 1, 4, 8 }, //thirdline
+				{ -1,-1, 1, 4, 4 }, //support (should not occur)
+			};
+			iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
+
+			//the danger value reflects any defensive terrain bonuses
+			int iDanger = 0;
+
+			//unfortunately danger is not very useful here, because ZOC is unclear during simulation
+			if (result.eType == STacticalAssignment::A_MELEEATTACK)
+				//we stay where we were before
+				iDanger = pUnit->GetDanger(pAssumedUnitPlot, assumedPosition.getKilledEnemies());
+			else
+				//we move to the new plot
+				iDanger = pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
+
+			//can happen with garrisons, catch this case as is messes up the math
+			if (iDanger == INT_MAX)
+			{
+				result.iScore = 1;
+				return result;
+			}
+
+			//try to be more careful with highly promoted units
+			if (iDanger > 0)
+				iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 1000;
+
+			//penalty for high danger plots
+			//todo: take into account self damage from previous attacks
+			iDangerScore = (iDanger * 20) / (pUnit->GetCurrHitPoints() + 1);
+
+			//ranged specialties
 			if (pUnit->isRanged())
 			{
-				//try to stay away from enemies if we can attack from afar
-				if (currentPlot.getNumAdjacentEnemies()>0 && iMaxRange>1)
-					iDamageScore /= 4;
+				//careful with ranged (siege) units
+				//however, if we're on a coastal plot, it's possible first line is actually harmless, so check danger too
+				if (currentPlot.getNumAdjacentFirstlineFriendlies() == 0 && currentPlot.getNumAdjacentFriendlies() < 3 && iDanger > pUnit->GetCurrHitPoints() / 2)
+				{
+					result.iScore = -1;
+					return result;
+				}
 
-				//ranged units are vulnerable without melee
-				if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
-					iDamageScore /= 4;
+				//ranged units are more sensitive to danger
+				iDangerScore *= 2;
 			}
-			else //melee
+			else //melee wants to engage the enemy but not too many at once
 			{
 				//we exclude plots with >3 enemies around anyway. three is a corner case
 				if (currentPlot.getNumAdjacentEnemies() == 3)
 					iDamageScore /= 2;
 			}
 
-			//isolated unit? bad. chicken and egg problem for the algorithm though.
-			if (currentPlot.getNumAdjacentFriendlies()==0)
-				iDamageScore /= 2;
+			//todo: take into account mobility at the proposed plot
+			//todo: take into account ZOC when ending the turn
 		}
 
-		//temporary score
-		result.iScore = iDamageScore + iPlotTypeScore;
-
-		//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
-		if (pCurrentPlot->isHills() || pCurrentPlot->isMountain())
-			result.iScore++;
-
-		//does it make sense to pillage here?
-		if (result.eType == STacticalAssignment::A_FINISH && pUnit->canPillage(pCurrentPlot) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
-		{
-			//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-			if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
-			{
-				result.iScore += 50;
-				if (unit.iMovesLeft > 0) //if we can do it right away ...
-				{
-					result.iScore += 50;
-					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-					result.eType = STacticalAssignment::A_PILLAGE;
-				}
-			}
-			//if it's an improvement we pillage to heal if we have moves to spare
-			else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && unit.iMovesLeft > 0 && pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
-			{
-				result.iScore += 20;
-				if (pUnit->IsGainsXPFromPillaging())
-					result.iScore += 10;
-				result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-				result.eType = STacticalAssignment::A_PILLAGE;
-			}
-		}
-
-		//minor bonus for staying put and healing
-		if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft == pUnit->maxMoves())
-		{
-			if (pUnit->noDefensiveBonus())
-				result.iScore++; //cannot fortify
-			else
-				result.iScore+=5; //fortification bonus!
-		}
-	}
-
-	//will we end the turn here?
-	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
-
-	//try to close the lines (todo: make sure the friendlies intend to stay there ...)
-	if (bEndTurn && currentPlot.getNumAdjacentFriendlies()>0)
-		result.iScore++;
-
-	//the danger value reflects any defensive terrain bonuses
-	int iDanger = 0;
-	if (bEndTurn)
-	{
-		if (result.eType == STacticalAssignment::A_MELEEATTACK) 
-			//we stay where we were before
-			iDanger = pUnit->GetDanger(pAssumedUnitPlot, assumedPosition.getKilledEnemies());
-		else 
-			//we move to the new plot
-			iDanger = pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
-
-		if (pUnit->isRanged())
-		{
-			//ranged units don't like to park next to enemies at all if we cannot attack
-			//however, if we're on a coastal plot, it's possible first line is actually harmless, so check danger too
-			if (iDanger>pUnit->GetCurrHitPoints()/2 && currentPlot.getNumAdjacentFirstlineFriendlies() == 0 && currentPlot.getNumAdjacentFriendlies()<3)
-			{
-				result.iScore = -1;
-				return result;
-			}
-		}
-	}
-
-	//can happen with garrisons
-	if (iDanger==INT_MAX)
-	{
-		result.iScore = 1;
+		//adjust the score - danger values are mostly useless but maybe useful as tiebreaker
+		//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
+		result.iScore = iDamageScore * 10 + iMiscScore * 10 - iDangerScore + 20;
 		return result;
 	}
-
-	//extra careful if we're over the magical threshold
-	if (iDanger > pUnit->GetCurrHitPoints())
-		iDanger += 10;
-
-	//try to be more careful with highly promoted units
-	if (iDanger>0)
-		iDanger += (pUnit->getExperienceTimes100()-kPlayer.GetAvgUnitExp100()) / 1000;
-
-	//penalty for high danger plots
-	//todo: take into account self damage from previous attacks
-	int iDangerScore = (iDanger*20)/(pUnit->GetCurrHitPoints()+1);
-
-	//todo: take into account mobility at the proposed plot
-	//todo: take into account ZOC when ending the turn
-
-	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker 
-	//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
-	result.iScore = result.iScore*10 - iDangerScore + 20;
-
-	//often there are multiple identical units which could move into a plot
-	//in that case we want to prefer the one which has more movement points left
-	if (result.eType == STacticalAssignment::A_MOVE)
-		result.iScore += result.iRemainingMoves / 30;
-
-	return result;
 }
 
 STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition)
@@ -11284,7 +11251,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 		result.iScore += 5;
 
 	//minor bonus for staying put
-	if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft == pUnit->maxMoves())
+	if (result.eType == STacticalAssignment::A_FINISH && plot.iMovesLeft == pUnit->maxMoves())
 	{
 		result.iScore++; //for healing
 		if (!pUnit->noDefensiveBonus())
@@ -11621,7 +11588,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		case SUnitStats::MS_SECONDLINE:
 		case SUnitStats::MS_THIRDLINE:
 			//this is only for movement / melee attacks. ranged attacks are handled below
-			move = (eAggression>AL_NONE) ? ScorePlotForCombatUnitOffensive(unit, *it, *this, false) : ScorePlotForCombatUnitDefensive(unit, *it, *this); 
+			move = (eAggression > AL_NONE) ? ScorePlotForCombatUnitOffensive(unit, *it, *this, false) : ScorePlotForCombatUnitDefensive(unit, *it, *this);
 			break;
 		case SUnitStats::MS_SUPPORT:
 			move = ScorePlotForSupportUnit(unit, *it, *this);
@@ -11651,7 +11618,6 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	{
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
-		unitAfterAttack.iMovesLeft = 0;
 		ReachablePlots::iterator itCurPlot = reachablePlots.find(unit.iPlotIndex);
 
 		//this should definitely not happen
@@ -11682,14 +11648,17 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 				else
 					move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
-				int endTurnMoveScore = 0;
+				unitAfterAttack.iMovesLeft = move.iRemainingMoves;
+				unitAfterAttack.iAttacksLeft = unit.iAttacksLeft-1;
+
+				int endTurnMoveScore = 0; //may be hypothetical, just to make sure the total scores are comparable
 				if (move.eType == STacticalAssignment::A_RANGEATTACK)
-					endTurnMoveScore = ScorePlotForCombatUnitOffensive(unitAfterAttack, *itCurPlot, *this, true).iScore;
+					endTurnMoveScore = ScorePlotForCombatUnitOffensive(unitAfterAttack, *itCurPlot, *this, move.iRemainingMoves!=0).iScore;
 				else if (move.eType == STacticalAssignment::A_RANGEKILL)
 				{
 					CvTacticalPosition newPos(*this);
-					newPos.addAssignment(move);
-					endTurnMoveScore = ScorePlotForCombatUnitOffensive(unitAfterAttack, *itCurPlot, newPos, true).iScore;
+					newPos.addAssignment(move); //make sure we score a position where the enemy unit is gone!
+					endTurnMoveScore = ScorePlotForCombatUnitOffensive(unitAfterAttack, *itCurPlot, newPos, move.iRemainingMoves!=0).iScore;
 				}
 
 				//if we would need to stay here but it's a bad idea, then don't do the attack
@@ -11697,7 +11666,10 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 					continue;
 
 				if ( *it==getTarget()->GetPlotIndex() )
-					move.iScore += 3; //a slight boost for attacking the "real" target
+					move.iScore += 2; //a slight boost for attacking the "real" target
+
+				//another bonus the further we can disengage after attacking
+				move.iScore += (move.iRemainingMoves * 2) / GC.getMOVE_DENOMINATOR();
 
 				//times 10 to match with ScorePlotForCombatUnitOffensive() and always better than ending the turn!
 				move.iScore = move.iScore*10 + endTurnMoveScore;
@@ -12348,12 +12320,11 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 				eStrategy = SUnitStats::MS_SECONDLINE;
 			else
 			{
-				//the unit AI type is unreliable, so it's a but tricky to handle melee vs skirmishers
+				//the unit AI type is unreliable, so we do this manually
 				if (pUnit->isRanged())
-					//if we don't intend to attack, treat skirmishers as second line units
-					eStrategy = (eAggression > AL_NONE) ? SUnitStats::MS_FIRSTLINE : SUnitStats::MS_SECONDLINE;
+					eStrategy = SUnitStats::MS_SECONDLINE; //skirmishers are second line always
 				else
-					eStrategy = SUnitStats::MS_FIRSTLINE;
+					eStrategy = SUnitStats::MS_FIRSTLINE; //regular melee
 			}
 			break;
 

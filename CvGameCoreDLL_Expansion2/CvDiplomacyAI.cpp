@@ -6410,7 +6410,7 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 	}
 #endif
 
-	int iIdealValue = 2 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int iIdealValue = 20 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if (Value > 0)
 	{
@@ -6428,7 +6428,7 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 
 	pDeal->ClearItems();
 
-	if (iActualValue < iIdealValue)
+	if (iActualValue < (iIdealValue/2))
 		return false;
 
 	bool bAlreadyPlanning = false;
@@ -8109,6 +8109,9 @@ void CvDiplomacyAI::SetMusteringForAttack(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabMusteringForAttack[ePlayer] = bValue;
+
+	if (bValue)
+		DoTestDemandReady();
 }
 
 /// Player was attacked by another!  Change appropriate Diplomacy stuff
@@ -17180,14 +17183,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 			{
-				if (GC.getGame().getSmallFakeRandNum(10, ePlayer) < GetWarmongerHate())
+				if (GC.getGame().getSmallFakeRandNum(10, ePlayer) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 				{
 					bValid = true;
 				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if(bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
+			if (bValid && ((GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >  7) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMeanness() > 7))
 			{
 				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 				{
@@ -17217,7 +17220,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() > 5)
+				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >= 8)
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->DoDenouncePlayer(GetPlayer()->GetID());
 				}
@@ -20270,6 +20273,10 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer, DiploStatementTypes& eStat
 
 					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 						eStatement = eTempStatement;
+
+					DoSendStatementToPlayer(ePlayer, eStatement, -1, pDeal);
+					LogStatementToPlayer(ePlayer, eStatement);
+					DoAddNewStatementToDiploLog(ePlayer, eStatement);
 				}
 				else
 				{
@@ -41014,7 +41021,7 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 
 	// Physically see how much the deal will cost us. Only send request if it's in an acceptable range
 	int iMapValue = GetPlayer()->GetDealAI()->GetMapValue(false, ePlayer, false);
-	if(iMapValue > 100 && iMapValue < 750)
+	if(iMapValue > 750)
 	{
 		return true;
 	}

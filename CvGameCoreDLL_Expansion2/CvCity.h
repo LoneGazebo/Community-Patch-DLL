@@ -1081,6 +1081,9 @@ public:
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromPillageWater(YieldTypes eIndex) const;
+	void ChangeYieldFromPillageWater(YieldTypes eIndex, int iChange);
+
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
@@ -1833,6 +1836,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillage;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillageWater;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;

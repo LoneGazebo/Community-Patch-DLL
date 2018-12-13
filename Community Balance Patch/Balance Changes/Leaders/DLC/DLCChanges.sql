@@ -259,11 +259,15 @@ VALUES
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 25);
 
-INSERT INTO Building_YieldFromPillage
+INSERT INTO Building_YieldFromPillageLand
 	(BuildingType, YieldType, Yield)
 VALUES 
-	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 5),
-	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 5);
+	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 10);
+
+	INSERT INTO Building_YieldFromPillageWater
+	(BuildingType, YieldType, Yield)
+VALUES 
+	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 10);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
 	(BuildingType, YieldType, Yield)

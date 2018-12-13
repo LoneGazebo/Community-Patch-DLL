@@ -16189,7 +16189,11 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 
 	if (pkUnitEntry->GetProductionCostPerEra() != 0)
 	{
-		iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * GetCurrentEra();
+		int iEra = GetCurrentEra() - 1;
+		if (iEra > 0)
+		{
+			iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * iEra;
+		}
 	}
 
 	if(isMinorCiv())
@@ -22326,7 +22330,7 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -26678,7 +26682,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_PILLAGE:
 				{
-					iValue += pLoopCity->GetYieldFromPillage(eYield);
+					if (bDomainSea)
+						iValue += pLoopCity->GetYieldFromPillageWater(eYield);
+					else
+						iValue += pLoopCity->GetYieldFromPillage(eYield);
 					break;
 				}
 				
@@ -43364,8 +43371,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
 		if (pPolicy->IsOpener() && pPolicy->GetYieldFromTech(iI) * iChange > 0)
 		{
-			int iTechValue = GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown() * pPolicy->GetYieldFromTech(iI);
-			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTech(iI);
+
+			if (iTechValue > 0)
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
 		}
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
 		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));

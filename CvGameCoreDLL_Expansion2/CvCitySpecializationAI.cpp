@@ -1928,6 +1928,14 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		// +15% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
 	}	
+
+	iYieldChanges = pCity->GetYieldFromPillageWater(eYield);
+	if (iYieldChanges > 0)
+	{
+		// +15% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+	}
+
 	iYieldChanges = pCity->GetBaseYieldRateFromCSAlliance(eYield);
 	if(iYieldChanges > 0)
 	{
