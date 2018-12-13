@@ -86,7 +86,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	bool bFreeEmbarkStateChange = false;
 	if (pUnit->CanEverEmbark())
 	{
-		if (!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
+		bool bFromEmbark = pFromPlot->needsEmbarkation(pUnit);
+		bool bToEmbark = pToPlot->needsEmbarkation(pUnit);
+
+		if (!bToEmbark && bFromEmbark)
 		{
 			// Is the unit from a civ that can disembark for just 1 MP?
 			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -106,7 +109,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			bFullCostEmbarkStateChange = !(bFreeEmbarkStateChange || bCheapEmbarkStateChange);
 		}
 
-		if (pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
+		if (bToEmbark && !bFromEmbark)
 		{
 			// Is the unit from a civ that can embark for just 1 MP?
 			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
