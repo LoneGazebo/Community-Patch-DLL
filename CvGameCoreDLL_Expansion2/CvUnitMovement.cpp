@@ -298,7 +298,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iPrecomputedTerrainFeatureEffect, int iMaxMoves)
+int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect)
 {
 	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot))
 		return iMovesRemaining;
