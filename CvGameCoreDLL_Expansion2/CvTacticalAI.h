@@ -1113,6 +1113,9 @@ protected:
 	float fUnitNumberRatio;
 	CvPlot* pTargetPlot;
 
+	//just for debugging, should be unique
+	int iID;
+
 	//dummy to avoid returning temporaries
 	CvTacticalPlot dummyPlot;
 
@@ -1172,6 +1175,8 @@ public:
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }
 
 	//debugging
+	void setID(int id) { iID = id; }
+	int getID() const { return iID; }
 	void dumpPlotStatus(const char* filename) const;
 	void exportToDotFile(const char* filename) const;
 	void dumpChildren(ofstream& out) const;

@@ -1526,9 +1526,7 @@ void CvPlot::changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int 
 #endif
 {
 	CvPlot* pPlot;
-	int iThroughLevel;
-
-	iThroughLevel = seeThroughLevel();
+	int iThroughLevel = seeThroughLevel();
 
 	if(iFromLevel >= iThroughLevel)
 	{
