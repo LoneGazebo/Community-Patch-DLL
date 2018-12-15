@@ -1447,6 +1447,11 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 		return;
 
+	//don't touch master's roads!
+	if (pPlot->GetPlayerResponsibleForRoute() != NO_PLAYER && pPlot->GetPlayerResponsibleForRoute() != m_pPlayer->GetID())
+		if (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(pPlot->GetPlayerResponsibleForRoute()).getTeam()))
+			return;
+
 	// find the remove route build
 	BuildTypes eRemoveRouteBuild = NO_BUILD;
 

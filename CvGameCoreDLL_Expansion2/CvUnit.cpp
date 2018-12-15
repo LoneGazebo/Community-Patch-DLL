@@ -10383,8 +10383,11 @@ bool CvUnit::pillage()
 			{
 #if defined(MOD_BALANCE_CORE)
 
-				if (pPlot->getTeam() != NO_TEAM && !GET_TEAM(pPlot->getTeam()).isMinorCiv())
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE);
+				if (pPlot->getResourceType(getTeam()) != NO_RESOURCE || pkImprovement->IsCreatedByGreatPerson())
+				{
+					if (pPlot->getTeam() != NO_TEAM && !GET_TEAM(pPlot->getTeam()).isMinorCiv())
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+				}
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
@@ -16681,10 +16684,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	int iBaseStrength = GetBaseRangedCombatStrength();
 
-	//follow up attacks are weaker
-	if (getNumAttacksMadeThisTurn()>1)
-		iBaseStrength /= 2;
-
 	//fake ranged unit (impi)
 	if (isRangedSupportFire())
 		iBaseStrength = GetBaseCombatStrength() / 2;
@@ -16702,11 +16701,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += getKamikazePercent();
 
 	// If the empire is unhappy, then Units get a combat penalty
-#if defined(MOD_GLOBAL_CS_RAZE_RARELY)
-	if((!kPlayer.isMinorCiv() && kPlayer.IsEmpireUnhappy()) || (kPlayer.isMinorCiv() && kPlayer.IsEmpireVeryUnhappy()))
-#else
 	if(kPlayer.IsEmpireUnhappy())
-#endif
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}

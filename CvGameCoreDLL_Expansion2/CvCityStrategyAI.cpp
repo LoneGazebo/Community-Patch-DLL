@@ -5137,6 +5137,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetYieldFromPillage(eYield);
 	}
+	if (pkBuildingInfo->GetYieldFromWaterPillage(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromWaterPillage(eYield);
+	}
 	if (pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetInstantYield(eYield);

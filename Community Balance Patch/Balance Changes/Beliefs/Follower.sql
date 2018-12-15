@@ -106,7 +106,7 @@ VALUES
 INSERT Into Belief_YieldFromFaithPurchase
 (BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_LITURGICAL_DRAMA', 'YIELD_CULTURE', 10);
+	('BELIEF_LITURGICAL_DRAMA', 'YIELD_CULTURE', 25);
 
 INSERT INTO Belief_CityYieldChanges
 	(BeliefType, YieldType, Yield)

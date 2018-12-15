@@ -480,8 +480,15 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BUILDING: Allows you to define a building yield earned from pillaging -->
-	<Table name="Building_YieldFromPillage">
+	<!-- BUILDING: Allows you to define a building yield earned from pillaging on land  -->
+	<Table name="Building_YieldFromPillageLand">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- BUILDING: Allows you to define a building yield earned from pillaging at sea -->
+	<Table name="Building_YieldFromPillageWater">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
