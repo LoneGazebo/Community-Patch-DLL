@@ -13132,10 +13132,7 @@ void CvPlot::read(FDataStream& kStream)
 	{
 		kStream >> m_aiPlayerCityRadiusCount[i];
 		kStream >> m_aiVisibilityCount[i];
-		if (m_aiVisibilityCount[i] < 0)
-			m_aiVisibilityCount[i] = 0;
-		//update the shadow copy as well
-		m_aiVisibilityCountThisTurnMax[i] = m_aiVisibilityCount[i];
+		kStream >> m_aiVisibilityCountThisTurnMax[i];
 		kStream >> m_aiRevealedOwner[i];
 		kStream >> m_abResourceForceReveal[i];
 		m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
@@ -13286,6 +13283,7 @@ void CvPlot::write(FDataStream& kStream) const
 	{
 		kStream << m_aiPlayerCityRadiusCount[i];
 		kStream << m_aiVisibilityCount[i];
+		kStream << m_aiVisibilityCountThisTurnMax[i];
 		kStream << m_aiRevealedOwner[i];
 		kStream << m_abResourceForceReveal[i];
 		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);

@@ -1050,8 +1050,8 @@ protected:
 	friend class CvMap;
 	uint8* m_aiYield;
 	uint8* m_aiPlayerCityRadiusCount;
-	uint8* m_aiVisibilityCount;				//serialized
-	uint8* m_aiVisibilityCountThisTurnMax;	//not serialized
+	uint8* m_aiVisibilityCount;
+	uint8* m_aiVisibilityCountThisTurnMax;
 	char* m_aiRevealedOwner;
 	char *m_aeRevealedImprovementType;
 	char *m_aeRevealedRouteType;
