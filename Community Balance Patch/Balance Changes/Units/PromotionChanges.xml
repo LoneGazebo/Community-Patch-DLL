@@ -4070,7 +4070,7 @@
 			<OrderPriority>1</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<AttackMod>25</AttackMod>
-			<CityAttack>100</CityAttack>
+			<CityAttack>25</CityAttack>
 			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>

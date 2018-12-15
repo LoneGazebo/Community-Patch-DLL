@@ -872,7 +872,7 @@
 			<Text>Heavy Assault</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HEAVY_SHIP_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength when Attacking, +100% [ICON_STRENGTH] Strength versus Cities.</Text>
+			<Text>+25% [ICON_STRENGTH] Strength when Attacking, +25% [ICON_STRENGTH] Strength versus Cities.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

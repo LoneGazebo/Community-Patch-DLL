@@ -403,6 +403,9 @@ public:
 	int GetYieldFromPillage(int i) const;
 	int* GetYieldFromPillageArray() const;
 
+	int GetYieldFromWaterPillage(int i) const;
+	int* GetYieldFromWaterPillageArray() const;
+
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
@@ -877,6 +880,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
 	int* m_piYieldFromPillage;
+	int* m_piYieldFromWaterPillage;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;

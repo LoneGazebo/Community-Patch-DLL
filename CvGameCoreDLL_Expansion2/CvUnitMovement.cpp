@@ -75,6 +75,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
 
 		iRouteCost = std::min(iRouteVariableCost, iRouteFlatCost);
+
+		if (pToPlot->isCity()) //don't consider terrain/feature effects for cities
+			return iRouteCost;
 	}
 
 	//check embarkation
@@ -184,7 +187,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return INT_MAX;
 	}
-	else if (pToPlot->isCity() && iRouteCost<INT_MAX) //make sure this applies only if there is no route
+	else if (pToPlot->isCity()) //case with route is already handled above
 	{
 		return iMoveDenominator;
 	}

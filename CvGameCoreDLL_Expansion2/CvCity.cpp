@@ -346,6 +346,7 @@ CvCity::CvCity() :
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
 	, m_aiYieldFromVictory("CvCity::m_aiYieldFromVictory", m_syncArchive)
 	, m_aiYieldFromPillage("CvCity::m_aiYieldFromPillage", m_syncArchive)
+	, m_aiYieldFromPillageWater("CvCity::m_aiYieldFromPillageWater", m_syncArchive)
 	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
 	, m_aiLongestPotentialTradeRoute("CvCity::m_aiLongestPotentialTradeRoute", m_syncArchive)
 	, m_aiStaticGlobalYield("CvCity::m_aiStaticGlobalYield", m_syncArchive)
@@ -1631,6 +1632,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromPillageWater.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
@@ -1725,6 +1727,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromKnownPantheons.setAt(iI, 0);
 		m_aiYieldFromVictory.setAt(iI, 0);
 		m_aiYieldFromPillage.setAt(iI, 0);
+		m_aiYieldFromPillageWater.setAt(iI, 0);
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 		m_aiYieldFromWLTKD.setAt(iI, 0);
 		m_aiYieldFromConstruction.setAt(iI, 0);
@@ -5440,7 +5443,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				iValue *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 				iValue /= 100;
 			}
-			if(iValue > 0)
+			if(iValue != 0)
 			{
 				if(yieldSpecialistTip != "")
 				{
@@ -6649,6 +6652,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 					if(iBonus != 0)
 					{
+						if (iBonus < 0)
+						{
+							int iMinimum = GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eSpecialist) / 100;
+							if ((iBonus * -1) > iMinimum)
+								iBonus = (iMinimum * -1);
+						}
 						GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iBonus * 100, true);
 					}
 				}
@@ -14396,6 +14405,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if ( (pBuildingInfo->GetYieldFromPillage(eYield) > 0))
 			{
 				ChangeYieldFromPillage(eYield, pBuildingInfo->GetYieldFromPillage(eYield) * iChange);
+			}
+
+			if ((pBuildingInfo->GetYieldFromWaterPillage(eYield) > 0))
+			{
+				ChangeYieldFromPillageWater(eYield, pBuildingInfo->GetYieldFromWaterPillage(eYield) * iChange);
 			}
 
 			if( (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
@@ -23259,6 +23273,29 @@ void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 	}
 }
 
+int CvCity::GetYieldFromPillageWater(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromPillageWater[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromPillageWater(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromPillageWater.setAt(eIndex, m_aiYieldFromPillageWater[eIndex] + iChange);
+		CvAssert(GetYieldFromPillageWater(eIndex) >= 0);
+	}
+}
+
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -25771,6 +25808,10 @@ void CvCity::updateStrengthValue()
 	{
 		iStrengthFromUnits = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
 		iStrengthFromUnits = (iStrengthFromUnits * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+
+		//special check for naval garrison in city
+		if (pGarrisonedUnit->getDomainType() == DOMAIN_SEA)
+			iStrengthFromUnits /= 2;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY)

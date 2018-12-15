@@ -715,11 +715,6 @@ void CvCityCitizens::DoTurn()
 				}
 				bForceCheck = true;
 			}
-			if (!IsNoAutoAssignSpecialists())
-			{
-				SetNoAutoAssignSpecialists(true);
-				bForceCheck = true;
-			}
 		}
 		else
 		{
