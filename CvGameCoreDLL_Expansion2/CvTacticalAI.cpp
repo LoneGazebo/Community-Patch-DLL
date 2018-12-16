@@ -12002,7 +12002,13 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
-	iID = parent.getID() * 10 + parent.childPositions.size();
+
+	//clever scheme to encode the tree structure into IDs
+	//works only if the tree is not too wide or too deep
+	if (parent.getID() < INT_MAX / 10 - 10)
+		iID = parent.getID() * 10 + parent.childPositions.size();
+	else
+		iID = INT_MAX;
 
 	//childPositions stays empty!
 	childPositions.clear();
@@ -12297,7 +12303,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	}
 
 	//todo: should we stop the simulation? how to include this in position scoring?
-	if (bRestartRequired)
+	//don't do restarts if we have a lot of units, the simulation can take very long then
+	if (bRestartRequired && availableUnits.size()<8)
 		assignedMoves.push_back(STacticalAssignment( iUnitEndTurnPlot, iUnitEndTurnPlot, newAssignment.iUnitID, 0, newAssignment.bIsCombatUnit, 0, STacticalAssignment::A_RESTART));
 
 	return true;

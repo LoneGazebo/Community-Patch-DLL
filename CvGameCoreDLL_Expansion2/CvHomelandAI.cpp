@@ -7422,7 +7422,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 	const UINT ciDirectiveSize = 1;
 	BuilderDirective aDirective[ ciDirectiveSize ];
 
-	// evaluator
+	// find work (considering all other workers as well)
 	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize, false, false);
 	if(bHasDirective)
 	{

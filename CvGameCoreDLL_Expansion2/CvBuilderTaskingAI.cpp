@@ -850,8 +850,12 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			}
 			else
 			{
-				//is the unit still busy? if so, less time for movement
+				//how far to look for work?
 				int iTurnLimit = iMaxTurns;
+				if (pLoopUnit==pUnit)
+					iTurnLimit *= 2;
+
+				//is the unit still busy? if so, less time for movement
 				BuildTypes eBuild = pLoopUnit->getBuildType();
 				if (eBuild != NO_BUILD)
 					iTurnLimit -= pLoopUnit->plot()->getBuildTurnsLeft(eBuild, pLoopUnit->getOwner(), 0, 0);
