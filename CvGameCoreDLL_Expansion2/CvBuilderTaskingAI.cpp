@@ -823,7 +823,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	}
 
 	//how far around each worker should we be checking?
-	int iMaxTurns = pUnit->IsGreatPerson() ? 12 : 6;
+	int iMaxTurns = pUnit->IsGreatPerson() ? 12 : 5;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCombatUnit())
@@ -876,23 +876,10 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	for(ReachablePlots::iterator it=thisUnitPlots.begin(); it!=thisUnitPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(it->iPlotIndex);
+		int iMoveTurnsAway = it->iTurns;
 
 		if(!ShouldBuilderConsiderPlot(pUnit, pPlot))
 		{
-			continue;
-		}
-
-		// distance weight - find how many turns the plot is away
-		int iMoveTurnsAway = FindTurnsAway(pUnit, pPlot, allWorkersReachablePlots);
-		if(iMoveTurnsAway < 0)
-		{
-			if(m_bLogging)
-			{
-				CvString strLog;
-				strLog.Format("unitx: %d unity: %d, plotx: %d ploty: %d, can't find path", pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-				LogInfo(strLog, m_pPlayer);
-			}
-
 			continue;
 		}
 
@@ -1693,15 +1680,8 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
-	//int iTurnsAway = FindTurnsAway(pUnit, pPlot);
-#if !defined(MOD_BALANCE_CORE)
-	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
-#endif
-
-	iWeight = GetBuildCostWeight(iWeight, pPlot, eChopBuild);
-	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false);
-	iWeight += iBuildTimeWeight;
+	int iWeight = GetBuildCostWeight(GC.getBUILDER_TASKING_BASELINE_REPAIR(), pPlot, eChopBuild);
+	iWeight += GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false);
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
 
 #if defined(MOD_BALANCE_CORE)
@@ -1807,23 +1787,10 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eChopBuild);
 		directive.m_sMoveTurnsAway = iMoveTurnsAway;
 
-		if(m_bLogging)
-		{
-			CvString strTemp;
-			strTemp.Format("BuildTimeWeight, %d, Weight, %d", iBuildTimeWeight, iWeight);
-			LogInfo(strTemp, m_pPlayer);
-		}
-
 		m_aDirectives.push_back(directive, iWeight);
 	}
-	else
-	{
-		if(m_bLogging)
-		{
-			LogInfo("Add chop directives, Weight is zero!", m_pPlayer);
-		}
-	}
 }
+
 void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
@@ -1838,15 +1805,9 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 	}
 
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR() * 100;
-
-	iWeight = GetBuildCostWeight(iWeight, pPlot, m_eRepairBuild);
-	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
-	iWeight += iBuildTimeWeight;
-
-#if defined(MOD_BALANCE_CORE)
-	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
+	int iWeight = GetBuildCostWeight(GC.getBUILDER_TASKING_BASELINE_REPAIR() * 100, pPlot, m_eRepairBuild);
+	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
+	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 
 	if (iWeight > 0)
 	{
@@ -1859,21 +1820,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eChopBuild);
 		directive.m_sMoveTurnsAway = iMoveTurnsAway;
 
-		if (m_bLogging)
-		{
-			CvString strTemp;
-			strTemp.Format("BuildTimeWeight, %d, Weight, %d", iBuildTimeWeight, iWeight);
-			LogInfo(strTemp, m_pPlayer);
-		}
-
 		m_aDirectives.push_back(directive, iWeight);
-	}
-	else
-	{
-		if (m_bLogging)
-		{
-			LogInfo("Add repair directive, Weight is zero!", m_pPlayer);
-		}
 	}
 }
 // Everything means less than zero, hey
@@ -1892,17 +1839,9 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 
 	if(pPlot->getFeatureType() == m_eFalloutFeature && pUnit->canBuild(pPlot, m_eFalloutRemove))
 	{
-		int iWeight = GC.getBUILDER_TASKING_BASELINE_SCRUB_FALLOUT() * 1000;
-		//int iTurnsAway = FindTurnsAway(pUnit, pPlot);
-#if !defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
-#endif
-		iWeight = GetBuildCostWeight(iWeight, pPlot, m_eFalloutRemove);
-		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false);
-		iWeight += iBuildTimeWeight;
-#if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
+		int iWeight = GetBuildCostWeight(GC.getBUILDER_TASKING_BASELINE_SCRUB_FALLOUT() * 1000, pPlot, m_eFalloutRemove);
+		iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false);
+		iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 
 		BuilderDirective directive;
 		directive.m_eDirective = BuilderDirective::CHOP;
@@ -2023,23 +1962,6 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	}
 
 	return true;
-}
-
-/// Determines if the builder can get to the plot. Returns -1 if no path can be found, otherwise it returns the # of turns to get there
-int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const
-{
-	if (!pUnit || !pPlot)
-		return -1;
-
-	map<CvUnit*, ReachablePlots>::const_iterator itA = allWorkersReachablePlots.find(pUnit);
-	if (itA != allWorkersReachablePlots.end())
-	{
-		ReachablePlots::const_iterator itB = itA->second.find(pPlot->GetPlotIndex());
-		if (itB != itA->second.end())
-			return itB->iTurns;
-	}
-
-	return -1;
 }
 
 /// Get the weight determined by the cost of building the item
