@@ -10009,7 +10009,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowDisen
 	{
 		int iDamageDealt = 0, iDamageReceived = 0;
 		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(vEnemies[i], pUnit, vEnemies[i]->plot(), pUnit->plot(), iDamageReceived);
-		if (iDamageDealt == vEnemies[i]->GetCurrHitPoints())
+		if (iDamageDealt >= vEnemies[i]->GetCurrHitPoints())
 		{
 			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
 				iDamageReceived = max(0, iDamageReceived - pUnit->getHPHealedIfDefeatEnemy());
