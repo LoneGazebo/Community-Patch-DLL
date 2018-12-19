@@ -6,7 +6,7 @@
 #include "CvUnitMovement.h"
 #include "CvGameCoreUtils.h"
 //	---------------------------------------------------------------------------
-int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
+int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iPrecomputedTerrainFeatureEffect)
 {
 	int iMoveDenominator = GC.getMOVE_DENOMINATOR();
 	int iRegularCost = iMoveDenominator;
@@ -86,7 +86,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	bool bFreeEmbarkStateChange = false;
 	if (pUnit->CanEverEmbark())
 	{
-		if (!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
+		bool bFromEmbark = pFromPlot->needsEmbarkation(pUnit);
+		bool bToEmbark = pToPlot->needsEmbarkation(pUnit);
+
+		if (!bToEmbark && bFromEmbark)
 		{
 			// Is the unit from a civ that can disembark for just 1 MP?
 			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -106,7 +109,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			bFullCostEmbarkStateChange = !(bFreeEmbarkStateChange || bCheapEmbarkStateChange);
 		}
 
-		if (pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
+		if (bToEmbark && !bFromEmbark)
 		{
 			// Is the unit from a civ that can embark for just 1 MP?
 			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -228,24 +231,33 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//now switch to high-precision costs
 		iRegularCost *= iMoveDenominator;
 
-		if (pToPlot->isHills() && pUnit->isHillsDoubleMove())
+		if (iPrecomputedTerrainFeatureEffect > 0)
 		{
-			iRegularCost /= 2;
+			iRegularCost *= iPrecomputedTerrainFeatureEffect;
+			iRegularCost /= iMoveDenominator;
 		}
-		else if (pToPlot->isMountain() && pUnit->isMountainsDoubleMove())
+		else
 		{
-			iRegularCost /= 2;
-		}
-		else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
-		{
-			iRegularCost /= 2;
-		}
+			//we have to do it on the fly
+			if (pToPlot->isHills() && pUnit->isHillsDoubleMove())
+			{
+				iRegularCost /= 2;
+			}
+			else if (pToPlot->isMountain() && pUnit->isMountainsDoubleMove())
+			{
+				iRegularCost /= 2;
+			}
+			else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
+			{
+				iRegularCost /= 2;
+			}
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
-		{
-			iRegularCost *= 2;
-		}
+			else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
+			{
+				iRegularCost *= 2;
+			}
 #endif
+		}
 
 		//extra movement cost in some instances
 		bool bSlowDown = false;
@@ -286,27 +298,27 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves)
+int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect)
 {
 	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot))
 		return iMovesRemaining;
 
-	return MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iMovesRemaining, iMaxMoves);
+	return MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iMovesRemaining, iMaxMoves, iPrecomputedTerrainFeatureEffect);
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, const PlotIndexContainer& plotsToIgnore)
+int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect, const PlotIndexContainer& plotsToIgnore)
 {
 	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot, plotsToIgnore))
 		return iMovesRemaining;
 
-	return MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iMovesRemaining, iMaxMoves);
+	return MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iMovesRemaining, iMaxMoves, iPrecomputedTerrainFeatureEffect);
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves)
+int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect)
 {
-	int iCost = GetCostsForMove(pUnit, pFromPlot, pToPlot);
+	int iCost = GetCostsForMove(pUnit, pFromPlot, pToPlot, iPrecomputedTerrainFeatureEffect);
 
 	//now, if there was a domain change, our base moves might change
 	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain

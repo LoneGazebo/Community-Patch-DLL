@@ -1526,9 +1526,7 @@ void CvPlot::changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int 
 #endif
 {
 	CvPlot* pPlot;
-	int iThroughLevel;
-
-	iThroughLevel = seeThroughLevel();
+	int iThroughLevel = seeThroughLevel();
 
 	if(iFromLevel >= iThroughLevel)
 	{
@@ -3449,7 +3447,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
 
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves, 0);
 }
 
 //	---------------------------------------------------------------------------
@@ -3460,7 +3458,7 @@ int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
 
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3490,14 +3488,13 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
     {
         return isDeepWater();
     }
-    else if (pUnit->getDomainType()==DOMAIN_LAND)
-    {
-#else       
+    else
+#endif
     //only land units need to embark
     if (pUnit->getDomainType()==DOMAIN_LAND)
     {
-#endif      
-        return !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this) && !pUnit->isConvertUnit();
+		//do not check for transport boats any more
+        return !pUnit->canMoveAllTerrain() && !pUnit->isConvertUnit();
     }
     else
         return false;
@@ -13135,10 +13132,7 @@ void CvPlot::read(FDataStream& kStream)
 	{
 		kStream >> m_aiPlayerCityRadiusCount[i];
 		kStream >> m_aiVisibilityCount[i];
-		if (m_aiVisibilityCount[i] < 0)
-			m_aiVisibilityCount[i] = 0;
-		//update the shadow copy as well
-		m_aiVisibilityCountThisTurnMax[i] = m_aiVisibilityCount[i];
+		kStream >> m_aiVisibilityCountThisTurnMax[i];
 		kStream >> m_aiRevealedOwner[i];
 		kStream >> m_abResourceForceReveal[i];
 		m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);
@@ -13289,6 +13283,7 @@ void CvPlot::write(FDataStream& kStream) const
 	{
 		kStream << m_aiPlayerCityRadiusCount[i];
 		kStream << m_aiVisibilityCount[i];
+		kStream << m_aiVisibilityCountThisTurnMax[i];
 		kStream << m_aiRevealedOwner[i];
 		kStream << m_abResourceForceReveal[i];
 		CvInfosSerializationHelper::WriteHashed(kStream, (const ImprovementTypes)m_aeRevealedImprovementType[i]);

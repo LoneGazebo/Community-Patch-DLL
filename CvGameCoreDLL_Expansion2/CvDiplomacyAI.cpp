@@ -10743,7 +10743,7 @@ void CvDiplomacyAI::SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmong
 }
 
 /// Updates how much of a threat each player is to run amok and break everything
-void CvDiplomacyAI::DoUpdateWarmongerThreats()
+void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 {
 	ThreatTypes eThreatType;
 
@@ -10805,52 +10805,54 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats()
 				bUpdateLogsSpecial = true;
 			}
 
-			// decay score
+			if (!bUpdateOnly)
+			{
+				// decay score
 #if defined(MOD_API_EXTENSIONS)
-			int iDecayModifier = 100;
+				int iDecayModifier = 100;
 #if defined(MOD_CONFIG_AI_IN_XML)
-			// INCREASE if he's big and nasty, less so if he's not.
-			switch (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer))
-			{
-			case STRENGTH_IMMENSE:
-			case STRENGTH_POWERFUL:
-				iDecayModifier = GC.getWARMONGER_THREAT_APPROACH_DECAY_SMALL();
-				break;
-			case STRENGTH_AVERAGE:
-			case STRENGTH_STRONG:
-				iDecayModifier = GC.getWARMONGER_THREAT_APPROACH_DECAY_MEDIUM();
-				break;
-			case STRENGTH_WEAK:
-			case STRENGTH_POOR:
-			case STRENGTH_PATHETIC:
-				iDecayModifier = GC.getWARMONGER_THREAT_APPROACH_DECAY_LARGE();
-				break;
-			default:
-				break;
+				// INCREASE if he's big and nasty, less so if he's not.
+				switch (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer))
+				{
+				case STRENGTH_IMMENSE:
+				case STRENGTH_POWERFUL:
+					iDecayModifier = GC.getWARMONGER_THREAT_APPROACH_DECAY_SMALL();
+					break;
+				case STRENGTH_AVERAGE:
+				case STRENGTH_STRONG:
+					iDecayModifier = GC.getWARMONGER_THREAT_APPROACH_DECAY_MEDIUM();
+					break;
+				case STRENGTH_WEAK:
+				case STRENGTH_POOR:
+				case STRENGTH_PATHETIC:
+					iDecayModifier = GC.getWARMONGER_THREAT_APPROACH_DECAY_LARGE();
+					break;
+				default:
+					break;
+				}
+
+				int iDecayValue = GC.getWARMONGER_THREAT_PER_TURN_DECAY() * 100;
+
+				//Protect against positives.
+				if (iDecayValue > 0)
+					iDecayValue *= -1;
+
+				if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
+				{
+					iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED();
+				}
+				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
+				{
+					iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_DECREASED();
+				}
+
+				iDecayValue *= iDecayModifier;
+				iDecayValue /= 100;
+
+				LogMajorCivWarmongerUpdate(eLoopPlayer, iDecayValue, bUpdateLogsSpecial);
+
+				ChangeOtherPlayerWarmongerAmountTimes100(eLoopPlayer, iDecayValue);
 			}
-
-			int iDecayValue = GC.getWARMONGER_THREAT_PER_TURN_DECAY() * 100;
-
-			//Protect against positives.
-			if (iDecayValue > 0)
-				iDecayValue *= -1;
-
-			if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
-			{
-				iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED();
-			}
-			else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
-			{
-				iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_DECREASED();
-			}
-
-			iDecayValue *= iDecayModifier;
-			iDecayValue /= 100;
-
-			LogMajorCivWarmongerUpdate(eLoopPlayer, iDecayValue, bUpdateLogsSpecial);
-
-
-			ChangeOtherPlayerWarmongerAmountTimes100(eLoopPlayer, iDecayValue);
 #endif
 #endif
 		}
@@ -15567,7 +15569,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 		iWarMongerValue = GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
 	}
 
-	iWarMongerValue *= (100 + GetOtherPlayerNumMinorsAttacked(ePlayer));
+	iWarMongerValue *= (100 + (GetOtherPlayerNumMinorsAttacked(ePlayer) * 25));
 	iWarMongerValue /= 100;
 
 	if (iWarMongerValue <= 0)
@@ -15610,6 +15612,8 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 #else
 	ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * iWarMongerValue);
 #endif
+
+	DoUpdateWarmongerThreats(true);
 }
 
 /// How many Minors have we seen this Player conquer
@@ -15737,6 +15741,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 	ChangeOtherPlayerWarmongerAmount(ePlayer, iWarMongerValue);
 #endif
 
+	DoUpdateWarmongerThreats(true);
 }
 
 /// How many Majors have we seen this Player conquer

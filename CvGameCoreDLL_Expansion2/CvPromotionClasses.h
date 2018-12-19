@@ -156,6 +156,7 @@ public:
 	int GetTradeMissionInfluenceModifier() const;
 	int GetTradeMissionGoldModifier() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetDiploMissionInfluence() const;
 	int GetCaptureDefeatedEnemyChance() const;
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
@@ -465,6 +466,7 @@ protected:
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbarianCombatBonus;
 	int m_iGoodyHutYieldBonus;
+	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
 	bool m_bGainsXPFromPillaging;
 	bool m_bGainsXPFromSpotting;

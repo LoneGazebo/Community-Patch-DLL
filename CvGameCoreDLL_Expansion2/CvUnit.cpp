@@ -315,6 +315,7 @@ CvUnit::CvUnit() :
 	, m_iReligiousStrengthLossRivalTerritory("CvUnit::m_iReligiousStrengthLossRivalTerritory", m_syncArchive)
 	, m_iTradeMissionInfluenceModifier("CvUnit::m_iTradeMissionInfluenceModifier", m_syncArchive)
 	, m_iTradeMissionGoldModifier("CvUnit::m_iTradeMissionGoldModifier", m_syncArchive)
+	, m_iDiploMissionInfluence("CvUnit::m_iDiploMissionInfluence", m_syncArchive)
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
 	, m_iTourismBlastStrength("CvUnit::m_iTourismBlastStrength", m_syncArchive)
@@ -1660,6 +1661,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iReligiousStrengthLossRivalTerritory = 0;
 	m_iTradeMissionInfluenceModifier = 0;
 	m_iTradeMissionGoldModifier = 0;
+	m_iDiploMissionInfluence = 0;
 
 	m_bPromotionReady = false;
 	m_bDeathDelay = false;
@@ -6432,6 +6434,7 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 bool CvUnit::canLoad(const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
+
 	if(NO_SPECIALUNIT != getSpecialUnitType())
 	{
 		CvSpecialUnitInfo* pkSpecialUnitInfo = GC.getSpecialUnitInfo(getSpecialUnitType());
@@ -6482,13 +6485,17 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 		}
 	}
 
+	//this is a bug right here - the result should not depend on the current state of the unit!
+	if (isEmbarked())
+		return false;
+
 	const IDInfo* pUnitNode = targetPlot.headUnitNode();
 	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 		pUnitNode = targetPlot.nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot) && !isEmbarked())
+		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot))
 		{
 			return true;
 		}
@@ -7322,6 +7329,19 @@ int CvUnit::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
 }
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDiploMissionInfluence(int iValue)
+{
+	m_iDiploMissionInfluence += iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDiploMissionInfluence() const
+{
+	return m_iDiploMissionInfluence;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetNumGoodyHutsPopped() const
 {
@@ -9892,7 +9912,7 @@ bool CvUnit::sellExoticGoods()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
+bool CvUnit::canRebase() const
 {
 	// Must be an air unit
 	if(getDomainType() != DOMAIN_AIR)
@@ -9919,7 +9939,7 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 {
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
-	if(!canRebase(pPlot))
+	if(!canRebase())
 	{
 		return false;
 	}
@@ -9943,7 +9963,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 	iRange *= /*200*/ GC.getAIR_UNIT_REBASE_RANGE_MULTIPLIER();
 	iRange /= 100;
 
-	if(plotDistance(getX(), getY(), iX, iY) > iRange)
+	if(plotDistance(pPlot->getX(), pPlot->getY(), iX, iY) > iRange)
 	{
 		return false;
 	}
@@ -12135,7 +12155,11 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 		CvAssertMsg(eMinor != NO_PLAYER, "Performing a trade mission and not in city state territory. This is bad. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		if (eMinor != NO_PLAYER)
 		{
-			iInf = /*30*/ GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION();
+			if (GetDiploMissionInfluence() != 0)
+				iInf = GetDiploMissionInfluence();
+			else
+				iInf = /*30*/ GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION();
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			if (MOD_DIPLOMACY_CITYSTATES) {
 				iInf += (m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
@@ -12161,7 +12185,7 @@ bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	if(m_pUnitInfo->GetBaseGold() == 0)
+	if (m_pUnitInfo->GetBaseGold() == 0 && GetDiploMissionInfluence() == 0)
 	{
 		return false;
 	}
@@ -16679,10 +16703,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	int iBaseStrength = GetBaseRangedCombatStrength();
 
-	//follow up attacks are weaker
-	if (getNumAttacksMadeThisTurn()>1)
-		iBaseStrength /= 2;
-
 	//fake ranged unit (impi)
 	if (isRangedSupportFire())
 		iBaseStrength = GetBaseCombatStrength() / 2;
@@ -16700,11 +16720,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += getKamikazePercent();
 
 	// If the empire is unhappy, then Units get a combat penalty
-#if defined(MOD_GLOBAL_CS_RAZE_RARELY)
-	if((!kPlayer.isMinorCiv() && kPlayer.IsEmpireUnhappy()) || (kPlayer.isMinorCiv() && kPlayer.IsEmpireVeryUnhappy()))
-#else
 	if(kPlayer.IsEmpireUnhappy())
-#endif
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}
@@ -25779,87 +25795,65 @@ void CvUnit::setScenarioData(int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (TerrainTypeCounter::const_iterator it = m_terrainDoubleMoveCount.begin(); it != m_terrainDoubleMoveCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::isTerrainDoubleMove(TerrainTypes eIndex) const
-{
-	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.get();
-	if (m_map.empty())
-		return false;
-
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
-}
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 {
-	std::map<TerrainTypes, int>& m_map = m_terrainDoubleMoveCount.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	TerrainTypeCounter& mVec = m_terrainDoubleMoveCount.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex]==0)
-			m_map.erase(eIndex);
-	}
-	else
-		m_map[eIndex] = iChange;
-}
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
 
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_terrainDoubleMoveCount.push_back(make_pair(eIndex, iChange));
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
-	if (m_map.empty())
-		return false;
+	for (FeatureTypeCounter::const_iterator it = m_featureDoubleMoveCount.begin(); it != m_featureDoubleMoveCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
 
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	return 0;
 }
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::isFeatureDoubleMove(FeatureTypes eIndex) const
-{
-	const std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.get();
-	if (m_map.empty())
-		return false;
-
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
-}
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 {
-	std::map<FeatureTypes, int>& m_map = m_featureDoubleMoveCount.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	FeatureTypeCounter& mVec = m_featureDoubleMoveCount.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex] == 0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_featureDoubleMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 
@@ -25867,162 +25861,149 @@ void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainHalfMoveCount(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (TerrainTypeCounter::const_iterator it = m_terrainHalfMoveCount.begin(); it != m_terrainHalfMoveCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::isTerrainHalfMove(TerrainTypes eIndex) const
-{
-	const std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.get();
-	if (m_map.empty())
-		return false;
-
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
-}
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 {
-	std::map<TerrainTypes, int>& m_map = m_terrainHalfMoveCount.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	TerrainTypeCounter& mVec = m_terrainHalfMoveCount.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex]==0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_terrainHalfMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (FeatureTypeCounter::const_iterator it = m_featureHalfMoveCount.begin(); it != m_featureHalfMoveCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::isFeatureHalfMove(FeatureTypes eIndex) const
-{
-	const std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.get();
-	if (m_map.empty())
-		return false;
-
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
-}
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 {
-	std::map<FeatureTypes, int>& m_map = m_featureHalfMoveCount.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	FeatureTypeCounter& mVec = m_featureHalfMoveCount.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex]==0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_featureHalfMoveCount.push_back(make_pair(eIndex, iChange));
 }
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTerrainDoubleHeal(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (TerrainTypeCounter::const_iterator it = m_terrainDoubleHeal.begin(); it != m_terrainDoubleHeal.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainDoubleHeal(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
+	return getTerrainDoubleHeal(eIndex) > 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 {
-	std::map<TerrainTypes, int>& m_map = m_terrainDoubleHeal.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	TerrainTypeCounter& mVec = m_terrainDoubleHeal.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex] == 0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_terrainDoubleHeal.push_back(make_pair(eIndex, iChange));
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureDoubleHeal(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (FeatureTypeCounter::const_iterator it = m_featureDoubleHeal.begin(); it != m_featureDoubleHeal.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureDoubleHeal(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
+	return getFeatureDoubleHeal(eIndex) > 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 {
-	std::map<FeatureTypes, int>& m_map = m_featureDoubleHeal.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	FeatureTypeCounter& mVec = m_featureDoubleHeal.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex] == 0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_featureDoubleHeal.push_back(make_pair(eIndex, iChange));
 }
 
 void CvUnit::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
@@ -26042,294 +26023,280 @@ int CvUnit::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
 #endif
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getImpassableCount() const
-{
-	VALIDATE_OBJECT
-	int iCount = 0;
-
-	int iNumTerrains = GC.getNumTerrainInfos();
-	for(int iI = 0; iI < iNumTerrains; iI++)
-	{
-		if(isTerrainImpassable((TerrainTypes) iI))
-		{
-			iCount++;
-		}
-	}
-
-	int iNumFeatures = GC.getNumFeatureInfos();
-	for(int iI = 0; iI < iNumFeatures; iI++)
-	{
-		if(isFeatureImpassable((FeatureTypes) iI))
-		{
-			iCount++;
-		}
-	}
-
-	return iCount;
-}
-
-
-//	--------------------------------------------------------------------------------
 int CvUnit::getTerrainImpassableCount(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (TerrainTypeCounter::const_iterator it = m_terrainImpassableCount.begin(); it != m_terrainImpassableCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isTerrainImpassable(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.get();
-	if (m_map.empty())
-		return false;
-
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
+	return getTerrainImpassableCount(eIndex) > 0;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 {
-	std::map<TerrainTypes, int>& m_map = m_terrainImpassableCount.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	TerrainTypeCounter& mVec = m_terrainImpassableCount.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex] == 0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_terrainImpassableCount.push_back(make_pair(eIndex, iChange));
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureImpassableCount(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (FeatureTypeCounter::const_iterator it = m_featureImpassableCount.begin(); it != m_featureImpassableCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isFeatureImpassable(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second > 0;
-	else
-		return false;
+	return getFeatureImpassableCount(eIndex);
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 {
-	std::map<FeatureTypes, int>& m_map = m_featureImpassableCount.dirtyGet();
-	if (m_map.find(eIndex) != m_map.end())
+	FeatureTypeCounter& mVec = m_featureImpassableCount.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		m_map[eIndex] += iChange;
-		if (m_map[eIndex] == 0)
-			m_map.erase(eIndex);
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
-	else
-		m_map[eIndex] = iChange;
+
+	m_featureImpassableCount.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraTerrainAttackPercent(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_extraTerrainAttackPercent.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (TerrainTypeCounter::const_iterator it = m_extraTerrainAttackPercent.begin(); it != m_extraTerrainAttackPercent.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 {
-	if(iChange != 0)
+	TerrainTypeCounter& mVec = m_extraTerrainAttackPercent.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		std::map<TerrainTypes, int>& m_map = m_extraTerrainAttackPercent.dirtyGet();
-		if (m_map.find(eIndex) != m_map.end())
+		if (it->first == eIndex)
 		{
-			m_map[eIndex] += iChange;
-			if (m_map[eIndex] == 0)
-				m_map.erase(eIndex);
-		}
-		else
-			m_map[eIndex] = iChange;
+			it->second += iChange;
 
-		setInfoBarDirty(true);
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
+
+	m_extraTerrainAttackPercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraTerrainDefensePercent(TerrainTypes eIndex) const
 {
-	const std::map<TerrainTypes, int>& m_map = m_extraTerrainDefensePercent.get();
-	std::map<TerrainTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (TerrainTypeCounter::const_iterator it = m_extraTerrainDefensePercent.begin(); it != m_extraTerrainDefensePercent.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 {
-	if(iChange != 0)
+	TerrainTypeCounter& mVec = m_extraTerrainDefensePercent.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		std::map<TerrainTypes, int>& m_map = m_extraTerrainDefensePercent.dirtyGet();
-		if (m_map.find(eIndex) != m_map.end())
+		if (it->first == eIndex)
 		{
-			m_map[eIndex] += iChange;
-			if (m_map[eIndex] == 0)
-				m_map.erase(eIndex);
-		}
-		else
-			m_map[eIndex] = iChange;
+			it->second += iChange;
 
-		setInfoBarDirty(true);
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
+
+	m_extraTerrainDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_extraFeatureAttackPercent.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (FeatureTypeCounter::const_iterator it = m_extraFeatureAttackPercent.begin(); it != m_extraFeatureAttackPercent.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 {
-	if(iChange != 0)
+	FeatureTypeCounter& mVec = m_extraFeatureAttackPercent.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		std::map<FeatureTypes, int>& m_map = m_extraFeatureAttackPercent.dirtyGet();
-		if (m_map.find(eIndex) != m_map.end())
+		if (it->first == eIndex)
 		{
-			m_map[eIndex] += iChange;
-			if (m_map[eIndex] == 0)
-				m_map.erase(eIndex);
-		}
-		else
-			m_map[eIndex] = iChange;
+			it->second += iChange;
 
-		setInfoBarDirty(true);
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
+
+	m_extraFeatureAttackPercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureDefensePercent(FeatureTypes eIndex) const
 {
-	const std::map<FeatureTypes, int>& m_map = m_extraFeatureDefensePercent.get();
-	std::map<FeatureTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	for (FeatureTypeCounter::const_iterator it = m_extraFeatureDefensePercent.begin(); it != m_extraFeatureDefensePercent.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 {
-	if(iChange != 0)
+	FeatureTypeCounter& mVec = m_extraFeatureDefensePercent.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		std::map<FeatureTypes, int>& m_map = m_extraFeatureDefensePercent.dirtyGet();
-		if (m_map.find(eIndex) != m_map.end())
+		if (it->first == eIndex)
 		{
-			m_map[eIndex] += iChange;
-			if (m_map[eIndex] == 0)
-				m_map.erase(eIndex);
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
 		}
-		else
-			m_map[eIndex] = iChange;
-
-		setInfoBarDirty(true);
 	}
+
+	m_extraFeatureDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getUnitClassAttackMod(UnitClassTypes eUnitClass) const
+int CvUnit::getUnitClassAttackMod(UnitClassTypes eIndex) const
 {
-	const std::map<UnitClassTypes, int>& m_map = m_extraUnitClassAttackMod.get();
-	std::map<UnitClassTypes, int>::const_iterator it = m_map.find(eUnitClass);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeUnitClassAttackMod(UnitClassTypes eUnitClass, int iChange)
-{
-	if (iChange != 0)
+	for (UnitClassCounter::const_iterator it = m_extraUnitClassAttackMod.begin(); it != m_extraUnitClassAttackMod.end(); ++it)
 	{
-		std::map<UnitClassTypes, int>& m_map = m_extraUnitClassAttackMod.dirtyGet();
-		if (m_map.find(eUnitClass) != m_map.end())
-		{
-			m_map[eUnitClass] += iChange;
-			if (m_map[eUnitClass] == 0)
-				m_map.erase(eUnitClass);
-		}
-		else
-			m_map[eUnitClass] = iChange;
-
-		setInfoBarDirty(true);
+		if (it->first == eIndex)
+			return it->second;
 	}
-}
 
-//	--------------------------------------------------------------------------------
-int CvUnit::getUnitClassDefenseMod(UnitClassTypes eUnitClass) const
-{
-	const std::map<UnitClassTypes, int>& m_map = m_extraUnitClassDefenseMod.get();
-	std::map<UnitClassTypes, int>::const_iterator it = m_map.find(eUnitClass);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
+	return 0;
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eUnitClass, int iChange)
+void CvUnit::changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange)
 {
-	if (iChange != 0)
+	UnitClassCounter& mVec = m_extraUnitClassAttackMod.dirtyGet();
+	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
-		std::map<UnitClassTypes, int>& m_map = m_extraUnitClassDefenseMod.dirtyGet();
-		if (m_map.find(eUnitClass) != m_map.end())
+		if (it->first == eIndex)
 		{
-			m_map[eUnitClass] += iChange;
-			if (m_map[eUnitClass] == 0)
-				m_map.erase(eUnitClass);
-		}
-		else
-			m_map[eUnitClass] = iChange;
+			it->second += iChange;
 
-		setInfoBarDirty(true);
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
 	}
+
+	m_extraUnitClassAttackMod.push_back(make_pair(eIndex, iChange));
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getUnitClassDefenseMod(UnitClassTypes eIndex) const
+{
+	for (UnitClassCounter::const_iterator it = m_extraUnitClassDefenseMod.begin(); it != m_extraUnitClassDefenseMod.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
+{
+	UnitClassCounter& mVec = m_extraUnitClassDefenseMod.dirtyGet();
+	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_extraUnitClassDefenseMod.push_back(make_pair(eIndex, iChange));
+}
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::getCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex) const
@@ -27023,6 +26990,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeReligiousStrengthLossRivalTerritory((thisPromotion.GetReligiousStrengthLossRivalTerritory()) *  iChange);
 		ChangeTradeMissionInfluenceModifier((thisPromotion.GetTradeMissionInfluenceModifier()) * iChange);
 		ChangeTradeMissionGoldModifier((thisPromotion.GetTradeMissionGoldModifier()) * iChange);
+		ChangeDiploMissionInfluence((thisPromotion.GetDiploMissionInfluence()) * iChange);
 		changeDropRange(thisPromotion.GetDropRange() * iChange);
 		changeExtraVisibilityRange(thisPromotion.GetVisibilityChange() * iChange);
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)

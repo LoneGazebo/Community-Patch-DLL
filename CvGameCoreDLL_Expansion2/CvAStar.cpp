@@ -380,11 +380,13 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	{
 		//debug hook
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
+#if defined(VPDEBUG)
 		if (iStartIndex==giLastStartIndex && iStartIndex>0)
 		{
 			OutputDebugString("Repeated pathfinding start\n");
 			gStackWalker.ShowCallstack();
 		}
+#endif
 		giLastStartIndex = iStartIndex;
 
 		int iNumPlots = GC.getMap().numPlots();
@@ -941,6 +943,29 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
+	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
+	kToNodeCacheData.plotMovementCostFactor = GC.getMOVE_DENOMINATOR();
+	TerrainTypes eToTerrain = pPlot->getTerrainType();
+	FeatureTypes eToFeature = pPlot->getFeatureType();
+	if (pPlot->isHills() && pUnit->isHillsDoubleMove())
+	{
+		kToNodeCacheData.plotMovementCostFactor /= 2;
+	}
+	else if (pPlot->isMountain() && pUnit->isMountainsDoubleMove())
+	{
+		kToNodeCacheData.plotMovementCostFactor /= 2;
+	}
+	else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
+	{
+		kToNodeCacheData.plotMovementCostFactor /= 2;
+	}
+#if defined(MOD_PROMOTIONS_HALF_MOVE)
+	else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
+	{
+		kToNodeCacheData.plotMovementCostFactor *= 2;
+	}
+#endif
+
 	//done!
 	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
 }
@@ -1258,12 +1283,12 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (bCheckZOC)
 		{
 			if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
-				iMovementCost = CvUnitMovement::MovementCostSelectiveZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves, data.plotsToIgnoreForZOC);
+				iMovementCost = CvUnitMovement::MovementCostSelectiveZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves, kToNodeCacheData.plotMovementCostFactor, data.plotsToIgnoreForZOC);
 			else
-				iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+				iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves, kToNodeCacheData.plotMovementCostFactor);
 		}
 		else
-			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves, kToNodeCacheData.plotMovementCostFactor);
 	}
 
 	// how much is left over?

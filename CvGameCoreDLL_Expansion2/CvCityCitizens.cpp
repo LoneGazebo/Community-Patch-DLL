@@ -664,7 +664,7 @@ void CvCityCitizens::DoTurn()
 		int iExcessHappiness = thisPlayer.GetExcessHappiness();
 		int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal();
 		
-		bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= -10;
+		bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= -20;
 
 		m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= 0;
 
