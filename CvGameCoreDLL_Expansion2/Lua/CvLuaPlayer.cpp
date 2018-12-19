@@ -289,6 +289,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
 	Method(GetFractionOriginalCapitalsUnderControl);
+	Method(GetTechDeviation);
 	Method(GetTourismPenalty);
 	Method(GetTechsToFreePolicy);
 #endif
@@ -3202,6 +3203,21 @@ int CvLuaPlayer::lGetFractionOriginalCapitalsUnderControl(lua_State* L)
 	}
 
 	lua_pushinteger(L, iTotal);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTechDeviation(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer == NULL)
+		return 0;
+
+	// Mod for City Count
+	int iMod = pkPlayer->GetTechDeviation();	// Default is 15, gets smaller on larger maps
+
+	lua_pushinteger(L, iMod);
 	return 1;
 }
 
@@ -12350,6 +12366,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	int iVisibleApproach = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetApproachTowardsUsGuess(pkPlayer->GetID());
 	if (GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 	{
+		iVisibleApproach = MAJOR_CIV_APPROACH_WAR;
 		Opinion kOpinion;
 		kOpinion.m_iValue = 99999;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AT_WAR");

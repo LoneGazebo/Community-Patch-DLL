@@ -20,7 +20,6 @@ UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_AMBASSADOR';
 
 
-
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
 
 

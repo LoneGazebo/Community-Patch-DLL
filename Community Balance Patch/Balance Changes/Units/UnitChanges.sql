@@ -53,9 +53,9 @@
 
 	-- Reduced base golden age turns of artist 
 	UPDATE Units SET GoldenAgeTurns = '0' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-	UPDATE Units SET BaseTurnsForGAPToCount = '5' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	UPDATE Units SET BaseTurnsForGAPToCount = '10' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	-- Writer added scaling bonus for num themed GWs
-	UPDATE Units SET ScaleFromNumThemes = '10' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	UPDATE Units SET ScaleFromNumThemes = '15' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Engineer production boost nerfed slightly.
 

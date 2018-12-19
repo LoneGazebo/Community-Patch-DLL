@@ -363,6 +363,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetTheoreticalUnhappinessDecrease);
+	Method(GetStaticTechDeviation);
+	Method(getPopThresholdMod);
+	Method(getEmpireSizeMod);
 	Method(getHappinessDelta);
 	Method(getHappinessThresholdMod);
 	Method(getThresholdSubtractions);
@@ -3734,6 +3737,27 @@ int CvLuaCity::lGetTheoreticalUnhappinessDecrease(lua_State* L)
 	return 1;
 }
 //int getHappinessDelta();
+int CvLuaCity::lgetPopThresholdMod(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getPopThresholdMod());
+	return 1;
+}
+
+int CvLuaCity::lgetEmpireSizeMod(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getEmpireSizeMod());
+	return 1;
+}
+
+int CvLuaCity::lGetStaticTechDeviation(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetStaticTechDeviation());
+	return 1;
+}
+
 int CvLuaCity::lgetHappinessDelta(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);

@@ -674,8 +674,8 @@
 			<Description>TXT_KEY_PROMOTION_BOMBARDMENT_1</Description>
 			<Help>TXT_KEY_PROMOTION_BOMBARDMENT_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>20</CityAttack>
-			<RangedAttackModifier>5</RangedAttackModifier>
+			<CityAttack>25</CityAttack>
+			<RangedAttackModifier>10</RangedAttackModifier>
 			<OrderPriority>2</OrderPriority>
 			<PortraitIndex>10</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -687,8 +687,8 @@
 			<Description>TXT_KEY_PROMOTION_BOMBARDMENT_2</Description>
 			<Help>TXT_KEY_PROMOTION_BOMBARDMENT_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>20</CityAttack>
-			<RangedAttackModifier>5</RangedAttackModifier>
+			<CityAttack>25</CityAttack>
+			<RangedAttackModifier>10</RangedAttackModifier>
 			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<PortraitIndex>11</PortraitIndex>
@@ -701,8 +701,8 @@
 			<Description>TXT_KEY_PROMOTION_BOMBARDMENT_3</Description>
 			<Help>TXT_KEY_PROMOTION_BOMBARDMENT_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>20</CityAttack>
-			<RangedAttackModifier>5</RangedAttackModifier>
+			<CityAttack>25</CityAttack>
+			<RangedAttackModifier>10</RangedAttackModifier>
 			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<PortraitIndex>12</PortraitIndex>

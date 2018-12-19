@@ -1524,13 +1524,13 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		iNumTurns = 1;
 
 	//how much happiness from one additional luxury?
-	int iBaseHappiness = 1;
+	int iBaseHappiness = 0;
 	if (bFromMe)
 		iBaseHappiness += GetPlayer()->GetHappinessFromLuxury(eResource) + GetPlayer()->GetBonusHappinessFromLuxuriesGradient();
 	else
 		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource) + GET_PLAYER(eOtherPlayer).GetBonusHappinessFromLuxuriesGradient();
 
-	int iItemValue = max(pkResourceInfo->getHappiness(), iBaseHappiness) * iNumTurns;
+	int iItemValue = max(1, iBaseHappiness) * iNumTurns;
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;
@@ -1778,7 +1778,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 25;
+	int iItemValue = 10;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1941,7 +1941,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity * iNumTurns);
-			iItemValue /= 25;
+			iItemValue /= 30;
 
 			return iItemValue;
 		}
@@ -2092,7 +2092,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity * iNumTurns);
-			iItemValue /= 10;
+			iItemValue /= 30;
 
 			return iItemValue;
 		}

@@ -519,6 +519,14 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 
+			-- CBP (Monopoly)
+			iModifier = pMyUnit:GetMonopolyAttackBonus();
+			if(iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+
 			-- COMMUNITY (Bushido)
 			if (pMyPlayer:GetWoundedUnitDamageMod() ~= 0) then
 				iModifier = pMyUnit:GetDamage() / 5;

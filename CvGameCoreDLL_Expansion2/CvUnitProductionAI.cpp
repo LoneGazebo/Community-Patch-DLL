@@ -828,10 +828,28 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					PromotionTypes ePromotion = (PromotionTypes) iI;
 
-					if(GC.getPromotionInfo(ePromotion)->GetTradeMissionInfluenceModifier() != 0)
+					if(GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence() != 0)
 					{
-						iInfluence = GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION() * (100 + GC.getPromotionInfo(ePromotion)->GetTradeMissionInfluenceModifier()) / 100;
-						break;
+						iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
+					}
+				}
+				if (kPlayer.GetFreePromotionCount((PromotionTypes)iI))
+				{
+					PromotionTypes ePromotion = (PromotionTypes)iI;
+
+					if (GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence() != 0)
+					{
+						iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
+					}
+				}
+
+				if (m_pCity->isFreePromotion((PromotionTypes)iI))
+				{
+					PromotionTypes ePromotion = (PromotionTypes)iI;
+
+					if (GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence() != 0)
+					{
+						iInfluence += GC.getPromotionInfo(ePromotion)->GetDiploMissionInfluence();
 					}
 				}
 			}
@@ -1044,6 +1062,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += 100;
 			if (kPlayer.GetPlayerTraits()->IsTourism())
+			{
+				iBonus += 150;
+			}
+		}
+		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_MESSENGER)
+		{
+			iBonus += 100;
+			if (kPlayer.GetPlayerTraits()->IsDiplomat())
 			{
 				iBonus += 150;
 			}

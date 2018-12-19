@@ -641,10 +641,10 @@
 			<Text>A free military Unit spawns near your City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_4">
-			<Text>Invite them to integrate into the City, so that we may learn of their culture.</Text>
+			<Text>Invite them to integrate into the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_4_HELP">
-			<Text>City gains 1 [ICON_CITIZEN] Citizen. +{4_GPChange} in the City.</Text>
+			<Text>City gains 1 [ICON_CITIZEN] Citizen.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_SUCCESSFUL">

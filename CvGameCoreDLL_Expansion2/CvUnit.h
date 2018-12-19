@@ -1826,6 +1826,9 @@ public:
 	void ChangeTradeMissionGoldModifier(int iValue);
 	int GetTradeMissionGoldModifier() const;
 
+	void ChangeDiploMissionInfluence(int iValue);
+	int GetDiploMissionInfluence() const;
+
 	bool IsHasBeenPromotedFromGoody() const;
 	void SetBeenPromotedFromGoody(bool bBeenPromoted);
 
@@ -2306,6 +2309,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iReligiousStrengthLossRivalTerritory;
 	FAutoVariable<int, CvUnit> m_iTradeMissionInfluenceModifier;
 	FAutoVariable<int, CvUnit> m_iTradeMissionGoldModifier;
+	FAutoVariable<int, CvUnit> m_iDiploMissionInfluence;
 	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
 	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;

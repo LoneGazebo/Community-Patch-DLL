@@ -2384,7 +2384,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					{
 						iValue -= pPlayer->GetCurrentEra() * 25;
 
-						yield[YIELD_PRODUCTION] += max(1, iValue);
+						if (iValue <= 0)
+							iValue = 0;
+
+						yield[YIELD_PRODUCTION] += min(250, iValue);
 					}
 				}
 			}
@@ -2604,11 +2607,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += 20 * iNumCities;
+			yield[YIELD_GREAT_GENERAL_POINTS] += (5 + (PolicyInfo->GetDefenseBoost()/100)) * iNumCities;
 		}
 		else
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += 5 * iNumCities;
+			yield[YIELD_GREAT_GENERAL_POINTS] += (2 + (PolicyInfo->GetDefenseBoost() / 100)) * iNumCities;
 		}
 	}
 
@@ -2868,7 +2871,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (pPlayerTraits->IsWarmonger())
 						iValue *= 2;
 
-					yield[YIELD_PRODUCTION] += max(1, iValue);
+					yield[YIELD_PRODUCTION] += min(250, iValue);
 				}
 			}
 		}
@@ -3458,7 +3461,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-							yield[YIELD_FAITH] += max(0, iValue);
+							if (iValue <= 0)
+								iValue = 0;
+
+							yield[YIELD_FAITH] += min(250, iValue);
 						}
 						else
 						{
@@ -3467,7 +3473,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-							yield[YIELD_PRODUCTION] += max(0, iValue);
+							yield[YIELD_PRODUCTION] += min(250, iValue);
 						}
 					}
 				}
@@ -3538,7 +3544,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-							yield[YIELD_PRODUCTION] += max(0, iValue);
+							if (iValue <= 0)
+								iValue = 0;
+
+							yield[YIELD_PRODUCTION] += min(250, iValue);
 						}
 					}
 				}
@@ -3565,7 +3574,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-							yield[YIELD_PRODUCTION] += max(0, iValue);
+							if (iValue <= 0)
+								iValue = 0;
+
+							yield[YIELD_PRODUCTION] += min(250, iValue);
 						}
 					}
 				}
@@ -3670,12 +3682,12 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 					if (pUnitEntry)
 					{
-						int Value = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 20, 10, 10, 10, true, true);
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 20, 10, 10, 10, true, true);
 						if (pPlayerTraits->IsReligious())
 						{
-							Value *= 2;
+							iValue *= 2;
 						}
-						yield[YIELD_FAITH] += Value;
+						yield[YIELD_FAITH] += min(250, iValue);
 					}
 				}
 			}
@@ -3686,15 +3698,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
 				{
-					int Value = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 30, 10, 10, 10, true, true);
+					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 5, 10, 10, 10, true, true);
 					if (pPlayerTraits->IsWarmonger())
 					{
-						Value *= 2;
+						iValue *= 2;
 					}
 					if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
-						yield[YIELD_GREAT_GENERAL_POINTS] += Value;
+						yield[YIELD_GREAT_GENERAL_POINTS] += min(250, iValue);
 					else
-						yield[YIELD_GREAT_ADMIRAL_POINTS] += Value;
+						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(250, iValue);
 				}
 			}
 		}
@@ -4862,7 +4874,10 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 
 										iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-										iWeight += max(0, iValue);
+										if (iValue <= 0)
+											iValue = 0;
+
+										iWeight += min(250, iValue);
 									}
 									else
 									{
@@ -4873,7 +4888,10 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 
 										iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-										iWeight += max(0, iValue);
+										if (iValue <= 0)
+											iValue = 0;
+
+										iWeight += min(250, iValue);
 									}
 								}
 							}

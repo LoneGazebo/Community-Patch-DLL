@@ -129,6 +129,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
 	m_iGoodyHutYieldBonus(0),
+	m_iDiploMissionInfluence(0),
 	m_bGainsXPFromScouting(false),
 	m_bGainsXPFromPillaging(false),
 	m_bGainsXPFromSpotting(false),
@@ -374,6 +375,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iCaptureDefeatedEnemyChance = kResults.GetInt("CaptureDefeatedEnemyChance");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
+	m_iDiploMissionInfluence = kResults.GetInt("DiploMissionInfluence");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_bGainsXPFromPillaging = kResults.GetBool("GainsXPFromPillaging");
 	m_bGainsXPFromSpotting = kResults.GetBool("GainsXPFromSpotting");
@@ -1786,6 +1788,10 @@ int CvPromotionEntry::GetTradeMissionGoldModifier() const
 	return m_iTradeMissionGoldModifier;
 }
 #if defined(MOD_BALANCE_CORE)
+int CvPromotionEntry::GetDiploMissionInfluence() const
+{
+	return m_iDiploMissionInfluence;
+}
 
 int CvPromotionEntry::GetGoodyHutYieldBonus() const
 {

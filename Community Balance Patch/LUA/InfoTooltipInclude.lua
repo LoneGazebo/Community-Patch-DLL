@@ -1336,6 +1336,10 @@ function GetCityHappinessTooltip(pCity)
 			iCapitalMod = Players[pCity:GetOwner()]:GetCapitalUnhappinessModCBP();
 		end
 
+		local iTechDeviationMod = pCity:GetStaticTechDeviation();
+		local iPopMod = pCity:getPopThresholdMod();
+		local iEmpireMod = pCity:getEmpireSizeMod();
+
 		local iThresholdGold = pCity:getHappinessThresholdMod(YieldTypes.YIELD_GOLD);
 		local iThresholdDefense = pCity:getHappinessThresholdMod(YieldTypes.YIELD_PRODUCTION);
 		local iThresholdScience = pCity:getHappinessThresholdMod(YieldTypes.YIELD_SCIENCE);
@@ -1429,8 +1433,14 @@ function GetCityHappinessTooltip(pCity)
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION");
 		end
 
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS");
+		if(pCity:IsRazing()) then
+			return strHappinessBreakdown;
+		end
+		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+			return strHappinessBreakdown;
+		end
 
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN");
 		if (iPuppetMod ~= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
 		end
@@ -1439,13 +1449,46 @@ function GetCityHappinessTooltip(pCity)
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CAPITAL_UNHAPPINESS_MOD", iCapitalMod);
 		end
 
-		if(pCity:IsRazing()) then
-			return strHappinessBreakdown;
-		end
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			return strHappinessBreakdown;
+		if (iTechDeviationMod ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTechDeviationMod);
 		end
 
+		if (iPopMod ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
+		end
+
+		if (iEmpireMod ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
+		end
+
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_REDUCTION_AVERAGE_MODS_BREAKDOWN");
+		
+		local iReductionDefense = pCity:getThresholdSubtractions(YieldTypes.YIELD_PRODUCTION);
+		if (iReductionDefense ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iReductionDefense);
+		end	
+
+		local iReductionGold = pCity:getThresholdSubtractions(YieldTypes.YIELD_GOLD);
+		if (iReductionGold ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iReductionGold);
+		end	
+
+		local iReductionScience = pCity:getThresholdSubtractions(YieldTypes.YIELD_SCIENCE);
+		if (iReductionScience ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iReductionScience);
+		end	
+
+		local iReductionCulture = pCity:getThresholdSubtractions(YieldTypes.YIELD_CULTURE);
+		if (iReductionCulture ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iReductionCulture);
+		end	
+
+		local iReductionFaith = pCity:getThresholdSubtractions(YieldTypes.YIELD_FAITH);
+		if (iReductionFaith ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH", iReductionFaith);
+		end	
+
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS");
 		
 		if(iThresholdDefense > 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdDefense);

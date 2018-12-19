@@ -8513,6 +8513,8 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iScoreCity = 0;
 	int iScorePlayer = 0;
 
+	int iDistanceToCheck = pEntry->IsPantheonBelief() ? 2 : 1;
+
 	// Loop through each plot on map
 	int iPlotLoop;
 	CvPlot* pPlot;
@@ -8524,8 +8526,8 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 		PlayerTypes ePlotOwner = pPlot->getOwner();
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
-			// Also skip if closest city of ours is not within 2 turn
-			if (m_pPlayer->GetCityDistanceInEstimatedTurns(pPlot)>2)
+			// Also skip if closest city of ours is not within 2-3 turn (pantheon check further because early game)
+			if (m_pPlayer->GetCityDistanceInEstimatedTurns(pPlot)>iDistanceToCheck)
 				continue;
 
 			// Score it
@@ -8722,8 +8724,8 @@ int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldT
 
 		if (eImprovement == NO_IMPROVEMENT)
 		{
-			pEntry->GetUnimprovedFeatureYieldChange(eFeature, iI);
-			pEntry->GetCityYieldFromUnimprovedFeature(eFeature, iI);
+			iRtnValue += pEntry->GetUnimprovedFeatureYieldChange(eFeature, iI);
+			iRtnValue += pEntry->GetCityYieldFromUnimprovedFeature(eFeature, iI);
 		}
 	}
 
@@ -8791,8 +8793,7 @@ int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldT
 					}
 					else
 					{
-						if (eFeature == NO_FEATURE)
-							iRtnValue += (pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI));
+						iRtnValue += (pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI));
 					}
 				}
 			}
@@ -8811,6 +8812,12 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 	// Terrain
 	FeatureTypes eFeature = pPlot->getFeatureType();
 	ResourceTypes eResource = pPlot->getResourceType();
+
+	if (pEntry->RequiresResource() && eResource == NO_RESOURCE)
+	{
+		return 0;
+	}
+
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -8820,58 +8827,58 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 			continue;
 
 		int iFlavor = 1;
+		int iPersonFlavor = 0;
 		CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 		switch (iI)
 		{
 		case YIELD_FOOD:
-			iFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 			break;
 		case YIELD_PRODUCTION:
-			iFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 			break;
 		case YIELD_GOLD:
-			iFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 			break;
 		case YIELD_SCIENCE:
-			iFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 			break;
 		case YIELD_CULTURE:
-			iFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 			break;
 		case YIELD_FAITH:
-			iFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			iPersonFlavor = pFlavorManager->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 			break;
 		}
 
+		iFlavor = iPersonFlavor;
 		iFlavor /= 10;
-		if (iFlavor <= 1)
-			iFlavor = 1;
+
+		if (iFlavor <= iPersonFlavor)
+			iFlavor = iPersonFlavor;
 
 		iRtnValue = 0;
-#endif
-
-		if (pEntry->RequiresResource() && eResource == NO_RESOURCE)
-		{
-			return 0;
-		}
-		
+#endif		
 		iRtnValue = GetValidPlotYield(pEntry, pPlot, (YieldTypes)iI);
+		if (iRtnValue <= 0)
+			continue;
+
 		iTotalRtnValue += iRtnValue*iFlavor;
 
 		if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 		{
-			iRtnValue *= 2;
-			iRtnValue /= 3;
+			iRtnValue *= 7;
+			iRtnValue /= 10;
 		}
 		if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT)
 		{
-			iRtnValue *= 2;
-			iRtnValue /= 3;
+			iRtnValue *= 9;
+			iRtnValue /= 10;
 		}
-		if (pEntry->RequiresNoFeature() && eFeature == NO_FEATURE)
+		if (pEntry->RequiresNoFeature() && eFeature != NO_FEATURE)
 		{
-			iRtnValue *= 2;
-			iRtnValue /= 3;
+			iRtnValue *= 8;
+			iRtnValue /= 10;
 		}
 	}
 
@@ -8908,7 +8915,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	iMinFollowers = pEntry->GetMinFollowers();
 
 	// Simple ones
-	iRtnValue += pCity->isCapital() ? pEntry->GetCityGrowthModifier() * 2 : pEntry->GetCityGrowthModifier();
+	iRtnValue += m_pPlayer->GetPlayerTraits()->IsSmaller() ? pEntry->GetCityGrowthModifier() * 2 : pEntry->GetCityGrowthModifier();
 	if(pEntry->RequiresPeace())
 	{
 #ifdef AUI_RELIGION_SCORE_BELIEF_AT_CITY_CONSIDER_GRAND_STRATEGY
@@ -8917,9 +8924,9 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		iRtnValue /= 2;
 #endif
 	}
-	iRtnValue += (-pEntry->GetPlotCultureCostModifier() / 12) * MAX(iFlavorDefense, iFlavorCityDefense);
+	iRtnValue += (-pEntry->GetPlotCultureCostModifier() / 5) * MAX(-pEntry->GetPlotCultureCostModifier() / 5, iFlavorDefense - iFlavorOffense);
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 25) * MAX(iFlavorDefense,iFlavorCityDefense);
+	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 10) * MAX(pEntry->GetCityRangeStrikeModifier() / 10, iFlavorCityDefense - iFlavorOffense);
 #else
 	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 10) * MAX(iFlavorDefense,iFlavorCityDefense);
 #endif
@@ -10620,21 +10627,21 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	}
 	if (pPlayerTraits->IsDiplomat())
 	{
-		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 10;
+		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 5;
 		iGoldTemp *= 10;
 		iPolicyGainTemp *= 5;
 		iHappinessTemp *= 5;
 	}
 	if (pPlayerTraits->IsReligious())
 	{
-		iSpreadTemp *= pEntry->IsPantheonBelief() ? 5 : 15;
+		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 10;
 		iHappinessTemp *= 5;
 		iBuildingTemp *= 10;
 		iGPTemp *= 5;
 	}
 	if (pPlayerTraits->IsExpansionist())
 	{
-		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 10;
+		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 5;
 		iHappinessTemp *= 10;
 		iBuildingTemp *= 10;
 		iPolicyGainTemp *= 5;

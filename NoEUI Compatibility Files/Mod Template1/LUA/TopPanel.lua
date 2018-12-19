@@ -1135,8 +1135,7 @@ function GoldenAgeTipHandler( control )
 		else
 			strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
 		end
-
-		--CBP
+		-- CBP
 		local iGAPReligion = pPlayer:GetGAPFromReligion();
 		if (iGAPReligion > 0) then
 			strText = strText .. "[NEWLINE]";

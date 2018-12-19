@@ -577,7 +577,8 @@ local function UnitToolTip( unit, ... )
 		tips:insertIf( unitInfo.BaseHurry > 0 and "[ICON_BULLET]" .. L"TXT_KEY_MISSION_HURRY_PRODUCTION" .. (" %g[ICON_PRODUCTION]%+g[ICON_PRODUCTION]/[ICON_CITIZEN]"):format( unitInfo.BaseHurry, unitInfo.HurryMultiplier or 0 ) )
 
 		-- Great Merchant
-		tips:insertIf( unitInfo.BaseGold > 0 and "[ICON_BULLET]" .. L"TXT_KEY_MISSION_CONDUCT_TRADE_MISSION" .. (" %g[ICON_GOLD]%+g[ICON_INFLUENCE]" ):format( unitInfo.BaseGold + ( unitInfo.NumGoldPerEra or 0 ) * ( Game and Teams[Game.GetActiveTeam()]:GetCurrentEra() or PreGame.GetEra() ), GameDefines.MINOR_FRIENDSHIP_FROM_TRADE_MISSION or 0 ) )
+		local influence = unit:GetTradeInfluence(unit:GetPlot());
+		tips:insertIf( influence > 0 and "[ICON_BULLET]" .. L"TXT_KEY_MISSION_CONDUCT_TRADE_MISSION" .. (" %g[ICON_GOLD]%+g[ICON_INFLUENCE]" ):format( unitInfo.BaseGold + ( unitInfo.NumGoldPerEra or 0 ) * ( Game and Teams[Game.GetActiveTeam()]:GetCurrentEra() or PreGame.GetEra() ), influence) )
 
 		-- Becomes Obsolete with:
 		local obsoleteTech = unitInfo.ObsoleteTech and GameInfo.Technologies[unitInfo.ObsoleteTech]

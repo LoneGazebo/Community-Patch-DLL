@@ -13520,7 +13520,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		if(pBestCity != NULL)
 		{
-			pBestCity->changePopulation(iPop);
+			pBestCity->changePopulation(iPop, true, true);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -27140,7 +27140,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						else
 						{
-							pLoopCity->changePopulation(iValue);
+							pLoopCity->changePopulation(iValue, true, true);
 						}
 					}
 					break;
@@ -31787,6 +31787,15 @@ void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 
 int CvPlayer::GetTechDeviation() const
 {
+
+	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
+	int iNumTechs = GC.getNumTechInfos();
+
+	int iPercentResearched = iOurTech * 100;
+	iPercentResearched /= max(1, iNumTechs);
+
+	iPercentResearched /= 2;
+	/*
 	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
 	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
 	int iAvgTech = GC.getGame().GetGlobalTechAvg();
@@ -31794,14 +31803,16 @@ int CvPlayer::GetTechDeviation() const
 	int iTechDeviation = iOurTech - iAvgTech;
 
 	//Using the num of techs to get a % - num of techs artificially increased to slow rate of runaways
-	int iTech = (int)((iTechDeviation * iTechDeviation) * /*.1*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+	int iTech = (int)((iTechDeviation * iTechDeviation) * /*.1*/ //GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 
+	/*
 	if (iTech > 0 && iTech > (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100))
 		iTech = ((int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100);
 	else if (iTech < 0 && iTech <= (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * -100))
 		iTech = ((int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * -100);
+	*/
 
-	return iTech;
+	return iPercentResearched;
 }
 
 
@@ -43288,11 +43299,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			if(pPolicy->GetFreePopulation() > 0)
 			{
-				pLoopCity->changePopulation(pPolicy->GetFreePopulation());
+				pLoopCity->changePopulation(pPolicy->GetFreePopulation(), true, true);
 			}
 			if (pPolicy->GetFreePopulationCapital() > 0 && pLoopCity->isCapital())
 			{
-				pLoopCity->changePopulation(pPolicy->GetFreePopulationCapital());
+				pLoopCity->changePopulation(pPolicy->GetFreePopulationCapital(), true, true);
 			}
 		}
 		changeExtraMoves(pPolicy->GetExtraMoves() * iChange);

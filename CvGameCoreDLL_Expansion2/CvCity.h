@@ -119,6 +119,9 @@ public:
 
 	void SetStaticNeedAdditives(YieldTypes eYield, int iValue);
 	int GetStaticNeedAdditives(YieldTypes eYield) const;
+
+	int GetStaticTechDeviation() const;
+	void UpdateStaticTechDeviation(int iValue);
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -584,7 +587,7 @@ public:
 #else
 	void setPopulation(int iNewValue, bool bReassignPop = true);
 #endif
-	void changePopulation(int iChange, bool bReassignPop = true);
+	void changePopulation(int iChange, bool bReassignPop = true, bool bIgnoreStaticUpdate = false);
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int getAutomatons() const;
@@ -845,8 +848,10 @@ public:
 	int getHappinessDelta() const;
 	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
 	int getThresholdSubtractions(YieldTypes eYield) const;
-	int getThresholdAdditions(YieldTypes eYield = NO_YIELD) const;
+	int getThresholdAdditions(/*YieldTypes eYield = NO_YIELD*/) const;
 	int getUnhappyCitizenCount() const;
+	int getPopThresholdMod() const;
+	int getEmpireSizeMod() const;
 
 	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
 	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
@@ -1829,6 +1834,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;

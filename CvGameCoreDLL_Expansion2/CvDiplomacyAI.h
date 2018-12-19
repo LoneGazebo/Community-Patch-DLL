@@ -356,7 +356,7 @@ public:
 	// Warmonger Threat - how much of a threat are these guys to run amok and break everything
 	ThreatTypes GetWarmongerThreat(PlayerTypes ePlayer) const;
 	void SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmongerThreat);
-	void DoUpdateWarmongerThreats();
+	void DoUpdateWarmongerThreats(bool bUpdateOnly = false);
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetNumberOfThreatenedCities(PlayerTypes eEnemy);

@@ -15936,7 +15936,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if (GC.getGame().getGameTurn() > 30 && GetTurnLiberated() != 0)
 	{
 		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
-		if(iDuration > 0)
+		if(iDuration >= 0)
 		{
 			int iLimit = 50;
 			iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -16358,15 +16358,15 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 					if (GET_PLAYER(eBully).isHuman())
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
-						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
+//						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
 						Localization::String strMessageOthers;
 						Localization::String strSummaryOthers;
 
 						// Notify player has met the bully
 						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU");
 						strMessageOthers << strMinorsNameKey;
-						strMessageOthers << strBullyName;
 						strMessageOthers << iInfluence;
+						strMessageOthers << GET_PLAYER(eBully).GetBullyGlobalCSReduction();
 						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S");
 						strSummaryOthers << strMinorsNameKey;
 						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eBully);
@@ -17953,30 +17953,28 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 
 	//antonjs: todo: xml, rename xml to indicate it is for WaryOf, not Permanent War
 	// Minor Civ Warmonger
-	if(pEnemyTeam->IsMinorCivWarmonger())
+	if (pEnemyTeam->IsMinorCivWarmonger() || pEnemyTeam->IsMinorCivAggressor())
 	{
 		if(!IsWaryOfTeam(eEnemyTeam))
 		{
 			SetWaryOfTeam(eEnemyTeam, true);
 			veMinorsNowWary.push_back(GetPlayer()->GetID());
 		}
-		if(ENABLE_PERMANENT_WAR)
-			SetPermanentWar(eEnemyTeam, true);
-	}
-	// Minor Civ Aggressor - chance of permanent war
-	else if(pEnemyTeam->IsMinorCivAggressor())
-	{
-		iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-		if(iRand < /*50*/ GC.getPERMANENT_WAR_AGGRESSOR_CHANCE())
+		if (pEnemyTeam->IsMinorCivWarmonger())
 		{
-			if(!IsWaryOfTeam(eEnemyTeam))
-			{
-				SetWaryOfTeam(eEnemyTeam, true);
-				veMinorsNowWary.push_back(GetPlayer()->GetID());
-			}
-			if(ENABLE_PERMANENT_WAR)
+			if (ENABLE_PERMANENT_WAR)
 				SetPermanentWar(eEnemyTeam, true);
+		}
+		else
+		{
+			iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+
+			if (iRand < /*50*/ GC.getPERMANENT_WAR_AGGRESSOR_CHANCE())
+			{
+				if (ENABLE_PERMANENT_WAR)
+					SetPermanentWar(eEnemyTeam, true);
+			}
 		}
 	}
 

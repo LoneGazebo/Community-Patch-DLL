@@ -62,7 +62,7 @@ function OnPopup( popupInfo )
 	local mainGridSizeY = 400
 	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
-		
+	player:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, "[COLOR_POSITIVE_TEXT]Player Event[ENDCOLOR]: " .. szTitleString)
 	UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );

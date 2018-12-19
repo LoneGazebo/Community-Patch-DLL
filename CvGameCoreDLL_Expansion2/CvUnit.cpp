@@ -315,6 +315,7 @@ CvUnit::CvUnit() :
 	, m_iReligiousStrengthLossRivalTerritory("CvUnit::m_iReligiousStrengthLossRivalTerritory", m_syncArchive)
 	, m_iTradeMissionInfluenceModifier("CvUnit::m_iTradeMissionInfluenceModifier", m_syncArchive)
 	, m_iTradeMissionGoldModifier("CvUnit::m_iTradeMissionGoldModifier", m_syncArchive)
+	, m_iDiploMissionInfluence("CvUnit::m_iDiploMissionInfluence", m_syncArchive)
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
 	, m_iTourismBlastStrength("CvUnit::m_iTourismBlastStrength", m_syncArchive)
@@ -1660,6 +1661,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iReligiousStrengthLossRivalTerritory = 0;
 	m_iTradeMissionInfluenceModifier = 0;
 	m_iTradeMissionGoldModifier = 0;
+	m_iDiploMissionInfluence = 0;
 
 	m_bPromotionReady = false;
 	m_bDeathDelay = false;
@@ -7327,6 +7329,19 @@ int CvUnit::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
 }
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDiploMissionInfluence(int iValue)
+{
+	m_iDiploMissionInfluence += iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDiploMissionInfluence() const
+{
+	return m_iDiploMissionInfluence;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetNumGoodyHutsPopped() const
 {
@@ -12140,7 +12155,11 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 		CvAssertMsg(eMinor != NO_PLAYER, "Performing a trade mission and not in city state territory. This is bad. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		if (eMinor != NO_PLAYER)
 		{
-			iInf = /*30*/ GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION();
+			if (GetDiploMissionInfluence() != 0)
+				iInf = GetDiploMissionInfluence();
+			else
+				iInf = /*30*/ GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION();
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			if (MOD_DIPLOMACY_CITYSTATES) {
 				iInf += (m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
@@ -12166,7 +12185,7 @@ bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	if(m_pUnitInfo->GetBaseGold() == 0)
+	if (m_pUnitInfo->GetBaseGold() == 0 && GetDiploMissionInfluence() == 0)
 	{
 		return false;
 	}
@@ -26971,6 +26990,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeReligiousStrengthLossRivalTerritory((thisPromotion.GetReligiousStrengthLossRivalTerritory()) *  iChange);
 		ChangeTradeMissionInfluenceModifier((thisPromotion.GetTradeMissionInfluenceModifier()) * iChange);
 		ChangeTradeMissionGoldModifier((thisPromotion.GetTradeMissionGoldModifier()) * iChange);
+		ChangeDiploMissionInfluence((thisPromotion.GetDiploMissionInfluence()) * iChange);
 		changeDropRange(thisPromotion.GetDropRange() * iChange);
 		changeExtraVisibilityRange(thisPromotion.GetVisibilityChange() * iChange);
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)

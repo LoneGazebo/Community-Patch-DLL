@@ -10778,28 +10778,28 @@ void CvGame::updateGlobalAverage()
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)
 {
-	float fAlpha = 0.05f;
+	float fAlpha = 0.5f;
 	int iAverage = int(0.5f + (iValue * fAlpha) + (GetCultureAverage() * ( 1 - fAlpha)));
 	m_iCultureAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetScienceAverage(int iValue)
 {
-	float fAlpha = 0.05f;
+	float fAlpha = 0.5f;
 	int iAverage = int(0.5f + (iValue * fAlpha) + (GetScienceAverage() * ( 1 - fAlpha)));
 	m_iScienceAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetDefenseAverage(int iValue)
 {
-	float fAlpha = 0.05f;
+	float fAlpha = 0.5f;
 	int iAverage = int(0.5f + (iValue * fAlpha) + (GetDefenseAverage() * ( 1 - fAlpha)));
 	m_iDefenseAverage = iAverage;
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetGoldAverage(int iValue)
 {
-	float fAlpha = 0.05f;
+	float fAlpha = 0.5f;
 	int iAverage = int(0.5f + (iValue * fAlpha) + (GetGoldAverage() * ( 1 - fAlpha)));
 	m_iGoldAverage = iAverage;
 }
