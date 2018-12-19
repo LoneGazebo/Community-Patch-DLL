@@ -311,7 +311,7 @@
 		
 
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
-			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%.[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]   [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_HAPPINESS_3] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_HAPPINESS_3] War Weariness.[NEWLINE]</Text>
+			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]   [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_HAPPINESS_3] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_HAPPINESS_3] War Weariness.[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">
@@ -959,11 +959,21 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Needs: {1_Num}%[NEWLINE]</Text>
+			<Text>[ICON_BULLET] [ICON_PUPPET] Is Puppet: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CAPITAL_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_CAPITAL] Capital Needs: +{1_Num}%[NEWLINE]</Text>
+			<Text>[ICON_BULLET] [ICON_CAPITAL] Is Capital: +{1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD">
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Technology: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_POP_UNHAPPINESS_MOD">
+			<Text>[ICON_BULLET] [ICON_CITIZEN] City Size: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD">
+			<Text>[ICON_BULLET] [ICON_CITY_STATE] Empire Size: +{1_Num}%</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Number of Cities.</Text>
 		</Row>
@@ -1130,8 +1140,16 @@
 			<Text>Local [ICON_HAPPINESS_1] Happiness: [COLOR_POSITIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS">
-			<Text>[COLOR_POSITIVE_TEXT]Global Average (Need) Modifiers:[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Total Need Modifiers:[ENDCOLOR]</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN">
+			<Text>[COLOR_POSITIVE_TEXT]Factors that Increase Needs:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_REDUCTION_AVERAGE_MODS_BREAKDOWN">
+			<Text>[COLOR_POSITIVE_TEXT]Factors that Decrease Needs:[ENDCOLOR]</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD">
 			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: {1_Num}%</Text>
 		</Row>
@@ -1143,6 +1161,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE">
 			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH">
+			<Text>[ICON_BULLET] [ICON_PEACE] Religion Mod: {1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE">
@@ -1159,7 +1180,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION">
-			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the size of the City, Technologies researched, Policies chosen, Buildings constructed and/or Civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted. Positive modifiers raise the global average for this city, whereas negative modifiers reduce it.)</Text>
+			<Text>[NEWLINE](These modifiers are based on a number of factors, such as Population, Technology level, Policies, Buildings and/or Civilization Traits. Special modifiers, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted. Positive modifiers raise the global average; negative modifiers reduce it.)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_VP_CULTURAL_NEED_IDEOLOGY">

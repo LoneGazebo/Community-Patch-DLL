@@ -161,7 +161,7 @@
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
 			<AIWorkRateModifier>20</AIWorkRateModifier>
-			<AIUnhappinessPercent>95</AIUnhappinessPercent>
+			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>100</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -222,7 +222,7 @@
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIDeclareWarProb>125</AIDeclareWarProb>
 			<AIWorkRateModifier>30</AIWorkRateModifier>
-			<AIUnhappinessPercent>90</AIUnhappinessPercent>
+			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>90</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -284,7 +284,7 @@
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
 			<AIWorkRateModifier>40</AIWorkRateModifier>
-			<AIUnhappinessPercent>85</AIUnhappinessPercent>
+			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>90</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -347,7 +347,7 @@
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>175</AIDeclareWarProb>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
-			<AIUnhappinessPercent>80</AIUnhappinessPercent>
+			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>80</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -410,7 +410,7 @@
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
-			<AIUnhappinessPercent>75</AIUnhappinessPercent>
+			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>80</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -473,7 +473,7 @@
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>225</AIDeclareWarProb>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
-			<AIUnhappinessPercent>65</AIUnhappinessPercent>
+			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AITrainPercent>70</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>

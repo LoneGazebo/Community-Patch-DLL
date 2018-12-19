@@ -1127,6 +1127,7 @@ ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;
 
 -- CSD
 ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'DiploMissionInfluence' INTEGER DEFAULT 0;
 
 -- GameSpeed for JFD
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
