@@ -25752,7 +25752,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else
 			{
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_SO_BE_IT);
-				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 			}
 		}
 
