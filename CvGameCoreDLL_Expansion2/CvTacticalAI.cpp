@@ -10523,16 +10523,23 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, iExtraDefenderDamage, 
 							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 
+		int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+		//do not override defender flanking/general bonus (it is known during combat simulation)
+		int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty); 
+
 		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 		iDamage += pAttacker->getCombatDamage(
-			pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
-			pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty), //do not override defender flanking/general bonus
-			pAttacker->getDamage(), false, false, false);
+			iAttackerStrength,
+			iDefenderStrength,
+			pAttacker->getDamage(), 
+			false, false, false);
 
+		//note: this is just the self-damage of the attacker! if the defender strikes back, we typically get other strength values because the plots are switched!
 		iAttackerDamage = pDefender->getCombatDamage(
-			pDefender->GetMaxAttackStrength(pDefenderPlot, pAttackerPlot, pAttacker, false, bQuickAndDirty), //do not override defender flanking/general bonus
-			pAttacker->GetMaxDefenseStrength(pAttackerPlot, pDefender, pDefenderPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
-			pDefender->getDamage() + iExtraDefenderDamage, false, false, false);
+			iDefenderStrength,
+			iAttackerStrength,
+			pDefender->getDamage() + iExtraDefenderDamage, 
+			false, false, false);
 	}
 
 	return iDamage;
@@ -10721,7 +10728,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			return;
 		}
 
-		//use the quick and dirty method ...
+		//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
 		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
