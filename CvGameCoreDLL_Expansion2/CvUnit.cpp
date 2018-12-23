@@ -15863,8 +15863,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
 				if (iModPerAdjacent != 0)
 				{
-					int iNumFriendliesAdjacent = 0;
-					iNumFriendliesAdjacent += pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+					int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
 					iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
 				}
 			}
@@ -19549,49 +19548,6 @@ bool CvUnit::isAircraftCarrier() const
 	return false;
 }
 #endif
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsHasNoValidMove() const
-{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	if(plot()->getMaxFriendlyUnitsOfType(this) <= plot()->getUnitLimit())
-#else
-	if(plot()->getMaxFriendlyUnitsOfType(this) <= GC.getPLOT_UNIT_LIMIT())
-#endif
-	{
-		return false;
-	}
-
-	ReachablePlots plots = GetAllPlotsInReachThisTurn(true,true,false);
-	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
-	{
-		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-
-	#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pToPlot->getMaxFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
-	#else
-		if(pToPlot->getMaxFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
-	#endif
-		{
-			continue;
-		}
-
-		if(pToPlot->getNumVisibleEnemyDefenders(this) > 0)
-		{
-			continue;
-		}
-
-		// can't capture the unit with a non-combat unit
-		if(!IsCombatUnit() && pToPlot->isVisibleEnemyUnit(this))
-		{
-			continue;
-		}
-
-		//if we get here the plot is valid
-		return false;
-	}
-
-	return true;
-}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getIndex() const

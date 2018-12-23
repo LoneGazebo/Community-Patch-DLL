@@ -33761,6 +33761,12 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
 //	--------------------------------------------------------------------------------
 void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default is true (CvPlayer.h)
 {
+	//experiment for debugging. in single player mode create autosaves after the human turn for easier reproduction of observed AI problems
+#if defined(VPDEBUG)
+	if(!GC.getGame().isGameMultiPlayer() && isHuman() && bNewValue==false)
+		gDLL->AutoSave(false, true);
+#endif
+
 	if(isTurnActive() != bNewValue)
 	{
 		CvGame& kGame = GC.getGame();

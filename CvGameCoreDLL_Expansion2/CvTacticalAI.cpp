@@ -11098,6 +11098,18 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				return result;
 			}
 
+			//avoid these plots - the citadel damage is included in the danger value, but since it's guaranteed to happen give it additional emphasis
+			if (currentPlot.isNextToCitadel())
+			{
+				if (iDanger>=pUnit->GetCurrHitPoints())
+				{
+					result.iScore = -1; //no suicide ...
+					return result;
+				}
+				else
+					iDanger += 50;
+			}
+
 			//unseen enemies might be hiding behind the edge, so assume danger there
 			if (currentPlot.isEdgePlot())
 				iDanger = max(pUnit->GetCurrHitPoints()+1,iDanger);
@@ -11343,6 +11355,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bSupportUnitPresent = false;
 	bValid = false;
 	bEdgeOfTheKnownWorld = false;
+	bAdjacentToEnemyCitadel = false;
 	iDamageDealt = 0;
 	eType = TP_FARAWAY;
 	pPlot = NULL;
@@ -11399,11 +11412,14 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 			if (!pNeighbor)
 				continue;
 			
-			if (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL, ePlayer) + pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL, ePlayer) > 0)
+			if (pNeighbor->getNumUnitsOfAIType(UNITAI_GENERAL, ePlayer) + pNeighbor->getNumUnitsOfAIType(UNITAI_ADMIRAL, ePlayer) > 0)
 				nSupportUnitsAdjacent++;
 
-			if (!pPlot->isVisible(eTeam) && !pPlot->isImpassable())
+			if (!pNeighbor->isVisible(eTeam) && !pNeighbor->isImpassable())
 				bEdgeOfTheKnownWorld = true;
+
+			if (IsEnemyCitadel(pNeighbor, eTeam))
+				bAdjacentToEnemyCitadel = true;
 		}
 	}
 }
@@ -11471,6 +11487,8 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 	nFriendlyCombatUnitsAdjacent = 0;
 	nEnemyCombatUnitsAdjacent = 0;
 	nFriendlyFirstlineUnitsAdjacent = 0;
+	bEdgeOfTheKnownWorld = false;
+	bAdjacentToEnemyCitadel = false;
 	
 	bool bEnemyCityAdjacent = false;
 	int iFL = 0, iSL = 0, iTL = 0;
@@ -11513,6 +11531,9 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 				if (!currentPosition.haveTacticalPlot(pNeighbor) && !pNeighbor->isImpassable() && pNeighbor->getBestDefender(currentPosition.getPlayer())==NULL)
 					bEdgeOfTheKnownWorld = true;
 			}
+
+			if (IsEnemyCitadel(pNeighbor, GET_PLAYER(currentPosition.getPlayer()).getTeam()))
+				bAdjacentToEnemyCitadel = true;
 		}
 	}
 
@@ -12567,23 +12588,30 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 		return false;
 	initialPosition->initFromScratch(ePlayer, AL_NONE, pTarget);
 
-	//add all our units
+	//first pass: make sure there are no duplicates and other invalid inputs
 	set<int> ourUnits;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
+		//here we allow embarked units since we're not going for melee attacks
 		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID()) == ourUnits.end())
+			ourUnits.insert(vUnits[i]->GetID());
+	}
+
+	//second pass, now that we know which units will be used, add them to the initial position
+	for(size_t i=0; i<vUnits.size(); i++)
+	{
+		CvUnit* pUnit = vUnits[i];
+		if (ourUnits.find(pUnit->GetID()) != ourUnits.end())
 		{
 			if (initialPosition->addAvailableUnit(pUnit))
 			{
-				ourUnits.insert(pUnit->GetID());
-
 				//make sure we know the immediate surroundings of every unit
 				for (int j = 0; j < RING2_PLOTS; j++)
 				{
 					CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
 					if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
-						initialPosition->addTacticalPlot(pPlot,ourUnits);
+						initialPosition->addTacticalPlot(pPlot, ourUnits);
 				}
 			}
 		}

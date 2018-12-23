@@ -28097,12 +28097,6 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		return -1;
 	}
 
-	if(pUnit->IsHasNoValidMove())
-	{
-		pUnit->kill(false);
-		return -1;
-	}
-
 	addProductionExperience(pUnit, false, bIsPurchase);
 
 #if defined(MOD_BALANCE_CORE)

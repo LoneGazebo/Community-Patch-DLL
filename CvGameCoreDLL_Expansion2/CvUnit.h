@@ -949,8 +949,6 @@ public:
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
-	bool IsHasNoValidMove() const;
-
 	inline int GetID() const
 	{
 		return m_iID;

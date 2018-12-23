@@ -1046,6 +1046,7 @@ public:
 	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
 	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
+	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
@@ -1077,6 +1078,7 @@ protected:
 	bool bBlockedByFriendlyCombatUnit:1;
 	bool bSupportUnitPresent:1;
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
+	bool bAdjacentToEnemyCitadel:1;
 
 	eTactPlotType eType;
 	int iDamageDealt;
