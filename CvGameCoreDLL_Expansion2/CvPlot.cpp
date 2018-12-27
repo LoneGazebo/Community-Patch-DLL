@@ -3219,6 +3219,34 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 	return pBestUnit;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvPlot::HasAirCover(PlayerTypes eDefendingPlayer) const
+{
+	if (eDefendingPlayer == NO_PLAYER)
+		return false;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(eDefendingPlayer);
+	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetPossibleInterceptors();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->first);
+
+		if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
+			continue;
+
+		// Must not have already intercepted this turn
+		if (pInterceptorUnit->isOutOfInterceptions())
+			continue;
+
+		// Test range
+		int iDistance = plotDistance(*pInterceptorPlot, *this);
+		if (iDistance <= pInterceptorUnit->GetAirInterceptRange())
+			return true;
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlot::GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const

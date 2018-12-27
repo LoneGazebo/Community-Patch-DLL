@@ -11026,55 +11026,59 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			iMiscScore += result.iRemainingMoves / 30;
 
 		//many considerations are only relevant if we intend to end the turn here (critical for skirmishers!)
-		if (bEndTurn)
+		if (bEndTurn) //can happen if we run out of movement points or if we actively decide to stay in a plot
 		{
-			//would it make sense to pillage here?
-			if (plot.iMovesLeft>0 && pUnit->canPillage(pCurrentPlot) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
+			if (plot.iPlotIndex == unit.iPlotIndex)
 			{
-				//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
-				if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
+				//would it make sense to pillage here?
+				if (plot.iMovesLeft>0 && pUnit->canPillage(pCurrentPlot) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
 				{
-					iMiscScore += 50;
-					if (plot.iMovesLeft > 0) //if we can do it right away ...
+					//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
+					if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
 					{
 						iMiscScore += 50;
-						result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+						if (plot.iMovesLeft > 0) //if we can do it right away ...
+						{
+							iMiscScore += 50;
+							if (!pUnit->hasFreePillageMove())
+								result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+							result.eType = STacticalAssignment::A_PILLAGE;
+						}
+					}
+					//if it's an improvement we pillage to heal if we have moves to spare
+					else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && plot.iMovesLeft > 0 && pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
+					{
+						iMiscScore += 20;
+						if (pUnit->IsGainsXPFromPillaging())
+							iMiscScore += 10;
+						if (!pUnit->hasFreePillageMove())
+							result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 						result.eType = STacticalAssignment::A_PILLAGE;
 					}
 				}
-				//if it's an improvement we pillage to heal if we have moves to spare
-				else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && plot.iMovesLeft > 0 && pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
+
+				//if we don't plan on pillaging, then this is a plain finish assigment
+				if (result.eType != STacticalAssignment::A_PILLAGE)
 				{
-					iMiscScore += 20;
-					if (pUnit->IsGainsXPFromPillaging())
-						iMiscScore += 10;
-					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-					result.eType = STacticalAssignment::A_PILLAGE;
+					result.eType = STacticalAssignment::A_FINISH;
+
+					//minor bonus for staying put and healing
+					if (unit.iMovesLeft == pUnit->maxMoves())
+					{
+						if (pUnit->noDefensiveBonus())
+							iMiscScore++; //cannot fortify, only heal
+						else
+							iMiscScore += 3; //fortification bonus!
+					}
 				}
 			}
-
-			//don't do it if it's a death trap
-			if (currentPlot.getNumAdjacentEnemies() > 3 || (assumedPosition.getUnitNumberRatio() < 1 && currentPlot.getNumAdjacentEnemies() == 3))
-				return result;
 
 			//try to close the lines (todo: make sure the friendlies intend to stay there ...)
 			if (currentPlot.getNumAdjacentFriendlies() > 0)
 				iMiscScore++;
-
-			if (plot.iPlotIndex == unit.iPlotIndex)
-			{
-				//we are not moving - so this is a finish assigment
-				result.eType = STacticalAssignment::A_FINISH;
-
-				//minor bonus for staying put and healing
-				if (unit.iMovesLeft == pUnit->maxMoves())
-				{
-					if (pUnit->noDefensiveBonus())
-						iMiscScore++; //cannot fortify, only heal
-					else
-						iMiscScore += 3; //fortification bonus!
-				}
-			}
+			//when in doubt, stay under air cover
+			if (currentPlot.hasAirCover())
+				iMiscScore++;
 
 			//lookup by unit strategy / plot type
 			//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
@@ -11095,6 +11099,13 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			if (iDanger == INT_MAX)
 			{
 				result.iScore = 1; //not impossible but strongly discouraged
+				return result;
+			}
+
+			//don't do it if it's a death trap (unless there is no other choice ...)
+			if (currentPlot.getNumAdjacentEnemies() > 3 || (assumedPosition.getUnitNumberRatio() < 1 && currentPlot.getNumAdjacentEnemies() == 3))
+			{
+				result.iScore = 1;
 				return result;
 			}
 
@@ -11259,8 +11270,15 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	result.iScore *= 10;
 
 	//try to put our units next to each other
-	if (bEndTurn && currentPlot.getNumAdjacentFriendlies()>0)
-		result.iScore += 5;
+	if (bEndTurn)
+	{
+		if (currentPlot.getNumAdjacentFriendlies() > 0)
+			result.iScore += 5;
+
+		//when in doubt, stay under air cover
+		if (currentPlot.hasAirCover())
+			result.iScore += 5;
+	}
 
 	//minor bonus for staying put
 	if (result.eType == STacticalAssignment::A_FINISH && plot.iMovesLeft == pUnit->maxMoves())
@@ -11353,9 +11371,9 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bEnemyCivilianPresent = false;
 	bBlockedByFriendlyCombatUnit = false;
 	bSupportUnitPresent = false;
-	bValid = false;
 	bEdgeOfTheKnownWorld = false;
 	bAdjacentToEnemyCitadel = false;
+	bHasAirCover = false;
 	iDamageDealt = 0;
 	eType = TP_FARAWAY;
 	pPlot = NULL;
@@ -11374,7 +11392,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 	{
 		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
-		bValid=true;
+		//the most important thing
 		pPlot=plot;
 
 		if (pPlot->isNeutralUnit(ePlayer, true, true))
@@ -11401,6 +11419,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		bBlockedByEnemyCombatUnit = pPlot->isEnemyUnit(ePlayer,true,false); //visibility is checked elsewhere!
 		bBlockedByEnemyCity = (pPlot->isCity() && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner()));
 		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isEnemyUnit(ePlayer,false,false); //visibility is checked elsewhere!
+		bHasAirCover = pPlot->HasAirCover(ePlayer);
 
 		//general handling is a bit awkward
 		bSupportUnitPresent = (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL,ePlayer) + pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL,ePlayer))>0;
@@ -12356,11 +12375,6 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<int>& al
 	{
 		tacticalPlotLookup[pPlot->GetPlotIndex()] = (int)tactPlots.size();
 		tactPlots.push_back( CvTacticalPlot(pPlot,ePlayer,allOurUnits) );
-	}
-	else
-	{
-		//re-adding an existing plot sets it valid
-		tactPlots[it->second].setValid(true);
 	}
 }
 

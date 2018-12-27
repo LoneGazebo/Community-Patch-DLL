@@ -176,6 +176,7 @@ public:
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
+	bool HasAirCover(PlayerTypes eDefendingPlayer) const;
 	int GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
 	CvUnit* GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
 

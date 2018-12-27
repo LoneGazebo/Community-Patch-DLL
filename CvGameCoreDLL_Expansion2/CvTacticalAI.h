@@ -1047,6 +1047,7 @@ public:
 	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
+	bool hasAirCover() const { return bHasAirCover; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
@@ -1057,8 +1058,7 @@ public:
 	void enemyUnitRangeKill();
 
 	void findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
-	bool isValid() const { return bValid; }
-	void setValid(bool bState) { bValid=bState; }
+	bool isValid() const { return pPlot != NULL; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, bool bCombat, int iChange);
 	bool isRelevant() const { return eType != TP_BLOCKED_FRIENDLY && eType != TP_BLOCKED_NEUTRAL; }
@@ -1071,7 +1071,6 @@ protected:
 	unsigned char nSupportUnitsAdjacent; //for general bonus
 
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
-	bool bValid:1;
 	bool bBlockedByEnemyCity:1;
 	bool bBlockedByEnemyCombatUnit:1;
 	bool bEnemyCivilianPresent:1;
@@ -1079,9 +1078,10 @@ protected:
 	bool bSupportUnitPresent:1;
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
 	bool bAdjacentToEnemyCitadel:1;
+	bool bHasAirCover:1;
 
 	eTactPlotType eType;
-	int iDamageDealt;
+	unsigned char iDamageDealt;
 };
 
 class CvTacticalPosition
