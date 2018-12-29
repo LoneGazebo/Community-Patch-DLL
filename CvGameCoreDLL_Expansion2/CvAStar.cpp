@@ -376,7 +376,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.1 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
+	if ( timer.GetDeltaInSeconds()>0.2 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
 	{
 		//debug hook
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);

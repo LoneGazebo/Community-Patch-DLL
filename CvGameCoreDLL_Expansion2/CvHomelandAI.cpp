@@ -3665,76 +3665,81 @@ void CvHomelandAI::ExecuteExplorerMoves()
 /// Moves units to explore the map
 void CvHomelandAI::ExecuteWorkerMoves()
 {
-	CvString strLogString;
+	// where can our workers go
+	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
 
-	MoveUnitsArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(pUnit)
+		if (!pUnit)
+			continue;
+
+		//fallout also counts as danger, so set the threshold a bit higher than zero
+		if(pUnit->GetDanger()>pUnit->GetCurrHitPoints()/2)
 		{
-			CvPlot* pPlot = pUnit->plot();
-
-			AI_PERF_FORMAT("Homeland-ExecuteWorkerMoves-perf.csv", ("ExecuteWorkerMoves, Turn %03d, %s, Unit %d, at x=%d, y=%d", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), pUnit->GetID(), pUnit->getX(), pUnit->getY()) );
-
-			//fallout also counts as danger, so set the threshold a bit higher
-			if(pPlot && pUnit->GetDanger(pPlot)>pUnit->GetCurrHitPoints()/2)
+			if(MoveCivilianToSafety(pUnit))
 			{
-				if(MoveCivilianToSafety(pUnit))
-				{
-					if(GC.getLogging() && GC.GetBuilderAILogging())
-					{
-						// Open the log file
-						CvString strFileName = "BuilderTaskingLog.csv";
-						FILogFile* pLog;
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-						// write in data
-						CvString strLog;
-						CvString strTemp;
-
-						CvString strPlayerName;
-						strPlayerName = m_pPlayer->getCivilizationShortDescription();
-						strLog += strPlayerName;
-						strLog += ",";
-
-						strTemp.Format("%d,", GC.getGame().getGameTurn()); // turn
-						strLog += strTemp;
-
-						strTemp.Format("%d,", pUnit->GetID()); // unit id
-						strLog += strTemp;
-
-						strLog += "1st Safety,";
-
-						pLog->Msg(strLog);
-					}
-
-					UnitProcessed(pUnit->GetID());
-					continue;
-				}
-			}
-
-			bool bActionPerformed = ExecuteWorkerMove(pUnit);
-			if(bActionPerformed)
-			{
+				UnitProcessed(pUnit->GetID());
 				continue;
 			}
-
-			// Only move primary workers (actual civilian workers/workboats) or embarked secondary workers (combat units) to safety
-			if (pUnit->IsCombatUnit() && !pUnit->isEmbarked())
-			{
-				continue;
-			}
-
-			// if there's nothing else to do, move to the safest spot nearby
-			if (pUnit->GetDanger()>0)
-				MoveCivilianToSafety(pUnit);
-			else
-				MoveCivilianToGarrison(pUnit);
-
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			UnitProcessed(pUnit->GetID());
 		}
+
+		//how far around each worker should we be checking?
+		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 7;
+
+#if defined(MOD_AI_SECONDARY_WORKERS)
+		if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCombatUnit())
+			iTurnLimit = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
+#endif
+
+		//is the unit still busy? if so, less time for movement
+		int iBuildTimeLeft = 0;
+		BuildTypes eBuild = pUnit->getBuildType();
+		if (eBuild != NO_BUILD)
+			iBuildTimeLeft = pUnit->plot()->getBuildTurnsLeft(eBuild, pUnit->getOwner(), 0, 0);
+
+		if (iTurnLimit >= iBuildTimeLeft)
+		{
+			SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iTurnLimit-iBuildTimeLeft);
+			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->getX(), pUnit->getY(), data);
+	
+			// add offset for fair comparison
+			for (ReachablePlots::iterator it2 = plots.begin(); it2 != plots.end(); ++it2)
+				it2->iTurns += iBuildTimeLeft;
+			
+			allWorkersReachablePlots[pUnit] = plots;
+		}
+	}
+
+	for(std::map<CvUnit*,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
+	{
+		CvUnit* pUnit = it->first;
+		CvPlot* pTarget = ExecuteWorkerMove(pUnit, &allWorkersReachablePlots);
+		if (pTarget)
+		{
+			//make sure no other worker tries to target the same plot
+			it->second.clear();
+			it->second.insert( SMovePlot(pTarget->GetPlotIndex(),-1,0,0) );
+		}
+		else
+		{
+			// Only move primary workers (actual civilian workers/workboats) or embarked secondary workers (combat units) to safety
+			if (!pUnit->IsCombatUnit() || pUnit->isEmbarked())
+			{
+				// if there's nothing else to do, move to the safest spot nearby
+				if (pUnit->GetDanger() > 0)
+					MoveCivilianToSafety(pUnit);
+				else
+					MoveCivilianToGarrison(pUnit);
+			}
+
+			//simply ignore this unit for further building tasks 
+			it->second.clear();
+		}
+
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -6329,50 +6334,39 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 	int iLoopCity;
 	for(CvCity *pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity != NULL)
-		{
-			if(pLoopCity->isInDangerOfFalling())
-				continue;
+		if(pLoopCity->isInDangerOfFalling())
+			continue;
 
-			CvPlot* pLoopPlot = pLoopCity->plot();
-
-			if(!pLoopPlot->isValidMovePlot(pUnit->getOwner(), true))
-			{
-				continue;
-			}
+		CvPlot* pLoopPlot = pLoopCity->plot();
+		if(!pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+			continue;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
-			if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) >= pLoopPlot->getUnitLimit())
+		if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) >= pLoopPlot->getUnitLimit())
 #else
-			if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
+		if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
 #endif
-			{
-				continue;
-			}
+			continue;
 
-			//Try to spread out (workers typically)
-			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType());
-			if(pLoopPlot == pUnit->plot())
-				iNumFriendlies--;
+		//Try to spread out (workers typically)
+		int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType());
+		if(pLoopPlot == pUnit->plot())
+			iNumFriendlies--;
 
-			//Flat value.
-			int iValue = 10 - iNumFriendlies;
+		int iValue = 100 - iNumFriendlies*10;
+		//try to go to the frontier, most action should be there
+		if (m_pPlayer->getCapitalCity())
+			iValue += plotDistance(m_pPlayer->getCapitalCity()->getX(), m_pPlayer->getCapitalCity()->getY(), pLoopCity->getX(), pLoopCity->getY());
 			
-			aBestPlotList.push_back(pLoopPlot, iValue);
-		}
+		aBestPlotList.push_back(pLoopPlot, iValue);
 	}
 
-	// Now loop through the sorted score list and go to the best one we can reach in one turn.
 	CvPlot* pBestPlot = NULL;
-	//we already know that the plot is in reach
 	if (aBestPlotList.size()>0)
 	{
 		aBestPlotList.SortItems(); //highest score will be first
 		pBestPlot=aBestPlotList.GetElement(0);
-	}
 
-	if(pBestPlot != NULL)
-	{
 		if(pUnit->atPlot(*pBestPlot))
 		{
 			if (pUnit->canHold(pBestPlot))
@@ -7417,16 +7411,23 @@ void CvHomelandAI::UnitProcessed(int iID)
 		pUnit->SetTurnProcessed(true);
 }
 
-bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
+//returns the target plot if sucessful, null otherwise
+CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>* pAllWorkersReachablePlots)
 {
-	const UINT ciDirectiveSize = 1;
-	BuilderDirective aDirective[ ciDirectiveSize ];
+	map<CvUnit*, ReachablePlots> altPlots;
+	if (pAllWorkersReachablePlots == NULL)
+	{
+		SPathFinderUserData data(pUnit, 0, 12);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		altPlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+		pAllWorkersReachablePlots = &altPlots;
+	}
 
 	// find work (considering all other workers as well)
-	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize, false, false);
-	if(bHasDirective)
+	BuilderDirective aDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, *pAllWorkersReachablePlots);
+	if(aDirective.m_eDirective!=BuilderDirective::NUM_DIRECTIVES)
 	{
-		switch(aDirective[0].m_eDirective)
+		switch(aDirective.m_eDirective)
 		{
 		case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
 		case BuilderDirective::BUILD_IMPROVEMENT:
@@ -7435,16 +7436,10 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 		case BuilderDirective::CHOP:
 		case BuilderDirective::REMOVE_ROAD:
 		{
-			CvPlot* pPlot = GC.getMap().plot(aDirective[0].m_sX, aDirective[0].m_sY);
-			MissionTypes eMission = NO_MISSION;
-			if(pUnit->getX() == aDirective[0].m_sX && pUnit->getY() == aDirective[0].m_sY)
-			{
+			CvPlot* pPlot = GC.getMap().plot(aDirective.m_sX, aDirective.m_sY);
+			MissionTypes eMission = CvTypes::getMISSION_MOVE_TO();
+			if(pUnit->getX() == aDirective.m_sX && pUnit->getY() == aDirective.m_sY)
 				eMission = CvTypes::getMISSION_BUILD();
-			}
-			else
-			{
-				eMission = CvTypes::getMISSION_MOVE_TO();
-			}
 
 			if(GC.getLogging() && GC.GetBuilderAILogging())
 			{
@@ -7468,7 +7463,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 				strTemp.Format("%d,", pUnit->GetID()); // unit id
 				strLog += strTemp;
 
-				switch(aDirective[0].m_eDirective)
+				switch(aDirective.m_eDirective)
 				{
 				case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
 					strLog += "On resource,";
@@ -7492,7 +7487,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 				if(eMission == CvTypes::getMISSION_BUILD())
 				{
-					if(aDirective[0].m_eDirective == BuilderDirective::REPAIR)
+					if(aDirective.m_eDirective == BuilderDirective::REPAIR)
 					{
 						if(pPlot->IsImprovementPillaged())
 						{
@@ -7503,15 +7498,15 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 							strLog += "Repairing route";
 						}
 					}
-					else if(aDirective[0].m_eDirective == BuilderDirective::BUILD_ROUTE)
+					else if(aDirective.m_eDirective == BuilderDirective::BUILD_ROUTE)
 					{
 						strLog += "Building route,";
 					}
-					else if(aDirective[0].m_eDirective == BuilderDirective::BUILD_IMPROVEMENT || aDirective[0].m_eDirective == BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE)
+					else if(aDirective.m_eDirective == BuilderDirective::BUILD_IMPROVEMENT || aDirective.m_eDirective == BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE)
 					{
 						strLog += "Building improvement,";
 					}
-					else if(aDirective[0].m_eDirective == BuilderDirective::CHOP)
+					else if(aDirective.m_eDirective == BuilderDirective::CHOP)
 					{
 						strLog += "Removing feature for production,";
 					}
@@ -7530,7 +7525,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 			if(eMission == CvTypes::getMISSION_MOVE_TO())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, false, false, MISSIONAI_BUILD, pPlot);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective.m_sX, aDirective.m_sY, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, false, false, MISSIONAI_BUILD, pPlot);
 
 				//do we have movement left?
 				if (pUnit->getMoves()>0)
@@ -7542,31 +7537,21 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 			if(eMission == CvTypes::getMISSION_BUILD())
 			{
 				// check to see if we already have this mission as the unit's head mission
-				bool bPushMission = true;
 				const MissionData* pkMissionData = pUnit->GetHeadMissionData();
-				if(pkMissionData != NULL)
-				{
-					if(pkMissionData->eMissionType == eMission && pkMissionData->iData1 == aDirective[0].m_eBuild)
-					{
-						bPushMission = false;
-					}
-				}
-
-				if(bPushMission)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective[0].m_eBuild, aDirective[0].m_eDirective, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
-				}
+				if(pkMissionData == NULL || pkMissionData->eMissionType != eMission || pkMissionData->iData1 != aDirective.m_eBuild)
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective.m_eBuild, aDirective.m_eDirective, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
 
 				CvAssertMsg(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
 				UnitProcessed(pUnit->GetID());
 			}
-			return true;
+
+			return GC.getMap().plot(aDirective.m_sX, aDirective.m_sY);
 		}
 		break;
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 bool CvHomelandAI::ExecuteCultureBlast(CvUnit* pUnit)

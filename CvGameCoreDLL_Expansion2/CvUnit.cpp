@@ -3258,12 +3258,14 @@ bool CvUnit::isActionRecommended(int iAction)
 		CvAssert(eBuild != NO_BUILD);
 		CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 
-		const int ciDirectiveSize = 1;
-		BuilderDirective aDirective[ ciDirectiveSize ];
+		//fake this, we're really only interested in one plot
+		ReachablePlots plots;
+		plots.insert(SMovePlot(plot()->GetPlotIndex()));
+		map<CvUnit*, ReachablePlots> allplots;
+		allplots[this] = plots;
 
-		GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this, aDirective, ciDirectiveSize, false, true);
-
-		if(aDirective[0].m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective[0].m_eBuild == eBuild)
+		BuilderDirective aDirective = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this,allplots);
+		if(aDirective.m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective.m_eBuild == eBuild)
 		{
 			return true;
 		}
@@ -30196,25 +30198,18 @@ void CvUnit::AI_setUnitAIType(UnitAITypes eNewValue)
 void CvUnit::AI_promote()
 {
 	VALIDATE_OBJECT
-	PromotionTypes eBestPromotion;
-	int iValue;
-	int iBestValue;
-	int iI;
-
-	iBestValue = 0;
-	eBestPromotion = NO_PROMOTION;
+	PromotionTypes eBestPromotion = NO_PROMOTION;
+	int iBestValue = 0;
 	int iNumValidPromotions = 0;
 
-
-
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
 
 		if(canPromote(ePromotion, -1))
 		{
 			iNumValidPromotions++;
-			iValue = AI_promotionValue(ePromotion);
+			int iValue = AI_promotionValue(ePromotion);
 
 			//value lower-level promotions  a bit less.
 			if (GC.getPromotionInfo(ePromotion) != NULL && GC.getPromotionInfo(ePromotion)->GetPrereqOrPromotion1() == NO_PROMOTION)
@@ -30242,26 +30237,21 @@ void CvUnit::AI_promote()
 				}
 
 			}
-			if (iValue <= 0)
-			{
-				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
-				const char* szPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
-
-				CvString szMsg;
-				szMsg.Format("Promotion, %s, For %s, is worthless! What?",
-					szPromotionDesc, getName().GetCString());
-				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
-			}
-
+			
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
 				const char* szPromotionDesc = (pkPromotionEntry != NULL)? pkPromotionEntry->GetDescription() : "Unknown Promotion";
 
-				CvString szMsg;
-				szMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
+				CvString strMsg;
+				strMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
 							 szPromotionDesc, getName().GetCString(), iValue, getDamage());
-				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+
+				FILogFile* pLog = LOGFILEMGR.GetLog("PromotionLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+				CvString strLog;
+				strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(),GET_PLAYER(getOwner()).getName());
+				strLog += strMsg;
+				pLog->Msg(strLog);
 			}
 
 			if(iValue > iBestValue)
@@ -30275,20 +30265,23 @@ void CvUnit::AI_promote()
 	if(eBestPromotion != NO_PROMOTION)
 	{
 		promote(eBestPromotion, -1);
-		AI_promote();
-		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
+		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
-			CvString szMsg;
-			if(iNumValidPromotions == 1)
-				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-								pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
-			else
-				szMsg.Format("--> Chosen Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-							 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
-			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+			CvString strMsg;
+			strMsg.Format("--> Chosen Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
+				pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+
+			FILogFile* pLog = LOGFILEMGR.GetLog("PromotionLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+			CvString strLog;
+			strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(),GET_PLAYER(getOwner()).getName());
+			strLog += strMsg;
+			pLog->Msg(strLog);
 		}
+
+		//do it again until we're done
+		AI_promote();
 	}
 }
 

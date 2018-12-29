@@ -773,9 +773,7 @@ private:
 	void EstablishTacticalPriorities();
 	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();
-#if defined(MOD_BALANCE_CORE)
-	void PrioritizeNavalTargets();
-#endif
+	void PrioritizeNavalTargetsAndAddToMainList();
 	void ProcessDominanceZones();
 	void AssignTacticalMove(CvTacticalMove move);
 	void AssignBarbarianMoves();
@@ -833,6 +831,7 @@ private:
 	void IdentifyPriorityBarbarianTargets();
 	void IdentifyPriorityTargetsByType();
 	void UpdateTargetScores();
+	void SortTargetListAndDropUselessTargets();
 	void DumpTacticalTargets(const char* hint);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
 	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_NONE);
@@ -1216,8 +1215,8 @@ namespace TacticalAIHelpers
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 
-	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowDisengage = false);
-	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowDisengage = false);
+	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
+	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
 	bool CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iDeployRange);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);

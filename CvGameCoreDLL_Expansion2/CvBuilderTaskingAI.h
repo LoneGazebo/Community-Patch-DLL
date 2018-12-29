@@ -76,7 +76,7 @@ public:
 
 	CvUnit* FindBestWorker(const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
 	int FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const; // returns -1 if no path can be found, otherwise it returns the # of turns to get there
-	bool EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDirectives, UINT uaDirectives, bool bKeepOnlyBest = false, bool bOnlyEvaluateWorkersPlot = false);
+	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
 
 	void AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway);
 	void AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway);
