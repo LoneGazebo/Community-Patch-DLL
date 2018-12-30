@@ -949,7 +949,7 @@ bool CvAIOperation::Move()
 		float fNewVarX,fNewVarY;
 		//only care about the variance
 		pThisArmy->GetCenterOfMass(false,&fNewVarX,&fNewVarY);
-		if (fNewVarX>=max(3.f,fOldVarX) && fNewVarY>=max(3.f,fOldVarY))
+		if (fNewVarX>=max(5.f,fOldVarX) && fNewVarY>=max(5.f,fOldVarY))
 		{
 			OutputDebugString( CvString::format("Warning: Operation %d with army at (%d,%d) not making gathering progress!\n",m_iID,pThisArmy->GetX(),pThisArmy->GetY()).c_str() );
 		}
@@ -960,7 +960,7 @@ bool CvAIOperation::Move()
 		float fNewVarX, fNewVarY;
 		//center of mass should be moving
 		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false, &fNewVarX, &fNewVarY);
-		if (pNewCOM == pOldCOM && fNewVarX >= max(3.f, fOldVarX) && fNewVarY >= max(3.f, fOldVarY))
+		if (pNewCOM == pOldCOM && fNewVarX >= max(5.f, fOldVarX) && fNewVarY >= max(5.f, fOldVarY))
 		{
 			OutputDebugString(CvString::format("Warning: Operation %d with army at (%d,%d) not making movement progress!\n", m_iID, pThisArmy->GetX(), pThisArmy->GetY()).c_str());
 		}
@@ -1876,16 +1876,17 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			if (pCenterOfMass && pTarget && IsOffensive())
+			bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy);
+			if (pCenterOfMass && pTarget && IsOffensive() && !bShowOfForce)
 			{
 				bool bInPlace = false;
-				if (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) != WAR_GOAL_DEMAND)
+				if (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange())
 				{
 					bInPlace = true;
 				}
 
 				//check for nearby enemy (for sneak attacks)
-				if (!bInPlace && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) != WAR_GOAL_DEMAND && (GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK))
+				if (!bInPlace && (GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK))
 				{
 					int nVisible = 0;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit(pUnit))

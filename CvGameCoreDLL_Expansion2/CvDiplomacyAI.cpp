@@ -8871,20 +8871,22 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 
 	int iWarGoalValue;
 	WarGoalTypes eWarGoal;
-
-	//PlayerTypes eLoopOtherPlayer;
-	//int iOtherPlayerLoop;
 	bool bHigherUpsWantWar;
-
 	bool bIsMinor;
 
 	WarProjectionTypes eProjection;
 
 	// Loop through all (known) Players
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		//don't forget the barbarians
+		if (iPlayerLoop == BARBARIAN_PLAYER)
+		{
+			SetWarGoal(BARBARIAN_PLAYER, WAR_GOAL_CONQUEST);
+			continue;
+		}
 
 		if(IsPlayerValid(eLoopPlayer))
 		{

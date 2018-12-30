@@ -2727,7 +2727,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 
 	// Update Proximity between this Player and all others
 	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		ePlayer = (PlayerTypes) iPlayerLoop;
 
@@ -27138,6 +27138,12 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		int iBonus = 50 * pPlot->getNumAdjacentOwnedBy(getOwner());
 		iRtnValue += (iRtnValue*iBonus) / 100;
+	}
+
+	//try and snatch up natural wonders
+	if (pPlot->IsNaturalWonder() && pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+	{
+		iRtnValue *= 2;
 	}
 
 	// Protect against div by 0.
