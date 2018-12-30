@@ -1958,6 +1958,30 @@ bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int uni
 
 	return false;
 }
+/// Accessor:: Does the civ have a golden age modifier for the yield type? And do we want to grant it at the player level if possible?
+int CvTraitEntry::GetGoldenAgeYieldModifier(const int iYield) const
+{
+	CvAssertMsg(iYield < GC.NUM_YIELD_TYPES(), "Index out of bounds");
+	CvAssertMsg(iYield > -1, "Index out of bounds");
+	
+	std::map<int, int>::const_iterator it = m_piGoldenAgeYieldModifier.find(iYield);
+	if (it != m_piGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
+	{
+		// get an iterator to the element that is one past the last element associated with key
+		std::map<int, int>::const_iterator lastElement = m_piGoldenAgeYieldModifier.upper_bound(iYield);
+
+		// for each element in the sequence [itr, lastElement)
+		for (; it != lastElement; ++it)
+		{
+			if (it->first == iYield)
+			{
+				return it->second;
+			}
+		}
+	}
+
+	return 0;
+}
 /// Accessor:: Does the civ grant units the ability to build something?
 bool CvTraitEntry::UnitClassCanBuild(const int buildID, const int unitClassID) const
 {
@@ -2747,6 +2771,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_FreePromotionUnitClass).swap(m_FreePromotionUnitClass);
 	}
+	//Populate m_piGoldenAgeYieldModifier
+	{
+		std::string sqlKey = "Trait_GoldenAgeYieldModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID, Yield from Trait_GoldenAgeYieldModifiers, Yields where TraitType = ? and YieldType = Yields.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int yieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+
+			m_piGoldenAgeYieldModifier.insert(std::pair<int, int>(yieldID, yield));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piGoldenAgeYieldModifier).swap(m_piGoldenAgeYieldModifier);
+	}
 	//Populate m_BuildsUnitClasses
 	{
 		std::string sqlKey = "BuildsUnitClasses";
@@ -3396,7 +3445,8 @@ void CvPlayerTraits::SetIsNerd()
 	if (GetGreatScientistRateModifier() != 0 ||
 		GetInvestmentModifier() != 0 ||
 		GetFreePolicyPerXTechs() != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0)
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0|
+		GetGoldenAgeYieldModifier(YIELD_SCIENCE) > 0)
 	{
 		m_bIsNerd = true;
 		return;
@@ -3436,7 +3486,8 @@ void CvPlayerTraits::SetIsTourism()
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"))) != 0 ||
-		GetSharedReligionTourismModifier() > 0)
+		GetSharedReligionTourismModifier() > 0 ||
+		GetGoldenAgeYieldModifier(YIELD_TOURISM) > 0)
 	{
 		m_bIsTourism = true;
 		return;
@@ -3577,7 +3628,8 @@ void CvPlayerTraits::SetIsExpansionist()
 		YieldTypes eYield = (YieldTypes)iYield;
 		if (GetYieldFromTilePurchase(eYield) != 0 ||
 			GetYieldFromTileEarn(eYield) != 0 ||
-			GetYieldFromSettle(eYield) != 0)
+			GetYieldFromSettle(eYield) != 0 ||
+			GetGoldenAgeYieldModifier(eYield) != 0)
 		{
 			m_bIsExpansionist = true;
 			return;
@@ -3657,7 +3709,8 @@ void CvPlayerTraits::SetIsReligious()
 		GetYieldChangeWorldWonder(YIELD_FAITH) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
-		GetExtraMissionaryStrength() > 0)
+		GetExtraMissionaryStrength() > 0 ||
+		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0)
 	{
 		m_bIsReligious = true;
 		return;
@@ -4204,6 +4257,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
+				m_iGoldenAgeYieldModifier[iYield] = trait->GetGoldenAgeYieldModifier(iYield);
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
@@ -4777,6 +4831,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromConquest[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
+		m_iGoldenAgeYieldModifier[iYield] = 0;
 		m_iVotePerXCSAlliance = 0;
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
@@ -5406,6 +5461,14 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 	}
 
 	return false;
+}
+/// What is the golden age modifier for the specific yield type?
+int CvPlayerTraits::GetGoldenAgeYieldModifier(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < GC.NUM_YIELD_TYPES(), "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	return m_iGoldenAgeYieldModifier[(int)eYield];
 }
 #endif
 
@@ -7032,6 +7095,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromCSAllyWrapper;
 	ArrayWrapper<int> kYieldFromCSFriendWrapper(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
 	kStream >> kYieldFromCSFriendWrapper;
+	ArrayWrapper<int> kGoldenAgeYieldModifier(NUM_YIELD_TYPES, m_iGoldenAgeYieldModifier);
+	kStream >> kGoldenAgeYieldModifier;
 	ArrayWrapper<int> kGAPToYieldWrapper(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream >> kGAPToYieldWrapper;
 	ArrayWrapper<int> kMountainRangeYieldWrapper(NUM_YIELD_TYPES, m_iMountainRangeYield);
@@ -7441,6 +7506,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGoldenAgeYieldModifier);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);

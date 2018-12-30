@@ -383,6 +383,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const;
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
+	int GetGoldenAgeYieldModifier(const int iYield) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
@@ -724,6 +725,7 @@ protected:
 	std::multimap<int, int> m_BuildsUnitClasses;
 	std::vector<bool> m_abTerrainClaimBoost;
 	std::multimap<int, int> m_piUpgradeUnitClass;
+	std::map<int, int> m_piGoldenAgeYieldModifier;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1828,6 +1830,7 @@ public:
 	bool HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const;
 	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
+	int GetGoldenAgeYieldModifier(YieldTypes eYield) const;
 #endif
 
 	// Public functions to make trait-based game state changes
@@ -2188,6 +2191,7 @@ private:
 	int m_iYieldFromCSFriend[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
+	int m_iGoldenAgeYieldModifier[NUM_YIELD_TYPES];
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;

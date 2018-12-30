@@ -15875,6 +15875,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, int iCorpMod, CvString* toolTip
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES", iPolicyMod);
 		}
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD) != 0)
+		{
+			int iTraitMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD);
+			iTotalMod += iTraitMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS", iTraitMod);
+		}
 		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 		{
 			int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
@@ -22356,18 +22363,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 
 	// Golden Age Yield Modifier
-	if(GET_PLAYER(getOwner()).isGoldenAge() && eIndex != YIELD_FOOD)
-	{ 
+	if (GET_PLAYER(getOwner()).isGoldenAge() && eIndex != YIELD_FOOD)
+	{
 		CvYieldInfo* pYield = GC.getYieldInfo(eIndex);
-		if(pYield)
+		if (pYield)
 		{
 			iTempMod = pYield->getGoldenAgeYieldMod();
 			iModifier += iTempMod;
-			if(toolTipSink)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GetGoldenAgeYieldMod(eIndex) != 0)
+		if (GetGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
@@ -22375,12 +22382,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
 		}
 
-		if(GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) != 0)
+		if (GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
-			if(toolTipSink)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES", iTempMod);
+		}
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(eIndex) != 0)
+		{
+			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(eIndex);
+			iModifier += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS", iTempMod);
 		}
 #endif
 	}
