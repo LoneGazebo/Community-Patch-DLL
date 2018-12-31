@@ -2191,7 +2191,7 @@ private:
 	int m_iYieldFromCSFriend[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
-	int m_iGoldenAgeYieldModifier[NUM_YIELD_TYPES];
+	std::map<int, int> m_aiGoldenAgeYieldModifier;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;

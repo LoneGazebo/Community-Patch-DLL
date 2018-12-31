@@ -4257,7 +4257,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
-				m_iGoldenAgeYieldModifier[iYield] = trait->GetGoldenAgeYieldModifier(iYield);
+				if (trait->GetGoldenAgeYieldModifier(iYield) != 0)
+				{
+					m_aiGoldenAgeYieldModifier.insert(std::pair<int, int>(iYield, trait->GetGoldenAgeYieldModifier(iYield)));
+				}
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
@@ -4831,7 +4834,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromConquest[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
-		m_iGoldenAgeYieldModifier[iYield] = 0;
+		m_aiGoldenAgeYieldModifier.erase(iYield);
 		m_iVotePerXCSAlliance = 0;
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
@@ -5468,7 +5471,23 @@ int CvPlayerTraits::GetGoldenAgeYieldModifier(YieldTypes eYield) const
 	CvAssertMsg(eYield < GC.NUM_YIELD_TYPES(), "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	return m_iGoldenAgeYieldModifier[(int)eYield];
+	std::map<int, int>::const_iterator it = m_aiGoldenAgeYieldModifier.find((int)eYield);
+	if (it != m_aiGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key is not present
+	{
+		// get an iterator to the element that is one past the last element associated with key
+		std::map<int, int>::const_iterator lastElement = m_aiGoldenAgeYieldModifier.upper_bound((int)eYield);
+		
+		// for each element in the sequence [itr, lastElement]
+		for (; it != lastElement; ++it)
+		{
+			if (it->first == (int)eYield)
+			{
+				return it->second;
+			}
+		}
+	}
+
+	return 0;
 }
 #endif
 
@@ -7024,6 +7043,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiYieldFromTileStealCultureBomb;
 	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
+	kStream >> m_aiGoldenAgeYieldModifier;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7095,8 +7115,6 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromCSAllyWrapper;
 	ArrayWrapper<int> kYieldFromCSFriendWrapper(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
 	kStream >> kYieldFromCSFriendWrapper;
-	ArrayWrapper<int> kGoldenAgeYieldModifier(NUM_YIELD_TYPES, m_iGoldenAgeYieldModifier);
-	kStream >> kGoldenAgeYieldModifier;
 	ArrayWrapper<int> kGAPToYieldWrapper(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream >> kGAPToYieldWrapper;
 	ArrayWrapper<int> kMountainRangeYieldWrapper(NUM_YIELD_TYPES, m_iMountainRangeYield);
@@ -7465,6 +7483,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiYieldFromTileStealCultureBomb;
 	kStream << m_ppiYieldFromTileSettle;
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
+	kStream << m_aiGoldenAgeYieldModifier;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)
@@ -7506,7 +7525,6 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
-	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGoldenAgeYieldModifier);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
