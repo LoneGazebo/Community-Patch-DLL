@@ -5617,37 +5617,46 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
-	//remember we're calling this because the unit is trapped, so use really permissive flags
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE|CvUnit::MOVEFLAG_IGNORE_STACKING, 23);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
-
+	//for performance reasons, start with a small search range and gradually increase it
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
-	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+	for (int i = 0; i < 3; i++)
 	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		//remember we're calling this because the unit is trapped, so use really permissive flags
+		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING, 3);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
-		//need to check for everything, including invisible units
-		if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
-			int iValue = it->iNormalizedDistance;
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
-			if (getDomainType() == DOMAIN_SEA )
-				if (pLoopPlot->area()->getNumTiles()<GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-					iValue += 20;
-
-			//avoid embarkation
-			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-				iValue += 5;
-
-			if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+			//need to check for everything, including invisible units
+			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				iBestValue = iValue;
-				pBestPlot = pLoopPlot;
+				int iValue = it->iNormalizedDistance;
+
+				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
+				if (getDomainType() == DOMAIN_SEA)
+					if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+						iValue += 20;
+
+				//avoid embarkation
+				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+					iValue += 5;
+
+				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
+				{
+					iBestValue = iValue;
+					pBestPlot = pLoopPlot;
+				}
 			}
 		}
+
+		if (pBestPlot) //found something?
+			break;
+		else
+			data.iMaxTurns *= 2; //double the search range
 	}
 
 	if(GC.getLogging() && GC.getAILogging())

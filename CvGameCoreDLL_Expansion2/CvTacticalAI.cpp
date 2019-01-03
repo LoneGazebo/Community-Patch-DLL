@@ -1784,21 +1784,25 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	{
 		PlotAncientRuinMoves(1);
 	}
-	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_TO_ALLOW_BOMBARD])
-	{
-		PlotGarrisonMoves(1, true /*bMustAllowRangedAttack*/);
-	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE])
 	{
-		PlotGarrisonMoves(0);
+		//do nothing, this is now handled by eTACTICAL_GARRISON_1_TURN
+	}
+	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_TO_ALLOW_BOMBARD])
+	{
+		//do nothing, this is now handled by eTACTICAL_GARRISON_1_TURN
+	}
+	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_1_TURN])
+	{
+		PlotGarrisonMoves(2);
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE])
 	{
-		PlotBastionMoves(0);
+		//do nothing, this is now handled by eTACTICAL_BASTION_2_TURN
 	}
 	else if (move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_1_TURN])
 	{
-		PlotBastionMoves(1);
+		//do nothing, this is now handled by eTACTICAL_BASTION_2_TURN
 	}
 	else if (move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_2_TURN])
 	{
@@ -1806,11 +1810,7 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE])
 	{
-		PlotGuardImprovementMoves(0);
-	}
-	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_1_TURN])
-	{
-		PlotGarrisonMoves(1);
+		//do nothing, this is now handled by eTACTICAL_GUARD_IMPROVEMENT_1_TURN
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_1_TURN])
 	{
@@ -3003,7 +3003,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 }
 
 /// Make a defensive move to garrison a city
-void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAttack)
+void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 {
 	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 	while(pTarget != NULL)
@@ -3038,20 +3038,14 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		else if ( !pCity->isInDangerOfFalling() )
 		{
 			// Grab units that make sense for this move type
-			FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE], pPlot, iNumTurnsAway, bMustAllowRangedAttack);
+			CvUnit* pUnit = FindUnitForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE], pPlot, iNumTurnsAway);
 
-			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
-
-			if (ExecuteMoveToPlot(pUnit, pPlot))
+			if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
-					if(bMustAllowRangedAttack)
-					{
-						strLogString += ", Allows bombard";
-					}
 					LogTacticalMessage(strLogString);
 				}
 			}
@@ -3079,11 +3073,10 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 	{
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE], pPlot, iNumTurnsAway);
-		CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+		CvUnit* pUnit = FindUnitForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE], pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (ExecuteMoveToPlot(pUnit, pPlot))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 		{
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -3105,11 +3098,10 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 	{
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE], pPlot, iNumTurnsAway);
-		CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+		CvUnit* pUnit = FindUnitForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE], pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (ExecuteMoveToPlot(pUnit, pPlot))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -3131,11 +3123,10 @@ void CvTacticalAI::PlotAncientRuinMoves(int iNumTurnsAway)
 	{
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_ANCIENT_RUINS], pPlot, iNumTurnsAway);
-		CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+		CvUnit* pUnit = FindUnitForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_ANCIENT_RUINS], pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (ExecuteMoveToPlot(pUnit, pPlot,true))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true))
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -7618,10 +7609,17 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 }
 #endif
 
-/// Finds both high and normal priority units we can use for this move (returns true if at least 1 unit found)
-bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */, bool bRangedOnly)
+CvUnit* CvTacticalAI::FindUnitForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */)
 {
-	m_CurrentMoveUnits.clear();
+	struct SUnitWithScore
+	{
+		CvUnit* unit;
+		int score;
+		SUnitWithScore(CvUnit* ptr, int i) : unit(ptr), score(i) {}
+		bool operator<(const SUnitWithScore& rhs) const { return score<rhs.score; } //sort ascending
+	};
+
+	std::vector<SUnitWithScore> possibleUnits;
 
 	// Loop through all units available to tactical AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -7641,29 +7639,22 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 				continue;
 			}
 
-			bool bSuitableUnit = false;
-			bool bHighPriority = false;
+			int iExtraScore = 0;
 
 			if(eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE] ||
 			        eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_1_TURN] ||
 			        eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_TO_ALLOW_BOMBARD])
 			{
-				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
-				if (pLoopUnit->isRanged() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD)==false)
-					bHighPriority = true;
-				else if(bRangedOnly)
-					continue;
-
 				//Let's not pull out garrisons to do this.
 				if(pLoopUnit->IsGarrisoned() || pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE)
 					continue;
 
-				if(pLoopUnit->IsHurt())
-					bHighPriority = true;
+				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
+				if (pLoopUnit->isRanged() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD)==false)
+					iExtraScore += 30;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
-				if(pLoopUnit->getDefenseModifier() == 0)
-					bSuitableUnit = true;
+				iExtraScore -= pLoopUnit->getDefenseModifier();
 			}
 
 			else if(eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE] ||
@@ -7672,64 +7663,55 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 			        eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_1_TURN] ||
 					eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_2_TURN])
 			{
-				// No ranged units or units without defensive bonuses as plot defenders
-				if(!pLoopUnit->isRanged() && !pLoopUnit->noDefensiveBonus())
-				{
-					bSuitableUnit = true;
-
-					// Units with defensive promotions are especially valuable
-					if(pLoopUnit->getDefenseModifier() > 0 || pLoopUnit->getExtraRangedDefenseModifier() > 0)
-					{
-						bHighPriority = true;
-					}
-					if (pLoopUnit->getExtraVisibilityRange() > 0)
-						bHighPriority = true;
-				}
-
 				//Let's not pull out garrisons to do this.
 				if(pLoopUnit->IsGarrisoned() || pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE)
 					continue;
+
+				// No ranged units or units without defensive bonuses as plot defenders
+				if (pLoopUnit->isRanged() || pLoopUnit->noDefensiveBonus())
+					continue;
+
+				// Units with defensive promotions are especially valuable
+				if(pLoopUnit->getDefenseModifier() > 0 || pLoopUnit->getExtraRangedDefenseModifier() > 0)
+					iExtraScore += 30;
+
+				if (pLoopUnit->getExtraVisibilityRange() > 0)
+					iExtraScore += 30;
 			}
 			else if(eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_ANCIENT_RUINS])
 			{
 				// Fast movers are top priority
 				if(pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
-					bHighPriority = true;
-
-				bSuitableUnit = true;
+					iExtraScore += 30;
 			}
 			else if (eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_POSTURE_SHORE_BOMBARDMENT])
 			{
 				if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 				{
 					if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ASSAULT_SEA))
-					{
-						bHighPriority = true;
-					}
-
-					bSuitableUnit = true;
+						iExtraScore += 30;
 				}
 			}
 
-			if(bSuitableUnit)
+			//if we have a suitable unit in place already then use it
+			if (pLoopUnit->atPlot(*pTarget))
+					return pLoopUnit;
+
+			//otherwise collect and sort
+			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+			if(iMoves != MAX_INT)
 			{
-				int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
-				if(iMoves != MAX_INT && (iNumTurnsAway == -1 ||
-						                    (iNumTurnsAway == 0 && pLoopUnit->plot() == pTarget) || iMoves <= iNumTurnsAway))
-				{
-					CvTacticalUnit unit;
-					unit.SetID(pLoopUnit->GetID());
-					unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
-					unit.SetMovesToTarget(iMoves);
-					unit.SetAttackStrength( bHighPriority ? 40-iMoves : 20-iMoves ); //high prio units should come first after sorting
-					m_CurrentMoveUnits.push_back(unit);
-				}
+				int iBaseScore = 100 - 10 * iMoves;
+				possibleUnits.push_back(SUnitWithScore(pLoopUnit, iBaseScore+iExtraScore));
 			}
 		}
 	}
 
-	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
-	return m_CurrentMoveUnits.size()>0;
+	std::stable_sort(possibleUnits.begin(), possibleUnits.end());
+	if (possibleUnits.empty())
+		return NULL;
+	else
+		return possibleUnits.back().unit;
 }
 
 /// Fills m_CurrentMoveUnits with all units within X turns of a target (returns TRUE if 1 or more found)
@@ -11429,13 +11411,14 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		pPlot=plot;
 
 		//tricky logic to figure out whether we can use this plot
-		CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER);
+		CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER,NO_PLAYER,NULL,false,true);
 
-		//concerning embarkation. this is complex because it allows combat units to stack. uah.
-		//so we consider embarked units in the simulation but only allow moves onto land.
-		//this means that 1UPT is still valid for all our simulated moves and we can ignore embarked defenders here.
+		//concerning embarkation. this is complex because it allows combat units to stack, violating the 1UPT rule.
+		//note that there are other exceptions as well, eg a fort can hold a naval unit and a land unit.
+		//therefore we check for "native domain". we consider non-native domain units in the simulation but only allow moves into the native domain.
+		//this means that 1UPT is still valid for all our simulated moves and we can ignore embarked defenders etc.
 
-		if (pDefender && !pDefender->isEnemy(eTeam) && !pDefender->isEmbarked())
+		if (pDefender && !pDefender->isEnemy(eTeam) && pDefender->isNativeDomain(pPlot))
 		{
 			//note: we set two simple plot types here, the others are determined later.
 
@@ -12707,9 +12690,10 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
-		//embarked units are a problem because they violate 1UPT. we accept them only if they are alone in the plot and only allow movement onto land
+		//units outside of their native domain are a problem because they violate 1UPT. 
+		//we accept them only if they are alone in the plot and only allow movement into the native domain.
 		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID()) == ourUnits.end())
-			if (!pUnit->isEmbarked() || pUnit->plot()->getNumUnits()==1)
+			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1)
 				ourUnits.insert(vUnits[i]->GetID());
 	}
 
@@ -12882,9 +12866,10 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
-		//embarked units are a problem because they violate 1UPT. we accept them only if they are alone in the plot and only allow movement onto land
+		//units outside of their native domain are a problem because they violate 1UPT. 
+		//we accept them only if they are alone in the plot and only allow movement into the native domain.
 		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID()) == ourUnits.end())
-			if (!pUnit->isEmbarked() || pUnit->plot()->getNumUnits()==1)
+			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1)
 				ourUnits.insert(vUnits[i]->GetID());
 	}
 

@@ -797,7 +797,7 @@ private:
 	void PlotCampDefenseMoves();
 	void PlotBarbarianMove(bool bAggressive);
 	void PlotBarbarianCivilianEscortMove();
-	void PlotGarrisonMoves(int iTurnsToArrive, bool bMustAllowRangedAttack=false);
+	void PlotGarrisonMoves(int iTurnsToArrive);
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
 	void PlotAncientRuinMoves(int iNumTurnsAway);
@@ -873,7 +873,7 @@ private:
 #if defined(MOD_AI_SMART_RANGED_UNITS)
 	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
-	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
+	CvUnit* FindUnitForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bImmediateStrike=true);
 	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage, bool bAllowMoveThroughEnemyLand);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
