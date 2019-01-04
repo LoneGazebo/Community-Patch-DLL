@@ -4325,6 +4325,28 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 	return false;
 }
 
+bool CvPlot::MeleeAttackerAdvances() const
+{
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	{
+		// If the attacker is in a city, fort or citadel, don't advance
+		static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+		static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+		static ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+
+		if (isCity() ||
+			(getImprovementType() == eImprovementFort && !IsImprovementPillaged()) ||
+			(getImprovementType() == eImprovementCitadel && !IsImprovementPillaged()) ||
+			(getImprovementType() == eImprovementCamp)) //only possible for barbarians
+		{
+			return false;
+		}
+	}
+#endif
+	return true;
+}
+
 bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
 {
 	return isCityOrPassableImprovement(ePlayer, true, pUnit);
@@ -4348,9 +4370,10 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 	// In friendly lands (ours, an allied CS or a major with open borders)
 	if (IsFriendlyTerritory(ePlayer))
 	{
-		CvCity* pPlotCity = getPlotCity();
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (pPlotCity && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(pPlotCity->getOwner()).isMinorCiv()) {
+		if (isCity() && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(getOwner()).isMinorCiv())
+		{
+			CvCity* pPlotCity = getPlotCity();
 			if (pUnit) 
 			{
 				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 

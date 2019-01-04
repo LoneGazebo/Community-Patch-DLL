@@ -11520,7 +11520,7 @@ void CvTacticalPlot::friendlyUnitMovingOut(CvTacticalPosition& currentPosition, 
 	changeNeighboringUnitCount(currentPosition, bFriendlyUnitIsCombat, -1);
 }
 
-void CvTacticalPlot::enemyUnitRangeKill()
+void CvTacticalPlot::enemyUnitKilled()
 {
 	bBlockedByEnemyCombatUnit = false;
 }
@@ -11885,6 +11885,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		if (!movesToAdd.empty())
 		{
+			iNewBranches++; //count it even if we don't follow up on it
+
 			CvTacticalPosition* pNewChild = addChild(storage);
 			if (!pNewChild)
 				continue;
@@ -11899,8 +11901,28 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				}
 			}
 
-			if (pNewChild)
-				iNewBranches++;
+			//try to detect whether this new position is equivalent to one we already have
+			if (parentPosition)
+			{
+				const vector<CvTacticalPosition*>& siblings = parentPosition->getChildren();
+				for (size_t i = 0; i < siblings.size() && pNewChild; i++)
+				{
+					if (siblings[i] == this)
+						continue;
+
+					const vector<CvTacticalPosition*>& nephews = siblings[i]->getChildren();
+					for (size_t j = 0; j < nephews.size(); j++)
+					{
+						//todo: cache the summaries ...
+						if (pNewChild->isEquivalent(*nephews[j]))
+						{
+							removeChild(pNewChild);
+							pNewChild = NULL;
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -12214,13 +12236,73 @@ bool CvTacticalPosition::unitHasAssignmentOfType(int iUnit, STacticalAssignment:
 	return false;
 }
 
+struct SAssignmentSummary
+{
+	map<int, vector<int>> attackedPlots;
+	map<int, int> unitPlots;
+
+	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
+};
+
+SAssignmentSummary getSummary(const vector<STacticalAssignment>& assignments)
+{
+	SAssignmentSummary result;
+	for (size_t i = 0; i < assignments.size(); i++)
+	{
+		switch (assignments[i].eType)
+		{
+		//these assigments change the unit's plot
+		case STacticalAssignment::A_INITIAL:
+		case STacticalAssignment::A_MOVE:
+		case STacticalAssignment::A_CAPTURE:
+		case STacticalAssignment::A_MOVE_FORCED:
+			result.unitPlots[assignments[i].iUnitID] = assignments[i].iToPlotIndex;
+			break;
+
+		//ignore those, they don't change the plot
+		case STacticalAssignment::A_FINISH:
+		case STacticalAssignment::A_BLOCKED:
+		case STacticalAssignment::A_RESTART:
+			break;
+
+		//attacks without plot change
+		case STacticalAssignment::A_PILLAGE: //pretend pillaging is attacking the plot ...
+		case STacticalAssignment::A_MELEEATTACK:
+		case STacticalAssignment::A_RANGEATTACK:
+		case STacticalAssignment::A_RANGEKILL:
+		case STacticalAssignment::A_MELEEKILL_NO_ADVANCE:
+			//important: the ordering between moves and attack is important for flanking bonuses. so we also look at the damage here.
+			result.attackedPlots[assignments[i].iUnitID].push_back( assignments[i].iToPlotIndex+assignments[i].iDamage );
+			break;
+
+		//attack with plot change
+		case STacticalAssignment::A_MELEEKILL:
+			result.attackedPlots[assignments[i].iUnitID].push_back( assignments[i].iToPlotIndex );
+			result.unitPlots[assignments[i].iUnitID] = assignments[i].iToPlotIndex;
+			break;
+		}
+	}
+	return result;
+}
+
+//try to detect simple permutations in the unit assigments which result in equivalent results
+bool CvTacticalPosition::isEquivalent(const CvTacticalPosition & rhs) const
+{
+	if (assignedMoves.size() != rhs.assignedMoves.size())
+		return false;
+
+	if (assignedMoves.size() < 3)
+		return false;
+
+	return getSummary(assignedMoves)==getSummary(rhs.assignedMoves);
+}
+
 bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 {
 	//if we killed an enemy ZOC will change
 	bool bRecomputeAllMoves = false;
 	bool bVisibilityChange = false;
 	int iUnitEndTurnPlot = -1;
-	CvUnit* pEnemy = NULL; //in case of a kill
 	
 	vector<SUnitStats>::iterator itUnit = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(newAssignment.iUnitID));
 	if (itUnit == availableUnits.end())
@@ -12282,31 +12364,46 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 		break;
 	case STacticalAssignment::A_RANGEKILL:
-		if (itUnit->iAttacksLeft<=0)
+	{
+		if (itUnit->iAttacksLeft <= 0)
 			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
-		newTactPlot.enemyUnitRangeKill();
+		newTactPlot.enemyUnitKilled();
 		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
 		bRecomputeAllMoves = true; //ZOC changed
-		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
+		CvUnit* pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
 		if (pEnemy)
 		{
 			freedPlots.push_back(newAssignment.iToPlotIndex);
 			killedEnemies.push_back(pEnemy->GetID());
 		}
-		if (newAssignment.iRemainingMoves==0)
+		if (newAssignment.iRemainingMoves == 0)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 		break;
+	}
 	case STacticalAssignment::A_MELEEKILL:
-		if (itUnit->iAttacksLeft<=0)
+	{
+		if (itUnit->iAttacksLeft <= 0)
 			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
-		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
-		bVisibilityChange = true;
 
-		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
+		CvPlot* pAttackerPlot = GC.getMap().plotByIndexUnchecked(newAssignment.iFromPlotIndex);
+		if (pAttackerPlot->MeleeAttackerAdvances())
+		{
+			itUnit->iPlotIndex = newAssignment.iToPlotIndex;
+			bVisibilityChange = true;
+			oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
+			newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit());
+		}
+		else
+		{
+			newTactPlot.enemyUnitKilled();
+			newAssignment.eType = STacticalAssignment::A_MELEEKILL_NO_ADVANCE;
+		}
+
+		CvUnit* pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
 		if (newTactPlot.isEnemyCity() && !pEnemy)
 			killedEnemies.push_back(0); //put an invalid unit ID as a placeholder so that isComplete() works
 		else if (pEnemy) //should always be true, else we wouldn't be here
@@ -12315,13 +12412,12 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			killedEnemies.push_back(pEnemy->GetID());
 		}
 
-		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
-		newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit());
 		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
 		bRecomputeAllMoves = true; //ZOC changed
-		if (newAssignment.iRemainingMoves==0)
+		if (newAssignment.iRemainingMoves == 0)
 			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
+	}
 	case STacticalAssignment::A_PILLAGE:
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		break;
@@ -13071,6 +13167,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			bPostcondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy still present
 			break;
 		case STacticalAssignment::A_MELEEKILL:
+		case STacticalAssignment::A_MELEEKILL_NO_ADVANCE:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present
 			//because of randomness in previous combat results, it may happen that we cannot actually kill the enemy
 			if (bPrecondition)
@@ -13093,7 +13190,12 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			}
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());
-			bPostcondition = (pUnit->plot() == pToPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy gone
+
+			bPostcondition = !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy gone
+			if (vAssignments[i].eType == STacticalAssignment::A_MELEEKILL)
+				bPostcondition = (pUnit->plot() == pToPlot); //advanced into enemy plot
+			else
+				bPostcondition = (pUnit->plot() == pFromPlot); //still in the same plot
 			break;
 		case STacticalAssignment::A_PILLAGE:
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -13181,5 +13283,6 @@ const char* assignmentTypeNames[] =
 	"PILLAGE",
 	"CAPTURE",
 	"FORCEDMOVE",
-	"RESTART"
+	"RESTART",
+	"MELEEKILL_NOADVANCE"
 };

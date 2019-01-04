@@ -979,7 +979,7 @@ private:
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 struct STacticalAssignment
 {
-	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART };
+	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE };
 
 	eAssignmentType eType;
 	int iUnitID;
@@ -1057,7 +1057,7 @@ public:
 	//update fictional state
 	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
 	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
-	void enemyUnitRangeKill();
+	void enemyUnitKilled();
 
 	eTactPlotType getType() const { return eType; }
 	void setType(eTactPlotType newType) { eType = newType; }
@@ -1165,6 +1165,7 @@ public:
 	void countPlotTypes();
 	STacticalAssignment findBlockingUnitAtPlot(int iPlotIndex) const;
 	bool unitHasAssignmentOfType(int iUnit, STacticalAssignment::eAssignmentType move) const;
+	bool isEquivalent(const CvTacticalPosition& rhs) const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
 	CvTacticalPlot& getTactPlot(int plotindex);

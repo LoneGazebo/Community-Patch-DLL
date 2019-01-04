@@ -66,7 +66,6 @@ protected:
 
 	static void GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, int* piDamageMembers, int iMaxDamageMembers);
 	static uint ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDamageArray, int iDamageMembers, CvUnit* pkAttacker, CvPlot* pkTargetPlot, int iDamageLevel);
-	static bool AttackerAdvances(CvUnit& kAttacker);
 
 public:
 	static void ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser);
