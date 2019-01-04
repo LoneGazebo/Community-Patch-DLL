@@ -991,11 +991,7 @@ public:
 	// Accessor functions
 	std::vector<CvBuildingEntry*>& GetBuildingEntries();
 	int GetNumBuildings();
-#if defined(MOD_BALANCE_CORE)
 	_Ret_maybenull_ CvBuildingEntry* GetEntry(int index) const;
-#else
-	_Ret_maybenull_ CvBuildingEntry* GetEntry(int index);
-#endif
 	void DeleteArray();
 
 private:

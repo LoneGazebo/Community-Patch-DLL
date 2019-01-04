@@ -4358,8 +4358,7 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments;
-		TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pClosestEnemyPlot, AL_HIGH, gTactPosStorage, vAssignments);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pClosestEnemyPlot, AL_HIGH, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -6063,7 +6062,6 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
 	// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker)
 
-	vector<STacticalAssignment> vAssignments;
 	vector<CvUnit*> vUnits;
 	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 		vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
@@ -6072,7 +6070,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	bool bSuccess = false;
 	do
 	{
-		TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pTargetPlot, eAggLvl, gTactPosStorage, vAssignments);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnits, pTargetPlot, eAggLvl, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 		
@@ -6092,7 +6090,6 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 	if (!ExecuteSpotterMove(pTargetPlot))
 		return false;
 
-	vector<STacticalAssignment> vAssignments;
 	vector<CvUnit*> vUnits;
 	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 		vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
@@ -6101,7 +6098,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 	bool bSuccess = false;
 	do
 	{
-		TacticalAIHelpers::FindBestDefensiveAssignment(vUnits, pTargetPlot, gTactPosStorage, vAssignments);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestDefensiveAssignment(vUnits, pTargetPlot, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 		
@@ -10116,8 +10113,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 		}
 
 		//no loop needed, there is only one unit anyway
-		vector<STacticalAssignment> vAssignments;
-		TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, gTactPosStorage, vAssignments);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, gTactPosStorage);
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
 	}
 	else
@@ -10884,7 +10880,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 	CvPlot* pAssumedUnitPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
 	CvTacticalPlot assumedUnitPlot = assumedPosition.getTactPlot(unit.iPlotIndex);
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
-		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<int>());
+		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<CvUnit*>());
 
 	//this is only for melee attacks - ranged attacks are handled separately
 	if (currentPlot.isEnemy() && !pUnit->isRanged())
@@ -11379,7 +11375,7 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 	return result;
 }
 
-CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<int>& allOurUnits)
+CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits)
 {
 	bBlockedByEnemyCity = false;
 	bBlockedByEnemyCombatUnit = false;
@@ -11400,7 +11396,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	setInitialState(plot,ePlayer, allOurUnits);
 }
 
-void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<int>& allOurUnits)
+void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits)
 {
 	//initial values are "real", will be updated later on
 	if (plot && ePlayer!=NO_PLAYER)
@@ -11418,23 +11414,31 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		//therefore we check for "native domain". we consider non-native domain units in the simulation but only allow moves into the native domain.
 		//this means that 1UPT is still valid for all our simulated moves and we can ignore embarked defenders etc.
 
-		if (pDefender && !pDefender->isEnemy(eTeam) && pDefender->isNativeDomain(pPlot))
+		if (pDefender && !pDefender->isEnemy(eTeam))
 		{
 			//note: we set two simple plot types here, the others are determined later.
 
 			if (pDefender->getOwner() != ePlayer) //neutral
 			{
-				eType = TP_BLOCKED_NEUTRAL;
-				return;
-			}
-
-			if (allOurUnits.find(pDefender->GetID()) == allOurUnits.end()) //friendly combat unit and not included in sim
-			{
-				eType = TP_BLOCKED_FRIENDLY;
-				return;
+				if (pDefender->isNativeDomain(pPlot))
+				{
+					eType = TP_BLOCKED_NEUTRAL;
+					return;
+				}
 			}
 			else
-				bBlockedByFriendlyCombatUnit = true; //friendly combat unit and included in sim
+			{
+				if (allOurUnits.find(pDefender) == allOurUnits.end()) //friendly combat unit and not included in sim
+				{
+					if (pDefender->isNativeDomain(pPlot))
+					{
+						eType = TP_BLOCKED_FRIENDLY;
+						return;
+					}
+				}
+				else
+					bBlockedByFriendlyCombatUnit = true; //friendly combat unit and included in sim
+			}
 		}
 
 		nEnemyCombatUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(eTeam,pPlot->getDomain());
@@ -12342,7 +12346,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisiblePlots[i]);
 			if (pPlot && !pPlot->isNeutralUnit(ePlayer,true,false)) //can't use the official visiblity here 
 			{
-				addTacticalPlot(pPlot,set<int>()); //can pass empty set of units - the plot was invisible before so we know there is none of our units there
+				addTacticalPlot(pPlot,set<CvUnit*>()); //can pass empty set of units - the plot was invisible before so we know there is none of our units there
 				updateTacticalPlotTypes(pPlot->GetPlotIndex());
 
 				//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
@@ -12423,7 +12427,7 @@ bool CvTacticalPosition::haveTacticalPlot(const CvPlot* pPlot) const
 	return tacticalPlotLookup.find(pPlot->GetPlotIndex()) != tacticalPlotLookup.end();
 }
 
-void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<int>& allOurUnits)
+void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
 {
 	if (!pPlot)
 		return;
@@ -12655,7 +12659,7 @@ struct PrPositionIsBetter
 };
 
 //try to position our units around a target so that we are optimally prepared for counterattacks. target may be friendly or hostile.
-bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage, vector<STacticalAssignment>& result)
+vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage)
 {
 	/*
 	abstract:
@@ -12664,9 +12668,9 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 		if target is hostile, we try to come close but no closer than N plots with melee units covering ranged units.
 	*/
 
-	result.clear();
+	vector<STacticalAssignment> result;
 	if (vUnits.empty() || vUnits.front()==NULL || pTarget==NULL)
-		return false;
+		return result;
 
 	//meta parameters depending on difficulty setting
 	int iMaxActiveUnits = GC.getGame().getHandicapType() < 2 ? 8 : 12;
@@ -12679,39 +12683,37 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 	storage.reset();
 	CvTacticalPosition* initialPosition = storage.getNext();
 	if (!initialPosition)
-		return false;
+		return result;
 	initialPosition->initFromScratch(ePlayer, AL_NONE, pTarget);
 
 	cvStopWatch timer("tactsim_defense",NULL,0,true);
 	timer.StartPerfTest();
 
 	//first pass: make sure there are no duplicates and other invalid inputs
-	set<int> ourUnits;
+	set<CvUnit*> ourUnits;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
+
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.
-		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID()) == ourUnits.end())
+		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath())
 			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1)
-				ourUnits.insert(vUnits[i]->GetID());
+				ourUnits.insert(vUnits[i]);
 	}
 
 	//second pass, now that we know which units will be used, add them to the initial position
-	for(size_t i=0; i<vUnits.size(); i++)
+	for(set<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
 	{
-		CvUnit* pUnit = vUnits[i];
-		if (ourUnits.find(pUnit->GetID()) != ourUnits.end())
+		CvUnit* pUnit = *it;
+		if (initialPosition->addAvailableUnit(pUnit))
 		{
-			if (initialPosition->addAvailableUnit(pUnit))
+			//make sure we know the immediate surroundings of every unit
+			for (int j = 0; j < RING2_PLOTS; j++)
 			{
-				//make sure we know the immediate surroundings of every unit
-				for (int j = 0; j < RING2_PLOTS; j++)
-				{
-					CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-					if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
-						initialPosition->addTacticalPlot(pPlot, ourUnits);
-				}
+				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
+				if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
+					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
 	}
@@ -12814,12 +12816,12 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 			OutputDebugString("warning, only degenerate positions found\n");
 	}
 
-	return !result.empty();
+	return result;
 }
 
 //try to find a combination of unit actions (move, attack etc) which does maximal damage to the enemy while exposing us to limited risk
-bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, 
-													CvTactPosStorage& storage, vector<STacticalAssignment>& result)
+vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
+	const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage)
 {
 	/*
 	abstract:
@@ -12839,9 +12841,9 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	return best closed position
 	*/
 
-	result.clear();
+	vector<STacticalAssignment> result;
 	if (vUnits.empty() || vUnits.front()==NULL || pTarget==NULL)
-		return false;
+		return result;
 
 	//meta parameters depending on difficulty setting
 	int iMaxActiveUnits = GC.getGame().getHandicapType() < 2 ? 8 : 12;
@@ -12858,36 +12860,34 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	storage.reset();
 	CvTacticalPosition* initialPosition = storage.getNext();
 	if (!initialPosition)
-		return false;
+		return result;
 	initialPosition->initFromScratch(ePlayer, eAggLvl, pTarget);
 
 	//first pass: make sure there are no duplicates and other invalid inputs
-	set<int> ourUnits;
+	set<CvUnit*> ourUnits;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
+
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.
-		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID()) == ourUnits.end())
+		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath())
 			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1)
-				ourUnits.insert(vUnits[i]->GetID());
+				ourUnits.insert(vUnits[i]);
 	}
 
 	//second pass, now that we know which units will be used, add them to the initial position
-	for(size_t i=0; i<vUnits.size(); i++)
+	for(set<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
 	{
-		CvUnit* pUnit = vUnits[i];
-		if (ourUnits.find(pUnit->GetID()) != ourUnits.end())
+		CvUnit* pUnit = *it;
+		if (initialPosition->addAvailableUnit(pUnit))
 		{
-			if (initialPosition->addAvailableUnit(pUnit))
+			//make sure we know the immediate surroundings of every unit
+			for (int j = 0; j < RING2_PLOTS; j++)
 			{
-				//make sure we know the immediate surroundings of every unit
-				for (int j = 0; j < RING2_PLOTS; j++)
-				{
-					CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-					if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
-						initialPosition->addTacticalPlot(pPlot, ourUnits);
-				}
+				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
+				if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
+					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
 	}
@@ -13016,7 +13016,7 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 			OutputDebugString("warning, only degenerate positions found\n");
 	}
 
-	return !result.empty();
+	return result;
 }
 
 bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments)

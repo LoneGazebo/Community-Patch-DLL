@@ -4831,42 +4831,31 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += pkBuildingInfo->GetGreatWorkYieldChange(eYield) * pCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots();
 	}
 
-	int iNumBuildingInfos = GC.getNumBuildingInfos();
-	for (int iI = 0; iI < iNumBuildingInfos; iI++)
+	const vector<BuildingTypes>& buildingInteractions = GC.getBuildingInteractions(eBuilding);
+	for (size_t i = 0; i < buildingInteractions.size(); i++)
 	{
-		const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-		if (eBuildingLoop == NO_BUILDING)
-			continue;
-
-		CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+		CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(buildingInteractions[i]);
 		if (pkLoopBuilding)
 		{
-			if (pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) > 0)
+			iFlatYield += (pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities());
+
+			if (pCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) > 0)
 			{
-				iFlatYield += (pkBuildingInfo->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities());
+				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 5);
 			}
-			if (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) > 0)
+			else if (pCity->canConstruct(buildingInteractions[i]))
 			{
-				if (pCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) > 0)
-				{
-					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 5);
-				}
-				else if (pCity->canConstruct(eBuildingLoop))
-				{
-					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 2);
-				}
-				else
-				{
-					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield));
-				}
+				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 2);
 			}
-			//Stick this modifier here...okay?
-			if (pkBuildingInfo->GetBuildingClassYieldModifier(pkLoopBuilding->GetBuildingClassType(), eYield) > 0)
+			else
 			{
-				iModifier += (pkBuildingInfo->GetBuildingClassYieldModifier(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities() * 2);
+				iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield));
 			}
+
+			iModifier += (pkBuildingInfo->GetBuildingClassYieldModifier(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities() * 2);
 		}
 	}
+
 	int iNumTerrainInfos = GC.getNumTerrainInfos();
 	for (int iI = 0; iI < iNumTerrainInfos; iI++)
 	{

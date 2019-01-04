@@ -2572,6 +2572,8 @@ void CvGlobals::init()
 	pkLoader->PerformDatabasePostProcessing();
 	pkLoader->CacheGameDatabaseData();
 
+	GameDataPostProcess();
+
 	CvPlayerAI::initStatics();
 	CvTeam::initStatics();
 
@@ -3812,6 +3814,53 @@ CvBuildingXMLEntries* CvGlobals::GetGameBuildings() const
 {
 	return m_pBuildings;
 }
+
+void CvGlobals::GameDataPostProcess()
+{
+	for (int iI = 0; iI < getNumBuildingInfos(); iI++)
+	{
+		const BuildingTypes eOuter = static_cast<BuildingTypes>(iI);
+		CvBuildingEntry* pOuter = GC.getBuildingInfo(eOuter);
+		if (pOuter==NULL)
+			continue;
+
+		for (int iJ = 0; iJ < getNumBuildingInfos(); iJ++)
+		{
+			const BuildingTypes eInner = static_cast<BuildingTypes>(iJ);
+			CvBuildingEntry* pInner = GC.getBuildingInfo(eInner);
+			if (pInner==NULL)
+				continue;
+
+			bool bHasInteraction = false;
+			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+			{
+				YieldTypes eYield = (YieldTypes)iK;
+
+				if (pOuter->GetBuildingClassYieldChange(pInner->GetBuildingClassType(), eYield) > 0)
+					bHasInteraction = true;
+				if (pOuter->GetBuildingClassLocalYieldChange(pInner->GetBuildingClassType(), eYield) > 0)
+					bHasInteraction = true;
+				if (pOuter->GetBuildingClassYieldModifier(pInner->GetBuildingClassType(), eYield) > 0)
+					bHasInteraction = true;
+			}
+
+			if (bHasInteraction)
+				m_buildingInteractionLookup[eOuter].push_back(eInner);
+		}
+	}
+}
+
+#pragma warning(push)
+#pragma warning(disable:4172) //returning ref to temporary
+const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eRefBuilding) const
+{
+	map<BuildingTypes, vector<BuildingTypes>>::const_iterator it = m_buildingInteractionLookup.find(eRefBuilding);
+	if (it != m_buildingInteractionLookup.end())
+		return it->second;
+	else
+		return vector<BuildingTypes>();
+}
+#pragma warning(pop)
 
 int CvGlobals::getNumUnitClassInfos()
 {

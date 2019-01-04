@@ -236,7 +236,9 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 }
 #if defined(MOD_BALANCE_CORE)
 /// Do all building sanity stuff here.
-int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection, int iNumSeaConnection, int iGPT, bool bInterruptBuildings, bool bNationalWonderCheck, bool bFreeBuilding)
+int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
+	int iNumLandConnection, int iNumSeaConnection, int iGPT, 
+	bool bInterruptBuildings, bool bNationalWonderCheck, bool bFreeBuilding)
 {
 	if(m_pCity == NULL)
 		return 0;
