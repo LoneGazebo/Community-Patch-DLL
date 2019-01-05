@@ -6211,24 +6211,17 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 //	--------------------------------------------------------------------------------
 const CvHandicapInfo& CvGame::getHandicapInfo() const
 {
+	static CvHandicapInfo emptyResult;
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(getHandicapType());
 	if(pkHandicapInfo == NULL)
 	{
 		const char* szError = "ERROR: Game does not contain valid handicap!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
-
-		// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvHandicapInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *pkHandicapInfo;
-#pragma warning ( pop )
+	else
+		return *pkHandicapInfo;
 }
 
 HandicapTypes CvGame::getHandicapType() const
@@ -7541,6 +7534,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 //	--------------------------------------------------------------------------------
 const CvGameSpeedInfo& CvGame::getGameSpeedInfo() const
 {
+	static CvGameSpeedInfo emptyResult;
 	CvGameSpeedInfo* pkGameSpeedInfo = GC.getGameSpeedInfo(getGameSpeedType());
 	if(pkGameSpeedInfo == NULL)
 	{
@@ -7548,17 +7542,10 @@ const CvGameSpeedInfo& CvGame::getGameSpeedInfo() const
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
 
-		// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvGameSpeedInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *pkGameSpeedInfo;
-#pragma warning ( pop )
+	else
+		return *pkGameSpeedInfo;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7570,6 +7557,8 @@ GameSpeedTypes CvGame::getGameSpeedType() const
 //	--------------------------------------------------------------------------------
 const CvEraInfo& CvGame::getStartEraInfo() const
 {
+	static CvEraInfo emptyResult;
+
 	CvEraInfo* pkStartEraInfo = GC.getEraInfo(getStartEra());
 	if(pkStartEraInfo == NULL)
 	{
@@ -7577,17 +7566,10 @@ const CvEraInfo& CvGame::getStartEraInfo() const
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
 
-		// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvEraInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *pkStartEraInfo;
-#pragma warning ( pop )
+	else
+		return *pkStartEraInfo;
 }
 
 //	--------------------------------------------------------------------------------

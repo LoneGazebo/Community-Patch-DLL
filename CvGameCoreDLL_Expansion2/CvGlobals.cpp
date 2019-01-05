@@ -3850,17 +3850,16 @@ void CvGlobals::GameDataPostProcess()
 	}
 }
 
-#pragma warning(push)
-#pragma warning(disable:4172) //returning ref to temporary
 const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eRefBuilding) const
 {
+	static vector<BuildingTypes> emptyResult;
+
 	map<BuildingTypes, vector<BuildingTypes>>::const_iterator it = m_buildingInteractionLookup.find(eRefBuilding);
 	if (it != m_buildingInteractionLookup.end())
 		return it->second;
 	else
-		return vector<BuildingTypes>();
+		return emptyResult;
 }
-#pragma warning(pop)
 
 int CvGlobals::getNumUnitClassInfos()
 {

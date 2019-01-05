@@ -1111,7 +1111,8 @@ protected:
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
 	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
-	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger 
+	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
+	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -1122,7 +1123,7 @@ protected:
 	bool isIsolatedTarget;
 
 	//just for debugging, should be unique
-	unsigned long iID;
+	unsigned long long iID;
 
 	//dummy to avoid returning temporaries
 	CvTacticalPlot dummyPlot;
@@ -1157,6 +1158,7 @@ public:
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
+	void updateMovePlotsIfRequired();
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
@@ -1185,8 +1187,7 @@ public:
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }
 
 	//debugging
-	void setID(int id) { iID = id; }
-	int getID() const { return iID; }
+	unsigned long long getID() const { return iID; }
 	void dumpPlotStatus(const char* filename) const;
 	void exportToDotFile(const char* filename) const;
 	void dumpChildren(ofstream& out) const;

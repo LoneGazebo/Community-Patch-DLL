@@ -12127,7 +12127,7 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 
 	int iScore = 0;
 
-	iScore += GetScoreFromCities();
+	//iScore += GetScoreFromCities(); //ignore this, it's covered by pop and land
 	iScore += GetScoreFromPopulation();
 	iScore += GetScoreFromLand();
 	iScore += GetScoreFromWonders();
@@ -34421,24 +34421,19 @@ void CvPlayer::DoUpdateCramped()
 //	--------------------------------------------------------------------------------
 const CvHandicapInfo& CvPlayer::getHandicapInfo() const
 {
+	static CvHandicapInfo emptyResult;
+
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(getHandicapType());
-	if(pkHandicapInfo == NULL)
+	if (pkHandicapInfo == NULL)
 	{
 		const char* szError = "ERROR: Player does not contain valid handicap!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
 
-		// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvHandicapInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *pkHandicapInfo;
-#pragma warning ( pop )
+	else
+		return *pkHandicapInfo;
 }
 
 //	--------------------------------------------------------------------------------
@@ -34450,6 +34445,8 @@ HandicapTypes CvPlayer::getHandicapType() const
 //	--------------------------------------------------------------------------------
 const CvCivilizationInfo& CvPlayer::getCivilizationInfo() const
 {
+	static CvCivilizationInfo emptyResult;
+
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 	if(pkCivilizationInfo == NULL)
 	{
@@ -34457,17 +34454,10 @@ const CvCivilizationInfo& CvPlayer::getCivilizationInfo() const
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
 
-		// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvCivilizationInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *pkCivilizationInfo;
-#pragma warning ( pop )
+	else
+		return *pkCivilizationInfo;
 }
 
 //	--------------------------------------------------------------------------------
@@ -34480,6 +34470,8 @@ CivilizationTypes CvPlayer::getCivilizationType() const
 //	--------------------------------------------------------------------------------
 const CvLeaderHeadInfo& CvPlayer::getLeaderInfo() const
 {
+	static CvLeaderHeadInfo emptyResult;
+
 	CvLeaderHeadInfo* pkLeaderInfo = GC.getLeaderHeadInfo(getLeaderType());
 	if(pkLeaderInfo == NULL)
 	{
@@ -34487,17 +34479,10 @@ const CvLeaderHeadInfo& CvPlayer::getLeaderInfo() const
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
 
-		// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvLeaderHeadInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *pkLeaderInfo;
-#pragma warning ( pop )
+	else
+		return *pkLeaderInfo;
 }
 
 //	--------------------------------------------------------------------------------

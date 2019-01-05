@@ -1352,23 +1352,16 @@ int CvBuildingEntry::GetBuildingClassType() const
 
 const CvBuildingClassInfo& CvBuildingEntry::GetBuildingClassInfo() const
 {
+	static CvBuildingClassInfo emptyResult;
 	if(m_pkBuildingClassInfo == NULL)
 	{
 		const char* szError = "ERROR: Building does not contain valid BuildingClass type!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
-		
-// it hurts but we have to - whoever designed this should be whipped
-#pragma warning ( push )
-#pragma warning(disable:4172) //returning address of temporary
-		return CvBuildingClassInfo();
-#pragma warning ( pop )
+		return emptyResult;
 	}
-
-#pragma warning ( push )
-#pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
-	return *m_pkBuildingClassInfo;
-#pragma warning ( pop )
+	else
+		return *m_pkBuildingClassInfo;
 }
 
 /// Does this building require a city built on or next to a specific terrain type?

@@ -11406,34 +11406,41 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		//the most important thing
 		pPlot=plot;
 
-		//tricky logic to figure out whether we can use this plot
-		CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER,NO_PLAYER,NULL,false,true);
-
 		//concerning embarkation. this is complex because it allows combat units to stack, violating the 1UPT rule.
 		//note that there are other exceptions as well, eg a fort can hold a naval unit and a land unit.
 		//therefore we check for "native domain". we consider non-native domain units in the simulation but only allow moves into the native domain.
 		//this means that 1UPT is still valid for all our simulated moves and we can ignore embarked defenders etc.
 
-		if (pDefender && !pDefender->isEnemy(eTeam))
+		//so here comes tricky logic to figure out whether we can use this plot
+		for (int i=0; i<pPlot->getNumUnits(); i++)
 		{
-			//note: we set two simple plot types here, the others are determined later.
+			CvUnit* pPlotUnit = pPlot->getUnitByIndex(i);
 
-			if (pDefender->getOwner() != ePlayer) //neutral
+			//civilians are handled further down
+			if (!pPlotUnit->IsCombatUnit())
+				continue;
+
+			if (GET_PLAYER(ePlayer).IsAtWarWith(pPlotUnit->getOwner()))
 			{
-				if (pDefender->isNativeDomain(pPlot))
+				//visibility check is done later
+				bBlockedByEnemyCombatUnit = true;
+			}
+			else if (ePlayer != pPlotUnit->getOwner()) //neutral unit
+			{
+				if (pPlotUnit->isNativeDomain(pPlot))
 				{
 					eType = TP_BLOCKED_NEUTRAL;
-					return;
+					return; //done, we won't be putting units into this plot
 				}
 			}
-			else
+			else //owned unit
 			{
-				if (allOurUnits.find(pDefender) == allOurUnits.end()) //friendly combat unit and not included in sim
+				if (allOurUnits.find(pPlotUnit) == allOurUnits.end()) //friendly combat unit and not included in sim
 				{
-					if (pDefender->isNativeDomain(pPlot))
+					if (pPlotUnit->isNativeDomain(pPlot))
 					{
 						eType = TP_BLOCKED_FRIENDLY;
-						return;
+						return; //done, we won't be putting units into this plot
 					}
 				}
 				else
@@ -11445,7 +11452,6 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		nFriendlyCombatUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(eTeam,pPlot->getDomain());
 		nFriendlyFirstlineUnitsAdjacent = 0; //don't know this yet
 
-		bBlockedByEnemyCombatUnit = pPlot->isEnemyUnit(ePlayer,true,false); //visibility is checked elsewhere!
 		bBlockedByEnemyCity = (pPlot->isCity() && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner()));
 		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isEnemyUnit(ePlayer,false,false); //visibility is checked elsewhere!
 		bHasAirCover = pPlot->HasAirCover(ePlayer);
@@ -11608,30 +11614,31 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 	}
 }
 
-#pragma warning(push)
-#pragma warning(disable:4172) //returning ref to temporary
 const set<int>& CvTacticalPosition::getRangeAttackPlotsForUnit(int iUnit) const
 {
+	static set<int> emptyResult;
+
 	map<int,set<int>>::const_iterator localResult = rangeAttackPlotLookup.find(iUnit);
 	if (localResult != rangeAttackPlotLookup.end())
 		return localResult->second;
 	else if (parentPosition)
 		return parentPosition->getRangeAttackPlotsForUnit(iUnit);
 	else
-		return set<int>();
+		return emptyResult;
 }
 
 const ReachablePlots& CvTacticalPosition::getReachablePlotsForUnit(int iUnit) const
 {
+	static ReachablePlots emptyResult;
+
 	map<int,ReachablePlots>::const_iterator localResult = reachablePlotLookup.find(iUnit);
 	if (localResult != reachablePlotLookup.end())
 		return localResult->second;
 	else if (parentPosition)
 		return parentPosition->getReachablePlotsForUnit(iUnit);
 	else
-		return ReachablePlots();
+		return emptyResult;
 }
-#pragma warning(pop)
 
 vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(SUnitStats unit, int nMaxCount) const
 {
@@ -11645,7 +11652,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	if (!bCantMoveAgainRightNow)
 	{
 		//moves and melee attacks
-		ReachablePlots reachablePlots = getReachablePlotsForUnit(unit.iUnitID);
+		const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit.iUnitID);
 
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
@@ -11696,7 +11703,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	//ranged attacks
 	if (pUnit->isRanged() && eAggression>AL_NONE && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
-		set<int> rangeAttackPlots = getRangeAttackPlotsForUnit(unit.iUnitID);
+		const set<int>& rangeAttackPlots = getRangeAttackPlotsForUnit(unit.iUnitID);
 		for (set<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
 		{
 			STacticalAssignment move(unit.iPlotIndex,*it,unit.iUnitID,unit.iMovesLeft,unit.isCombatUnit(),-1,STacticalAssignment::A_FINISH);
@@ -11793,13 +11800,14 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 
 	std::sort(availableUnits.begin(), availableUnits.end());
 
-	//simply consider those extra units as blocked. for some reason using an iterator crashes here?
-	for (int i=iMaxUnitsToKeep; i<(int)availableUnits.size(); i++)
+	//simply consider those extra units as blocked.
+	//since addAssignment will modify availableUnits, we copy the relevant units first
+	vector<SUnitStats> unitsToDrop( availableUnits.begin()+iMaxUnitsToKeep, availableUnits.end() );
+	for (vector<SUnitStats>::iterator itUnit = unitsToDrop.begin(); itUnit != unitsToDrop.end(); ++itUnit)
 	{
-		STacticalAssignment fakeBlock(availableUnits[i].iPlotIndex,availableUnits[i].iPlotIndex,availableUnits[i].iUnitID,availableUnits[i].iMovesLeft,availableUnits[i].isCombatUnit(),0,STacticalAssignment::A_BLOCKED);
+		STacticalAssignment fakeBlock(itUnit->iPlotIndex,itUnit->iPlotIndex,itUnit->iUnitID,itUnit->iMovesLeft,itUnit->isCombatUnit(),0,STacticalAssignment::A_BLOCKED);
 		addAssignment(fakeBlock);
 	}
-	availableUnits.erase(availableUnits.begin() + iMaxUnitsToKeep, availableUnits.end());
 }
 
 bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage)
@@ -11813,6 +11821,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		update affected tact plots
 		update unit reachable plots
 	*/
+
+
+	//very important, lazy update
+	updateMovePlotsIfRequired();
 
 	vector<STacticalAssignment> overAllChoices;
 	map<int,vector<STacticalAssignment>> choicePerUnit;
@@ -11902,7 +11914,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			}
 
 			//try to detect whether this new position is equivalent to one we already have
-			if (parentPosition)
+			if (parentPosition && pNewChild)
 			{
 				const vector<CvTacticalPosition*>& siblings = parentPosition->getChildren();
 				for (size_t i = 0; i < siblings.size() && pNewChild; i++)
@@ -11927,6 +11939,24 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	}
 	
 	return (iNewBranches>0);
+}
+
+//lazy update of move plots
+void CvTacticalPosition::updateMovePlotsIfRequired()
+{
+	if (movePlotUpdateFlag==-1)
+	{
+		for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
+			updateMoveAndAttackPlotsForUnit(*itUnit);
+	}
+	else if (movePlotUpdateFlag>0)
+	{
+		for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
+			if (itUnit->iUnitID == movePlotUpdateFlag)
+				updateMoveAndAttackPlotsForUnit(*itUnit);
+	}
+
+	movePlotUpdateFlag = 0;
 }
 
 bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move) const
@@ -12089,6 +12119,7 @@ CvTacticalPosition::CvTacticalPosition()
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
 	iID = 0;
+	movePlotUpdateFlag = 0;
 	//all the rest is default-initialized
 }
 
@@ -12104,6 +12135,7 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
 	iID = 1; //zero doesn't work here
+	movePlotUpdateFlag = 0;
 
 	childPositions.clear();
 	reachablePlotLookup.clear();
@@ -12128,10 +12160,11 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
+	movePlotUpdateFlag = parent.movePlotUpdateFlag;
 
 	//clever scheme to encode the tree structure into IDs
 	//works only if the tree is not too wide or too deep
-	if (parent.getID() < INT_MAX / 10 - 10)
+	if (parent.getID() < ULLONG_MAX / 10 - 10)
 		iID = parent.getID() * 10 + parent.childPositions.size();
 	else
 		iID = INT_MAX;
@@ -12238,12 +12271,15 @@ bool CvTacticalPosition::unitHasAssignmentOfType(int iUnit, STacticalAssignment:
 
 struct SAssignmentSummary
 {
-	map<int, vector<int>> attackedPlots;
-	map<int, int> unitPlots;
+	//todo: use sorted vectors instead of maps for performance?
+	//todo: do we care about the order of attacks?
+	map<int, vector<int>> attackedPlots; 
+	map<int, int> unitPlots; 
 
 	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
 };
 
+//we should err on the side of caution here. better to allow two equivalent positions than to ignore a good one
 SAssignmentSummary getSummary(const vector<STacticalAssignment>& assignments)
 {
 	SAssignmentSummary result;
@@ -12271,7 +12307,7 @@ SAssignmentSummary getSummary(const vector<STacticalAssignment>& assignments)
 		case STacticalAssignment::A_RANGEATTACK:
 		case STacticalAssignment::A_RANGEKILL:
 		case STacticalAssignment::A_MELEEKILL_NO_ADVANCE:
-			//important: the ordering between moves and attack is important for flanking bonuses. so we also look at the damage here.
+			//important: the ordering between moves and attack is important for flanking bonuses. so we also look at the damage here (maybe use a std::pair?)
 			result.attackedPlots[assignments[i].iUnitID].push_back( assignments[i].iToPlotIndex+assignments[i].iDamage );
 			break;
 
@@ -12285,6 +12321,9 @@ SAssignmentSummary getSummary(const vector<STacticalAssignment>& assignments)
 	return result;
 }
 
+static int giEquivalent = 0;
+static int giDifferent = 0;
+
 //try to detect simple permutations in the unit assigments which result in equivalent results
 bool CvTacticalPosition::isEquivalent(const CvTacticalPosition & rhs) const
 {
@@ -12294,7 +12333,16 @@ bool CvTacticalPosition::isEquivalent(const CvTacticalPosition & rhs) const
 	if (assignedMoves.size() < 3)
 		return false;
 
-	return getSummary(assignedMoves)==getSummary(rhs.assignedMoves);
+	if (getSummary(assignedMoves) == getSummary(rhs.assignedMoves))
+	{
+		giEquivalent++;
+		return true;
+	}
+	else
+	{
+		giDifferent++;
+		return false;
+	}
 }
 
 bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
@@ -12452,17 +12500,19 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		}
 	}
 
+	//we don't update the moves plots lazily because it takes a while and we don't know yet if we will ever follow up on this position
 	if (bRecomputeAllMoves)
 	{
-		for (vector<SUnitStats>::iterator itUnit2 = availableUnits.begin(); itUnit2 != availableUnits.end(); ++itUnit2)
-			updateMoveAndAttackPlotsForUnit(*itUnit2);
+		movePlotUpdateFlag = -1; //need to update all
 	}
-	else if (itUnit->iMovesLeft>0) //otherwise iterator is invalid
+	else if (itUnit->iMovesLeft>0)
 	{
-		updateMoveAndAttackPlotsForUnit(*itUnit);
+		if (movePlotUpdateFlag!=-1) //make sure we don't regress to a "lower" level
+			movePlotUpdateFlag = itUnit->iUnitID; //need to update only this one
 	}
 	else if (itUnit->iMovesLeft==0)
 	{
+		//don't need to set movePlotUpdateFlag to zero - if it's not zero we want to keep it and if it's zero there's no change
 		reachablePlotLookup[itUnit->iUnitID] = ReachablePlots();
 		rangeAttackPlotLookup[itUnit->iUnitID] = set<int>();
 	}
@@ -12606,7 +12656,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	assignedMoves.push_back( STacticalAssignment(pUnit->plot()->GetPlotIndex(),pUnit->plot()->GetPlotIndex(),
 								pUnit->GetID(),pUnit->getMoves(),pUnit->IsCombatUnit(),0,STacticalAssignment::A_INITIAL) );
 
-	updateMoveAndAttackPlotsForUnit(availableUnits.back());
+	movePlotUpdateFlag = -1; //lazy update of move plots later
 	return true;
 }
 
@@ -12798,6 +12848,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 				ourUnits.insert(vUnits[i]);
 	}
 
+	if (ourUnits.empty())
+		return result;
+
 	//second pass, now that we know which units will be used, add them to the initial position
 	for(set<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
 	{
@@ -12971,6 +13024,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1)
 				ourUnits.insert(vUnits[i]);
 	}
+
+	if (ourUnits.empty())
+		return result;
 
 	//second pass, now that we know which units will be used, add them to the initial position
 	for(set<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
