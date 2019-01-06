@@ -16211,14 +16211,25 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	iProductionNeeded *= GC.getGame().getStartEraInfo().getTrainPercent();
 	iProductionNeeded /= 100;
 
+#if defined(MOD_BALANCE_CORE)
+	int iMod = 100;
+	UnitCombatTypes eUnitCombat = (UnitCombatTypes)pkUnitEntry->GetUnitCombatType();
+	if (eUnitCombat != NO_UNITCOMBAT && GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first != 0)
+	{
+		if (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == false || (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == true && isGoldenAge()))
+		{
+			iMod += GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first;
+		}
+	}
 #if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
 	{
 		int iWarWeariness = GetCulture()->GetWarWeariness();
-		int iMod = (100 + min(75, iWarWeariness));
-		iProductionNeeded *= iMod;
-		iProductionNeeded /= 100;
+		iMod += min(75, iWarWeariness);
 	}
+#endif
+	iProductionNeeded *= iMod;
+	iProductionNeeded /= 100;
 #endif
 
 	if(!isHuman() && !IsAITeammateOfHuman() && !isBarbarian())

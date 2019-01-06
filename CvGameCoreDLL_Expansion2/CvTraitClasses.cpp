@@ -1958,26 +1958,16 @@ bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int uni
 
 	return false;
 }
-/// Accessor:: Does the civ have a golden age modifier for the yield type? And do we want to grant it at the player level if possible?
+/// Accessor:: Does the civ have a golden age modifier for the yield type?
 int CvTraitEntry::GetGoldenAgeYieldModifier(const int iYield) const
 {
-	CvAssertMsg(iYield < GC.NUM_YIELD_TYPES(), "Index out of bounds");
+	CvAssertMsg(iYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(iYield > -1, "Index out of bounds");
 	
 	std::map<int, int>::const_iterator it = m_piGoldenAgeYieldModifier.find(iYield);
 	if (it != m_piGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
 	{
-		// get an iterator to the element that is one past the last element associated with key
-		std::map<int, int>::const_iterator lastElement = m_piGoldenAgeYieldModifier.upper_bound(iYield);
-
-		// for each element in the sequence [itr, lastElement)
-		for (; it != lastElement; ++it)
-		{
-			if (it->first == iYield)
-			{
-				return it->second;
-			}
-		}
+		return it->second;
 	}
 
 	return 0;
@@ -2002,6 +1992,20 @@ bool CvTraitEntry::UnitClassCanBuild(const int buildID, const int unitClassID) c
 	}
 
 	return false;
+}
+/// Accessor:: Does the civ have a production cost modifier for the unit combat type? And is it only granted during golden ages?
+std::pair <int, bool> CvTraitEntry::GetUnitCombatProductionCostModifier(const int unitCombatID) const
+{
+	CvAssertMsg(unitCombatID >= 0, "unitCombatID expected to be >= 0");
+	CvAssertMsg(unitCombatID < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
+
+	std::map<int, std::pair<int, bool>>::const_iterator it = m_pibUnitCombatProductionCostModifier.find(unitCombatID);
+	if (it != m_pibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
+	{
+		return it->second;
+	}
+
+	return std::make_pair(0, false);
 }
 
 #endif
@@ -2821,6 +2825,32 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_BuildsUnitClasses).swap(m_BuildsUnitClasses);
 	}
+	//Populate m_pibUnitCombatProductionCostModifier
+	{
+		std::string sqlKey = "Trait_UnitCombatProductionCostModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitCombatInfos.ID as UnitCombatInfosID, CostModifier, IsGoldenAgeOnly from Trait_UnitCombatProductionCostModifiers inner join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iUnitCombat = pResults->GetInt(0);
+			const int iCostModifier = pResults->GetInt(1);
+			const bool bGoldenAgeOnly = pResults->GetBool(2);
+
+			m_pibUnitCombatProductionCostModifier.insert(std::pair<int, std::pair<int, bool>>(iUnitCombat, std::make_pair(iCostModifier, bGoldenAgeOnly)));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::pair<int, bool>>(m_pibUnitCombatProductionCostModifier).swap(m_pibUnitCombatProductionCostModifier);
+	}
 #endif
 
 	//Populate m_MaintenanceModifierUnitCombats
@@ -3445,7 +3475,7 @@ void CvPlayerTraits::SetIsNerd()
 	if (GetGreatScientistRateModifier() != 0 ||
 		GetInvestmentModifier() != 0 ||
 		GetFreePolicyPerXTechs() != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0|
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0 ||
 		GetGoldenAgeYieldModifier(YIELD_SCIENCE) > 0)
 	{
 		m_bIsNerd = true;
@@ -4442,6 +4472,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_paiMovesChangeUnitCombat[jJ] += trait->GetMovesChangeUnitCombat(jJ);
 				m_paiMaintenanceModifierUnitCombat[jJ] += trait->GetMaintenanceModifierUnitCombat(jJ);
+#if defined(MOD_BALANCE_CORE)
+				if (trait->GetUnitCombatProductionCostModifier(jJ).first != 0)
+				{
+					m_aibUnitCombatProductionCostModifier.insert(std::make_pair(jJ, trait->GetUnitCombatProductionCostModifier(jJ)));
+				}
+#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			int iNumUnitClasses = GC.getNumUnitClassInfos();
@@ -4951,6 +4987,9 @@ void CvPlayerTraits::Reset()
 	{
 		m_paiMovesChangeUnitCombat[iI] = 0;
 		m_paiMaintenanceModifierUnitCombat[iI] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_aibUnitCombatProductionCostModifier.erase(iI);
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_aiGreatPersonCostReduction.clear();
@@ -5468,26 +5507,30 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 /// What is the golden age modifier for the specific yield type?
 int CvPlayerTraits::GetGoldenAgeYieldModifier(YieldTypes eYield) const
 {
-	CvAssertMsg(eYield < GC.NUM_YIELD_TYPES(), "Index out of bounds");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
 	std::map<int, int>::const_iterator it = m_aiGoldenAgeYieldModifier.find((int)eYield);
 	if (it != m_aiGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key is not present
 	{
-		// get an iterator to the element that is one past the last element associated with key
-		std::map<int, int>::const_iterator lastElement = m_aiGoldenAgeYieldModifier.upper_bound((int)eYield);
-		
-		// for each element in the sequence [itr, lastElement]
-		for (; it != lastElement; ++it)
-		{
-			if (it->first == (int)eYield)
-			{
-				return it->second;
-			}
-		}
+		return it->second;
 	}
 
 	return 0;
+}
+/// What is the production cost modifier for the unit combat type? And does it only work during golden ages?
+std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCombatTypes eUnitCombat) const
+{
+	CvAssertMsg(eUnitCombat >= 0, "unitCombatID expected to be >= 0");
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
+
+	std::map<int, std::pair<int, bool>>::const_iterator it = m_aibUnitCombatProductionCostModifier.find((int)eUnitCombat);
+	if (it != m_aibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	return std::make_pair(0, false);
 }
 #endif
 
@@ -7044,6 +7087,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 	kStream >> m_aiGoldenAgeYieldModifier;
+	kStream >> m_aibUnitCombatProductionCostModifier;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7484,6 +7528,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiYieldFromTileSettle;
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
 	kStream << m_aiGoldenAgeYieldModifier;
+	kStream << m_aibUnitCombatProductionCostModifier;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

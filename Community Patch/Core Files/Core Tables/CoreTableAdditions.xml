@@ -858,6 +858,14 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
+	<!-- TRAIT: Allows you to decrease the production cost of a unit combat (which will then decrease gold purchase costs and upgrade costs). Can be toggled to only be in effect during golden ages. -->
+	<Table name="Trait_UnitCombatProductionCostModifiers">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="CostModifier" type="integer" default="0"/>
+		<Column name="IsGoldenAgeOnly" type="boolean" default="false"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
