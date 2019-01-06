@@ -12443,12 +12443,16 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 			bVisibilityChange = true;
 			oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
-			newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit());
+			newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit()); //this removes the enemyUnit flag
+			if (newAssignment.iRemainingMoves == 0)
+				iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		}
 		else
 		{
 			newTactPlot.enemyUnitKilled();
 			newAssignment.eType = STacticalAssignment::A_MELEEKILL_NO_ADVANCE;
+			if (newAssignment.iRemainingMoves == 0)
+				iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 		}
 
 		CvUnit* pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
@@ -12462,8 +12466,6 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 
 		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
 		bRecomputeAllMoves = true; //ZOC changed
-		if (newAssignment.iRemainingMoves == 0)
-			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
 	}
 	case STacticalAssignment::A_PILLAGE:
