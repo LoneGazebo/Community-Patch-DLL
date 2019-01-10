@@ -949,8 +949,6 @@ public:
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
-	bool IsHasNoValidMove() const;
-
 	inline int GetID() const
 	{
 		return m_iID;
@@ -1924,7 +1922,7 @@ protected:
 
 	bool CheckDOWNeededForMove(int iX, int iY);
 	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
-	int UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
+	int UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);
 	bool UnitBuild(BuildTypes eBuild);

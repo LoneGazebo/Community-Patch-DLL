@@ -3219,6 +3219,34 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 	return pBestUnit;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvPlot::HasAirCover(PlayerTypes eDefendingPlayer) const
+{
+	if (eDefendingPlayer == NO_PLAYER)
+		return false;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(eDefendingPlayer);
+	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetPossibleInterceptors();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->first);
+
+		if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
+			continue;
+
+		// Must not have already intercepted this turn
+		if (pInterceptorUnit->isOutOfInterceptions())
+			continue;
+
+		// Test range
+		int iDistance = plotDistance(*pInterceptorPlot, *this);
+		if (iDistance <= pInterceptorUnit->GetAirInterceptRange())
+			return true;
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlot::GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
@@ -4297,6 +4325,28 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 	return false;
 }
 
+bool CvPlot::MeleeAttackerAdvances() const
+{
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	{
+		// If the attacker is in a city, fort or citadel, don't advance
+		static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+		static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+		static ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+
+		if (isCity() ||
+			(getImprovementType() == eImprovementFort && !IsImprovementPillaged()) ||
+			(getImprovementType() == eImprovementCitadel && !IsImprovementPillaged()) ||
+			(getImprovementType() == eImprovementCamp)) //only possible for barbarians
+		{
+			return false;
+		}
+	}
+#endif
+	return true;
+}
+
 bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
 {
 	return isCityOrPassableImprovement(ePlayer, true, pUnit);
@@ -4320,9 +4370,10 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 	// In friendly lands (ours, an allied CS or a major with open borders)
 	if (IsFriendlyTerritory(ePlayer))
 	{
-		CvCity* pPlotCity = getPlotCity();
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
-		if (pPlotCity && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(pPlotCity->getOwner()).isMinorCiv()) {
+		if (isCity() && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(getOwner()).isMinorCiv())
+		{
+			CvCity* pPlotCity = getPlotCity();
 			if (pUnit) 
 			{
 				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 

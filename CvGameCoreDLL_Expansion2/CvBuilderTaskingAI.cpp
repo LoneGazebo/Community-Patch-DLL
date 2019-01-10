@@ -779,10 +779,6 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 		else
 			continue;
 
-		BuildTypes eBuild = itUnit->first->getBuildType();
-		if (eBuild != NO_BUILD)
-			iTurns += itUnit->first->plot()->getBuildTurnsLeft(eBuild, itUnit->first->getOwner(), 0, 0);
-
 		if (iTurns < iBestTurnsAway)
 		{
 			iBestTurnsAway = iTurns;
@@ -794,86 +790,33 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 }
 
 /// Use the flavor settings to determine what the worker should do
-bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDirectives, UINT uaDirectives, bool bOnlyKeepBest, bool bOnlyEvaluateWorkersPlot)
+BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
 {
 	// number of cities has changed mid-turn, so we need to re-evaluate what workers should do
 	if(m_pPlayer->getNumCities() != m_iNumCities)
-	{
 		Update();
-	}
 
-	CvAssertMsg(uaDirectives > 0, "Need more than one directive");
-
-	for(uint ui = 0; ui < uaDirectives; ui++)
-	{
-		paDirectives[ui].m_eDirective = BuilderDirective::NUM_DIRECTIVES;
-	}
 	m_aDirectives.clear();
 
 	// check for no brainer bail-outs
 	// if the builder is already building something
 	if (pUnit->getBuildType() != NO_BUILD && pUnit->GetDanger() < pUnit->GetCurrHitPoints() / 2)
 	{
-		paDirectives[0].m_eDirective = BuilderDirective::BUILD_IMPROVEMENT;
-		paDirectives[0].m_eBuild = pUnit->getBuildType();
-		paDirectives[0].m_sX = pUnit->getX();
-		paDirectives[0].m_sY = pUnit->getY();
-		paDirectives[0].m_sMoveTurnsAway = 0;
-		return true;
-	}
-
-	//how far around each worker should we be checking?
-	int iMaxTurns = pUnit->IsGreatPerson() ? 12 : 5;
-
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCombatUnit())
-		iMaxTurns = gCustomMods.getOption("UNITS_LOCAL_WORKERS_COMBATLIMIT", 2);
-#endif
-
-	// where can our workers go
-	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
-
-	int iUnitLoop;
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-	{
-		//note that we use this function for great person improvements as well so they AI type is not always worker!
-		if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == pUnit->AI_getUnitAIType())
-		{
-			if (bOnlyEvaluateWorkersPlot)
-			{
-				// can't build on plots others own
-				PlayerTypes eOwner = pUnit->plot()->getOwner();
-				if (eOwner == m_pPlayer->GetID())
-				{
-					allWorkersReachablePlots[pLoopUnit].insert(SMovePlot( pUnit->plot()->GetPlotIndex(),0,1,0 ));
-				}
-			}
-			else
-			{
-				//how far to look for work?
-				int iTurnLimit = iMaxTurns;
-				if (pLoopUnit==pUnit)
-					iTurnLimit *= 2;
-
-				//is the unit still busy? if so, less time for movement
-				BuildTypes eBuild = pLoopUnit->getBuildType();
-				if (eBuild != NO_BUILD)
-					iTurnLimit -= pLoopUnit->plot()->getBuildTurnsLeft(eBuild, pLoopUnit->getOwner(), 0, 0);
-
-				if (iTurnLimit >= 0)
-				{
-					SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iMaxTurns);
-					data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-					ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
-					allWorkersReachablePlots[pLoopUnit] = plots;
-				}
-			}
-		}
+		BuilderDirective nd;
+		nd.m_eDirective = BuilderDirective::BUILD_IMPROVEMENT;
+		nd.m_eBuild = pUnit->getBuildType();
+		nd.m_sX = pUnit->getX();
+		nd.m_sY = pUnit->getY();
+		nd.m_sMoveTurnsAway = 0;
+		return nd;
 	}
 
 	// go through all the plots the player has under their control
-	ReachablePlots& thisUnitPlots = allWorkersReachablePlots[pUnit];
-	for(ReachablePlots::iterator it=thisUnitPlots.begin(); it!=thisUnitPlots.end(); ++it)
+	map<CvUnit*, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit);
+	if (thisUnitPlots == allWorkersReachablePlots.end())
+		return BuilderDirective();
+
+	for(ReachablePlots::const_iterator it=thisUnitPlots->second.begin(); it!=thisUnitPlots->second.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(it->iPlotIndex);
 		int iMoveTurnsAway = it->iTurns;
@@ -920,56 +863,18 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		}
 	}
 
+	//nothing found?
+	if (m_aDirectives.size() == 0)
+		return BuilderDirective();
+
 	m_aDirectives.StableSortItems();
-
-	int iBestWeight = 0;
-	int iAssignIndex = 0;
-	for(int i = 0; i < m_aDirectives.size(); i++)
-	{
-		// If this target was far away, we only estimated the time to get there.  We need to be sure we have a real path there
-		CvPlot* pTarget = GC.getMap().plot(m_aDirectives.GetElement(i).m_sX, m_aDirectives.GetElement(i).m_sY);
-		CvAssertMsg(pTarget != NULL, "Not expecting the target to be NULL");
-		if(!pTarget)
-			continue;
-
-		if(iBestWeight == 0)
-		{
-			iBestWeight = m_aDirectives.GetWeight(i);
-		}
-
-		if(bOnlyKeepBest)
-		{
-			int iWeight = m_aDirectives.GetWeight(i);
-			if(iWeight < iBestWeight * 3 / 4)
-			{
-				break;
-			}
-		}
-
-		BuilderDirective directive = m_aDirectives.GetElement(i);
-		paDirectives[iAssignIndex] = directive;
-		iAssignIndex++;
-
-		// if we shouldn't copy over any more directives, then break
-		if(iAssignIndex >= (int)uaDirectives)
-		{
-			break;
-		}
-	}
-
 	if(m_bLogging)
-		LogDirectives(pUnit);
-
-	if(iAssignIndex > 0)
 	{
-		if(m_bLogging)
-		{
-			LogDirective(paDirectives[0], pUnit, -1, true /*bChosen*/);
-		}
-		return true;
+		LogDirectives(pUnit);
+		LogDirective( m_aDirectives.GetElement(0), pUnit, -1, true /*bChosen*/);
 	}
 
-	return false;
+	return m_aDirectives.GetElement(0);
 }
 
 

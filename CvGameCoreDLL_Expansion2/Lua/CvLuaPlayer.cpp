@@ -11104,7 +11104,6 @@ int CvLuaPlayer::lGetNotificationDismissed(lua_State* L)
 int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-
 	CvUnit* pWorkerUnit = NULL;
 
 	//Get first selected worker.
@@ -11125,54 +11124,25 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 
 	//Early out
 	if(pWorkerUnit == NULL)
-	{
 		return 0;
-	}
 
-	const size_t cuiMaxDirectives = 3;
-	const size_t cuiDirectiveSize = 4;
-	BuilderDirective aDirective[ cuiDirectiveSize ];
-	bool bUseDirective[cuiDirectiveSize];
-	CvPlot* pDirectivePlots[cuiDirectiveSize] = {0};
+	//fake this, ignore all other workers
+	map<CvUnit*, ReachablePlots> allplots;
+	SPathFinderUserData data(pWorkerUnit, 0, 5);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	allplots[pWorkerUnit] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
 
-	pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true, false);
-	for(uint ui = 0; ui < cuiDirectiveSize; ui++)
-	{
-		bUseDirective[ui] = false;
+	BuilderDirective aDirective = pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit,allplots);
+	if(aDirective.m_eDirective == BuilderDirective::NUM_DIRECTIVES)
+		return 0;
 
-		if(aDirective[ui].m_eDirective != BuilderDirective::NUM_DIRECTIVES)
-		{
-			CvPlot* pPlot = GC.getMap().plot(aDirective[ui].m_sX, aDirective[ui].m_sY);
-			if(pPlot != NULL)
-			{
-				// Don't recommend plots that are already improved
-				if(aDirective[ui].m_eDirective != BuilderDirective::BUILD_IMPROVEMENT || pPlot->getImprovementType() == NO_IMPROVEMENT)
-				{
-					pDirectivePlots[ui] = pPlot;
-					bUseDirective[ui] = true;
-				}
-			}
-		}
-	}
+	lua_createtable(L, 0, 0);
+	const int t = lua_gettop(L);
 
-	lua_createtable(L, cuiMaxDirectives, 0);
-	int iPositionIndex = lua_gettop(L);
-	int i = 1;
-
-	for(uint ui = 0; ui < cuiDirectiveSize && i < cuiMaxDirectives; ui++)
-	{
-		if(bUseDirective[ui] == true)
-		{
-			lua_createtable(L, 0, 2);
-			CvLuaPlot::Push(L, pDirectivePlots[ui]);
-			lua_setfield(L, -2, "plot");
-			lua_pushinteger(L, aDirective[ui].m_eBuild);
-			lua_setfield(L, -2, "buildType");
-
-			lua_rawseti(L, iPositionIndex, i);
-			i++;
-		}
-	}
+	CvLuaPlot::Push(L, GC.getMap().plot(aDirective.m_sX, aDirective.m_sY));
+	lua_setfield(L, t, "plot");
+	lua_pushinteger(L, aDirective.m_eBuild);
+	lua_setfield(L, t, "buildType");
 
 	return 1;
 }

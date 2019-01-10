@@ -127,16 +127,16 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	if(iNumBuildables > 0)
 	{
-		if(iTempWeight > 400)
+		if(iTempWeight > 100)
 		{
-			iTempWeight = 400;
+			iTempWeight = 100;
 		}
 	}
 	else
 	{
-		if(iTempWeight > 1000)
+		if(iTempWeight > 250)
 		{
-			iTempWeight = 1000;
+			iTempWeight = 250;
 		}
 	}
 

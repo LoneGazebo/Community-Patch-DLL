@@ -1044,7 +1044,7 @@
 		<Column name="TradeRouteLandDistanceModifier" type="integer" default="0"/>
 		<Column name="TradeRouteSeaDistanceModifier" type="integer" default="0"/>
 		<Column name="TradeRouteSpeedModifier" type="integer" default="100"/>
-		<Column name="TradeRouteInvulnerable" type="boolean" default="false"/>
+		<Column name="TradeRoutesInvulnerable" type="boolean" default="false"/>
 		<Column name="TradeRouteVisionBoost" type="integer" default="0"/>
 		<Column name="PortraitIndex" type="integer" default="-1"/>
 		<Column name="IconAtlas" type="text" default="NULL" reference="IconTextureAtlases(Atlas)"/>

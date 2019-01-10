@@ -298,6 +298,8 @@ public:
 	void infoTypeFromStringReset();
 	void infosReset();
 
+	void GameDataPostProcess(); ///prepare some more caching
+
 	int getNumWorldInfos();
 	int getNumClimateInfos();
 	int getNumSeaLevelInfos();
@@ -406,7 +408,7 @@ public:
 	int getNumCityEventChoiceLinkingInfos();
 	std::vector<CvCityEventChoiceLinkingInfo*>& getCityEventChoiceLinkingInfo();
 	_Ret_maybenull_ CvCityEventChoiceLinkingInfo* getCityEventChoiceLinkingInfo(CityEventChoiceTypes e);
-	
+
 #endif
 
 	int getNumUnitCombatClassInfos();
@@ -478,6 +480,9 @@ public:
 	std::vector<CvBuildingEntry*>& getBuildingInfo();
 	_Ret_maybenull_ CvBuildingEntry* getBuildingInfo(BuildingTypes eBuildingNum);
 	CvBuildingXMLEntries* GetGameBuildings() const;
+
+	//some caching to avoid iterating all building types
+	const vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
 
 	int getNumUnitClassInfos();
 	std::vector<CvUnitClassInfo*>& getUnitClassInfo();
@@ -9144,6 +9149,7 @@ protected:
 	CvPolicyXMLEntries* m_pPolicies;
 	CvTechXMLEntries* m_pTechs;
 	CvBuildingXMLEntries* m_pBuildings;
+	map<BuildingTypes, vector<BuildingTypes>> m_buildingInteractionLookup;
 	CvUnitXMLEntries* m_pUnits;
 	CvProjectXMLEntries* m_pProjects;
 	CvPromotionXMLEntries* m_pPromotions;

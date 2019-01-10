@@ -3258,12 +3258,14 @@ bool CvUnit::isActionRecommended(int iAction)
 		CvAssert(eBuild != NO_BUILD);
 		CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 
-		const int ciDirectiveSize = 1;
-		BuilderDirective aDirective[ ciDirectiveSize ];
+		//fake this, we're really only interested in one plot
+		ReachablePlots plots;
+		plots.insert(SMovePlot(plot()->GetPlotIndex()));
+		map<CvUnit*, ReachablePlots> allplots;
+		allplots[this] = plots;
 
-		GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this, aDirective, ciDirectiveSize, false, true);
-
-		if(aDirective[0].m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective[0].m_eBuild == eBuild)
+		BuilderDirective aDirective = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this,allplots);
+		if(aDirective.m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective.m_eBuild == eBuild)
 		{
 			return true;
 		}
@@ -5615,37 +5617,46 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
-	//remember we're calling this because the unit is trapped, so use really permissive flags
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE|CvUnit::MOVEFLAG_IGNORE_STACKING, 23);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
-
+	//for performance reasons, start with a small search range and gradually increase it
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
-	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+	for (int i = 0; i < 3; i++)
 	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		//remember we're calling this because the unit is trapped, so use really permissive flags
+		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING, 3);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
-		//need to check for everything, including invisible units
-		if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
-			int iValue = it->iNormalizedDistance;
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
-			if (getDomainType() == DOMAIN_SEA )
-				if (pLoopPlot->area()->getNumTiles()<GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-					iValue += 20;
-
-			//avoid embarkation
-			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-				iValue += 5;
-
-			if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+			//need to check for everything, including invisible units
+			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				iBestValue = iValue;
-				pBestPlot = pLoopPlot;
+				int iValue = it->iNormalizedDistance;
+
+				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
+				if (getDomainType() == DOMAIN_SEA)
+					if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+						iValue += 20;
+
+				//avoid embarkation
+				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+					iValue += 5;
+
+				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
+				{
+					iBestValue = iValue;
+					pBestPlot = pLoopPlot;
+				}
 			}
 		}
+
+		if (pBestPlot) //found something?
+			break;
+		else
+			data.iMaxTurns *= 2; //double the search range
 	}
 
 	if(GC.getLogging() && GC.getAILogging())
@@ -9249,7 +9260,7 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 			{
 				PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-				if (eTradeUnitDest == m_eOwner)
+				if (eTradeUnitDest == m_eOwner && !GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
 				{
 					return false;
 				}
@@ -14855,7 +14866,7 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, getOwner(), GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
-			if (iValue >= NO_UNIT && (iValue == NO_UNIT || GC.getUnitInfo((UnitTypes) iValue) != NULL)) {
+			if (iValue >= NO_UNIT && GC.getUnitInfo((UnitTypes) iValue) != NULL) {
 				return (UnitTypes) iValue;
 			}
 		}
@@ -15863,8 +15874,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
 				if (iModPerAdjacent != 0)
 				{
-					int iNumFriendliesAdjacent = 0;
-					iNumFriendliesAdjacent += pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+					int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
 					iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
 				}
 			}
@@ -19549,49 +19559,6 @@ bool CvUnit::isAircraftCarrier() const
 	return false;
 }
 #endif
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsHasNoValidMove() const
-{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	if(plot()->getMaxFriendlyUnitsOfType(this) <= plot()->getUnitLimit())
-#else
-	if(plot()->getMaxFriendlyUnitsOfType(this) <= GC.getPLOT_UNIT_LIMIT())
-#endif
-	{
-		return false;
-	}
-
-	ReachablePlots plots = GetAllPlotsInReachThisTurn(true,true,false);
-	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
-	{
-		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-
-	#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pToPlot->getMaxFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
-	#else
-		if(pToPlot->getMaxFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
-	#endif
-		{
-			continue;
-		}
-
-		if(pToPlot->getNumVisibleEnemyDefenders(this) > 0)
-		{
-			continue;
-		}
-
-		// can't capture the unit with a non-combat unit
-		if(!IsCombatUnit() && pToPlot->isVisibleEnemyUnit(this))
-		{
-			continue;
-		}
-
-		//if we get here the plot is valid
-		return false;
-	}
-
-	return true;
-}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getIndex() const
@@ -25002,6 +24969,7 @@ void CvUnit::setMadeInterception(bool bNewValue)
 	if(bNewValue)
 	{
 		m_iMadeInterceptionCount++;
+		m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
 	}
 	else
 	{
@@ -28885,7 +28853,7 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 
 //	---------------------------------------------------------------------------
 // Returns the number of turns it will take to reach the target or a MOVE_RESULT indicating a problem
-int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingRoute)
+int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 {
 	VALIDATE_OBJECT
 	CvAssert(!IsBusy());
@@ -28909,58 +28877,26 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	}
 	else
 	{
-		if(bBuildingRoute)
+		pPathPlot = m_kLastPath.GetFirstPlot();
+
+		//wait until next turn if the pathfinder inserted a stop node because the next plot is occupied
+		if (pPathPlot && m_kLastPath.front().m_iTurns>0)
 		{
-			SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE);
-			SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
-			if (path.vPlots.size()<2)
-				return MOVE_RESULT_CANCEL;
-
-			//zero is the current position! 
-			pPathPlot = path.get(1);
-			if(!pPathPlot || !canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION))
-			{
-				// add route interrupted
-				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-				if(pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ROUTE_TO_CANCELLED");
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ROUTE_TO_CANCELLED");
-					pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, getX(), getY(), -1);
-				}
-
-#ifdef LOG_UNIT_MOVES
-				if(!pPathPlot)
-					LOG_UNIT_MOVES_MESSAGE("pPathPlot is NULL");
-				else
-					LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Cannot move into pPathPlot ") << pPathPlot->getX() << std::string(" ") << pPathPlot->getY());
-#endif
-				return MOVE_RESULT_CANCEL;
-			}
+			finishMoves();
+			return MOVE_RESULT_NEXT_TURN;
 		}
-		else
-		{
-			pPathPlot = m_kLastPath.GetFirstPlot();
 
-			//wait until next turn if the pathfinder inserted a stop node because the next plot is occupied
-			if (pPathPlot && m_kLastPath.front().m_iTurns>0)
-			{
-				finishMoves();
-				return MOVE_RESULT_NEXT_TURN;
-			}
+		//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
+		if (pPathPlot == NULL)
+			pPathPlot = pDestPlot;
 
-			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
-			if (pPathPlot == NULL)
-				pPathPlot = pDestPlot;
+		//the given target may be different from the actual target
+		if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2))
+			pDestPlot = m_kLastPath.GetFinalPlot();
 
-			//the given target may be different from the actual target
-			if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2))
-				pDestPlot = m_kLastPath.GetFinalPlot();
-
-			//check if we are there yet
-			if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
-				return MOVE_RESULT_CANCEL;
-		}
+		//check if we are there yet
+		if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
+			return MOVE_RESULT_CANCEL;
 	}
 
 	bool bRejectMove = false;
@@ -29069,35 +29005,51 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 }
 
 //	---------------------------------------------------------------------------
-// Returns true if move was made...
+// Returns true if we want to continue next turn or false if we are done
 bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
-	VALIDATE_OBJECT
-	CvPlot* pPlot;
-	RouteTypes eBestRoute;
-	BuildTypes eBestBuild;
-
-	if(!IsAutomated() || !at(iX, iY) || (GetLengthMissionQueue() == 1))
-	{
-		pPlot = plot();
-
-		eBestRoute = GetBestBuildRoute(pPlot, &eBestBuild);
-
-		if(eBestBuild != NO_BUILD)
-		{
-			UnitBuild(eBestBuild);
-			return true;
-		}
-	}
-
-	int iResult = UnitPathTo(iX, iY, iFlags, -1, true);
-	if (iResult >= 0 || iResult==MOVE_RESULT_NEXT_TURN)
-	{
-		PublishQueuedVisualizationMoves();
+	//first check if we can continue building on the current plot
+	BuildTypes eBestBuild = NO_BUILD;
+	GetBestBuildRoute(plot(), &eBestBuild);
+	if(eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
 		return true;
-	}
-	else
+
+	//are we at the target plot? then there's nothing else to do
+	if (at(iX, iY))
 		return false;
+
+	//do we have movement points left?
+	if (!canMove())
+		return true; //continue next turn
+
+	//ok apparently we both can move and need to move
+	//do not use the path cache here, the step finder tells us where to put the route
+	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE);
+	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
+
+	//index zero is the current plot!
+	CvPlot* pNextPlot = path.vPlots.size()>1 ? path.get(1) : NULL;
+	if(!pNextPlot || !canMoveInto(*pNextPlot, iFlags | MOVEFLAG_DESTINATION))
+	{
+		// add route interrupted notification
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if(pNotifications && isHuman())
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ROUTE_TO_CANCELLED");
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ROUTE_TO_CANCELLED");
+			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, getX(), getY(), -1);
+		}
+
+#ifdef LOG_UNIT_MOVES
+		if(!pPathPlot)
+			LOG_UNIT_MOVES_MESSAGE("pPathPlot is NULL");
+		else
+			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Cannot move into pPathPlot ") << pPathPlot->getX() << std::string(" ") << pPathPlot->getY());
+#endif
+		return false;
+	}
+
+	return UnitMove(pNextPlot, IsCombatUnit(), NULL, true);
 }
 
 
@@ -29106,19 +29058,11 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 bool CvUnit::UnitBuild(BuildTypes eBuild)
 {
 	VALIDATE_OBJECT
-	CvPlot* pPlot;
-	bool bContinue;
+	CvPlot* pPlot = plot();
+	bool bContinue = false;
 
 	CvAssert(getOwner() != NO_PLAYER);
 	CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
-
-	bContinue = false;
-
-	pPlot = plot();
-	if(! pPlot)
-	{
-		return false;
-	}
 
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	if (pkBuildInfo)
@@ -30266,25 +30210,18 @@ void CvUnit::AI_setUnitAIType(UnitAITypes eNewValue)
 void CvUnit::AI_promote()
 {
 	VALIDATE_OBJECT
-	PromotionTypes eBestPromotion;
-	int iValue;
-	int iBestValue;
-	int iI;
-
-	iBestValue = 0;
-	eBestPromotion = NO_PROMOTION;
+	PromotionTypes eBestPromotion = NO_PROMOTION;
+	int iBestValue = 0;
 	int iNumValidPromotions = 0;
 
-
-
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
 
 		if(canPromote(ePromotion, -1))
 		{
 			iNumValidPromotions++;
-			iValue = AI_promotionValue(ePromotion);
+			int iValue = AI_promotionValue(ePromotion);
 
 			//value lower-level promotions  a bit less.
 			if (GC.getPromotionInfo(ePromotion) != NULL && GC.getPromotionInfo(ePromotion)->GetPrereqOrPromotion1() == NO_PROMOTION)
@@ -30312,26 +30249,21 @@ void CvUnit::AI_promote()
 				}
 
 			}
-			if (iValue <= 0)
-			{
-				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
-				const char* szPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
-
-				CvString szMsg;
-				szMsg.Format("Promotion, %s, For %s, is worthless! What?",
-					szPromotionDesc, getName().GetCString());
-				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
-			}
-
+			
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
 				const char* szPromotionDesc = (pkPromotionEntry != NULL)? pkPromotionEntry->GetDescription() : "Unknown Promotion";
 
-				CvString szMsg;
-				szMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
+				CvString strMsg;
+				strMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
 							 szPromotionDesc, getName().GetCString(), iValue, getDamage());
-				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+
+				FILogFile* pLog = LOGFILEMGR.GetLog("PromotionLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+				CvString strLog;
+				strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(),GET_PLAYER(getOwner()).getName());
+				strLog += strMsg;
+				pLog->Msg(strLog);
 			}
 
 			if(iValue > iBestValue)
@@ -30345,20 +30277,23 @@ void CvUnit::AI_promote()
 	if(eBestPromotion != NO_PROMOTION)
 	{
 		promote(eBestPromotion, -1);
-		AI_promote();
-		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
+		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
-			CvString szMsg;
-			if(iNumValidPromotions == 1)
-				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-								pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
-			else
-				szMsg.Format("--> Chosen Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-							 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
-			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+			CvString strMsg;
+			strMsg.Format("--> Chosen Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
+				pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+
+			FILogFile* pLog = LOGFILEMGR.GetLog("PromotionLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+			CvString strLog;
+			strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(),GET_PLAYER(getOwner()).getName());
+			strLog += strMsg;
+			pLog->Msg(strLog);
 		}
+
+		//do it again until we're done
+		AI_promote();
 	}
 }
 

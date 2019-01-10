@@ -47,29 +47,6 @@
 #define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
-//thread safety
-class CvGuard
-{
-public:
-	CvGuard(CRITICAL_SECTION& cs) : cs(cs)
-	{
-		EnterCriticalSection(&cs);
-	}
-	~CvGuard()
-	{
-		LeaveCriticalSection(&cs);
-	}
-
-private:
-	//hide bad defaults
-	CvGuard();
-	CvGuard(const CvGuard&);
-	CvGuard& operator=(const CvGuard&);
-
-protected:
-	CRITICAL_SECTION& cs;
-};
-
 //for debugging
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
@@ -376,7 +353,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.1 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
+	if ( timer.GetDeltaInSeconds()>0.2 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
 	{
 		//debug hook
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
@@ -738,15 +715,25 @@ SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 /// check if a stored path is still viable
 bool CvAStar::VerifyPath(const SPath& path)
 {
-	CvGuard guard(m_cs);
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if(!bHadLock)
+		gDLL->GetGameCoreLock();
 
 	//set the right config
 	if (!Configure(path.sConfig))
+	{
+		if(!bHadLock)
+			gDLL->ReleaseGameCoreLock();
 		return false;
+	}
 
 	//a single plot is always valid
 	if (path.vPlots.size()<2)
-		return true;
+	{
+		if(!bHadLock)
+			gDLL->ReleaseGameCoreLock();
+		return false;
+	}
 
 	m_sData = path.sConfig;
 	if (udInitializeFunc)
@@ -778,6 +765,8 @@ bool CvAStar::VerifyPath(const SPath& path)
 	if (udUninitializeFunc)
 		udUninitializeFunc(m_sData,this);
 
+	if(!bHadLock)
+		gDLL->ReleaseGameCoreLock();
 	return bResult;
 }
 
@@ -2476,15 +2465,17 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, bool bUseUiTurnCountConvention)
 {
 	//make sure we don't call this from dll and lua at the same time
-	CvGuard guard(m_cs);
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if(!bHadLock)
+		gDLL->GetGameCoreLock();
 
-	if (!Configure(data))
-		return SPath();
+	SPath result;
+	if (Configure(data) && CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
+		result = CvAStar::GetCurrentPath(bUseUiTurnCountConvention);
 
-	if (CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
-		return CvAStar::GetCurrentPath(bUseUiTurnCountConvention);
-	else
-		return SPath();
+	if(!bHadLock)
+		gDLL->ReleaseGameCoreLock();
+	return result;
 }
 
 //wrapper for CvPlot*
@@ -2555,10 +2546,16 @@ int CvPathFinder::GetPathLengthInTurns(const CvPlot * pStartPlot, const CvPlot *
 ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
-	CvGuard guard(m_cs);
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if(!bHadLock)
+		gDLL->GetGameCoreLock();
 
 	if (!Configure(data))
+	{
+		if(!bHadLock)
+			gDLL->ReleaseGameCoreLock();
 		return ReachablePlots();
+	}
 
 	ReachablePlots plots;
 	
@@ -2588,6 +2585,8 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 		}
 	}
 
+	if(!bHadLock)
+		gDLL->ReleaseGameCoreLock();
 	return plots;
 }
 
@@ -2602,12 +2601,18 @@ ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SP
 map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
-	CvGuard guard(m_cs);
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if(!bHadLock)
+		gDLL->GetGameCoreLock();
 
 	map<CvPlot*,SPath> result;
 
 	if (!Configure(data) || !pStartPlot)
+	{
+		if(!bHadLock)
+			gDLL->ReleaseGameCoreLock();
 		return result;
+	}
 
 	//sort for fast search
 	struct PrSortByPlotIndex
@@ -2664,6 +2669,8 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 		}
 	}
 
+	if(!bHadLock)
+		gDLL->ReleaseGameCoreLock();
 	return result;
 }
 

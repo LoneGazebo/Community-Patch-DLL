@@ -42,7 +42,15 @@
       </Association>
     </ModDependencies>
     <ModReferences />
-    <ModBlockers />
+    <ModBlockers>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Artificial Unintelligence</Name>
+        <Id>a4a8d2bb-cffd-4d8e-8893-d773f25b6fe1</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModBlockers>
     <ModActions>
       <Action>
         <Set>OnGetDLLPath</Set>

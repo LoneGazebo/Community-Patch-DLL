@@ -2291,7 +2291,11 @@ void CvPlayerEspionage::DoAdvancedActionLevelUp(CvAdvancedAction eAdvancedAction
 	pSpy->ChangeAdvancedActions(1);
 	m_aiNumSpyActionsDone[pCity->getOwner()]++;
 	pCityEspionage->m_aiNumTimesCityRobbed[pCity->getOwner()]++;
-	pSpy->ChangeAdvancedActionsCooldown(iPassValue * 8);
+
+	if (GET_PLAYER(pCity->getOwner()).GetEspionage()->GetNumSpies() <= 0)
+		pSpy->ChangeAdvancedActionsCooldown(iPassValue * 30);
+	else
+		pSpy->ChangeAdvancedActionsCooldown(iPassValue * 5);
 
 	CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
 	if (pDefendingPlayerDiploAI)
@@ -9776,7 +9780,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
 					{
 						// target far less frequently
-						iDiploModifier -= 300;
+						iDiploModifier -= 750;
 					}
 
 					// if we've denounced them or they've denounced us, spy bonus!
@@ -9786,7 +9790,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					}
 					else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
 					{
-						iDiploModifier -= 300;
+						iDiploModifier -= 500;
 					}
 
 					if (GET_TEAM(eTeam).IsHasResearchAgreement(eTargetTeam))
@@ -9801,22 +9805,22 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 
 					if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eTargetTeam))
 					{
-						iDiploModifier -= 33;
+						iDiploModifier -= 50;
 					}
 
 					if (GET_TEAM(eTargetTeam).IsAllowsOpenBordersToTeam(eTeam))
 					{
-						iDiploModifier += 33;
+						iDiploModifier += 15;
 					}
 					if (pLoopCity->isCapital())
 					{
 						iDiploModifier += 50;
 					}
-					if (pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+					if (pDiploAI->GetMajorCivApproach(eTargetPlayer, false) >= MAJOR_CIV_APPROACH_AFRAID)
 					{
-						iDiploModifier -= 50;
+						iDiploModifier -= 100;
 					}
-					if (pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+					if (pDiploAI->GetMajorCivApproach(eTargetPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
 						iDiploModifier += 100;
 					}
@@ -9828,7 +9832,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 						{
 							if (pCity->getOwner() == eTargetPlayer)
 							{
-								iDiploModifier -= 100;
+								iDiploModifier -= 150;
 								break;
 							}
 						}

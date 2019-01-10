@@ -1533,7 +1533,14 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetCapitalUnhappinessMod() != 0)
 	{
-		yield[YIELD_FOOD] += PolicyInfo->GetCapitalUnhappinessMod() * 5;
+		if (pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetCapitalUnhappinessMod();
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetCapitalUnhappinessMod() * -3;
+		}
 	}
 	if (PolicyInfo->GetFreeExperience() != 0)
 	{
@@ -1899,11 +1906,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetNumCitiesPolicyCostDiscount() * 25;
+			yield[YIELD_CULTURE] += PolicyInfo->GetNumCitiesPolicyCostDiscount() * -10;
 		}
 		else
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetNumCitiesPolicyCostDiscount() * 5;
+			yield[YIELD_CULTURE] += PolicyInfo->GetNumCitiesPolicyCostDiscount() * -2;
 		}
 	}
 	if (PolicyInfo->GetGarrisonedCityRangeStrikeModifier() != 0)

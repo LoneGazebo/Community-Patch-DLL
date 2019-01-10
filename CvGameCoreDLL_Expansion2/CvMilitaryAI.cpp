@@ -1305,7 +1305,7 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 CvCity* GetCityFromGlobalID(int iID)
 {
 	//the muster city for a given target can belong to any player, no only to ourselves
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{	
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
@@ -1505,7 +1505,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 {
 	int ciAgeLimit = 8; //don't switch targets too often but update our cached targets from time and time
 
-	if (eEnemy > MAX_CIV_PLAYERS)
+	if (eEnemy >= MAX_PLAYERS) //barb cities are valid targets
 	{
 		if (piWinningScore)
 			*piWinningScore = 0;
@@ -2105,7 +2105,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	else
 	{
 		// interpolate linearly between a low and a high distance
-		float fDistanceLow = 12, fWeightLow = 5;
+		float fDistanceLow = 8, fWeightLow = 6;
 		float fDistanceHigh = 36, fWeightHigh = 1;
 
 		// Is this a sneak attack?  If so distance is REALLY important (want to target spaces on edge of empire)
@@ -2236,7 +2236,9 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		}
 		else if(GET_PLAYER(target.m_pTargetCity->getOwner()).isBarbarian())
 		{
-			return 0;
+			// if it's right on our doorstep an attack is helpful. barbarian cities are easy targets
+			if (target.m_iPathLength>7)
+				return 0;
 		}
 	}
 	//If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
@@ -2287,31 +2289,6 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 				}
 			}
 		}
-	}
-
-	// Within 8 hexes? This is a real good target for an attack.
-	CvCity* pEnemyCity = NULL;
-	int iMax = MAX_INT;
-	int iEnemyLoop;
-	CvCity* pBestCity = NULL;
-	for(pEnemyCity = GET_PLAYER(target.m_pTargetCity->getOwner()).firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = GET_PLAYER(target.m_pTargetCity->getOwner()).nextCity(&iEnemyLoop))
-	{
-		if(pEnemyCity != NULL)
-		{
-			int iDistance = plotDistance(target.m_pMusterCity->plot()->getX(), target.m_pMusterCity->plot()->getY(), pEnemyCity->plot()->getX(), pEnemyCity->plot()->getY());
-			if(iDistance < iMax)
-			{
-				iMax = iDistance;
-				pBestCity = pEnemyCity;
-			}
-		}
-	}
-
-	//Closest City? Emphasize.
-	if(pBestCity == target.m_pTargetCity && !bMinorButMajorWar)
-	{
-		fDesirability *= 150;
-		fDesirability /= 100;
 	}
 
 	//Venice special - prefer to attack cities between our far-flung bases
@@ -3402,6 +3379,13 @@ void CvMilitaryAI::UpdateBaseData()
 	//And navy, because we reference this somewhat often.
 	m_iRecNavySize = MilitaryAIHelpers::ComputeRecommendedNavySize(m_pPlayer);
 #endif
+
+	//build our target cache, we need it elsewhere.
+	int iBestValue;
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, false);
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_SNEAK_ATTACK, &iBestValue, false);
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, false);
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iBestValue, false);
 }
 
 /// Update how we're doing on defensive units

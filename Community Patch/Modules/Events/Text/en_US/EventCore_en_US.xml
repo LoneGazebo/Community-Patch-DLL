@@ -476,5 +476,12 @@
 		<Row Tag="TXT_KEY_EVENT_DISABLED_REASONS_HEADER">
 			<Text>[COLOR_NEGATIVE_TEXT]Choice unavailable for the following reason(s):[ENDCOLOR]</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_PLAYER_EVENT_NOTIFICATION">
+			<Text>[COLOR_POSITIVE_TEXT]Player Event[ENDCOLOR]: </Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTIFICATION">
+			<Text>[COLOR_POSITIVE_TEXT]City Event[ENDCOLOR]: </Text>
+		</Row>
 	</Language_en_US>
 </GameData>
