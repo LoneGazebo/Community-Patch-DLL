@@ -75,13 +75,10 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
 
-	//for ranged every plot we can enter with movement left is a base for attack
-	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
-
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
-	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),iFlags,0,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
@@ -96,8 +93,12 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 		}
 
 		//ranged units can capture as well
-		for (ReachablePlots::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
-			m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+		for (ReachablePlots::iterator moveTile = reachablePlots.begin(); moveTile != reachablePlots.end(); ++moveTile)
+		{
+			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
+			if (pLoopUnit->isNativeDomain(pMoveTile))
+				m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+		}
 	}
 	else
 	{
@@ -105,8 +106,11 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 		for (ReachablePlots::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
-			AssignUnitDangerValue(pLoopUnit, pMoveTile);
-			m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+			if (pLoopUnit->isNativeDomain(pMoveTile))
+			{
+				AssignUnitDangerValue(pLoopUnit, pMoveTile);
+				m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+			}
 		}
 	}
 
@@ -803,6 +807,12 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))
 			return MAX_INT;
 
+		//this only works because the civilian is not embarked!
+		CvUnit* pBestDefender = m_pPlot->getBestDefender(pUnit->getOwner());
+
+		if (!pBestDefender && m_bEnemyCanCapture)
+			return MAX_INT;
+
 		//need to use m_bEnemyCanCapture to differentiate between plots that the enemy can move into and those merely under ranged attack
 		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 		{
@@ -820,9 +830,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 				}
 				else 
 				{
-					//this only works because the civilian is not embarked!
-					CvUnit* pBestDefender = m_pPlot->getBestDefender(pUnit->getOwner());
-
 					// If there is a defender and it might be killed, high danger
 					if (pBestDefender)
 					{
@@ -833,19 +840,14 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 					}
 					else
 					{
-						//Civilian could be captured on this tile
-						if (m_bEnemyCanCapture && pAttacker->isNativeDomain(m_pPlot))
-							return MAX_INT;
-						else
+						//ranged attack but no capture
+						int iDummy = 0;
+						if (pAttacker->plot() != m_pPlot)
 						{
-							int iAttackerDamage = 0; //ignore this
-							if (pAttacker->plot() != m_pPlot)
-							{
-								int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage, false, 0, true);
-								if (!m_pPlot->isVisible(pAttacker->getTeam()))
-									iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
-								iPlotDamage += iDamage;
-							}
+							int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
+							if (!m_pPlot->isVisible(pAttacker->getTeam()))
+								iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+							iPlotDamage += iDamage;
 						}
 					}
 				}

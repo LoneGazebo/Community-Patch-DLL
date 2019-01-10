@@ -3815,6 +3815,18 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		// Check to make sure escort can get to civilian
 		if(pOperation->GetMusterPlot() != NULL)
 		{
+			//check if the civilian is in danger
+			if ( pCivilian->GetDanger() > 0 )
+			{
+				//try to move to safety
+				CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian,true);
+				if (pBetterPlot)
+				{
+					ExecuteMoveToPlot(pCivilian,pBetterPlot);
+					return;
+				}
+			}
+
 			//civilian and escort have not yet met up
 			if(pEscort)
 			{
@@ -3825,10 +3837,12 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					if(pCivilian->plot()->GetNumCombatUnits() > 0)
 					{
 						CvUnit* pNewEscort = SwitchEscort(pCivilian,pEscort,pThisArmy);
-						if (!pNewEscort)
+						if (pNewEscort)
+							pOperation->CheckTransitionToNextStage();
+						else //did not switch
 						{
 							//Let's have them move forward, see if that clears things up.
-							ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+							ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
 							ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 							//try again next turn
@@ -3844,18 +3858,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					}
 					else
 					{
-						//check if the civilian is in danger
-						if ( pCivilian->GetDanger() > 0 )
-						{
-							//try to move to safety
-							CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian,true);
-							if (pBetterPlot)
-							{
-								ExecuteMoveToPlot(pCivilian,pBetterPlot);
-								pOperation->SetMusterPlot(pBetterPlot);
-							}
-						}
-
 						//move escort towards civilian
 						if (!ExecuteMoveToPlot(pEscort, pCivilian->plot()))
 						{
@@ -3893,23 +3895,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			else
 			{
 				//no escort
-				if(pCivilian->plot() == pOperation->GetMusterPlot())
-				{
-					//check if the civilian is in danger
-					if ( pCivilian->GetDanger()>0 )
-					{
-						//try to move to safety
-						CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian,true);
-						if (pBetterPlot)
-						{
-							ExecuteMoveToPlot(pCivilian,pBetterPlot);
-
-							//update this so we can advance to next stage
-							pOperation->SetMusterPlot(pBetterPlot);
-						}
-					}
-					UnitProcessed(pCivilian->GetID());
-				}
+				if (pCivilian->plot() == pOperation->GetMusterPlot())
+					pOperation->CheckTransitionToNextStage();
 				else
 					//continue moving. if this should fail, we just freeze and wait for better times
 					ExecuteMoveToPlot(pCivilian,pOperation->GetMusterPlot());
@@ -4306,6 +4293,7 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			CvPlot* pTestPlot = iterateRingPlots(pUnit->plot(), i);
 			if (!pTestPlot)
 				continue;
+			//combat units
 			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot);
 			for (size_t i = 0; i < vAttackers.size(); i++)
 				if (!vAttackers[i]->plot()->isCity())
@@ -7751,8 +7739,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (!bIsCityTarget && (pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatAdmiral()))
 			continue;
 
-		// Land garrisons have special moves
-		if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType()==DOMAIN_LAND)
+		// Garrisons have special moves
+		if (pLoopUnit->IsGarrisoned())
 			continue;
 
 		// Don't pull barbarian units out of camps to attack.
@@ -9903,6 +9891,10 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, Reacha
 
 		int iPlotMoves = base->iMovesLeft;
 		if (iPlotMoves<=0)
+			continue;
+
+		//can't shoot if embarked
+		if (!pUnit->isNativeDomain(pBasePlot))
 			continue;
 
 		//we have enough moves for an attack ...
