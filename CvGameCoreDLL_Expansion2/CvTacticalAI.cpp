@@ -10087,6 +10087,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 					pBestTarget = pLoopPlot;
 					iMaxDamage = iDamage;
 				}
+
 			}
 		}
 	}

@@ -292,13 +292,19 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 1000)
+		if (iValue > 250)
 		{
-			iValue = 1000;
+			iValue = 250;
+		}
+		if (iValue <= 100)
+		{
+			iValue = 100;
 		}
 
 		if (kPlayer.getNumCities() == 1)
 			iValue /= 5;
+		else if (kPlayer.getNumCities() == 2)
+			iValue /= 2;
 
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding)
 		{
@@ -307,7 +313,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 			if (iNumCivsAlreadyBuilding > 0)
 			{
-				iValue -= (150 * iNumCivsAlreadyBuilding);
+				iValue -= (50 * iNumCivsAlreadyBuilding);
 			}
 
 			// Adjust weight for this wonder down based on number of other players currently working on it
@@ -320,7 +326,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iNumOthersConstructing++;
 				}
 			}
-			iValue -= (iNumOthersConstructing * 200);
+			iValue -= (iNumOthersConstructing * 50);
 
 			//probably early game, so if we haven't started yet, we're probably not going to win this one.
 			if (kPlayer.getNumCities() == 1 && !bIsVenice)
@@ -335,9 +341,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	else
 	{
 		//Sanitize...
-		if (iValue > 250)
+		if (iValue > 100)
 		{
-			iValue = 250;
+			iValue = 100;
+		}
+		if (iValue <= 50)
+		{
+			iValue = 50;
 		}
 	}
 
@@ -362,15 +372,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
 					{
-						iBonus += 100;
+						iBonus += 10;
 					}
 					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
 					{
-						iBonus += 100;
+						iBonus += 10;
 					}
 					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
 					{
-						iBonus += 100;
+						iBonus += 10;
 					}
 				}
 			}
@@ -392,7 +402,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if(m_pCity->getArea() != kPlayer.getCapitalCity()->getArea())	
 			{
-				iBonus += 25;
+				iBonus += 10;
 			}
 		}
 	}
@@ -404,11 +414,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if (pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0)
 			{
-				iBonus -= 100;
+				iBonus -= 50;
 			}
 			else
 			{
-				iBonus -= 25;
+				iBonus -= 10;
 			}
 		}
 		else
@@ -417,7 +427,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += iNumLandConnection;
 			if(kPlayer.GetPlayerTraits()->GetLandTradeRouteRangeBonus() > 0)
 			{
-				iBonus += 50;
+				iBonus += 10;
 			}
 		}
 	}
@@ -433,28 +443,28 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 			{
-				iBonus -= 250;
+				iBonus -= 50;
 			}
 			else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
 			{
-				iBonus += 100 * max(1, m_pCity->getPopulation());
+				iBonus += 10 * max(1, m_pCity->getPopulation());
 			}
 			else
 			{
-				iBonus += 50 * max(1, m_pCity->getPopulation());
+				iBonus += 5 * max(1, m_pCity->getPopulation());
 			}
 
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
 			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
 			{
-				iBonus += 50 * max(1, iNumSeaConnection);
+				iBonus += 5 * max(1, iNumSeaConnection);
 			}
 
 			int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
 			if (iUnhappyConnection > 0)
 			{
-				iBonus += (iUnhappyConnection * 100);
+				iBonus += (iUnhappyConnection * 10);
 				bGoodforHappiness = true;
 				bGoodforGPT = true;
 			}
@@ -465,23 +475,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
 				{
-					iBonus -= 100;
+					iBonus -= 10;
 				}
 				else
 				{
-					iBonus -= 25;
+					iBonus -= 5;
 				}
 			}
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
 			if (kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
 			{
-				iBonus += 50 * max(1, iNumSeaConnection);
+				iBonus += 5 * max(1, iNumSeaConnection);
 			}
 		}
 	}
 
-	if(pkBuildingInfo->IsAddsFreshWater() && m_pCity->plot()->isFreshWater())
+	if(pkBuildingInfo->IsAddsFreshWater() && !m_pCity->plot()->isFreshWater())
 	{
 		iBonus += 25;
 	}
@@ -528,7 +538,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				//Decrease value based on # we own.
 				int iNumOwned = kPlayer.getNumResourceAvailable(eResource, false);
-				iBonus += (400 - (iNumOwned * 50));
+				iNumOwned = (100 - (iNumOwned * 5));
+				iBonus += max(0, iNumOwned);
 			}
 		}
 	}
@@ -541,7 +552,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	
 	if(pkBuildingInfo->GetHappiness() > 0 || pkBuildingInfo->GetHappinessPerCity() > 0 || pkBuildingInfo->GetHappinessPerXPolicies() > 0 || pkBuildingInfo->GetUnmoddedHappiness() > 0)
 	{
-		iBonus += kPlayer.GetUnhappiness() * 50;
+		iBonus += kPlayer.GetUnhappiness() * 10;
 		bGoodforHappiness = true;
 	}
 	if (kPlayer.IsEmpireUnhappy())
@@ -586,7 +597,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iPoverty *= -1;
 				bTested = true;
-				iBonus += (iUnhappyGold * iPoverty * iPoverty);
+				iBonus += (iUnhappyGold * iPoverty);
 				bGoodforHappiness = true;
 				bGoodforGPT = true;
 			}
@@ -598,7 +609,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iCrime *= -1;
 				bTested = true;
-				iBonus += (iUnhappyDefense * iCrime * iCrime);
+				iBonus += (iUnhappyDefense * iCrime);
 				bGoodforHappiness = true;
 			}
 		}
@@ -609,7 +620,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iReligion *= -1;
 				bTested = true;
-				iBonus += (iUnhappyReligion * iReligion * iReligion);
+				iBonus += (iUnhappyReligion * iReligion);
 				bGoodforHappiness = true;
 			}
 		}
@@ -620,7 +631,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBoredom *= -1;
 				bTested = true;
-				iBonus += (iUnhappyCulture * iBoredom * iBoredom);
+				iBonus += (iUnhappyCulture * iBoredom);
 				bGoodforHappiness = true;
 			}
 		}
@@ -631,7 +642,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iIlliteracy *= -1;
 				bTested = true;
-				iBonus += (iUnhappyScience * iIlliteracy * iIlliteracy);
+				iBonus += (iUnhappyScience * iIlliteracy);
 				bGoodforHappiness = true;
 			}
 		}
@@ -649,37 +660,37 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetNukeInterceptionChance() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetNukeInterceptionChance() * 10);
+		iDefense += (pkBuildingInfo->GetNukeInterceptionChance());
 	}
 	if (pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 	{
-		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 5;
+		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 2;
 	}
 	if (pkBuildingInfo->GetDefenseModifier() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetDefenseModifier() / 20);
+		iDefense += (pkBuildingInfo->GetDefenseModifier() / 50);
 	}
 	if (pkBuildingInfo->CityRangedStrikeRange() > 0)
 	{
-		iDefense += 250 * pkBuildingInfo->CityRangedStrikeRange();
+		iDefense += 25 * pkBuildingInfo->CityRangedStrikeRange();
 	}
 	if (pkBuildingInfo->CityIndirectFire() > 0)
 	{
-		iDefense += 150;
+		iDefense += 25;
 	}
 	if (pkBuildingInfo->CityRangedStrikeModifier() > 0)
 	{
-		iDefense += pkBuildingInfo->CityRangedStrikeModifier() * 10;
+		iDefense += pkBuildingInfo->CityRangedStrikeModifier();
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (pkBuildingInfo->GetBuildingDefenseModifier() > 0)
 	{
-		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 5;
+		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 25;
 	}
 #endif
 	if (pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 10);
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 50);
 	}
 	if (m_pCity->isCoastal())
 	{
@@ -690,7 +701,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if (pkBuildingInfo->GetBorderObstacleWater() > 0)
 				{
-					iDefense += 50;
+					iDefense += 25;
 				}
 			}
 		}
@@ -699,22 +710,20 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if (pkBuildingInfo->GetBorderObstacleCity() > 0)
 		{
-			iDefense += 100;
+			iDefense += 25;
 		}
 		if (pkBuildingInfo->IsBorderObstacle())
 		{
-			iDefense += 100;
+			iDefense += 25;
 		}
 	}
 	//if (m_pCity->IsBastion() || iCrime > 0)
 	//{
 	//	iDefense *= 15;
 	//}
-	int iDefenseMod = 100;
+	int iDefenseMod = 1;
 	if (m_pCity->IsBastion()) 
-		iDefenseMod += 50;
-	else
-		iDefenseMod -= 50;
+		iDefenseMod += 25;
 
 	if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling() || m_pCity->IsPuppet())
 		iDefenseMod += 25;
@@ -770,7 +779,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 		if(m_pCity->IsBuildingInvestment(eBuildingClass))
 		{
-			iBonus += 1000;
+			iBonus += 100;
 		}
 	}
 #endif
@@ -780,7 +789,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			//Extend based on population.
-			iBonus += 5000 * m_pCity->getPopulation();
+			iBonus += 500 * m_pCity->getPopulation();
 			bGoodforHappiness = true;
 		}
 	}
@@ -791,21 +800,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if(GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetFoundedCorporation() == pkBuildingInfo->GetBuildingClassInfo().getCorporationType())
 		{
-			iBonus += 500;
+			iBonus += 100;
 		}
 	}
 	if (pkBuildingInfo->GetBuildingClassInfo().IsHeadquarters())
 	{
 		if(GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetFoundedCorporation() == NO_CORPORATION)
 		{
-			iBonus += 1000;
+			iBonus += 100;
 		}
 	}
 
 	//Espionage!
 	if (pkBuildingInfo->GetBlockBuildingDestruction() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 50);
+		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 100);
 	}
 	if (pkBuildingInfo->GetBlockWWDestruction() > 0)
 	{
@@ -813,11 +822,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetBlockUDestruction() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 50);
+		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 100);
 	}
 	if (pkBuildingInfo->GetBlockGPDestruction() > 0)
 	{
-		iBonus += m_pCity->getGreatPeopleRate() / 5;
+		iBonus += m_pCity->getGreatPeopleRate() / 10;
 	}
 	if (pkBuildingInfo->GetBlockRebellion() > 0)
 	{
@@ -831,11 +840,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetBlockScience() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 50);
+		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 100);
 	}
 	if (pkBuildingInfo->GetBlockGold() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_GOLD, false) / 50);
+		iBonus += (m_pCity->getYieldRate(YIELD_GOLD, false) / 100);
 	}
 
 	///////////////////
@@ -883,12 +892,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
 					{
-						iBonus += (iTempBonus * 25);
+						iBonus += iTempBonus;
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus += iTempBonus;
+						iBonus += iTempBonus/2;
 					}
 				}
 			}
@@ -917,12 +926,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our production/experience buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(eUnitCombatClass))
 					{
-						iBonus += (iTempBonus * 25);
+						iBonus += iTempBonus;
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus += iTempBonus;
+						iBonus += iTempBonus/2;
 					}
 				}
 			}
@@ -943,7 +952,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Acts as modifier for value.
 	int iGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(m_pCity, eBuilding, kPlayer.GetID());
 
-	iBonus += iGSValue * (kPlayer.GetCurrentEra() + kPlayer.GetCurrentEra() + 1);
+	iBonus += iGSValue * (kPlayer.GetCurrentEra() + 1);
 
 	//////////////////////
 	///POLICY BONUSES
@@ -957,6 +966,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////
 	//Let's look at yield bonuses.
 	int iYieldValue = 0;
+
+	YieldTypes eFocusYield = m_pCity->GetCityCitizens()->GetFocusTypeYield(m_pCity->GetCityCitizens()->GetFocusType());
 
 	bool bSmall = m_pCity->getPopulation() <= 12 && !m_pCity->isCapital();
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -983,78 +994,55 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			switch (eYield)
 			{
 			case YIELD_GOLD:
-				if (bSmall)
-				{
-					iYieldValue /= 2;
-					iYieldTrait /= 2;
-				}
 				if (iGPT <= 10)
 				{
-					iYieldValue += (iGPT * -25);
-					iYieldTrait += (iGPT * -25);
+					iYieldValue += (iGPT * -10);
+					iYieldTrait += (iGPT * -10);
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
 				if (iPoverty > 0)
 				{
-					iYieldValue += (iPoverty * 100);
-					iYieldTrait += (iPoverty * 100);
+					iYieldValue += (iPoverty * 10);
+					iYieldTrait += (iPoverty * 10);
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
 				break;
 			case YIELD_SCIENCE:
-				if (bSmall)
-				{
-					iYieldValue /= 2;
-					iYieldTrait /= 2;
-				}
 				if (iIlliteracy > 0)
 				{
-					iYieldValue += (iIlliteracy * 100);
-					iYieldTrait += (iIlliteracy * 100);
+					iYieldValue += (iIlliteracy * 10);
+					iYieldTrait += (iIlliteracy * 10);
 					bGoodforHappiness = true;
 				}
-				iYieldValue *= ((kPlayer.GetCurrentEra() / 2) + 1);
 				break;
 			case YIELD_FAITH:
-				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
-				{
-					iYieldValue /= 3;
-					iYieldTrait /= 3;
-				}
 				if (iReligion > 0)
 				{
-					iYieldValue += (iReligion * 100);
-					iYieldTrait += (iReligion * 100);
+					iYieldValue += (iReligion * 10);
+					iYieldTrait += (iReligion * 10);
 					bGoodforHappiness = true;
 				}
 				break;
 			case YIELD_CULTURE:
-				if (bSmall)
-				{
-					iYieldValue /= 2;
-					iYieldTrait /= 2;
-				}
 				if (iBoredom > 0)
 				{
-					iYieldValue += (iBoredom * 100);
-					iYieldTrait += (iBoredom * 100);
+					iYieldValue += (iBoredom * 10);
+					iYieldTrait += (iBoredom * 10);
 					bGoodforHappiness = true;
 				}
-				iYieldValue *= ((kPlayer.GetCurrentEra() / 2) + 1);
 				break;
 			case YIELD_PRODUCTION:
 				if (bSmall)
 				{
-					iYieldValue *= 10;
-					iYieldTrait *= 10;
+					iYieldValue *= 2;
+					iYieldTrait *= 2;
 				}
-
 				if (iCrime > 0)
 				{
-					iYieldValue += (iCrime * 50);
-					iYieldTrait += (iCrime * 50);
+					iYieldValue += (iCrime * 10);
+					iYieldTrait += (iCrime * 10);
 					bGoodforHappiness = true;
 				}
 				break;
@@ -1065,36 +1053,42 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldTrait = 0;
 				}
 				else if (bSmall)
-					iYieldValue *= 10;
+					iYieldValue *= 2;
 
 				if (iCrime > 0)
 				{
-					iYieldValue += (iCrime * 50);
-					iYieldTrait += (iCrime * 50);
+					iYieldValue += (iCrime * 10);
+					iYieldTrait += (iCrime * 10);
 					bGoodforHappiness = true;
 				}
 				break;
 			case YIELD_TOURISM:
 				if (bSmall)
 				{
-					iYieldValue /= 5;
-					iYieldTrait /= 5;
+					iYieldValue /= 2;
+					iYieldTrait /= 2;
 				}
 				break;
 			case YIELD_GOLDEN_AGE_POINTS:
 				if (bSmall)
 				{
-					iYieldValue /= 5;
-					iYieldTrait /= 5;
+					iYieldValue /= 2;
+					iYieldTrait /= 2;
 				}
 				break;
+			}
+			
+			if (eFocusYield == eYield)
+			{
+				iYieldValue *= 5;
+				iYieldTrait *= 5;
 			}
 			
 			//Puppets should focus on yield buildings.
 			if (m_pCity->IsPuppet())
 			{
-				iYieldValue *= 10;
-				iYieldTrait *= 10;
+				iYieldValue *= 2;
+				iYieldTrait *= 2;
 			}
 		}
 
@@ -1105,14 +1099,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////
 	///Maintenance
 	/////////////////////
-	if ((pkBuildingInfo->GetGoldMaintenance() > 0 || !bGoodforGPT) && iGPT <= pkBuildingInfo->GetGoldMaintenance() && !kPlayer.IsEmpireVeryUnhappy())
+	if (pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		//Maintenace getting close to our GPT? Let's minimize this.
-		if (iGPT <= pkBuildingInfo->GetGoldMaintenance())
+		if (!bGoodforGPT && iGPT <= pkBuildingInfo->GetGoldMaintenance())
 		{
-			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * pkBuildingInfo->GetGoldMaintenance() * 100);
+			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * pkBuildingInfo->GetGoldMaintenance() * pkBuildingInfo->GetGoldMaintenance());
 
-			if(iBonus <= 0)
+			if (iBonus <= 0)
 				iBonus = 1;
 		}
 	}
@@ -1258,30 +1251,29 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA)
 			{
-				//int iEraValue = ((kPlayer.GetCurrentEra() * 8) - eEra);
-				int iEraValue = ((kPlayer.GetCurrentEra() - eEra) * 12);
+				int iEraValue = (kPlayer.GetCurrentEra() - eEra);
 				if (iEraValue > 0)
 				{
-					iBonus += (100 * iEraValue);
+					iBonus += (25 * iEraValue);
 				}
 			}
 			//No Era? Zero!
 			else
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 12)); //was 8
+				int iEraValue = kPlayer.GetCurrentEra(); //was 8
 				if (iEraValue > 0)
 				{
-					iBonus += (75 * iEraValue);
+					iBonus += (25 * iEraValue);
 				}
 			}
 		}
 	}
 	else
 	{
-		int iEraValue = ((kPlayer.GetCurrentEra() * 12)); //was 8
+		int iEraValue = kPlayer.GetCurrentEra(); //was 8
 		if (iEraValue > 0)
 		{
-			iBonus += (75 * iEraValue);
+			iBonus += (25 * iEraValue);
 		}
 	}
 
@@ -1297,33 +1289,29 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if (m_pCity->isInDangerOfFalling())
 		{
-			iBonus /= 50;
+			iBonus -= 250;
 		}
 		if (m_pCity->isUnderSiege())
 		{
-			iBonus /= 50;
+			iBonus -= 250;
 		}
 	}
 
 	if (m_pCity->isProductionBuilding() && m_pCity->getProductionBuilding() == eBuilding)
 	{
-		iBonus *= max(1, 10 - m_pCity->getProductionTurnsLeft());
+		iBonus += max(1, 100 - m_pCity->getProductionTurnsLeft());
 	}
 
 	/////
 	///WEIGHT
 	//////
-	
-	iValue *= (iBonus + 100);
-	iValue /= 100;
-
 	//Greatly reduce this if we're under siege somewhere.
-	if(bInterruptBuildings && !m_pCity->IsPuppet())
+	if (bInterruptBuildings && !m_pCity->IsPuppet())
 	{
-		iValue /= 100;
+		iBonus -= 250;
 	}
-	if (!bInterruptBuildings && m_pCity->getProductionBuilding() == eBuilding)
-		iValue *= 5;
+
+	iValue += iBonus;
 
 	return iValue;
 }

@@ -3379,6 +3379,13 @@ void CvMilitaryAI::UpdateBaseData()
 	//And navy, because we reference this somewhat often.
 	m_iRecNavySize = MilitaryAIHelpers::ComputeRecommendedNavySize(m_pPlayer);
 #endif
+
+	//build our target cache, we need it elsewhere.
+	int iBestValue;
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, false);
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_SNEAK_ATTACK, &iBestValue, false);
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, false);
+	GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iBestValue, false);
 }
 
 /// Update how we're doing on defensive units

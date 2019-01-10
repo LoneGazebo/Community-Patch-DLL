@@ -9260,7 +9260,7 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 			{
 				PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-				if (eTradeUnitDest == m_eOwner)
+				if (eTradeUnitDest == m_eOwner && !GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
 				{
 					return false;
 				}
@@ -14866,7 +14866,7 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, getOwner(), GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
-			if (iValue >= NO_UNIT && (iValue == NO_UNIT || GC.getUnitInfo((UnitTypes) iValue) != NULL)) {
+			if (iValue >= NO_UNIT && GC.getUnitInfo((UnitTypes) iValue) != NULL) {
 				return (UnitTypes) iValue;
 			}
 		}

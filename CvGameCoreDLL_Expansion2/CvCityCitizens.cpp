@@ -848,7 +848,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
 
 				// Food can be worth less if we don't want to grow
-				if (iExcessFoodTimes100 >= 0 && bAvoidGrowth)
+				if (iExcessFoodTimes100 > 0 && bAvoidGrowth)
 				{
 					// If we at least have enough Food to feed everyone, zero out the value of additional food
 					iYield = 1;

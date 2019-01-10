@@ -20631,6 +20631,15 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GET_PLAYER(getOwner()).GetMinorityUnhappinessModCapital();
 		}
+
+		if (getProductionProcess() != NO_PROCESS)
+		{
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+			if (pkProcessInfo)
+			{
+				iModifier += pkProcessInfo->getProductionToYieldModifier(YIELD_FAITH) * -1;
+			}
+		}
 	}
 	if(eYield == YIELD_CULTURE)
 	{

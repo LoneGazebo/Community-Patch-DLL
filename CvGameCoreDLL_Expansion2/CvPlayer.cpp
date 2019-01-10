@@ -36649,20 +36649,6 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer, bool bTileCheck)
 
 	if(iAverageDistanceBetweenCities != 0)
 	{
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(GC.getMap().GetAIMapHint() & ciMapHint_Naval)
-		{
-			iAverageDistanceBetweenCities *= 2;
-			iAverageDistanceBetweenCities /= 3;
-		}
-		//If small empire (CS, OCC, etc.), increase the value.
-		if(GET_PLAYER(ePlayer).getNumCities() <= 2)
-		{
-			iAverageDistanceBetweenCities *= 3;
-			iAverageDistanceBetweenCities /= 2;
-		}
-#endif
-
 		// Closest Cities must be within a certain range
 		if(iAverageDistanceBetweenCities < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
 		{
@@ -43968,6 +43954,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	int iTurns = pPolicy->GetAttackBonusTurns() * iChange;
 	if(iTurns > 0)
 	{
+		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		{
+			iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iTurns /= 100;
+		}
 		ChangeAttackBonusTurns(iTurns);
 	}
 

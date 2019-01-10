@@ -9399,17 +9399,13 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			{
 				if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-					iTempValue *= 4;
+					iTempValue *= 2;
 				}
 			}
 
-			if(pkBuildingClassInfo->getMaxPlayerInstances() == 1)
+			if(pkBuildingClassInfo->getMaxPlayerInstances() == 1 || pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 			{
-#if defined(AUI_RELIGION_SCORE_BELIEF_AT_CITY_YIELDS_FROM_WONDERS_COUNT_ONCE)
-				iTempValue /= MAX(1,MIN(iTempValue,m_pPlayer->getNumCities()));
-#else
 				iTempValue /= 2;
-#endif
 			}
 
 			if (m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra() && (YieldTypes)iI == YIELD_SCIENCE)

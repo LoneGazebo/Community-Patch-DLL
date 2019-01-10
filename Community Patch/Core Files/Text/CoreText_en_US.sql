@@ -583,3 +583,11 @@ WHERE Tag = 'TXT_KEY_EUPANEL_VISIBLE_AA_UNITS';
 UPDATE Language_en_US
 SET Text = 'Once you have acquired the Chivalry tech, you may engage in a Defensive Pact. Defensive Pacts are always mutual. If a signatory to a Defensive Pact is attacked, the other partner is automatically at war with the attacker.[NEWLINE][NEWLINE]A Defensive Pact lasts for 30 turns (on standard speed). When that time has elapsed, the pact lapses unless it is renegotiated.'
 WHERE Tag = 'TXT_KEY_DIPLOMACY_DEFENSIVEPACT_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Give me what I want, and I may spare you...for now.'
+WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_DEMANDTRIBUTE_NEUTRAL';
+
+UPDATE Language_en_US
+SET Text = 'Smart move.'
+WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY';

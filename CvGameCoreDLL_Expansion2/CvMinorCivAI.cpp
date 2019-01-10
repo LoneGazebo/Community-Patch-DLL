@@ -14975,7 +14975,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #if defined(MOD_GLOBAL_CS_GIFTS)
 			if (bExplore) {
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
+				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
 #endif
@@ -15002,7 +15002,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #if defined(MOD_GLOBAL_CS_GIFTS)
 			if (bExplore) {
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
+				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
 #endif
