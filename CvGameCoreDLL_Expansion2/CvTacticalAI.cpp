@@ -11408,6 +11408,10 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		{
 			CvUnit* pPlotUnit = pPlot->getUnitByIndex(i);
 
+			//ignore zombies
+			if (pPlotUnit->isDelayedDeath())
+				continue;
+
 			//civilians are handled further down
 			if (!pPlotUnit->IsCombatUnit())
 				continue;
@@ -12501,8 +12505,11 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	}
 	else if (itUnit->iMovesLeft>0)
 	{
-		if (movePlotUpdateFlag!=-1) //make sure we don't regress to a "lower" level
+		//make sure we don't regress to a "lower" level
+		if (movePlotUpdateFlag==0) 
 			movePlotUpdateFlag = itUnit->iUnitID; //need to update only this one
+		else if (movePlotUpdateFlag>0)
+			movePlotUpdateFlag = -1; //need to update multiple units, simply do all
 	}
 	else if (itUnit->iMovesLeft==0)
 	{
@@ -12956,7 +12963,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
 		if (vUnits.size() > 5 && completedPositions.empty() && openPositionsHeap.empty())
-			OutputDebugString("warning, only degenerate positions found\n");
+			OutputDebugString("warning, no useful moves found\n");
 	}
 
 	return result;
@@ -12991,7 +12998,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	//meta parameters depending on difficulty setting
 	int iMaxActiveUnits = GC.getGame().getHandicapType() < 2 ? 8 : 12;
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 12 : 23;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
@@ -13159,7 +13166,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
 		if (vUnits.size() > 5 && completedPositions.empty() && openPositionsHeap.empty())
-			OutputDebugString("warning, only degenerate positions found\n");
+			OutputDebugString("warning, no useful moves found\n");
 	}
 
 	return result;
