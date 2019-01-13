@@ -12240,7 +12240,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//special for embarked units: we only allow moves which result in disembarkation, everything else is too complex to handle
-		if (!pUnit->isNativeDomain(pPlot))
+		if (!pUnit->isNativeDomain(pPlot) && !pPlot->isCity()) //allow melee ships to capture cities though!
 			continue;
 
 		if (plotDistance(*pPlot, *pTargetPlot) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
