@@ -287,9 +287,8 @@ public:
 
 	bool isEnemyCity(const CvUnit& kUnit) const
 	{
-		CvCity* pCity = getPlotCity();
-		if(pCity != NULL)
-			return kUnit.isEnemy(pCity->getTeam(), this);
+		if(isCity())
+			return kUnit.isEnemy(GET_PLAYER(m_plotCity.eOwner).getTeam(), this);
 
 		return false;
 	}
