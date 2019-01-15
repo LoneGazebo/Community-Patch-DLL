@@ -480,6 +480,7 @@ CvUnit::CvUnit() :
 	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iHurryStrength("CvUnit::m_iHurryStrength", m_syncArchive)
 	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
 	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
 	, m_iGAPBlastStrength("CvUnit::m_iGAPBlastStrength", m_syncArchive)
@@ -1168,6 +1169,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetScienceBlastStrength(getDiscoverAmount());
 	}
+
+	if (getUnitInfo().GetBaseHurry() > 0)
+	{
+		SetHurryStrength(getHurryProduction(plot()));
+	}
 	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
 	{
 		SetCultureBlastStrength(getGivePoliciesCulture());
@@ -1746,6 +1752,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	ClearPathCache();
 
 #if defined(MOD_BALANCE_CORE)
+	m_iHurryStrength = 0;
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
 	m_iGAPBlastStrength = 0;
@@ -2142,6 +2149,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		SetScienceBlastStrength(pUnit->getDiscoverAmount());
 	else
 		SetScienceBlastStrength(getDiscoverAmount());
+
+	if (pUnit->getHurryProduction(plot()) > getHurryProduction(plot()))
+		SetHurryStrength(pUnit->getHurryProduction(plot()));
+	else
+		SetHurryStrength(getHurryProduction(plot()));
 
 	if (pUnit->getGivePoliciesCulture() > getGivePoliciesCulture())
 		SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
@@ -11982,25 +11994,23 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 //	--------------------------------------------------------------------------------
 int CvUnit::getHurryProduction(const CvPlot* pPlot) const
 {
-	CvCity* pCity;
-	int iProduction;
-
-	pCity = pPlot->getPlotCity();
+	CvCity* pCity = GET_PLAYER(getOwner()).getCity(m_iOriginCity);
+	
+	if (pCity == NULL)
+		pCity = pPlot->getOwningCity();
 
 	if(pCity == NULL)
 	{
 		return 0;
 	}
 
-	iProduction = getMaxHurryProduction(pCity);
+	int iProduction = getMaxHurryProduction(pCity);
 
 	if (GET_PLAYER(getOwner()).GetGreatEngineerHurryMod() != 0)
 	{
 		iProduction += (iProduction * GET_PLAYER(getOwner()).GetGreatEngineerHurryMod()) / 100;
 		iProduction = MAX(iProduction, 0); // Cannot be negative
 	}
-
-	iProduction = std::min(pCity->productionLeft(), iProduction);
 
 	return std::max(0, iProduction);
 }
@@ -12014,14 +12024,12 @@ bool CvUnit::canHurry(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	CvCity* pCity;
-
-	if(getHurryProduction(pPlot) == 0)
+	if(GetHurryStrength() == 0)
 	{
 		return false;
 	}
 
-	pCity = pPlot->getPlotCity();
+	CvCity* pCity = pPlot->getPlotCity();
 
 	if(pCity == NULL)
 	{
@@ -12075,9 +12083,13 @@ bool CvUnit::hurry()
 
 	pCity = pPlot->getPlotCity();
 
+	int iHurryValue = GetHurryStrength();
+
+	iHurryValue = std::min(pCity->productionLeft(), iHurryValue);
+
 	if(pCity != NULL)
 	{
-		pCity->changeProduction(getHurryProduction(pPlot));
+		pCity->changeProduction(iHurryValue);
 #if defined(MOD_BALANCE_CORE_ENGINEER_HURRY)
 		if(MOD_BALANCE_CORE_ENGINEER_HURRY && pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
 		{
@@ -25667,6 +25679,18 @@ void CvUnit::SetScienceBlastStrength(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetHurryStrength() const
+{
+	return m_iHurryStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetHurryStrength(int iValue)
+{
+	m_iHurryStrength = iValue;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetCultureBlastStrength() const
 {
 	return m_iCultureBlastStrength;
@@ -28943,10 +28967,18 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 		}
 	}
 
-	int iOldDanger = -1;
 	bool bEndMove = (pPathPlot == pDestPlot);
 	if (!bEndMove && (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
-		iOldDanger = GetDanger(pPathPlot);
+	{
+		int iOldDanger = GetDanger();
+		int iNewDanger = GetDanger(pPathPlot);
+		//don't knowingly move into danger. mostly relevant for civilians
+		if (iNewDanger > GetCurrHitPoints()/2 && (iNewDanger > iOldDanger || iNewDanger==INT_MAX))
+		{
+			ClearPathCache();
+			return MOVE_RESULT_CANCEL;
+		}
+	}
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
@@ -28958,18 +28990,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 
 		if (bMoved)
 		{
-			//it's possible that the move made additional enemies visible
-			//for some units we want to abort if the danger is significant and we have a chance to evade it
-			if (canMove() && iOldDanger >= 0)
-			{
-				int iNewDanger = GetDanger();
-				if (iNewDanger > GetCurrHitPoints()/2 && iNewDanger > iOldDanger)
-				{
-					ClearPathCache();
-					return MOVE_RESULT_CANCEL;
-				}
-			}
-
 			//this plot has now been consumed
 			m_kLastPath.pop_front();
 
@@ -30321,25 +30341,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 10);
-	iFlavorOffense += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE") * bWarTimePromotion  ? 2 : 1);
+	int iFlavorOffense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) * bWarTimePromotion ? 2 : 1;
 
-	int iFlavorDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")) / 10);
-	iFlavorDefense += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE") * bWarTimePromotion ? 1 : 2);
-	int iFlavorRanged = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")) / 10);
-	iFlavorRanged += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
-	int iFlavorRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")) / 10);
-	iFlavorRecon += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")) / 10);
-	iFlavorRecon += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON") * bWarTimePromotion ? 1 : 2);
-	iFlavorRecon += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON") * bWarTimePromotion ? 1 : 2);
-	int iFlavorMobile = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")) / 10);
-	iFlavorMobile += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
-	int iFlavorNaval = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")) / 10);
-	iFlavorNaval += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-	int iFlavorAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")) / 10);
-	iFlavorAir += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR"));
-	iFlavorAir += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")) / 10);
-	iFlavorAir += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR"));
+	int iFlavorDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"))) * bWarTimePromotion ? 1 : 2;
+
+	int iFlavorRanged = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")));
+
+	int iFlavorRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")));
+
+	int iFlavorMobile = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")));
+
+	int iFlavorNaval = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")));
+
+	int iFlavorAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")));
+	iFlavorAir += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")));
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())
@@ -30356,7 +30371,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0)
 	{
 		iExtra = iTemp + getExtraCombatPercent();
-		iValue += iExtra + iFlavorOffense;
+		iValue += iExtra + iFlavorOffense + iFlavorDefense;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
@@ -30813,7 +30828,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iValue += iTemp + iExtra + iFlavorOffense;
 	}
 
-	iTemp = pkPromotionInfo->GetMaxHitPointsChange() * 2;
+	iTemp = pkPromotionInfo->GetMaxHitPointsChange() * 4;
 	if (iTemp != 0)
 	{
 		iExtra = getMaxHitPointsChange() * 5;

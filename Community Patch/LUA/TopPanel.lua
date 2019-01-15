@@ -160,7 +160,7 @@ function UpdateData()
 			-- Update Tourism
 			-----------------------------
 			local strTourism;
-			strTourism = string.format("[ICON_TOURISM] +%i", pPlayer:GetTourism() / 100);
+			strTourism = string.format("[ICON_TOURISM] +%i", pPlayer:GetTourism();
 			Controls.TourismString:SetText(strTourism);
 			
 			-----------------------------

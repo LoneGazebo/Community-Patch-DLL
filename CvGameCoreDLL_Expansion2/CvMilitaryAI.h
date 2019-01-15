@@ -338,6 +338,19 @@ public:
 		m_iNumberOfTimesOpsBuildSkippedOver = 0;
 	}
 
+	int GetNumberOfTimesSettlerBuildSkippedOver() const
+	{
+		return m_iNumberOfTimesSettlerBuildSkippedOver;
+	}
+	void BumpNumberOfTimesSettlerBuildSkippedOver()
+	{
+		++m_iNumberOfTimesSettlerBuildSkippedOver;
+	}
+	void ResetNumberOfTimesSettlerBuildSkippedOver()
+	{
+		m_iNumberOfTimesSettlerBuildSkippedOver = 0;
+	}
+
 	// Public logging functions
 	void LogDeclarationOfWar(PlayerTypes eOpponent);
 	void LogCivilizationDestroyed();
@@ -450,6 +463,7 @@ private:
 	int m_iTotalThreatWeight;
 	ArmyType m_eArmyTypeBeingBuilt;
 	int m_iNumberOfTimesOpsBuildSkippedOver;
+	int m_iNumberOfTimesSettlerBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CachedTargetsMap m_cachedTargets;

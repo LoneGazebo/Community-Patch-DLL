@@ -47,7 +47,7 @@ VALUES
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresUniquePlayers, AIPriority)
 VALUES
-	('BUILDING_RELIQUARY', 'TXT_KEY_THEMING_BONUS_RELIQUARY', 8, 1, 5);
+	('BUILDING_RELIQUARY', 'TXT_KEY_THEMING_BONUS_RELIQUARY', 10, 1, 5);
 
 INSERT INTO Building_ImprovementYieldChangesGlobal
 	(BuildingType, ImprovementType, YieldType, Yield)

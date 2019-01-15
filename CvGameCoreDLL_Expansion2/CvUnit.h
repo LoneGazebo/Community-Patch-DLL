@@ -1543,6 +1543,9 @@ public:
 	int GetScienceBlastStrength() const;
 	void SetScienceBlastStrength(int iValue);
 
+	int GetHurryStrength() const;
+	void SetHurryStrength(int iValue);
+
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
 
@@ -2313,6 +2316,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iHurryStrength;
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
 	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
 	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;

@@ -569,7 +569,7 @@ UPDATE Buildings
 SET Cost = '900'
 WHERE Type = 'BUILDING_UFFIZI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Building_ThemingBonuses SET Bonus = '10' WHERE BuildingType = 'BUILDING_UFFIZI';
+UPDATE Building_ThemingBonuses SET Bonus = '14' WHERE BuildingType = 'BUILDING_UFFIZI';
 
 -- Taj Mahal
 UPDATE Buildings
@@ -818,7 +818,12 @@ WHERE Type = 'BUILDING_PRORA_RESORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 INSERT INTO Building_YieldFromPillageLand
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_PRORA_RESORT', 'YIELD_CULTURE', 10);
+	('BUILDING_PRORA_RESORT', 'YIELD_CULTURE', 25);
+
+INSERT INTO Building_YieldFromPillageWater
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PRORA_RESORT', 'YIELD_CULTURE', 25);
 
 UPDATE Buildings
 SET BlockWWDestructionSpies = '1'
@@ -980,8 +985,8 @@ VALUES
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresOwner, RequiresUniquePlayers, RequiresAnyButOwner, AIPriority)
 VALUES
-	('BUILDING_PARTHENON', 'TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON', 4, 1, 0, 0, 2),
-	('BUILDING_NOTRE_DAME', 'TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME', 4, 0, 1, 1, 2);
+	('BUILDING_PARTHENON', 'TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON', 6, 1, 0, 0, 2),
+	('BUILDING_NOTRE_DAME', 'TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME', 8, 0, 1, 1, 2);
 
 -- New Wonder Yields and Data
 UPDATE Building_Flavors
@@ -1036,7 +1041,7 @@ VALUES
 	('BUILDING_GLOBE_THEATER', 'SPECIALIST_WRITER', 'YIELD_GOLDEN_AGE_POINTS', 1),
 	('BUILDING_BLETCHLEY_PARK', 'SPECIALIST_SCIENTIST', 'YIELD_SCIENCE', 1);
 
-UPDATE Building_ThemingBonuses SET Bonus = '6' WHERE BuildingType = 'BUILDING_GLOBE_THEATER';
+UPDATE Building_ThemingBonuses SET Bonus = '8' WHERE BuildingType = 'BUILDING_GLOBE_THEATER';
 
 
 INSERT INTO Building_SpecialistYieldChanges

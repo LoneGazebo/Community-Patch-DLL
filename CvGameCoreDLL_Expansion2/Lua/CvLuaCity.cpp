@@ -3181,11 +3181,11 @@ int CvLuaCity::lGetNumGreatWorkSlots(lua_State* L)
 int CvLuaCity::lGetBaseTourism(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
-	lua_pushinteger(L, pkCity->GetBaseTourism());
-#else
-	lua_pushinteger(L, pkCity->GetCityCulture()->GetBaseTourism());
-#endif
+	int iValue = pkCity->GetBaseTourism();
+	if (!MOD_BALANCE_CORE_TOURISM_HUNDREDS)
+		iValue /= 100;
+
+	lua_pushinteger(L, iValue);
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)

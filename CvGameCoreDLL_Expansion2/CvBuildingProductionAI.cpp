@@ -260,6 +260,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo == NULL)
 		return 0;
 
+
+	//Bonus additive. All values below will be added to this and combined with real value at end.
+	int iBonus = 0;
+
 	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 	bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
 	if ((m_pCity->IsPuppet() && !bIsVenice) || (m_pCity->getPopulation() <= 6 && !m_pCity->isCapital()))
@@ -292,50 +296,54 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 250)
+		if (iValue > 200)
 		{
-			iValue = 250;
-		}
-		if (iValue <= 100)
-		{
-			iValue = 100;
+			iValue = 200;
 		}
 
 		if (kPlayer.getNumCities() == 1)
-			iValue /= 5;
-		else if (kPlayer.getNumCities() == 2)
 			iValue /= 2;
+
+		// we want this? ramp it up!
+		if (kPlayer.GetCitySpecializationAI()->GetNextWonderDesired() == eBuilding)
+		{
+			if (isNationalWonderClass(kBuildingClassInfo))
+			{
+				//cap this at an extreme value.
+				iBonus += max(10000, m_pCity->getPopulation() * 500);
+			}
+			else
+			{
+				//cap this at an extreme value.
+				iBonus += max(15000, m_pCity->getPopulation() * 1500);
+			}
+		}
 
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding)
 		{
 			iValue += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
-
-			int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
-			if (iNumCivsAlreadyBuilding > 0)
-			{
-				iValue -= (50 * iNumCivsAlreadyBuilding);
-			}
 
 			// Adjust weight for this wonder down based on number of other players currently working on it
 			int iNumOthersConstructing = 0;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				
+				if (eLoopPlayer == kPlayer.GetID())
+					continue;
+
 				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()) > 0)
 				{
 					iNumOthersConstructing++;
 				}
 			}
-			iValue -= (iNumOthersConstructing * 50);
+			iBonus -= m_pCity->getPopulation() * (iNumOthersConstructing * 50);
 
 			//probably early game, so if we haven't started yet, we're probably not going to win this one.
 			if (kPlayer.getNumCities() == 1 && !bIsVenice)
 			{
-				iValue -= (iNumOthersConstructing * 50);
+				iBonus -= m_pCity->getPopulation() * (iNumOthersConstructing * 50);
 			}
-
-			if (iValue <= 0)
-				return 0;
 		}
 	}
 	else
@@ -351,8 +359,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-	//Bonus % additive. All values below will be added to this and combined with real value at end.
-	int iBonus = 0;
 
 	////////////////
 	////QUESTS
@@ -794,6 +800,19 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	
+	//Unlocks another building?
+	int iNumNeeded;
+	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), true);
+		//need in all?
+		if (iNumNeeded > 0)
+		{
+			int iNumHave = kPlayer.getNumBuildings(eBuilding);
+			iBonus += iNumNeeded * max(1, iNumHave) * 10;
+		}
+	}
 
 	//Corporations!
 	if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
@@ -1184,15 +1203,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
 	int WarPenalty = 0;
+	//Tiny army? Eek!
+	if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 3))
+	{
+		WarPenalty += max(1, iNumWar) * 25;
+	}
 	if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
 	{
+		WarPenalty += iNumWar * 10;
 		if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 		{
 			//More cities = more threat.
 			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank());
 			if (iThreat > 0)
 			{
-				WarPenalty += iThreat * 5;
+				WarPenalty += iThreat * 10;
 			}
 		}
 		if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling())
@@ -1225,15 +1250,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
 				{
-					WarPenalty += iNumWar * 15;
+					WarPenalty += iNumWar * 20;
 				}
 			}
 		}
-		//Tiny army? Eek!
-		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
-		{
-			WarPenalty += iNumWar * 20;
-		}
+
 	}
 	iBonus *= (100 - min(99, WarPenalty));
 	iBonus /= 100;
@@ -1281,7 +1302,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		// scale off with pop so UB will not be the first building to build in a fresh city
-		iBonus *= min(max(1, m_pCity->getPopulation()), 10);
+		iBonus += m_pCity->getPopulation() * 20;
 	}
 
 	//Danger? Prioritize units!

@@ -1012,6 +1012,12 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 
 			if (pCity == pMusterPlot->getOwningCity())
 				bCitySameAsMuster = true;
+			else if (!pThisOperation->IsNavalOperation() && pCity != NULL && pMusterPlot->getOwningCity() != NULL && pCity->getArea() == pMusterPlot->getOwningCity()->getArea())
+			{
+				int iDistance = plotDistance(pMusterPlot->getOwningCity()->getX(), pMusterPlot->getOwningCity()->getY(), pCity->getX(), pCity->getY());
+				if (iDistance <= 5)
+					bCitySameAsMuster = true;
+			}
 
 			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
 			{
@@ -1408,32 +1414,64 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	
 	// look for a wonder to rush
+	bool bAlmostThere = false;
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
-		int iNextWonderWeight;
-		BuildingTypes eNextWonderDesired = GetWonderProductionAI()->ChooseWonder(false /*bAdjustForOtherPlayers*/, iNextWonderWeight);
-		if(eNextWonderDesired != NO_BUILDING)
+		BuildingTypes eNextWonderDesired = GetCitySpecializationAI()->GetNextWonderDesired();
+		
+		int iLoop;
+		CvCity* pLoopCity;
+		int iOurPower = pGreatEngineer->GetHurryStrength();
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-#if defined(MOD_BALANCE_CORE)
-			//Let's make sure the wonder is worth it. Need scales with era. This should, hopefully, discount the value of wonders by the mid-game.
-			CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eNextWonderDesired);
-			if(thisBuildingEntry)
+			BuildingTypes eCurrentBuilding = pLoopCity->getProductionBuilding();
+			//alright, we found a city with the wonder we want.
+			if (eNextWonderDesired != NO_BUILDING && eCurrentBuilding != NO_BUILDING && eCurrentBuilding == eNextWonderDesired)
 			{
-				const CvBuildingClassInfo& kBuildingClassInfo = thisBuildingEntry->GetBuildingClassInfo();
-				//Is this actually a world wonder?
-				if(kBuildingClassInfo.getMaxGlobalInstances() != -1)
+				int iProductionNeeded = pLoopCity->getProductionNeeded() - pLoopCity->GetCityBuildings()->GetBuildingProduction(eCurrentBuilding);
+				if (iProductionNeeded <= 1)
+					continue;
+
+				int iDelta = iProductionNeeded - iOurPower;
+				
+				//Surplus? Just how much?
+				if (iDelta < 0)
 				{
-					if(GetWonderProductionAI()->GetWeight(eNextWonderDesired) > (10000 * GetCurrentEra() + 1))
+					iDelta *= -1;
+					int iFraction = (iDelta * 100) / iProductionNeeded;
+
+					//less than double waste? Go for it!
+					if (iFraction <= 200)
 					{
-#endif
-			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-#if defined(MOD_BALANCE_CORE)
+						eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+						break;
 					}
 				}
+				//Deficit? How close are we?
+				else
+				{
+					int iFraction = (iDelta * 100) / iProductionNeeded;
+
+					//more than 80% completed with this? Go for it!
+					if (iFraction <= 20)
+					{
+						eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+						break;
+					}
+					//50% of the way there? Let's hold on a bit.
+					else if (iFraction <= 50)
+						bAlmostThere = true;
+				}
 			}
-#endif
 		}
 	}
+	
+	if (bAlmostThere)
+		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) < GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+		return eDirective;
+
 #if defined(MOD_BALANCE_CORE)
 	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));

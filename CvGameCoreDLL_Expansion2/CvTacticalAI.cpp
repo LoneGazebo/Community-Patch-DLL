@@ -3815,6 +3815,18 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		// Check to make sure escort can get to civilian
 		if(pOperation->GetMusterPlot() != NULL)
 		{
+			//check if the civilian is in danger
+			if ( pCivilian->GetDanger() > 0 )
+			{
+				//try to move to safety
+				CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian,true);
+				if (pBetterPlot)
+				{
+					ExecuteMoveToPlot(pCivilian,pBetterPlot);
+					return;
+				}
+			}
+
 			//civilian and escort have not yet met up
 			if(pEscort)
 			{
@@ -3825,10 +3837,12 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					if(pCivilian->plot()->GetNumCombatUnits() > 0)
 					{
 						CvUnit* pNewEscort = SwitchEscort(pCivilian,pEscort,pThisArmy);
-						if (!pNewEscort)
+						if (pNewEscort)
+							pOperation->CheckTransitionToNextStage();
+						else //did not switch
 						{
 							//Let's have them move forward, see if that clears things up.
-							ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+							ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
 							ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 							//try again next turn
@@ -3844,18 +3858,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					}
 					else
 					{
-						//check if the civilian is in danger
-						if ( pCivilian->GetDanger() > 0 )
-						{
-							//try to move to safety
-							CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian,true);
-							if (pBetterPlot)
-							{
-								ExecuteMoveToPlot(pCivilian,pBetterPlot);
-								pOperation->SetMusterPlot(pBetterPlot);
-							}
-						}
-
 						//move escort towards civilian
 						if (!ExecuteMoveToPlot(pEscort, pCivilian->plot()))
 						{
@@ -3893,23 +3895,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			else
 			{
 				//no escort
-				if(pCivilian->plot() == pOperation->GetMusterPlot())
-				{
-					//check if the civilian is in danger
-					if ( pCivilian->GetDanger()>0 )
-					{
-						//try to move to safety
-						CvPlot* pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian,true);
-						if (pBetterPlot)
-						{
-							ExecuteMoveToPlot(pCivilian,pBetterPlot);
-
-							//update this so we can advance to next stage
-							pOperation->SetMusterPlot(pBetterPlot);
-						}
-					}
-					UnitProcessed(pCivilian->GetID());
-				}
+				if (pCivilian->plot() == pOperation->GetMusterPlot())
+					pOperation->CheckTransitionToNextStage();
 				else
 					//continue moving. if this should fail, we just freeze and wait for better times
 					ExecuteMoveToPlot(pCivilian,pOperation->GetMusterPlot());
@@ -4306,6 +4293,7 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			CvPlot* pTestPlot = iterateRingPlots(pUnit->plot(), i);
 			if (!pTestPlot)
 				continue;
+			//combat units
 			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot);
 			for (size_t i = 0; i < vAttackers.size(); i++)
 				if (!vAttackers[i]->plot()->isCity())
@@ -7751,8 +7739,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (!bIsCityTarget && (pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatAdmiral()))
 			continue;
 
-		// Land garrisons have special moves
-		if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType()==DOMAIN_LAND)
+		// Garrisons have special moves
+		if (pLoopUnit->IsGarrisoned())
 			continue;
 
 		// Don't pull barbarian units out of camps to attack.
@@ -9905,6 +9893,10 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, Reacha
 		if (iPlotMoves<=0)
 			continue;
 
+		//can't shoot if embarked
+		if (!pUnit->isNativeDomain(pBasePlot))
+			continue;
+
 		//we have enough moves for an attack ...
 		for(int i=1; i<RING_PLOTS[iRange]; i++)
 		{
@@ -10095,6 +10087,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 					pBestTarget = pLoopPlot;
 					iMaxDamage = iDamage;
 				}
+
 			}
 		}
 	}
@@ -11416,6 +11409,10 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		{
 			CvUnit* pPlotUnit = pPlot->getUnitByIndex(i);
 
+			//ignore zombies
+			if (pPlotUnit->isDelayedDeath())
+				continue;
+
 			//civilians are handled further down
 			if (!pPlotUnit->IsCombatUnit())
 				continue;
@@ -12243,7 +12240,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//special for embarked units: we only allow moves which result in disembarkation, everything else is too complex to handle
-		if (!pUnit->isNativeDomain(pPlot))
+		if (!pUnit->isNativeDomain(pPlot) && !pPlot->isCity()) //allow melee ships to capture cities though!
 			continue;
 
 		if (plotDistance(*pPlot, *pTargetPlot) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
@@ -12509,8 +12506,11 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	}
 	else if (itUnit->iMovesLeft>0)
 	{
-		if (movePlotUpdateFlag!=-1) //make sure we don't regress to a "lower" level
+		//make sure we don't regress to a "lower" level
+		if (movePlotUpdateFlag==0) 
 			movePlotUpdateFlag = itUnit->iUnitID; //need to update only this one
+		else if (movePlotUpdateFlag>0)
+			movePlotUpdateFlag = -1; //need to update multiple units, simply do all
 	}
 	else if (itUnit->iMovesLeft==0)
 	{
@@ -12964,7 +12964,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
 		if (vUnits.size() > 5 && completedPositions.empty() && openPositionsHeap.empty())
-			OutputDebugString("warning, only degenerate positions found\n");
+			OutputDebugString("warning, no useful moves found\n");
 	}
 
 	return result;
@@ -12999,7 +12999,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	//meta parameters depending on difficulty setting
 	int iMaxActiveUnits = GC.getGame().getHandicapType() < 2 ? 8 : 12;
 	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 12 : 23;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
@@ -13167,7 +13167,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
 		if (vUnits.size() > 5 && completedPositions.empty() && openPositionsHeap.empty())
-			OutputDebugString("warning, only degenerate positions found\n");
+			OutputDebugString("warning, no useful moves found\n");
 	}
 
 	return result;

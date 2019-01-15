@@ -1133,6 +1133,9 @@ public:
 	int GetBuildingScienceFromYield(YieldTypes eIndex1) const;
 	void ChangeBuildingScienceFromYield(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromInternalTREnd(YieldTypes eIndex1) const;
+	void ChangeYieldFromInternalTREnd(YieldTypes eIndex, int iChange);
+
 	int GetScienceFromYield(YieldTypes eIndex1) const;
 	void SetScienceFromYield(YieldTypes eIndex1, int iChange);
 
@@ -1857,6 +1860,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerFriend;
 	FAutoVariable<std::vector<int>, CvCity> m_aiScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTREnd;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyAttack;

@@ -202,7 +202,7 @@ public:
 
 	// City AI methods
 #if defined(MOD_BALANCE_CORE)
-	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT, bool bInterruptBuildings = false);
+	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT, bool bInterruptBuildings = false, bool bInterruptWonders = false);
 #else
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
 #endif

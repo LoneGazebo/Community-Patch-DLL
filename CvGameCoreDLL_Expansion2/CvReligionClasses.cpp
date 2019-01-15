@@ -8924,7 +8924,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		iRtnValue /= 2;
 #endif
 	}
-	iRtnValue += (-pEntry->GetPlotCultureCostModifier() / 5) * MAX(-pEntry->GetPlotCultureCostModifier() / 5, iFlavorDefense - iFlavorOffense);
+	iRtnValue += (-pEntry->GetPlotCultureCostModifier() / 7) * MAX(-pEntry->GetPlotCultureCostModifier() / 7, iFlavorDefense - iFlavorOffense);
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 10) * MAX(pEntry->GetCityRangeStrikeModifier() / 10, iFlavorCityDefense - iFlavorOffense);
 #else

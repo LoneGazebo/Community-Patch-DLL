@@ -596,7 +596,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Trader Sid's Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Trader Sid's cannot be sold or destroyed by the player, and increases the [ICON_GOLD] Gold output of all Trader Sid's Offices by +4.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HELP">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise in foreign Cities (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes from this City to foreign Cities with a Trader Sid's Franchise produce +25% more [ICON_GOLD] Gold.</Text>
+			<Text>Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise in foreign Cities (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes from this City to foreign Cities with a Trader Sid's Franchise produce +25% more [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS">

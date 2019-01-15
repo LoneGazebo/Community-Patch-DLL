@@ -2470,16 +2470,18 @@ void CvPlayerTrade::MoveUnits (void)
 						{
 							bInternational = true;
 						}
-						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, false, bInternational);
+
+						CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
+
+						CvCity* pDestCity = NULL;
+						if (pDestPlot != NULL)
+						{
+							pDestCity = pDestPlot->getPlotCity();
+						}
+
+						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, false, bInternational, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pDestCity);
 						if (bInternational)
 						{
-							CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
-
-							CvCity* pDestCity = NULL;
-							if (pDestPlot != NULL)
-							{
-								pDestCity = pDestPlot->getPlotCity();
-							}
 							if (pDestCity != NULL && pOriginCity != NULL)
 							{
 								// Corporation expansion system
@@ -2495,7 +2497,8 @@ void CvPlayerTrade::MoveUnits (void)
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_LAND, pOriginCity);
 										if (iTourism > 0)
 										{
-											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism / 2, true, true);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism / 2);
 
 											//store off this data
 											GET_PLAYER(pOriginCity->getOwner()).changeInstantYieldValue(YIELD_TOURISM, iTourism);
@@ -2553,7 +2556,8 @@ void CvPlayerTrade::MoveUnits (void)
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_SEA, pOriginCity);
 										if (iTourism > 0)
 										{
-											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism/2, true, true);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism/2);
 
 											//store off this data
 											GET_PLAYER(pOriginCity->getOwner()).changeInstantYieldValue(YIELD_TOURISM, iTourism);

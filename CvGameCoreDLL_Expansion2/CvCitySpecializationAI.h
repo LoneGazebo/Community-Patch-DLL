@@ -156,7 +156,6 @@ public:
 	CvString GetLogFileName(CvString& playerName) const;
 
 	CitySpecializationTypes GetWonderSpecialization() const;
-
 private:
 	void WeightSpecializations();
 	int WeightProductionSubtypes(int iFlavorWonder, int iFlavorSpaceship);
@@ -205,6 +204,7 @@ private:
 	int m_iLastTurnEvaluated;
 
 	// Wonder builds
+	bool m_bChooseNewWonder;
 	bool m_bInterruptWonders;
 #if defined(MOD_BALANCE_CORE)
 	bool m_bInterruptBuildings;

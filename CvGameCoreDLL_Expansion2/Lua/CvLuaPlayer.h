@@ -1314,7 +1314,7 @@ protected:
 	static int lGetCurrentOfficeBenefit(lua_State* L);
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
-	static int lGetHolyCityCapitalTradeRouteYieldModifier(lua_State* L);
+	static int lGetTradeRouteYieldModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);
 #if defined(MOD_BALANCE_CORE)

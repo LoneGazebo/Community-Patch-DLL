@@ -461,7 +461,6 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_aiDomainDiversity("CvPlayer::m_aiDomainDiversity", m_syncArchive)
 	, m_aiCityYieldModFromMonopoly("CvPlayer::m_aiCityYieldModFromMonopoly", m_syncArchive)
-	, m_paiNumCivsConstructingWonder("CvPlayer::m_paiNumCivsConstructingWonder", m_syncArchive)
 	, m_iUnhappiness("CvPlayer::m_iUnhappiness", m_syncArchive)
 	, m_iHappinessTotal("CvPlayer::m_iHappinessTotal", m_syncArchive)
 	, m_iChangePovertyUnhappinessGlobal("CvPlayer::m_iChangePovertyUnhappinessGlobal", m_syncArchive)
@@ -1230,7 +1229,6 @@ void CvPlayer::uninit()
 	m_paiNumCitiesFreeChosenBuilding.clear();
 	m_aistrInstantYield.clear();
 	m_aistrInstantGreatPersonProgress.clear();
-	m_paiNumCivsConstructingWonder.clear();
 	m_pabFreeChosenBuildingNewCity.clear();
 	m_pabAllCityFreeBuilding.clear();
 	m_pabNewFoundCityFreeUnit.clear();
@@ -2148,8 +2146,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pabNewFoundCityFreeBuilding.clear();
 		m_pabNewFoundCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), false);
 
-		m_paiNumCivsConstructingWonder.clear();
-		m_paiNumCivsConstructingWonder.resize(GC.getNumBuildingInfos(), 0);
 
 		m_paiBuildingClassCulture.clear();
 		m_paiBuildingClassCulture.resize(GC.getNumBuildingClassInfos(), 0);
@@ -26380,17 +26376,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						continue;
 
 					iValue += iPassYield;
+					break;
 				}
 				case INSTANT_YIELD_TYPE_BIRTH:
 				{
-					iValue += pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield);
+					iValue += ((pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield)) * max(1, iPassYield));
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity);
+						iValue += (pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * max(1, iPassYield));
 					}
 					if(pLoopCity->isCapital())
 					{
-						iValue += getYieldFromBirthCapital(eYield);
+						iValue += (getYieldFromBirthCapital(eYield) * max(1, iPassYield));
 					}
 					//Scale it here to avoid scaling the growth yield below.
 					if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
@@ -26415,7 +26412,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if(iCurrentYield != 0)
 					{
-						iValue += ((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100);
+						iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100) * max(1, iPassYield));
 						if(iValue <= 0 && pLoopCity->GetGrowthExtraYield(eYield) > 0)
 						{
 							iValue = 1;
@@ -26762,6 +26759,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					else if(eYield >= YIELD_FAITH)
 					{
 						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+					}
+					if (!bInternational)
+					{
+						iValue += pLoopCity->GetYieldFromInternalTREnd(eYield);
+						if (pOtherCity != NULL)
+						{
+							iValue += pOtherCity->GetYieldFromInternalTREnd(eYield);
+						}
 					}
 					break;
 				}
@@ -31794,7 +31799,8 @@ int CvPlayer::GetTechDeviation() const
 	int iPercentResearched = iOurTech * 100;
 	iPercentResearched /= max(1, iNumTechs);
 
-	iPercentResearched /= 2;
+	iPercentResearched *= (int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER();
+	iPercentResearched /= 100;
 	/*
 	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
 	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
@@ -32901,7 +32907,14 @@ int CvPlayer::calculateMilitaryMight() const
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	return int( rtnValue / max(1.f, sqrt((float)getNumCities())));
+	int iNumCities = (getNumCities() * 10) + 100;
+	if(iNumCities > 0)
+	{
+		rtnValue *= 100;
+		rtnValue /= min(300, iNumCities);
+	}
+
+	return rtnValue;
 #else
 
 	//Simplistic increase based on player's gold
@@ -32931,8 +32944,16 @@ int CvPlayer::calculateEconomicMight() const
 		iEconomicMight += GetExcessHappiness() * 25;
 	}
 
+	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	int iNumCities = (getNumCities() * 10) + 100;
+	if (iNumCities > 0)
+	{
+		iEconomicMight *= 100;
+		iEconomicMight /= min(300, iNumCities);
+	}
+
 	//Finally, divide our power by the number of cities we own - the more we have, the more our upkeep.
-	return int( iEconomicMight / max(1.f, sqrt((float)(getNumCities() / 2))));
+	return iEconomicMight;
 }
 
 //	--------------------------------------------------------------------------------
@@ -36038,23 +36059,6 @@ int CvPlayer::GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) con
 		}
 	}
 	return 0;
-}
-void CvPlayer::ChangeNumCivsConstructingWonder(BuildingTypes eBuilding, int iValue)
-{
-	CvAssertMsg(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid eBuilding)");
-	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
-
-	if (iValue != 0)
-	{
-		m_paiNumCivsConstructingWonder.setAt(eBuilding, m_paiNumCivsConstructingWonder[eBuilding] + iValue);
-	}
-}
-int CvPlayer::GetNumCivsConstructingWonder(BuildingTypes eBuilding) const
-{
-	CvAssertMsg(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid eBuilding)");
-	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
-
-	return m_paiNumCivsConstructingWonder[eBuilding];
 }
 #endif
 //	--------------------------------------------------------------------------------

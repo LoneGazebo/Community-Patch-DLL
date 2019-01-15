@@ -430,7 +430,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Liturgical Drama (Now Veneration)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_FOOD] Food in the City. 25% of [ICON_PEACE] Faith Purchases in this City are converted into [ICON_CULTURE] Culture.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, and [ICON_FOOD] Food in the City. 10% of the cost of [ICON_PEACE] Faith Purchases in this City is converted into [ICON_CULTURE] Culture and [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BELIEF_LITURGICAL_DRAMA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

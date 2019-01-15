@@ -5504,7 +5504,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 											
 											CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex];
 
-											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 15;
+											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 5;
 											if (CultureCost > iMaxCultureCost)
 											{
 												iMaxCultureCost = CultureCost;
@@ -5530,7 +5530,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 
 											CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex];
 
-											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 15;
+											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 5;
 											if (CultureCost > iMaxCultureCost)
 											{
 												iMaxCultureCost = CultureCost;
@@ -5556,7 +5556,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 
 											CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex];
 
-											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 15;
+											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 5;
 											if (CultureCost > iMaxCultureCost)
 											{
 												iMaxCultureCost = CultureCost;
@@ -7693,9 +7693,6 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			{
 				strResult << pBuildingInfo->GetTextKey();
 			}
-#if defined(MOD_BALANCE_CORE)
-			m_pPlayer->ChangeNumCivsConstructingWonder(m_aIntrigueNotificationMessages[uiIndex].m_eBuilding, 1);
-#endif
 		}
 		else if (m_aIntrigueNotificationMessages[uiIndex].m_eProject != NO_PROJECT)
 		{

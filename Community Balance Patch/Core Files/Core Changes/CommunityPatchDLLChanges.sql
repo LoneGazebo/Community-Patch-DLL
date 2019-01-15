@@ -274,6 +274,10 @@ UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_BOMBARD_RANGE_BUILDINGS';
 
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_TOURISM_HUNDREDS';
+
 UPDATE GameOptions SET "Default" = 1 WHERE Type = 'GAMEOPTION_EVENTS';
 
 UPDATE CustomModOptions SET Value=1 WHERE Name='UNITS_MAX_HP';  

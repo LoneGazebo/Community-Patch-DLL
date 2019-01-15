@@ -1759,7 +1759,7 @@ int CvLuaUnit::lGetHurryProduction(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 
-	const int iResult = pkUnit->getHurryProduction(pkPlot);
+	const int iResult = pkUnit->GetHurryStrength();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

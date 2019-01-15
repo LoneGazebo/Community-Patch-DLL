@@ -104,7 +104,7 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 		strInfluenceValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_GOLD_EXPLAINED", strOtherLeaderName, iInfluenceGold / 100);
 	end
 	local strHolyCapitalValue = "";
-	local iHolyCapitalYield = pPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+	local iHolyCapitalYield = pPlayer:GetTradeRouteYieldModifier(pOriginCity, pTargetCity);
 	if (iHolyCapitalYield ~= 0) then
 		strHolyCapitalValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
 	end
@@ -348,7 +348,7 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 		end
 
 		local strHolyCapitalValue = "";
-		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		local iHolyCapitalYield = pOriginPlayer:GetTradeRouteYieldModifier(pOriginCity, pTargetCity);
 		if (iHolyCapitalYield ~= 0) then
 			strResult = strResult .. "[NEWLINE]";
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
@@ -436,7 +436,7 @@ function BuildTradeRouteCultureToolTipString (pOriginCity, pTargetCity, eDomain)
 		end
 
 		local strHolyCapitalValue = "";
-		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		local iHolyCapitalYield = pOriginPlayer:GetTradeRouteYieldModifier(pOriginCity, pTargetCity);
 		if (iHolyCapitalYield ~= 0) then
 			strResult = strResult .. "[NEWLINE]";
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
@@ -483,10 +483,10 @@ function BuildTradeRouteProductionToolTipString (pOriginCity, pTargetCity, eDoma
 		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_PRODUCTION", iOriginProduction);
 		
 		local strHolyCapitalValue = "";
-		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		local iHolyCapitalYield = pOriginPlayer:GetTradeRouteYieldModifier(pOriginCity, pTargetCity);
 		if (iHolyCapitalYield ~= 0) then
 			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_PROD", iHolyCapitalYield);
 		end
 	end
 
@@ -504,49 +504,10 @@ function BuildTradeRouteFoodToolTipString (pOriginCity, pTargetCity, eDomain)
 		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_FOOD", iOriginFood);
 
 		local strHolyCapitalValue = "";
-		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		local iHolyCapitalYield = pOriginPlayer:GetTradeRouteYieldModifier(pOriginCity, pTargetCity);
 		if (iHolyCapitalYield ~= 0) then
 			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
-		end
-	end
-
-	return strResult;
-end
-
-function BuildTradeRouteProductionInternalToolTipString (pOriginCity, pTargetCity, eDomain)
-
-	local strResult = "";
-	local iPlayer = pOriginCity:GetOwner();
-	local pOriginPlayer = Players[iPlayer];
-
-	local iOriginProduction  = pOriginPlayer:GetInternationalTradeRouteProduction(pOriginCity, pTargetCity, eDomain, false) / 100;
-
-	if (iOriginProduction > 0) then	
-		local strHolyCapitalValue = "";
-		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
-		if (iHolyCapitalYield ~= 0) then
-			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
-		end
-	end
-
-	return strResult;
-end
-function BuildTradeRouteFoodInternalToolTipString (pOriginCity, pTargetCity, eDomain)
-
-	local strResult = "";
-	local iPlayer = pOriginCity:GetOwner();
-	local pOriginPlayer = Players[iPlayer];
-
-	local iOriginFood  = pOriginPlayer:GetInternationalTradeRouteFood(pOriginCity, pTargetCity, eDomain, false) / 100;
-
-	if (iOriginFood > 0) then
-		local strHolyCapitalValue = "";
-		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
-		if (iHolyCapitalYield ~= 0) then
-			strResult = strResult .. "[NEWLINE]";
-			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER_FOOD", iHolyCapitalYield);
 		end
 	end
 
@@ -559,61 +520,44 @@ end
 function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain, eTradeConnectionType)
 	local strResult;
 
-	-- shortcut for using gold currently
-	if ((eTradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_INTERNATIONAL) or (eTradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_GOLD_INTERNAL)) then
-		local strGoldToolTip = BuildTradeRouteGoldToolTipString(pOriginCity, pTargetCity, eDomain);
-		local strScienceToolTip = BuildTradeRouteScienceToolTipString(pOriginCity, pTargetCity, eDomain);
-		-- CBP
-		local strCultureToolTip = BuildTradeRouteCultureToolTipString(pOriginCity, pTargetCity, eDomain);
-		local strProductionToolTip = BuildTradeRouteProductionToolTipString(pOriginCity, pTargetCity, eDomain);
-		local strFoodToolTip = BuildTradeRouteFoodToolTipString(pOriginCity, pTargetCity, eDomain);
-		--END
-		strResult = strGoldToolTip;
-		if (strScienceToolTip ~= "") then
-			if (strResult ~= "") then
-				strResult = strResult .. "[NEWLINE][NEWLINE]";
-			end
-		
-			strResult = strResult .. strScienceToolTip;
+	local strGoldToolTip = BuildTradeRouteGoldToolTipString(pOriginCity, pTargetCity, eDomain);
+	local strScienceToolTip = BuildTradeRouteScienceToolTipString(pOriginCity, pTargetCity, eDomain);
+	-- CBP
+	local strCultureToolTip = BuildTradeRouteCultureToolTipString(pOriginCity, pTargetCity, eDomain);
+	local strProductionToolTip = BuildTradeRouteProductionToolTipString(pOriginCity, pTargetCity, eDomain);
+	local strFoodToolTip = BuildTradeRouteFoodToolTipString(pOriginCity, pTargetCity, eDomain);
+	--END
+	strResult = strGoldToolTip;
+	if (strScienceToolTip ~= "") then
+		if (strResult ~= "") then
+			strResult = strResult .. "[NEWLINE]";
 		end
-		--CBP
-		if (strCultureToolTip ~= "") then
-			if (strResult ~= "") then
-				strResult = strResult .. "[NEWLINE][NEWLINE]";
-			end
 		
-			strResult = strResult .. strCultureToolTip;
-		end	
-		if (strProductionToolTip ~= "") then
-			if (strResult ~= "") then
-				strResult = strResult .. "[NEWLINE][NEWLINE]";
-			end
-		
-			strResult = strResult .. strProductionToolTip;
-		end
-		if (strFoodToolTip ~= "") then
-			if (strResult ~= "") then
-				strResult = strResult .. "[NEWLINE][NEWLINE]";
-			end
-		
-			strResult = strResult .. strFoodToolTip;
-		end
-		--END
-	else
-		local strProductionToolTip = BuildTradeRouteProductionInternalToolTipString(pOriginCity, pTargetCity, eDomain);
-		local strFoodToolTip = BuildTradeRouteFoodInternalToolTipString(pOriginCity, pTargetCity, eDomain);
-
-		if (strProductionToolTip ~= "") then
-			strResult = strProductionToolTip;
-		end
-		if (strFoodToolTip ~= "") then
-			if (strResult ~= "") then
-				strResult = strResult .. "[NEWLINE][NEWLINE]";
-			end
-		
-			strResult = strResult .. strFoodToolTip;
-		end
+		strResult = strResult .. strScienceToolTip;
 	end
+	--CBP
+	if (strCultureToolTip ~= "") then
+		if (strResult ~= "") then
+			strResult = strResult .. "[NEWLINE]";
+		end
+		
+		strResult = strResult .. strCultureToolTip;
+	end	
+	if (strProductionToolTip ~= "") then
+		if (strResult ~= "") then
+			strResult = strResult .. "[NEWLINE]";
+		end
+		
+		strResult = strResult .. strProductionToolTip;
+	end
+	if (strFoodToolTip ~= "") then
+		if (strResult ~= "") then
+			strResult = strResult .. "[NEWLINE]";
+		end
+		
+		strResult = strResult .. strFoodToolTip;
+	end
+	--END
 	
 	return strResult;
 end

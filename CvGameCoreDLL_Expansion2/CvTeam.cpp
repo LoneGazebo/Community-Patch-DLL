@@ -29,6 +29,7 @@
 #include "CvNotifications.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvPlayerManager.h"
+#include "CvCitySpecializationAI.h"
 
 #include "CvDllUnit.h"
 
@@ -7893,6 +7894,19 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			if(pBuildingEntry->GetEnhancedYieldTech() == eTech)
 			{
 				enhanceBuilding(((BuildingTypes)iI), iChange);
+			}
+
+			if (pBuildingEntry->GetPrereqAndTech() == eTech && isWorldWonderClass(pBuildingEntry->GetBuildingClassInfo()))
+			{
+				for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+				{
+					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iJ);
+					if (kPlayer.getTeam() == GetID() && kPlayer.isAlive())
+					{
+						// Reset city specialization
+						kPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
+					}
+				}
 			}
 		}
 	}
