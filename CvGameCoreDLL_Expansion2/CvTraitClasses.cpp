@@ -3457,6 +3457,18 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	for (int iUnitCombat = 0; iUnitCombat < GC.getNumUnitCombatClassInfos(); iUnitCombat++)
+	{
+		UnitCombatTypes eUnitCombat = (UnitCombatTypes)iUnitCombat;
+		if (GetUnitCombatProductionCostModifier(eUnitCombat).first < 0 && GetUnitCombatProductionCostModifier(eUnitCombat).second == false) // If we get a unit production cost reduction outside of golden ages
+		{
+			m_bIsWarmonger = true;
+			return;
+		}
+	}
+#endif
+
 	if (IsReconquista() ||
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||

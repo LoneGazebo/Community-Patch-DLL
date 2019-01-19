@@ -859,7 +859,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- TRAIT: Allows you to decrease the production cost of a unit combat (which will then decrease gold purchase costs and upgrade costs). Can be toggled to only be in effect during golden ages. -->
+	<!-- TRAIT: Allows you to change the production cost of a unit combat (which will then change gold purchase costs and upgrade costs). Zero = no change; negative = less cost; positive = more cost. Can be toggled to only be in effect during golden ages. -->
 	<Table name="Trait_UnitCombatProductionCostModifiers">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
