@@ -1235,7 +1235,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCurrentOfficeBenefit);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
-	Method(GetHolyCityCapitalTradeRouteYieldModifier);
+	Method(GetTradeRouteYieldModifier);
 	Method(GetInternationalTradeRouteTotal);
 	Method(GetInternationalTradeRouteScience);
 #if defined(MOD_BALANCE_CORE)
@@ -3320,7 +3320,10 @@ int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
 int CvLuaPlayer::lGetTourism(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetTourism();
+	int iResult = pkPlayer->GetCulture()->GetTourism();
+	if (!MOD_BALANCE_CORE_TOURISM_HUNDREDS)
+		iResult /= 100;
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4892,13 +4895,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetHolyCityCapitalTradeRouteYieldModifier(lua_State* L)
+int CvLuaPlayer::lGetTradeRouteYieldModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
 	int iResult = 0;
-	if (pOriginCity->isCapital() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion())
+	if (pkPlayer->getCapitalCity() == pOriginCity || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion())
 	{
 		if (pOriginCity->getOwner() == pDestCity->getOwner())
 		{
@@ -4909,13 +4912,12 @@ int CvLuaPlayer::lGetHolyCityCapitalTradeRouteYieldModifier(lua_State* L)
 			iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
 		}
 	}
-	else
+
+	if (pOriginCity->getOwner() == pDestCity->getOwner())
 	{
-		if (pOriginCity->getOwner() == pDestCity->getOwner())
-		{
-			iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
-		}
+		iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
 	}
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }

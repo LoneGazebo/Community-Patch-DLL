@@ -39,10 +39,10 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % above/below median (deviation). .75 is default.
+-- 	Base Value of Test - Modifier to tech % above/below median (deviation). 100 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '0.75'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '100'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 400 is default.
@@ -103,7 +103,7 @@
 -- Unhappiness point per pop if unconnected or blockaded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.34'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 

@@ -262,7 +262,7 @@ VALUES
 INSERT INTO Building_YieldFromPillageLand
 	(BuildingType, YieldType, Yield)
 VALUES 
-	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 10);
+	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 10);
 
 	INSERT INTO Building_YieldFromPillageWater
 	(BuildingType, YieldType, Yield)

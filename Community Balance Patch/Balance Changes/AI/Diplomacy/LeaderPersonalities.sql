@@ -493,3 +493,39 @@ WHERE CivilizationType = 'CIVILIZATION_SIAM';
 
 DELETE FROM Civilization_Start_Region_Priority
 WHERE CivilizationType = 'CIVILIZATION_INDIA';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_CELTS';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_AUSTRIA';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_FRANCE';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_GERMANY';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_CELTS';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_ROME';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_PERSIA';
+
+DELETE FROM Civilization_Start_Region_Priority
+WHERE CivilizationType = 'CIVILIZATION_ETHIOPIA';
+
+DELETE FROM Civilization_Start_Along_Ocean
+WHERE CivilizationType = 'CIVILIZATION_KOREA';
+
+DELETE FROM Civilization_Start_Along_Ocean
+WHERE CivilizationType = 'CIVILIZATION_JAPAN';
+
+DELETE FROM Civilization_Start_Along_Ocean
+WHERE CivilizationType = 'CIVILIZATION_BYZANTIUM';
+
+DELETE FROM Civilization_Start_Along_Ocean
+WHERE CivilizationType = 'CIVILIZATION_INDONESIA';

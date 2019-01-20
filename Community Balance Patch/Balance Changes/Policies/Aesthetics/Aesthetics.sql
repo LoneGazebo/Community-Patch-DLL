@@ -129,7 +129,7 @@ SET TradeRouteTourismModifier = '0'
 WHERE Type = 'POLICY_ETHICS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET OpenBordersTourismModifier = '20'
+SET OpenBordersTourismModifier = '10'
 WHERE Type = 'POLICY_ETHICS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Building Class Changes

@@ -22,6 +22,7 @@
 #include "CvWonderProductionAI.h"
 #include "CvGrandStrategyAI.h"
 #include "cvStopWatch.h"
+#include "CvInternalGameCoreUtils.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -90,42 +91,52 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 	CvCitySpecializationAI* pSpecializationAI = kOwner.GetCitySpecializationAI();
 	bool bBuildWonder = false;
 
-	// Is it still working on that wonder and we don't want to interrupt it?
-	if (!bInterruptWonders)
-	{
-		const BuildingTypes eBuilding = getProductionBuilding();
-		CvBuildingEntry* pkBuilding = (eBuilding != NO_BUILDING) ? GC.getBuildingInfo(eBuilding) : NULL;
-		if (pkBuilding && kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
-		{
-			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
-				return;
-		}
-	}
+	bool bAlreadyBuildingWonder = false;
+
+	const BuildingTypes eBuilding = getProductionBuilding();
+	CvBuildingEntry* pkBuilding = (eBuilding != NO_BUILDING) ? GC.getBuildingInfo(eBuilding) : NULL;
+	if (pkBuilding && kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
+		bAlreadyBuildingWonder = true;
+
 
 	// Has the designated wonder been poached by another civ?
 	BuildingTypes eNextWonder = pSpecializationAI->GetNextWonderDesired();
 
-	if (!bInterruptWonders)
+	// Is it still working on that wonder and we don't want to interrupt it?
+	bool bAlreadyBuilt = false;
+	if (!bInterruptWonders && bAlreadyBuildingWonder)
 	{
-		if (!canConstruct(eNextWonder))
+		if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+			return;
+	}
+	else if (eNextWonder != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
+		if (pkBuilding)
 		{
-			// Reset city specialization
-			kOwner.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
-		}
-		else
-		{
-			CvBuildingEntry* pkBuilding = (eNextWonder != NO_BUILDING) ? GC.getBuildingInfo(eNextWonder) : NULL;
-			if (pkBuilding)
+			const CvBuildingClassInfo& kBuildingClass = pkBuilding->GetBuildingClassInfo();
+			if (::isWorldWonderClass(kBuildingClass))
 			{
-				if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
-				{
-					// to prevent us from continuously locking into building wonders in one city when there are other high priority items to build
-					int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-					int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
-					int iFlavor = (iFlavorWonder > iFlavorGP) ? iFlavorWonder : iFlavorGP;
-					if (GC.getGame().getSmallFakeRandNum(9, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE)) <= iFlavor)
-						bBuildWonder = true;
-				}
+				bAlreadyBuilt = GC.getGame().getBuildingClassCreatedCount((BuildingClassTypes)GC.getBuildingInfo(eNextWonder)->GetBuildingClassType()) > 0;
+			}
+		}
+	}
+
+	if (bAlreadyBuilt)
+	{
+		// Reset city specialization
+		kOwner.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
+	}
+
+	if (!bAlreadyBuildingWonder && bInterruptWonders && eNextWonder != NO_BUILDING)
+	{		
+		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
+		if (pkBuilding)
+		{
+			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+			{
+				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0)
+					bBuildWonder = true;
 			}
 		}
 	}
@@ -134,7 +145,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 	{
 		CvCityBuildable buildable;
 		buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
-		buildable.m_iIndex = pSpecializationAI->GetNextWonderDesired();
+		buildable.m_iIndex = eNextWonder;
 		buildable.m_iTurnsToConstruct = getProductionTurnsLeft((BuildingTypes)buildable.m_eBuildableType, 0);
 		pushOrder(ORDER_CONSTRUCT, buildable.m_iIndex, -1, false, false, false, false);
 
@@ -159,7 +170,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
-		m_pCityStrategyAI->ChooseProduction(NO_BUILDING, NO_UNIT, bInterruptBuildings);
+		m_pCityStrategyAI->ChooseProduction(NO_BUILDING, NO_UNIT, bInterruptBuildings, bInterruptWonders);
 #else
 		m_pCityStrategyAI->ChooseProduction();
 #endif

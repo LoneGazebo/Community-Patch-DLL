@@ -1063,6 +1063,8 @@
 	<Row Class="6" Name="BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES" Value="0"/>
 	<!-- Enables the possibility of gold internal trade routes (still needs the appropriate traits, etc) -->
     <Row Class="6" Name="BALANCE_CORE_BOMBARD_RANGE_BUILDINGS" Value="0"/>
+	<!-- UI is setup to give you a hundreds for tourism (disabled in CP only) -->
+	<Row Class="6" Name="BALANCE_CORE_TOURISM_HUNDREDS" Value="0"/>
 	<!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->

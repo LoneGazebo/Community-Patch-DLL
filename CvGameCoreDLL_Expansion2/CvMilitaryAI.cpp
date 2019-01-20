@@ -262,6 +262,7 @@ CvMilitaryAI::CvMilitaryAI():
 	m_paeLastTurnTargetValue(NULL),
 	m_iTotalThreatWeight(1),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
+	m_iNumberOfTimesSettlerBuildSkippedOver(0),
 	m_eArmyTypeBeingBuilt(NO_ARMY_TYPE),
 	m_aiWarFocus(NULL)
 {
@@ -349,6 +350,7 @@ void CvMilitaryAI::Reset()
 	m_eLandDefenseState = NO_DEFENSE_STATE;
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
+	m_iNumberOfTimesSettlerBuildSkippedOver = 0;
 #if defined(MOD_BALANCE_CORE)
 	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
@@ -384,6 +386,7 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	m_eArmyTypeBeingBuilt = (ArmyType)temp;
 
 	kStream >> m_iNumberOfTimesOpsBuildSkippedOver;
+	kStream >> m_iNumberOfTimesSettlerBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	kStream >> m_iNumAntiAirUnits;
@@ -456,6 +459,7 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << m_iTotalThreatWeight;
 	kStream << (int)m_eArmyTypeBeingBuilt;
 	kStream << m_iNumberOfTimesOpsBuildSkippedOver;
+	kStream << m_iNumberOfTimesSettlerBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	kStream << m_iNumAntiAirUnits;

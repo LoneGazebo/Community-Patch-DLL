@@ -4567,6 +4567,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	{
 		newUnit->SetScienceBlastStrength(newUnit->getDiscoverAmount());
 	}
+	if (newUnit->getUnitInfo().GetBaseHurry() > 0)
+	{
+		newUnit->SetHurryStrength(newUnit->getHurryProduction(newUnit->plot()));
+	}
 	if (newUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
 	{
 		newUnit->SetCultureBlastStrength(newUnit->getGivePoliciesCulture());

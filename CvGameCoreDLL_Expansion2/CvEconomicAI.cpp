@@ -782,8 +782,8 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_OneOrFewerCoastalCities(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_LOSING_MONEY")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_LosingMoney(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS")
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(m_pPlayer);
+				//else if(strStrategyName == "ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS")
+					//bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings();
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TOO_MANY_UNITS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TooManyUnits(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
@@ -2061,6 +2061,12 @@ void CvEconomicAI::DoHurry()
 
 						if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
 							m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+						if (pkUnitInfo)
+						{
+							m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
+						}
 
 						pSelectedCity->CleanUpQueue();
 					}
@@ -4341,41 +4347,8 @@ bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStra
 }
 
 /// "Halt Growth Buildings" Player Strategy: Stop building granaries if working on a wonder that provides them for free
-bool EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(CvPlayer* pPlayer)
+bool EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(/*CvPlayer* pPlayer*/)
 {
-	BuildingTypes eNextDesiredWonder = pPlayer->GetCitySpecializationAI()->GetNextWonderDesired();
-
-	// Is average income below desired threshold over past X turns?
-	if(eNextDesiredWonder != NO_BUILDING)
-	{
-		CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
-		CvBuildingEntry* pkBuildingInfo = pkGameBuildings->GetEntry(eNextDesiredWonder);
-		if(pkBuildingInfo)
-		{
-			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetFreeBuildingClass();
-			if(eBuildingClass != NO_BUILDINGCLASS)
-			{
-				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				{
-					if(pkBuildingClassInfo)
-					{
-						BuildingTypes eBuilding = (BuildingTypes)pkBuildingClassInfo->getDefaultBuildingIndex();
-						if(eBuilding != NO_BUILDING)
-						{
-							CvBuildingEntry* pkFreeBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
-							if(pkFreeBuildingInfo)
-							{
-								if(pkFreeBuildingInfo->GetYieldChange(YIELD_FOOD) > 0)
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 	return false;
 }
 
@@ -4663,7 +4636,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 		return false;
 	}
 
-	if ( !pPlayer->HaveGoodSettlePlot(-1) )
+	if (!pPlayer->HaveGoodSettlePlot(-1))
 	{
 		return false;
 	}

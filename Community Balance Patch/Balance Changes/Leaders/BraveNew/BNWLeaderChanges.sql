@@ -447,7 +447,7 @@ VALUES
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresAnyButOwner, AIPriority)
 VALUES
-	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 4, 1, 2);
+	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 6, 1, 2);
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
@@ -547,7 +547,7 @@ VALUES
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresOwner, AIPriority)
 VALUES
-	('BUILDING_MURANO_GLASSWORKS', 'TXT_KEY_THEMING_BONUS_MURANO_GLASSWORKS', 4, 1, 4);
+	('BUILDING_MURANO_GLASSWORKS', 'TXT_KEY_THEMING_BONUS_MURANO_GLASSWORKS', 8, 1, 4);
 
 INSERT INTO Building_ThemingYieldBonus
 	(BuildingType, YieldType, Yield)

@@ -367,6 +367,7 @@ CvCity::CvCity() :
 	, m_aiYieldPerFriend("CvCity::m_aiYieldPerFriend", m_syncArchive)
 	, m_aiScienceFromYield("CvCity::m_aiScienceFromYield", m_syncArchive)
 	, m_aiBuildingScienceFromYield("CvCity::m_aiBuildingScienceFromYield", m_syncArchive)
+	, m_aiYieldFromInternalTREnd("CvCity::m_aiYieldFromInternalTREnd", m_syncArchive)
 	, m_aiSpecialistRateModifier("CvCity::m_aiSpecialistRateModifier", m_syncArchive)
 	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
 	, m_aiStaticCityYield("CvCity::m_aiStaticCityYield", m_syncArchive)
@@ -1651,6 +1652,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
 	m_aiScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiBuildingScienceFromYield.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
@@ -1745,6 +1747,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldPerFriend.setAt(iI, 0);
 		m_aiScienceFromYield.setAt(iI, 0);
 		m_aiBuildingScienceFromYield.setAt(iI, 0);
+		m_aiYieldFromInternalTREnd.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
 		m_aiYieldFromSpyAttack.setAt(iI, 0);
 		m_aiYieldFromSpyDefense.setAt(iI, 0);
@@ -11347,6 +11350,8 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	
+	/*
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Increase cost based on # of techs researched.
@@ -11358,6 +11363,8 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			iCost /= 100;
 		}
 	}
+	*/
+
 	int iTraitValue = kPlayer.GetPlayerTraits()->GetFaithCostModifier();
 	iCost *= (100 + iTraitValue);
 	iCost /= 100;
@@ -11475,6 +11482,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 		iCost /= 100;
 	}
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	/*
 	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Increase cost based on # of techs researched.
@@ -11486,6 +11494,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 			iCost /= 100;
 		}
 	}
+	*/
 
 	int iTraitValue = GET_PLAYER(getOwner()).GetPlayerTraits()->GetFaithCostModifier();
 	iCost *= (100 + iTraitValue);
@@ -14452,6 +14461,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeBuildingScienceFromYield(eYield, (pBuildingInfo->GetScienceFromYield(eYield) * iChange));
 			}
 
+			if ((pBuildingInfo->GetYieldFromInternalTREnd(eYield) > 0))
+			{
+				ChangeYieldFromInternalTREnd(eYield, (pBuildingInfo->GetYieldFromInternalTREnd(eYield) * iChange));
+			}
+			
+
 			if( (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
 				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
@@ -15564,6 +15579,9 @@ void CvCity::CheckForOperationUnits()
 								{
 									pUnit->finishMoves();
 								}
+
+								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+
 								CleanUpQueue();
 								return;
 							}
@@ -15584,6 +15602,8 @@ void CvCity::CheckForOperationUnits()
 							{
 								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(this);
 								m_unitBeingBuiltForOperation = thisOperationSlot2;
+
+								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 							}
 							//Log it
 							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
@@ -15656,6 +15676,8 @@ void CvCity::CheckForOperationUnits()
 						pUnit->finishMoves();
 					}
 					CleanUpQueue();
+
+					kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 				}
 				return;
 			}
@@ -15673,6 +15695,8 @@ void CvCity::CheckForOperationUnits()
 							pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
 						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
+					
+					kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 				}
 				return;
 			}
@@ -16854,7 +16878,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
 			if(!IsResistance() && (iGameTurn > 0) && !bNoBonus)
 			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, true, NO_PLAYER, NULL, false, this);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -23692,6 +23716,33 @@ void CvCity::ChangeBuildingScienceFromYield(YieldTypes eIndex1, int iChange)
 	}
 }
 
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromInternalTREnd(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromInternalTREnd[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromInternalTREnd(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromInternalTREnd.setAt(eIndex1, m_aiYieldFromInternalTREnd[eIndex1] + iChange);
+		CvAssert(GetYieldFromInternalTREnd(eIndex1) >= 0);
+	}
+}
+
+
 /// Extra yield from building
 int CvCity::GetSpecialistRateModifier(SpecialistTypes eSpecialist) const
 {
@@ -26928,31 +26979,25 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot = NULL;
-
-	const int iMaxRange = getBuyPlotDistance();
 	int iBestScore = -1;
-	int iDX, iDY;
 
-	for(iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	vector<CvPlot*> validChoices;
+	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
-		for(iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+		if (!pLoopPlot)
+			continue;
+
+		// Can we actually buy this plot?
+		if (!CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY(), true))
+			continue;
+
+		int iTempScore = GetIndividualPlotScore(pLoopPlot);
+		if(iTempScore > iBestScore)
 		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
-			if(pLoopPlot != NULL)
-			{
-				// Can we actually buy this plot?
-				if(CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY(), true))
-				{
-					int iTempScore = GetIndividualPlotScore(pLoopPlot);
-					if(iTempScore > iBestScore)
-					{
-						iBestScore = iTempScore;
-						iBestX = pLoopPlot->getX();
-						iBestY = pLoopPlot->getY();
-					}
-				}
-			}
+			iBestScore = iTempScore;
+			iBestX = pLoopPlot->getX();
+			iBestY = pLoopPlot->getY();
 		}
 	}
 
@@ -26965,7 +27010,6 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	int iRtnValue = 0;
-
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 	{
@@ -27266,23 +27310,6 @@ OrderData order;
 			if(pkBuildingInfo)
 			{
 				GET_PLAYER(getOwner()).changeBuildingClassMaking(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), 1);
-#if defined(MOD_BALANCE_CORE)
-				//If other civs can see this city, and that this city is building this, that should reduce our desire to start it.
-				if (::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
-				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-						if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
-						{
-							if (plot()->isVisible(GET_PLAYER(eLoopPlayer).getTeam()))
-							{
-								GET_PLAYER(eLoopPlayer).ChangeNumCivsConstructingWonder((BuildingTypes)iData1, 1);
-							}
-						}
-					}
-				}
-#endif
 				bValid = true;
 			}
 		}
@@ -29436,6 +29463,10 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 			{
 				pUnit->SetScienceBlastStrength(pUnit->getDiscoverAmount());
+			}
+			if (pUnit->getUnitInfo().GetBaseHurry() > 0)
+			{
+				pUnit->SetHurryStrength(pUnit->getHurryProduction(pUnit->plot()));
 			}
 			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
 			{

@@ -2132,9 +2132,6 @@ public:
 	void changeCSResourcesCountMonopolies(int iChange);
 
 	int GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const;
-
-	void ChangeNumCivsConstructingWonder(BuildingTypes eBuilding, int iValue);
-	int GetNumCivsConstructingWonder(BuildingTypes eBuilding) const;
 #endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -3510,7 +3507,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDelegateCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
-	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCivsConstructingWonder;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainDiversity;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;

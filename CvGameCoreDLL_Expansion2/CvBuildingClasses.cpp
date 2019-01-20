@@ -324,6 +324,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piScienceFromYield(NULL),
+	m_piYieldFromInternalTREnd(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
@@ -441,6 +442,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piScienceFromYield);
+	SAFE_DELETE_ARRAY(m_piYieldFromInternalTREnd);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
@@ -898,6 +900,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
@@ -2861,6 +2864,21 @@ int* CvBuildingEntry::GetScienceFromYieldArray() const
 {
 	return m_piScienceFromYield;
 }
+
+/// Does this Policy grant yields from constructing buildings?
+int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromInternalTREnd[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromInternalTREndArray() const
+{
+	return m_piYieldFromInternalTREnd;
+}
+
+
 /// Array of yield changes
 int CvBuildingEntry::GetThemingYieldBonus(int i) const
 {

@@ -899,13 +899,13 @@ VALUES
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, UniqueEras, MustBeArt, RequiresUniquePlayers, AIPriority)
 VALUES
-	('BUILDING_MOMA', 'TXT_KEY_THEMING_BONUS_MOMA', 10, 1, 1, 1, 8);
+	('BUILDING_MOMA', 'TXT_KEY_THEMING_BONUS_MOMA', 14, 1, 1, 1, 8);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresOwner, RequiresAnyButOwner,  AIPriority)
 VALUES
-	('BUILDING_ODEON', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 2, 1, 0, 2),
-	('BUILDING_ODEON', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 4, 0, 1, 3);
+	('BUILDING_ODEON', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 4, 1, 0, 2),
+	('BUILDING_ODEON', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 6, 0, 1, 3);
 
 INSERT INTO Building_ThemingYieldBonus
 	(BuildingType, YieldType, Yield)

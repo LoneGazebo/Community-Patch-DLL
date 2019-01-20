@@ -442,6 +442,9 @@ public:
 	int GetScienceFromYield(int i) const;
 	int* GetScienceFromYieldArray() const;
 
+	int GetYieldFromInternalTREnd(int i) const;
+	int* GetYieldFromInternalTREndArray() const;
+
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
 
@@ -896,6 +899,7 @@ private:
 	int* m_piYieldFromUnitLevelUp;
 	int* m_piYieldFromPurchase;
 	int* m_piScienceFromYield;
+	int* m_piYieldFromInternalTREnd;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

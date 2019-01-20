@@ -20,6 +20,7 @@
 #include "cvStopWatch.h"
 #if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
+#include "CvWonderProductionAI.h"
 #endif
 // must be included after all other headers
 #include "LintFree.h"
@@ -831,7 +832,7 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 
 /// Pick the next build for a city (unit, building or wonder)
 #if defined(MOD_BALANCE_CORE)
-void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIgnoreUnit, bool bInterruptBuildings)
+void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIgnoreUnit, bool bInterruptBuildings, bool bInterruptWonders)
 #else
 void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDING */, UnitTypes eIgnoreUnit/*  = NO_UNIT */)
 #endif
@@ -847,13 +848,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				return;
 		}
 	}
+	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+
+	if (!bInterruptWonders && m_pCity->getProductionBuilding() != NO_BUILDING && kPlayer.GetWonderProductionAI()->IsWonder(*GC.getBuildingInfo((BuildingTypes)m_pCity->getProductionBuilding())))
+		return;
+
 	int iBldgLoop, iUnitLoop, iProjectLoop, iProcessLoop, iTempWeight;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
 	UnitTypes eUnitForOperation;
 	UnitTypes eUnitForArmy;
 
-	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+	
 	iTempWeight = 0;
 
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
@@ -1219,6 +1225,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				{
 					UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 					GetCity()->pushOrder(ORDER_TRAIN, eUnitType, eUnitAI, false, true, false, bRush);
+
+					if (pkUnitInfo->IsFound())
+						kPlayer.GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
 				}
 				if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
 				{
@@ -5101,6 +5110,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	// Instant Yields
 	//////////////
 
+
+	if (pkBuildingInfo->GetYieldFromInternalTREnd(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromInternalTREnd(eYield);
+	}
 	if (pkBuildingInfo->GetYieldFromConstruction(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromConstruction(eYield);

@@ -400,7 +400,8 @@ public:
 	bool canRebaseAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool rebase(int iX, int iY);
 
-	bool canPillage(const CvPlot* pPlot) const;
+	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
+	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, int iMovesOverride = 0);
 	bool pillage();
 
 	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
@@ -1543,6 +1544,9 @@ public:
 	int GetScienceBlastStrength() const;
 	void SetScienceBlastStrength(int iValue);
 
+	int GetHurryStrength() const;
+	void SetHurryStrength(int iValue);
+
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
 
@@ -2313,6 +2317,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iHurryStrength;
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
 	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
 	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;

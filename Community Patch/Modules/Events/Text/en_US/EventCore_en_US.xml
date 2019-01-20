@@ -478,10 +478,10 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_PLAYER_EVENT_NOTIFICATION">
-			<Text>[COLOR_POSITIVE_TEXT]Player Event[ENDCOLOR]: </Text>
+			<Text>[COLOR_POSITIVE_TEXT]Player Event[ENDCOLOR]:[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOTIFICATION">
-			<Text>[COLOR_POSITIVE_TEXT]City Event[ENDCOLOR]: </Text>
+			<Text>[COLOR_POSITIVE_TEXT]City Event[ENDCOLOR]:[NEWLINE]</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

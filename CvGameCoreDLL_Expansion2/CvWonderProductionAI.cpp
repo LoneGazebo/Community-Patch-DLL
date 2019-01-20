@@ -218,7 +218,6 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	int iLoop;
 	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-
 		iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
 		if(iEstimatedProductionPerTurn < 1)
 		{
@@ -291,40 +290,6 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 		return NO_BUILDING;
 	}
 }
-
-
-/// Recommend highest-weighted wonder and what city to build it at
-BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWeight, CvCity*& pCityToBuildAt)
-{
-	int iWeight;
-	BuildingTypes eSelection = ChooseWonder(false, iWeight);
-
-	iWonderWeight = iWeight;
-
-	if (eSelection == NO_BUILDING)
-		return eSelection;
-
-	CvCity* pLoopCity;
-	int iLoop;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-	{
-		CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eSelection);
-		if (!pkBuildingInfo)
-			continue;
-
-		if (!pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
-			continue;
-
-		pCityToBuildAt = pLoopCity;
-		break; // todo: find the best city 
-	}
-
-	if (pCityToBuildAt == NULL)
-		return NO_BUILDING;
-
-	return eSelection;
-}
-
 
 /// Log all potential builds
 void CvWonderProductionAI::LogPossibleWonders()

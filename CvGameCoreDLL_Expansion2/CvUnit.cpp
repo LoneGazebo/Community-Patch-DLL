@@ -480,6 +480,7 @@ CvUnit::CvUnit() :
 	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iHurryStrength("CvUnit::m_iHurryStrength", m_syncArchive)
 	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
 	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
 	, m_iGAPBlastStrength("CvUnit::m_iGAPBlastStrength", m_syncArchive)
@@ -1168,6 +1169,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetScienceBlastStrength(getDiscoverAmount());
 	}
+
+	if (getUnitInfo().GetBaseHurry() > 0)
+	{
+		SetHurryStrength(getHurryProduction(plot()));
+	}
 	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
 	{
 		SetCultureBlastStrength(getGivePoliciesCulture());
@@ -1746,6 +1752,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	ClearPathCache();
 
 #if defined(MOD_BALANCE_CORE)
+	m_iHurryStrength = 0;
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
 	m_iGAPBlastStrength = 0;
@@ -2143,6 +2150,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	else
 		SetScienceBlastStrength(getDiscoverAmount());
 
+	if (pUnit->getHurryProduction(plot()) > getHurryProduction(plot()))
+		SetHurryStrength(pUnit->getHurryProduction(plot()));
+	else
+		SetHurryStrength(getHurryProduction(plot()));
+
 	if (pUnit->getGivePoliciesCulture() > getGivePoliciesCulture())
 		SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
 	else
@@ -2370,18 +2382,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			{
 				iEra = 1;
 			}
+			int iCivValue = 0;
 			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
 			{
 				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
 				{
 					if(IsGreatPerson())
-					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
-					}
+						iCivValue = 3 * iEra;
 					else
-					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (1 * iEra));
-					}
+						iCivValue = iEra;
 				}
 			}
 			else if (IsCivilianUnit() && pPlot && pPlot->isCity() && GetOriginalOwner() == getOwner())
@@ -2390,10 +2399,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				{
 					if(IsGreatPerson())
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (2 * iEra));
+						iCivValue = 2 * iEra;
 					}
 				}
 			}
+
+			if (GC.getGame().getGameTurn() <= 100)
+				iCivValue *= 10;
+
+			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCivValue /= 100;
+
+			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)
@@ -9197,9 +9214,31 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 	{
 		return false;
 	}
+	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
+	// update garrison status for old and new city, if applicable
+	if (pkPrevGarrisonedCity)
+	{
+		//when moving out, another unit might be present to take over garrison duty
+		pkPrevGarrisonedCity->SetGarrison(pkPrevGarrisonedCity->plot()->getBestGarrison(pkPrevGarrisonedCity->getOwner()));
+		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
+		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+		pkPrevGarrisonedCity->updateYield();
+	}
 
 	setXY(iX, iY);
 	finishMoves();
+
+	CvCity* pkNewGarrisonedCity = GetGarrisonedCity();
+	// update garrison status for old and new city, if applicable
+	if (pkNewGarrisonedCity)
+	{
+		//when moving out, another unit might be present to take over garrison duty
+		pkNewGarrisonedCity->SetGarrison(pkNewGarrisonedCity->plot()->getBestGarrison(pkNewGarrisonedCity->getOwner()));
+		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+		pkNewGarrisonedCity->updateYield();
+	}
+
 	return true;
 }
 
@@ -10213,7 +10252,7 @@ bool CvUnit::rebase(int iX, int iY)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canPillage(const CvPlot* pPlot) const
+bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 {
 	VALIDATE_OBJECT
 	if(isEmbarked())
@@ -10226,6 +10265,9 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
+	if (getMoves() <= iMovesOverride && !hasFreePillageMove())
+		return false;
+
 	if(pPlot->getOwner() == getOwner())
 		return false;
 
@@ -10358,7 +10400,45 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	return true;
 }
 
+bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOverride)
+{
+	if (!canPillage(pPlot, iMovesOverride))
+		return false;
 
+	if (hasFreePillageMove() && pPlot->GetAdjacentCity() != NULL)
+		return true;
+
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+
+	// Citadel here?
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+
+		if (iDamage != 0 && pPlot->getOwner() != NO_PLAYER && GET_TEAM(getTeam()).isAtWar(pPlot->getTeam()))
+			return true;
+	}
+
+	CvCity* pOriginCity = getOriginCity();
+	if (pOriginCity)
+	{
+		bool bWater = pPlot->isWater();
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (bWater ? pOriginCity->GetYieldFromPillageWater(eYield) <= 0 : pOriginCity->GetYieldFromPillage(eYield) <= 0)
+				continue;
+
+			return true;
+		}
+	}
+
+	if (bConservative)
+		return getDamage() > GC.getPILLAGE_HEAL_AMOUNT();
+
+
+	return getDamage() > 0;
+}
 //	--------------------------------------------------------------------------------
 bool CvUnit::pillage()
 {
@@ -10411,8 +10491,11 @@ bool CvUnit::pillage()
 
 				if (pPlot->getResourceType(getTeam()) != NO_RESOURCE || pkImprovement->IsCreatedByGreatPerson())
 				{
-					if (pPlot->getTeam() != NO_TEAM && !GET_TEAM(pPlot->getTeam()).isMinorCiv())
-						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+					CvCity* pOriginCity = getOriginCity();
+					if (pOriginCity == NULL)
+						pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
+
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
 				}
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
@@ -11982,25 +12065,23 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 //	--------------------------------------------------------------------------------
 int CvUnit::getHurryProduction(const CvPlot* pPlot) const
 {
-	CvCity* pCity;
-	int iProduction;
-
-	pCity = pPlot->getPlotCity();
+	CvCity* pCity = GET_PLAYER(getOwner()).getCity(m_iOriginCity);
+	
+	if (pCity == NULL)
+		pCity = pPlot->getOwningCity();
 
 	if(pCity == NULL)
 	{
 		return 0;
 	}
 
-	iProduction = getMaxHurryProduction(pCity);
+	int iProduction = getMaxHurryProduction(pCity);
 
 	if (GET_PLAYER(getOwner()).GetGreatEngineerHurryMod() != 0)
 	{
 		iProduction += (iProduction * GET_PLAYER(getOwner()).GetGreatEngineerHurryMod()) / 100;
 		iProduction = MAX(iProduction, 0); // Cannot be negative
 	}
-
-	iProduction = std::min(pCity->productionLeft(), iProduction);
 
 	return std::max(0, iProduction);
 }
@@ -12014,14 +12095,12 @@ bool CvUnit::canHurry(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	CvCity* pCity;
-
-	if(getHurryProduction(pPlot) == 0)
+	if(GetHurryStrength() == 0)
 	{
 		return false;
 	}
 
-	pCity = pPlot->getPlotCity();
+	CvCity* pCity = pPlot->getPlotCity();
 
 	if(pCity == NULL)
 	{
@@ -12075,9 +12154,13 @@ bool CvUnit::hurry()
 
 	pCity = pPlot->getPlotCity();
 
+	int iHurryValue = GetHurryStrength();
+
+	iHurryValue = std::min(pCity->productionLeft(), iHurryValue);
+
 	if(pCity != NULL)
 	{
-		pCity->changeProduction(getHurryProduction(pPlot));
+		pCity->changeProduction(iHurryValue);
 #if defined(MOD_BALANCE_CORE_ENGINEER_HURRY)
 		if(MOD_BALANCE_CORE_ENGINEER_HURRY && pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
 		{
@@ -19804,7 +19887,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
 										}
 #endif
-										else if (!bDoEvade)
+										if (!bDoEvade)
 										{
 											if(pLoopUnit->isEmbarked())
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -25667,6 +25750,18 @@ void CvUnit::SetScienceBlastStrength(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetHurryStrength() const
+{
+	return m_iHurryStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetHurryStrength(int iValue)
+{
+	m_iHurryStrength = iValue;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetCultureBlastStrength() const
 {
 	return m_iCultureBlastStrength;
@@ -30314,25 +30409,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 10);
-	iFlavorOffense += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE") * bWarTimePromotion  ? 2 : 1);
+	int iFlavorOffense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) * bWarTimePromotion ? 2 : 1;
 
-	int iFlavorDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")) / 10);
-	iFlavorDefense += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE") * bWarTimePromotion ? 1 : 2);
-	int iFlavorRanged = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")) / 10);
-	iFlavorRanged += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
-	int iFlavorRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")) / 10);
-	iFlavorRecon += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")) / 10);
-	iFlavorRecon += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON") * bWarTimePromotion ? 1 : 2);
-	iFlavorRecon += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON") * bWarTimePromotion ? 1 : 2);
-	int iFlavorMobile = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")) / 10);
-	iFlavorMobile += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
-	int iFlavorNaval = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")) / 10);
-	iFlavorNaval += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-	int iFlavorAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")) / 10);
-	iFlavorAir += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR"));
-	iFlavorAir += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")) / 10);
-	iFlavorAir += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR"));
+	int iFlavorDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"))) * bWarTimePromotion ? 1 : 2;
+
+	int iFlavorRanged = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")));
+
+	int iFlavorRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")));
+
+	int iFlavorMobile = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")));
+
+	int iFlavorNaval = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")));
+
+	int iFlavorAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")));
+	iFlavorAir += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")));
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())
@@ -30349,7 +30439,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0)
 	{
 		iExtra = iTemp + getExtraCombatPercent();
-		iValue += iExtra + iFlavorOffense;
+		iValue += iExtra + iFlavorOffense + iFlavorDefense;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
@@ -30806,7 +30896,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iValue += iTemp + iExtra + iFlavorOffense;
 	}
 
-	iTemp = pkPromotionInfo->GetMaxHitPointsChange() * 2;
+	iTemp = pkPromotionInfo->GetMaxHitPointsChange() * 4;
 	if (iTemp != 0)
 	{
 		iExtra = getMaxHitPointsChange() * 5;

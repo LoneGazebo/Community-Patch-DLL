@@ -4479,6 +4479,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eTargetPlayer = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
 					if(eTargetPlayer != NO_PLAYER)
 					{
+						//we don't ask them about things that involve themselves!
 						if (eTargetPlayer == eOtherPlayer)
 						{
 							return INT_MAX;
@@ -4499,6 +4500,14 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					{
 						iValue *= 100;
 					}
+				}
+				else if (eProposerDecision == RESOLUTION_DECISION_RELIGION)
+				{
+					//Let's not ask them about religion if it's their faith.
+					ReligionTypes eReligion = (ReligionTypes)pProposal->GetProposerDecision()->GetDecision();
+					if (eReligion != NO_RELIGION)
+						if (eReligion == GET_PLAYER(eOtherPlayer).GetReligions()->GetCurrentReligion())
+							return INT_MAX;
 				}
 			}
 			int iVotesNeeded = 0;
@@ -7445,14 +7454,14 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 
 		// Any extras?
-		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
+		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 0 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
 			int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
 			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), iCurrentNetGoldOfReceivingPlayer + iResourceLoop);
 			iRand /= 2;
-			if(iRand <= 0)
+			if(iRand <= 2)
 			{
-				iRand = 1;
+				iRand = min(iNum, 2);
 			}
 			//Let's try to get their best resource :)
 			int iItemValue = GetResourceValue(eResource, iRand, GC.getGame().GetDealDuration(), false, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);

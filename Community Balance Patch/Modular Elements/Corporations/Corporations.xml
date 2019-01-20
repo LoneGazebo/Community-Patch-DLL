@@ -82,7 +82,7 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
-			<TradeRouteInvulnerable>true</TradeRouteInvulnerable>
+			<TradeRoutesInvulnerable>true</TradeRoutesInvulnerable>
 			<PortraitIndex>28</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>

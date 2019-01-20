@@ -15533,6 +15533,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+
+	bool bNoAdjacent = GC.getImprovementInfo(eFort)->IsNoTwoAdjacent();
 	
 	if((eFort == NO_IMPROVEMENT) || (eCitadel == NO_IMPROVEMENT))
 		return 0;
@@ -15561,7 +15563,10 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			{
 				iAdjacentWeOwn++;
 				//don't build other defenses near citadels (next to forts is ok)
-				if(pLoopAdjacentPlot->getImprovementType() == eCitadel)
+				if (pLoopAdjacentPlot->getImprovementType() == eCitadel)
+					return 0;
+				//special rule for CP - since we don't force adjacency penalty, let's make the AI behave that way.
+				else if (!bNoAdjacent && pLoopAdjacentPlot->getImprovementType() == eFort)
 					return 0;
 			}
 			if(pLoopAdjacentPlot->isCity())

@@ -222,6 +222,7 @@ CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bInterruptWonders(false),
 #if defined(MOD_BALANCE_CORE)
 	m_bInterruptBuildings(false),
+	m_bChooseNewWonder(false),
 #endif
 	m_eNextSpecializationDesired(NO_CITY_SPECIALIZATION),
 	m_eNextWonderDesired(NO_BUILDING),
@@ -258,6 +259,7 @@ void CvCitySpecializationAI::Reset()
 	m_bInterruptWonders = false;
 #if defined(MOD_BALANCE_CORE)
 	m_bInterruptBuildings = false;
+	m_bChooseNewWonder = false;
 #endif
 	m_eNextSpecializationDesired = NO_CITY_SPECIALIZATION;
 	m_eNextWonderDesired = NO_BUILDING;
@@ -280,6 +282,7 @@ void CvCitySpecializationAI::Read(FDataStream& kStream)
 	kStream >> m_bInterruptWonders;
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_bInterruptBuildings;
+	kStream >> m_bChooseNewWonder;
 #endif
 	kStream >> m_eNextSpecializationDesired;
 	kStream >> (int&)m_eNextWonderDesired;
@@ -309,6 +312,7 @@ void CvCitySpecializationAI::Write(FDataStream& kStream) const
 	kStream << m_bInterruptWonders;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bInterruptBuildings;
+	kStream << m_bChooseNewWonder;
 #endif
 	kStream << m_eNextSpecializationDesired;
 	kStream << m_eNextWonderDesired;
@@ -369,15 +373,23 @@ void CvCitySpecializationAI::DoTurn()
 			break;
 		}
 	}
+	if (m_bChooseNewWonder)
+	{
+		BuildingTypes eOldWonder = m_eNextWonderDesired;
+		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
+
+		if (eOldWonder != m_eNextWonderDesired)
+		{
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
+			if (pkBuildingInfo)
+				LogMsg(CvString("Next desired wonder is ") + pkBuildingInfo->GetDescription());
+		}
+
+		m_bChooseNewWonder = false;
+	}
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{
-		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
-
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
-		if(pkBuildingInfo)
-			LogMsg( CvString("Next desired wonder is ") + pkBuildingInfo->GetDescription() );
-
 		WeightSpecializations();
 		AssignSpecializations();
 		m_bSpecializationsDirty = false;
@@ -437,6 +449,10 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 			m_bInterruptWonders = true;
 #endif
 			break;
+		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL:
+			m_bChooseNewWonder = true;
+			break;
+
 		default:
 			// Don't set it to false for these other cases!
 			// We shouldn't set it to false until after the next time we've picked specializations.
@@ -454,6 +470,20 @@ CvCity* CvCitySpecializationAI::GetWonderBuildCity() const
 	if(m_iWonderCityID != -1)
 	{
 		pRtnValue = m_pPlayer->getCity(m_iWonderCityID);
+	}
+	else
+	{
+		int iLoop;
+		CvCity* pLoopCity;
+		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			BuildingTypes eCurrentBuilding = pLoopCity->getProductionBuilding();
+			//alright, we found a city with the wonder we want.
+			if (m_eNextWonderDesired != NO_BUILDING && eCurrentBuilding != NO_BUILDING && eCurrentBuilding == m_eNextWonderDesired)
+			{
+				return pLoopCity;
+			}
+		}
 	}
 	return pRtnValue;
 }
@@ -1379,37 +1409,21 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 	CvCity* pBestCity = NULL;
 	CvCity* pLoopCity;
 	int iLoop;
-	int iBestProduction = 0;
-	int iProduction;
 
 	if (m_eNextWonderDesired != NO_BUILDING)
 	{
 		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			if (!pLoopCity->IsPuppet())
-			{
-				if (pLoopCity->canConstruct(m_eNextWonderDesired))
-				{
-					iProduction = pLoopCity->getCurrentProductionDifference(true, false);
-					if (pLoopCity->GetCityStrategyAI()->GetDefaultSpecialization() == GetWonderSpecialization())
-					{
-						iProduction = (iProduction * 3) / 2;
-					}
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
+			if (!pkBuildingInfo)
+				continue;
 
-					// factor in Marble, etc.
-					iProduction = (iProduction * (100 + pLoopCity->GetWonderProductionModifier())) / 100;
-
-					if (iProduction > iBestProduction)
-					{
-						pBestCity = pLoopCity;
-						iBestProduction = iProduction;
-					}
-				}
-			}
+			if (pLoopCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+				return pBestCity;
 		}
 	}
 
-	return pBestCity;
+	return NULL;
 }
 
 /// Find the best nearby city site for all yield types
@@ -2173,7 +2187,7 @@ void CvCitySpecializationAI::LogSpecializationUpdate(CitySpecializationUpdateTyp
 			strTypeString = "Update: Tech research complete";
 			break;
 		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL:
-			strTypeString = "Update: wonder built by rival, WONDER";
+			strTypeString = "Update: wonder unlocked or built by rival, WONDER";
 		}
 		LogMsg( strTypeString );
 	}

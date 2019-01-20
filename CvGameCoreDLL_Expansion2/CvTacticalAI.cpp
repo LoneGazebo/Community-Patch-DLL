@@ -1249,7 +1249,8 @@ void CvTacticalAI::FindTacticalTargets()
 					}
 
 					// On land, civs prioritize improvements built on resources
-					if (eRUT == RESOURCEUSAGE_STRATEGIC || eRUT == RESOURCEUSAGE_LUXURY || pLoopPlot->isWater() || m_pPlayer->isBarbarian())
+					//warmongers want to burn it all!
+					if (eRUT == RESOURCEUSAGE_STRATEGIC || eRUT == RESOURCEUSAGE_LUXURY || pLoopPlot->isWater() || m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
 					{
 						// Barbarians can't target naval improvements
 						if (m_pPlayer->isBarbarian() && pLoopPlot->isWater())
@@ -1402,9 +1403,16 @@ void CvTacticalAI::FindTacticalTargets()
 						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>2)
 							continue;
 
-						int iWeight = (iDistance>1) ? 10 : 0;
+						int iWeight = (iDistance>1) ? 10 : 1;
+
+						int iOurDistance = 1000 - m_pPlayer->GetCityDistanceInPlots(pLoopPlot);
+						if (iOurDistance <= 0)
+							iOurDistance = 1;
+
+						iWeight += iOurDistance;
+
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							iWeight += 10;
+							iWeight *= 2;
 
 						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
 							iWeight *= 2;
@@ -1477,7 +1485,7 @@ void CvTacticalAI::PrioritizeNavalTargetsAndAddToMainList()
 		CvPlot* pPlot = GC.getMap().plot(m_NavalTargets[iI].GetTargetX(), m_NavalTargets[iI].GetTargetY());
 		if (pPlot != NULL)
 		{
-			if (pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+			if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 			{
 				newTarget.SetTargetType(AI_TACTICAL_TARGET_BLOCKADE_POINT);
 				newTarget.SetTargetX(pPlot->getX());
@@ -2600,62 +2608,111 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
+		CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+
+		if (pZone)
+		{
+			if (pZone->IsNavalInvasion() || pZone->IsWater())
+				iMinDamage = 0;
+			else if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+				iMinDamage /= 2;
+		}
+
 		// Don't do it if an enemy unit became visible in the meantime
 		if (pPlot->getVisibleEnemyDefender(m_pPlayer->GetID()) != NULL)
 			continue;
 		if (eTarget != AI_TACTICAL_TARGET_CITADEL && m_pPlayer->isEnemyCombatUnitAdjacent(pPlot,true))
 			continue;
 
-		//no targeted pillage on water (opportunistic pillage is handled elsewhere)
-		if (pPlot->isWater())
-			continue;
-
-		// try paratroopers first, not because they are more effective, just because it looks cooler...
-		if (bImmediate && pPlot->isVisible(m_pPlayer->getTeam()) && FindParatroopersWithinStrikingDistance(pPlot))
+		//land first
+		if (!pPlot->isWater())
 		{
-			// Queue best one up to capture it
-			ExecuteParadropPillage(pPlot);
-
-			if(GC.getLogging() && GC.getAILogging())
+			// try paratroopers first, not because they are more effective, just because it looks cooler...
+			if (bImmediate && pPlot->isVisible(m_pPlayer->getTeam()) && FindParatroopersWithinStrikingDistance(pPlot))
 			{
-				CvString strLogString;
-				strLogString.Format("Paratrooping in to pillage %s, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
-				LogTacticalMessage(strLogString);
-			}
-
-		}
-		else if (bImmediate && FindUnitsCloseToPlot(pPlot,0,GC.getMAX_HIT_POINTS()/3,GC.getMAX_HIT_POINTS()-iMinDamage,DOMAIN_LAND,true,true))
-		{
-			// Queue best one up to capture it
-			ExecutePillage(pPlot);
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Pillaging %s, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
-				LogTacticalMessage(strLogString);
-			}
-		}
-		else if (!bImmediate && FindUnitsCloseToPlot(pPlot,2,GC.getMAX_HIT_POINTS()/3,GC.getMAX_HIT_POINTS()-iMinDamage,DOMAIN_LAND,true,true))
-		{
-			//be careful when sending out single units ...
-			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
-			if (!pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-				continue;
-
-			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
-			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
-			{
-				ExecuteMoveToPlot(pUnit, pPlot, false, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+				// Queue best one up to capture it
+				ExecuteParadropPillage(pPlot);
 
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Moving toward %s for pillage, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
+					strLogString.Format("Paratrooping in to pillage %s, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
 					LogTacticalMessage(strLogString);
 				}
 
-				UnitProcessed(pUnit->GetID());
+			}
+			else if (bImmediate && FindUnitsCloseToPlot(pPlot, 0, GC.getMAX_HIT_POINTS() / 5, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_LAND, true, true))
+			{
+				// Queue best one up to capture it
+				if (ExecutePillage(pPlot))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Pillaging %s, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
+						LogTacticalMessage(strLogString);
+					}
+				}
+			}
+			else if (!bImmediate && FindUnitsCloseToPlot(pPlot, 2, GC.getMAX_HIT_POINTS() / 5, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_LAND, true, true))
+			{
+				//be careful when sending out single units ...
+				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+				if (!pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					continue;
+
+				CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+				if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+				{
+					ExecuteMoveToPlot(pUnit, pPlot, false, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving toward %s for pillage, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
+						LogTacticalMessage(strLogString);
+					}
+
+					UnitProcessed(pUnit->GetID());
+				}
+			}
+		}
+		else
+		{
+			if (bImmediate && FindUnitsCloseToPlot(pPlot, 0, GC.getMAX_HIT_POINTS() / 5, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_SEA, true, true))
+			{
+				// Queue best one up to capture it
+				if (ExecutePillage(pPlot))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("SEA Pillaging %s, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
+						LogTacticalMessage(strLogString);
+					}
+				}
+			}
+			else if (!bImmediate && FindUnitsCloseToPlot(pPlot, 2, GC.getMAX_HIT_POINTS() / 5, GC.getMAX_HIT_POINTS() - iMinDamage, DOMAIN_SEA, true, true))
+			{
+				//be careful when sending out single units ...
+				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+				if (!pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+					continue;
+
+				CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+				if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+				{
+					ExecuteMoveToPlot(pUnit, pPlot, false, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving toward %s for SEA pillage, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
+						LogTacticalMessage(strLogString);
+					}
+
+					UnitProcessed(pUnit->GetID());
+				}
 			}
 		}
 	}
@@ -2677,7 +2734,17 @@ void CvTacticalAI::PlotPlunderTradePlotMoves (DomainTypes eDomain)
 			if(pUnit)
 			{
 				ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_NO_EMBARK);
-				if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+				if (pUnit->canPlunderTradeRoute(pUnit->plot()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_PLUNDER_TRADE_ROUTE());
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Plunded during a park plunder mission with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+						LogTacticalMessage(strMsg, false);
+					}
+				}
+				if (pUnit->shouldPillage(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 					if(GC.getLogging() && GC.getAILogging())
@@ -2705,7 +2772,7 @@ void CvTacticalAI::PlotBlockadeMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if(FindUnitsCloseToPlot(pPlot, 4, 10, 100, DOMAIN_SEA, false, true))
+		if (FindUnitsCloseToPlot(pPlot, 4, 10, 100, DOMAIN_SEA, pPlot->getImprovementType() != NO_IMPROVEMENT, true))
 		{
 			// Queue best one up to capture it
 			ExecuteNavalBlockadeMove(pPlot);
@@ -3534,7 +3601,7 @@ void CvTacticalAI::PlotWithdrawMoves()
 			// Am I in the current dominance zone?
 			// Units in other dominance zones need to fend for themselves, depending on their own posture
 			CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-			if(pUnitZone == pZone)
+			if (pUnitZone == pZone || pUnit->getTacticalMove() == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_HEAL])
 			{
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -5635,7 +5702,7 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 }
 
 /// Pillage an undefended improvement
-void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
+bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 {
 	// Move first one to target
 	CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
@@ -5645,9 +5712,13 @@ void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 
 		//now that the neighbor plots are revealed, maybe it's better to retreat?
 		CvPlot* pSafePlot = NULL;
-		if (!IsEnemyCitadel(pTargetPlot,m_pPlayer->getTeam()) && pUnit->getMoves() <= GC.getMOVE_DENOMINATOR())
+		if (!IsEnemyCitadel(pUnit->plot(), m_pPlayer->getTeam()) && !pUnit->shouldPillage(pUnit->plot()))
 		{
-			if (pUnit->GetDanger() > pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT())
+			int iVal = pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT();
+			if (pUnit->IsGainsXPFromPillaging())
+				iVal += GC.getPILLAGE_HEAL_AMOUNT();
+
+			if ((pUnit->GetDanger() > iVal) && !pUnit->hasFreePillageMove())
 				pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true, false, false);
 		}
 
@@ -5658,6 +5729,8 @@ void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 
 		if (!pUnit->canMove())
 			UnitProcessed(pUnit->GetID());
+
+		return pSafePlot == NULL;
 	}
 }
 
@@ -6304,9 +6377,17 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					if (pBestPlot != NULL)
 					{
 						//pillage before retreat, if we have movement points to spare
-						if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR())
-							if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
-								pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strMsg;
+								strMsg.Format("Safest plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+									m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+								LogTacticalMessage(strMsg);
+							}
+						}
 
 						//try to do some damage if we have movement points to spare
 						if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike() && pUnit->canMoveAfterAttacking())
@@ -6321,8 +6402,17 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 							TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true);
 
 						//pillage after retreat, if we have movement points to spare
-						if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+						if (pUnit->shouldPillage(pUnit->plot()))
+						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strMsg;
+								strMsg.Format("Safest plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+									m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+								LogTacticalMessage(strMsg);
+							}
+						}
 					}
 				}
 			}
@@ -6433,8 +6523,17 @@ void CvTacticalAI::ExecuteHeals()
 		if (pUnit->getDomainType() == DOMAIN_LAND)
 		{
 			//why not pillage some tiles?
-			if (pUnit->canPillage(pUnit->plot()))
+			if (pUnit->shouldPillage(pUnit->plot()))
+			{
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						pUnit->plot()->getX(), pUnit->plot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
 
 			//land unit on land should move away from danger
 			if (pUnit->GetDanger() > 0 && !pUnit->isEmbarked() && !pUnit->IsGarrisoned())
@@ -6471,6 +6570,21 @@ void CvTacticalAI::ExecuteHeals()
 						LogTacticalMessage(strLogString);
 					}
 				}
+				else
+				{
+					//why not pillage some tiles?
+					if (pUnit->shouldPillage(pUnit->plot()))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+								pUnit->plot()->getX(), pUnit->plot()->getY());
+							LogTacticalMessage(strMsg);
+						}
+					}
+				}
 
 				pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
 			}
@@ -6498,17 +6612,27 @@ void CvTacticalAI::ExecuteHeals()
 		}
 
 		//why not pillage more tiles?
-		if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
+		if (pUnit->shouldPillage(pUnit->plot()))
+		{
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+			
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+					pUnit->plot()->getX(), pUnit->plot()->getY());
+				LogTacticalMessage(strMsg);
+			}
+		}
+
+		pUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_HEAL]);
 
 		//finish this up
 		if (pUnit->canHeal(pUnit->plot()))
+		{
 			pUnit->PushMission(CvTypes::getMISSION_HEAL());
-		else
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-
-		pUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_HEAL]);
-		UnitProcessed( *it );
+			UnitProcessed(*it);
+		}
 	}
 
 	//erase the zombies
@@ -6559,7 +6683,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(pUnit->getMoves() > 0 && pUnit->canPillage(pUnit->plot()))
+						if(pUnit->shouldPillage(pUnit->plot()))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 							if(GC.getLogging() && GC.getAILogging())
@@ -6917,9 +7041,18 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,NULL,true))
 		{
 			//pillage if it makes sense and we have movement points to spare
-			if (pUnit->GetMovementPointsAtCachedTarget() >= GC.getMOVE_DENOMINATOR() && pUnit->canPillage(pUnit->plot()))
-				if (pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT() || IsEnemyCitadel(pUnit->plot(), pUnit->getTeam()))
-					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+			if (pUnit->shouldPillage(pUnit->plot(), true, pUnit->GetMovementPointsAtCachedTarget()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Move to Plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						pUnit->plot()->getX(), pUnit->plot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
 
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 
@@ -7010,29 +7143,72 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if (pUnit && pUnit->canMove())
+		if (pUnit)
 		{
-			TacticalAIHelpers::PerformOpportunityAttack(pUnit,true);
-			if (!pUnit->canMove())
-				continue;
-
-			//not too far away
-			if (pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 3)>2)
-				continue;
-
-			//safety check
-			if (pUnit->GetDanger(pTarget) > pUnit->GetCurrHitPoints())
-				continue;
-			if (pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot()) > pUnit->GetCurrHitPoints())
-				continue;
-
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-
-			if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
+			if (pUnit->shouldPillage(pUnit->plot()))
+			{
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						pUnit->plot()->getX(), pUnit->plot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
+
+			if (pUnit->canMove())
+			{
+				TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+				if (pUnit->canMove())
+				{
+					//not too far away
+					if (pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 3) <= 2)
+					{
+						//safety check
+						if (pUnit->GetDanger(pTarget) <= pUnit->GetCurrHitPoints())
+						{
+							if (pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot()) <= pUnit->GetCurrHitPoints())
+							{
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+							}
+						}
+					}
+				}
+			}
+
+			if (pUnit->shouldPillage(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						pUnit->plot()->getX(), pUnit->plot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
+			else
+			{
+				CvPlot* pNewTarget = FindNearbyTarget(pUnit, 5, AI_TACTICAL_TARGET_BLOCKADE_POINT);
+				if (pNewTarget)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pNewTarget->getX(), pNewTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+					if (pUnit->shouldPillage(pUnit->plot()))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+								pUnit->plot()->getX(), pUnit->plot()->getY());
+							LogTacticalMessage(strMsg);
+						}
+					}
+				}
+			}
 
 			UnitProcessed(pUnit->GetID());
-			return;
 		}
 	}
 }
@@ -7828,11 +8004,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 		{
 			if (bMustPillage)
 			{
-				if (!pLoopUnit->canPillage(pTarget))
-					continue;
-
-				//these units are too fragile
-				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+				if (!pLoopUnit->shouldPillage(pTarget))
 					continue;
 			}
 
@@ -7840,7 +8012,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
 			{
 				if (bMustPillage || !bAllowMoveThroughEnemyLand)
-				continue;
+					continue;
 			}
 
 			if (pLoopUnit->IsGarrisoned())
@@ -8987,9 +9159,9 @@ void CvTacticalAI::PerformChosenMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_ChosenBlocks[iI].GetUnitID());
 
-		if(!pUnit->isDelayedDeath() && pUnit->canMove())
+		if(!pUnit->isDelayedDeath())
 		{
-			if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+			if (pUnit->shouldPillage(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 				if(GC.getLogging() && GC.getAILogging())
@@ -9000,39 +9172,42 @@ void CvTacticalAI::PerformChosenMoves()
 					LogTacticalMessage(strMsg);
 				}
 			}
-			//check neighboring plots if we can steal a civilian
-			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(pUnit->plot());
-			for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+			if (pUnit->canMove())
 			{
-				const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-				if (pNeighborPlot && !pNeighborPlot->isCity())
+				//check neighboring plots if we can steal a civilian
+				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(pUnit->plot());
+				for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 				{
-					CvUnit* pUnit2 = pNeighborPlot->getUnitByIndex(0);
-					if(pUnit2 && pUnit2->IsCivilianUnit() && GET_TEAM(pUnit2->getTeam()).isAtWar(pUnit->getTeam()))
+					const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+					if (pNeighborPlot && !pNeighborPlot->isCity())
 					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighborPlot->getX(), pNeighborPlot->getY());
-						if(GC.getLogging() && GC.getAILogging())
+						CvUnit* pUnit2 = pNeighborPlot->getUnitByIndex(0);
+						if (pUnit2 && pUnit2->IsCivilianUnit() && GET_TEAM(pUnit2->getTeam()).isAtWar(pUnit->getTeam()))
 						{
-							CvString strMsg;
-							strMsg.Format("Already in position at %d, %d, but %s found an enemy civilan to capture at X: %d, Y: %d", 
-								m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(), pUnit->getName().GetCString(), pNeighborPlot->getX(), pNeighborPlot->getY() );
-							LogTacticalMessage(strMsg);
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighborPlot->getX(), pNeighborPlot->getY());
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strMsg;
+								strMsg.Format("Already in position at %d, %d, but %s found an enemy civilan to capture at X: %d, Y: %d",
+									m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(), pUnit->getName().GetCString(), pNeighborPlot->getX(), pNeighborPlot->getY());
+								LogTacticalMessage(strMsg);
+							}
+							break;
 						}
-						break;
 					}
 				}
-			}
 
-			//see if we can hit an enemy
-			TacticalAIHelpers::PerformOpportunityAttack(pUnit,true);
+				//see if we can hit an enemy
+				TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
 
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("%s %d is in position, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->GetID(),
-					m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-				LogTacticalMessage(strMsg);
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("%s %d is in position, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->GetID(),
+						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+					LogTacticalMessage(strMsg);
+				}
 			}
 		}
 
@@ -10224,9 +10399,18 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		if (pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
 			continue;
 
+		bool bPillage = (pUnit->shouldPillage(pPlot, false, it->iMovesLeft));
 		//don't check movement, don't need to heal right now
-		if (!pUnit->canHeal(pPlot, false, true))
-			continue;
+		if (pUnit->getDomainType() == DOMAIN_LAND)
+		{
+			if (!pUnit->canHeal(pPlot, false, true))
+				continue;
+		}
+		else
+		{
+			if (!bPillage && !pUnit->canHeal(pPlot, false, true))
+				continue;
+		}
 
 		//can we stay there?
 		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -10240,12 +10424,13 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 				continue;
 		}
 
-		bool bPillage = (it->iMovesLeft > 0 && pUnit->canPillage(pPlot));
 		int iDanger = pUnit->GetDanger(pPlot);
 		if (bPillage)
+		{
 			iDanger = max(0, iDanger - GC.getPILLAGE_HEAL_AMOUNT());
+		}
 
-		if (iDanger < pUnit->healRate(pPlot))
+		if (iDanger <= pUnit->healRate(pPlot) || (bPillage && pUnit->getDomainType() == DOMAIN_SEA))
 		{
 			int iScore = pUnit->healRate(pPlot) - pUnit->GetDanger(pPlot) / 5;
 			//higher distance = bad
@@ -10599,7 +10784,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		CvCity* pEnemy = pTestPlot->getPlotCity();
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(
 			pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
-		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot);
+		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
 
 		//city blockaded? not 100% accurate, but anyway
@@ -10919,7 +11104,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			if (plot.iPlotIndex == unit.iPlotIndex)
 			{
 				//would it make sense to pillage here?
-				if (plot.iMovesLeft>0 && pUnit->canPillage(pCurrentPlot) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
+				if (pUnit->shouldPillage(pCurrentPlot, false, plot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
 				{
 					//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
 					if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
@@ -10934,7 +11119,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 						}
 					}
 					//if it's an improvement we pillage to heal if we have moves to spare
-					else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && plot.iMovesLeft > 0 && pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
+					else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && (plot.iMovesLeft > 0 || pUnit->hasFreePillageMove()))
 					{
 						iMiscScore += 20;
 						if (pUnit->IsGainsXPFromPillaging())

@@ -840,7 +840,7 @@ private:
 
 	// Routines to execute a mission
 	void ExecuteBarbarianCampMove(CvPlot* pTargetPlot);
-	void ExecutePillage(CvPlot* pTargetPlot);
+	bool ExecutePillage(CvPlot* pTargetPlot);
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
