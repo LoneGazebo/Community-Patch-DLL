@@ -26974,31 +26974,25 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot = NULL;
-
-	const int iMaxRange = getBuyPlotDistance();
 	int iBestScore = -1;
-	int iDX, iDY;
 
-	for(iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	vector<CvPlot*> validChoices;
+	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
-		for(iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+		if (!pLoopPlot)
+			continue;
+
+		// Can we actually buy this plot?
+		if (!CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY(), true))
+			continue;
+
+		int iTempScore = GetIndividualPlotScore(pLoopPlot);
+		if(iTempScore > iBestScore)
 		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
-			if(pLoopPlot != NULL)
-			{
-				// Can we actually buy this plot?
-				if(CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY(), true))
-				{
-					int iTempScore = GetIndividualPlotScore(pLoopPlot);
-					if(iTempScore > iBestScore)
-					{
-						iBestScore = iTempScore;
-						iBestX = pLoopPlot->getX();
-						iBestY = pLoopPlot->getY();
-					}
-				}
-			}
+			iBestScore = iTempScore;
+			iBestX = pLoopPlot->getX();
+			iBestY = pLoopPlot->getY();
 		}
 	}
 
@@ -27011,7 +27005,6 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	int iRtnValue = 0;
-
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 	{

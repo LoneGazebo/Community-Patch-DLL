@@ -19300,14 +19300,13 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 #endif
 #if defined(MOD_BALANCE_CORE)
 	//Bonus resource in a city every time you win a battle. (Rome UB)
-	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
+	if (MOD_BALANCE_CORE && pAttackingUnit != NULL && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
-		bool bSea = false; 
-		if(pDefendingUnit->getDomainType() == DOMAIN_SEA)
-		{
-			bSea = true;
-		}
-		doInstantYield(INSTANT_YIELD_TYPE_VICTORY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, bSea);
+		CvCity* pOriginCity = pAttackingUnit->getOriginCity();
+		if (pOriginCity == NULL)
+			pOriginCity = getCapitalCity();
+
+		doInstantYield(INSTANT_YIELD_TYPE_VICTORY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pDefendingUnit->getDomainType() == DOMAIN_SEA);
 	}
 #endif
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)

@@ -723,12 +723,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iDefense += 25;
 		}
 	}
-	//if (m_pCity->IsBastion() || iCrime > 0)
-	//{
-	//	iDefense *= 15;
-	//}
-	int iDefenseMod = 1;
-	if (m_pCity->IsBastion()) 
+	int iDefenseMod = 100;
+	if (m_pCity->IsBastion())
+	{
+		if (kPlayer.IsAtWarAnyMajor())
+			iDefenseMod += 50;
+		else
+			iDefenseMod += 25;
+	}
+	else if (kPlayer.IsAtWarAnyMajor())
 		iDefenseMod += 25;
 
 	if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling() || m_pCity->IsPuppet())

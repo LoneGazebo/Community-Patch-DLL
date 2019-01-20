@@ -1795,7 +1795,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	}
 	
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = max(1, (iFlavorDiplo * 2 - 5));
+	int iDesiredEmb = max(1, ((iFlavorDiplo * 2) - 3));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if(iDesiredEmb > iNumMinors)
 	{

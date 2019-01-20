@@ -8128,8 +8128,8 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 						}
 					}
 #endif
-						
 					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pCapital->getX(), pCapital->getY());
+					pCapital->addProductionExperience(pUnit);
 					pUnit->jumpToNearestValidPlot();
 				}
 			}

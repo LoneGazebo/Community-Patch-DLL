@@ -2382,18 +2382,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			{
 				iEra = 1;
 			}
+			int iCivValue = 0;
 			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
 			{
 				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
 				{
 					if(IsGreatPerson())
-					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
-					}
+						iCivValue = 3 * iEra;
 					else
-					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (1 * iEra));
-					}
+						iCivValue = iEra;
 				}
 			}
 			else if (IsCivilianUnit() && pPlot && pPlot->isCity() && GetOriginalOwner() == getOwner())
@@ -2402,10 +2399,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				{
 					if(IsGreatPerson())
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (2 * iEra));
+						iCivValue = 2 * iEra;
 					}
 				}
 			}
+
+			if (GC.getGame().getGameTurn() <= 100)
+				iCivValue *= 10;
+
+			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCivValue /= 100;
+
+			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)
@@ -9209,9 +9214,31 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 	{
 		return false;
 	}
+	CvCity* pkPrevGarrisonedCity = GetGarrisonedCity();
+	// update garrison status for old and new city, if applicable
+	if (pkPrevGarrisonedCity)
+	{
+		//when moving out, another unit might be present to take over garrison duty
+		pkPrevGarrisonedCity->SetGarrison(pkPrevGarrisonedCity->plot()->getBestGarrison(pkPrevGarrisonedCity->getOwner()));
+		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
+		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+		pkPrevGarrisonedCity->updateYield();
+	}
 
 	setXY(iX, iY);
 	finishMoves();
+
+	CvCity* pkNewGarrisonedCity = GetGarrisonedCity();
+	// update garrison status for old and new city, if applicable
+	if (pkNewGarrisonedCity)
+	{
+		//when moving out, another unit might be present to take over garrison duty
+		pkNewGarrisonedCity->SetGarrison(pkNewGarrisonedCity->plot()->getBestGarrison(pkNewGarrisonedCity->getOwner()));
+		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
+		pkNewGarrisonedCity->updateYield();
+	}
+
 	return true;
 }
 
@@ -10225,7 +10252,7 @@ bool CvUnit::rebase(int iX, int iY)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canPillage(const CvPlot* pPlot) const
+bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 {
 	VALIDATE_OBJECT
 	if(isEmbarked())
@@ -10238,6 +10265,9 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
+	if (getMoves() <= iMovesOverride && !hasFreePillageMove())
+		return false;
+
 	if(pPlot->getOwner() == getOwner())
 		return false;
 
@@ -10370,7 +10400,45 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	return true;
 }
 
+bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOverride)
+{
+	if (!canPillage(pPlot, iMovesOverride))
+		return false;
 
+	if (hasFreePillageMove() && pPlot->GetAdjacentCity() != NULL)
+		return true;
+
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+
+	// Citadel here?
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+
+		if (iDamage != 0 && pPlot->getOwner() != NO_PLAYER && GET_TEAM(getTeam()).isAtWar(pPlot->getTeam()))
+			return true;
+	}
+
+	CvCity* pOriginCity = getOriginCity();
+	if (pOriginCity)
+	{
+		bool bWater = pPlot->isWater();
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (bWater ? pOriginCity->GetYieldFromPillageWater(eYield) <= 0 : pOriginCity->GetYieldFromPillage(eYield) <= 0)
+				continue;
+
+			return true;
+		}
+	}
+
+	if (bConservative)
+		return getDamage() > GC.getPILLAGE_HEAL_AMOUNT();
+
+
+	return getDamage() > 0;
+}
 //	--------------------------------------------------------------------------------
 bool CvUnit::pillage()
 {
@@ -10423,8 +10491,11 @@ bool CvUnit::pillage()
 
 				if (pPlot->getResourceType(getTeam()) != NO_RESOURCE || pkImprovement->IsCreatedByGreatPerson())
 				{
-					if (pPlot->getTeam() != NO_TEAM && !GET_TEAM(pPlot->getTeam()).isMinorCiv())
-						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+					CvCity* pOriginCity = getOriginCity();
+					if (pOriginCity == NULL)
+						pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
+
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
 				}
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
@@ -19816,7 +19887,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
 										}
 #endif
-										else if (!bDoEvade)
+										if (!bDoEvade)
 										{
 											if(pLoopUnit->isEmbarked())
 #if defined(MOD_UNITS_XP_TIMES_100)

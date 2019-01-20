@@ -3368,6 +3368,29 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	for (int iNumPromos = 0; iNumPromos < GC.getNumPromotionInfos(); iNumPromos++)
+	{
+		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitCombatClassInfos(); iNumUnits++)
+		{
+			UnitCombatTypes eUClass = (UnitCombatTypes)iNumUnits;
+			if (HasFreePromotionUnitCombat((PromotionTypes)iNumPromos, eUClass))
+			{
+				m_bIsWarmonger = true;
+				return;
+			}
+		}
+		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitClassInfos(); iNumUnits++)
+		{
+			UnitClassTypes eUClass = (UnitClassTypes)iNumUnits;
+			if (HasFreePromotionUnitClass((PromotionTypes)iNumPromos, eUClass))
+			{
+				m_bIsWarmonger = true;
+				return;
+			}
+		}
+	}
+
+
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
 		DomainTypes eDomain = (DomainTypes)iDomain;
