@@ -1958,6 +1958,20 @@ bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int uni
 
 	return false;
 }
+/// Accessor:: Does the civ have a golden age modifier for the yield type?
+int CvTraitEntry::GetGoldenAgeYieldModifier(const int iYield) const
+{
+	CvAssertMsg(iYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(iYield > -1, "Index out of bounds");
+	
+	std::map<int, int>::const_iterator it = m_piGoldenAgeYieldModifier.find(iYield);
+	if (it != m_piGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
 /// Accessor:: Does the civ grant units the ability to build something?
 bool CvTraitEntry::UnitClassCanBuild(const int buildID, const int unitClassID) const
 {
@@ -1978,6 +1992,20 @@ bool CvTraitEntry::UnitClassCanBuild(const int buildID, const int unitClassID) c
 	}
 
 	return false;
+}
+/// Accessor:: Does the civ have a production cost modifier for the unit combat type? And is it only granted during golden ages?
+std::pair <int, bool> CvTraitEntry::GetUnitCombatProductionCostModifier(const int unitCombatID) const
+{
+	CvAssertMsg(unitCombatID >= 0, "unitCombatID expected to be >= 0");
+	CvAssertMsg(unitCombatID < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
+
+	std::map<int, std::pair<int, bool>>::const_iterator it = m_pibUnitCombatProductionCostModifier.find(unitCombatID);
+	if (it != m_pibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
+	{
+		return it->second;
+	}
+
+	return std::make_pair(0, false);
 }
 
 #endif
@@ -2747,6 +2775,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_FreePromotionUnitClass).swap(m_FreePromotionUnitClass);
 	}
+	//Populate m_piGoldenAgeYieldModifier
+	{
+		std::string sqlKey = "Trait_GoldenAgeYieldModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID, Yield from Trait_GoldenAgeYieldModifiers, Yields where TraitType = ? and YieldType = Yields.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int yieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+
+			m_piGoldenAgeYieldModifier.insert(std::pair<int, int>(yieldID, yield));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piGoldenAgeYieldModifier).swap(m_piGoldenAgeYieldModifier);
+	}
 	//Populate m_BuildsUnitClasses
 	{
 		std::string sqlKey = "BuildsUnitClasses";
@@ -2771,6 +2824,32 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_BuildsUnitClasses).swap(m_BuildsUnitClasses);
+	}
+	//Populate m_pibUnitCombatProductionCostModifier
+	{
+		std::string sqlKey = "Trait_UnitCombatProductionCostModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitCombatInfos.ID as UnitCombatInfosID, CostModifier, IsGoldenAgeOnly from Trait_UnitCombatProductionCostModifiers inner join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iUnitCombat = pResults->GetInt(0);
+			const int iCostModifier = pResults->GetInt(1);
+			const bool bGoldenAgeOnly = pResults->GetBool(2);
+
+			m_pibUnitCombatProductionCostModifier.insert(std::pair<int, std::pair<int, bool>>(iUnitCombat, std::make_pair(iCostModifier, bGoldenAgeOnly)));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::pair<int, bool>>(m_pibUnitCombatProductionCostModifier).swap(m_pibUnitCombatProductionCostModifier);
 	}
 #endif
 
@@ -3401,6 +3480,18 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	for (int iUnitCombat = 0; iUnitCombat < GC.getNumUnitCombatClassInfos(); iUnitCombat++)
+	{
+		UnitCombatTypes eUnitCombat = (UnitCombatTypes)iUnitCombat;
+		if (GetUnitCombatProductionCostModifier(eUnitCombat).first < 0 && GetUnitCombatProductionCostModifier(eUnitCombat).second == false) // If we get a unit production cost reduction outside of golden ages
+		{
+			m_bIsWarmonger = true;
+			return;
+		}
+	}
+#endif
+
 	if (IsReconquista() ||
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
@@ -3419,7 +3510,8 @@ void CvPlayerTraits::SetIsNerd()
 	if (GetGreatScientistRateModifier() != 0 ||
 		GetInvestmentModifier() != 0 ||
 		GetFreePolicyPerXTechs() != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0)
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0 ||
+		GetGoldenAgeYieldModifier(YIELD_SCIENCE) > 0)
 	{
 		m_bIsNerd = true;
 		return;
@@ -3459,7 +3551,8 @@ void CvPlayerTraits::SetIsTourism()
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"))) != 0 ||
-		GetSharedReligionTourismModifier() > 0)
+		GetSharedReligionTourismModifier() > 0 ||
+		GetGoldenAgeYieldModifier(YIELD_TOURISM) > 0)
 	{
 		m_bIsTourism = true;
 		return;
@@ -3600,7 +3693,8 @@ void CvPlayerTraits::SetIsExpansionist()
 		YieldTypes eYield = (YieldTypes)iYield;
 		if (GetYieldFromTilePurchase(eYield) != 0 ||
 			GetYieldFromTileEarn(eYield) != 0 ||
-			GetYieldFromSettle(eYield) != 0)
+			GetYieldFromSettle(eYield) != 0 ||
+			GetGoldenAgeYieldModifier(eYield) != 0)
 		{
 			m_bIsExpansionist = true;
 			return;
@@ -3680,7 +3774,8 @@ void CvPlayerTraits::SetIsReligious()
 		GetYieldChangeWorldWonder(YIELD_FAITH) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
-		GetExtraMissionaryStrength() > 0)
+		GetExtraMissionaryStrength() > 0 ||
+		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0)
 	{
 		m_bIsReligious = true;
 		return;
@@ -4227,6 +4322,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
+				if (trait->GetGoldenAgeYieldModifier(iYield) != 0)
+				{
+					m_aiGoldenAgeYieldModifier.insert(std::pair<int, int>(iYield, trait->GetGoldenAgeYieldModifier(iYield)));
+				}
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
@@ -4408,6 +4507,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_paiMovesChangeUnitCombat[jJ] += trait->GetMovesChangeUnitCombat(jJ);
 				m_paiMaintenanceModifierUnitCombat[jJ] += trait->GetMaintenanceModifierUnitCombat(jJ);
+#if defined(MOD_BALANCE_CORE)
+				if (trait->GetUnitCombatProductionCostModifier(jJ).first != 0)
+				{
+					m_aibUnitCombatProductionCostModifier.insert(std::make_pair(jJ, trait->GetUnitCombatProductionCostModifier(jJ)));
+				}
+#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			int iNumUnitClasses = GC.getNumUnitClassInfos();
@@ -4800,6 +4905,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromConquest[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
+		m_aiGoldenAgeYieldModifier.erase(iYield);
 		m_iVotePerXCSAlliance = 0;
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
@@ -4916,6 +5022,9 @@ void CvPlayerTraits::Reset()
 	{
 		m_paiMovesChangeUnitCombat[iI] = 0;
 		m_paiMaintenanceModifierUnitCombat[iI] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_aibUnitCombatProductionCostModifier.erase(iI);
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_aiGreatPersonCostReduction.clear();
@@ -5429,6 +5538,34 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 	}
 
 	return false;
+}
+/// What is the golden age modifier for the specific yield type?
+int CvPlayerTraits::GetGoldenAgeYieldModifier(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_aiGoldenAgeYieldModifier.find((int)eYield);
+	if (it != m_aiGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+/// What is the production cost modifier for the unit combat type? And does it only work during golden ages?
+std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCombatTypes eUnitCombat) const
+{
+	CvAssertMsg(eUnitCombat >= 0, "unitCombatID expected to be >= 0");
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
+
+	std::map<int, std::pair<int, bool>>::const_iterator it = m_aibUnitCombatProductionCostModifier.find((int)eUnitCombat);
+	if (it != m_aibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	return std::make_pair(0, false);
 }
 #endif
 
@@ -6984,6 +7121,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiYieldFromTileStealCultureBomb;
 	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
+	kStream >> m_aiGoldenAgeYieldModifier;
+	kStream >> m_aibUnitCombatProductionCostModifier;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7423,6 +7562,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiYieldFromTileStealCultureBomb;
 	kStream << m_ppiYieldFromTileSettle;
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
+	kStream << m_aiGoldenAgeYieldModifier;
+	kStream << m_aibUnitCombatProductionCostModifier;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)
