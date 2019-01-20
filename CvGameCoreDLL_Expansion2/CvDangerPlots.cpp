@@ -360,15 +360,15 @@ bool CvDangerPlots::isEnemyCombatUnitAdjacent(const CvPlot & Plot, bool bSameDom
 }
 
 /// Return the maximum amount of damage a city could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 {
 	if(!m_bArrayAllocated)
 		return 0;
 
 	if (pCity != NULL)
-		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
+		return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
 
-	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
+	return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(NO_PLAYER);
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
@@ -958,7 +958,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 }
 
 // Get the maximum damage city could receive this turn if it were in this plot
-int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 {
 	if (!m_pPlot || !pCity)
 		return 0;

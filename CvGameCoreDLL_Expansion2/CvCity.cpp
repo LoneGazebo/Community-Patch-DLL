@@ -16666,7 +16666,7 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 	return NULL;
 }
 
-void CvCity::OverrideGarrison(const CvUnit* pUnit)
+void CvCity::OverrideGarrison(const CvUnit* pUnit) const
 {
 	if (pUnit && pUnit->getDomainType()==DOMAIN_LAND)
 		m_hGarrisonOverride = pUnit->GetID();

@@ -6633,7 +6633,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 				//Frontline cities count more than they're worth. Ideally they should satisfy the winner?
 				iCityValueToSurrender -= (pLoopCity->getDamage() * 10);
-				if (pLosingPlayer->GetPlotDanger(*pLoopCity->plot(),pLoopCity) > 0)
+				if (pLosingPlayer->GetPlotDanger(pLoopCity) > GC.getCITY_HIT_POINTS_HEALED_PER_TURN())
 					iCityValueToSurrender -= iCurrentCityValue / 10;
 			}
 		}

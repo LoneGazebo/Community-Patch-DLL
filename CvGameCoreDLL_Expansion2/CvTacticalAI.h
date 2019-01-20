@@ -780,7 +780,6 @@ private:
 
 	// Routines to manage identifying and implementing tactical moves
 	void PlotCaptureCityMoves();
-	void PlotDamageCityMoves();
 	void PlotBarbarianCampMoves();
 	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
 	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);

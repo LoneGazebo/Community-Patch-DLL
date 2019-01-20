@@ -986,21 +986,16 @@ void CvEconomicAI::DoTurn()
 CvCity* CvEconomicAI::GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGreatWork) const
 {
 	CvCity* pBestCity = NULL;
-	CvCity* pLoopCity;
-	int iLoop;
 	int iBestDistance = MAX_INT;
 
 	// Make sure there is an undamaged city with a Great Work slot
 	GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eGreatWork);
 	if (m_pPlayer->GetCulture()->HasAvailableGreatWorkSlot(eGreatWorkSlot))
 	{
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		int iLoop;
+		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-#if defined(MOD_BALANCE_CORE)
-			if (pLoopCity->getDamage() <= (pLoopCity->GetMaxHitPoints() / 2) && m_pPlayer->GetPlotDanger(*(pLoopCity->plot()),pLoopCity)==0 )
-#else
-			if (pLoopCity->getDamage() == 0)
-#endif
+			if (pLoopCity->getDamage() <= (pLoopCity->GetMaxHitPoints() / 2) && m_pPlayer->GetPlotDanger(pLoopCity)==0 )
 			{
 				int iDistance = plotDistance(pStartPlot->getX(), pStartPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 				if(iDistance < iBestDistance)
