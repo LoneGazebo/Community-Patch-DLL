@@ -3736,10 +3736,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			//simply ignore this unit for further building tasks 
 			it->second.clear();
+			UnitProcessed(pUnit->GetID());
 		}
-
-		pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		UnitProcessed(pUnit->GetID());
 	}
 }
 

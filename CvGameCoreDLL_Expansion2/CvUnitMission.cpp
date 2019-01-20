@@ -1826,11 +1826,12 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_BUILD())
 			{
+				BuildTypes currentBuild = (BuildTypes)(hUnit->HeadMissionData()->iData1);
 				// Gold cost for Improvement construction
-				kUnitOwner.GetTreasury()->ChangeGold(-(kUnitOwner.getBuildCost(hUnit->plot(), (BuildTypes)(hUnit->HeadMissionData()->iData1))));
+				kUnitOwner.GetTreasury()->ChangeGold(-kUnitOwner.getBuildCost(hUnit->plot(),currentBuild));
 
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
-				gDLL->GameplayUnitWork(pDllUnit.get(), (hUnit->HeadMissionData()->iData1));
+				gDLL->GameplayUnitWork(pDllUnit.get(),currentBuild);
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_LEAD())
