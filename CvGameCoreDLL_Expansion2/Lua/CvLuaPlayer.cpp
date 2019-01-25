@@ -11128,9 +11128,9 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	if(pWorkerUnit == NULL)
 		return 0;
 
-	//fake this, ignore all other workers
+	//fake the reachable plots, ignore all other workers
 	map<CvUnit*, ReachablePlots> allplots;
-	SPathFinderUserData data(pWorkerUnit, 0, 5);
+	SPathFinderUserData data(pWorkerUnit, 0, 3);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	allplots[pWorkerUnit] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
 
@@ -11138,13 +11138,25 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	if(aDirective.m_eDirective == BuilderDirective::NUM_DIRECTIVES)
 		return 0;
 
-	lua_createtable(L, 0, 0);
-	const int t = lua_gettop(L);
+	//don't look at me ... this is just for stupid lua
+	const size_t cuiMaxDirectives = 3;
+	const size_t cuiDirectiveSize = 1;
 
-	CvLuaPlot::Push(L, GC.getMap().plot(aDirective.m_sX, aDirective.m_sY));
-	lua_setfield(L, t, "plot");
-	lua_pushinteger(L, aDirective.m_eBuild);
-	lua_setfield(L, t, "buildType");
+	lua_createtable(L, cuiMaxDirectives, 0);
+	int iPositionIndex = lua_gettop(L);
+	int i = 1;
+
+	for(uint ui = 0; ui < cuiDirectiveSize && i < cuiMaxDirectives; ui++)
+	{
+		lua_createtable(L, 0, 2);
+		CvLuaPlot::Push(L, GC.getMap().plot(aDirective.m_sX, aDirective.m_sY));
+		lua_setfield(L, -2, "plot");
+		lua_pushinteger(L, aDirective.m_eBuild);
+		lua_setfield(L, -2, "buildType");
+
+		lua_rawseti(L, iPositionIndex, i);
+		i++;
+	}
 
 	return 1;
 }

@@ -1139,7 +1139,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
-							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY()))
+							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY(), pkAttacker->plot(), false))
 							{
 								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 								{

@@ -95,6 +95,7 @@ protected:
 
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);
+	static int lCanEverRangeStrikeAt(lua_State* L);
 
 	static int lCanParadrop(lua_State* L);
 	static int lCanParadropAt(lua_State* L);

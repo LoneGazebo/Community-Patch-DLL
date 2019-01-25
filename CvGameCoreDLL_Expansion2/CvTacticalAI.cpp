@@ -2148,7 +2148,7 @@ void CvTacticalAI::PlotDamageCivilianMoves(AITacticalTargetType targetType)
 						continue;
 
 					// Are we in range and do we have LOS to the target?
-					if(pUnit->canEverRangeStrikeAt(pPlot->getX(), pPlot->getY()))
+					if(pUnit->canRangeStrikeAt(pPlot->getX(), pPlot->getY()))
 					{
 						if( pUnit->getDomainType() != DOMAIN_AIR)
 							pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -5224,7 +5224,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 			{
 				int iExpectedDamage = 0;
 
-				if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->canEverRangeStrikeAt(pLoopCity->getX(), pLoopCity->getY()))
+				if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->canRangeStrikeAt(pLoopCity->getX(), pLoopCity->getY()))
 				{
 					//maybe take into account that ranged units can move? but should be okay
 					iExpectedDamage = pEnemyUnit->GetRangeCombatDamage(NULL, pLoopCity, false, 0, NULL, NULL, true, true);
@@ -5354,7 +5354,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 						{
 							if(plotDistance(pEnemyUnit->getX(), pEnemyUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= pEnemyUnit->GetRange())
 							{
-								if(pEnemyUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+								if(pEnemyUnit->canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
 								{
 									bPriorityTarget = true;
 								}
@@ -5732,6 +5732,8 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 
 		return pSafePlot == NULL;
 	}
+
+	return false;
 }
 
 /// Pillage an undefended improvement
@@ -6383,8 +6385,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 							if (GC.getLogging() && GC.getAILogging())
 							{
 								CvString strMsg;
-								strMsg.Format("Safest plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-									m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+								strMsg.Format("Flee: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 								LogTacticalMessage(strMsg);
 							}
 						}
@@ -6408,8 +6409,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 							if (GC.getLogging() && GC.getAILogging())
 							{
 								CvString strMsg;
-								strMsg.Format("Safest plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-									m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+								strMsg.Format("Flee: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 								LogTacticalMessage(strMsg);
 							}
 						}
@@ -6529,8 +6529,7 @@ void CvTacticalAI::ExecuteHeals()
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
-					strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						pUnit->plot()->getX(), pUnit->plot()->getY());
+					strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 					LogTacticalMessage(strMsg);
 				}
 			}
@@ -6579,8 +6578,7 @@ void CvTacticalAI::ExecuteHeals()
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strMsg;
-							strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-								pUnit->plot()->getX(), pUnit->plot()->getY());
+							strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strMsg);
 						}
 					}
@@ -6619,8 +6617,7 @@ void CvTacticalAI::ExecuteHeals()
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
-				strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-					pUnit->plot()->getX(), pUnit->plot()->getY());
+				strMsg.Format("Heal: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 				LogTacticalMessage(strMsg);
 			}
 		}
@@ -7048,8 +7045,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
-					strMsg.Format("Move to Plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						pUnit->plot()->getX(), pUnit->plot()->getY());
+					strMsg.Format("Move To Plot: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 					LogTacticalMessage(strMsg);
 				}
 			}
@@ -7151,8 +7147,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
-					strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						pUnit->plot()->getX(), pUnit->plot()->getY());
+					strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 					LogTacticalMessage(strMsg);
 				}
 			}
@@ -7183,8 +7178,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
-					strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						pUnit->plot()->getX(), pUnit->plot()->getY());
+					strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 					LogTacticalMessage(strMsg);
 				}
 			}
@@ -7200,8 +7194,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strMsg;
-							strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-								pUnit->plot()->getX(), pUnit->plot()->getY());
+							strMsg.Format("Naval Blockade: pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strMsg);
 						}
 					}
@@ -7824,7 +7817,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if ( pLoopUnit->IsCanAttackRanged() )
 		{
 			//can attack without moving ... for aircraft and other long-range units
-			if (pLoopUnit->canEverRangeStrikeAt(pTarget->getX(), pTarget->getY()))
+			if (pLoopUnit->canRangeStrikeAt(pTarget->getX(), pTarget->getY()))
 				bCanReach = true;
 			else if (pLoopUnit->canMove() && pLoopUnit->getDomainType()!=DOMAIN_AIR)
 			{
@@ -10123,7 +10116,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 		CvUnit* pOtherUnit = pLoopPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true /*testWar*/);
 
 		//don't blindly attack the first one we find, check how much damage we can do
-		if (pOtherUnit && !pOtherUnit->isDelayedDeath() && pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+		if (pOtherUnit && !pOtherUnit->isDelayedDeath() && pUnit->canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
 		{
 			int iDamage = bIsAirUnit ? pUnit->GetAirCombatDamage(pOtherUnit, NULL, false) : 
 										pUnit->GetRangeCombatDamage(pOtherUnit, NULL, false, 0) +  pUnit->GetRangeCombatSplashDamage(pOtherUnit->plot());
@@ -11201,7 +11194,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//try to be more careful with highly promoted units
 			if (iDanger > 0)
 			{
-				iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 1000;
+				iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 200;
 
 				//penalty for high danger plots
 				//todo: take into account self damage from previous attacks
