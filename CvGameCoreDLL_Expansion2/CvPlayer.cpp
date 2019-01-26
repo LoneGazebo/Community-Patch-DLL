@@ -46532,12 +46532,12 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const Unit
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvPlayer::GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison);
+	return m_pDangerPlots->GetDanger(pCity, pPretendGarrison);
 }
 
 //	--------------------------------------------------------------------------------
@@ -46898,8 +46898,7 @@ bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 		if (bAboutToFall && pLoopCity->isInDangerOfFalling())
 			return true;
 
-		//trick for non const call
-		if (!bAboutToFall && GET_PLAYER(m_eID).GetPlotDanger(*pLoopCity->plot(), GET_PLAYER(m_eID).getCity(pLoopCity->GetID())) >= iMinDanger)
+		if (!bAboutToFall && GET_PLAYER(m_eID).GetPlotDanger(pLoopCity) >= iMinDanger)
 			return true;
 	}
 

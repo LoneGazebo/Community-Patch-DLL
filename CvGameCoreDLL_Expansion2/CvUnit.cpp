@@ -14987,6 +14987,9 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 
 bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 {
+	if (!pPlot)
+		return false;
+
 #if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -17175,7 +17178,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
 						const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
 	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
@@ -17183,7 +17186,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
 	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
@@ -17336,7 +17339,7 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 		for (int i = 0; i < 6; i++)
 		{
 			CvPlot* pNeighbor = aNeighbors[i];
-			if (pNeighbor && canEverRangeStrikeAt(pNeighbor->getX(), pNeighbor->getY()))
+			if (pNeighbor && canEverRangeStrikeAt(pNeighbor->getX(), pNeighbor->getY(),plot(),false))
 			{
 				for (int iUnitLoop = 0; iUnitLoop < pNeighbor->getNumUnits(); iUnitLoop++)
 				{
@@ -21429,7 +21432,7 @@ bool CvUnit::IsUnderEnemyRangedAttack() const
 							if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= pLoopUnit->GetRange())
 							{
 								// Do we have LOS to the target?
-								if(pLoopUnit->canEverRangeStrikeAt(getX(), getY()))
+								if(pLoopUnit->canRangeStrikeAt(getX(), getY()))
 								{
 									// Will we do any damage
 									int iExpectedDamage = pLoopUnit->GetRangeCombatDamage(this, NULL, false);
@@ -27664,89 +27667,76 @@ bool CvUnit::canRangeStrike() const
 
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 {
-	return canEverRangeStrikeAt(iX,iY,plot(),false);
+	return canEverRangeStrikeAt(iX,iY,NULL,false);
 }
 
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const
 {
-	if (!pSourcePlot)
-		return false;
-
 	const CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
-
-	// Plot null?
-	if(NULL == pTargetPlot)
-	{
+	if(!pTargetPlot)
 		return false;
-	}
 
 	// Plot not visible?
 	if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE)
-	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
-	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation(this) && bWouldNeedEmbark;
-	if (bIsEmbarkedAttackingLand)
-		return false;
-#endif
-
-	// In Range?
-	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
+	if (pSourcePlot)
 	{
-		return false;
-	}
-
-	// Can only bombard in domain? (used for Subs' torpedo attack)
-	if(getUnitInfo().IsRangeAttackOnlyInDomain())
-	{
-		if( pTargetPlot->isWater() )
-		{
-			// preventing submarines from shooting into other water bodies (lakes)
-			if (pSourcePlot->getArea() != pTargetPlot->getArea())
-			{
-				return false;
-			}
-		}
-		else //land target
-		{
-
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				if(!pTargetPlot->isCoastalLand() || !pTargetPlot->isCity() || !pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
-				{
-					return false;
-				}
-			}
-			else
-			{
-#endif
-				return false;
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-#endif
-		}
-	}
-
-	// Ignores LoS or can see the plot directly?
-	if(!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
-	{
-		if(!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+		// In Range?
+		if (plotDistance(*pSourcePlot, *pTargetPlot) > GetRange())
 		{
 			return false;
 		}
-	}
+
+#if defined(MOD_BALANCE_CORE)
+		bool bWouldNeedEmbark = pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
+		bool bIsEmbarkedAttackingLand = !pTargetPlot->needsEmbarkation(this) && bWouldNeedEmbark;
+		if (bIsEmbarkedAttackingLand)
+			return false;
+#endif
+
+		// Can only bombard in domain?
+		if (getUnitInfo().IsRangeAttackOnlyInDomain())
+		{
+			//check areas, not domain types because we want to prevent subs from shooting into lakes
+			bool bForbidden = (pTargetPlot->getArea() != pSourcePlot->getArea());
+			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
+			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
+				bForbidden = false;
+
+			if (bForbidden)
+				return false;
+		}
+
+		// Ignores LoS or can see the plot directly?
+		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
+		{
+			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+			{
+				return false;
+			}
+		}
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
-    if(!isNativeDomain(pSourcePlot))
-    {
-        return false;
-    }
+		if (!isNativeDomain(pSourcePlot))
+		{
+			return false;
+		}
 #endif
+	}
+	else //no source plot given, do only the most basic checks
+	{
+		// Can only bombard in domain?
+		if (getUnitInfo().IsRangeAttackOnlyInDomain())
+		{
+			bool bForbidden = (getDomainType() != pTargetPlot->getDomain());
+			if (pTargetPlot->isCity() && pTargetPlot->isCoastalLand())
+				bForbidden = false;
+
+			if (bForbidden)
+				return false;
+		}
+	}
 
 	return true;
 }
@@ -27761,7 +27751,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 		return false;
 	}
 
-	if(!canEverRangeStrikeAt(iX, iY))
+	if(!canEverRangeStrikeAt(iX, iY, plot(), false))
 	{
 		return false;
 	}
@@ -28440,9 +28430,6 @@ bool CvUnit::SentryAlert() const
 #endif
 {
 	VALIDATE_OBJECT
-	if (GetActivityType() == ACTIVITY_SLEEP)
-		return false;
-
 	int iRange = visibilityRange();
 #if defined(MOD_BALANCE_CORE)
 	if (getDomainType() == DOMAIN_AIR)
@@ -30246,7 +30233,7 @@ bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
 		iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
 
 		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex()+GetID()+getDamage());
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
 		return iRoll < iWithdrawChance;
 	}
 	else

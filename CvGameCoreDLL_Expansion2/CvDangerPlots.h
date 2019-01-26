@@ -76,7 +76,7 @@ struct CvDangerPlotContents
 	}
 
 	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction);
-	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 	bool isEnemyCombatUnitAdjacent(PlayerTypes ePlayer, bool bSameDomain) const;
 
@@ -144,8 +144,8 @@ public:
 
 	void UpdateDanger(bool bKeepKnownUnits=true);
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
-	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
-	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
+	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer); //deprecated
 	bool isEnemyCombatUnitAdjacent(const CvPlot& pPlot, bool bSameDomain) const;
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;

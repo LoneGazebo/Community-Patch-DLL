@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -6642,7 +6642,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 				//Frontline cities count more than they're worth. Ideally they should satisfy the winner?
 				iCityValueToSurrender -= (pLoopCity->getDamage() * 10);
-				if (pLosingPlayer->GetPlotDanger(*pLoopCity->plot(),pLoopCity) > 0)
+				if (pLosingPlayer->GetPlotDanger(pLoopCity) > GC.getCITY_HIT_POINTS_HEALED_PER_TURN())
 					iCityValueToSurrender -= iCurrentCityValue / 10;
 			}
 		}

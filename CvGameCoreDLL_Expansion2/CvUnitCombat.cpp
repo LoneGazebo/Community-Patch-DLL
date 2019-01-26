@@ -1139,7 +1139,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
-							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY()))
+							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY(), pkAttacker->plot(), false))
 							{
 								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 								{
@@ -1219,7 +1219,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
 						{
-							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
+							int iRand = GC.getGame().getSmallFakeRandNum(10, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex()) * 10;
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBack(*pkAttacker);

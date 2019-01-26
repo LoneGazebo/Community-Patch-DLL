@@ -4392,13 +4392,6 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 #endif
 		return true;
 	}
-	// in no-mans land or enemy territory
-	else if (bIsPassableImprovement)
-	{
-		//may enter unoccupied enemy fortifications (cities are handled elsewhere)
-		if (getBestDefender(NO_PLAYER, ePlayer) == NULL)
-			return true;
-	}
 
 	return false;
 }

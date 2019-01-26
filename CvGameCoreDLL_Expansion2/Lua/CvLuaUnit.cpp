@@ -97,6 +97,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeAt);
+	Method(CanEverRangeStrikeAt);
 
 	Method(CanParadrop);
 	Method(CanParadropAt);
@@ -1369,6 +1370,19 @@ int CvLuaUnit::lCanRangeStrike(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //bool CanRangeStrikeAt(int iX, int iY)
+int CvLuaUnit::lCanEverRangeStrikeAt(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int x = lua_tointeger(L, 2);
+	const int y = lua_tointeger(L, 3);
+
+	const bool bResult = pkUnit->canEverRangeStrikeAt(x, y);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool CanRangeStrikeAt(int iX, int iY)
 int CvLuaUnit::lCanRangeStrikeAt(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -1378,7 +1392,6 @@ int CvLuaUnit::lCanRangeStrikeAt(lua_State* L)
 	const bool bNoncombatAllowed = luaL_optbool(L, 5, true);
 
 	const bool bResult = pkUnit->canRangeStrikeAt(x, y, bNeedsWar, bNoncombatAllowed);
-
 	lua_pushboolean(L, bResult);
 	return 1;
 
