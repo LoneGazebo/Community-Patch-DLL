@@ -6603,6 +6603,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE">
 			<Text>[ICON_RELIGION] Faith Purchase in City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED">
+			<Text>[ICON_STRENGTH] Obtained a Promotion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 
 		<!-- Quest Data -->
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">

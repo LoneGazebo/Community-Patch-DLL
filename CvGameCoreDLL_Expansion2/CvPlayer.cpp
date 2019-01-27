@@ -26959,6 +26959,23 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					break;
 				}
 				
+				case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					if (pCity == NULL && pLoopCity == getCapitalCity())
+					{
+						iValue += iPassYield;
+					}
+
+					else if (pLoopCity == pCity)
+					{
+						iValue += iPassYield;
+					}
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -27806,6 +27823,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				return;
+			}
+			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED");
+				localizedText << totalyieldString;
+				break;
 			}
 		}
 		if(pCity == NULL)

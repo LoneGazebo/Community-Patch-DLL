@@ -27198,16 +27198,33 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			changeFeatureImpassableCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureImpassable(iI)) ? iChange : 0));
 		}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
+			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
+			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
+#if defined(MOD_API_UNIFIED_YIELDS)
 			changeYieldFromKills(((YieldTypes)iI), (thisPromotion.GetYieldFromKills(iI) * iChange));
 			changeYieldFromBarbarianKills(((YieldTypes)iI), (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
 #if defined(MOD_BALANCE_CORE)
 			changeYieldFromScouting(((YieldTypes)iI), (thisPromotion.GetYieldFromScouting(iI) * iChange));
 #endif
-		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if (bNewValue)
+			{
+				if (thisPromotion.GetInstantYields(iI).first > 0)
+				{
+					CvCity* pCity = getOriginCity();
+					if (pCity == NULL && GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+					{
+						pCity = GET_PLAYER(getOwner()).getCapitalCity();
+					}
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, getOriginCity(), false, true, false, (YieldTypes)iI, this);
+				}
+			}
+#endif
+		}
 
 		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
@@ -27248,16 +27265,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
 		{
 			ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
-		}
-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
-		}
-
-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
-			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
 		}
 
 		if(IsSelected())

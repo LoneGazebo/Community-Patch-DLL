@@ -994,6 +994,33 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 		pResults->Reset();
 	}
+
+	//UnitPromotions_InstantYield
+	{
+		std::string sqlKey = "UnitPromotions_InstantYields";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldsID, Yield, IsEraScaling from UnitPromotions_InstantYields inner join Yields on Yields.Type = YieldType where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			const int yieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+			const bool eraScaling = pResults->GetBool(2);
+			
+			m_piInstantYields.insert(std::make_pair(yieldID, std::make_pair(yield, eraScaling)));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::pair<int, bool>>(m_piInstantYields).swap(m_piInstantYields);
+	}
 #endif
 
 	//UnitPromotions_Domains
@@ -2679,6 +2706,23 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) co
 	}
 
 	return -1;
+}
+
+std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piInstantYields.empty() == false)
+	{
+		std::map<int, std::pair<int, bool>>::const_iterator it = m_piInstantYields.find(i);
+		if (it != m_piInstantYields.end()) // find returns the iterator to map::end if the key iYield is not present in the map
+		{
+			return it->second;
+		}
+	}
+
+	return std::make_pair(0, false);
 }
 #endif
 
