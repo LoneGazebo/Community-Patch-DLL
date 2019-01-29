@@ -6735,6 +6735,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											continue;
 
 										int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
+										iValue /= 2;
 										pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
 
 										if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)

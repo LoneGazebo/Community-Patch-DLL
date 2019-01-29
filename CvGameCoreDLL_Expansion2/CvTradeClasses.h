@@ -281,7 +281,9 @@ public:
 
 	const TradeConnection* GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity);
 	int GetNumberOfCityStateTradeRoutes();
-	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity); 
+	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
+
+	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetNumberOfInternalTradeRoutes();
 	int GetNumberOfInternationalTradeRoutes(bool bOutgoing);

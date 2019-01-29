@@ -2751,7 +2751,7 @@
 			<Help>TXT_KEY_PROMOTION_CHARGE_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_CHARGE</PromotionPrereqOr1>
-			<OrderPriority>4</OrderPriority>
+			<OrderPriority>5</OrderPriority>
 			<AttackWoundedMod>20</AttackWoundedMod>
 			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>13</PortraitIndex>
@@ -3786,10 +3786,9 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VIKING</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<CityAttackPlunderModifier>200</CityAttackPlunderModifier>
+			<NeutralHealChange>5</NeutralHealChange>
 			<FreePillageMoves>true</FreePillageMoves>
 			<PillageBonusStrength>25</PillageBonusStrength>
-			<DamageReductionCityAssault>25</DamageReductionCityAssault>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LONGBOAT</Type>
@@ -3801,11 +3800,7 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LONGBOAT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<CityAttackPlunderModifier>200</CityAttackPlunderModifier>
 			<FreePillageMoves>true</FreePillageMoves>
-			<PillageBonusStrength>25</PillageBonusStrength>
-			<DamageReductionCityAssault>20</DamageReductionCityAssault>
-			<IgnoreZOC>true</IgnoreZOC>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_INACCURACY</Type>
@@ -3851,7 +3846,6 @@
 			<Description>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</Description>
 			<Help>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<StrongerDamaged>true</StrongerDamaged>
 			<PortraitIndex>12</PortraitIndex>

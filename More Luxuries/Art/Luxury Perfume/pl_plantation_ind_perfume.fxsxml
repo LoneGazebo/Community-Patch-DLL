@@ -1,0 +1,21 @@
+<Asset>
+  <Mesh file="PL_Plantation_IND_Perfume.gr2" source="Max" />
+  <Texture file="Cotton_SREF.dds" source="Max" />
+  <Texture file="Crop_Ground_H.dds" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="HB_Plantation_IND_DIFF.dds" source="Max" />
+  <Texture file="PL_Perfume_DIFF.dds" source="Max" />
+  <Texture file="PL_Crop_Ground_D.dds" source="Max" />
+  <Texture file="PL_Plantation_IND_DIFF.dds" source="Max" />
+  <Texture file="PL_Plantation_IND_Ground_D.dds" source="Max" />
+  <Texture file="PL_Plantation_IND_SREF.dds" source="Max" />
+  <Texture file="PL_Sub_MID_Farm_Grnd_D.dds" source="Max" />
+  <Texture file="Plantation_IND_DIFF.dds" source="Max" />
+  <Texture file="Plantation_IND_Ground_H.dds" source="Max" />
+  <Texture file="Sub_MID_Farm_Grnd_H.dds" source="Max" />
+  <BoneUsage>
+    <Bone name="FX_PillagedSmoke" />
+  </BoneUsage>
+  <TimedTrigger file="FX_Triggers_PL_Plantation_IND_Cotton.ftsxml" source="Tool" model="Cotton_group_07" state="0,1,2,3" />
+  <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+</Asset>

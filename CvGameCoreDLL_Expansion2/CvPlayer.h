@@ -1946,6 +1946,12 @@ public:
 	int getYieldFromDeath(YieldTypes eIndex) const;
 	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictory(YieldTypes eIndex) const;
+	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromPillage(YieldTypes eIndex) const;
+	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
+
 	int getYieldFromConstruction(YieldTypes eIndex) const;
 	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
@@ -2484,6 +2490,9 @@ public:
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 
+	int getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const;
+	void changeInstantTourismValue(PlayerTypes ePlayer , int iValue);
+
 	// Arbitrary Script Data
 	std::string getScriptData() const;
 	void setScriptData(std::string szNewValue);
@@ -2553,7 +2562,7 @@ public:
 
 	bool isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) const;
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
-	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
@@ -2566,6 +2575,7 @@ public:
 	int GetNumPuppetCities() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 	int GetNumCapitalCities() const;
+	int GetNumMinorsControlled() const;
 #endif
 	int GetMaxEffectiveCities(bool bIncludePuppets = false);
 
@@ -3486,6 +3496,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapitalRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromPillage;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromwonderConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromTech;
@@ -3636,6 +3648,7 @@ protected:
 	std::vector<TurnData> m_ReplayDataSetValues;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiInstantYieldHistoryValues;
+	std::vector< Firaxis::Array<int, MAX_MAJOR_CIVS> > m_ppiInstantTourismHistoryValues;
 
 	void doResearch();
 	void doWarnings();

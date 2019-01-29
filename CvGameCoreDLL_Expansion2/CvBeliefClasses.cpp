@@ -94,6 +94,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromPolicyUnlock(NULL),
 	m_piYieldFromEraUnlock(NULL),
 	m_piYieldFromConversion(NULL),
+	m_piYieldFromConversionExpo(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromProposal(NULL),
 	m_piYieldFromHost(NULL),
@@ -632,6 +633,13 @@ int CvBeliefEntry::GetYieldFromConversion(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromConversion ? m_piYieldFromConversion[i] : -1;
 }
+int CvBeliefEntry::GetYieldFromConversionExpo(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromConversionExpo ? m_piYieldFromConversionExpo[i] : -1;
+}
+
 /// Accessor:: Yield from WTLKD
 int CvBeliefEntry::GetYieldFromWLTKD(int i) const
 {
@@ -1247,6 +1255,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Belief_YieldFromPolicyUnlock", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromEraUnlock, "Belief_YieldFromEraUnlock", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromConversion, "Belief_YieldFromConversion", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromConversionExpo, "Belief_YieldFromConversionExpo", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Belief_YieldFromWLTKD", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromProposal, "Belief_YieldFromProposal", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
@@ -4101,6 +4110,24 @@ int CvReligionBeliefs::GetYieldFromConversion(YieldTypes eYieldType, PlayerTypes
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromConversion(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+/// Get yield modifier from beliefs from city conversion
+int CvReligionBeliefs::GetYieldFromConversionExpo(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromConversionExpo(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

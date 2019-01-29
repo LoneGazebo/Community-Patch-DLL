@@ -821,7 +821,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bIsNoRevealMap = pUnit->isNoRevealMap();
 	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
-	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
+	pCacheData->m_bCanAttack = pUnit->IsCanAttack() && !pUnit->isOutOfAttacks();
 	pCacheData->m_bDoDanger = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER);
 }
 

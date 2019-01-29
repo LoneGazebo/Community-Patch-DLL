@@ -4796,11 +4796,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
-		int iValue = (pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) * (60/(iEra+1)) / (1 * 100 * 10));
-		if (iValue > 0)
-		{
-			iFlatYield += iValue;
-		}
+		int iValue = (pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) * 100) / (100 * (iEra + 1));
+
+		if (iValue <= pkBuildingInfo->GetYieldChangePerPop(eYield))
+			iValue = pkBuildingInfo->GetYieldChangePerPop(eYield);
+		
+		iFlatYield += iValue;
 	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
@@ -5136,13 +5137,17 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetYieldFromVictory(eYield);
 	}
+	if (pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) * 10;
+	}
 	if (pkBuildingInfo->GetYieldFromPillage(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromPillage(eYield);
 	}
-	if (pkBuildingInfo->GetYieldFromWaterPillage(eYield) > 0)
+	if (pkBuildingInfo->GetYieldFromPillageGlobal(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromWaterPillage(eYield);
+		iInstant += pkBuildingInfo->GetYieldFromPillageGlobal(eYield) * 10;
 	}
 	if (pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{
@@ -5180,6 +5185,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iInstant += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
 		}
+	}
+	if (pkBuildingInfo->GetYieldFromFaithPurchase(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromFaithPurchase(eYield);
+
+		if (kPlayer.GetPlayerTraits()->IsReligious())
+			iInstant += pkBuildingInfo->GetYieldFromFaithPurchase(eYield);
 	}
 	if (pkBuildingInfo->GetYieldFromUnitLevelUp(eYield) > 0)
 	{

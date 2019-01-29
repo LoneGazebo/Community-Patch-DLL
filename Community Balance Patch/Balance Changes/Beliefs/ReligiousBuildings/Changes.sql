@@ -172,10 +172,10 @@ VALUES
 	('BUILDING_PAGODA', 'FLAVOR_CULTURE', 4),
 	('BUILDING_PAGODA', 'FLAVOR_PRODUCTION', 4);
 
-INSERT INTO Building_YieldFromVictory
+INSERT INTO Building_YieldFromVictoryGlobal
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ORDER', 'YIELD_FAITH', 2);
+	('BUILDING_ORDER', 'YIELD_FAITH', 3);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
 	(BuildingType, YieldType, Yield)

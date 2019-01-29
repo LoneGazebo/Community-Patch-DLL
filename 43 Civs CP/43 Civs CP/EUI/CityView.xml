@@ -134,7 +134,7 @@
 				</Label>
 			</Button>
 			<!-- Order Selection -->
-			<ScrollPanel ID="SelectionScrollPanel"Anchor="L,B" Size="270,108" Vertical="1" AutoScrollBar="1" >
+			<ScrollPanel ID="SelectionScrollPanel" Anchor="L,B" Size="270,108" Vertical="1" AutoScrollBar="1" >
 				<ScrollBar ID="SelectionScrollBar" Style="VertSlider" Anchor="R,C" AnchorSide="O.I" Length="72" />
 				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O.I" />
 				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O.I" />
@@ -305,6 +305,11 @@
 						<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 					</Box>
 				</Stack>
+				<!--Corps-->
+				<Button ID="CorpsHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
+					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_CORPSBUILDING_TEXT" />
+				</Button>
+				<Stack ID="CorpsStack" Anchor="L,T" StackGrowth="B"/>
 				<!-- Other Buildings -->
 				<Button ID="BuildingsHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT" />

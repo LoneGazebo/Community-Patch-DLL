@@ -1648,6 +1648,7 @@ local predefined = {
 	[L"TXT_KEY_INFOADDICT_MAIN_TITLE"] = "DC45_InfoAddict.dds",
 	[L"TXT_KEY_C4DF_VASSAL_OVERVIEW"] = "DC45_VassalOverview.dds",
 	[L"TXT_KEY_EVENT_OVERVIEW"] = "DC45_EventsOverview.dds",
+	[L"TXT_KEY_PROMO_DIPLO_CORNER_HOOK_PLANNER"] = "DC45_UnitPromotions.dds",
 	[L"TXT_KEY_CPO"] = "DC45_Corporations.dds",
 }
 

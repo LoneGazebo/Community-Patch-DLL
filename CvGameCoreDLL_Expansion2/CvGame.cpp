@@ -10754,6 +10754,8 @@ void CvGame::updateGlobalAverage()
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
 
+	DoGlobalAvgLogging();
+
 	if ((int)viTechMedian[nt] > m_iGlobalTechAvg)
 		m_iGlobalTechAvg = (int)viTechMedian[nt];
 }
@@ -10815,6 +10817,33 @@ int CvGame::GetGlobalPopulation() const
 int CvGame::GetGlobalTechAvg() const
 {
 	return m_iGlobalTechAvg;
+}
+
+void CvGame::DoGlobalAvgLogging()
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutput;
+		CvString strTemp;
+
+		CvString strLogName = "GlobalMedian_Log.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		strOutput.Format("Turn: %03d", GC.getGame().getElapsedGameTurns());
+		strTemp.Format("Food/Production: %d", m_iDefenseAverage);
+		strOutput += ", " + strTemp;
+
+		strTemp.Format("Gold: %d", m_iGoldAverage);
+		strOutput += ", " + strTemp;
+
+		strTemp.Format("Science: %d", m_iScienceAverage);
+		strOutput += ", " + strTemp;
+
+		strTemp.Format("Culture: %d", m_iCultureAverage);
+		strOutput += ", " + strTemp;
+		
+		pLog->Msg(strOutput);
+	}
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)

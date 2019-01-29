@@ -16,7 +16,7 @@
 	-- Puppets produce flat unhappines based on # of citizens in the city. Divisor is this, never set to zero.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '3'
+	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '4'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 		
 	UPDATE Defines
@@ -33,7 +33,7 @@
 	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '34'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 34% is default.
+-- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 25% is default.
 		INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
@@ -45,7 +45,7 @@
 	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '100'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 400 is default.
+-- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 0 is default.
 
 	INSERT INTO Defines (
 	Name, Value)

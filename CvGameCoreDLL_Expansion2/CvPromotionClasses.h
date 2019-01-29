@@ -326,6 +326,7 @@ public:
 	int GetCombatModPerAdjacentUnitCombatModifierPercent(int i) const;
 	int GetCombatModPerAdjacentUnitCombatAttackModifier(int i) const;
 	int GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) const;
+	std::pair<int, bool> GetInstantYields(int i) const;
 #endif
 
 	bool GetTerrainDoubleMove(int i) const;
@@ -634,6 +635,7 @@ protected:
 	int* m_piCombatModPerAdjacentUnitCombatModifierPercent;
 	int* m_piCombatModPerAdjacentUnitCombatAttackModifier;
 	int* m_piCombatModPerAdjacentUnitCombatDefenseModifier;
+	std::map<int, std::pair<int, bool>> m_piInstantYields;
 #endif
 
 	int* m_piTerrainPassableTech;

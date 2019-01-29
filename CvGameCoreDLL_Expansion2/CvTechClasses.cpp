@@ -838,7 +838,7 @@ void CvPlayerTechs::Reset()
 						int iTech = pkBuildingInfo->GetPrereqAndTech();
 						if(iTech != NO_TECH)
 						{
-							m_piCivTechPriority[iTech] *= GC.getTECH_PRIORITY_UNIQUE_ITEM();
+							m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
 							m_peCivTechUniqueBuildings[iTech] = eBuilding;
 						}
 					}
@@ -850,11 +850,51 @@ void CvPlayerTechs::Reset()
 						int iTech = pkBuildingInfo->GetPrereqAndTech();
 						if (iTech != NO_TECH)
 						{
-							m_piCivTechPriority[iTech] *= GC.getTECH_PRIORITY_UNIQUE_ITEM();
+							m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
 						}
 					}
 #endif // AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+					if (GC.getGame().getGameTurn() > 5)
+					{
+						if (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE)
+						{
+							if (m_pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked((PolicyBranchTypes)pkBuildingInfo->GetPolicyBranchType()))
+							{
+								int iTech = pkBuildingInfo->GetPrereqAndTech();
+								if (iTech != NO_TECH)
+								{
+									m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM() / 2;
+								}
+							}
+						}
 
+						if (pkBuildingInfo->GetPolicyType() != NO_POLICY)
+						{
+							if (m_pPlayer->GetPlayerPolicies()->HasPolicy((PolicyTypes)pkBuildingInfo->GetPolicyType()))
+							{
+								int iTech = pkBuildingInfo->GetPrereqAndTech();
+								if (iTech != NO_TECH)
+								{
+									m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM() / 2;
+								}
+							}
+							else
+							{
+								PolicyBranchTypes eBranch = (PolicyBranchTypes)GC.getPolicyInfo((PolicyTypes)pkBuildingInfo->GetPolicyType())->GetPolicyBranchType();
+								if (eBranch != NO_POLICY_BRANCH_TYPE)
+								{
+									if (m_pPlayer->GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
+									{
+										int iTech = pkBuildingInfo->GetPrereqAndTech();
+										if (iTech != NO_TECH)
+										{
+											m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM() / 3;
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 
@@ -873,7 +913,7 @@ void CvPlayerTechs::Reset()
 							int iTech = pkUnitEntry->GetPrereqAndTech();
 							if(iTech != NO_TECH)
 							{
-								m_piCivTechPriority[iTech] *= GC.getTECH_PRIORITY_UNIQUE_ITEM();
+								m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
 								m_peCivTechUniqueUnits[iTech] = (UnitTypes)pkInfo->getCivilizationUnits(iI);
 							}
 						}
@@ -898,7 +938,7 @@ void CvPlayerTechs::Reset()
 								int iTech = pkBuildEntry->getTechPrereq();
 								if(iTech != NO_TECH)
 								{
-									m_piCivTechPriority[iTech] *= GC.getTECH_PRIORITY_UNIQUE_ITEM();
+									m_piCivTechPriority[iTech] += GC.getTECH_PRIORITY_UNIQUE_ITEM();
 									m_peCivTechUniqueImprovements[iTech] = static_cast<ImprovementTypes>(iI);
 								}
 							}
@@ -929,11 +969,29 @@ void CvPlayerTechs::Reset()
 						int iPrereqTech = pkTraitInfo->GetPrereqTech();
 						if(iPrereqTech != NO_TECH)
 						{
-							m_piCivTechPriority[iPrereqTech] *= GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+							m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
 						}
 					}
 
-					// Other traits that unlock by tech?
+					// Venice needs love
+					int iPrereqTech = pkTraitInfo->GetFreeUnitPrereqTech();
+					if (iPrereqTech != NO_TECH)
+					{
+						m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+					}
+
+					iPrereqTech = pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
+					if (iPrereqTech != NO_TECH)
+					{
+						m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+					}
+
+
+					iPrereqTech = pkTraitInfo->GetFreeBuildingPrereqTech();
+					if (iPrereqTech != NO_TECH)
+					{
+						m_piCivTechPriority[iPrereqTech] += GC.getTECH_PRIORITY_MAYA_CALENDAR_BONUS();
+					}
 				}
 			}
 		}
@@ -1164,6 +1222,7 @@ void CvPlayerTechs::SetLocalePriorities()
 	}
 
 	// Loop through all our cities
+	int iBestMultiplier = 0;
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		// Look at all Tiles this City could potentially work to see if there are any non-water resources that could be improved
@@ -1175,104 +1234,79 @@ void CvPlayerTechs::SetLocalePriorities()
 			{
 				int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCity->getX(), pCity->getY());
 
-				if(pLoopPlot->getOwner() == pCity->getOwner() || (iDistance <= 2 && pLoopPlot->getOwner() == NO_PLAYER))
+				if(pLoopPlot->getOwner() == pCity->getOwner() || (iDistance <= 4 && pLoopPlot->getOwner() == NO_PLAYER))
 				{
-#if defined(MOD_AI_SMART_V3)
-					int multiplierValue = 1;
-#endif
-
-#if defined(MOD_AI_SMART_V3)
-					if(MOD_AI_SMART_V3 || !pLoopPlot->isWater())
-#else
-					if(!pLoopPlot->isWater())
-#endif
+					int multiplierValue = 3 - iDistance;
+				
+					ResourceTypes eResource = pLoopPlot->getResourceType(m_pPlayer->getTeam());
+					if(eResource == NO_RESOURCE)
 					{
-						ResourceTypes eResource = pLoopPlot->getResourceType(m_pPlayer->getTeam());
-						if(eResource == NO_RESOURCE)
-						{
-							continue;
-						}
+						continue;
+					}
 
-						// Loop through the build types to find one that we can use
-						ImprovementTypes eCorrectImprovement = NO_IMPROVEMENT;
-						BuildTypes eCorrectBuild = NO_BUILD;
-						int iBuildIndex;
-						for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+					//already connected?
+					if (pLoopPlot->IsResourceLinkedCityActive())
+						continue;
+
+					if (m_pPlayer->getNumResourceTotal(eResource, false) <= 0)
+						multiplierValue++;
+
+					//somehow close on monopolies?
+					if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+					{
+						int iMonopolyVal = m_pPlayer->GetMonopolyPercent(eResource);
+						if (iMonopolyVal > GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD() && iMonopolyVal <= GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+							multiplierValue++;
+					}
+
+					// Loop through the build types to find one that we can use
+					ImprovementTypes eCorrectImprovement = NO_IMPROVEMENT;
+					BuildTypes eCorrectBuild = NO_BUILD;
+					int iBuildIndex;
+					for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+					{
+						const BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
+						CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+						if(pkBuildInfo)
 						{
-							const BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
-							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-							if(pkBuildInfo)
+							// If this is the improvement we're looking for
+							const ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+							if(eImprovement != NO_IMPROVEMENT)
 							{
-								// If this is the improvement we're looking for
-								const ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-								if(eImprovement != NO_IMPROVEMENT)
+								CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+								if (pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
 								{
-#if defined(MOD_AI_SMART_V3)
-									if (MOD_AI_SMART_V3)
-									{
-										if(pLoopPlot->canHaveImprovement(eImprovement))
-										{
-											CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-											if (pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
-											{
-												multiplierValue = 2;
-											}
-										
-											eCorrectBuild = eBuild;
-											eCorrectImprovement = eImprovement;
-											break;
-										}
-									}
-									else
-									{
-#endif
-										CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-										if(pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
-										{
-											eCorrectBuild = eBuild;
-											eCorrectImprovement = eImprovement;
-											break;
-										}
-#if defined(MOD_AI_SMART_V3)
-									}
-#endif
+									if (pLoopPlot->canHaveImprovement(eImprovement))
+										multiplierValue++;
+
+									eCorrectBuild = eBuild;
+									eCorrectImprovement = eImprovement;
+									break;
 								}
 							}
 						}
+					}
 
-						// No valid build found
-						if(eCorrectBuild == NO_BUILD || eCorrectImprovement == NO_IMPROVEMENT)
+					// No valid build found
+					if(eCorrectBuild == NO_BUILD || eCorrectImprovement == NO_IMPROVEMENT)
+					{
+						continue;
+					}
+
+
+					// Looking for cases where we can't build the improvement for the resource
+					if (!m_pPlayer->canBuild(pLoopPlot, eCorrectBuild, false, false))
+						multiplierValue++;
+
+					// Find the tech associated with this build and increment its multiplier
+					int iTech = GC.getBuildInfo(eCorrectBuild)->getTechPrereq();
+					if (iTech != -1)
+					{
+						m_piLocaleTechPriority[iTech] += multiplierValue;
+						if (multiplierValue > iBestMultiplier)
 						{
-							continue;
-						}
-
-
-						// Looking for cases where we can't build the improvement for the resource
-						if(!m_pPlayer->canBuild(pLoopPlot, eCorrectBuild, false, false))
-						{
-							// Find the tech associated with this build and increment its multiplier
-							int iTech = GC.getBuildInfo(eCorrectBuild)->getTechPrereq();
-							CvAssert(iTech < m_pTechs->GetNumTechs());		// Just assert on a value off the top end, a -1 is ok to just skip silently
-							if (iTech >= 0 && iTech < m_pTechs->GetNumTechs())
-							{
-#if defined(MOD_AI_SMART_V3)
-								if (MOD_AI_SMART_V3)
-								{
-									m_piLocaleTechPriority[iTech] += multiplierValue;
-									if (multiplierValue == 2)
-									{
-										m_peLocaleTechResources[iTech] = eResource;								
-									}
-								}
-								else
-								{
-#endif
-									m_piLocaleTechPriority[iTech]++;
-									m_peLocaleTechResources[iTech] = eResource;
-#if defined(MOD_AI_SMART_V3)
-								}
-#endif
-							}
+							iBestMultiplier = multiplierValue;
+							m_peLocaleTechResources[iTech] = eResource;								
 						}
 					}
 				}
@@ -1383,7 +1417,7 @@ void CvPlayerTechs::SetGSPriorities()
 			{
 				if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate())
 				{
-					m_piGSTechPriority[iTechLoop]++;
+					m_piGSTechPriority[iTechLoop]+= max(1, 10 - m_pPlayer->getNumCities());
 				}
 				if (bSeekingConquestVictory)
 				{
@@ -2094,6 +2128,66 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 			m_pTechAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue, iPropagatePercent);
 		}
 	}
+
+	//don't care about minors.
+	if (m_pPlayer->isMinorCiv())
+		return;
+
+	int* paiTempWeights;
+	// Create a temporary array of weights
+	paiTempWeights = (int*)_alloca(sizeof(int) * GC.getNumTechInfos());
+
+	// Loop through all our techs
+	for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
+	{
+		const TechTypes eTech = static_cast<TechTypes>(iTech);
+		CvTechEntry* entry = GC.GetGameTechs()->GetEntry(iTech);
+		if (entry)
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString strTemp;
+				CvString playerName;
+				CvString strDesc;
+
+				// Find the name of this civ
+				playerName = m_pPlayer->getCivilizationShortDescription();
+
+				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+
+				const char* szTechType = (entry != NULL) ? entry->GetType() : "Unknown Tech";
+
+				strTemp.Format("Special Weights for %s are: Civ Val: %d, Locale Val: %d, GS Val: %d ", szTechType, m_pPlayer->GetPlayerTechs()->GetCivTechPriority(eTech), m_pPlayer->GetPlayerTechs()->GetLocaleTechPriority(eTech), m_pPlayer->GetPlayerTechs()->GetGSTechPriority(eTech));
+
+				strOutBuf = strBaseString + strTemp;
+				pLog->Msg(strOutBuf);
+			}
+		}
+	}
+}
+
+/// Build log filename
+CvString CvPlayerTechs::GetLogFileName(CvString& playerName) const
+{
+	CvString strLogName;
+
+	// Open the log file
+	if (GC.getPlayerAndCityAILogSplit())
+	{
+		strLogName = "TechAILog_" + playerName + ".csv";
+	}
+	else
+	{
+		strLogName = "TechAILog.csv";
+	}
+
+	return strLogName;
 }
 
 void CvPlayerTechs::LogFlavors(FlavorTypes eFlavor)

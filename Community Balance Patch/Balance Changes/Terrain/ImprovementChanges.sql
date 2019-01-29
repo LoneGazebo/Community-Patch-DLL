@@ -147,11 +147,6 @@ INSERT INTO Improvement_YieldPerEra
 VALUES
 	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 1);
 
-INSERT INTO Improvement_ResourceTypes
-	(ImprovementType, ResourceType)
-VALUES
-	('IMPROVEMENT_BRAZILWOOD_CAMP', 'RESOURCE_BRAZILWOOD');
-
 DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_LUMBERMILL';
 DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_MINE';
 DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_QUARRY';

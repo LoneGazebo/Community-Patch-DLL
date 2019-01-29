@@ -380,6 +380,11 @@ WHERE PromotionType = 'PROMOTION_MOBILITY' AND UnitCombatType = 'UNITCOMBAT_NAVA
 DELETE FROM UnitPromotions_UnitCombats
 WHERE PromotionType = 'PROMOTION_SENTRY' AND UnitCombatType = 'UNITCOMBAT_NAVALMELEE';
 
+INSERT INTO UnitPromotions_Terrains
+	(PromotionType, TerrainType, Attack, Defense, DoubleHeal)
+VALUES
+	('PROMOTION_LONGBOAT', 'TERRAIN_COAST', '15', '15', '1');
+
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Modifier)
 VALUES

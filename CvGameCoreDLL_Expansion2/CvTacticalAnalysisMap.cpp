@@ -89,6 +89,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iRangeClosestEnemyUnit = -1;
 	m_bIsWater = false;
 	m_bIsNavalInvasion = false;
+	m_bIsPillageZone = false;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	m_iAvgX = m_iAvgY = 0;
@@ -1295,6 +1296,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iRangeClosestEnemyUnit;
 	saveTo << readFrom.m_bIsWater;
 	saveTo << readFrom.m_bIsNavalInvasion;
+	saveTo << readFrom.m_bIsPillageZone;
 	saveTo << readFrom.m_iAvgX;
 	saveTo << readFrom.m_iAvgY;
 	saveTo << readFrom.m_iPlotCount;
@@ -1331,6 +1333,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iRangeClosestEnemyUnit;
 	loadFrom >> writeTo.m_bIsWater;
 	loadFrom >> writeTo.m_bIsNavalInvasion;
+	loadFrom >> writeTo.m_bIsPillageZone;
 	loadFrom >> writeTo.m_iAvgX;
 	loadFrom >> writeTo.m_iAvgY;
 	loadFrom >> writeTo.m_iPlotCount;

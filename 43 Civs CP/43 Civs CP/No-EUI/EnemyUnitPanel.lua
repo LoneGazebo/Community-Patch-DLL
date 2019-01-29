@@ -798,7 +798,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		--JFD ends
 		
 		-- Ranged Unit
-		if (pMyUnit:GetBaseRangedCombatStrength() > 0) then
+		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
 			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true, true);
 			bRanged = true;
 				
@@ -2608,10 +2608,10 @@ function OnMouseOverHex( hexX, hexY )
 		local pHeadUnit = UI.GetHeadSelectedUnit();
 		local pHeadCity = UI.GetHeadSelectedCity();
 				
-		if (pHeadUnit ~= nil) then
+		if (pHeadUnit ~= nil and not pHeadUnit:IsEmbarked() and pHeadUnit:IsCombatUnit()) then
 			
 			-- melee attack
-			if (pHeadUnit:IsCombatUnit() and (pHeadUnit:IsRanged() and pHeadUnit:IsEmbarked()) == false) and ((pHeadUnit:IsRanged() and pHeadUnit:IsRangeAttackOnlyInDomain() and not pPlot:IsWater()) == false) then
+			if (pHeadUnit:IsRanged() == false) then
 				
 				local iTeam = Game.GetActiveTeam()
 				local pTeam = Teams[iTeam]
@@ -2676,7 +2676,8 @@ function OnMouseOverHex( hexX, hexY )
 						end
 					end
 				end
-			elseif(pHeadUnit:IsRanged() == true and pHeadUnit:IsEmbarked() == false) then
+			-- ranged attack, need to check correct domain etc
+			elseif (pHeadUnit:CanEverRangeStrikeAt(pPlot:GetX(), pPlot:GetY())) then
 				
 				local iTeam = Game.GetActiveTeam()
 				local pTeam = Teams[iTeam]

@@ -739,14 +739,14 @@
 			<Text>Viking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>Costs no [ICON_MOVES] Movement points to Pillage. Gain 200% of damage dealt to Cities as [ICON_GOLD] Gold. 25% [ICON_STRENGTH] Combat Strength on Pillaged Tiles, and -25% [ICON_STRENGTH] Damage from Cities.</Text>
+			<Text>Costs no [ICON_MOVES] Movement points to Pillage, and gains 25% [ICON_STRENGTH] Combat Strength on Pillaged Tiles. +5 HP when healing in Neutral Territory.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
 			<Text>Longboat</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>Costs no [ICON_MOVES] Movement points to Pillage and gains +25% [ICON_STRENGTH] Combat Strength on pillaged Tiles. Gain 200% of damage dealt to Cities as [ICON_GOLD] Gold. Ignores Zone of Control, and takes -20% [ICON_STRENGTH] Damage from Cities.</Text>
+			<Text>Costs no [ICON_MOVES] Movement points to Pillage. +15% [ICON_STRENGTH] Combat Strength when attacking or defending Coastal Tiles, and recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on Coastal Tiles.</Text>
 		</Row>
 
 

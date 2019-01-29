@@ -6086,6 +6086,9 @@
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
 			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Traits): {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
 			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
 		</Row>
@@ -6102,6 +6105,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION">
 			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Beliefs): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS">
+			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Traits): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WLTKD">
 			<Text>[NEWLINE][ICON_BULLET]We Love the King Day Modifier: {1_Num}%</Text>
@@ -6597,6 +6603,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE">
 			<Text>[ICON_RELIGION] Faith Purchase in City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED">
+			<Text>[ICON_STRENGTH] Obtained a Promotion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 
 		<!-- Quest Data -->
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">
@@ -6716,7 +6725,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER">
-			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and over the past {1_Num} Turn(s)[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and the prior {1_Num} Turn(s)[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE">
 			<Text>[NEWLINE]        [ICON_BULLET] Average: +{1_Num} Per Turn</Text>
@@ -6724,6 +6733,17 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES">
 			<Text>[NEWLINE]        [ICON_BULLET] Per-City Average: +{1_Num} Per Turn</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PER_PLAYER_TOURISM">
+			<Text>[NEWLINE][COLOR_POSITIVE_TEXT][ICON_TOURISM] Tourism Instant Yields Per Player:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PER_PLAYER_TOURISM_NAME">
+			<Text>[NEWLINE] [ICON_BULLET] {1_Civ}: {2_Val} [ICON_TOURISM] Tourism (+{3_Avg} Per Turn)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_INSTANT_TT_VALUE">
+			<Text>+{1_Num} [ICON_TOURISM] Tourism per Turn (on Average) from Instant Yields with this Player</Text>
+		</Row>		
 
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TOTAL">
 			<Text>[ICON_BULLET] {2_YieldIcon} {3_YieldColorString}{1_YieldType}[ENDCOLOR]: {4_Num}</Text>
@@ -7058,7 +7078,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE">
-			<Text>Probably of successful Coup: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Probability of successful Coup: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE_ALLIES">
 			<Text>[NEWLINE][ICON_BULLET]   Reason: already Allies!</Text>
@@ -7257,6 +7277,10 @@
 
 		<Row Tag="TXT_KEY_UNIT_IGNORE_ZOC">
 			<Text>[COLOR_CYAN]Ignores ZoC Effects[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_ORIGIN_CITY">
+			<Text>Created by: {1_City}</Text>
 		</Row>
 
 		<!-- Tooltip helpers for unhappiness -->

@@ -6642,7 +6642,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 				//Frontline cities count more than they're worth. Ideally they should satisfy the winner?
 				iCityValueToSurrender -= (pLoopCity->getDamage() * 10);
-				if (pLosingPlayer->GetPlotDanger(*pLoopCity->plot(),pLoopCity) > 0)
+				if (pLosingPlayer->GetPlotDanger(pLoopCity) > GC.getCITY_HIT_POINTS_HEALED_PER_TURN())
 					iCityValueToSurrender -= iCurrentCityValue / 10;
 			}
 		}
@@ -8644,7 +8644,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iItemValue *= 100;
 			break;
 		}
-		iItemValue /= 100;
+		iItemValue /= 300;
 	}
 	else
 	{
@@ -8674,7 +8674,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iItemValue *= 100;
 			break;
 		}
-		iItemValue /= 100;
+		iItemValue /= 300;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?

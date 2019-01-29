@@ -10408,6 +10408,19 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 	if (hasFreePillageMove() && pPlot->GetAdjacentCity() != NULL)
 		return true;
 
+	if (pPlot->getOwningCity() != NULL)
+	{
+		CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pPlot->getOwningCity(), getDomainType() == DOMAIN_SEA);
+		if (pZone && pZone->IsPillageZone())
+			return true;
+
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+		{
+			if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(pPlot->getOwner()) == WAR_GOAL_DAMAGE)
+				return true;
+		}
+	}
+
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 
 	// Citadel here?
@@ -10420,17 +10433,11 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 	}
 
 	CvCity* pOriginCity = getOriginCity();
-	if (pOriginCity)
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		bool bWater = pPlot->isWater();
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (bWater ? pOriginCity->GetYieldFromPillageWater(eYield) <= 0 : pOriginCity->GetYieldFromPillage(eYield) <= 0)
-				continue;
-
+		YieldTypes eYield = (YieldTypes)iI;
+		if (GET_PLAYER(getOwner()).GetYieldFromPillage(eYield) > 0 || (pOriginCity && pOriginCity->GetYieldFromPillage(eYield) > 0))
 			return true;
-		}
 	}
 
 	if (bConservative)
@@ -10489,14 +10496,12 @@ bool CvUnit::pillage()
 			{
 #if defined(MOD_BALANCE_CORE)
 
-				if (pPlot->getResourceType(getTeam()) != NO_RESOURCE || pkImprovement->IsCreatedByGreatPerson())
-				{
-					CvCity* pOriginCity = getOriginCity();
-					if (pOriginCity == NULL)
-						pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
+				CvCity* pOriginCity = getOriginCity();
+				if (pOriginCity == NULL)
+					pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
 
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
-				}
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
@@ -13389,7 +13394,7 @@ bool CvUnit::blastTourism()
 	kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismBlast, true, true);
 
 	//store off this data
-	GET_PLAYER(getOwner()).changeInstantYieldValue(YIELD_TOURISM, iTourismBlast);
+	GET_PLAYER(getOwner()).changeInstantTourismValue(eOwner, iTourismBlast);
 
 	// Apply lesser amount to other civs
 	int iTourismBlastOthers = iTourismBlast * iTourismBlastPercentOthers / 100;
@@ -14987,6 +14992,9 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 
 bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 {
+	if (!pPlot)
+		return false;
+
 #if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -17175,7 +17183,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
 						const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
 	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
@@ -17183,7 +17191,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
 	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
@@ -17269,27 +17277,27 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
 	}
 #endif
-	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() + iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
+	int iAttackerDamageRatio = GetMaxHitPoints() - ((getDamage() + iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
 
 	int iAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
 	iAttackerDamage *= iAttackerDamageRatio;
-	iAttackerDamage /= GC.getMAX_HIT_POINTS();
+	iAttackerDamage /= GetMaxHitPoints();
 
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
 		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iAttackerRoll *= iAttackerDamageRatio;
-		iAttackerRoll /= GC.getMAX_HIT_POINTS();
+		iAttackerRoll /= GetMaxHitPoints();
 	}
 	else
 	{
 		iAttackerRoll = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iAttackerRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 		iAttackerRoll *= iAttackerDamageRatio;
-		iAttackerRoll /= GC.getMAX_HIT_POINTS();
+		iAttackerRoll /= GetMaxHitPoints();
 		iAttackerRoll /= 2;	// The divide by 2 is to provide the average damage
 	}
 	iAttackerDamage += iAttackerRoll;
@@ -17336,7 +17344,7 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 		for (int i = 0; i < 6; i++)
 		{
 			CvPlot* pNeighbor = aNeighbors[i];
-			if (pNeighbor && canEverRangeStrikeAt(pNeighbor->getX(), pNeighbor->getY()))
+			if (pNeighbor && canEverRangeStrikeAt(pNeighbor->getX(), pNeighbor->getY(),plot(),false))
 			{
 				for (int iUnitLoop = 0; iUnitLoop < pNeighbor->getNumUnits(); iUnitLoop++)
 				{
@@ -17519,22 +17527,22 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 
 	// The roll will vary damage between 2 and 3 (out of 10) for two units of identical strength
 
-	int iInterceptorDamageRatio = GC.getMAX_HIT_POINTS() - getDamage();
-	int iInterceptorDamage = /*400*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE() * iInterceptorDamageRatio / GC.getMAX_HIT_POINTS();
+	int iInterceptorDamageRatio = GetMaxHitPoints() - getDamage();
+	int iInterceptorDamage = /*400*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE() * iInterceptorDamageRatio / GetMaxHitPoints();
 
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
 		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iInterceptorRoll *= iInterceptorDamageRatio;
-		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
+		iInterceptorRoll /= GetMaxHitPoints();
 	}
 	else
 	{
 		iInterceptorRoll = /*300*/ GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iInterceptorRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 		iInterceptorRoll *= iInterceptorDamageRatio;
-		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
+		iInterceptorRoll /= GetMaxHitPoints();
 		iInterceptorRoll /= 2;	// The divide by 2 is to provide the average damage
 	}
 	iInterceptorDamage += iInterceptorRoll;
@@ -20932,13 +20940,16 @@ bool CvUnit::onMap() const
 //	--------------------------------------------------------------------------------
 CvCity* CvUnit::getOriginCity()
 {
+	VALIDATE_OBJECT
 	if(getOwner() == NO_PLAYER)
 		return NULL;
 
-	if(m_iOriginCity == -1)
+	if (m_iOriginCity == -1 && GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+		return GET_PLAYER(getOwner()).getCapitalCity();
+
+	if (m_iOriginCity == -1)
 		return NULL;
 
-	VALIDATE_OBJECT
 	return GET_PLAYER(getOwner()).getCity(m_iOriginCity);
 }
 
@@ -21429,7 +21440,7 @@ bool CvUnit::IsUnderEnemyRangedAttack() const
 							if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= pLoopUnit->GetRange())
 							{
 								// Do we have LOS to the target?
-								if(pLoopUnit->canEverRangeStrikeAt(getX(), getY()))
+								if(pLoopUnit->canRangeStrikeAt(getX(), getY()))
 								{
 									// Will we do any damage
 									int iExpectedDamage = pLoopUnit->GetRangeCombatDamage(this, NULL, false);
@@ -27195,16 +27206,33 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			changeFeatureImpassableCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureImpassable(iI)) ? iChange : 0));
 		}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
+			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
+			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
+#if defined(MOD_API_UNIFIED_YIELDS)
 			changeYieldFromKills(((YieldTypes)iI), (thisPromotion.GetYieldFromKills(iI) * iChange));
 			changeYieldFromBarbarianKills(((YieldTypes)iI), (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
 #if defined(MOD_BALANCE_CORE)
 			changeYieldFromScouting(((YieldTypes)iI), (thisPromotion.GetYieldFromScouting(iI) * iChange));
 #endif
-		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if (bNewValue)
+			{
+				if (thisPromotion.GetInstantYields(iI).first > 0)
+				{
+					CvCity* pCity = getOriginCity();
+					if (pCity == NULL && GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+					{
+						pCity = GET_PLAYER(getOwner()).getCapitalCity();
+					}
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, getOriginCity(), false, true, false, (YieldTypes)iI, this);
+				}
+			}
+#endif
+		}
 
 		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
@@ -27245,16 +27273,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
 		{
 			ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
-		}
-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
-		}
-
-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
-			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
 		}
 
 		if(IsSelected())
@@ -27664,89 +27682,76 @@ bool CvUnit::canRangeStrike() const
 
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 {
-	return canEverRangeStrikeAt(iX,iY,plot(),false);
+	return canEverRangeStrikeAt(iX,iY,NULL,false);
 }
 
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const
 {
-	if (!pSourcePlot)
-		return false;
-
 	const CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
-
-	// Plot null?
-	if(NULL == pTargetPlot)
-	{
+	if(!pTargetPlot)
 		return false;
-	}
 
 	// Plot not visible?
 	if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE)
-	bool bWouldNeedEmbark = pSourcePlot && pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
-	bool bIsEmbarkedAttackingLand = pTargetPlot && !pTargetPlot->needsEmbarkation(this) && bWouldNeedEmbark;
-	if (bIsEmbarkedAttackingLand)
-		return false;
-#endif
-
-	// In Range?
-	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
+	if (pSourcePlot)
 	{
-		return false;
-	}
-
-	// Can only bombard in domain? (used for Subs' torpedo attack)
-	if(getUnitInfo().IsRangeAttackOnlyInDomain())
-	{
-		if( pTargetPlot->isWater() )
-		{
-			// preventing submarines from shooting into other water bodies (lakes)
-			if (pSourcePlot->getArea() != pTargetPlot->getArea())
-			{
-				return false;
-			}
-		}
-		else //land target
-		{
-
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				if(!pTargetPlot->isCoastalLand() || !pTargetPlot->isCity() || !pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
-				{
-					return false;
-				}
-			}
-			else
-			{
-#endif
-				return false;
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-#endif
-		}
-	}
-
-	// Ignores LoS or can see the plot directly?
-	if(!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
-	{
-		if(!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+		// In Range?
+		if (plotDistance(*pSourcePlot, *pTargetPlot) > GetRange())
 		{
 			return false;
 		}
-	}
+
+#if defined(MOD_BALANCE_CORE)
+		bool bWouldNeedEmbark = pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
+		bool bIsEmbarkedAttackingLand = !pTargetPlot->needsEmbarkation(this) && bWouldNeedEmbark;
+		if (bIsEmbarkedAttackingLand)
+			return false;
+#endif
+
+		// Can only bombard in domain?
+		if (getUnitInfo().IsRangeAttackOnlyInDomain())
+		{
+			//check areas, not domain types because we want to prevent subs from shooting into lakes
+			bool bForbidden = (pTargetPlot->getArea() != pSourcePlot->getArea());
+			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
+			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
+				bForbidden = false;
+
+			if (bForbidden)
+				return false;
+		}
+
+		// Ignores LoS or can see the plot directly?
+		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
+		{
+			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+			{
+				return false;
+			}
+		}
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
-    if(!isNativeDomain(pSourcePlot))
-    {
-        return false;
-    }
+		if (!isNativeDomain(pSourcePlot))
+		{
+			return false;
+		}
 #endif
+	}
+	else //no source plot given, do only the most basic checks
+	{
+		// Can only bombard in domain?
+		if (getUnitInfo().IsRangeAttackOnlyInDomain())
+		{
+			bool bForbidden = (getDomainType() != pTargetPlot->getDomain());
+			if (pTargetPlot->isCity() && pTargetPlot->isCoastalLand())
+				bForbidden = false;
+
+			if (bForbidden)
+				return false;
+		}
+	}
 
 	return true;
 }
@@ -27761,7 +27766,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 		return false;
 	}
 
-	if(!canEverRangeStrikeAt(iX, iY))
+	if(!canEverRangeStrikeAt(iX, iY, plot(), false))
 	{
 		return false;
 	}

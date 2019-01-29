@@ -181,22 +181,12 @@ function RefreshData()
 			tradeRoute.Category = 1;
 		elseif(iTargetOwner < GameDefines.MAX_MAJOR_CIVS) then
 			tradeRoute.Category = 2;
--- CBP
-			if (pTargetCity ~= nil and pTargetCity:IsFranchised(iActivePlayer)) then
-				tradeRoute.CityIcons = " [ICON_INVEST]"
-			end
--- END
 		else
 			tradeRoute.Category = 3;	-- City States
 
 			if (pTargetPlayer:IsMinorCivActiveQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE)) then
 				tradeRoute.CityIcons = " [ICON_INTERNATIONAL_TRADE]"
 			end
--- CBP
-			if (pTargetCity ~= nil and pTargetCity:IsFranchised(iActivePlayer)) then
-				tradeRoute.CityIcons = " [ICON_INVEST]"
-			end
--- END
 		end
 		
 		local myBonuses = "";
@@ -312,6 +302,18 @@ function RefreshData()
 		else
 			tradeRoute.PrevRoute = "";
 		end
+
+		-- CBP
+		if (pTargetCity ~= nil and pTargetCity:IsFranchised(iActivePlayer)) then
+			tradeRoute.CityIcons = " [ICON_CHECKBOX]"
+		elseif(pTargetCity ~= nil and pOriginCity ~= nil and pOriginCity:HasOffice())then			
+			if (pPlayer:CanCreateFranchiseInCity(pOriginCity, pTargetCity)) then
+				tradeRoute.CityIcons = " [ICON_INVEST]"
+			else
+				tradeRoute.CityIcons = " [ICON_DENOUNCE]"
+			end
+		end
+-- END
 		
 		table.insert(g_Model, tradeRoute);
 	end
@@ -447,16 +449,27 @@ function DisplayData()
 		
 		local itemInstance = g_ItemManagers[tradeRoute.Category]:GetInstance();
 --CBP
-		if(tradeRoute.CityIcons == " [ICON_INVEST]") then
-			local pPlayer = Players[Game.GetActivePlayer()];
-			if(pPlayer ~= nil) then
-				local strCorpInfo = Locale.Lookup("TXT_KEY_CORP_HERE");
-				itemInstance.CityName:SetText(tradeRoute.CityName .. strCorpInfo);
-			else
-				itemInstance.CityName:SetText(tradeRoute.CityName .. tradeRoute.CityIcons);		
+		itemInstance.CityName:SetText(tradeRoute.CityName);
+
+		local pPlayer = Players[Game.GetActivePlayer()];
+
+		itemInstance.CityIcons:SetText("");
+		if(pPlayer ~= nil) then
+			if(tradeRoute.CityIcons == " [ICON_CHECKBOX]") then	
+				local franchiseBonus = pPlayer:GetTradeRouteBenefitHelper();
+				franchiseBonus = Locale.ConvertTextKey("TXT_KEY_HAS_FRANCHISE_TT") .. franchiseBonus;
+				itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
+				itemInstance.CityIcons:SetToolTipString(franchiseBonus);
+			elseif(tradeRoute.CityIcons == " [ICON_INVEST]") then	
+				local officeBonus = pPlayer:GetCurrentOfficeBenefit();
+				officeBonus = Locale.ConvertTextKey("TXT_KEY_CAN_FRANCHISE_TT") .. officeBonus;
+				itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
+				itemInstance.CityIcons:SetToolTipString(officeBonus);
+			elseif(tradeRoute.CityIcons == " [ICON_DENOUNCE]") then	
+				local noFranchiseWhy = Locale.ConvertTextKey("TXT_KEY_NO_FRANCHISE_HERE_TT");
+				itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
+				itemInstance.CityIcons:SetToolTipString(noFranchiseWhy);
 			end
-		else
-			itemInstance.CityName:SetText(tradeRoute.CityName .. tradeRoute.CityIcons);		
 		end
 --END
 		itemInstance.Bonuses:SetText(tradeRoute.Bonuses);
@@ -464,7 +477,11 @@ function DisplayData()
 
 		CivIconHookup(tradeRoute.TargetPlayerId, 32, itemInstance.CivIcon, itemInstance.CivIconBG, itemInstance.CivIconShadow, false, true );
 		itemInstance.Button:RegisterCallback(Mouse.eLClick, function() SelectTradeDestinationChoice(tradeRoute.PlotX, tradeRoute.PlotY, tradeRoute.TradeConnectionType); end);
-		itemInstance.Button:SetToolTipString(tradeRoute.ToolTip);
+		--itemInstance.Button:SetToolTipString(tradeRoute.ToolTip);
+		itemInstance.CityName:SetToolTipString(tradeRoute.ToolTip);
+		itemInstance.Bonuses:SetToolTipString(tradeRoute.ToolTip);
+		itemInstance.PrevRoute:SetToolTipString(tradeRoute.ToolTip);
+
 		itemInstance.Box:SetColorVal(unpack(ltBlue));
 		local buttonWidth, buttonHeight = itemInstance.Button:GetSizeVal();
 		local descWidth, descHeight = itemInstance.Bonuses:GetSizeVal();

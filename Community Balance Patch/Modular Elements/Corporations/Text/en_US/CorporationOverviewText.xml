@@ -101,11 +101,8 @@
 		<Row Tag="TXT_KEY_CPO_NUM_FRANCHISES">
 			<Text>Franchises Established: {1_Num} of {2_Max}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CORP_NUM_FRANCHISE_TT">
-			<Text>Total number of foreign Cities with Franchises (i.e. Cities your Corporation has spread to).[NEWLINE][NEWLINE]The maximum number of Franchises you can create is a factor of the number of [ICON_INTERNATIONAL_TRADE] Trade Routes you can establish and World Size. Ideology Tenets can also modify this number, and in some cases allow you to exceed your Franchise maximum.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CPO_BUILD_FRANCHISES_HELP">
-			<Text>Spread your Corporation by sending [ICON_INTERNATIONAL_TRADE] Trade Routes from cities with Offices in them to foreign Cities. At the end of the [ICON_INTERNATIONAL_TRADE] Trade Route, you will establish a new Franchise (if one does not already exist in that city).</Text>
+			<Text>Spread your Corporation by sending [ICON_INTERNATIONAL_TRADE] Trade Routes from cities with Offices in them to foreign Cities. There is a chance each turn that Franchises will spawn in their Empire and, at the end of the [ICON_INTERNATIONAL_TRADE] Trade Route, you are guaranteed one new Franchise (if one does not already exist in that city).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_CORPORATIONS_NOT_READY">
 			<Text>You cannot create a Corporation until you have researched the Corporations technology.</Text>

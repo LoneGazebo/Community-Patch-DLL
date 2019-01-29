@@ -15,7 +15,7 @@ public:
 	
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
-	int GetMaxFranchises() const;
+	int GetBaseFranchises() const;
 	BuildingClassTypes GetHeadquartersBuildingClass() const;
 	BuildingClassTypes GetOfficeBuildingClass() const;
 	BuildingClassTypes GetFranchiseBuildingClass() const;
@@ -29,6 +29,8 @@ public:
 
 	int GetTradeRouteRecipientBonus() const;
 	int GetTradeRouteTargetBonus() const;
+	int GetRandomSpreadChance() const;
+	int GetTourismMod() const;
 
 	int GetResourceMonopolyAnd(int i) const;
 	int GetResourceMonopolyOr(int i) const;
@@ -47,6 +49,7 @@ public:
 	int* GetSpecialistYieldChangeArray(int i) const;
 
 	CvString GetOfficeBenefitHelper() const;
+	CvString GetTradeRouteBenefitHelper() const;
 protected:
 	BuildingClassTypes m_eHeadquartersBuildingClass;
 	BuildingClassTypes m_eOfficeBuildingClass;
@@ -56,12 +59,14 @@ protected:
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSpeedModifier;
 	int m_iNumFreeTradeRoutes;
-	int m_iMaxFranchises;
+	int m_iBaseFranchises;
 	int m_bTradeRoutesInvulnerable;
 	int m_iTradeRouteVisionBoost;
 	
 	int m_iTradeRouteRecipientBonus;
 	int m_iTradeRouteTargetBonus;
+	int m_iBaseSpreadChance;
+	int m_iTourismMod;
 
 	int* m_piResourceMonopolyAnd;
 	int* m_piResourceMonopolyOrs;
@@ -76,6 +81,8 @@ protected:
 	int** m_ppaiResourceYieldChange;
 
 	CvString m_strOfficeBenefitHelper;
+
+	CvString m_strTradeRouteBenefitHelper;
 private:
 	CvCorporationEntry(const CvCorporationEntry&);
 	CvCorporationEntry& operator=(const CvCorporationEntry&);
@@ -205,6 +212,10 @@ public:
 	int GetMaxNumFranchises() const;
 	int GetNumFranchises() const;
 
+	CvString GetNumFranchisesTooltip();
+
+	int GetFranchiseTourismMod(PlayerTypes ePlayer, bool bJustCheckOne = false) const;
+
 	int GetNumOffices() const;
 
 	void RecalculateNumOffices();
@@ -213,24 +224,41 @@ public:
 	void BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDestCity);
 	void BuildRandomFranchiseInCity();
 
+	void LogCorporationMessage(const CvString& strMsg);
+	CvString GetLogFileName(CvString& playerName) const;
+
 	CvString GetCurrentOfficeBenefit();
+
+	CvString GetTradeRouteBenefit();
 
 	CvCorporationEntry* GetCorporationEntry() const;
 
-	void ClearCorporationFromCity(CvCity* pCity);
+	void ClearAllCorporationsFromCity(CvCity* pCity);
+
+	void ClearCorporationFromCity(CvCity* pCity, CorporationTypes eCorporation, bool bAllButThis = false);
+
+	void ClearCorporationFromForeignCities(bool bMinorsOnly = false);
+
+	bool CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity* pTargetCity);
 
 	bool HasFoundedCorporation() const;
 	CorporationTypes GetFoundedCorporation() const;
 	void SetFoundedCorporation(CorporationTypes eCorporation);
 
-	bool IsCorporationOfficesAsFranchises() const;
-	void SetCorporationOfficesAsFranchises(bool bValue);
+	int GetCorporationOfficesAsFranchises() const;
+	void SetCorporationOfficesAsFranchises(int iValue);
 
-	bool IsCorporationRandomForeignFranchise() const;
-	void SetCorporationRandomForeignFranchise(bool bValue);
+	int GetCorporationRandomForeignFranchiseMod() const;
+	void SetCorporationRandomForeignFranchiseMod(int iValue);
 
-	bool IsCorporationFreeFranchiseAbovePopular() const;
-	void SetCorporationFreeFranchiseAbovePopular(bool bValue);
+	int GetCorporationFreeFranchiseAbovePopular() const;
+	void SetCorporationFreeFranchiseAbovePopular(int iValue);
+
+	bool IsNoForeignCorpsInCities();
+	void SetNoForeignCorpsInCities(bool bValue);
+
+	bool IsNoFranchisesInForeignCities();
+	void SetNoFranchisesInForeignCities(bool bValue);
 
 	void DestroyCorporation();
 
@@ -244,9 +272,12 @@ private:
 	int m_iAdditionalNumFranchises;
 	int m_iAdditionalNumFranchisesMod;
 
-	bool m_bCorporationOfficesAsFranchises;
-	bool m_bCorporationRandomForeignFranchise;
-	bool m_bCorporationFreeFranchiseAbovePopular;
+	int m_iCorporationOfficesAsFranchises;
+	int m_iCorporationRandomForeignFranchiseMod;
+	int m_iCorporationFreeFranchiseAbovePopular;
+
+	bool m_bIsNoForeignCorpsInCities;
+	bool m_bIsNoFranchisesInForeignCities;
 };
 
 #endif

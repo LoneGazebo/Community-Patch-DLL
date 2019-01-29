@@ -247,7 +247,7 @@ public:
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
 #if defined(MOD_API_EXTENSIONS)
-	void ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
+	int ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
 #endif
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
 	int GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const;
@@ -260,7 +260,7 @@ public:
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes ePlayer);
-	int GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer);
+	int GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool bJustInstant = false);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
 #endif
@@ -276,6 +276,7 @@ public:
 	int GetTourismModifierSharedReligion() const;
 	int GetTourismModifierTradeRoute() const;
 	int GetTourismModifierOpenBorders() const;
+	int GetFranchiseModifier(PlayerTypes ePlayer, bool bJustCheckOne = false) const;
 	PublicOpinionTypes GetPublicOpinionType() const;
 	PolicyBranchTypes GetPublicOpinionPreferredIdeology() const;
 	CvString GetPublicOpinionTooltip() const;

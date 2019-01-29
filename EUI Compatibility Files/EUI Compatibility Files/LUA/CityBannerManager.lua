@@ -337,8 +337,13 @@ local g_cityToolTips = {
 					tipText = L("TXT_KEY_CITY_OF", "", city:GetName() ) .. tipText .. "[NEWLINE][NEWLINE]"
 						.. GetCityStateStatusToolTip( g_activePlayerID, cityOwnerID, true )
 				else
-					tipText = L("TXT_KEY_CITY_OF", cityOwner:GetCivilizationAdjectiveKey(), city:GetName() )
-						.. tipText .. "[NEWLINE][NEWLINE]" .. GetMoodInfo(cityOwnerID, true)
+					if(g_activeTeam:IsAtWar(cityTeamID)) then
+						tipText = L("TXT_KEY_CITY_OF", cityOwner:GetCivilizationAdjectiveKey(), city:GetName() ) .. tipText 
+							--.. "[NEWLINE][NEWLINE]" .. GetMoodInfo(cityOwnerID, true)
+					else
+						tipText = L("TXT_KEY_CITY_OF", cityOwner:GetCivilizationAdjectiveKey(), city:GetName() ) .. tipText 
+						.. "[NEWLINE][NEWLINE]" .. GetMoodInfo(cityOwnerID, true)
+					end
 				end
 
 				if bnw_mode and g_activeTeam:IsAtWar(cityTeamID) then

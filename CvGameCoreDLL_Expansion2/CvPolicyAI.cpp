@@ -1687,50 +1687,52 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 	}
 
-	
-	if (PolicyInfo->IsCorporationOfficesAsFranchises())
+	if (pPlayer->GetCorporations()->GetFoundedCorporation() != NO_CORPORATION)
 	{
-		if (pPlayerTraits->IsTourism())
+		if (PolicyInfo->GetCorporationOfficesAsFranchises() != 0)
 		{
-			yield[YIELD_GOLD] += 30 * iNumCities;
+			if (pPlayerTraits->IsExpansionist())
+			{
+				yield[YIELD_GOLD] += 30 * iNumCities;
+			}
+			else
+			{
+				yield[YIELD_GOLD] += 15 * iNumCities;
+			}
 		}
-		else
-		{
-			yield[YIELD_GOLD] += 15 * iNumCities;
-		}
-	}
 
-	if (PolicyInfo->IsCorporationFreeFranchiseAbovePopular())
-	{
-		if (pPlayerTraits->IsTourism())
+		if (PolicyInfo->GetCorporationFreeFranchiseAbovePopular() != 0)
 		{
-			yield[YIELD_TOURISM] += 500;
+			if (pPlayerTraits->IsTourism())
+			{
+				yield[YIELD_TOURISM] += 1500;
+			}
+			else
+			{
+				yield[YIELD_TOURISM] += 250;
+			}
 		}
-		else
+		if (PolicyInfo->GetCorporationRandomForeignFranchiseMod() != 0)
 		{
-			yield[YIELD_TOURISM] += 250;
+			if (pPlayerTraits->IsTourism())
+			{
+				yield[YIELD_GOLD] += 1500;
+			}
+			else
+			{
+				yield[YIELD_GOLD] += 200;
+			}
 		}
-	}
-	if (PolicyInfo->IsCorporationRandomForeignFranchise())
-	{
-		if (pPlayerTraits->IsTourism())
+		if (PolicyInfo->GetAdditionalNumFranchisesMod() != 0)
 		{
-			yield[YIELD_GOLD] += 500;
-		}
-		else
-		{
-			yield[YIELD_GOLD] += 200;
-		}
-	}
-	if (PolicyInfo->GetAdditionalNumFranchisesMod() != 0)
-	{
-		if (pPlayerTraits->IsExpansionist())
-		{
-			yield[YIELD_GOLD] += PolicyInfo->GetAdditionalNumFranchisesMod() * 10;
-		}
-		else
-		{
-			yield[YIELD_GOLD] += PolicyInfo->GetAdditionalNumFranchisesMod() * 5;
+			if (pPlayerTraits->IsExpansionist())
+			{
+				yield[YIELD_GOLD] += PolicyInfo->GetAdditionalNumFranchisesMod() * 50;
+			}
+			else
+			{
+				yield[YIELD_GOLD] += PolicyInfo->GetAdditionalNumFranchisesMod() * 5;
+			}
 		}
 	}
 	if (PolicyInfo->IsUpgradeCSVassalTerritory())
@@ -4767,7 +4769,11 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	if (!pPlayer->GetCorporations()->HasFoundedCorporation())
 	{
 		//Corporate-specific policies should only be taken if you have a corporation.
-		if (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->IsCorporationOfficesAsFranchises() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->IsCorporationRandomForeignFranchise() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->IsCorporationFreeFranchiseAbovePopular())
+		if (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetCorporationOfficesAsFranchises() != 0 
+			|| m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetCorporationRandomForeignFranchiseMod() != 0 
+			|| m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetCorporationFreeFranchiseAbovePopular() != 0
+			|| m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->IsNoFranchisesInForeignCities()
+			|| m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->IsNoForeignCorpsInCities())
 		{
 			iWeight = 0;
 		}

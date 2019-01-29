@@ -235,6 +235,7 @@ local workerHeadingOpen = OptionsManager.IsNoCitizenWarning();
 local slackerHeadingOpen = true;
 local GPHeadingOpen = true;
 local wonderHeadingOpen = true;
+local corpsHeadingOpen = true;
 local greatWorkHeadingOpen = true;
 local specialistBuildingHeadingOpen = true;
 local buildingHeadingOpen = true;
@@ -271,6 +272,11 @@ end
 
 function OnWondersHeaderSelected()
 	wonderHeadingOpen = not wonderHeadingOpen;
+	OnCityViewUpdate();
+end
+
+function OnCorpsHeaderSelected()
+	corpsHeadingOpen = not corpsHeadingOpen;
 	OnCityViewUpdate();
 end
 
@@ -1522,16 +1528,18 @@ function OnCityViewUpdate()
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
-					if (pCity:IsHasBuilding(buildingID)) then
-						numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+				if not (building.IsCorporation == 1) then
+					local buildingID= building.ID;
+					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
+						if (pCity:IsHasBuilding(buildingID)) then
+							numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
+							local element = {};
+							local name = Locale.ConvertTextKey( building.Description )
+							element.name = name;
+							element.ID = building.ID;
+							sortedList[thisId] = element;
+							thisId = thisId + 1;
+						end
 					end
 				end
 			end
@@ -1575,23 +1583,24 @@ function OnCityViewUpdate()
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and building.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
 				local buildingID= building.ID;
-				if (pCity:IsHasBuilding(buildingID)) then
-					numWondersInThisCity = numWondersInThisCity + 1;
-					if(pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0) then
-						numWondersWithSpecialistInThisCity = numWondersWithSpecialistInThisCity + 1;
-					end
+				if not (building.IsCorporation == 1) then
+					if (pCity:IsHasBuilding(buildingID)) then
+						numWondersInThisCity = numWondersInThisCity + 1;
+						if(pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0) then
+							numWondersWithSpecialistInThisCity = numWondersWithSpecialistInThisCity + 1;
+						end
 					
-					local element = {};
-					local name = Locale.ConvertTextKey( building.Description )
-					element.name = name;
-					element.ID = building.ID;
-					sortedList[thisId] = element;
-					thisId = thisId + 1;
+						local element = {};
+						local name = Locale.ConvertTextKey( building.Description )
+						element.name = name;
+						element.ID = building.ID;
+						sortedList[thisId] = element;
+						thisId = thisId + 1;
+					end
 				end
 			end
 		end
 		table.sort(sortedList, function(a, b) return a.name < b.name end);
-		
 		
 		Controls.SpecialistControlBox2:SetHide( true );
 		if numWondersInThisCity > 0 then
@@ -1633,15 +1642,17 @@ function OnCityViewUpdate()
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
 				local thisBuilding = GameInfo.Buildings[building.ID];
 				if thisBuilding.GreatWorkCount > 0 then
-					if (pCity:IsHasBuilding(building.ID)) then
-						numGreatWorkBuildingsInThisCity = numGreatWorkBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+					if not (building.IsCorporation == 1) then
+						if (pCity:IsHasBuilding(building.ID)) then
+							numGreatWorkBuildingsInThisCity = numGreatWorkBuildingsInThisCity + 1;
+							local element = {};
+							local name = Locale.ConvertTextKey( building.Description )
+							element.name = name;
+							element.ID = building.ID;
+							sortedList[thisId] = element;
+							thisId = thisId + 1;
 						end
+					end
 				end
 			end
 		end
@@ -1661,6 +1672,49 @@ function OnCityViewUpdate()
 		else
 			Controls.GreatWorkHeader:SetHide( true );
 		end
+
+		--Corps (CBO)
+		local numCorpsInThisCity = 0;
+		if corpsHeadingOpen then
+			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CORPORATIONS_TEXT" );
+			Controls.CorporationsHeaderLabel:SetText(localizedLabel);
+		else
+			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CORPORATIONS_TEXT" );
+			Controls.CorporationsHeaderLabel:SetText(localizedLabel);
+		end
+		sortedList = {};
+		thisId = 1;
+		for building in GameInfo.Buildings() do
+			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
+			if (building.IsCorporation == 1) then
+				local buildingID= building.ID;
+				if (pCity:IsHasBuilding(buildingID)) then
+					numCorpsInThisCity = numCorpsInThisCity + 1;				
+					local element = {};
+					local name = Locale.ConvertTextKey( building.Description )
+					element.name = name;
+					element.ID = building.ID;
+					sortedList[thisId] = element;
+					thisId = thisId + 1;
+				end
+			end
+		end
+		table.sort(sortedList, function(a, b) return a.name < b.name end);
+		if numCorpsInThisCity > 0 then
+			--if header is not hidden and is open
+			Controls.CorporationsHeader:SetHide( false );
+			sortOrder = sortOrder + 1;
+			otherSortedList[tostring( Controls.CorporationsHeader )] = sortOrder;
+			if corpsHeadingOpen then
+				Controls.CorporationsHeader:RegisterCallback( Mouse.eLClick, OnCorpsHeaderSelected );
+				for i, v in ipairs(sortedList) do
+					local building = GameInfo.Buildings[v.ID];
+					AddBuildingButton( pCity, building );
+				end
+			end
+		else
+			Controls.CorporationsHeader:SetHide( true );
+		end
 				
 		-- the rest of the buildings
 		local numBuildingsInThisCity = 0;
@@ -1676,16 +1730,18 @@ function OnCityViewUpdate()
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-					if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
-						numBuildingsInThisCity = numBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+				if not (building.IsCorporation == 1) then
+					local buildingID= building.ID;
+					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
+						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
+							numBuildingsInThisCity = numBuildingsInThisCity + 1;
+							local element = {};
+							local name = Locale.ConvertTextKey( building.Description )
+							element.name = name;
+							element.ID = building.ID;
+							sortedList[thisId] = element;
+							thisId = thisId + 1;
+						end
 					end
 				end
 			end

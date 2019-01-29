@@ -15728,8 +15728,8 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iLocalPowerScore = 0;
 	if (MOD_BALANCE_CORE_MINORS)
 	{
-		if (iMinorLocalPower < (iBullyLocalPower / 4))
-			iMinorLocalPower = (iBullyLocalPower / 4);
+		if (iMinorLocalPower < (iBullyLocalPower / 3))
+			iMinorLocalPower = (iBullyLocalPower / 3);
 
 		fLocalPowerRatio = (float)iBullyLocalPower * 100 / (float)iMinorLocalPower;
 
@@ -15815,6 +15815,10 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		iBaseReluctanceScore = -110;
 #if defined(MOD_BALANCE_CORE_MINORS)
 	}
+
+	if (GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IsBullyAnnex())
+		iBaseReluctanceScore += (GET_PLAYER(eBullyPlayer).GetNumMinorsControlled() * -10);
+
 #endif
 	if (sTooltipSink)
 	{

@@ -400,11 +400,14 @@ public:
 	int GetYieldFromVictory(int i) const;
 	int* GetYieldFromVictoryArray() const;
 
+	int GetYieldFromVictoryGlobal(int i) const;
+	int* GetYieldFromVictoryGlobalArray() const;
+
 	int GetYieldFromPillage(int i) const;
 	int* GetYieldFromPillageArray() const;
 
-	int GetYieldFromWaterPillage(int i) const;
-	int* GetYieldFromWaterPillageArray() const;
+	int GetYieldFromPillageGlobal(int i) const;
+	int* GetYieldFromPillageGlobalArray() const;
 
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
@@ -438,6 +441,9 @@ public:
 
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
+
+	int GetYieldFromFaithPurchase(int i) const;
+	int* GetYieldFromFaithPurchaseArray() const;
 
 	int GetScienceFromYield(int i) const;
 	int* GetScienceFromYieldArray() const;
@@ -882,8 +888,9 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
+	int* m_piYieldFromVictoryGlobal;
 	int* m_piYieldFromPillage;
-	int* m_piYieldFromWaterPillage;
+	int* m_piYieldFromPillageGlobal;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
@@ -898,6 +905,7 @@ private:
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromUnitLevelUp;
 	int* m_piYieldFromPurchase;
+	int* m_piYieldFromFaithPurchase;
 	int* m_piScienceFromYield;
 	int* m_piYieldFromInternalTREnd;
 #endif

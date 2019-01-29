@@ -29,5 +29,9 @@
 		<Row Tag="TXT_KEY_AT_WAR_WITH_CP">
 			<Text> [COLOR_NEGATIVE_TEXT]At war with {1_enemy}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_CORPSBUILDING_TEXT">
+			<Text>Corporations</Text>
+		</Row>
+		
 	</Language_en_US>
 </GameData>

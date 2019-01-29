@@ -530,7 +530,7 @@
 		<!-- New -->
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE">
-			<Text>Entering a new Era has lead to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_CULTURE] Culture from Mandate of Heaven are reduced by up to {1_Num} in all Cities.</Text>
+			<Text>Entering a new Era has lead to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_CULTURE] Culture from Mandate of Heaven are halved in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE">
 			<Text>Dynastic Transition...</Text>

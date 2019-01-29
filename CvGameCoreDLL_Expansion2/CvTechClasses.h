@@ -300,6 +300,7 @@ private:
 	void AddFlavorAsStrategies(int iPropagatePercent);
 
 	// Logging functions
+	CvString GetLogFileName(CvString& playerName) const;
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 
 	bool* m_pabResearchingTech;

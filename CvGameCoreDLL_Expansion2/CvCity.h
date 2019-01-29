@@ -486,6 +486,7 @@ public:
 	bool isCapital() const;
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
+	bool IsOriginalMinorCapital() const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)
@@ -1086,9 +1087,6 @@ public:
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
 
-	int GetYieldFromPillageWater(YieldTypes eIndex) const;
-	void ChangeYieldFromPillageWater(YieldTypes eIndex, int iChange);
-
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
@@ -1120,6 +1118,9 @@ public:
 	void ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange);
 	int GetYieldFromPurchase(YieldTypes eIndex) const;
 	void ChangeYieldFromPurchase(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromFaithPurchase(YieldTypes eIndex) const;
+	void ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
 	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
@@ -1786,7 +1787,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iDamage;
 	FAutoVariable<int, CvCity> m_iThreatValue;
 	FAutoVariable<int, CvCity> m_hGarrison;  // unused
-	int m_hGarrisonOverride; //only temporary, not serialized
+	mutable int m_hGarrisonOverride; //only temporary, not serialized
 	FAutoVariable<int, CvCity> m_iResourceDemanded;
 	FAutoVariable<int, CvCity> m_iWeLoveTheKingDayCounter;
 	FAutoVariable<int, CvCity> m_iLastTurnGarrisonAssigned;
@@ -1844,8 +1845,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictoryGlobal;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillage;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillageWater;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillageGlobal;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
@@ -1855,6 +1857,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBorderGrowth;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPolicyUnlock;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPurchase;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromFaithPurchase;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitLevelUp;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerAlly;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerFriend;
@@ -2115,7 +2118,7 @@ protected:
 
 protected:
 	//we can pretend a garrison in this city, but only for limited time
-	void OverrideGarrison(const CvUnit* pUnit);
+	void OverrideGarrison(const CvUnit* pUnit) const;
 	friend class CvCityGarrisonOverride;
 };
 
@@ -2129,7 +2132,7 @@ void ClearCityDeltas();
 class CvCityGarrisonOverride
 {
 public:
-	CvCityGarrisonOverride(CvCity* pCity, const CvUnit* pUnit)
+	CvCityGarrisonOverride(const CvCity* pCity, const CvUnit* pUnit)
 	{
 		m_pCity = pCity;
 		//can only garrison units of the city owner!
@@ -2142,7 +2145,7 @@ public:
 			m_pCity->OverrideGarrison(0);
 	}
 protected:
-	CvCity* m_pCity;
+	const CvCity* m_pCity;
 };
 
 #endif

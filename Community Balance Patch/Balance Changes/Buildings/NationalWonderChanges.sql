@@ -110,6 +110,11 @@ UPDATE Building_YieldChanges
 Set Yield = '10'
 WHERE BuildingType = 'BUILDING_IRONWORKS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
+VALUES
+	('BUILDING_IRONWORKS', 'RESOURCE_IRON', 2);
+
 -- Grand Temple
 UPDATE Buildings
 SET GreatWorkSlotType = 'GREAT_WORK_SLOT_MUSIC'

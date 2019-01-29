@@ -4034,10 +4034,13 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
 	m_aiCulturalInfluence[iIndex] = m_aiCulturalInfluence[iIndex] + iValue;
+
+	//store off this data
+	m_pPlayer->changeInstantTourismValue(ePlayer, iValue);
 }
 
 #if defined(MOD_API_EXTENSIONS)
-void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers /* = false */, bool bModifyForGameSpeed /* = true */)
+int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers /* = false */, bool bModifyForGameSpeed /* = true */)
 {
     int iInfluence = iBaseInfluence;
     
@@ -4063,6 +4066,8 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflu
     if (iInfluence != 0) {
 		ChangeInfluenceOn(eOtherPlayer, iInfluence);
     }
+
+	return iInfluence;
  }
 #endif
 
@@ -4232,17 +4237,24 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	float iOurTourismThisTurn = (float)GetInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
 	float iOurTourismLastTurn = (float)GetLastTurnInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetLastTurnInfluenceIPT(ePlayer);
 
-	float base = iOurTourismThisTurn - iOurTourismLastTurn;
-	if (base <= 0)
-		base = 1;
+	if (iTheirCultureLastTurn <= 0)
+		iTheirCultureLastTurn = 1;
 
-	float slope = (iTheirCultureThisTurn - iTheirCultureLastTurn) / base;
+	if (iTheirCultureThisTurn <= 0)
+		iTheirCultureThisTurn = 1;
+	float iLastTurnPercent = (iOurTourismLastTurn * 100) / iTheirCultureLastTurn;
+	float iThisTurnPercent = (iOurTourismThisTurn * 100) / iTheirCultureThisTurn;
 
-	if (slope < .9f)
+	float iDiff = fabs(iLastTurnPercent - iThisTurnPercent);
+
+	if (iDiff <= .15f)
+		return eRtnValue;
+
+	else if (iLastTurnPercent < iThisTurnPercent)
 	{
 		eRtnValue = INFLUENCE_TREND_RISING;
 	}
-	else if (slope > 1.1f)
+	else if (iLastTurnPercent > iThisTurnPercent)
 	{
 		eRtnValue = INFLUENCE_TREND_FALLING;
 	}
@@ -4253,18 +4265,89 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer)
 {
 	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurn();
-	iBase += GET_PLAYER(eOtherPlayer).getInstantYieldValue(YIELD_CULTURE, 10) / 10;
+	int iNumPreviousTurnsToCount = 30;
+	int MaxTurnsBack = 0;
+	int iGameTurn = GC.getGame().getGameTurn();
+	
+		int TurnsBack = 0;
 
-	return iBase;
+	//current turn
+	int iSum = 0;
+
+	//turn zero is strange
+	if (iGameTurn == 0)
+	{
+		iSum = m_pPlayer->getInstantYieldValue(YIELD_CULTURE, GC.getGame().getGameTurn());
+		TurnsBack++;
+	}
+	else
+	{
+		//and x turns back
+		for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
+		{
+			int iTurn = iGameTurn - iI;
+			if (iTurn < 0)
+			{
+				continue;
+			}
+
+			iSum += m_pPlayer->getInstantYieldValue(YIELD_CULTURE, iTurn);
+			TurnsBack++;
+		}
+	}
+	if (TurnsBack > MaxTurnsBack)
+		MaxTurnsBack = TurnsBack;
+
+	int iAverage = iSum / max(1, MaxTurnsBack);
+
+	return iBase + iAverage;
 }
 
 
-int CvPlayerCulture::GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer)
+int CvPlayerCulture::GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool bJustInstant)
 {
-	int iBase = GetInfluencePerTurn(ePlayer);
-	iBase += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, 10) / 10;
+	int iBase = 0;
+	if (!bJustInstant)
+		iBase = GetInfluencePerTurn(ePlayer);
 
-	return iBase;
+	int iNumPreviousTurnsToCount = 30;
+	int MaxTurnsBack = 0;
+	int iGameTurn = GC.getGame().getGameTurn();
+
+	int TurnsBack = 0;
+
+	//current turn
+	int iSum = 0;
+
+	//turn zero is strange
+	if (iGameTurn == 0)
+	{
+		iSum += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, GC.getGame().getGameTurn());
+		iSum += m_pPlayer->getInstantTourismValue(ePlayer, GC.getGame().getGameTurn());
+		TurnsBack++;
+	}
+	else
+	{
+		//and x turns back
+		for (int iI = iNumPreviousTurnsToCount; iI >= 0; iI--)
+		{
+			int iTurn = iGameTurn - iI;
+			if (iTurn < 0)
+			{
+				continue;
+			}
+
+			iSum += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, iTurn);
+			iSum += m_pPlayer->getInstantTourismValue(ePlayer, iTurn);
+			TurnsBack++;
+		}
+	}
+	if (TurnsBack > MaxTurnsBack)
+		MaxTurnsBack = TurnsBack;
+
+	int iAverage = iSum / max(1, MaxTurnsBack);
+
+	return iBase + iAverage;
 }
 
 /// If influence is rising, how many turns until we get to Influential? (999 if not rising fast enough to make it there eventually)
@@ -4281,10 +4364,13 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 	{
 		int iInfluence = GetInfluenceOn(ePlayer);
 		int iInflPerTurn = GetTourismPerTurnIncludingInstant(ePlayer);
+		if (iInflPerTurn == 0)
+			return 999;
+
 		int iCulture = kOtherPlayer.GetJONSCultureEverGenerated();
 		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer);
 
-		int iNumerator = (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCulture / 100) -  iInfluence;
+		int iNumerator = (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCulture / 100) - iInfluence;
 		int iDivisor = iInflPerTurn - (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCultPerTurn / 100);
 
 		iRtnValue = iNumerator / max(1, iDivisor);
@@ -4295,7 +4381,7 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 			iRtnValue++;
 		}
 
-		if (iRtnValue <= 0)
+		if (iRtnValue <= 0 || iRtnValue >= 999)
 			return 999;
 	}
 
@@ -4834,6 +4920,12 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		}
 	}
 
+	int iFranchiseBonus = m_pPlayer->GetCulture()->GetFranchiseModifier(ePlayer);
+	if (iFranchiseBonus != 0)
+	{
+		iMultiplier += iFranchiseBonus;
+	}
+
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
 	{
 		int iWarScore = m_pPlayer->GetDiplomacyAI()->GetHighestWarscore();
@@ -4933,6 +5025,15 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 	PolicyBranchTypes eMyIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+
+
+	int iTourismWithPlayer = m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer, true);
+	if (iTourismWithPlayer != 0)
+	{
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_INSTANT_TT_VALUE", iTourismWithPlayer) + "[ENDCOLOR]";
+	}
+
+	szRtnValue += "[NEWLINE]------------------------[NEWLINE]";
 
 	// POSITIVE MODIFIERS
 
@@ -5039,6 +5140,13 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 			}
 		}
 	}
+
+	int iFranchiseBonus = m_pPlayer->GetCulture()->GetFranchiseModifier(ePlayer);
+	if (iFranchiseBonus != 0)
+	{
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES", iFranchiseBonus) + "[ENDCOLOR]";
+	}
+
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
 	{
 		int iWarScore = m_pPlayer->GetDiplomacyAI()->GetHighestWarscore();
@@ -5131,6 +5239,12 @@ int CvPlayerCulture::GetTourismModifierTradeRoute() const
 int CvPlayerCulture::GetTourismModifierOpenBorders() const
 {
 	return GC.getTOURISM_MODIFIER_OPEN_BORDERS() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER);
+}
+
+/// Tourism modifier (base plus policy boost) - open borders
+int CvPlayerCulture::GetFranchiseModifier(PlayerTypes ePlayer, bool bJustCheckOne) const
+{
+	return m_pPlayer->GetCorporations()->GetFranchiseTourismMod(ePlayer, bJustCheckOne);
 }
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -5273,9 +5387,6 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
-
-			//store off this data
-			m_pPlayer->changeInstantYieldValue(YIELD_TOURISM, iTourism);
 		}
 	}
 }
@@ -7588,6 +7699,11 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 			}
 		}
 	}
+
+	//Corporations
+	iMultiplier += kCityPlayer.GetCulture()->GetFranchiseModifier(ePlayer);
+
+
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{

@@ -1056,6 +1056,12 @@ UPDATE Resources
 SET AITradeModifier = '20'
 WHERE Type = 'RESOURCE_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- emphasis on uniques - changed formula
+UPDATE Defines
+SET Value = '25'
+WHERE Name = 'TECH_PRIORITY_UNIQUE_ITEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+
 -- DOF too soon buffer:
 UPDATE Defines
 SET Value = '50'

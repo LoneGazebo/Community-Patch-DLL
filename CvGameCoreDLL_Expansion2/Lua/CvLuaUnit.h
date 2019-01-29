@@ -95,6 +95,7 @@ protected:
 
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);
+	static int lCanEverRangeStrikeAt(lua_State* L);
 
 	static int lCanParadrop(lua_State* L);
 	static int lCanParadropAt(lua_State* L);
@@ -553,6 +554,7 @@ protected:
 	static int lHasName(lua_State* L);
 	static int lGetNameKey(lua_State* L);
 	static int lSetName(lua_State* L);
+	static int lGetCityName(lua_State* L);
 	static int lIsTerrainDoubleMove(lua_State* L);
 	static int lIsFeatureDoubleMove(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_HALF_MOVE)
