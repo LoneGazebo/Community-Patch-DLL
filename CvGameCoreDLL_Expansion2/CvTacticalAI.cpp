@@ -2941,15 +2941,21 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			else
 			{
 				//check how many enemies are around
-				int iEnemyCount = 0;
+				int iStrongEnemyCount = 0;
+				int iWeakEnemyCount = 0;
 				for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
 				{
 					CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
 					if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
-						iEnemyCount++;
+					{
+						if (pNeighbor->getBestDefender(NO_PLAYER, m_pPlayer->GetID())->GetBaseCombatStrength() < currentDefender->GetBaseCombatStrength())
+							iWeakEnemyCount++;
+						else
+							iStrongEnemyCount++;
+					}
 				}
 
-				TacticalAIHelpers::PerformOpportunityAttack(currentDefender,iEnemyCount<2);
+				TacticalAIHelpers::PerformOpportunityAttack(currentDefender,iWeakEnemyCount<2 && iStrongEnemyCount==0);
 				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
 				UnitProcessed(currentDefender->GetID());
 			}
@@ -10994,7 +11000,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 
 		//stay on target. hard cutoff!
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(), *pCurrentPlot);
-		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+ 		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			return result;
 
 		//check all plots we could possibly attack from here

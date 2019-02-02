@@ -4815,7 +4815,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		// Check ice with specialty: is passable if owned
 		if (enterPlot.isIce()) 
 		{
-			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
+			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam() && ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0)));
 			return bCanCross;
 		}
 
