@@ -11177,7 +11177,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//don't do it if it's a death trap (unless there is no other choice ...)
 			if (currentPlot.getNumAdjacentEnemies() > 3 || (assumedPosition.getUnitNumberRatio() < 1 && currentPlot.getNumAdjacentEnemies() == 3))
 			{
-				result.iScore = 1;
+				result.iScore = iMiscScore;
 				return result;
 			}
 
@@ -11215,7 +11215,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				if ( (iDanger > pUnit->GetCurrHitPoints()*2 && currentPlot.getNumAdjacentFriendlies() < 4) ||
 					 (iDanger > pUnit->GetCurrHitPoints()*1 && currentPlot.getNumAdjacentFriendlies() < 3) )
 				{
-					result.iScore = max(1,10 - (2*iDanger)/pUnit->GetCurrHitPoints()); //not impossible but strongly discouraged
+					result.iScore = iMiscScore; //not impossible but strongly discouraged
 					return result;
 				}
 
