@@ -30006,6 +30006,21 @@ int CvUnit::GetMovementPointsAtCachedTarget() const
 	return m_kLastPath.back().m_iMoves;
 }
 
+CvPlot * CvUnit::GetLastValidDestinationPlotInCachedPath() const
+{
+	if (!IsCachedPathValid() || m_kLastPath.empty())
+		return NULL;
+
+	for (size_t i = m_kLastPath.size() - 1; i > 0; i--)
+	{
+		CvPlot* pPlot = m_kLastPath.GetPlotByIndex(i);
+		if (pPlot && canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+			return pPlot;
+	}
+
+	return NULL;
+}
+
 // PRIVATE METHODS
 
 //	--------------------------------------------------------------------------------

@@ -319,6 +319,7 @@ public:
 	CvPlot* GetTurnDestinationPlot(int iTurn) const;
 	CvPlot* GetFinalPlot() const;
 	CvPlot* GetFirstPlot() const;
+	CvPlot* GetPlotByIndex(int iIndex) const;
 };
 
 struct PrNodeIsBetter

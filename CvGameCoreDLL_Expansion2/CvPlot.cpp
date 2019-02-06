@@ -953,24 +953,15 @@ bool CvPlot::shareAdjacentArea(const CvPlot* pPlot) const
 bool CvPlot::isAdjacent(const CvPlot* pPlot) const
 {
 	if(pPlot == NULL)
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE)
+	//or is it maybe faster to check distance == 1?
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
 		if(pAdjacentPlot == pPlot)
-		{
 			return true;
-		}
 	}
 
 	return false;

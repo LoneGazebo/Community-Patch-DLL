@@ -3107,6 +3107,14 @@ CvPlot* CvPathNodeArray::GetFirstPlot() const
 	return GC.getMap().plotUnchecked( front().m_iX, front().m_iY );
 }
 
+CvPlot * CvPathNodeArray::GetPlotByIndex(int iIndex) const
+{
+	if (iIndex >= 0 && iIndex < size())
+		return GC.getMap().plotUnchecked( at(iIndex).m_iX, at(iIndex).m_iY );
+
+	return NULL;
+}
+
 //	---------------------------------------------------------------------------
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
 {

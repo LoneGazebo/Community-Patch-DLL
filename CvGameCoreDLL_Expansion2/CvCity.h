@@ -1333,6 +1333,7 @@ public:
 	bool setRevealed(TeamTypes eIndex, bool bNewValue);
 
 	const CvString getName() const;
+	const CvString getNameNoSpace() const;
 	const char* getNameKey() const;
 	void setName(const char* szNewValue, bool bFound = false);
 	void doFoundMessage();

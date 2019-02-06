@@ -25456,6 +25456,13 @@ const CvString CvCity::getName() const
 	return GetLocalizedText(m_strName.get());
 }
 
+const CvString CvCity::getNameNoSpace() const
+{
+	CvString ret = m_strName.get();
+	ret.Replace(' ', '_');
+	return ret;
+}
+
 
 //	--------------------------------------------------------------------------------
 void CvCity::setName(const char* szNewValue, bool bFound)
