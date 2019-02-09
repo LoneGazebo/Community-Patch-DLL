@@ -647,3 +647,12 @@ WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_WRITTEN_ARTIFACT_RESULT';
 UPDATE Language_en_US
 SET Text = 'A Luxury resource is designated as immoral, endangered, or otherwise inappropriate for use by the general population.  As long as the ban is in place, Civilizations receive no [ICON_HAPPINESS_1] Happiness or Monopoly benefits from this Luxury resource.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_BAN_LUXURY_HAPPINESS_HELP';
+
+--Big UI Changes
+UPDATE Language_en_US
+SET Text = 'Victory Progress'
+WHERE Tag = 'TXT_KEY_VP_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Demographics'
+WHERE Tag = 'TXT_KEY_DEMOGRAPHICS_TITLE';
