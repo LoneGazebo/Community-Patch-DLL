@@ -12,7 +12,7 @@
     <Box Style="MenuLeftSideTreatment"/>
     <Box Style="MenuRightSideTreatment"/>
 		<!-- Panel Header Text -->
-		<Label String="TXT_KEY_MILITARY_OVERVIEW" ID="Title" Anchor="C,T" Offset="0,19" Font="TwCenMT20" Color0="30.50.80.255" Color1="133.184.186.255" Color2="133.184.186.255" FontStyle="SoftShadow"/>
+		<Label String="TXT_KEY_MILITARY_OVERVIEW" ID="Title" Anchor="C,T" Offset="0,19" Font="TwCenMT20"/>
 		<!-- Main Container -->
 		<Box Offset="18,43" Anchor="L,T" Size="805,565" Color="255.255.200.0">
 			<!-- Column Headers -->
