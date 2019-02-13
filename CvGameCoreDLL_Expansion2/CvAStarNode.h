@@ -197,11 +197,11 @@ struct SPath
 	int iTotalCost;
 	int iNormalizedDistance;
 	int iTotalTurns;
-	int iTurnGenerated;
+	int iTurnSliceGenerated;
 	SPathFinderUserData sConfig;
 
 	//constructor
-	SPath() : iTotalCost(-1),iNormalizedDistance(-1),iTotalTurns(-1),iTurnGenerated(-1) {}
+	SPath() : iTotalCost(-1),iNormalizedDistance(-1),iTotalTurns(-1),iTurnSliceGenerated(-1) {}
 
 	//not quite a safe-bool, but good enough
 	inline bool operator!() const { return vPlots.empty(); }

@@ -28688,7 +28688,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
 		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
 		m_uiLastPathFlags = iFlags;
-		m_uiLastPathTurn = GC.getGame().getGameTurn();
+		m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
 		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
 	}
 
@@ -29900,7 +29900,7 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
 		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
 		m_uiLastPathFlags == iFlags &&
-		m_uiLastPathTurn == GC.getGame().getGameTurn() && 
+		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice() && 
 		(m_uiLastPathLength == m_kLastPath.size() || m_uiLastPathLength == 0xFFFFFFFF)
 		);
 }
@@ -29950,14 +29950,14 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 }
 
 //	--------------------------------------------------------------------------------
-/// Clear the pathing cache.  Please use with caution.
+/// Clear the pathing cache
 void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
 	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
 	m_uiLastPathCacheDestination = 0xFFFFFFFF;
 	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathTurn = 0xFFFFFFFF;
+	m_uiLastPathTurnSlice = 0xFFFFFFFF;
 	m_uiLastPathLength = 0xFFFFFFFF;
 }
 

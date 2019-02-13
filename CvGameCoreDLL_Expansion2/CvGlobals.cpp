@@ -4694,64 +4694,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 	}
 	else if(strLayerName == "TacticalAnalysisLayer")
 	{
-		std::string strOut;
-
-		int iIndex = GC.getMap().plotNum(pkPlot->getX(), pkPlot->getY());
-		CvTacticalAnalysisMap* pTactMap = GET_PLAYER( GC.getGame().getActivePlayer() ).GetTacticalAI()->GetTacticalAnalysisMap();
-		CvTacticalAnalysisCell* pCell = pTactMap->GetCell(iIndex);
-
-		if(pCell->IsImpassableTerrain())
-		{
-			strOut += "X Terrain";
-		}
-		else
-		{
-			if(pCell->IsImpassableTerritory())
-			{
-				strOut += "X Territory";
-			}
-			else
-			{
-				if(pCell->IsRevealed())
-				{
-					strOut += "R ";
-				}
-				if(pCell->IsVisible())
-				{
-					strOut += "V ";
-				}
-				if(pCell->IsVisibleToEnemy())
-				{
-					strOut += "N ";
-				}
-				if(pCell->IsFriendlyTurnEndTile())
-				{
-					strOut += "E ";
-				}
-				if(pCell->GetDominanceZone() != -1)
-				{
-					char szTmp[16] = {0};
-					sprintf_s(szTmp, "%d ", pCell->GetDominanceZone());
-
-					strOut += szTmp;
-				}
-				if(pCell->GetDeploymentScore() > 0)
-				{
-					char szTmp[16] = {0};
-					if(pCell->IsSafeForDeployment())
-					{
-						sprintf_s(szTmp, "[S%d] ", pCell->GetDeploymentScore());
-					}
-					else
-					{
-						sprintf_s(szTmp, "[%d] ", pCell->GetDeploymentScore());
-					}
-
-					strOut += szTmp;
-				}
-			}
-		}
-
+		std::string strOut("E_NOIMPL");
 		sprintf_s(szBuffer, uiBufferLength, "%s", strOut.c_str());
 	}
 	else if(strLayerName == "TargetingPathLayer")

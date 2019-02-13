@@ -764,7 +764,7 @@ public:
 	void PlotArmyMovesCombat(CvArmyAI* pThisArmy);
 	void AddCurrentTurnUnit(CvUnit* pUnit);
 
-	void UnitProcessed(int iID, bool bMarkTacticalMap=true);
+	void UnitProcessed(int iID);
 private:
 
 	// Internal turn update routines - commandeered unit processing
