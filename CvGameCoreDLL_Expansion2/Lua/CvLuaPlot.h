@@ -256,6 +256,9 @@ protected:
 	static int lGetReconCount(lua_State* L);
 	static int lGetRiverCrossingCount(lua_State* L);
 	static int lGetYield(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+    LUAAPIEXTN(ChangeYield, void, eYield, iChange);
+#endif
 	static int lCalculateNatureYield(lua_State* L);
 	static int lCalculateBestNatureYield(lua_State* L);
 	static int lCalculateTotalBestNatureYield(lua_State* L);

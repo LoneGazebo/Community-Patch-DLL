@@ -240,6 +240,9 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetReconCount);
 	Method(GetRiverCrossingCount);
 	Method(GetYield);
+#if defined(MOD_API_LUA_EXTENSIONS)
+    Method(ChangeYield);
+#endif
 	Method(CalculateNatureYield);
 	Method(CalculateBestNatureYield);
 	Method(CalculateTotalBestNatureYield);
@@ -1634,6 +1637,14 @@ int CvLuaPlot::lGetYield(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void changeYield(YieldTypes eYield, int iChange);
+int CvLuaPlot::lChangeYield(lua_State* L)
+{
+    return BasicLuaMethod(L, &CvPlot::changeYield);
+}
+#endif
 //------------------------------------------------------------------------------
 //int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false);
 int CvLuaPlot::lCalculateNatureYield(lua_State* L)
