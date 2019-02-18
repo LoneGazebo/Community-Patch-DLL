@@ -1,0 +1,76 @@
+Promotion Icons for VP
+Version 1
+
+Promotion Icons for VP (v 1) is the updated version of VP Promotion Icons 1.9 (VPPI) it replaces. Make sure to delete all versions of VPPI in your MOD folder ( \Sid Meier's Civilization 5\MODS )
+
+. 230+ new icons replace triangles and duplicates. New additional symbols and a few colors make promotion icons coherent and also readable
+. This mod try to be an improvement for managing and keeping track the units. Nicely
+. Enhanced 16x16 format for compatibility with Promotion Flags EUI (v 1.1)
+. + 64 Extra Promotion Icons you can use in your own modmods: Extra Promo Icons.png
+  IconAtlas = 'extraPromo_Atlas'
+
+------------------------------------------------------------------
+Stability
+
+Promotion Icons for VP doesn't add any code mechanics or memory charge when gaming.
+Promotions icons included in VP only are affected.
+
+------------------------------------------------------------------
+Versions
+
+(v 1)
+- Update of VP Promo Icons 1.9 ( VPPI 1.9 ) - "Promotion Icons for VP" replaces "VP Promo Icon"
+- Integrated into the Vox Populi installer as a default mod (Thx Gazebo)
+- New icons and global rework
+- Promotion icons for VPEE and Wonders Expanded are not available anymore (VP promotions only)
+- Evaluation: extraPromo_.dds
+
+------------------------------------------------------------------
+Credits
+
+Author : Asterix Rage
+Inspired by the early version of "Promotion Overhaul for VP" by adan_eslavo
+
+Many of the icons are made from "flat silhouette" pics. Royalty-free for non commercial use.
+
+flaticon.com :
+Torpedo / tree / missile / bullet / sword / plane / cannon / submarine / tank / snow flake / horse : Freepik
+Helicopter : Those Icons
+Mace : Nikita Golubez
+Axe / Bullet : Smashicons
+Parachute : Made by Made
+
+Miscellaneous :
+Sword : freepngimg.com/png/31626-real-sword-clipart
+Radar screen : iolco51 on openclipart.org
+blood : clipartmag.com/blood-splatter-png
+Leaf : Ahkâm on freeiconspng.com/img/10678
+Shark : dadriaen on pixabay.com
+Frame deco (Faster Healing) : peachpink on pixabay.com
+Quick Study : weknownyourdreamz.com/symbol/sl232312.html
+Longboat Viking designed : angga mahardika putra on freepik.com
+Barbed wire : stickpng.com/img/miscellaneous/barbed-wire/barbed-wire
+Wings : stickpng.com/img/miscellaneous/tattoos/simple-angel-wings-tattoo
+Totem Mask  : Fun Way Illustration on shutterstock.com
+Ice : civ6.gamepedia.com/File:Icon_terrain_ice.png#filelinks
+Elephant : Chiken legs on worldartsme.com/alabama-elephant-clipart.html#gal_post_60100_alabama-elephant-clipart-1.jpg
+Tie : Brandstarproductions on kisspng.com
+Mountain : Clker-Free-Vector-Images on pixabay.com
+Rifle : Out Of Apprica on clker.com
+Flame : Bloodstrike on clker.com
+Big Wave : Lord on game-icons.net
+B-2 spirit : clipground.com/image-post/4619-b-2-spirit-clipart-1.jpg.html
+Few others on kisspng.com where the authors are not known - Licence Free
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                                                                                                         
+
+                                     <*)))>{
+
+                                                                                                                          <*)))>{
+                                                                              <*)))>{
+
+
+
+
