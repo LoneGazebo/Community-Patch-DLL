@@ -4201,7 +4201,7 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 				if(iSpyIndex != -1)
 				{
 					CvEspionageSpy& pSpy = GET_PLAYER(ePlayer).GetEspionage()->m_aSpyList[iSpyIndex];
-					int iRank = pSpy.m_eRank;
+					int iRank = pSpy.GetSpyRank(ePlayer);
 					iRank = (5 - iRank);
 					if(iRank > 0)
 					{

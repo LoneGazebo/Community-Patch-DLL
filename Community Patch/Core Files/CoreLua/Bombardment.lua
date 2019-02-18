@@ -1,3 +1,5 @@
+print("This is the modded Bombardment from 'Global - City Bombard Range'")
+
 -------------------------------------------------
 -- Bombardment
 -------------------------------------------------
@@ -22,8 +24,8 @@ function RangedStrikeHighlight()
 	local thisTeam;
 
 	if pHeadSelectedCity and pHeadSelectedCity:CanRangeStrike() then
-		iRange = GameDefines.CITY_ATTACK_RANGE;
-		bIndirectFireAllowed = GameDefines.CAN_CITY_USE_INDIRECT_FIRE == 1;
+		iRange, iIndirect = pHeadSelectedCity:GetBombardRange();
+		bIndirectFireAllowed = (iIndirect == 1);
 		thisPlot = pHeadSelectedCity:Plot();
 		thisX = pHeadSelectedCity:GetX();
 		thisY = pHeadSelectedCity:GetY();
@@ -42,7 +44,8 @@ function RangedStrikeHighlight()
 		--print("bDomainOnly:"..tostring(bDomainOnly))
 	end
 	if thingThatCanActuallyFire ~= nil and thisPlot then
-		-- highlight the bombardable plots
+		-- highlight the bombard-able plots
+		-- CBP Change
 		local NO_DIRECTION = 7;
 		for iDX = -iRange, iRange do
 			for iDY = -iRange, iRange do
@@ -108,6 +111,7 @@ function AirStrikeHighlight()
 	end
 	if thingThatCanActuallyFire ~= nil then
 		-- highlight the bombardable plots
+		-- CBP Change
 		local NO_DIRECTION = 7;
 		for iDX = -iRange, iRange, 1 do
 			for iDY = -iRange, iRange, 1 do
@@ -154,6 +158,7 @@ function NukeStrikeHighlight()
 	end
 	if thingThatCanActuallyFire ~= nil then
 		-- highlight the nukable plots
+		-- CBP change
 		local NO_DIRECTION = 7;
 		for iDX = -iRange, iRange, 1 do
 			for iDY = -iRange, iRange, 1 do

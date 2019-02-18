@@ -28,7 +28,6 @@ REMARK_GROUP("CvDangerPlots");
 /// Constructor
 CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
-	, m_bArrayAllocated(false)
 	, m_bDirty(false)
 	, m_DangerPlots(NULL)
 {
@@ -49,13 +48,11 @@ void CvDangerPlots::Init(PlayerTypes ePlayer, bool bAllocate)
 	if(bAllocate)
 	{
 		int iGridSize = GC.getMap().numPlots();
-		CvAssertMsg(iGridSize > 0, "iGridSize is zero");
-		m_DangerPlots = FNEW(CvDangerPlotContents[iGridSize], c_eCiv5GameplayDLL, 0);
-		m_bArrayAllocated = true;
+		m_DangerPlots = vector<CvDangerPlotContents>(iGridSize);
 		for(int i = 0; i < iGridSize; i++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-			m_DangerPlots[i].init(*pPlot);
+			m_DangerPlots[i].m_pPlot = pPlot;
 		}
 	}
 }
@@ -64,9 +61,8 @@ void CvDangerPlots::Init(PlayerTypes ePlayer, bool bAllocate)
 void CvDangerPlots::Uninit()
 {
 	m_ePlayer = NO_PLAYER;
-	SAFE_DELETE_ARRAY(m_DangerPlots);
-	m_bArrayAllocated = false;
 	m_bDirty = false;
+	m_DangerPlots.clear();
 	m_knownUnits.clear();
 }
 
@@ -83,8 +79,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 	if (pLoopUnit->IsCanAttackRanged())
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
-		std::set<int> attackableTiles;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,attackableTiles,false,false);
+		std::set<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,false,false);
 
 		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
@@ -127,7 +122,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 /// Updates the danger plots values to reflect threats across the map
 void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 {
-	if (!m_bArrayAllocated) //nothing to do and causes an endless recursion
+	if (m_DangerPlots.empty()) //nothing to do and causes an endless recursion
 		return;
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
@@ -151,7 +146,7 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 
 void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
 {
-	if (!m_bArrayAllocated) //nothing to do
+	if (m_DangerPlots.empty()) //nothing to do
 		return;
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
@@ -180,7 +175,7 @@ void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
 void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexContainer& plotsToIgnoreForZOC)
 {
 	// danger plots have not been initialized yet, so no need to update
-	if(!m_bArrayAllocated)
+	if(m_DangerPlots.empty())
 		return;
 
 	// important. do this first to avoid recursion
@@ -298,16 +293,17 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			m_DangerPlots[iPlotLoop].m_bFlatPlotDamage = (iPlotDamage>0);
 
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
-			if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() > 0)
+			if(eImprovement != NO_IMPROVEMENT)
 			{
-				if(!ShouldIgnoreCitadel(pPlot, false))
+				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+				if(iDamage>0 && !ShouldIgnoreCitadel(pPlot, false))
 				{
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
 						if(pAdjacentPlot != NULL)
-							m_DangerPlots[iPlotLoop].m_pCitadel = pPlot;
+							m_DangerPlots[pAdjacentPlot->GetPlotIndex()].m_iImprovementDamage += iDamage;
 					}
 				}
 			}
@@ -345,7 +341,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot
 int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 {
-	if(!m_bArrayAllocated)
+	if(m_DangerPlots.empty())
 		return 0;
 
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
@@ -353,7 +349,7 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 
 bool CvDangerPlots::isEnemyCombatUnitAdjacent(const CvPlot & Plot, bool bSameDomain) const
 {
-	if(!m_bArrayAllocated)
+	if(m_DangerPlots.empty())
 		return false;
 
 	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyCombatUnitAdjacent(m_ePlayer,bSameDomain);
@@ -362,7 +358,7 @@ bool CvDangerPlots::isEnemyCombatUnitAdjacent(const CvPlot & Plot, bool bSameDom
 /// Return the maximum amount of damage a city could take at this plot
 int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 {
-	if(!m_bArrayAllocated)
+	if(m_DangerPlots.empty())
 		return 0;
 
 	if (pCity != NULL)
@@ -374,7 +370,7 @@ int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison
 /// Return the maximum amount of damage a unit could take at this plot
 int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
-	if(!m_bArrayAllocated)
+	if(m_DangerPlots.empty())
 		return 0;
 
 	if (pUnit)
@@ -385,7 +381,7 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const Unit
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) const
 {
-	if(!m_bArrayAllocated)
+	if(m_DangerPlots.empty())
 		return std::vector<CvUnit*>();
 
 	return m_DangerPlots[Plot.GetPlotIndex()].GetPossibleAttackers();
@@ -406,7 +402,7 @@ void CvDangerPlots::ResetDangerCache(const CvPlot* pCenterPlot, int iRange)
 
 bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 {
-	if (!m_bArrayAllocated  || !pUnit)
+	if (m_DangerPlots.empty()  || !pUnit)
 		return false;
 
 	return m_knownUnits.find(std::make_pair(pUnit->getOwner(), pUnit->GetID())) != m_knownUnits.end();
@@ -414,7 +410,7 @@ bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 
 void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 {
-	if (!m_bArrayAllocated  || !pUnit)
+	if (m_DangerPlots.empty()  || !pUnit)
 		return;
 
 	//don't do this for human players - they have to remember on their own
@@ -487,26 +483,20 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility)
 {
 	//watch out: if this is called for a half-initialized unit, the pointer may be valid but the plot invalid
-	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit || !pUnit->plot())
+	if(m_DangerPlots.empty() || m_ePlayer==NO_PLAYER || !pUnit || !pUnit->plot())
 		return true;
 
 	if(!pUnit->IsCanAttack())
-	{
 		return true;
-	}
 
 	if (pUnit->isInvisible(GET_PLAYER(m_ePlayer).getTeam(), false))
-	{
 		return true;
-	}
 
 	//invisible but revealed camp. count the unit there anyways (for AI)
 	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !GET_PLAYER(m_ePlayer).isHuman());
 
 	if(!pUnit->plot()->isVisible(GET_PLAYER(m_ePlayer).getTeam()) && !bIgnoreVisibility)
-	{
 		return true;
-	}
 
 	return false;
 }
@@ -516,9 +506,7 @@ bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility
 {
 	// ignore unseen cities
 	if(!pCity || !pCity->isRevealed(GET_PLAYER(m_ePlayer).getTeam(), false)  && !bIgnoreVisibility)
-	{
 		return true;
-	}
 
 	return false;
 }
@@ -528,24 +516,20 @@ bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibi
 {
 	// ignore unseen cities
 	if(!pCitadelPlot || !pCitadelPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam())  && !bIgnoreVisibility)
-	{
 		return true;
-	}
 
+	// cant be pillaged
+	if (pCitadelPlot->IsImprovementPillaged())
+		return true;
+
+	// our own citadels aren't dangerous
 	PlayerTypes eOwner = pCitadelPlot->getOwner();
-	if(eOwner != NO_PLAYER)
-	{
-		// Our own citadels aren't dangerous
-		if(eOwner == m_ePlayer)
-		{
-			return true;
-		}
+	if(eOwner == m_ePlayer)
+		return true;
 
-		if(!atWar(GET_PLAYER(m_ePlayer).getTeam(), GET_PLAYER(eOwner).getTeam()))
-		{
-			return true;
-		}
-	}
+	// must be at war
+	if(eOwner != NO_PLAYER && !atWar(GET_PLAYER(m_ePlayer).getTeam(), GET_PLAYER(eOwner).getTeam()))
+		return true;
 
 	return false;
 }
@@ -554,7 +538,7 @@ bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibi
 /// Contains the calculations to do the danger value for the plot according to the unit
 void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 {
-	if (!m_bArrayAllocated || !pUnit || !pPlot)
+	if (m_DangerPlots.empty() || !pUnit || !pPlot)
 		return;
 
 	DangerUnitVector& v = m_DangerPlots[pPlot->GetPlotIndex()].m_apUnits;
@@ -570,7 +554,7 @@ void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 /// Contains the calculations to do the danger value for the plot according to the city
 void CvDangerPlots::AssignCityDangerValue(const CvCity* pCity, CvPlot* pPlot)
 {
-	if (!m_bArrayAllocated || !pCity || !pPlot)
+	if (m_DangerPlots.empty() || !pCity || !pPlot)
 		return;
 
 	m_DangerPlots[pPlot->GetPlotIndex()].m_apCities.push_back( std::make_pair(pCity->getOwner(),pCity->GetID()) );
@@ -654,10 +638,9 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 		}
 		else
 		{
-			if (plotDistance(m_iX, m_iY, pUnit->getX(), pUnit->getY()) == 1)
-			{
+			if (m_pPlot->isAdjacent(pUnit->plot()))
 				pAttackerPlot = pUnit->plot();
-			}
+
 			//we don't know the defender strength, so assume it's equal to attacker strength!
 			iPlotDamage += pUnit->getCombatDamage(
 				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL, true, true),
@@ -685,10 +668,7 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 		if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(GET_PLAYER(ePlayer).getTeam()))
 			iPlotDamage += FOG_DEFAULT_DANGER;
 
-	// Damage from features
-	iPlotDamage += GetDamageFromFeatures(ePlayer);
-
-	return iPlotDamage;
+	return iPlotDamage + m_iImprovementDamage;
 }
 
 int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction)
@@ -854,8 +834,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			}
 		}
 
-		// Damage from features (citadel)
-		iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
+		// Static damage
+		iPlotDamage += m_iImprovementDamage;
 		iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
 		// Damage from cities
@@ -890,7 +870,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 				int iUnitShare = (iCityDanger*2*pUnit->GetMaxHitPoints()) / pFriendlyCity->GetMaxHitPoints();
 
 				// Damage from features
-				return iUnitShare + GetDamageFromFeatures(pUnit->getOwner());
+				return iUnitShare + m_iImprovementDamage;
 			}
 			else
 				return 0;
@@ -917,13 +897,20 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		//todo: if the attacker is an air unit and we have interceptors around, reduce the expected damage
 		//but interceptions are hard to keep track of and bad for performance ...
 
-		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)
 		{
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage, false, 0, true);
+			int iAttackerDamage = 0;
+			int iEnemyRange = pAttacker->isRanged() ? pAttacker->GetRange() : 1;
+			bool bOutOfRange = plotDistance(*m_pPlot, *pAttacker->plot()) > iEnemyRange;
+
+			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, 0, true);
 
 			if (!m_pPlot->isVisible(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+
+			if (iAttackerDamage >= pAttacker->GetCurrHitPoints() && !pAttacker->isSuicide())
+				iDamage /= 2; //suicide attack with non suicide unit is unlikely
 
 			iPlotDamage += iDamage;
 		}
@@ -944,8 +931,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(pUnit->getTeam()))
 			iPlotDamage += FOG_DEFAULT_DANGER;
 
-	// Damage from surrounding features (citadel) and the plot itself
-	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
+	// Damage from surrounding improvements (citadel) and the plot itself
+	iPlotDamage += m_iImprovementDamage;
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
 	//update cache
@@ -1064,25 +1051,6 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 
 	return iPlotDamage;
 }
-
-// Get the amount of damage a citadel would deal to a unit
-int CvDangerPlotContents::GetDamageFromFeatures(PlayerTypes ePlayer) const
-{
-	if (m_pCitadel && ePlayer != NO_PLAYER)
-	{
-		ImprovementTypes eImprovement = m_pCitadel->getImprovementType();
-		CvTeam& kTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam());
-
-		// Citadel still here and can fire?
-		if (eImprovement != NO_IMPROVEMENT && !m_pCitadel->IsImprovementPillaged() && m_pCitadel->getOwner() != NO_PLAYER &&
-			kTeam.isAtWar(m_pCitadel->getTeam()))
-		{
-			return GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-		}
-	}
-
-	return 0;
-};
 
 std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
 {

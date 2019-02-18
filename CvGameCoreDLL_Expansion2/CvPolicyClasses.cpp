@@ -175,6 +175,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeRouteYieldModifierCapital(0),
 	m_iTradeRouteYieldModifierCapital(0),
+	m_iTradeRouteYieldModifier(0),
 	m_iPositiveWarScoreTourismMod(0),
 #endif
 	m_bNoCSDecayAtWar (false),
@@ -660,6 +661,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
 	m_iTradeRouteYieldModifierCapital = kResults.GetInt("TradeRouteYieldModifierCapital");
+	m_iTradeRouteYieldModifier = kResults.GetInt("TradeRouteYieldModifier");
 #endif
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
@@ -2154,6 +2156,10 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifier() const
 	return m_iInternalTradeRouteYieldModifier;
 }
 #if defined(MOD_BALANCE_CORE)
+int CvPolicyEntry::GetTradeRouteYieldModifier() const
+{
+	return m_iTradeRouteYieldModifier;
+}
 /// Boost to internal trade routes from Capital
 int CvPolicyEntry::GetInternalTradeRouteYieldModifierCapital() const
 {
@@ -4442,6 +4448,10 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_TRADE_CAPITAL_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteYieldModifierCapital();
+				break;
+
+			case POLICYMOD_TRADE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteYieldModifier();
 				break;
 #endif
 			case POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER:

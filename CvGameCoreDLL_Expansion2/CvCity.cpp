@@ -3568,10 +3568,10 @@ bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 
 void CvCity::UpdateGlobalStaticYields()
 {
-	SetGlobalStaticYield(YIELD_GOLD, GC.getGame().GetGoldAverage());
-	SetGlobalStaticYield(YIELD_CULTURE, GC.getGame().GetCultureAverage());
-	SetGlobalStaticYield(YIELD_SCIENCE, GC.getGame().GetScienceAverage());
-	SetGlobalStaticYield(YIELD_PRODUCTION, GC.getGame().GetDefenseAverage());
+	SetGlobalStaticYield(YIELD_GOLD, GET_PLAYER(getOwner()).GetGoldAverage());
+	SetGlobalStaticYield(YIELD_CULTURE, GET_PLAYER(getOwner()).GetCultureAverage());
+	SetGlobalStaticYield(YIELD_SCIENCE, GET_PLAYER(getOwner()).GetScienceAverage());
+	SetGlobalStaticYield(YIELD_PRODUCTION, GET_PLAYER(getOwner()).GetDefenseAverage());
 
 	UpdateStaticTechDeviation(GET_PLAYER(getOwner()).GetTechDeviation());
 
@@ -4026,6 +4026,8 @@ void CvCity::DoEvents()
 			if (pkEventInfo != NULL)
 			{
 				DoStartEvent(eChosenEvent);
+
+				ChangeCityEventCooldown(GC.getCITY_EVENT_MIN_DURATION_BETWEEN());
 
 				//We did it! But reset our increment.
 				IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
@@ -14435,9 +14437,19 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0))
+			{
+				ChangeYieldFromVictoryGlobal(eYield, pBuildingInfo->GetYieldFromVictoryGlobal(eYield) * iChange);
+			}
+
 			if ( (pBuildingInfo->GetYieldFromPillage(eYield) > 0))
 			{
 				ChangeYieldFromPillage(eYield, pBuildingInfo->GetYieldFromPillage(eYield) * iChange);
+			}
+
+			if ((pBuildingInfo->GetYieldFromPillageGlobal(eYield) > 0))
+			{
+				ChangeYieldFromPillageGlobal(eYield, pBuildingInfo->GetYieldFromPillageGlobal(eYield) * iChange);
 			}
 
 			if( (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
@@ -16154,9 +16166,9 @@ int CvCity::growthThreshold() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetUnhappinessFromCitySpecialists()
 {
-	int iUnhappiness = 0;
-	int iUnhappinessFromThisCity;
-	int iUnhappinessPerPop = /*1*/ GC.getUNHAPPINESS_PER_POPULATION() * 100;
+	float iUnhappiness = 0;
+	float iUnhappinessFromThisCity;
+	float iUnhappinessPerPop = /*1*/ (/*1*/ GC.getUNHAPPINESS_PER_POPULATION() + GC.getUNHAPPINESS_PER_POPULATION_FLOAT()) * 100;
 	int iPopulation;
 
 	bool bCityValid;
@@ -16184,7 +16196,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		//Less unhappiness from specialists....
 		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		{
-			iUnhappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
+			iUnhappinessPerPop = (float)/*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
 			int iNoHappinessSpecialists = 0;
 			if (iPopulation > 0)
 			{
@@ -16254,7 +16266,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	}
 #endif
-	return iUnhappiness;
+	return (int)iUnhappiness;
 }
 #endif
 
@@ -20871,22 +20883,16 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 
 int CvCity::getPopThresholdMod() const
 {
-	/*
 	int iPop = getPopulation();
-	int iPopMod = GC.getBALANCE_HAPPINESS_POP_MULTIPLIER() * iPop;
-	iPopMod /= GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE() + (iPop + (iPop / 2));
-	*/
-	return getPopulation();
+	iPop *= (100 + GC.getBALANCE_HAPPINESS_POP_MULTIPLIER());
+	iPop /= 100;
+	
+	return iPop;
 }
 
 int CvCity::getEmpireSizeMod() const
 {
-	/*
-	int iPop = getPopulation();
-	int iPopMod = GC.getBALANCE_HAPPINESS_POP_MULTIPLIER() * iPop;
-	iPopMod /= GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE() + (iPop + (iPop / 2));
-	*/
-	int iBase = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities()) * 2;
+	int iBase = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities()) * GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER();
 	iBase *= min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 	iBase /= 100;
 
@@ -21313,7 +21319,7 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 int CvCity::getUnhappinessFromConnection() const
 {
 	//according to the hierarchy of needs
-	int iLimit = getPopulation();
+	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
 	int iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
@@ -21370,7 +21376,7 @@ int CvCity::getUnhappinessFromPillagedRaw(int iLimit) const
 int CvCity::getUnhappinessFromPillaged() const
 {
 	//according to the hierarchy of needs
-	int iLimit = getPopulation();
+	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
 	int iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
@@ -21423,7 +21429,7 @@ int CvCity::getUnhappinessFromStarvingRaw(int iLimit) const
 int CvCity::getUnhappinessFromStarving() const
 {
 	//according to the hierarchy of needs
-	int iLimit = getPopulation();
+	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
 	int iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 
@@ -21512,6 +21518,15 @@ int CvCity::getUnhappinessFromReligion() const
 	return iContribution;
 }
 
+
+int CvCity::getJFDSpecialUnhappinessSources() const
+{
+	int iContribution = getUnhappinessFromStarvingRaw();
+	iContribution += getUnhappinessFromPillagedRaw();
+	iContribution += getUnhappinessFromConnectionRaw();
+
+	return iContribution;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -22278,24 +22293,28 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
-			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this, true);
+			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this);
 			if (iYieldPerGPT > 0)
 			{
-				int iNetGold = kPlayer.GetTreasury()->CalculateGrossGold();
+				int iNetGold = getYieldRate(YIELD_GOLD, false);
 				if (iNetGold > 0)
 				{
-					iYieldValue += (iNetGold / iYieldPerGPT);
+					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
+					iNetGold = min((iNumFollowers / 2), (iNetGold / iYieldPerGPT));
+					iYieldValue += iNetGold;
 				}
 			}
 
-			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this, true);
+			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this);
 			if (iYieldPerScience > 0)
 			{
-				if (kPlayer.GetScience() > 0)
+				int iNetScience = getYieldRate(YIELD_SCIENCE, false);
+				if (iNetScience > 0)
 				{
-					int iScienceValue = (kPlayer.GetScience() / iYieldPerScience);
+					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
+					iNetScience = min((iNumFollowers / 2), (iNetScience / iYieldPerScience));
 
-					iYieldValue += min(25, iScienceValue);
+					iYieldValue += iNetScience;
 				}
 			}
 
@@ -23380,6 +23399,32 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 	}
 }
 
+/// Extra yield from building
+int CvCity::GetYieldFromVictoryGlobal(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromVictoryGlobal[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromVictoryGlobal.setAt(eIndex, m_aiYieldFromVictoryGlobal[eIndex] + iChange);
+		CvAssert(GetYieldFromVictoryGlobal(eIndex) >= 0);
+	}
+}
+
+
+
 int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -23400,6 +23445,29 @@ void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromPillage.setAt(eIndex, m_aiYieldFromPillage[eIndex] + iChange);
 		CvAssert(GetYieldFromPillage(eIndex) >= 0);
+	}
+}
+
+int CvCity::GetYieldFromPillageGlobal(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromPillageGlobal[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromPillageGlobal.setAt(eIndex, m_aiYieldFromPillageGlobal[eIndex] + iChange);
+		CvAssert(GetYieldFromPillageGlobal(eIndex) >= 0);
 	}
 }
 
@@ -23644,7 +23712,7 @@ void CvCity::ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromPurchase.setAt(eIndex, m_aiYieldFromPurchase[eIndex] + iChange);
+		m_aiYieldFromFaithPurchase.setAt(eIndex, m_aiYieldFromFaithPurchase[eIndex] + iChange);
 		CvAssert(GetYieldFromFaithPurchase(eIndex) >= 0);
 	}
 }
@@ -25507,6 +25575,13 @@ const CvString CvCity::getName() const
 {
 	VALIDATE_OBJECT
 	return GetLocalizedText(m_strName.get());
+}
+
+const CvString CvCity::getNameNoSpace() const
+{
+	CvString ret = m_strName.get();
+	ret.Replace(' ', '_');
+	return ret;
 }
 
 

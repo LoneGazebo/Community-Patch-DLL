@@ -3091,7 +3091,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 			}
 			else
 			{
-				if (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pPlot->getOwner()) >= MAJOR_CIV_OPINION_FRIEND)
+				if ((MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && m_pPlayer->IsEmpireUnhappy()) || m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pPlot->getOwner()) >= MAJOR_CIV_OPINION_FRIEND)
 					eRtnValue = ARCHAEOLOGY_LANDMARK;
 			}
 		}
@@ -4182,6 +4182,9 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 
+	if (ePlayer == m_pPlayer->GetID())
+		return NO_INFLUENCE_LEVEL;
+
 	if (!kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
 		eRtnValue = NO_INFLUENCE_LEVEL;
@@ -4712,10 +4715,10 @@ int CvPlayerCulture::GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePla
 				iRtnValue = 1;
 				break;
 			case INFLUENCE_LEVEL_INFLUENTIAL:
-				iRtnValue = 1;
+				iRtnValue = 2;
 				break;
 			case INFLUENCE_LEVEL_DOMINANT:
-				iRtnValue = 2;
+				iRtnValue = 3;
 				break;
 			}
 		}

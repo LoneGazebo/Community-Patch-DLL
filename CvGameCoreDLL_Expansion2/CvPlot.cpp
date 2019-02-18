@@ -953,24 +953,15 @@ bool CvPlot::shareAdjacentArea(const CvPlot* pPlot) const
 bool CvPlot::isAdjacent(const CvPlot* pPlot) const
 {
 	if(pPlot == NULL)
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE)
+	//or is it maybe faster to check distance == 1?
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
 		if(pAdjacentPlot == pPlot)
-		{
 			return true;
-		}
 	}
 
 	return false;
@@ -8079,6 +8070,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ClearArchaeologicalRecord();
 				}
 			}
+			if (newImprovementEntry.GetHappinessOnConstruction() != 0)
+			{
+				if (GET_PLAYER(eBuilder).getCapitalCity() != NULL)
+				{
+					GET_PLAYER(eBuilder).getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(newImprovementEntry.GetHappinessOnConstruction());
+					GET_PLAYER(eBuilder).DoUpdateHappinessFromBuildings();
+				}
+			}
 #endif
 			// If this improvement can add culture to nearby improvements, update them as well
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -10463,6 +10462,45 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			}
 		}
 	}
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	else if (IsNaturalWonder(true))
+#else
+	else if (IsNaturalWonder())
+#endif
+	{
+
+		iYield += kPlayer.GetPlayerTraits()->GetYieldChangeNaturalWonder(eYield);
+		iYield += kPlayer.GetYieldChangesNaturalWonder(eYield);
+
+		if (getFeatureType() != NO_FEATURE)
+		{
+			CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(getFeatureType());
+			{
+				int iNWYieldChange = pFeatureInfo->getYieldChange(eYield);
+
+				int iMod = 0;
+				iMod += kPlayer.GetPlayerTraits()->GetNaturalWonderYieldModifier();
+
+				//we only do this here because we need the natural yield right away.
+				if (pMajorityReligion)
+				{
+					iMod += pMajorityReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield, ePlayer, pOwningCity);
+					if (pSecondaryPantheon)
+					{
+						iMod += pSecondaryPantheon->GetYieldModifierNaturalWonder(eYield);
+					}
+				}
+
+				if (iMod != 0)
+				{
+					iNWYieldChange *= iMod;
+					iNWYieldChange /= 100;
+
+					iYield += iNWYieldChange;
+				}
+			}
+		}
+	}
 	if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
 		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -10895,7 +10933,7 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 		//Simplification - errata yields not worth considering.
-		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if (eYield > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			continue;
 
 		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon);

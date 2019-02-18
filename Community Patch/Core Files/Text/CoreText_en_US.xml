@@ -7283,6 +7283,18 @@
 			<Text>Created by: {1_City}</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED">
+			<Text>Advanced Actions, such as stealing Gold or inciting Rebellion, are now available for your Spies. See the Espionage Overview for more information.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED_S">
+			<Text>Espionage Advanced Actions Enabled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ALLOWS_ADVANCED_ACTIONS_STRING">
+			<Text>Allows Advanced Actions for Spies</Text>
+		</Row>
+
 		<!-- Tooltip helpers for unhappiness -->
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH">
 			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_3] Unhappiness from Needs estimated to increase as follows:</Text>

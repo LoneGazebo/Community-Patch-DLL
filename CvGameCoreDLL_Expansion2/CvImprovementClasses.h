@@ -81,6 +81,7 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetCityStateExtraVote() const;
 #endif
+	int GetHappinessOnConstruction() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceFromImprovement() const;
 	int GetResourceQuantityFromImprovement() const;
@@ -254,6 +255,7 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iImprovementLeagueVotes;
 #endif
+	int m_iHappinessOnConstruction;
 #if defined(MOD_BALANCE_CORE)
 	int m_iImprovementResource;
 	int m_iImprovementResourceQuantity;

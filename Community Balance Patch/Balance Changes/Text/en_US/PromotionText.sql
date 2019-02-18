@@ -9,19 +9,6 @@
 	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action. -15% [ICON_STRENGTH] Combat Strength while defending.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MARCH_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Evasion
-	UPDATE Language_en_US
-	SET Text = 'Evasion (80)'
-	WHERE Tag = 'TXT_KEY_PROMOTION_EVASION_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Evasion (80)'
-	WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_EVASION_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-	
-	UPDATE Language_en_US
-	SET Text = 'Evasion (reduced damage)'
-	WHERE Tag = 'TXT_KEY_PROMOTION_EVASION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-	
 -- Replace Drill
 
 	UPDATE Language_en_US
@@ -388,6 +375,31 @@
 	INSERT INTO Language_en_US (Tag, Text)
 	VALUES ('TXT_KEY_PROMOTION_AIR_LOGISTICS_HELP', 'May attack twice.');
 	
+	UPDATE Language_en_US
+	SET Text = 'Tank Hunter I'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HELI_AMBUSH_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP', '25% [ICON_STRENGTH] Bonus vs Armored.');
+
+	UPDATE Language_en_US
+	SET Text = 'Tank Hunter II'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HELI_AMBUSH_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP', '25% [ICON_STRENGTH] Bonus vs Armored.');
+
+	UPDATE Language_en_US
+	SET Text = 'Eagle Hunter'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_FIGHTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP', '33% [ICON_STRENGTH] Bonus vs Air Fighters.');
+
+	UPDATE Language_en_US
+	SET Text = 'Evasion'
+	WHERE Tag = 'TXT_KEY_PROMOTION_EVASION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Evasion
 	UPDATE Language_en_US
 	SET Text = 'Air Penetration I'
@@ -477,7 +489,7 @@
 
 	INSERT INTO Language_en_US (Tag, Text)
 	VALUES ('TXT_KEY_PROMOTION_INTERCEPTION_I_HELP', 
-	'+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
+	'+20% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
 
 	UPDATE Language_en_US
 	SET Text = 'Interceptor II'
@@ -489,7 +501,7 @@
 
 	INSERT INTO Language_en_US (Tag, Text)
 	VALUES ('TXT_KEY_PROMOTION_INTERCEPTION_II_HELP', 
-	'+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
+	'+20% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
 
 	UPDATE Language_en_US
 	SET Text = 'Interceptor III'
@@ -501,7 +513,7 @@
 
 	INSERT INTO Language_en_US (Tag, Text)
 	VALUES ('TXT_KEY_PROMOTION_INTERCEPTION_III_HELP', 
-	'+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
+	'+20% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
 
 	UPDATE Language_en_US
 	SET Text = 'Interceptor IV'
@@ -513,7 +525,7 @@
 
 	INSERT INTO Language_en_US (Tag, Text)
 	VALUES ('TXT_KEY_PROMOTION_INTERCEPTION_IV_HELP', 
-	'+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
+	'+20% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.');
 
 
 	UPDATE Language_en_US

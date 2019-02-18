@@ -68,7 +68,7 @@ SET MaxDistance = '0'
 WHERE Type = 'BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET FaithFromKills = '200'
+SET FaithFromKills = '225'
 WHERE Type = 'BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
@@ -224,7 +224,8 @@ VALUES
 INSERT INTO Belief_CoastalCityYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_GOD_SEA', 'YIELD_FOOD', 3);
+	('BELIEF_GOD_SEA', 'YIELD_FOOD', 2),
+	('BELIEF_GOD_SEA', 'YIELD_FAITH', 1);
 
 INSERT INTO Belief_YieldPerPop
 	(BeliefType, YieldType, Yield)
@@ -273,11 +274,6 @@ INSERT INTO Belief_YieldPerPop
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_ANCESTOR_WORSHIP', 'YIELD_FAITH', 3);
-
-INSERT INTO Belief_YieldPerGPT
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_MESSENGER_GODS', 'YIELD_FAITH', 20);
 
 INSERT INTO Belief_YieldPerLux
 	(BeliefType, YieldType, Yield)
@@ -338,7 +334,12 @@ VALUES
 INSERT INTO Belief_YieldPerScience
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_FORMAL_LITURGY', 'YIELD_FAITH', 15);
+	('BELIEF_FORMAL_LITURGY', 'YIELD_FAITH', 4);
+
+INSERT INTO Belief_YieldPerGPT
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_MESSENGER_GODS', 'YIELD_FAITH', 5);
 
 INSERT INTO Belief_CityYieldChanges
 	(BeliefType, YieldType, Yield)

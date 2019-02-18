@@ -769,6 +769,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
+	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
 	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);

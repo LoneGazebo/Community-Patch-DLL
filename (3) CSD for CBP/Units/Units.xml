@@ -18,7 +18,7 @@
 			<Help>TXT_KEY_UNIT_HELP_EMISSARY</Help>
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
-			<BaseGold>1</BaseGold>
+			<BaseGold>0</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_EMISSARY</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
 			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
@@ -41,7 +41,7 @@
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<CombatLimit>0</CombatLimit>
-			<BaseGold>1</BaseGold>
+			<BaseGold>0</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_ENVOY</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
 			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
@@ -64,7 +64,7 @@
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<ObsoleteTech>TECH_ATOMIC_THEORY</ObsoleteTech>
 			<CombatLimit>0</CombatLimit>
-			<BaseGold>1</BaseGold>
+			<BaseGold>0</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_DIPLOMAT</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
 			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
@@ -86,7 +86,7 @@
 			<Help>TXT_KEY_UNIT_HELP_AMBASSADOR</Help>
 			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 			<CombatLimit>0</CombatLimit>
-			<BaseGold>1</BaseGold>
+			<BaseGold>0</BaseGold>
 			<UnitArtInfo>ART_DEF_UNIT_AMBASSADOR</UnitArtInfo>
 			<IconAtlas>CSD_ATLAS</IconAtlas>
 			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
@@ -106,7 +106,7 @@
 			<Civilopedia>TXT_KEY_CIV5_GREAT_DIPLOMAT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY</Strategy>
 			<AdvancedStartCost>-1</AdvancedStartCost>
-			<BaseGold>1</BaseGold>
+			<BaseGold>0</BaseGold>
 			<NumInfPerEra>15</NumInfPerEra>
 			<WorkRate>1</WorkRate>
 			<CombatLimit>0</CombatLimit>
@@ -188,10 +188,6 @@
 		<Row>
 			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
 			<PromotionType>PROMOTION_GREAT_DIPLOMAT</PromotionType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_MERCHANT</UnitType>
-			<PromotionType>PROMOTION_GREAT_MERCHANT</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
 	<Unit_Flavors>

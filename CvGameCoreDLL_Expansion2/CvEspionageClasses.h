@@ -104,6 +104,7 @@ public:
 	int m_iCityX;
 	int m_iCityY;
 	CvSpyRank m_eRank;
+	int GetSpyRank(PlayerTypes eSpyOwner) const;
 	CvSpyState m_eSpyState;
 	int m_iReviveCounter; // after killed, counter to reincarnate a spy
 	bool m_bIsDiplomat;

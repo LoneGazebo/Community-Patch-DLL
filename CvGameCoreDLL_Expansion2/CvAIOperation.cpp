@@ -1068,7 +1068,6 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 {
 	CvPlot* pRtnValue = NULL;
-	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 
 	switch(m_eCurrentState)
 	{
@@ -1085,18 +1084,12 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 		{
-			// Is goal a city and we're a naval operation?  If so, go just offshore.
 			CvPlot *pGoalPlot = pArmy->GetGoalPlot();
-			if (!pGoalPlot)
-			{
-				return NULL;
-			}
-
-			CvPlot* pCurrent = pArmy->Plot();
+			CvPlot* pCurrent = pArmy->GetCenterOfMass();
 			if (pCurrent && pGoalPlot)
 			{
 				//problem: center of mass may be on a mountain etc ...
-				if (!pCurrent->isValidMovePlot(kPlayer.GetID()))
+				if (!pCurrent->isValidMovePlot(m_eOwner))
 				{
 					CvUnit* pFirstUnit = pArmy->GetFirstUnit();
 					if (pFirstUnit)
@@ -1106,18 +1099,19 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				}
 
 				//get where we want to be next
-				pRtnValue = GetPlotXInStepPath(pCurrent,pGoalPlot,pArmy->GetMovementRate(),true);
+				pRtnValue = GetPlotXInStepPath(pCurrent, pGoalPlot, pArmy->GetMovementRate(), true);
 				if (!pRtnValue)
 				{
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
-					OutputDebugString( CvString::format( "CvAIOperation: cannot find a step path from %d,%d to %d,%d\n", 
-						pCurrent->getX(), pCurrent->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
+					OutputDebugString(CvString::format("CvAIOperation: cannot find a step path from %d,%d to %d,%d\n",
+						pCurrent->getX(), pCurrent->getY(), pGoalPlot->getX(), pGoalPlot->getY()).c_str());
 					return NULL;
 				}
 			}
 		}
 		break;
 	}
+
 	return pRtnValue;
 }
 
@@ -1270,6 +1264,7 @@ void CvAIOperation::LogOperationStart()
 		CvString strTemp2;
 
 		CvString strPlayerName = GET_PLAYER(m_eOwner).getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -1352,6 +1347,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 		FILogFile* pLog;
 
 		strPlayerName = GET_PLAYER(m_eOwner).getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -1454,6 +1450,7 @@ void CvAIOperation::LogOperationSpecialMessage(const CvString& strMsg)
 		CvString strBaseString;
 
 		CvString strPlayerName = GET_PLAYER(m_eOwner).getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -1473,6 +1470,7 @@ void CvAIOperation::LogOperationEnd()
 		CvString strTemp;
 
 		CvString strPlayerName = GET_PLAYER(m_eOwner).getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -1879,11 +1877,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy);
 			if (pCenterOfMass && pTarget && IsOffensive() && !bShowOfForce)
 			{
-				bool bInPlace = false;
-				if (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange())
-				{
-					bInPlace = true;
-				}
+				bool bInPlace = (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange());
 
 				//check for nearby enemy (for sneak attacks)
 				if (!bInPlace && (GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK))
@@ -3603,7 +3597,7 @@ AIOperationAbortReason CvAIOperationAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI
 			if (pArmy->GetArea() == GetTargetPlot()->getArea())
 			{
 				SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
-				SPath path = GC.GetStepFinder().GetPath( pArmy->Plot(), GetTargetPlot(), data );
+				SPath path = GC.GetStepFinder().GetPath( pArmy->GetCurrentPlot(), GetTargetPlot(), data );
 				data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 				if (!!path)
 				{
@@ -3716,6 +3710,10 @@ AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTa
 		return AI_ABORT_LOST_CIVILIAN;
 
 	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
+		RetargetCivilian(pCivilian, pArmy);
+
+	CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
+	if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
 		RetargetCivilian(pCivilian, pArmy);
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;

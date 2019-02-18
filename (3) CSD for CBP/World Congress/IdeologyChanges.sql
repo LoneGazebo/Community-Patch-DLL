@@ -50,7 +50,7 @@ SET Text = 'Sanctions placed on: {1_CivsList}'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_EMBARGO_PLAYERS' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes can be established with City-States. Warmonger penalty greatly reduced when declaring war on City-States or conquering cities owned by them.'
+SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes can be established with City-States, and all Corporation Franchises are removed from City-States. Warmonger penalty greatly reduced when declaring war on City-States or conquering cities owned by them.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_ALL_CITY_STATES_EMBARGO_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -58,7 +58,7 @@ SET Text = 'Sanction'
 WHERE Tag = 'TXT_KEY_RESOLUTION_PLAYER_EMBARGO' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes can be established between the chosen Civilization and any other Civilization. Warmonger penalty greatly reduced when declaring war on the sanctioned Civilization or conquering cities owned by them.'
+SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes, Deals, or Corporation Franchises can be established with the chosen Civilization. Their Corporation Franchises are removed from foreign cities. Warmonger penalty greatly reduced when declaring war on the sanctioned Civilization or conquering cities owned by them.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_PLAYER_EMBARGO_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- World Peace

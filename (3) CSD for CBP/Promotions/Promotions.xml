@@ -9,7 +9,7 @@
 			<Help>TXT_KEY_PROMOTION_EMISSARY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-70</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>40</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -23,7 +23,7 @@
 			<Help>TXT_KEY_PROMOTION_ENVOY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-55</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>50</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -38,7 +38,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-50</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>60</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>41</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -52,7 +52,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-45</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>70</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -66,7 +66,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-30</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>100</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<MovesChange>2</MovesChange>
 			<RivalTerritory>true</RivalTerritory>
@@ -76,20 +76,6 @@
 			<PediaType>PEDIA_DIPLO</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GREAT_DIPLOMAT</PediaEntry>
 		</Row>
-		<Row>
-			<Type>PROMOTION_GREAT_MERCHANT</Type>
-			<Description>TXT_KEY_PROMOTION_GREAT_MERCHANT</Description>
-			<Help>TXT_KEY_PROMOTION_GREAT_MERCHANT_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>3</OrderPriority>
-			<LostWithUpgrade>true</LostWithUpgrade>
-			<TradeMissionInfluenceModifier>-100</TradeMissionInfluenceModifier>
-			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>42</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_CIVILIAN</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_GREAT_MERCHANT</PediaEntry>
-		</Row>
 		<!-- Special Promotions -->
 		<Row>
 			<Type>PROMOTION_NOBEL_LAUREATE</Type>
@@ -97,7 +83,7 @@
 			<Help>TXT_KEY_PROMOTION_NOBEL_LAUREATE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>10</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>10</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
@@ -111,7 +97,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
-			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>10</DiploMissionInfluence>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_DIPLO</PediaType>
@@ -123,7 +109,7 @@
 			<Help>TXT_KEY_PROMOTION_EXPRESS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>10</DiploMissionInfluence>
 			<MovesChange>1</MovesChange>
 			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -141,7 +127,7 @@
 			<MovesChange>1</MovesChange>
 			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<IgnoreTerrainCost>true</IgnoreTerrainCost>
-			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>10</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
@@ -154,7 +140,7 @@
 			<Help>TXT_KEY_PROMOTION_IMMUNITY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>10</DiploMissionInfluence>
 			<RivalTerritory>true</RivalTerritory>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
@@ -170,7 +156,7 @@
 			<OrderPriority>3</OrderPriority>
 			<MovesChange>1</MovesChange>
 			<ExtraNavalMovement>1</ExtraNavalMovement>
-			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>10</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>10</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
@@ -184,7 +170,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<RivalTerritory>true</RivalTerritory>
-			<TradeMissionInfluenceModifier>15</TradeMissionInfluenceModifier>
+			<DiploMissionInfluence>15</DiploMissionInfluence>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>21</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>

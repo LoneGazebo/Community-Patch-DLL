@@ -792,6 +792,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCityStarving);
 	Method(GetUnhappinessFromCityMinority);
 #endif
+	Method(GetUnhappinessFromJFDSpecial);
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	Method(GetBonusHappinessFromLuxuries);
 	Method(GetScalingNationalPopulationRequrired);
@@ -4947,6 +4948,10 @@ int CvLuaPlayer::lGetTradeRouteYieldModifier(lua_State* L)
 	{
 		iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
 	}
+	else
+	{
+		iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MODIFIER);
+	}
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -8989,6 +8994,15 @@ int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = pkPlayer->getUnhappinessFromCityMinority();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityJFDSpecial();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -119,6 +119,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGAUnhappinesNeedMod(0),
 	m_iStartingSpies(0),
 	m_iStartingSpyRank(0),
+	m_iSpyMoveRateBonus(0),
+	m_iEspionageModifier(0),
+	m_iSpyExtraRankBonus(0),
 	m_iQuestYieldModifier(0),
 	m_iWonderProductionModifierToBuilding(0),
 	m_iPolicyGEorGM(0),
@@ -816,6 +819,19 @@ int CvTraitEntry::GetStartingSpies() const
 int CvTraitEntry::GetStartingSpyRank() const
 {
 	return m_iStartingSpyRank;
+}
+int CvTraitEntry::GetEspionageModifier() const
+{
+	return m_iEspionageModifier;
+}
+
+int CvTraitEntry::GetSpyExtraRankBonus() const
+{
+	return m_iSpyExtraRankBonus;
+}
+int CvTraitEntry::GetSpyMoveRateBonus() const
+{
+	return m_iSpyMoveRateBonus;
 }
 int CvTraitEntry::GetQuestYieldModifier() const
 {
@@ -2217,6 +2233,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iGAUnhappinesNeedMod					= kResults.GetInt("GAUnhappinesNeedMod");
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
+	m_iSpyMoveRateBonus						= kResults.GetInt("SpyMoveRateModifier");
+	m_iEspionageModifier					= kResults.GetInt("EspionageRateModifier");
+	m_iSpyExtraRankBonus					= kResults.GetInt("SpyExtraRankBonus");
 	m_iQuestYieldModifier					= kResults.GetInt("MinorQuestYieldModifier");
 	m_iWonderProductionModifierToBuilding	= kResults.GetInt("WonderProductionModifierToBuilding");
 	m_iPolicyGEorGM							= kResults.GetInt("PolicyGEorGM");
@@ -3998,6 +4017,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iGAUnhappinesNeedMod += trait->GetGAUnhappinesNeedMod();
 			m_iStartingSpies += trait->GetStartingSpies();
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
+			m_iSpyMoveRateBonus += trait->GetSpyMoveRateBonus();
+			m_iEspionageModifier += trait->GetEspionageModifier();
+			m_iSpyExtraRankBonus += trait->GetSpyExtraRankBonus();
 			m_iQuestYieldModifier += trait->GetQuestYieldModifier();
 			m_iWonderProductionModifierToBuilding += trait->GetWonderProductionModifierToBuilding();
 			m_iPolicyGEorGM += trait->GetPolicyGEorGM();
@@ -4681,6 +4703,9 @@ void CvPlayerTraits::Reset()
 	m_iGAUnhappinesNeedMod = 0;
 	m_iStartingSpies = 0;
 	m_iStartingSpyRank = 0;
+	m_iSpyMoveRateBonus = 0;
+	m_iEspionageModifier = 0;
+	m_iSpyExtraRankBonus = 0;
 	m_iQuestYieldModifier = 0;
 	m_bGPWLTKD = false;
 	m_bGreatWorkWLTKD = false;
@@ -6783,6 +6808,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_iGAUnhappinesNeedMod, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpies, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpyRank, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iSpyMoveRateBonus, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iEspionageModifier, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iSpyExtraRankBonus, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iQuestYieldModifier, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iWonderProductionModifierToBuilding, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iPolicyGEorGM, 0);
@@ -7393,6 +7421,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iGAUnhappinesNeedMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpies);
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpyRank);
+	MOD_SERIALIZE_WRITE(kStream, m_iSpyMoveRateBonus);
+	MOD_SERIALIZE_WRITE(kStream, m_iEspionageModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iSpyExtraRankBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iQuestYieldModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModifierToBuilding);
 	MOD_SERIALIZE_WRITE(kStream, m_iPolicyGEorGM);

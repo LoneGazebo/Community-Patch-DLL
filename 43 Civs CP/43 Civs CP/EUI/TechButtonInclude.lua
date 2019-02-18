@@ -536,56 +536,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local player = Players[playerID];
 	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 
-	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
-	local improvementTypesChanged = {}
-	for row in GameInfo.Improvement_TechYieldChanges( thisTechType ) do
-		local thisImprovement = GameInfo.Improvements[ row.ImprovementType ]
-		if thisImprovement and (not thisImprovement.CivilizationType or thisImprovement.CivilizationType == civType) then
-			improvementTypesChanged[ row.ImprovementType or -1 ] = true
-		end
-	end
-	-- Let's sort the yield change buttons!
-	local sortedImprovements = table()
-	for improvementType in pairs( improvementTypesChanged ) do
-		sortedImprovements:insertIf( GameInfo.Improvements[ improvementType ] )
-	end
-	sortedImprovements:sort( function(a,b) return Locale.Compare(a.Description or "", b.Description or "") == -1 end )
-
-	local thisTechAndImprovementTypes = { TechType = techType }
-	for i,improvement in ipairs( sortedImprovements ) do
-		local toolTip = L( improvement.Description or "???" )
-		local icons = ""
-		thisTechAndImprovementTypes.ImprovementType = improvement.Type
-		for row in GameInfo.Improvement_TechYieldChanges( thisTechAndImprovementTypes ) do
-			if (row.Yield or 0)~=0 then
-				local icon = YieldIcons[row.YieldType] or "???"
-				icons = icons .. icon
-				toolTip = toolTip .. (" +%g"):format(row.Yield) .. icon
-			end
-		end
-		if not addSmallActionButton( GameInfo.Builds{ ImprovementType = improvement.Type }() or "???", icons, toolTip ) then
-			break
-		end
-	end
-
-	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges( thisTechType ) do
-		local yield = GameInfo.Yields[row.YieldType]
-		if yield and not addSmallActionButton( GameInfo.Builds{ ImprovementType = row.ImprovementType }(), yield.IconString,
-				"TXT_KEY_NO_FRESH_WATER", (GameInfo.Improvements[row.ImprovementType] or {}).Description or "???" , yield.Description, row.Yield )
-		then
-			break
-		end
-	end
-
-	for row in GameInfo.Improvement_TechFreshWaterYieldChanges( thisTechType ) do
-		local yield = GameInfo.Yields[row.YieldType]
-		if yield and not addSmallActionButton( GameInfo.Builds{ ImprovementType = row.ImprovementType }(), yield.IconString,
-				"TXT_KEY_FRESH_WATER", (GameInfo.Improvements[row.ImprovementType] or {}).Description or "???", yield.Description, row.Yield )
-		then
-			break
-		end
-	end
-
 	if (tonumber(tech.EmbarkedMoveChange) or 0) > 0 then
 		addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "[ICON_MOVES]", "TXT_KEY_FASTER_EMBARKED_MOVEMENT" )
 	end
@@ -627,6 +577,8 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		-- END
 
 		addSmallGenericButtonIf( tech.TradeAgreementTradingAllowed and "TXT_KEY_ALLOWS_TRADE_AGREEMENTS" )
+
+		addSmallGenericButtonIf( tech.UnlocksEspionageAdvancedActions and "TXT_KEY_ALLOWS_ADVANCED_ACTIONS" )
 
 		if tech.BridgeBuilding then
 			addSmallActionButton( GameInfo.Missions.MISSION_ROUTE_TO, "", "TXT_KEY_ALLOWS_BRIDGES" )
@@ -726,6 +678,56 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			if promotion and not addSmallButton( promotion.PortraitIndex, promotion.IconAtlas, "TXT_KEY_FREE_PROMOTION_FROM_TECH", promotion.Description, promotion.Help ) then
 				break
 			end
+		end
+	end
+
+	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
+	local improvementTypesChanged = {}
+	for row in GameInfo.Improvement_TechYieldChanges( thisTechType ) do
+		local thisImprovement = GameInfo.Improvements[ row.ImprovementType ]
+		if thisImprovement and (not thisImprovement.CivilizationType or thisImprovement.CivilizationType == civType) then
+			improvementTypesChanged[ row.ImprovementType or -1 ] = true
+		end
+	end
+	-- Let's sort the yield change buttons!
+	local sortedImprovements = table()
+	for improvementType in pairs( improvementTypesChanged ) do
+		sortedImprovements:insertIf( GameInfo.Improvements[ improvementType ] )
+	end
+	sortedImprovements:sort( function(a,b) return Locale.Compare(a.Description or "", b.Description or "") == -1 end )
+
+	local thisTechAndImprovementTypes = { TechType = techType }
+	for i,improvement in ipairs( sortedImprovements ) do
+		local toolTip = L( improvement.Description or "???" )
+		local icons = ""
+		thisTechAndImprovementTypes.ImprovementType = improvement.Type
+		for row in GameInfo.Improvement_TechYieldChanges( thisTechAndImprovementTypes ) do
+			if (row.Yield or 0)~=0 then
+				local icon = YieldIcons[row.YieldType] or "???"
+				icons = icons .. icon
+				toolTip = toolTip .. (" +%g"):format(row.Yield) .. icon
+			end
+		end
+		if not addSmallActionButton( GameInfo.Builds{ ImprovementType = improvement.Type }() or "???", icons, toolTip ) then
+			break
+		end
+	end
+
+	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges( thisTechType ) do
+		local yield = GameInfo.Yields[row.YieldType]
+		if yield and not addSmallActionButton( GameInfo.Builds{ ImprovementType = row.ImprovementType }(), yield.IconString,
+				"TXT_KEY_NO_FRESH_WATER", (GameInfo.Improvements[row.ImprovementType] or {}).Description or "???" , yield.Description, row.Yield )
+		then
+			break
+		end
+	end
+
+	for row in GameInfo.Improvement_TechFreshWaterYieldChanges( thisTechType ) do
+		local yield = GameInfo.Yields[row.YieldType]
+		if yield and not addSmallActionButton( GameInfo.Builds{ ImprovementType = row.ImprovementType }(), yield.IconString,
+				"TXT_KEY_FRESH_WATER", (GameInfo.Improvements[row.ImprovementType] or {}).Description or "???", yield.Description, row.Yield )
+		then
+			break
 		end
 	end
 

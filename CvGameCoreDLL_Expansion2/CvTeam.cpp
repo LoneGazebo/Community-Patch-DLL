@@ -6735,7 +6735,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											continue;
 
 										int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-										iValue /= 2;
+										iValue *= 25;
+										iValue /= 100;
 										pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
 
 										if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
@@ -6888,6 +6889,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														continue;
 
 													int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
+													iValue *= 25;
+													iValue /= 100;
 													pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
 
 													if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
@@ -7733,7 +7736,13 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	{
 		changeVassalageTradingAllowedCount(iChange);
 	}
+
 #endif
+
+	if (pTech->IsUnlocksEspionageAdvancedActions())
+	{
+		InitAdvancedActionsEspionage();
+	}
 
 #if defined(MOD_BALANCE_CORE)
 	if (pTech->IsCorporationsEnabled())
@@ -8072,8 +8081,13 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 			if(kPlayer.getCapitalCity() != NULL)
 			{
-				//Free Happiness
-				kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+				if (pTech->GetHappiness() != 0)
+				{
+					//Free Happiness
+					kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+					kPlayer.DoUpdateHappinessFromBuildings();
+				}
+
 
 				//Free building in capital unlocked via tech?
 				if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
@@ -10479,6 +10493,55 @@ int CvTeam::GetNumVassals()
 	}
 
 	return iVassals;
+}
+
+void CvTeam::InitAdvancedActionsEspionage()
+{
+	// Effects in every City on this Team
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+		if (kPlayer.getTeam() == m_eID && kPlayer.isAlive())
+		{
+			kPlayer.SetAdvancedActionsEnabled(true);
+
+			if (kPlayer.GetAdvancedActionGold() < 4)
+			{
+				kPlayer.changeAdvancedActionGold(4);
+			}
+			if (kPlayer.GetAdvancedActionScience() < 4)
+			{
+				kPlayer.changeAdvancedActionScience(4);
+			}
+			if (kPlayer.GetAdvancedActionUnrest() < 2)
+			{
+				kPlayer.changeAdvancedActionUnrest(2);
+			}
+			if (kPlayer.GetAdvancedActionRebellion() < 2)
+			{
+				kPlayer.changeAdvancedActionRebellion(2);
+			}
+			if (kPlayer.GetAdvancedActionGP() < 2)
+			{
+				kPlayer.changeAdvancedActionGP(2);
+			}
+			if (kPlayer.GetAdvancedActionWonder() < 2)
+			{
+				kPlayer.changeAdvancedActionWonder(2);
+			}
+			if (kPlayer.GetAdvancedActionBuilding() < 2)
+			{
+				kPlayer.changeAdvancedActionBuilding(2);
+			}
+
+			if ((PlayerTypes)iPlayerLoop == GC.getGame().getActivePlayer())
+			{
+				Localization::String strTemp = Localization::Lookup("TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED");
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_TECH_ADVANCED_ACTIONS_ENABLED_S");
+				kPlayer.GetNotifications()->Add(NOTIFICATION_GENERIC, strTemp.toUTF8(), strSummary.toUTF8(), -1, -1, (PlayerTypes)iPlayerLoop);
+			}
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------

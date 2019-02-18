@@ -764,7 +764,7 @@ public:
 	void PlotArmyMovesCombat(CvArmyAI* pThisArmy);
 	void AddCurrentTurnUnit(CvUnit* pUnit);
 
-	void UnitProcessed(int iID, bool bMarkTacticalMap=true);
+	void UnitProcessed(int iID);
 private:
 
 	// Internal turn update routines - commandeered unit processing
@@ -818,12 +818,7 @@ private:
 
 	// Operational AI support functions
 	bool ClearEnemiesNearArmy(CvArmyAI* pArmy);
-	void MoveWithFormation(CvUnit* pUnit, MultiunitPositionTypes ePosition);
-	void ExecuteGatherMoves(CvArmyAI* pArmy);
-	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
-	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
-	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
-	void ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
+	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();
@@ -880,8 +875,6 @@ private:
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 
 	int GetRecruitRange() const;
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bNoRanged, bool bRanged, bool bCombatExpected=true);
-	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bEscortedUnits);
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	void FindAirUnitsToAirSweep(CvPlot* pTarget);
@@ -904,17 +897,6 @@ private:
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
 	bool IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget);
-
-	// Blocking position functions
-	bool AssignDeployingUnits(int iNumUnitsRequiredToDeploy);
-	void PerformChosenMoves();
-	void MoveGreatGeneral(CvArmyAI* pArmyAI = NULL);
-	bool HaveDuplicateUnit();
-	void RemoveChosenUnits(int iStartIndex = 0);
-	int NumUniqueUnitsLeft();
-	bool IsInChosenMoves(CvPlot* pPlot);
-
-	int ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pTarget);
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
@@ -968,10 +950,6 @@ private:
 	std::vector<CvBlockingUnit> m_NewlyChosen;
 
 	// Operational AI support data
-	std::vector<CvOperationUnit> m_OperationUnits;
-	std::vector<CvOperationUnit> m_GeneralsToMove;
-	typedef std::vector<CvOperationUnit>::iterator opUnitIt;
-
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
 
@@ -1000,7 +978,7 @@ struct STacticalAssignment
 
 struct SUnitStats
 {
-	enum eMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT }; //we should probably differentiate between regular ranged and siege ranged ...
+	enum eMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_ESCORTED_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 
 	int iUnitID;
 	int iPlotIndex;
@@ -1221,8 +1199,8 @@ namespace TacticalAIHelpers
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
 	ReachablePlots GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const PlotIndexContainer& plotsToIgnoreForZOC=PlotIndexContainer());
-	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility);
-	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
+	std::set<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, bool bOnlyWithEnemy, bool bIgnoreVisibility);
+	std::set<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);

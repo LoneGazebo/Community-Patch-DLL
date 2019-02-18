@@ -315,6 +315,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is victorious, where X is the number below. Same as above, but from any combat. Operates at the player level, so be careful about using this on anything but wonders! -->
+	<Table name="Building_YieldFromVictoryGlobalPlayer">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	
 	<!-- BUILDING: Allows you to define a building to grant a yield when a city grows.  -->
 	<Table name="Building_YieldFromBirth">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -520,6 +527,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- BUILDING: Allows you to define a gllobal building yield earned from pillaging. Global, at player level, so be careful about using this on non-wonders! -->
+	<Table name="Building_YieldFromPillageGlobalPlayer">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	
 	<!-- BUILDING: Allows you to define a flat yield that is gained when a building has ANY theme active. -->
 	<Table name="Building_ThemingYieldBonus">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>

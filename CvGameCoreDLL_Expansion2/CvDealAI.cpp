@@ -1631,15 +1631,15 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue *= 200;
+			iItemValue *= 100;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			iItemValue *= 300;
+			iItemValue *= 200;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_WAR:
-			iItemValue *= 500;
+			iItemValue *= 250;
 			iItemValue /= 100;
 			break;
 		}
@@ -1733,15 +1733,15 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue *= 75;
+			iItemValue *= 100;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			iItemValue *= 50;
+			iItemValue *= 75;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_WAR:
-			iItemValue *= 25;
+			iItemValue *= 50;
 			iItemValue /= 100;
 			break;
 		}
@@ -4307,9 +4307,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 /// What is the value of trading a vote commitment?
 int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue)
 {
-	int iValue = 150;
+	int iValue = 300;
 
 	if(iNumVotes == 0)
+		return INT_MAX;
+
+	//vassals get out!
+	if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassal(GetPlayer()->getTeam()))
+		return INT_MAX;
+
+	if (GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
 		return INT_MAX;
 
 	// Giving our votes to them - Higher value for voting on things we dislike
@@ -4349,7 +4356,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					//We can't win? Well, our votes should be super-duper valuable, then!
 					else
 					{
-						iValue *= 100;
+						iValue *= 10;
 					}
 				}
 			}
@@ -4455,7 +4462,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		}
 #endif
 	}
-	// Giving their votes to us - Higher value for voting on things we like
+	// Giving their votes to something we want - Higher value for voting on things we like
 	else
 	{
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -4484,21 +4491,29 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						{
 							return INT_MAX;
 						}
-						//don't ask them to embargo, decolonize, or end our vassalage us!
+						//Let's look real quick to see if this is the world leader vote. If so, BUY EVERYTHING WE CAN if we can win with their votes in tow.
+						if (pProposal->GetEffects()->bDiplomaticVictory)
+						{
+							//if we aren't the target, we don't care!
+							if (eTargetPlayer == GetPlayer()->GetID())
+							{
+								int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+								if ((iOurVotes + iTheirVotes) >= iVotesNeededToWin)
+								{
+									iValue *= 10;
+								}
+								else
+									iValue *= 2;
+							}
+							else
+								return INT_MAX;
+						}
+						//don't ask them to embargo, decolonize, or end our vassalage!
 						if (eTargetPlayer == GetPlayer()->GetID())
 						{
 							if (pProposal->GetEffects()->bEmbargoPlayer || pProposal->GetEffects()->bDecolonization || pProposal->GetEffects()->bEndAllCurrentVassals) 
 								return INT_MAX;
 						}
-					}
-				}
-				//Let's look real quick to see if this is the world leader vote. If so, BUY EVERYTHING WE CAN if we can win with their votes in tow.
-				if(pProposal->GetEffects()->bDiplomaticVictory)
-				{			
-					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-					if((iOurVotes + iTheirVotes) >= iVotesNeededToWin)
-					{
-						iValue *= 100;
 					}
 				}
 				else if (eProposerDecision == RESOLUTION_DECISION_RELIGION)
@@ -4522,7 +4537,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 			}
 			// Adjust based on LeagueAI
-			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eOtherPlayer).GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 			switch(eDesire)
 			{
 				case CvLeagueAI::DESIRE_NEVER:

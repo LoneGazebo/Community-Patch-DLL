@@ -6278,6 +6278,7 @@ int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 
 	return 1;
 }
+
 #endif
 
 #if defined(MOD_BALANCE_CORE_JFD)

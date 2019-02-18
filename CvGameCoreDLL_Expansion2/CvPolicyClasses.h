@@ -185,6 +185,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
+	int GetTradeRouteYieldModifier() const;
 	int GetTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewFoundCityFreeBuilding() const;
 	UnitClassTypes GetNewFoundCityFreeUnit() const;
@@ -587,6 +588,7 @@ private:
 	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifierCapital;
+	int m_iTradeRouteYieldModifier;
 #if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eNewCityFreeBuilding;
 	BuildingClassTypes m_eAllCityFreeBuilding;
@@ -983,6 +985,7 @@ enum PolicyModifierType
 #if defined(MOD_BALANCE_CORE)
 	POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER,
 	POLICYMOD_TRADE_CAPITAL_MODIFIER,
+	POLICYMOD_TRADE_MODIFIER,
 #endif
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,

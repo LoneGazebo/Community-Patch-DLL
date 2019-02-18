@@ -514,6 +514,8 @@ public:
 
 	int GetNumVassals();
 
+	void InitAdvancedActionsEspionage();
+
 	bool IsTradeTech(TechTypes eTech) const;
 	void SetTradeTech(TechTypes eTech, bool bValue);
 

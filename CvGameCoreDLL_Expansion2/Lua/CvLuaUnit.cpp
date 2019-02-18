@@ -335,6 +335,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsRangeAttackOnlyInDomain);
 	Method(IsCityAttackOnly);
 
+	Method(GetAirInterceptRange);
 	Method(MaxInterceptionProbability);
 	Method(CurrInterceptionProbability);
 	Method(EvasionProbability);
@@ -3518,6 +3519,17 @@ int CvLuaUnit::lIsNukeImmune(lua_State* L)
 	const bool bResult = pkUnit->isNukeImmune();
 
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//int maxInterceptionProbability();
+int CvLuaUnit::lGetAirInterceptRange(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetAirInterceptRange();
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------

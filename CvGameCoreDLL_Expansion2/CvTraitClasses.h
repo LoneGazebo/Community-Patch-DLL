@@ -145,6 +145,9 @@ public:
 	int GetGAUnhappinesNeedMod() const;
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
+	int GetSpyMoveRateBonus() const;
+	int	GetEspionageModifier() const;
+	int GetSpyExtraRankBonus() const;
 	int GetQuestYieldModifier() const;
 	int GetWonderProductionModifierToBuilding() const;
 	int GetPolicyGEorGM() const;
@@ -563,6 +566,9 @@ protected:
 	int m_iGAUnhappinesNeedMod;
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
+	int m_iSpyMoveRateBonus;
+	int m_iEspionageModifier;
+	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
 #endif
 
@@ -1171,6 +1177,18 @@ public:
 	int GetStartingSpyRank() const
 	{
 		return m_iStartingSpyRank;
+	};
+	int GetSpyMoveRateBonus() const
+	{
+		return m_iSpyMoveRateBonus;
+	};
+	int GetEspionageModifier() const
+	{
+		return m_iEspionageModifier;
+	};
+	int GetSpyExtraRankBonus() const
+	{
+		return m_iSpyExtraRankBonus;
 	};
 	int GetQuestYieldModifier() const
 	{
@@ -2016,6 +2034,9 @@ private:
 	int m_iGAUnhappinesNeedMod;
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
+	int m_iSpyMoveRateBonus;
+	int m_iEspionageModifier;
+	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
 	int m_iWonderProductionModifierToBuilding;
 	int m_iPolicyGEorGM;

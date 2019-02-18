@@ -7,6 +7,10 @@ WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 INSERT INTO Defines (Name, Value)
 SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 
+-- FOR JFD
+INSERT INTO Defines (Name, Value)
+SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.0';
+
 -- AI Citystrategy
 
 -- food is different because we include consumption.

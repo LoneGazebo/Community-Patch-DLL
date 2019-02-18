@@ -42,26 +42,16 @@ struct CvDangerPlotContents
 {
 	CvDangerPlotContents()
 	{
-		m_pPlot = NULL;
-		m_iX = INVALID_PLOT_COORD;
-		m_iY = INVALID_PLOT_COORD;
-		clear();
-	}
-
-	void init(CvPlot& plot)
-	{
-		m_pPlot = &plot;
-		m_iX = m_pPlot->getX();
-		m_iY = m_pPlot->getY();
 		clear();
 	}
 
 	void clear()
 	{
+		m_pPlot = NULL;
 		m_bFlatPlotDamage = false;
 		m_bEnemyAdjacent = false;
 		m_bEnemyCanCapture = false;
-		m_pCitadel = NULL;
+		m_iImprovementDamage = 0;
 		m_apUnits.clear();
 		m_apCities.clear();
 		m_fogDanger.clear();
@@ -82,18 +72,15 @@ struct CvDangerPlotContents
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
-	int GetDamageFromFeatures(PlayerTypes ePlayer) const;
 
 	// just for internal use
 	int GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
 
 	CvPlot* m_pPlot;
-	int m_iX;
-	int m_iY;
 	bool m_bFlatPlotDamage;
 	bool m_bEnemyAdjacent; //use this as a tiebreaker, disengage when in doubt
 	bool m_bEnemyCanCapture; //for civilians
-	CvPlot* m_pCitadel;	//only one citadel can affect a unit at a time
+	int m_iImprovementDamage; //only one citadel can affect a unit at a time
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;
 	std::vector<int> m_fogDanger;
@@ -102,6 +89,7 @@ struct CvDangerPlotContents
 	std::vector< std::pair<SUnitInfo,int> > m_lastResults;
 };
 
+/*
 inline FDataStream & operator >> (FDataStream & kStream, CvDangerPlotContents & kStruct)
 {
 	int iX;
@@ -113,17 +101,42 @@ inline FDataStream & operator >> (FDataStream & kStream, CvDangerPlotContents & 
 	CvPlot* pPlot = GC.getMap().plot(iX,iY);
 
 	if (pPlot)
-		kStruct.init(*pPlot);
+	{
+		kStruct.m_pPlot = pPlot;
+		kStream << kStruct.m_bFlatPlotDamage;
+		kStream << kStruct.m_bEnemyAdjacent;
+		kStream << kStruct.m_bEnemyCanCapture;
+		kStream << kStruct.m_iImprovementDamage;
+		kStream << kStruct.m_apUnits;
+		kStream << kStruct.m_apCities;
+		kStream << kStruct.m_fogDanger;
+	}
+	else
+		kStruct.clear();
 
 	return kStream;
 }
 
 inline FDataStream & operator << (FDataStream & kStream, const CvDangerPlotContents & kStruct)
 {
-	kStream << kStruct.m_iX;
-	kStream << kStruct.m_iY;
+	if (kStruct.m_pPlot)
+	{
+		kStream << kStruct.m_pPlot->getX();
+		kStream << kStruct.m_pPlot->getY();
+		kStream << kStruct.m_bFlatPlotDamage;
+		kStream << kStruct.m_bEnemyAdjacent;
+		kStream << kStruct.m_bEnemyCanCapture;
+		kStream << kStruct.m_iImprovementDamage;
+		kStream << kStruct.m_apUnits;
+		kStream << kStruct.m_apCities;
+		kStream << kStruct.m_fogDanger;
+	}
+	else
+		kStream << -1 << -1;
+
 	return kStream;
 }
+*/
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvDangerPlots
@@ -140,7 +153,6 @@ public:
 
 	void Init(PlayerTypes ePlayer, bool bAllocate);
 	void Uninit();
-	void Reset();
 
 	void UpdateDanger(bool bKeepKnownUnits=true);
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
@@ -177,10 +189,9 @@ protected:
 	void AssignCityDangerValue(const CvCity* pCity, CvPlot* pPlot);
 
 	PlayerTypes m_ePlayer;
-	bool m_bArrayAllocated;
 	bool m_bDirty;
 
-	CvDangerPlotContents* m_DangerPlots;
+	vector<CvDangerPlotContents> m_DangerPlots;
 	UnitSet m_knownUnits;
 };
 

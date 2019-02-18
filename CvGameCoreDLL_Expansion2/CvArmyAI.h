@@ -134,7 +134,7 @@ public:
 	int GetX() const;
 	int GetY() const;
 	void SetXY(int iX, int iY);
-	CvPlot* Plot() const;
+	CvPlot* GetCurrentPlot() const;
 	int GetArea() const;
 	DomainTypes GetDomainType() const;
 	void SetDomainType(DomainTypes domainType);

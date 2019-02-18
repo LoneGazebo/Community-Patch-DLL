@@ -857,6 +857,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 			end
 			
+			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
+
 			-- Don't give numbers greater than a Unit's max HP
 			if (iMyDamageInflicted > maxUnitHitPoints) then
 				iMyDamageInflicted = maxUnitHitPoints;
@@ -2607,10 +2609,10 @@ function OnMouseOverHex( hexX, hexY )
 	if (pPlot ~= nil) then
 		local pHeadUnit = UI.GetHeadSelectedUnit();
 		local pHeadCity = UI.GetHeadSelectedCity();
-				
-		if (pHeadUnit ~= nil and not pHeadUnit:IsEmbarked() and pHeadUnit:IsCombatUnit()) then
+		-- air units are not combat units ... therefore the complicated check
+		if (pHeadUnit ~= nil and (pHeadUnit:GetBaseCombatStrength() > 0 or pHeadUnit:GetBaseRangedCombatStrength() > 0)) then
 			
-			-- melee attack
+			-- melee attack (and air units!)
 			if (pHeadUnit:IsRanged() == false) then
 				
 				local iTeam = Game.GetActiveTeam()
@@ -2649,28 +2651,28 @@ function OnMouseOverHex( hexX, hexY )
 								pUnit = pPlot:GetUnit(i);
 								if (pUnit ~= nil and not pUnit:IsInvisible(iTeam, false)) then
 									
-									-- No air units
-									--if (pUnit:GetDomainType() ~= DomainTypes.DOMAIN_AIR) then
-										
-										-- Other guy must be same domain, OR we must be ranged OR we must be naval and he is embarked
-										if (pHeadUnit:GetDomainType() == pUnit:GetDomainType() or pHeadUnit:IsRanged() or (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA and pUnit:IsEmbarked())) then
-										
-											 if (pUnit:GetBaseCombatStrength() > 0 or pHeadUnit:IsRanged()) then
-												UpdateUnitPortrait(pUnit);
-												UpdateUnitPromotions(pUnit);
-												UpdateUnitStats(pUnit);
+									local validLandAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) and (pUnit:GetDomainType() == DomainTypes.DOMAIN_LAND);
+									local validSeaAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) and (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pUnit:IsEmbarked());
+									local validAirAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_AIR);
+									
+									-- ranged attacks handled elsewhere!
+									if (validLandAttack or validSeaAttack or validAirAttack) then
+								
+										if (pUnit:GetBaseCombatStrength() > 0) then
+											UpdateUnitPortrait(pUnit);
+											UpdateUnitPromotions(pUnit);
+											UpdateUnitStats(pUnit);
+											
+											if (pTeam:IsAtWar(pUnit:GetTeam()) or (UIManager:GetAlt() and pUnit:GetOwner() ~= iTeam)) then
+												UpdateCombatOddsUnitVsUnit(pHeadUnit, pUnit);
+												Controls.MyCombatResultsStack:SetHide(false);
+												Controls.TheirCombatResultsStack:SetHide(false);
 												
-												if (pTeam:IsAtWar(pUnit:GetTeam()) or (UIManager:GetAlt() and pUnit:GetOwner() ~= iTeam)) then
-													UpdateCombatOddsUnitVsUnit(pHeadUnit, pUnit);
-													Controls.MyCombatResultsStack:SetHide(false);
-													Controls.TheirCombatResultsStack:SetHide(false);
-													
-													g_bShowPanel = true;
-													break;
-												end
+												g_bShowPanel = true;
+												break;
 											end
 										end
-									--end
+									end
 								end
 							end
 						end

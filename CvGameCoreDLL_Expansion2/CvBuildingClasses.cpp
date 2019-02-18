@@ -313,8 +313,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
 	m_piYieldFromVictoryGlobal(NULL),
+	m_piYieldFromVictoryGlobalPlayer(NULL),
 	m_piYieldFromPillage(NULL),
 	m_piYieldFromPillageGlobal(NULL),
+	m_piYieldFromPillageGlobalPlayer(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
@@ -432,8 +434,10 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
@@ -892,8 +896,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictoryGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPillageGlobalPlayer, "Building_YieldFromPillageGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
@@ -2709,6 +2715,20 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalArray() const
 	return m_piYieldFromVictoryGlobal;
 }
 
+
+/// Change to yield if victorious in battle.
+int CvBuildingEntry::GetYieldFromVictoryGlobalPlayer(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobalPlayer ? m_piYieldFromVictoryGlobalPlayer[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalPlayerArray() const
+{
+	return m_piYieldFromVictoryGlobalPlayer;
+}
+
 /// Change to yield if pillaging
 int CvBuildingEntry::GetYieldFromPillage(int i) const
 {
@@ -2733,6 +2753,19 @@ int CvBuildingEntry::GetYieldFromPillageGlobal(int i) const
 int* CvBuildingEntry::GetYieldFromPillageGlobalArray() const
 {
 	return m_piYieldFromPillageGlobal;
+}
+
+/// Change to yield if pillaging
+int CvBuildingEntry::GetYieldFromPillageGlobalPlayer(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromPillageGlobalPlayer ? m_piYieldFromPillageGlobalPlayer[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromPillageGlobalPlayerArray() const
+{
+	return m_piYieldFromPillageGlobalPlayer;
 }
 
 
@@ -4178,6 +4211,15 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	}
 	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge())
 		return false;
+
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if ((YieldTypes)iYieldLoop == NO_YIELD)
+			continue;
+
+		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0)
+			return false;
+	}
 #endif
 
 	// Science building in capital that has given us a tech boost?

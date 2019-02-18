@@ -2038,7 +2038,7 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 					if(pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 3)
 						continue;
 
-					if (pUnit->canMoveInto(*vTargets[i]))
+					if (pUnit->canMoveInto(*vTargets[i], CvUnit::MOVEFLAG_DESTINATION))
 					{
 						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(pLoopPlot->GetPlotIndex());
@@ -3140,7 +3140,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 		CvPlot* pTarget = FindUnassignedTarget(pUnit);
 		if (pTarget)
 		{
-			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, NO_DOMAIN, 42))
+			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, pUnit->getDomainType(), 42))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -3151,6 +3151,13 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 			}
 			else
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		}
+		else if (pUnit->isEmbarked())
+		{
+			//no target and embarked? do something ...
+			CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+			if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
+				ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
 		}
 
 		UnitProcessed(pUnit->GetID());
@@ -4908,14 +4915,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && !pUnit->IsCityAttackSupport())
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
-			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
@@ -4984,7 +4989,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			CvPlot* pBestPlot = 0;
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
-			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
@@ -5062,9 +5066,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 			}
 		}
-#endif
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 		if( pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || 
 			(pUnit->IsCityAttackSupport() && pUnit->canRecruitFromTacticalAI() && !pUnit->IsRecentlyDeployedFromOperation()))
 		{
@@ -5206,91 +5208,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					}
 				}
 			}
-#else
-
-		// if we already built the Apollo Program we don't want the general in the capital because it'll block spaceship parts
-
-		// Already in a friendly city?
-		CvPlot* pUnitPlot =  pUnit->plot();
-		if(pUnitPlot->isFriendlyCity(*pUnit, false) && (!bHaveApolloInCapital || !pUnitPlot->getPlotCity()->isCapital()) && (!bKeepHolyCityClear || pUnitPlot != pHolyCityPlot))
-		{
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Great General remaining as garrison for %s, X: %d, Y: %d", pUnit->plot()->getPlotCity()->getName().GetCString(), pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
-			}
-		}
-		else
-		{
-			CvCity* pLoopCity;
-			int iLoopCity = 0;
-			int iBestTurns = MAX_INT;
-			CvPlot* pBestCityPlot = NULL;
-			for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-			{
-				if(bHaveApolloInCapital && pLoopCity->isCapital())
-				{
-					continue;
-				}
-
-				if(bKeepHolyCityClear && pLoopCity == pHolyCity)
-				{
-					continue;
-				}
-				bool bSkipCity = false;
-
-				CvPlot* pTarget = pLoopCity->plot();
-				for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
-				{
-					// Don't go here if a general or admiral is already present
-					if(pTarget->getUnitByIndex(iUnitLoop)->AI_getUnitAIType() == UNITAI_GENERAL)
-					{
-						bSkipCity = true;
-						break;
-					}
-					else if(pTarget->getUnitByIndex(iUnitLoop)->AI_getUnitAIType() == UNITAI_ADMIRAL)
-					{
-						bSkipCity = true;
-						break;
-					}
-				}
-				if(!bSkipCity)
-				{
-					int iTurns = pUnit->TurnsToReachTarget(pTarget);
-					if(iTurns < iBestTurns)
-					{
-						iBestTurns = iTurns;
-						pBestCityPlot = pTarget;
-					}
-				}
-			}
-
-			if(pBestCityPlot)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestCityPlot->getX(), pBestCityPlot->getY());
-				pUnit->finishMoves();
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Moving Great General to city garrison, X: %d, Y: %d", pBestCityPlot->getX(), pBestCityPlot->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-			else
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("No place to move Great General at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-#endif
 		}		
 	}
 }
@@ -7336,6 +7253,7 @@ CvPlot* CvHomelandAI::FindUnassignedTarget(CvUnit *pUnit)
 			}
 		}
 	}
+
 	return pBestTarget;
 }
 #endif
@@ -7351,6 +7269,7 @@ void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 		FILogFile* pLog;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line

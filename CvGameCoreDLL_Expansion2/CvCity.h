@@ -879,6 +879,8 @@ public:
 	int getUnhappinessFromReligionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromReligion() const;
 
+	int getJFDSpecialUnhappinessSources() const;
+
 	int getUnhappinessAggregated() const;
 
 	CvString getPotentialUnhappinessWithGrowth();
@@ -1084,8 +1086,14 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictoryGlobal(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromPillageGlobal(YieldTypes eIndex) const;
+	void ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange);
 
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
@@ -1334,6 +1342,7 @@ public:
 	bool setRevealed(TeamTypes eIndex, bool bNewValue);
 
 	const CvString getName() const;
+	const CvString getNameNoSpace() const;
 	const char* getNameKey() const;
 	void setName(const char* szNewValue, bool bFound = false);
 	void doFoundMessage();

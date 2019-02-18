@@ -1,26 +1,26 @@
 -- Diplomatic Mission Base Value
 UPDATE Defines
-SET Value = 100
+SET Value = 0
 WHERE Name = 'MINOR_FRIENDSHIP_FROM_TRADE_MISSION'  AND EXISTS (SELECT * FROM CSD WHERE Type='TRADE_MISSION' AND Value= 1 );
 
 -- Diplomatic Mission Base Value
 UPDATE Defines
-SET Value = 90
+SET Value = 0
 WHERE Name = 'MINOR_FRIENDSHIP_FROM_TRADE_MISSION'  AND EXISTS (SELECT * FROM CSD WHERE Type='TRADE_MISSION' AND Value= 2 );
 
 -- Diplomatic Mission Base Value
 UPDATE Defines
-SET Value = 80
+SET Value = 0
 WHERE Name = 'MINOR_FRIENDSHIP_FROM_TRADE_MISSION'  AND EXISTS (SELECT * FROM CSD WHERE Type='TRADE_MISSION' AND Value= 3 );
 
 -- Diplomatic Mission Base Value
 UPDATE Defines
-SET Value = 70
+SET Value = 0
 WHERE Name = 'MINOR_FRIENDSHIP_FROM_TRADE_MISSION'  AND EXISTS (SELECT * FROM CSD WHERE Type='TRADE_MISSION' AND Value= 4 );
 
 -- Diplomatic Mission Base Value
 UPDATE Defines
-SET Value = 60
+SET Value = 0
 WHERE Name = 'MINOR_FRIENDSHIP_FROM_TRADE_MISSION'  AND EXISTS (SELECT * FROM CSD WHERE Type='TRADE_MISSION' AND Value= 5 );
 
 --Gold:Influence Ratio (Hard)

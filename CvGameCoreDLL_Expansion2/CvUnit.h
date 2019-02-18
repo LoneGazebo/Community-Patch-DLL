@@ -1791,6 +1791,7 @@ public:
 	CvPlot* GetPathLastPlot() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
 	int GetMovementPointsAtCachedTarget() const;
+	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
 
 	bool IsIgnoringDangerWakeup() const;
 	void SetIgnoreDangerWakeup(bool bState);
@@ -2341,7 +2342,7 @@ protected:
 	mutable uint m_uiLastPathCacheOrigin;
 	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
-	mutable uint m_uiLastPathTurn;
+	mutable uint m_uiLastPathTurnSlice;
 	mutable uint m_uiLastPathLength;
 
 	mutable std::vector< std::pair<SStrengthModifierInput,int> > m_lastStrengthModifiers;

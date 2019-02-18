@@ -326,7 +326,7 @@
 			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
-			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes to or from this City generate 50 [ICON_FOOD] Food when completed, scaling with Era.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
+			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes to or from this City generate 50 [ICON_FOOD] Food in their Origin City when completed, scaling with Era.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>+15% [ICON_PRODUCTION] Production. Produces 3 [ICON_RES_COAL] Coal. Greatly increases [ICON_HAPPINESS_3] Poverty. Can be built in up to 5 Cities maximum.</Text>
@@ -608,17 +608,23 @@
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
 			<Text>Unique Roman replacement for the Arena. Build the Colosseum to boost your city's Culture, Tourism, and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Colosseum slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL">
-			<Text>Steam Mill</Text>
+		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER">
+			<Text>White Tower</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_STEAM_MILL_TEXT">
-			<Text>Stationary steam engines are fixed steam engines used for pumping or driving mills and factories, and for power generation. They are distinct from locomotive engines used on railways, traction engines for heavy steam haulage on roads, steam cars (and other motor vehicles), agricultural engines used for ploughing or threshing, marine engines, and the steam turbines used as the mechanism of power generation for most nuclear power plants. They were introduced during the 18th century and widely made for the whole of the 19th century and most of the first half of the 20th century, only declining as electricity supply and the internal combustion engine became more widespread.</Text>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WHITE_TOWER_TEXT">
+			<Text>The White Tower is the old keep at the Tower of London. It was built by William the Conqueror during the early 1080s, and was later extended. The White Tower was the castle's strongest defensive point, and originally housed the king and his representatives. Throughout its long history, the Tower has been many things to England: A symbol of tyranny, a treasury, a menagerie, a mint, a palace and a prison. Today, the Tower of London is a vast museum which boasts, amongst its many treasures, the Crown Jewels of the English Monarchy.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. Manufactories worked by the City gain +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +3 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for Trade Route owner. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes to or from this City generate 50 [ICON_PRODUCTION] Production when completed, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
+		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Distress in all Cities. Contains a pre-built Great Work of Art. Slows enemy spy effectiveness by 15%, provides an additional spy, and levels up all existing spies. Owned Spies are much more likely to assassinate [ICON_GREAT_PEOPLE] Great People via Advanced Actions.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, complete a City-State Coup or Election Rigging, or kill a foreign [ICON_SPY] Spy in this City (+25 [ICON_GOLD]/[ICON_RESEARCH] for Advanced Actions), all scaling with Era.[NEWLINE][NEWLINE]All Constabularies, Castles, and Armories gain +3 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
-			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. The Steam Mill also boosts the city's Gold income from Trade Routes, thus encouraging other Civlizations to trade with you. Since Steam Mills do not require Coal, you can use your Coal surplus to build Seaports and Coal Plants, or you can trade it away for a large amount of gold.</Text>
+		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY">
+			<Text>Unique English replacement for the National Intelligency Agency. The White Tower is available significantly earlier than National Intelligence Agency, however yields from Spy Actions are reduced slightly as a result. In addition to the bonuses from the National Intelligence Agency, the White Tower improves Constabularies and Police Stations, contains a Great Work of Art, and provides yields for enemy Spies killed in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS_QUOTE">
+			<Text>"On the contrary. Every Bison dollar will be worth five British pounds. For that is the exchange rate that the bank of England will implement after I kidnap their queen."[NEWLINE]-M. Bison</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS">
+			<Text>The Crown Jewels</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP">
 			<Text>Siege Foundry</Text>

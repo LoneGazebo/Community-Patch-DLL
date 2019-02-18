@@ -2067,7 +2067,7 @@ bool CvMinorCivQuest::IsComplete()
 			return true;
 		}
 	}
-	else if(m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)m_iData1;
 		int iNumThefts = m_iData2;
@@ -3391,7 +3391,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM");
 		strMessage << strTargetNameKey;
-		strMessage << m_iData2;
+		strMessage << (m_iData2 - pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(pCity->getOwner()));
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_STEAL_FROM");
 
 	}
@@ -13077,13 +13077,16 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 					if(GetNumTurnsSincePtPWarning(eMajor) > 0)
 					{
 						SetNumTurnsSincePtPWarning(eMajor, 0);
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
-						strMessage << GetPlayer()->getNameKey();
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
-						strSummary << GetPlayer()->getNameKey();
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-						break;
+						if ((GetTurnLastPledgedProtectionByMajor(eMajor) > GC.getGame().getGameTurn() - 1))
+						{
+							Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
+							strMessage << GetPlayer()->getNameKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
+							strSummary << GetPlayer()->getNameKey();
+							AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+						}
 					}
+					break;
 				}
 			}
 		}
@@ -17198,7 +17201,7 @@ void CvMinorCivAI::DoElection()
 
 			apSpy[ui] = &(pPlayerEspionage->m_aSpyList[iSpyID]);
 
-			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
+			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + (-1 * GET_PLAYER(eEspionagePlayer).GetPlayerTraits()->GetEspionageModifier()) + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
 
 			// now that votes are counted, remove the progress from the spy
 			pCityEspionage->ResetProgress(eEspionagePlayer);
@@ -17272,6 +17275,8 @@ void CvMinorCivAI::DoElection()
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultSuccess, (int)ePlayer, iSpyID, iValue, pCapital->getX(), pCapital->getY());
 				}
 #endif
+				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+
 			}
 			else
 			{

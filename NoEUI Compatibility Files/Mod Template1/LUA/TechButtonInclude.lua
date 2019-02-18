@@ -208,74 +208,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local player = Players[playerID];
 	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 
-	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
-	local yieldChanges = {};
-	for row in GameInfo.Improvement_TechYieldChanges(condition) do
-		local improvementType = row.ImprovementType;
-
-		local improvement = GameInfo.Improvements[row.ImprovementType];
-		if improvement and (not improvement.CivilizationType or improvement.CivilizationType == civType) then
-
-			if(yieldChanges[improvementType] == nil) then
-				yieldChanges[improvementType] = {};
-			end
-
-			local yield = GameInfo.Yields[row.YieldType];
-		
-			table.insert(yieldChanges[improvementType], Locale.Lookup( "TXT_KEY_YIELD_IMPROVED", improvement.Description , yield.Description, row.Yield));
-		end
-	end
-	
-	-- Let's sort the yield change butons!
-	local sortedYieldChanges = {};
-	for k,v in pairs(yieldChanges) do
-	
-		
-		table.insert(sortedYieldChanges, {k,v});
-	end
-	table.sort(sortedYieldChanges, function(a,b) return Locale.Compare(a[1], b[1]) == -1 end); 
-	
-	for i,v in pairs(sortedYieldChanges) do
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if(thisButton ~= nil) then
-			table.sort(v[2], function(a,b) return Locale.Compare(a,b) == -1 end);
-		
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString(table.concat(v[2], "[NEWLINE]"));
-			buttonNum = buttonNum + 1;
-		else
-			break;
-		end
-	end	
-	
-	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges(condition) do
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_NO_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
-			buttonNum = buttonNum + 1;
-		else
-			break;
-		end
-	end	
-
-	for row in GameInfo.Improvement_TechFreshWaterYieldChanges(condition) do
-		local buttonName = "B"..tostring(buttonNum);
-		local thisButton = thisTechButtonInstance[buttonName];
-		if thisButton then
-			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
-			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
-			buttonNum = buttonNum + 1;
-		else
-			break;
-		end
-	end	
-
 	if tech.EmbarkedMoveChange > 0 then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
@@ -430,6 +362,17 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
 			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_TRADE_AGREEMENTS" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+
+	if tech.UnlocksEspionageAdvancedActions then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ALLOWS_ADVANCED_ACTIONS" ) );
 			buttonNum = buttonNum + 1;
 		end
 	end
@@ -683,6 +626,74 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			break;
 		end
 	end
+
+	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
+	local yieldChanges = {};
+	for row in GameInfo.Improvement_TechYieldChanges(condition) do
+		local improvementType = row.ImprovementType;
+
+		local improvement = GameInfo.Improvements[row.ImprovementType];
+		if improvement and (not improvement.CivilizationType or improvement.CivilizationType == civType) then
+
+			if(yieldChanges[improvementType] == nil) then
+				yieldChanges[improvementType] = {};
+			end
+
+			local yield = GameInfo.Yields[row.YieldType];
+		
+			table.insert(yieldChanges[improvementType], Locale.Lookup( "TXT_KEY_YIELD_IMPROVED", improvement.Description , yield.Description, row.Yield));
+		end
+	end
+	
+	-- Let's sort the yield change butons!
+	local sortedYieldChanges = {};
+	for k,v in pairs(yieldChanges) do
+	
+		
+		table.insert(sortedYieldChanges, {k,v});
+	end
+	table.sort(sortedYieldChanges, function(a,b) return Locale.Compare(a[1], b[1]) == -1 end); 
+	
+	for i,v in pairs(sortedYieldChanges) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if(thisButton ~= nil) then
+			table.sort(v[2], function(a,b) return Locale.Compare(a,b) == -1 end);
+		
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString(table.concat(v[2], "[NEWLINE]"));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end	
+	
+	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_NO_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end	
+
+	for row in GameInfo.Improvement_TechFreshWaterYieldChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_FRESH_WATER", GameInfo.Improvements[row.ImprovementType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield));
+			buttonNum = buttonNum + 1;
+		else
+			break;
+		end
+	end	
 	
 	return buttonNum;
 	

@@ -4815,7 +4815,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		// Check ice with specialty: is passable if owned
 		if (enterPlot.isIce()) 
 		{
-			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam()));
+			bool bCanCross = (canCrossIce() || kPlayer.CanCrossIce() || (eDomain==DOMAIN_SEA && enterPlot.getTeam()==getTeam() && ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0)));
 			return bCanCross;
 		}
 
@@ -26572,6 +26572,19 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	if (pkPromotionInfo->GetMaxRange() != 0 && GetRange() > 0 && pkPromotionInfo->GetMaxRange() < GetRange())
 		return false;
 
+	if (GetAirInterceptRange() <= 0)
+	{
+		if (pkPromotionInfo->GetInterceptChanceChange() != 0)
+			return false;
+
+		if (pkPromotionInfo->GetInterceptionCombatModifier() != 0)
+			return false;
+
+		if (pkPromotionInfo->GetNumInterceptionChange() != 0)
+			return false;
+	}
+		
+
 	// AND prereq
 	if(pkPromotionInfo->GetPrereqPromotion() != NO_PROMOTION)
 	{
@@ -28706,7 +28719,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
 		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
 		m_uiLastPathFlags = iFlags;
-		m_uiLastPathTurn = GC.getGame().getGameTurn();
+		m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
 		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
 	}
 
@@ -29918,7 +29931,7 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
 		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
 		m_uiLastPathFlags == iFlags &&
-		m_uiLastPathTurn == GC.getGame().getGameTurn() && 
+		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice() && 
 		(m_uiLastPathLength == m_kLastPath.size() || m_uiLastPathLength == 0xFFFFFFFF)
 		);
 }
@@ -29968,14 +29981,14 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 }
 
 //	--------------------------------------------------------------------------------
-/// Clear the pathing cache.  Please use with caution.
+/// Clear the pathing cache
 void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
 	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
 	m_uiLastPathCacheDestination = 0xFFFFFFFF;
 	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathTurn = 0xFFFFFFFF;
+	m_uiLastPathTurnSlice = 0xFFFFFFFF;
 	m_uiLastPathLength = 0xFFFFFFFF;
 }
 
@@ -30022,6 +30035,21 @@ int CvUnit::GetMovementPointsAtCachedTarget() const
 		return -1;
 
 	return m_kLastPath.back().m_iMoves;
+}
+
+CvPlot * CvUnit::GetLastValidDestinationPlotInCachedPath() const
+{
+	if (!IsCachedPathValid() || m_kLastPath.empty())
+		return NULL;
+
+	for (size_t i = m_kLastPath.size() - 1; i > 0; i--)
+	{
+		CvPlot* pPlot = m_kLastPath.GetPlotByIndex(i);
+		if (pPlot && canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+			return pPlot;
+	}
+
+	return NULL;
 }
 
 // PRIVATE METHODS

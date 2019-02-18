@@ -273,9 +273,6 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		pUnit = GetNextUnit(pUnit);
 	}
 
-	if (iNumUnits==0)
-		return NULL;
-
 	//this is for debugging
 	float fVarX = (iTotalX2 / (float)iNumUnits) - (iTotalX/(float)iNumUnits)*(iTotalX/(float)iNumUnits);
 	float fVarY = (iTotalY2 / (float)iNumUnits) - (iTotalY/(float)iNumUnits)*(iTotalY/(float)iNumUnits);
@@ -292,7 +289,6 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 
 	//this handles wrapped coordinates
 	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
-
 	if (!pCOM)
 		return NULL;
 
@@ -308,12 +304,9 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		std::vector<SPlotWithScore> vPlots;
 		while (pUnit)
 		{
-			if (pUnit->plot()->getDomain()==GetDomainType())
-			{
-				int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
-				int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
-				vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
-			}
+			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
+			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
+			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
 
 			pUnit = GetNextUnit(pUnit);
 		}
@@ -563,7 +556,7 @@ void CvArmyAI::SetXY(int iX, int iY)
 }
 
 /// Retrieve the army's current plot
-CvPlot* CvArmyAI::Plot() const
+CvPlot* CvArmyAI::GetCurrentPlot() const
 {
 	return GC.getMap().plotCheckInvalid(m_iCurrentX, m_iCurrentY);
 }

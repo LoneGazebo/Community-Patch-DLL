@@ -150,6 +150,7 @@ CvGlobals::CvGlobals() :
 	m_iAI_GS_SS_TECH_PROGRESS_MOD(300),
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iEVENT_MIN_DURATION_BETWEEN(10),
+	m_iCITY_EVENT_MIN_DURATION_BETWEEN(25),
 	m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE(50),
 	m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD(50),
 	m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD(25),
@@ -1359,6 +1360,7 @@ CvGlobals::CvGlobals() :
 	m_iHAPPINESS_PER_NATURAL_WONDER(1),
 	m_iHAPPINESS_PER_EXTRA_LUXURY(0),
 	m_iUNHAPPINESS_PER_POPULATION(1),
+	m_fUNHAPPINESS_PER_POPULATION_FLOAT(0.f),
 	m_fUNHAPPINESS_PER_OCCUPIED_POPULATION(1.25f),
 	m_iUNHAPPINESS_PER_CITY(2),
 	m_iUNHAPPINESS_PER_CAPTURED_CITY(3),
@@ -1856,7 +1858,6 @@ CvGlobals::CvGlobals() :
 	m_iBALANCE_SPY_RESPAWN_TIMER(10),
 	m_iBALANCE_SPY_SABOTAGE_RATE(25),
 	m_iBALANCE_SPY_TO_MINOR_RATIO(15),
-	m_iBALANCE_HAPPINESS_EMPIRE_MOD(-1),
 	m_iBALANCE_HAPPINESS_THRESHOLD(-1),
 	m_iBALANCE_HAPPINESS_BONUS_MAXIMUM(-1),
 	m_iBALANCE_HAPPINESS_BONUS_MINIMUM(-1),
@@ -1893,7 +1894,7 @@ CvGlobals::CvGlobals() :
 	m_iBALANCE_HAPPINESS_ERA_BASE_INCREASE(0),
 	m_iBALANCE_HAPPINESS_ERA_MAX_INCREASE(65),
 	m_iBALANCE_HAPPINESS_POP_MULTIPLIER(5),
-	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE(100),
+	m_iBALANCE_HAPPINESS_EMPIRE_MULTIPLIER(0),
 	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM(100),
 	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY(100),
 	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER(100),
@@ -4696,64 +4697,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 	}
 	else if(strLayerName == "TacticalAnalysisLayer")
 	{
-		std::string strOut;
-
-		int iIndex = GC.getMap().plotNum(pkPlot->getX(), pkPlot->getY());
-		CvTacticalAnalysisMap* pTactMap = GET_PLAYER( GC.getGame().getActivePlayer() ).GetTacticalAI()->GetTacticalAnalysisMap();
-		CvTacticalAnalysisCell* pCell = pTactMap->GetCell(iIndex);
-
-		if(pCell->IsImpassableTerrain())
-		{
-			strOut += "X Terrain";
-		}
-		else
-		{
-			if(pCell->IsImpassableTerritory())
-			{
-				strOut += "X Territory";
-			}
-			else
-			{
-				if(pCell->IsRevealed())
-				{
-					strOut += "R ";
-				}
-				if(pCell->IsVisible())
-				{
-					strOut += "V ";
-				}
-				if(pCell->IsVisibleToEnemy())
-				{
-					strOut += "N ";
-				}
-				if(pCell->IsFriendlyTurnEndTile())
-				{
-					strOut += "E ";
-				}
-				if(pCell->GetDominanceZone() != -1)
-				{
-					char szTmp[16] = {0};
-					sprintf_s(szTmp, "%d ", pCell->GetDominanceZone());
-
-					strOut += szTmp;
-				}
-				if(pCell->GetDeploymentScore() > 0)
-				{
-					char szTmp[16] = {0};
-					if(pCell->IsSafeForDeployment())
-					{
-						sprintf_s(szTmp, "[S%d] ", pCell->GetDeploymentScore());
-					}
-					else
-					{
-						sprintf_s(szTmp, "[%d] ", pCell->GetDeploymentScore());
-					}
-
-					strOut += szTmp;
-				}
-			}
-		}
-
+		std::string strOut("E_NOIMPL");
 		sprintf_s(szBuffer, uiBufferLength, "%s", strOut.c_str());
 	}
 	else if(strLayerName == "TargetingPathLayer")
@@ -4819,6 +4763,7 @@ void CvGlobals::cacheGlobals()
 	m_iAI_GS_SS_TECH_PROGRESS_MOD = getDefineINT("AI_GS_SS_TECH_PROGRESS_MOD");
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iEVENT_MIN_DURATION_BETWEEN = getDefineINT("EVENT_MIN_DURATION_BETWEEN");
+	m_iCITY_EVENT_MIN_DURATION_BETWEEN = getDefineINT("CITY_EVENT_MIN_DURATION_BETWEEN");
 	m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE = getDefineINT("BALANCE_HAPPINESS_THRESHOLD_PERCENTILE");
 	m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD = getDefineINT("GLOBAL_RESOURCE_MONOPOLY_THRESHOLD");
 	m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD = getDefineINT("STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD");
@@ -6044,6 +5989,7 @@ void CvGlobals::cacheGlobals()
 	m_iHAPPINESS_PER_NATURAL_WONDER = getDefineINT("HAPPINESS_PER_NATURAL_WONDER");
 	m_iHAPPINESS_PER_EXTRA_LUXURY = getDefineINT("HAPPINESS_PER_EXTRA_LUXURY");
 	m_iUNHAPPINESS_PER_POPULATION = getDefineINT("UNHAPPINESS_PER_POPULATION");
+	m_fUNHAPPINESS_PER_POPULATION_FLOAT = getDefineFLOAT("UNHAPPINESS_PER_POPULATION_FLOAT");
 	m_fUNHAPPINESS_PER_OCCUPIED_POPULATION = getDefineFLOAT("UNHAPPINESS_PER_OCCUPIED_POPULATION");
 	m_iUNHAPPINESS_PER_CITY = getDefineINT("UNHAPPINESS_PER_CITY");
 	m_iUNHAPPINESS_PER_CAPTURED_CITY = getDefineINT("UNHAPPINESS_PER_CAPTURED_CITY");
@@ -6539,7 +6485,6 @@ void CvGlobals::cacheGlobals()
 	m_iBALANCE_SPY_RESPAWN_TIMER = getDefineINT("BALANCE_SPY_RESPAWN_TIMER");
 	m_iBALANCE_SPY_SABOTAGE_RATE = getDefineINT("BALANCE_SPY_SABOTAGE_RATE");
 	m_iBALANCE_SPY_TO_MINOR_RATIO = getDefineINT("BALANCE_SPY_TO_MINOR_RATIO");
-	m_iBALANCE_HAPPINESS_EMPIRE_MOD = getDefineINT("BALANCE_HAPPINESS_EMPIRE_MOD");
 	m_iBALANCE_HAPPINESS_THRESHOLD = getDefineINT("BALANCE_HAPPINESS_THRESHOLD");
 	m_iBALANCE_HAPPINESS_BONUS_MAXIMUM = getDefineINT("BALANCE_HAPPINESS_BONUS_MAXIMUM");
 	m_iBALANCE_HAPPINESS_BONUS_MINIMUM = getDefineINT("BALANCE_HAPPINESS_BONUS_MINIMUM");
@@ -6576,7 +6521,7 @@ void CvGlobals::cacheGlobals()
 	m_iBALANCE_HAPPINESS_ERA_BASE_INCREASE = getDefineINT("BALANCE_HAPPINESS_ERA_BASE_INCREASE");
 	m_iBALANCE_HAPPINESS_ERA_MAX_INCREASE = getDefineINT("BALANCE_HAPPINESS_ERA_MAX_INCREASE");
 	m_iBALANCE_HAPPINESS_POP_MULTIPLIER = getDefineINT("BALANCE_HAPPINESS_POP_MULTIPLIER");
-	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE = getDefineINT("BALANCE_UNHAPPY_CITY_BASE_VALUE");
+	m_iBALANCE_HAPPINESS_EMPIRE_MULTIPLIER = getDefineINT("BALANCE_HAPPINESS_EMPIRE_MULTIPLIER");
 	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM = getDefineINT("BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM");
 	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY = getDefineINT("BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY");
 	m_iBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER = getDefineINT("BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER");

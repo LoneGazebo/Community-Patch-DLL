@@ -5141,6 +5141,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) * 10;
 	}
+	if (pkBuildingInfo->GetYieldFromVictoryGlobalPlayer(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobalPlayer(eYield) * 25;
+	}
+	
 	if (pkBuildingInfo->GetYieldFromPillage(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromPillage(eYield);
@@ -5148,6 +5153,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromPillageGlobal(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromPillageGlobal(eYield) * 10;
+	}
+	if (pkBuildingInfo->GetYieldFromPillageGlobalPlayer(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromPillageGlobalPlayer(eYield) * 25;
 	}
 	if (pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{

@@ -1134,7 +1134,7 @@
 			<Text>[NEWLINE](Only includes local [ICON_HAPPINESS_1] Happiness provided by buildings, policies and beliefs specific to this City.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION">
-			<Text>[NEWLINE](These 'Needs' are global averages of yields based on the number of [ICON_CITIZEN] Citizens in the City, as well as temporary situations, such as starvation or blockades. Global averages increase as the game progresses, and yields per citizen decrease as a city grows. The bigger the divide between your city's yields and the global average, the higher your city's unhappiness!)</Text>
+			<Text>[NEWLINE](These 'Needs' are averages of yields based on the number of [ICON_CITIZEN] Citizens in the City, as well as temporary situations, such as starvation or blockades. Averages increase as the game progresses, and yields per citizen decrease as a city grows. The bigger the divide between your city's yields and your empire-wide average, the higher your city's unhappiness!)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_HAPPINESS">
 			<Text>Local [ICON_HAPPINESS_1] Happiness: [COLOR_POSITIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
@@ -1309,6 +1309,10 @@
 
 		<Row Tag="TXT_KEY_BUILD_COST_REDUCTION">
 			<Text>{1_Build} needs {2_Turns} Turn(s) to complete.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ALLOWS_ADVANCED_ACTIONS">
+			<Text>Enables Advanced Actions for Spies.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">

@@ -1021,6 +1021,15 @@ ALTER TABLE Traits ADD COLUMN 'CultureBonusModifierConquest' INTEGER DEFAULT 0;
 -- % production bonus in all cities from conquering cities
 ALTER TABLE Traits ADD COLUMN 'ProductionBonusModifierConquest' INTEGER DEFAULT 0;
 
+-- Global Espionage Modifier
+ALTER TABLE Traits ADD COLUMN 'EspionageRateModifier' INTEGER DEFAULT 0;
+
+-- Increase Spy Rank power without changing rank enum value
+ALTER TABLE Traits ADD COLUMN 'SpyExtraRankBonus' INTEGER DEFAULT 0;
+
+-- Spy travel/intermediate action rate modifier
+ALTER TABLE Traits ADD COLUMN 'SpyMoveRateModifier' INTEGER DEFAULT 0;
+
 -- GWAM from conquest
 ALTER TABLE Traits ADD COLUMN 'CityConquestGWAM' INTEGER DEFAULT 0;
 
@@ -1033,6 +1042,8 @@ ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
 -- Trade Route Internal Capital Bonus -- policy -- Internal/INTL TR from Capital and Holy City stronger!
 ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
+-- Or all routes.
+ALTER TABLE Policies ADD COLUMN 'TradeRouteYieldModifier' INTEGER DEFAULT 0;
 
 -- Great Engineer Policy bonus - rate modifier.
 ALTER TABLE Policies ADD COLUMN 'GreatEngineerRateModifier' INTEGER DEFAULT 0;
@@ -1107,6 +1118,9 @@ ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;
+
+-- Choose Enabling Point for Advanced Actions
+ALTER TABLE Technologies ADD COLUMN 'UnlocksEspionageAdvancedActions' BOOLEAN;
 
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;

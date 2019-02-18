@@ -680,7 +680,7 @@ SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 {
 	SPath ret;
 	ret.iNormalizedDistance = INT_MAX;
-	ret.iTurnGenerated = GC.getGame().getGameTurn();
+	ret.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 	ret.sConfig = m_sData;
 
 	CvAStarNode* pNode = m_pBest;
@@ -2644,7 +2644,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 			if (CanEndTurnAtNode(temp))
 			{
 				SPath path;
-				path.iTurnGenerated = GC.getGame().getGameTurn();
+				path.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 				path.sConfig = m_sData;
 				path.iTotalCost = temp->m_iKnownCost;
 				path.iNormalizedDistance = temp->m_iKnownCost / m_iBasicPlotCost + 1;
@@ -3105,6 +3105,14 @@ CvPlot* CvPathNodeArray::GetFirstPlot() const
 		return NULL;
 
 	return GC.getMap().plotUnchecked( front().m_iX, front().m_iY );
+}
+
+CvPlot * CvPathNodeArray::GetPlotByIndex(int iIndex) const
+{
+	if (iIndex >= 0 && iIndex < (int)size())
+		return GC.getMap().plotUnchecked( at(iIndex).m_iX, at(iIndex).m_iY );
+
+	return NULL;
 }
 
 //	---------------------------------------------------------------------------

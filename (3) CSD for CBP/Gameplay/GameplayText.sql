@@ -55,3 +55,19 @@ WHERE Tag = 'TXT_KEY_CONGRESS_VICTORY_HEADING2_BODY' AND EXISTS (SELECT * FROM C
 UPDATE Language_en_US
 SET Text = 'Once the United Nations World Congress Project is completed, the World Congress becomes the United Nations. Diplomatic Victory becomes possible once this is achieved, and a World Ideology is active. These prerequisites unlocks the Elect World Leader resolution, the winner of which will achieve a Diplomatic Victory.'
 WHERE Tag = 'TXT_KEY_CONGRESS_UN_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+
+UPDATE Language_en_US
+SET Text = 'They will reward the player(s) with the largest number of new Followers.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, the leader has {1_LeaderScore} new Followers and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, you have the lead with [COLOR_POSITIVE_TEXT]{1_PlayerScore} new Followers'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+
+

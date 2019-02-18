@@ -742,6 +742,16 @@ public:
 	void ChangeExtraHappinessPerLuxury(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int getGlobalAverage(YieldTypes eYield) const;
+	void updateGlobalAverage();
+	int GetCultureAverage() const;
+	void SetCultureAverage(float fValue);
+	int GetScienceAverage() const;
+	void SetScienceAverage(float fValue);
+	int GetDefenseAverage() const;
+	void SetDefenseAverage(float fValue);
+	int GetGoldAverage() const;
+	void SetGoldAverage(float fValue);
+	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
@@ -779,6 +789,7 @@ public:
 	int getUnhappinessFromCityPillaged() const;
 	int getUnhappinessFromCityStarving() const;
 	int getUnhappinessFromCityMinority() const;
+	int getUnhappinessFromCityJFDSpecial() const;
 #endif
 
 	int GetCityCountUnhappinessMod() const;
@@ -2078,6 +2089,9 @@ public:
 
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
+	bool IsAdvancedActionsEnabled() const;
+	void SetAdvancedActionsEnabled(bool bValue);
+
 	int GetAdvancedActionGold() const;
 	void changeAdvancedActionGold(int iChange);
 	void setAdvancedActionGold(int iChange);
@@ -3017,6 +3031,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
+
+	FAutoVariable<int, CvPlayer> m_iCultureAverage;
+	FAutoVariable<int, CvPlayer> m_iScienceAverage;
+	FAutoVariable<int, CvPlayer> m_iDefenseAverage;
+	FAutoVariable<int, CvPlayer> m_iGoldAverage;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3217,6 +3236,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityStateCombatModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
+	FAutoVariable<bool, CvPlayer> m_bAdvancedActionsEnabled;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionGold;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionScience;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionUnrest;

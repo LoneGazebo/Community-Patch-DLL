@@ -19,19 +19,19 @@
 		<Row>
 			<BuildType>BUILD_EMBASSY</BuildType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<Remove>true</Remove>
 		</Row>
 		<Row>
 			<BuildType>BUILD_EMBASSY</BuildType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
-			<PrereqTech>TECH_MINING</PrereqTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<Remove>true</Remove>
 		</Row>
 		<Row>
 			<BuildType>BUILD_EMBASSY</BuildType>
 			<FeatureType>FEATURE_MARSH</FeatureType>
-			<PrereqTech>TECH_MASONRY</PrereqTech>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<Remove>true</Remove>
 		</Row>
 	</BuildFeatures>

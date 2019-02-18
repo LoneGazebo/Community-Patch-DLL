@@ -32,22 +32,22 @@
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>2</Flavor>
+			<Flavor>1</Flavor>
 		</Row>
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>2</Flavor>
+			<Flavor>1</Flavor>
 		</Row>
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>2</Flavor>
+			<Flavor>1</Flavor>
 		</Row>
 		<Row>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>3</Flavor>
 		</Row>
 	</SpecialistFlavors>
 	<Language_en_US>

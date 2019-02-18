@@ -2168,11 +2168,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 	}
 
-	if (pMinorCivAI->GetPermanentAlly() == GetID())
-	{
-		return 0;
-	}
-	if (pMinorCivAI->GetPermanentAlly() != GetID() && pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+	if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
 	{
 		return 0;
 	}

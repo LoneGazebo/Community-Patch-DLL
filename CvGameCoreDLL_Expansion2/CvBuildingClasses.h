@@ -403,11 +403,17 @@ public:
 	int GetYieldFromVictoryGlobal(int i) const;
 	int* GetYieldFromVictoryGlobalArray() const;
 
+	int GetYieldFromVictoryGlobalPlayer(int i) const;
+	int* GetYieldFromVictoryGlobalPlayerArray() const;
+
 	int GetYieldFromPillage(int i) const;
 	int* GetYieldFromPillageArray() const;
 
 	int GetYieldFromPillageGlobal(int i) const;
 	int* GetYieldFromPillageGlobalArray() const;
+
+	int GetYieldFromPillageGlobalPlayer(int i) const;
+	int* GetYieldFromPillageGlobalPlayerArray() const;
 
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
@@ -889,8 +895,10 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
 	int* m_piYieldFromVictoryGlobal;
+	int* m_piYieldFromVictoryGlobalPlayer;
 	int* m_piYieldFromPillage;
 	int* m_piYieldFromPillageGlobal;
+	int* m_piYieldFromPillageGlobalPlayer;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;

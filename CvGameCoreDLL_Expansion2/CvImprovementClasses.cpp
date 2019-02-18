@@ -91,6 +91,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iImprovementLeagueVotes(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iHappinessOnConstruction(0),
 	m_iImprovementResource(NO_RESOURCE),
 	m_iImprovementResourceQuantity(0),
 	m_iUnitFreePromotionImprovement(NO_PROMOTION),
@@ -360,6 +361,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
 #if defined(MOD_BALANCE_CORE)
+	m_iHappinessOnConstruction = kResults.GetInt("HappinessOnConstruction");
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
 	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
 	m_iImprovementResourceQuantity = kResults.GetInt("ImprovementResourceQuantity");
@@ -911,6 +913,10 @@ int CvImprovementEntry::GetCityStateExtraVote() const
 	return m_iImprovementLeagueVotes;
 }
 #endif
+int CvImprovementEntry::GetHappinessOnConstruction() const
+{
+	return m_iHappinessOnConstruction;
+}
 #if defined(MOD_BALANCE_CORE)
 // Does this improvement create a resource when construced?
 int CvImprovementEntry::GetResourceFromImprovement() const
