@@ -4292,9 +4292,6 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 			}
 		}
 
-		
-		bool bHasPillageUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY, &iOperationID, ePlayer);
-
 		if(eWarState >= WAR_STATE_STALEMATE)
 		{
 			if(GET_PLAYER(ePlayer).isMinorCiv())
@@ -4316,6 +4313,8 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 			}
 			else
 			{
+
+				bool bHasPillageUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY, &iOperationID, ePlayer);
 				CvMilitaryTarget targetLand = FindBestAttackTargetCached(AI_OPERATION_CITY_BASIC_ATTACK, ePlayer);
 				if (targetLand.m_pTargetCity && targetLand.m_pMusterCity && !targetLand.m_bNoLandPath)
 				{
@@ -4330,7 +4329,7 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 						}
 					}
 				}
-				if(eWarState >= WAR_STATE_OFFENSIVE && !bHasPillageUnderway)
+				if (eWarState >= WAR_STATE_CALM && !bHasPillageUnderway)
 				{
 					RequestPillageAttack(ePlayer);
 				}

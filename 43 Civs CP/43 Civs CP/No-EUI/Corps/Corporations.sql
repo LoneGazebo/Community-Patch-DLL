@@ -26,7 +26,8 @@ VALUES
 	('CORPORATION_TWOKAY_FOODS', 'RESOURCE_COFFEE', 'YIELD_FOOD', 1),
 	('CORPORATION_TWOKAY_FOODS', 'RESOURCE_TEA', 'YIELD_FOOD', 1);
 
-INSERT INTO Corporation_SpecialistYieldChanges
-	(CorporationType, SpecialistType, YieldType, Yield)
-VALUES
-	('CORPORATION_GIORGIO_ARMEIER', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_CULTURE', 1);
+
+--INSERT INTO Corporation_SpecialistYieldChanges
+--	(CorporationType, SpecialistType, YieldType, Yield)
+--VALUES
+--	('CORPORATION_GIORGIO_ARMEIER', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_CULTURE', 1);

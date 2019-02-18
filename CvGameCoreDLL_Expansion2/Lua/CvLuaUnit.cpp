@@ -335,6 +335,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsRangeAttackOnlyInDomain);
 	Method(IsCityAttackOnly);
 
+	Method(GetAirInterceptRange);
 	Method(MaxInterceptionProbability);
 	Method(CurrInterceptionProbability);
 	Method(EvasionProbability);
@@ -544,6 +545,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(HasName);
 	Method(GetNameKey);
 	Method(SetName);
+	Method(GetCityName);
 	Method(IsTerrainDoubleMove);
 	Method(IsFeatureDoubleMove);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -3519,6 +3521,17 @@ int CvLuaUnit::lIsNukeImmune(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+//int maxInterceptionProbability();
+int CvLuaUnit::lGetAirInterceptRange(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetAirInterceptRange();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //int maxInterceptionProbability();
 int CvLuaUnit::lMaxInterceptionProbability(lua_State* L)
@@ -5423,6 +5436,16 @@ int CvLuaUnit::lSetName(lua_State* L)
 
 	pkUnit->setName(strName);
 	return 0;
+}
+//------------------------------------------------------------------------------
+//string GetCityName();
+int CvLuaUnit::lGetCityName(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pCity = pkUnit->getOriginCity();
+	CvString strName = pCity == NULL ? "" : pCity->getName();
+	lua_pushstring(L, strName);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isTerrainDoubleMove(int /*TerrainTypes*/ eIndex);

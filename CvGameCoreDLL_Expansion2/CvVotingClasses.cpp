@@ -1606,12 +1606,30 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	{	
 		// Refresh trade routes
 		GC.getGame().GetGameTrade()->ClearAllCityStateTradeRoutes();
+
+		PlayerTypes eLoopPlayer;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				GET_PLAYER(eLoopPlayer).GetCorporations()->ClearCorporationFromForeignCities(true);
+			}
+		}
 	}
 	if (GetEffects()->bEmbargoPlayer)
 	{
 		CvAssertMsg(eTargetPlayer != NO_PLAYER, "Making an embargo on NO_PLAYER. Please send Anton your save file and version.");
 		// Refresh trade routes
 		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer);
+		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities();
+
+		CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
+		{
+			GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromCity(pLoopCity, GET_PLAYER(eTargetPlayer).GetCorporations()->GetFoundedCorporation(), true);
+		}
 	}
 	if (GetEffects()->bNoResourceHappiness)
 	{
@@ -4183,7 +4201,7 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 				if(iSpyIndex != -1)
 				{
 					CvEspionageSpy& pSpy = GET_PLAYER(ePlayer).GetEspionage()->m_aSpyList[iSpyIndex];
-					int iRank = pSpy.m_eRank;
+					int iRank = pSpy.GetSpyRank(ePlayer);
 					iRank = (5 - iRank);
 					if(iRank > 0)
 					{

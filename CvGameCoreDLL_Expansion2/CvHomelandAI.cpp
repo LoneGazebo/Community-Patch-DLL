@@ -2038,7 +2038,7 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 					if(pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 3)
 						continue;
 
-					if (pUnit->canMoveInto(*vTargets[i],CvUnit::MOVEFLAG_DESTINATION))
+					if (pUnit->canMoveInto(*vTargets[i], CvUnit::MOVEFLAG_DESTINATION))
 					{
 						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(pLoopPlot->GetPlotIndex());

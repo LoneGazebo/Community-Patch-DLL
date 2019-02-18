@@ -11,11 +11,11 @@ Set FreePolicyIfFirst = 'POLICY_FIRST_ON_MOON'
 WHERE Type = 'PROJECT_APOLLO_PROGRAM';
 
 UPDATE Projects
-Set Cost = '1500'
+Set Cost = '3000'
 WHERE Type = 'PROJECT_APOLLO_PROGRAM';
 
 UPDATE Projects
-Set Cost = '1500'
+Set Cost = '2000'
 WHERE Type = 'PROJECT_MANHATTAN_PROJECT';
 
 INSERT INTO Policies

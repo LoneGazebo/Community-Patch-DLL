@@ -145,7 +145,7 @@ local g_leftStackHeigth = g_screenHeight - 40 - Controls.CityInfoBG:GetOffsetY()
 
 local g_PlotButtonIM	= StackInstanceManager( "PlotButtonInstance", "PlotButtonAnchor", Controls.PlotButtonContainer )
 local g_BuyPlotButtonIM	= StackInstanceManager( "BuyPlotButtonInstance", "BuyPlotButtonAnchor", Controls.PlotButtonContainer )
-local g_ProdQueueIM, g_SpecialBuildingsIM, g_GreatWorkIM, g_WondersIM, g_BuildingsIM, g_GreatPeopleIM, g_SlackerIM, g_UnitSelectIM, g_BuildingSelectIM, g_WonderSelectIM, g_ProcessSelectIM, g_FocusSelectIM
+local g_ProdQueueIM, g_SpecialBuildingsIM, g_GreatWorkIM, g_WondersIM, g_BuildingsIM, g_CorpsIM, g_GreatPeopleIM, g_SlackerIM, g_UnitSelectIM, g_BuildingSelectIM, g_WonderSelectIM, g_ProcessSelectIM, g_FocusSelectIM
 local g_slots = table()
 local g_works = table()
 local g_heap = Controls.Scrap
@@ -2125,6 +2125,7 @@ local function UpdateCityViewNow()
 		local greatWorkBuildings = table()
 		local specialistBuildings = table()
 		local wonders = table()
+		local corps = table()
 		local otherBuildings = table()
 		local noWondersWithSpecialistInThisCity = true
 
@@ -2134,9 +2135,12 @@ local function UpdateCityViewNow()
 				local buildingClass = GameInfo.BuildingClasses[ building.BuildingClass ]
 				local buildings
 				local greatWorkCount = civ5bnw_mode and building.GreatWorkCount or 0
+				local corporation = building.IsCorporation > 0
 				local areSpecialistsAllowedByBuilding = city:GetNumSpecialistsAllowedByBuilding(buildingID) > 0
 
-				if buildingClass.MaxGlobalInstances > 0
+				if (corporation) then
+					buildings = corps
+				elseif buildingClass.MaxGlobalInstances > 0
 				or buildingClass.MaxTeamInstances > 0
 				or ( buildingClass.MaxPlayerInstances == 1 and not areSpecialistsAllowedByBuilding )
 				then
@@ -2159,12 +2163,14 @@ local function UpdateCityViewNow()
 		local strMaintenanceTT = L( "TXT_KEY_BUILDING_MAINTENANCE_TT", city:GetTotalBaseBuildingMaintenance() )
 		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT)
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT)
+		Controls.CorpsHeader:SetToolTipString(strMaintenanceTT)
 		Controls.GreatWorkHeader:SetToolTipString(strMaintenanceTT)
 		Controls.SpecialistControlBox:SetHide( #specialistBuildings < 1 )
 		Controls.SpecialistControlBox2:SetHide( noWondersWithSpecialistInThisCity )
 
 		SetupBuildingList( city, specialistBuildings, g_SpecialBuildingsIM )
 		SetupBuildingList( city, wonders, g_WondersIM )
+		SetupBuildingList( city, corps, g_CorpsIM )
 		SetupBuildingList( city, greatWorkBuildings, g_GreatWorkIM )
 		SetupBuildingList( city, otherBuildings, g_BuildingsIM )
 
@@ -2400,6 +2406,7 @@ end
 g_SpecialBuildingsIM	= StackInstanceManager( "BuildingInstance", "Button", Controls.SpecialBuildingsStack, Controls.SpecialBuildingsHeader, ResizeRightStack )
 g_GreatWorkIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.GreatWorkStack, Controls.GreatWorkHeader, ResizeRightStack )
 g_WondersIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.WondersStack, Controls.WondersHeader, ResizeRightStack )
+g_CorpsIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.CorpsStack, Controls.CorpsHeader, ResizeRightStack )
 g_BuildingsIM		= StackInstanceManager( "BuildingInstance", "Button", Controls.BuildingsStack, Controls.BuildingsHeader, ResizeRightStack )
 g_GreatPeopleIM		= StackInstanceManager( "GPInstance", "GPBox", Controls.GPStack, Controls.GPHeader, ResizeRightStack )
 g_SlackerIM		= StackInstanceManager( "Slot", "Button", Controls.SlackerStack, Controls.SlackerHeader, ResizeRightStack )

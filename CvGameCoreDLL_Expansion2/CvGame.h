@@ -482,6 +482,7 @@ public:
 	int GetGlobalPopulation() const;
 	int GetGlobalTechAvg() const;
 	void SetGlobalPopulation(int iValue);
+	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestPotential();

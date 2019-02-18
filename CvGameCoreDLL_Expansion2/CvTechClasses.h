@@ -94,6 +94,8 @@ public:
 	bool IsVassalageTradingAllowed() const;
 #endif
 
+	bool IsUnlocksEspionageAdvancedActions() const;
+
 	std::string pyGetQuote()
 	{
 		return GetQuote();
@@ -200,6 +202,7 @@ private:
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalageTradingAllowed;
 #endif
+	bool m_bUnlocksEspionageAdvancedActions;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -300,6 +303,7 @@ private:
 	void AddFlavorAsStrategies(int iPropagatePercent);
 
 	// Logging functions
+	CvString GetLogFileName(CvString& playerName) const;
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 
 	bool* m_pabResearchingTech;

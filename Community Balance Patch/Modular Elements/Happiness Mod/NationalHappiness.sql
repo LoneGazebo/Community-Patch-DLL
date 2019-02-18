@@ -1,16 +1,3 @@
--- Disables Bonus
--- DO NOT EDIT THIS VALUE
-	INSERT INTO Defines (
-	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_EMPIRE_MOD', '-1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 0 );
-
--- Enables Bonus
--- DO NOT EDIT THIS VALUE
-	INSERT INTO Defines (
-	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_EMPIRE_MOD', '0'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Division line for main happiness, including when penalties begin. This changes the global value. Acts oddly in LUA at anything above zero (TODO: FIX), so leave at zero for now.
 -- DO NOT MODIFY

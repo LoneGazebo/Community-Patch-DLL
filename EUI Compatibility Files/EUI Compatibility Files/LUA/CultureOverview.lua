@@ -2181,7 +2181,7 @@ function RefreshPlayerInfluence()
 					end
 					
 					if(iModifiers == 0) then
-						playerInfluence.ModifierText = "--";
+						playerInfluence.ModifierText = "0%";
 					elseif(iModifiers > 0) then
 						playerInfluence.ModifierText = "+" .. iModifiers .. "%";
 					else

@@ -742,6 +742,16 @@ public:
 	void ChangeExtraHappinessPerLuxury(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int getGlobalAverage(YieldTypes eYield) const;
+	void updateGlobalAverage();
+	int GetCultureAverage() const;
+	void SetCultureAverage(float fValue);
+	int GetScienceAverage() const;
+	void SetScienceAverage(float fValue);
+	int GetDefenseAverage() const;
+	void SetDefenseAverage(float fValue);
+	int GetGoldAverage() const;
+	void SetGoldAverage(float fValue);
+	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
@@ -779,6 +789,7 @@ public:
 	int getUnhappinessFromCityPillaged() const;
 	int getUnhappinessFromCityStarving() const;
 	int getUnhappinessFromCityMinority() const;
+	int getUnhappinessFromCityJFDSpecial() const;
 #endif
 
 	int GetCityCountUnhappinessMod() const;
@@ -1946,6 +1957,12 @@ public:
 	int getYieldFromDeath(YieldTypes eIndex) const;
 	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictory(YieldTypes eIndex) const;
+	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromPillage(YieldTypes eIndex) const;
+	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
+
 	int getYieldFromConstruction(YieldTypes eIndex) const;
 	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
@@ -2072,6 +2089,9 @@ public:
 
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
+	bool IsAdvancedActionsEnabled() const;
+	void SetAdvancedActionsEnabled(bool bValue);
+
 	int GetAdvancedActionGold() const;
 	void changeAdvancedActionGold(int iChange);
 	void setAdvancedActionGold(int iChange);
@@ -2484,6 +2504,9 @@ public:
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 
+	int getInstantTourismValue(PlayerTypes ePlayer, int iTurn) const;
+	void changeInstantTourismValue(PlayerTypes ePlayer , int iValue);
+
 	// Arbitrary Script Data
 	std::string getScriptData() const;
 	void setScriptData(std::string szNewValue);
@@ -2566,6 +2589,7 @@ public:
 	int GetNumPuppetCities() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 	int GetNumCapitalCities() const;
+	int GetNumMinorsControlled() const;
 #endif
 	int GetMaxEffectiveCities(bool bIncludePuppets = false);
 
@@ -3007,6 +3031,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
+
+	FAutoVariable<int, CvPlayer> m_iCultureAverage;
+	FAutoVariable<int, CvPlayer> m_iScienceAverage;
+	FAutoVariable<int, CvPlayer> m_iDefenseAverage;
+	FAutoVariable<int, CvPlayer> m_iGoldAverage;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3207,6 +3236,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityStateCombatModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
+	FAutoVariable<bool, CvPlayer> m_bAdvancedActionsEnabled;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionGold;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionScience;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionUnrest;
@@ -3486,6 +3516,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapitalRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromPillage;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromwonderConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromTech;
@@ -3636,6 +3668,7 @@ protected:
 	std::vector<TurnData> m_ReplayDataSetValues;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiInstantYieldHistoryValues;
+	std::vector< Firaxis::Array<int, MAX_MAJOR_CIVS> > m_ppiInstantTourismHistoryValues;
 
 	void doResearch();
 	void doWarnings();

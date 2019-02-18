@@ -2016,7 +2016,8 @@ void CvTacticalAI::PlotCaptureCityMoves()
 			{
 				int iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 				int iExpectedDamagePerTurn = ComputeTotalExpectedDamage(pTarget, pPlot);
-				int iMaxSiegeTurns = IsTemporaryZoneCity(pCity) ? 15 : 10;
+				//actual siege will typically be longer because not all units actually attack the city each turn
+				int iMaxSiegeTurns = IsTemporaryZoneCity(pCity) ? 12 : 8;
 
 				//assume the city heals each turn ...
 				if ( (iExpectedDamagePerTurn - GC.getCITY_HIT_POINTS_HEALED_PER_TURN())*iMaxSiegeTurns < iRequiredDamage )
@@ -2074,7 +2075,12 @@ void CvTacticalAI::PlotCaptureCityMoves()
 				if (pPlot->getOwner() == m_pPlayer->GetID())
 				{
 					DeleteTemporaryZone(pPlot);
-					if (pZone) pZone->SetNavalInvasion(false); // just a precaution
+					if (pZone)
+					{
+						pZone->SetNavalInvasion(false); // just a precaution
+						pZone->SetPillageZone(false);
+					}
+
 				}
 
 				//do we have embarked units we need to put ashore
@@ -3592,7 +3598,7 @@ void CvTacticalAI::PlotWithdrawMoves()
 			// Am I in the current dominance zone?
 			// Units in other dominance zones need to fend for themselves, depending on their own posture
 			CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
-			if (pUnitZone == pZone || pUnit->getTacticalMove() == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_HEAL])
+			if (pUnitZone == pZone)
 			{
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -8653,14 +8659,22 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 
 		if (iDanger <= pUnit->healRate(pPlot) || (bPillage && pUnit->getDomainType() == DOMAIN_SEA))
 		{
-			int iScore = pUnit->healRate(pPlot) - pUnit->GetDanger(pPlot) / 5;
+			int iScore = pUnit->healRate(pPlot) - iDanger / 5;
 			//higher distance = bad
 			iScore -= GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
 			//friendly combat unit nearby = good
 			iScore += pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit);
 			//maybe we want to pillage later?
 			if (bPillage)
-				iScore += 10;
+				if (pUnit->getDomainType() == DOMAIN_SEA)
+				{
+					if (iScore < 0)
+						iScore = 0;
+
+					iScore += 10;
+				}
+				else
+					iScore += 10;
 
 			vCandidates.push_back(SPlotWithScore(pPlot, iScore));
 		}

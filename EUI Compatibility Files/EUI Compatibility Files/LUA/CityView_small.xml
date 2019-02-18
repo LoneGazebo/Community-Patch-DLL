@@ -299,6 +299,11 @@
 					</Box>
 				</Stack>
 				<!-- Other Buildings -->
+				<Button ID="CorpsHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
+					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_CORPSBUILDING_TEXT" />
+				</Button>
+				<Stack ID="CorpsStack" Anchor="L,T" StackGrowth="B"/>
+				<!-- Other Buildings -->
 				<Button ID="BuildingsHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT" />
 				</Button>

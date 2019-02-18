@@ -30,6 +30,7 @@
       <Label Anchor="L,T" Offset="35,5" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="420" ID="CityName" />
       <Label Anchor="L,T" Offset="35,25" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="420" ID="Bonuses" />
       <Label Anchor="R,B" Offset="10,10" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="420" ID="PrevRoute" String="Previous Route" />
+	  <Label Anchor="L,B" Offset="5,5" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="420" ID="CityIcons"/>
       
       <Image Anchor="L,B" Offset="-14,0" Texture="BlueBar500x3.dds" Size="432,1"/>
       

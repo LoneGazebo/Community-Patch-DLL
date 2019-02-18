@@ -2958,26 +2958,27 @@ local function GetMoodInfo( playerID )
 		deals:insertIf( #deal > 0 and deal:concat() .. "("..( finalTurn - currentTurn )..")" )
 	end
 
-	if bnw_mode then
-		for _, route in ipairs( activePlayer:GetTradeRoutes() ) do
-			if route.ToID == playerID then
-				local tip = "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. " "
-						.. routeBonus( route, "From" )
-						.. "[ICON_MOVES]" .. route.ToCityName
-				if route.ToID == activePlayerID then
-					tip = tip .. " ".. routeBonus( route, "To" )
-				end
-				tradeRoutes:insert( tip .. " ("..(route.TurnsLeft-1)..")" )
-			end
-		end
-		for _, route in ipairs( activePlayer:GetTradeRoutesToYou() ) do
-			if isUs or route.FromID == playerID then
-				tradeRoutes:insert( "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. "[ICON_MOVES]" .. route.ToCityName .. " "
-						.. routeBonus( route, "To" )
-						)
-			end
-		end
-	end
+	
+	--if bnw_mode then
+	--	for _, route in ipairs( activePlayer:GetTradeRoutes() ) do
+	--		if route.ToID == playerID then
+		--		local tip = "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. " "
+			--			.. routeBonus( route, "From" )
+				--		.. "[ICON_MOVES]" .. route.ToCityName
+			--	if route.ToID == activePlayerID then
+			--		tip = tip .. " ".. routeBonus( route, "To" )
+			--	end
+			--	tradeRoutes:insert( tip .. " ("..(route.TurnsLeft-1)..")" )
+			--end
+		--end
+		--for _, route in ipairs( activePlayer:GetTradeRoutesToYou() ) do
+			--if isUs or route.FromID == playerID then
+				--tradeRoutes:insert( "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. "[ICON_MOVES]" .. route.ToCityName .. " "
+					--	.. routeBonus( route, "To" )
+					--	)
+			--end
+		--end
+	--end
 
 	if isUs then
 

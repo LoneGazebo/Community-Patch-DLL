@@ -98,10 +98,13 @@ public:
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
 	bool IsNoXPLossUnitPurchase() const;
-	bool IsCorporationOfficesAsFranchises() const;
-	bool IsCorporationFreeFranchiseAbovePopular() const;
-	bool IsCorporationRandomForeignFranchise() const;
+	int GetCorporationOfficesAsFranchises() const;
+	bool IsNoForeignCorpsInCities() const;
+	bool IsNoFranchisesInForeignCities() const;
+	int GetCorporationFreeFranchiseAbovePopular() const;
+	int GetCorporationRandomForeignFranchiseMod() const;
 	int GetAdditionalNumFranchisesMod() const;
+	int GetAdditionalNumFranchises() const;
 	bool IsUpgradeCSVassalTerritory() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
@@ -182,6 +185,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
+	int GetTradeRouteYieldModifier() const;
 	int GetTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewFoundCityFreeBuilding() const;
 	UnitClassTypes GetNewFoundCityFreeUnit() const;
@@ -584,6 +588,7 @@ private:
 	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifierCapital;
+	int m_iTradeRouteYieldModifier;
 #if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eNewCityFreeBuilding;
 	BuildingClassTypes m_eAllCityFreeBuilding;
@@ -751,10 +756,13 @@ private:
 	int m_iRazingSpeedBonus;
 	int m_iExtraSupplyPerPopulation;
 	bool m_bNoPartisans;
-	bool m_bCorporationOfficesAsFranchises;
-	bool m_bCorporationFreeFranchiseAbovePopular;
-	bool m_bCorporationRandomForeignFranchise;
+	bool m_bNoForeignCorpsInCities;
+	bool m_bNoFranchisesInForeignCities;
+	int m_iCorporationOfficesAsFranchises;
+	int m_iCorporationFreeFranchiseAbovePopular;
+	int m_iCorporationRandomForeignFranchise;
 	int m_iAdditionalNumFranchisesMod;
+	int m_iAdditionalNumFranchises;
 	bool m_bUpgradeCSVassalTerritory;
 	int m_iArchaeologicalDigTourism;
 	int m_iGoldenAgeTourism;
@@ -977,6 +985,7 @@ enum PolicyModifierType
 #if defined(MOD_BALANCE_CORE)
 	POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER,
 	POLICYMOD_TRADE_CAPITAL_MODIFIER,
+	POLICYMOD_TRADE_MODIFIER,
 #endif
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,

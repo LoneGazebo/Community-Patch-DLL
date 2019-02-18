@@ -6442,6 +6442,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION_EXPO, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
 				
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
@@ -6450,6 +6451,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 						continue;
 
 					int iValue = pNewReligion->m_Beliefs.GetYieldFromConversion(eYield, eReligionController, pHolyCity);
+					iValue += pNewReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, eReligionController, pHolyCity);
 					if(iValue > 0)
 					{
 						paid = true;
@@ -7923,6 +7925,10 @@ bool CvReligionAI::DoFaithPurchases()
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				if(pEntry->GetYieldFromConversion((YieldTypes)iI) > 0)
+				{
+					iBonusValue++;
+				}
+				if (pEntry->GetYieldFromConversionExpo((YieldTypes)iI) > 0)
 				{
 					iBonusValue++;
 				}
@@ -9936,6 +9942,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 				iMissionary += pEntry->GetYieldFromConversion(iI) / 5;
 
+				iMissionary += pEntry->GetYieldFromConversionExpo(iI) / 5;
+
 				if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
 				{
 					iMissionary = 0;
@@ -9967,6 +9975,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				iProphet += pEntry->GetYieldFromForeignSpread(iI) / 4;
 
 				iProphet += pEntry->GetYieldFromConversion(iI) / 4;
+
+				iProphet += pEntry->GetYieldFromConversionExpo(iI) / 4;
 
 				if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
 				{

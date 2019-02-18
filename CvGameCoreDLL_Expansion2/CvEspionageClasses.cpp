@@ -84,6 +84,10 @@ const char* CvEspionageSpy::GetSpyName(CvPlayer* pPlayer)
 }
 #endif
 
+int CvEspionageSpy::GetSpyRank(PlayerTypes eSpyOwner) const
+{
+	return m_eRank + GET_PLAYER(eSpyOwner).GetPlayerTraits()->GetSpyExtraRankBonus();
+}
 #if defined(MOD_API_ESPIONAGE)
 void CvEspionageSpy::SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState)
 {
@@ -429,7 +433,13 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		}
 		else
 		{
-			pSpy->ChangeAdvancedActionsCooldown(-1 * GC.getGame().getSmallFakeRandNum(GC.getBALANCE_SPY_SABOTAGE_RATE(), m_pPlayer->getGlobalAverage(YIELD_CULTURE)));
+			int iBase = GC.getBALANCE_SPY_SABOTAGE_RATE();
+			if (m_pPlayer->GetPlayerTraits()->GetSpyMoveRateBonus() != 0)
+			{
+				iBase += m_pPlayer->GetPlayerTraits()->GetSpyMoveRateBonus();
+			}
+
+			pSpy->ChangeAdvancedActionsCooldown(-1 * GC.getGame().getSmallFakeRandNum(iBase, m_pPlayer->getGlobalAverage(YIELD_CULTURE)));
 		}
 	}
 #endif
@@ -796,7 +806,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				//Higher better for defense; lower better for offense.
 				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
+				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) * iSpyRankPower;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
 				if (iSpyResult < iChancetoDetectCounterSpy /* 150 */)
@@ -944,7 +954,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 				}
 
-				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->GetSpyRank(eCityOwner) + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// kill spy off
 				ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1224,7 +1234,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
 					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
+					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) * iSpyRankPower;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
 					if (iSpyResult < iChancetoDetectCounterSpy)
@@ -1356,7 +1366,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						}
 					}
 
-					GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+					GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->GetSpyRank(eCityOwner) + 1), true, NO_PLAYER, NULL, false, pCity);
 
 					// kill spy off
 					ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1611,6 +1621,17 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES)
 bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction)
 {
+	if (!m_pPlayer->IsAdvancedActionsEnabled())
+	{
+		if (GC.getLogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Advanced Action: On Hold. Need Unlock Tech.");
+			LogEspionageMsg(strMsg);
+		}
+		return false;
+	}
+
 	CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
 	if (pSpy->GetAdvancedActionsCooldown() > 0)
 	{
@@ -1696,7 +1717,7 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 		if (pBuildingInfo && !::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 		{
 			//Can we affect this building?
-			if (pCity->getProduction() > 0)
+			if (pCity->getProduction() > 0 && m_pPlayer->GetAdvancedActionBuilding() > 0 )
 			{
 				for (int iAdvancedActionLoop = (4 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionBuilding(); iAdvancedActionLoop++)
 				{
@@ -1707,7 +1728,7 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 		else if (pBuildingInfo && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 		{
 			//Can we affect this building?
-			if ((pCity->getProduction() > 0))
+			if (pCity->getProduction() > 0 && m_pPlayer->GetAdvancedActionWonder() > 0)
 			{
 				for (int iAdvancedActionLoop = (5 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionWonder(); iAdvancedActionLoop++)
 				{
@@ -1726,7 +1747,7 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 		if (pUnitInfo->GetCombat() > 0)
 		{
 			//Can we affect this unit?
-			if (pCity->getProduction() > 0)
+			if (pCity->getProduction() > 0 && m_pPlayer->GetAdvancedActionUnit() > 0)
 			{
 				for (int iAdvancedActionLoop = (3 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnit(); iAdvancedActionLoop++)
 				{
@@ -1767,7 +1788,7 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 			}
 		}
 	}
-	if (iBestRate != 0 && eBestSpecialist != NO_SPECIALIST)
+	if (iBestRate != 0 && eBestSpecialist != NO_SPECIALIST && m_pPlayer->GetAdvancedActionGP() > 0)
 	{
 		for (int iAdvancedActionLoop = (5 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGP(); iAdvancedActionLoop++)
 		{
@@ -1777,28 +1798,38 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 	//Only possible if very unhappy
 	if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
 	{
-		if (GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy())
+		if (GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy() && m_pPlayer->GetAdvancedActionRebellion() > 0)
 		{
 			for (int iAdvancedActionLoop = (7 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
 			{
 				aiAdvancedAction.push_back(ADVANCED_ACTION_REBELLION);
 			}
 		}
-		for (int iAdvancedActionLoop = (6 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
+		if (m_pPlayer->GetAdvancedActionUnrest() > 0)
 		{
-			aiAdvancedAction.push_back(ADVANCED_ACTION_UNREST);
+			for (int iAdvancedActionLoop = (6 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
+			{
+				aiAdvancedAction.push_back(ADVANCED_ACTION_UNREST);
+			}
 		}
 	}
 	//Science
-	for (int iAdvancedActionLoop = (2 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionScience(); iAdvancedActionLoop++)
+	if (m_pPlayer->GetAdvancedActionScience() > 0)
 	{
-		aiAdvancedAction.push_back(ADVANCED_ACTION_SCIENCE_THEFT);
+		for (int iAdvancedActionLoop = (2 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionScience(); iAdvancedActionLoop++)
+		{
+			aiAdvancedAction.push_back(ADVANCED_ACTION_SCIENCE_THEFT);
+		}
 	}
 	//Gold
-	for (int iAdvancedActionLoop = (1 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGold(); iAdvancedActionLoop++)
+	if (m_pPlayer->GetAdvancedActionGold() > 0)
 	{
-		aiAdvancedAction.push_back(ADVANCED_ACTION_GOLD_THEFT);
+		for (int iAdvancedActionLoop = (1 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGold(); iAdvancedActionLoop++)
+		{
+			aiAdvancedAction.push_back(ADVANCED_ACTION_GOLD_THEFT);
+		}
 	}
+
 	//Failure (only one in pool)
 	aiAdvancedAction.push_back(ADVANCED_ACTION_FAILURE);
 
@@ -1820,7 +1851,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 	CvCityEspionage* pCityEspionage = NULL;
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	PlayerTypes eCityOwner = NO_PLAYER;
-	int iRank = pSpy->m_eRank + 1;
+	int iRank = pSpy->GetSpyRank(ePlayer) + 1;
 	int iCityValue = 0;
 
 	//Let's give spies a few new tricks, eh?
@@ -1864,9 +1895,9 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 			{
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 
-				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank + 1) * iSpyRankPower;
+				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) + 1) * iSpyRankPower;
 
-				int iHeat = 2 - GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank;
+				int iHeat = 2 - GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner);
 
 				if (iHeat < pSpy->GetAdvancedActions())
 				{
@@ -1959,7 +1990,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 					}
 				}
 
-				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->GetSpyRank(eCityOwner) + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// level up the defending spy
 				int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
@@ -2292,10 +2323,7 @@ void CvPlayerEspionage::DoAdvancedActionLevelUp(CvAdvancedAction eAdvancedAction
 	m_aiNumSpyActionsDone[pCity->getOwner()]++;
 	pCityEspionage->m_aiNumTimesCityRobbed[pCity->getOwner()]++;
 
-	if (GET_PLAYER(pCity->getOwner()).GetEspionage()->GetNumSpies() <= 0)
-		pSpy->ChangeAdvancedActionsCooldown(iPassValue * 30);
-	else
-		pSpy->ChangeAdvancedActionsCooldown(iPassValue * 5);
+	pSpy->ChangeAdvancedActionsCooldown(iPassValue * 10);
 
 	CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
 	if (pDefendingPlayerDiploAI)
@@ -2617,7 +2645,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		{
 			int iSpeedBonuses = 0;
 			int iCityEspMod = pCity->GetEspionageModifier() * -1;
-			int iOurEspMod = (-1 * (GET_PLAYER(pCity->getOwner()).GetEspionageModifier() + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER)));
+			int iOurEspMod = (-1 * (m_pPlayer->GetEspionageModifier() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER)));
 
 			iSpeedBonuses += iCityEspMod;
 			iSpeedBonuses += iOurEspMod;
@@ -2656,8 +2684,8 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_POTENTIAL");
 			
 			int iOurSpyPower = iRandomRollSpyAction;
-			iOurSpyPower += (pSpy->m_eRank * iSpyRankPower);
-			iOurSpyPower *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
+			iOurSpyPower += (pSpy->GetSpyRank(m_pPlayer->GetID()) * iSpyRankPower);
+			iOurSpyPower *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 			iOurSpyPower /= 100;
 
 			int iKillChance = ((iOurSpyPower - iChancetoIdentifyCounterSpy) * 100) / iOurSpyPower;
@@ -2681,10 +2709,10 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				int iSpyTotal = iRandomRollSpyAction;
 				iSpyTotal += (100 + (pCity->GetEspionageModifier() + m_pPlayer->GetEspionageModifier() * -1));
-				iSpyTotal *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
+				iSpyTotal *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyTotal /= 100;
 				int iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 1000);
-				iSpyTotal += (pSpy->m_eRank + 1) * iSpyRankPower;
+				iSpyTotal += (pSpy->GetSpyRank(m_pPlayer->GetID()) + 1) * iSpyRankPower;
 				iSpyTotal -= iCityValue;
 
 				int iKillChance = (((iSpyTotal - iChancetoKillAA) * 100) / iSpyTotal);
@@ -2742,7 +2770,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
 					if (eEspionagePlayer == m_pPlayer->GetID())
 					{
-						iOurVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
+						iOurVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
 					}
 					if (iVotes > 0)
 					{
@@ -2782,7 +2810,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				iSpeedBonuses += iUnhappinessMod;
 
-				int iSpyRank = pSpy->m_eRank;
+				int iSpyRank = pSpy->GetSpyRank(m_pPlayer->GetID());
 				iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 				{
@@ -2822,7 +2850,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					{
 						int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
 
-						int iHeat = 2 - GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank;
+						int iHeat = 2 - GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner());
 
 						if (iHeat < pSpy->GetAdvancedActions())
 						{
@@ -2852,7 +2880,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				if (pCity->GetCityEspionage()->HasCounterSpy())
 				{
 					int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-					iTheirSpyPower += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
+					iTheirSpyPower += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) * iSpyRankPower;
 				}
 				iTheirSpyPower *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iTheirSpyPower /= 100;
@@ -2896,15 +2924,15 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_RISKS_AA");
 
-					int iSpyTotal = 300;
-					iSpyTotal += (100 + (pCity->GetEspionageModifier() + m_pPlayer->GetEspionageModifier() * -1));
+					int iSpyTotal = iRandomRollSpyAction;
+					iSpyTotal += (100 + (pCity->GetEspionageModifier() + GET_PLAYER(pCity->getOwner()).GetEspionageModifier() * -1));
 					iSpyTotal *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyTotal /= 100;
 					int iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 1000);
 					if (pCity->GetCityEspionage()->HasCounterSpy())
 					{
 						int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-						iSpyTotal += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 100;
+						iSpyTotal += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) * 100;
 					}
 					iSpyTotal -= iCityValue;
 
@@ -2967,7 +2995,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		{
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT");
-			if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+			if (m_pPlayer->IsEmpireUnhappy())
 			{
 				if (pCity->GetBlockRebellion() <= 0)
 				{
@@ -3006,7 +3034,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL");
 		}
 
-		int iEspionageMod = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
+		int iEspionageMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
 		if (iEspionageMod != 0)
 		{
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
@@ -3033,7 +3061,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 			if (pSpy != NULL)
 			{
-				iRank = (pSpy->m_eRank + 1);
+				iRank = (pSpy->GetSpyRank(m_pPlayer->GetID()) + 1);
 			}
 
 			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
@@ -3204,7 +3232,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 
 	// go through to determine any intrigue
 #if defined(MOD_BALANCE_CORE_SPIES)
-	int iSpyRank = m_aSpyList[uiSpyIndex].m_eRank;
+	int iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer);
 #endif
 	// sending out a sneak attack
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
@@ -3231,7 +3259,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		CvCity* pTargetCity = NULL;
 #if defined(MOD_BALANCE_CORE_SPIES)
 #else
-		int iSpyRank = m_aSpyList[uiSpyIndex].m_eRank;
+		int iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer);
 #endif
 		iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 
@@ -4263,12 +4291,17 @@ void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 /// CalcPerTurn - How much the spy will do at this task per turn
 int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 {
+	int iBase = 1;
+	if (m_pPlayer->GetPlayerTraits()->GetSpyMoveRateBonus() != 0)
+	{
+		iBase += m_pPlayer->GetPlayerTraits()->GetSpyMoveRateBonus();
+	}
 	CvAssertMsg(pCity, "pCity is null");
 	switch(iSpyState)
 	{
 	case SPY_STATE_TRAVELLING:
 	{
-		return 1;
+		return iBase;
 	}
 	break;
 	case SPY_STATE_SURVEILLANCE:
@@ -4308,7 +4341,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 			int iResult = max(iFinalModifier, 1);
 			if(iSpyIndex >= 0)
 			{
-				int iSpyRank = m_aSpyList[iSpyIndex].m_eRank;
+				int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID());
 				iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 				{
@@ -4355,7 +4388,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 			int iResult = max(iFinalModifier, 1);
 			if (iSpyIndex >= 0)
 			{
-				int iSpyRank = m_aSpyList[iSpyIndex].m_eRank;
+				int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID());
 				iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 				{
@@ -4377,7 +4410,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 			int iResult = 1;
 			if(iSpyIndex >= 0)
 			{
-				int iSpyRank = m_aSpyList[iSpyIndex].m_eRank;
+				int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID());
 				iSpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(pCity->getOwner());
 				iResult = (iSpyRank + 1) * (iSpyRank + 1);
 			}
@@ -4392,7 +4425,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 	break;
 	case SPY_STATE_MAKING_INTRODUCTIONS:
 	{
-		return 1;
+		return iBase;
 	}
 	break;
 	case SPY_STATE_SCHMOOZE:
@@ -4882,7 +4915,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	if(pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
 	{
 		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
-		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].m_eRank;
+		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].GetSpyRank(eAllyPlayer);
 		bNoAllySpy = false;
 	}
 
@@ -4900,7 +4933,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	else if (iMaxChance >= 30)
 		iMaxChance = 30;
 
-	int iMySpyRank = m_aSpyList[uiSpyIndex].m_eRank;
+	int iMySpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(m_pPlayer->GetID());
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
 	iMySpyRank -= iAllySpyRank;
 	

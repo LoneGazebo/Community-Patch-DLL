@@ -769,6 +769,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
+	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
 	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
@@ -1312,6 +1313,9 @@ protected:
 	static int lGetCorporation(lua_State* L);
 	static int lGetCorporationFoundedTurn(lua_State* L);
 	static int lGetCurrentOfficeBenefit(lua_State* L);
+	static int lGetTradeRouteBenefitHelper(lua_State* L);
+	static int lGetNumFranchisesTooltip(lua_State* L);
+	static int lCanCreateFranchiseInCity(lua_State* L);
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetTradeRouteYieldModifier(lua_State* L);

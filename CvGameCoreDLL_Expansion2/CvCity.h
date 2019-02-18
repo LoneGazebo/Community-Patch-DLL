@@ -486,6 +486,7 @@ public:
 	bool isCapital() const;
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
+	bool IsOriginalMinorCapital() const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)
@@ -878,6 +879,8 @@ public:
 	int getUnhappinessFromReligionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromReligion() const;
 
+	int getJFDSpecialUnhappinessSources() const;
+
 	int getUnhappinessAggregated() const;
 
 	CvString getPotentialUnhappinessWithGrowth();
@@ -1083,11 +1086,14 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictoryGlobal(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
 
-	int GetYieldFromPillageWater(YieldTypes eIndex) const;
-	void ChangeYieldFromPillageWater(YieldTypes eIndex, int iChange);
+	int GetYieldFromPillageGlobal(YieldTypes eIndex) const;
+	void ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange);
 
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
@@ -1120,6 +1126,9 @@ public:
 	void ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange);
 	int GetYieldFromPurchase(YieldTypes eIndex) const;
 	void ChangeYieldFromPurchase(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromFaithPurchase(YieldTypes eIndex) const;
+	void ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
 	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
@@ -1845,8 +1854,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictoryGlobal;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillage;
-	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillageWater;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillageGlobal;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
@@ -1856,6 +1866,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBorderGrowth;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPolicyUnlock;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPurchase;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromFaithPurchase;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitLevelUp;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerAlly;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerFriend;

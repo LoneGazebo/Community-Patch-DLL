@@ -1921,6 +1921,14 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
 					LogOperationSpecialMessage("Transition to finished stage");
 
+					//pillagers should be told to pillage!
+					if (GetFormation() == MUFORMATION_FAST_PILLAGERS || GetFormation() ==  MUFORMATION_NAVAL_SQUADRON)
+					{
+						CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pTarget);
+						if (pZone)
+							pZone->SetPillageZone(true);
+					}
+
 					OnSuccess();
 					bStateChanged = true;
 				}
@@ -2034,7 +2042,7 @@ void CvAIOperationPillageEnemy::Init(int iID, PlayerTypes eOwner, PlayerTypes eE
 /// How close to target do we end up?
 int CvAIOperationPillageEnemy::GetDeployRange() const
 {
-	return 1;
+	return 3;
 }
 
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
@@ -2070,6 +2078,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 	int iLoop;
 
 	CvPlayerAI& kEnemyPlayer = GET_PLAYER(m_eEnemy);
+	CvPlayerAI& kPlayer = GET_PLAYER(m_eOwner);
 
 	if(!kEnemyPlayer.isAlive())
 	{
@@ -2080,33 +2089,62 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 	for(pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
 	{
 		// Make sure city is in the same area as our potential muster point
-		CvCity* pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pLoopCity->plot());
-		if(pClosestCity && pLoopCity->getArea() == pClosestCity->getArea())
+		CvCity* pClosestCity = kPlayer.GetClosestCityByEstimatedTurns(pLoopCity->plot());
+		if (pClosestCity && pLoopCity->getArea() != pClosestCity->getArea())
+			continue;
+
+		if (pLoopCity->plot() != GetTargetPlot() && kPlayer.IsCityAlreadyTargeted(pLoopCity, DOMAIN_LAND, 0, GetID(), AI_OPERATION_PILLAGE_ENEMY))
+			continue;
+
+		// Initial value of target is the number of improved plots
+		iValue = pLoopCity->countNumImprovedPlots();
+
+		ResourceTypes eResource;
+		int iNumResourceInfos = GC.getNumResourceInfos();
+		for (int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
-			// Initial value of target is the number of improved plots
-			iValue = pLoopCity->countNumImprovedPlots();
+			eResource = (ResourceTypes)iResourceLoop;
+			iValue += pLoopCity->CountNumWorkedResource(eResource);
+		}
 
-			// Adjust value based on proximity to our start location
-			iDistance = GET_PLAYER(m_eOwner).GetCityDistanceInEstimatedTurns(pLoopCity->plot());
-			if(iDistance > 0)
-			{
-				iValue = iValue * 100 / iDistance;
-			}
+		CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity, false);
+		if (!pLandZone)
+			continue;
 
-			if(iValue > iBestValue)
-			{
-				iBestValue = iValue;
-				pBestTargetCity = pLoopCity;
-			}
+		iValue -= pLandZone->GetTotalEnemyUnitCount();
+
+		//stick with what we know.
+		if (pLoopCity->plot() == GetTargetPlot())
+		{
+			if (iValue <= 0)
+				iValue = 1;
+			else
+				iValue += 250;
+		}
+
+		if (iValue <= 0)
+			continue;
+
+		// Adjust value based on proximity to our start location
+		iDistance = kPlayer.GetCityDistanceInEstimatedTurns(pLoopCity->plot());
+		if(iDistance > 0)
+		{
+			iValue = iValue * 100 / iDistance;
+		}
+
+		if(iValue > iBestValue)
+		{
+			iBestValue = iValue;
+			pBestTargetCity = pLoopCity;
 		}
 	}
 
 	if (pBestTargetCity == NULL)
-		pBestTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
+		return NULL;
 
 	if (ppMuster)
 	{
-		CvCity *pClosest = pBestTargetCity ? GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pBestTargetCity->plot()) : NULL;
+		CvCity *pClosest = pBestTargetCity ? kPlayer.GetClosestCityByEstimatedTurns(pBestTargetCity->plot()) : NULL;
 		*ppMuster = pClosest ? pClosest->plot() : NULL;
 	}
 
@@ -3672,6 +3710,10 @@ AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTa
 		return AI_ABORT_LOST_CIVILIAN;
 
 	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
+		RetargetCivilian(pCivilian, pArmy);
+
+	CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
+	if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
 		RetargetCivilian(pCivilian, pArmy);
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;

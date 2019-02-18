@@ -165,8 +165,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
 					pkDamageEntry->SetDamage(iGarrisonShare);
-					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), pGarrison->GetMaxHitPoints()));
+					pkDamageEntry->SetMaxHitPoints(pGarrison->GetMaxHitPoints());
 					pkCombatInfo->setDamageMemberCount(iDamageMembers);
 				}
 			}
@@ -857,8 +857,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
 					pkDamageEntry->SetDamage(iGarrisonShare);
-					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), pGarrison->GetMaxHitPoints()));
+					pkDamageEntry->SetMaxHitPoints(pGarrison->GetMaxHitPoints());
 					pkCombatInfo->setDamageMemberCount(iDamageMembers);
 				}
 			}
@@ -1830,8 +1830,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
 					pkDamageEntry->SetDamage(iGarrisonShare);
-					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), pGarrison->GetMaxHitPoints()));
+					pkDamageEntry->SetMaxHitPoints(pGarrison->GetMaxHitPoints());
 					pkCombatInfo->setDamageMemberCount(iDamageMembers);
 				}
 			}
@@ -3377,7 +3377,11 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			// Generic values for max hit points, changed below when we have the specific units available
 #endif
 			int attackerMaxHP = GC.getMAX_HIT_POINTS();
+			if (pAttacker)
+				attackerMaxHP = pAttacker->GetMaxHitPoints();
 			int defenderMaxHP = GC.getMAX_HIT_POINTS();
+			if (pDefender)
+				defenderMaxHP = pDefender->GetMaxHitPoints();
 		
 			int attackerDamage = kInfo.getDamageInflicted( BATTLE_UNIT_DEFENDER );
 			int defenderDamage = kInfo.getDamageInflicted( BATTLE_UNIT_ATTACKER );
@@ -3555,7 +3559,11 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				// Generic values for max hit points, changed below when we have the specific units available
 #endif
 				int attackerMaxHP = GC.getMAX_HIT_POINTS();
+				if (pAttacker)
+					attackerMaxHP = pAttacker->GetMaxHitPoints();
 				int defenderMaxHP = GC.getMAX_HIT_POINTS();
+				if (pDefender)
+					defenderMaxHP = pDefender->GetMaxHitPoints();
 		
 				int attackerDamage = kInfo.getDamageInflicted( BATTLE_UNIT_DEFENDER );
 				int defenderDamage = kInfo.getDamageInflicted( BATTLE_UNIT_ATTACKER );

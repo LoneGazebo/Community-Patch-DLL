@@ -821,8 +821,7 @@
 			<Help>TXT_KEY_PROMOTION_AIR_LOGISTICS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_3</PromotionPrereqOr1>
-			<PromotionPrereqOr3>PROMOTION_HELI_AMBUSH_2</PromotionPrereqOr3>
-			<PromotionPrereqOr4>PROMOTION_HELI_MOBILITY_2</PromotionPrereqOr4>
+			<PromotionPrereqOr2>PROMOTION_AIR_TARGETING_3</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
 			<ExtraAttacks>1</ExtraAttacks>
 			<PortraitIndex>30</PortraitIndex>
@@ -930,7 +929,7 @@
 		<Replace>
 			<Type>PROMOTION_HELI_AMBUSH_1</Type>
 			<Description>TXT_KEY_PROMOTION_HELI_AMBUSH_1</Description>
-			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_1</Help>
+			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
@@ -942,7 +941,7 @@
 		<Replace>
 			<Type>PROMOTION_HELI_AMBUSH_2</Type>
 			<Description>TXT_KEY_PROMOTION_HELI_AMBUSH_2</Description>
-			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_2</Help>
+			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_HELI_AMBUSH_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
@@ -982,13 +981,12 @@
 			<Description>TXT_KEY_PROMOTION_HELI_REPAIR</Description>
 			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_HELI_AMBUSH_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_HELI_MOBILITY_2</PromotionPrereqOr2>
+			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>6</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
 			<PortraitIndex>36</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaEntry>TXT_KEY_PROMOTION_REPAIR</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_HELI_REPAIR</PediaEntry>
 			<PediaType>PEDIA_AIR</PediaType>
 		</Replace>
 		<Replace>
@@ -1523,7 +1521,7 @@
 			<Description>TXT_KEY_PROMOTION_INTERCEPTION_I</Description>
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>20</InterceptChanceChange>
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1534,7 +1532,7 @@
 			<Description>TXT_KEY_PROMOTION_INTERCEPTION_II</Description>
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>20</InterceptChanceChange>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_I</PromotionPrereqOr1>
 			<PortraitIndex>45</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -1547,7 +1545,7 @@
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_III_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_II</PromotionPrereqOr1>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>20</InterceptChanceChange>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1559,7 +1557,7 @@
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_IV_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_III</PromotionPrereqOr1>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptChanceChange>20</InterceptChanceChange>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1621,11 +1619,11 @@
 		<Replace>
 			<Type>PROMOTION_ANTI_FIGHTER</Type>
 			<Description>TXT_KEY_PROMOTION_ANTI_FIGHTER</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_FIGHTER</Help>
+			<Help>TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_DOGFIGHTING_2</PromotionPrereqOr1>
-			<PortraitIndex>58</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ANTI_FIGHTER</PediaEntry>
 		</Replace>
@@ -1664,7 +1662,7 @@
 			<Description>TXT_KEY_PROMOTION_EVASION_I</Description>
 			<Help>TXT_KEY_PROMOTION_EVASION_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_AIR_TARGETING_2</PromotionPrereqOr1>
 			<EvasionChange>25</EvasionChange>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2751,7 +2749,7 @@
 			<Help>TXT_KEY_PROMOTION_CHARGE_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_CHARGE</PromotionPrereqOr1>
-			<OrderPriority>4</OrderPriority>
+			<OrderPriority>5</OrderPriority>
 			<AttackWoundedMod>20</AttackWoundedMod>
 			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>13</PortraitIndex>
@@ -3744,6 +3742,14 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<LandAirDefenseBonus>10</LandAirDefenseBonus>
+			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_ACCURACY_1</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_BARRAGE_1</PromotionPrereqOr4>
+			<PromotionPrereqOr5>PROMOTION_TARGETING_1</PromotionPrereqOr5>
+			<PromotionPrereqOr6>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr6>
+			<PromotionPrereqOr7>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr7>
+			<PromotionPrereqOr8>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr8>
 			<TechPrereq>TECH_FLIGHT</TechPrereq>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3786,10 +3792,9 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VIKING</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<CityAttackPlunderModifier>200</CityAttackPlunderModifier>
+			<NeutralHealChange>5</NeutralHealChange>
 			<FreePillageMoves>true</FreePillageMoves>
 			<PillageBonusStrength>25</PillageBonusStrength>
-			<DamageReductionCityAssault>25</DamageReductionCityAssault>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LONGBOAT</Type>
@@ -3801,11 +3806,7 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LONGBOAT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<CityAttackPlunderModifier>200</CityAttackPlunderModifier>
 			<FreePillageMoves>true</FreePillageMoves>
-			<PillageBonusStrength>25</PillageBonusStrength>
-			<DamageReductionCityAssault>20</DamageReductionCityAssault>
-			<IgnoreZOC>true</IgnoreZOC>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_INACCURACY</Type>
@@ -3851,7 +3852,6 @@
 			<Description>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</Description>
 			<Help>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<StrongerDamaged>true</StrongerDamaged>
 			<PortraitIndex>12</PortraitIndex>

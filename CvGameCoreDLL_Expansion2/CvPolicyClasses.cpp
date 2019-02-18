@@ -88,10 +88,13 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iIdeologyPoint(0),
 	m_bNoXPLossUnitPurchase(false),
 	m_piGoldenAgeYieldMod(NULL),
-	m_bCorporationOfficesAsFranchises(false),
-	m_bCorporationFreeFranchiseAbovePopular(false),
-	m_bCorporationRandomForeignFranchise(false),
+	m_bNoForeignCorpsInCities(false),
+	m_bNoFranchisesInForeignCities(false),
+	m_iCorporationOfficesAsFranchises(0),
+	m_iCorporationFreeFranchiseAbovePopular(0),
+	m_iCorporationRandomForeignFranchise(0),
 	m_iAdditionalNumFranchisesMod(0),
+	m_iAdditionalNumFranchises(0),
 	m_bUpgradeCSVassalTerritory(false),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
@@ -172,6 +175,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeRouteYieldModifierCapital(0),
 	m_iTradeRouteYieldModifierCapital(0),
+	m_iTradeRouteYieldModifier(0),
 	m_iPositiveWarScoreTourismMod(0),
 #endif
 	m_bNoCSDecayAtWar (false),
@@ -541,10 +545,13 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
 	m_bNoXPLossUnitPurchase = kResults.GetBool("NoXPLossUnitPurchase");
-	m_bCorporationOfficesAsFranchises = kResults.GetBool("CorporationOfficesAsFranchises");
-	m_bCorporationFreeFranchiseAbovePopular = kResults.GetBool("CorporationFreeFranchiseAbovePopular");
-	m_bCorporationRandomForeignFranchise = kResults.GetBool("CorporationRandomForeignFranchise");
+	m_bNoForeignCorpsInCities = kResults.GetBool("NoForeignCorpsInCities");
+	m_bNoFranchisesInForeignCities = kResults.GetBool("NoFranchisesInForeignCities");
+	m_iCorporationOfficesAsFranchises = kResults.GetInt("CorporationOfficesAsNumFranchises");
+	m_iCorporationFreeFranchiseAbovePopular = kResults.GetInt("CorporationNumFreeFranchiseAbovePopular");
+	m_iCorporationRandomForeignFranchise = kResults.GetInt("CorporationRandomForeignFranchiseMod");
 	m_iAdditionalNumFranchisesMod = kResults.GetInt("AdditionalNumFranchisesMod");
+	m_iAdditionalNumFranchises = kResults.GetInt("AdditionalNumFranchises");
 	m_bUpgradeCSVassalTerritory = kResults.GetBool("UpgradeCSVassalTerritory");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
@@ -654,6 +661,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
 	m_iTradeRouteYieldModifierCapital = kResults.GetInt("TradeRouteYieldModifierCapital");
+	m_iTradeRouteYieldModifier = kResults.GetInt("TradeRouteYieldModifier");
 #endif
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
@@ -1694,24 +1702,38 @@ bool CvPolicyEntry::IsNoXPLossUnitPurchase() const
 }
 
 /// Does this make Offices count as Franchises?
-bool CvPolicyEntry::IsCorporationOfficesAsFranchises() const
+int CvPolicyEntry::GetCorporationOfficesAsFranchises() const
 {
-	return m_bCorporationOfficesAsFranchises;
+	return m_iCorporationOfficesAsFranchises;
 }
-/// Does this grant a modifier to franchise count for each foreign city above Popular?
-bool CvPolicyEntry::IsCorporationFreeFranchiseAbovePopular() const
+
+bool CvPolicyEntry::IsNoForeignCorpsInCities() const
 {
-	return m_bCorporationFreeFranchiseAbovePopular;
+	return m_bNoForeignCorpsInCities;
+}
+bool CvPolicyEntry::IsNoFranchisesInForeignCities() const
+{
+	return m_bNoFranchisesInForeignCities;
+}
+
+/// Does this grant a modifier to franchise count for each foreign city above Popular?
+int CvPolicyEntry::GetCorporationFreeFranchiseAbovePopular() const
+{
+	return m_iCorporationFreeFranchiseAbovePopular;
 }
 /// Does this grant a chance for a random foreign franchise each turn?
-bool CvPolicyEntry::IsCorporationRandomForeignFranchise() const
+int CvPolicyEntry::GetCorporationRandomForeignFranchiseMod() const
 {
-	return m_bCorporationRandomForeignFranchise;
+	return m_iCorporationRandomForeignFranchise;
 }
 /// Does this grant additional franchises that can be established?
 int CvPolicyEntry::GetAdditionalNumFranchisesMod() const
 {
 	return m_iAdditionalNumFranchisesMod;
+}
+int CvPolicyEntry::GetAdditionalNumFranchises() const
+{
+	return m_iAdditionalNumFranchises;
 }
 bool CvPolicyEntry::IsUpgradeCSVassalTerritory() const
 {
@@ -2134,6 +2156,10 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifier() const
 	return m_iInternalTradeRouteYieldModifier;
 }
 #if defined(MOD_BALANCE_CORE)
+int CvPolicyEntry::GetTradeRouteYieldModifier() const
+{
+	return m_iTradeRouteYieldModifier;
+}
 /// Boost to internal trade routes from Capital
 int CvPolicyEntry::GetInternalTradeRouteYieldModifierCapital() const
 {
@@ -4422,6 +4448,10 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_TRADE_CAPITAL_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteYieldModifierCapital();
+				break;
+
+			case POLICYMOD_TRADE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteYieldModifier();
 				break;
 #endif
 			case POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER:

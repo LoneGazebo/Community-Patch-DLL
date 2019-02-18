@@ -7,6 +7,10 @@ WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 INSERT INTO Defines (Name, Value)
 SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 
+-- FOR JFD
+INSERT INTO Defines (Name, Value)
+SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.0';
+
 -- AI Citystrategy
 
 -- food is different because we include consumption.
@@ -1055,6 +1059,12 @@ WHERE Type = 'RESOURCE_IRON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COM
 UPDATE Resources
 SET AITradeModifier = '20'
 WHERE Type = 'RESOURCE_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- emphasis on uniques - changed formula
+UPDATE Defines
+SET Value = '25'
+WHERE Name = 'TECH_PRIORITY_UNIQUE_ITEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 
 -- DOF too soon buffer:
 UPDATE Defines

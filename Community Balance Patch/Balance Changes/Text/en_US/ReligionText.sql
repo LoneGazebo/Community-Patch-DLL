@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- God of the Sea
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +3 [ICON_FOOD] Food in coastal Cities'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +2 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith in coastal Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of the Open Sky
@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Messenger of the Gods
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every +20 [ICON_GOLD] Gold per Turn you produce. +2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection, and in your [ICON_CAPITAL] Capital after gaining a second City'
+SET Text = '+1 [ICON_PEACE] Faith in a City for every 5 [ICON_GOLD] Gold per Turn it produces, capped at half the number of Followers in the City. +2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection, and in your [ICON_CAPITAL] Capital after gaining a second City'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -46,7 +46,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Liturgy (Now Goddess of Wisdom)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 15 [ICON_RESEARCH] Science per turn, capping at +25 [ICON_PEACE] Faith. +1 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points in every City.'
+SET Text = '+1 [ICON_PEACE] Faith in a City for every 4 [ICON_RESEARCH] Science per turn it produces, capped at half the number of Followers in the City. +1 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points in every City.'
 WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -462,7 +462,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY' AND EXISTS (SELECT * FROM COMMU
 
 -- Divine Inspiration (Now Inspiration)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 2 followers in the City (max +6 [ICON_CULTURE] Culture), and +2 [ICON_PEACE] Faith if you have at least one Specialist in the City'
+SET Text = '+1 [ICON_CULTURE] Culture for every 3 followers in the City (max +6 [ICON_CULTURE] Culture), and +2 [ICON_PEACE] Faith if you have at least one Specialist in the City'
 WHERE Tag = 'TXT_KEY_BELIEF_DIVINE_INSPIRATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

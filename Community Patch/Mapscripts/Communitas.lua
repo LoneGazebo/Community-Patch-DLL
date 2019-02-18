@@ -64,78 +64,78 @@ function MapGlobals:New()
 	
 
 	--Percent of land tiles on the map.
-	mglobal.landPercent				= 0.48
+	mglobal.landPercent			= 0.29
 	
 	--Top and bottom map latitudes.
-	mglobal.topLatitude				= 70
-	mglobal.bottomLatitude			= -70
+	mglobal.topLatitude				= 90
+	mglobal.bottomLatitude			= -90
 	
 	
 	--Important latitude markers used for generating climate.
-	mglobal.tropicLatitudes			= 20	--    			   tropicLatitudes to 0 : grass, jungle
-	mglobal.horseLatitudes			= 40	-- polarFrontLatitude to horseLatitudes : grass, plains, desert
-	mglobal.iceLatitude				= 62	-- 		  bottomLatitude to iceLatitude : ice
-	mglobal.polarFrontLatitude		= 66	-- bottomLatitude to polarFrontLatitude : snow, tundra
+	mglobal.tropicLatitudes			= 22	--    			   tropicLatitudes to 0 : grass, jungle
+	mglobal.horseLatitudes			= 23	-- polarFrontLatitude to horseLatitudes : plains, desert
+	mglobal.iceLatitude				= 67	-- 		  bottomLatitude to iceLatitude : ice
+	mglobal.polarFrontLatitude			= 35	-- bottomLatitude to polarFrontLatitude : snow, tundra
 
 	
 	--Adjusting these will generate larger or smaller landmasses and features.
-	mglobal.landMinScatter			= 0.05 	--Recommended range:[0.02 to 0.1]
-	mglobal.landMaxScatter			= 0.20	--Recommended range:[0.03 to 0.3]
+	mglobal.landMinScatter			= 0.02 	--Recommended range:[0.02 to 0.1]
+	mglobal.landMaxScatter			= 0.06	--Recommended range:[0.03 to 0.3]
 											--Higher values makes continental divisions and stringy features more likely,
 											--and very high values result in a lot of stringy continents and islands.
 											
-	mglobal.coastScatter			= 0.18 	--Recommended range:[0.01 to 0.3]
+	mglobal.coastScatter			= 0.09 	--Recommended range:[0.01 to 0.3]
 											--Higher values result in more islands and variance on landmasses and coastlines.
 											
-	mglobal.mountainScatter			= 700 * mapW --Recommended range:[130 to 1000]
+	mglobal.mountainScatter			= 250 * mapW --Recommended range:[130 to 1000]
 											--Lower values make large, long, mountain ranges. Higher values make sporadic mountainous features.
 	
 	
 	-- Terrain
-	mglobal.mountainWeight			= 0.7  --Weight of the mountain elevation map versus the coastline elevation map.
-	mglobal.belowMountainPercent	= 0.97 -- Percent of non-mountain land
+	mglobal.mountainWeight		= 0.7  --Weight of the mountain elevation map versus the coastline elevation map.
+	mglobal.belowMountainPercent	= 0.90 -- Percent of non-mountain land
 										   -- flatPercent to belowMountainPercent : hills
-	mglobal.flatPercent				= 0.78 -- Percent of flat land
+	mglobal.flatPercent			= 0.78 -- Percent of flat land
 	mglobal.hillsBlendPercent		= 0.45 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.
 	mglobal.terrainBlendRange		= 3	   -- range to smooth terrain (desert surrounded by plains turns to plains, etc)
 	mglobal.terrainBlendRandom		= 0.6  -- random modifier for terrain smoothing
 
 	
 	-- Features
-	mglobal.featurePercent			= 0.51 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
+	mglobal.featurePercent			= 0.60 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
 	mglobal.featureWetVariance		= 0.15 -- Percent chance increase if freshwater, decrease if dry (groups features near rivers)
 	mglobal.islePercent				= 0.06 -- Percent of coast tiles with an isle
 	mglobal.numNaturalWonders		= 2 + GameInfo.Worlds[Map.GetWorldSize()].NumNaturalWonders
 	
 	
 	-- Rain
-	mglobal.marshPercent			= 0.10 -- Percent chance increase for marsh from each nearby watery tile 
+	mglobal.marshPercent		= 0.10 -- Percent chance increase for marsh from each nearby watery tile 
 										   --    junglePercent to 1 : marsh
-	mglobal.junglePercent			= 0.65 --    junglePercent to 1 : jungle
-	mglobal.zeroTreesPercent		= 0.30 -- zeroTreesPercent to 1 : forest
+	mglobal.junglePercent		= 0.99 --    junglePercent to 1 : jungle
+	mglobal.zeroTreesPercent		= 0.35 -- zeroTreesPercent to 1 : forest
 										   -- 	 plainsPercent to 1 : grass
-	mglobal.plainsPercent			= 0.50 -- 	 desertPercent to plainsPercent : plains
-	mglobal.desertPercent			= 0.25 --				 0 to desertPercent : desert
+	mglobal.plainsPercent		= 0.50 -- 	 desertPercent to plainsPercent : plains
+	mglobal.desertPercent		= 0.67 --				 0 to desertPercent : desert
 	
 	
 	-- Temperature
-	mglobal.jungleMinTemperature	= 0.72 -- jungle:  jungleMinTemperature	to 1
-	mglobal.desertMinTemperature	= 0.42 -- desert:  desertMinTemperature	to 1
+	mglobal.jungleMinTemperature	= 0.74 -- jungle:  jungleMinTemperature	to 1
+	mglobal.desertMinTemperature	= 0.61 -- desert:  desertMinTemperature	to 1
 										   -- grass:      tundraTemperature to 1
 										   -- plains:     tundraTemperature to 1
-	mglobal.tundraTemperature		= 0.30 -- tundra: 		snowTemperature to tundraTemperature
-	mglobal.snowTemperature			= 0.18 -- snow:   					  0 to snowTemperature
-	mglobal.treesMinTemperature		= 0.18 -- trees:	treesMinTemperature to 1
+	mglobal.tundraTemperature		= 0.29 -- tundra: 		snowTemperature to tundraTemperature
+	mglobal.snowTemperature		= 0.17 -- snow:   					  0 to snowTemperature
+	mglobal.treesMinTemperature		= 0.33 -- trees:	treesMinTemperature to 1
 	mglobal.forestRandomPercent		= 0.07 -- Percent of barren flatland which randomly gets a forest
 	mglobal.forestTundraPercent		= 0.30 -- Percent of barren tundra   which randomly gets a forest
 	
 	
 
 	-- Water
-	mglobal.riverPercent			= 0.16	-- Percent of river junctions that are large enough to become rivers.	
+	mglobal.riverPercent			= 0.25	-- Percent of river junctions that are large enough to become rivers.	
 	mglobal.riverRainCheatFactor	= 1.25	-- Values greater than one favor watershed size. Values less than one favor actual rain amount.
-	mglobal.minWaterTemp			= 0.10	-- Sets water temperature compression that creates the land/sea seasonal temperature differences that cause monsoon winds.
-	mglobal.maxWaterTemp			= 0.60	
+	mglobal.minWaterTemp			= 0.26	-- Sets water temperature compression that creates the land/sea seasonal temperature differences that cause monsoon winds.
+	mglobal.maxWaterTemp			= 0.39	
 	mglobal.geostrophicFactor		= 3.0	-- Strength of latitude climate versus monsoon climate. 
 	mglobal.geostrophicLateralWindStrength = 0.6 
 	mglobal.lakeSize				= 10	-- read-only; cannot change lake sizes with a map script
@@ -159,7 +159,7 @@ function MapGlobals:New()
 	
 	
 	-- Resources
-	mglobal.fishTargetFertility		= 40	-- fish appear to create this average city fertility
+	mglobal.fishTargetFertility		= 60	-- fish appear to create this average city fertility
 	
 	
 	-- Quality vs Performance
@@ -285,7 +285,7 @@ function MapGlobals:New()
 	else
 		print("Map Starts: Largest Continent")
 		mglobal.offsetAtlanticPercent	= 0.35	-- Percent of land to divide at the Atlantic Ocean
-		mglobal.percentLargestContinent	= 0.35	-- Eurasia must be this percent of total land (ensures citystates can appear there)
+		mglobal.percentLargestContinent	= 0.37	-- Eurasia must be this percent of total land (ensures citystates can appear there)
 		mglobal.terraConnectWeight		= 10	-- if Eurasia is too small, connect sub-continents with this (size/distance) from Eurasia
 		--mglobal.offshoreCS			= 0.75	-- no longer needed
 		mglobal.numNaturalWonders		= Round (1.25 * mglobal.numNaturalWonders) -- extra wonders for larger map sizes
@@ -328,10 +328,10 @@ function MapGlobals:New()
 	--currently used to prevent large continents in the uninhabitable polar
 	--regions. East/west attenuation is set to zero, but modded maps may
 	--have need for them.
-	mglobal.northAttenuationFactor	= 0.75
-	mglobal.northAttenuationRange	= 0.15 --percent of the map height.
-	mglobal.southAttenuationFactor	= 0.75
-	mglobal.southAttenuationRange	= 0.15
+	mglobal.northAttenuationFactor	= 0.0
+	mglobal.northAttenuationRange	= 0.0 --percent of the map height.
+	mglobal.southAttenuationFactor	= 0.0
+	mglobal.southAttenuationRange	= 0.0
 
 	--east west attenuation may be desired for flat maps.
 	mglobal.eastAttenuationFactor	= 0.0
@@ -534,23 +534,23 @@ end
 function GetMapInitData(worldSize)
 	print("GetMapInitData")
 	local worldsizes = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {38, 26},
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {54, 36},
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {66, 44},
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {76, 50},
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {84, 56},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {92, 62}
+		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {39, 28},
+		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {56, 38},
+		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {69, 46},
+		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {79, 53},
+		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {87, 59},
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {97, 66}
 		}
 		
 	if Map.GetCustomOption(6) == 2 then
 		-- Enlarge terra-style maps 30% to create expansion room on the new world
 		worldsizes = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {44, 28},
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {60, 40},
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {74, 50},
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {86, 58},
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {96, 64},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {106, 70}
+		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {44, 31},
+		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {64, 43},
+		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {78, 52},
+		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {90, 60},
+		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {99, 66},
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {109, 74}
 		}
 	end
 	--

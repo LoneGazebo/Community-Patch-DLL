@@ -312,8 +312,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
+	m_piYieldFromVictoryGlobal(NULL),
+	m_piYieldFromVictoryGlobalPlayer(NULL),
 	m_piYieldFromPillage(NULL),
-	m_piYieldFromWaterPillage(NULL),
+	m_piYieldFromPillageGlobal(NULL),
+	m_piYieldFromPillageGlobalPlayer(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
@@ -331,6 +334,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromPolicyUnlock(NULL),
 	m_piYieldFromUnitLevelUp(NULL),
 	m_piYieldFromPurchase(NULL),
+	m_piYieldFromFaithPurchase(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -429,8 +433,11 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
-	SAFE_DELETE_ARRAY(m_piYieldFromWaterPillage);
+	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
@@ -449,6 +456,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUp);
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
+	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -887,8 +895,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillageLand", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromWaterPillage, "Building_YieldFromPillageWater", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictoryGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPillageGlobalPlayer, "Building_YieldFromPillageGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
@@ -907,6 +918,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitLevelUp, "Building_YieldFromUnitLevelUp", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromFaithPurchase, "Building_YieldFromFaithPurchase", "BuildingType", szBuildingType);
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerPop, "Building_YieldChangesPerPop", "BuildingType", szBuildingType);
@@ -2690,6 +2702,33 @@ int* CvBuildingEntry::GetYieldFromVictoryArray() const
 	return m_piYieldFromVictory;
 }
 
+/// Change to yield if victorious in battle.
+int CvBuildingEntry::GetYieldFromVictoryGlobal(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobal ? m_piYieldFromVictoryGlobal[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalArray() const
+{
+	return m_piYieldFromVictoryGlobal;
+}
+
+
+/// Change to yield if victorious in battle.
+int CvBuildingEntry::GetYieldFromVictoryGlobalPlayer(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobalPlayer ? m_piYieldFromVictoryGlobalPlayer[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalPlayerArray() const
+{
+	return m_piYieldFromVictoryGlobalPlayer;
+}
+
 /// Change to yield if pillaging
 int CvBuildingEntry::GetYieldFromPillage(int i) const
 {
@@ -2704,16 +2743,29 @@ int* CvBuildingEntry::GetYieldFromPillageArray() const
 }
 
 /// Change to yield if pillaging
-int CvBuildingEntry::GetYieldFromWaterPillage(int i) const
+int CvBuildingEntry::GetYieldFromPillageGlobal(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldFromWaterPillage ? m_piYieldFromWaterPillage[i] : -1;
+	return m_piYieldFromPillageGlobal ? m_piYieldFromPillageGlobal[i] : -1;
 }
 /// Array of yield changes
-int* CvBuildingEntry::GetYieldFromWaterPillageArray() const
+int* CvBuildingEntry::GetYieldFromPillageGlobalArray() const
 {
-	return m_piYieldFromWaterPillage;
+	return m_piYieldFromPillageGlobal;
+}
+
+/// Change to yield if pillaging
+int CvBuildingEntry::GetYieldFromPillageGlobalPlayer(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromPillageGlobalPlayer ? m_piYieldFromPillageGlobalPlayer[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromPillageGlobalPlayerArray() const
+{
+	return m_piYieldFromPillageGlobalPlayer;
 }
 
 
@@ -2850,6 +2902,18 @@ int CvBuildingEntry::GetYieldFromPurchase(int i) const
 int* CvBuildingEntry::GetYieldFromPurchaseArray() const
 {
 	return m_piYieldFromPurchase;
+}
+
+int CvBuildingEntry::GetYieldFromFaithPurchase(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromFaithPurchase[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
+{
+	return m_piYieldFromFaithPurchase;
 }
 
 /// Does this Policy grant yields from constructing buildings?
@@ -4147,6 +4211,15 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	}
 	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge())
 		return false;
+
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if ((YieldTypes)iYieldLoop == NO_YIELD)
+			continue;
+
+		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0)
+			return false;
+	}
 #endif
 
 	// Science building in capital that has given us a tech boost?

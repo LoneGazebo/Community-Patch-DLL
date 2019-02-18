@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -792,6 +792,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCityStarving);
 	Method(GetUnhappinessFromCityMinority);
 #endif
+	Method(GetUnhappinessFromJFDSpecial);
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	Method(GetBonusHappinessFromLuxuries);
 	Method(GetScalingNationalPopulationRequrired);
@@ -1233,6 +1234,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCorporation);
 	Method(GetCorporationFoundedTurn);
 	Method(GetCurrentOfficeBenefit);
+	Method(GetTradeRouteBenefitHelper);
+	Method(GetNumFranchisesTooltip);
+	Method(CanCreateFranchiseInCity);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetTradeRouteYieldModifier);
@@ -4884,6 +4888,33 @@ int CvLuaPlayer::lGetCurrentOfficeBenefit(lua_State* L)
 	lua_pushstring(L, pkPlayer->GetCorporations()->GetCurrentOfficeBenefit());
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTradeRouteBenefitHelper(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetCorporations()->GetTradeRouteBenefit());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumFranchisesTooltip(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetCorporations()->GetNumFranchisesTooltip());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCanCreateFranchiseInCity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkFromCity = CvLuaCity::GetInstance(L, 2);
+	CvCity* pkToCity = CvLuaCity::GetInstance(L, 3);
+	lua_pushboolean(L, pkPlayer->GetCorporations()->CanCreateFranchiseInCity(pkFromCity, pkToCity));
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
@@ -4916,6 +4947,10 @@ int CvLuaPlayer::lGetTradeRouteYieldModifier(lua_State* L)
 	if (pOriginCity->getOwner() == pDestCity->getOwner())
 	{
 		iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
+	}
+	else
+	{
+		iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MODIFIER);
 	}
 
 	lua_pushinteger(L, iResult);
@@ -8959,6 +8994,15 @@ int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = pkPlayer->getUnhappinessFromCityMinority();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityJFDSpecial();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

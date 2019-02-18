@@ -1021,6 +1021,15 @@ ALTER TABLE Traits ADD COLUMN 'CultureBonusModifierConquest' INTEGER DEFAULT 0;
 -- % production bonus in all cities from conquering cities
 ALTER TABLE Traits ADD COLUMN 'ProductionBonusModifierConquest' INTEGER DEFAULT 0;
 
+-- Global Espionage Modifier
+ALTER TABLE Traits ADD COLUMN 'EspionageRateModifier' INTEGER DEFAULT 0;
+
+-- Increase Spy Rank power without changing rank enum value
+ALTER TABLE Traits ADD COLUMN 'SpyExtraRankBonus' INTEGER DEFAULT 0;
+
+-- Spy travel/intermediate action rate modifier
+ALTER TABLE Traits ADD COLUMN 'SpyMoveRateModifier' INTEGER DEFAULT 0;
+
 -- GWAM from conquest
 ALTER TABLE Traits ADD COLUMN 'CityConquestGWAM' INTEGER DEFAULT 0;
 
@@ -1033,6 +1042,8 @@ ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
 -- Trade Route Internal Capital Bonus -- policy -- Internal/INTL TR from Capital and Holy City stronger!
 ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
+-- Or all routes.
+ALTER TABLE Policies ADD COLUMN 'TradeRouteYieldModifier' INTEGER DEFAULT 0;
 
 -- Great Engineer Policy bonus - rate modifier.
 ALTER TABLE Policies ADD COLUMN 'GreatEngineerRateModifier' INTEGER DEFAULT 0;
@@ -1108,6 +1119,9 @@ ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;
 
+-- Choose Enabling Point for Advanced Actions
+ALTER TABLE Technologies ADD COLUMN 'UnlocksEspionageAdvancedActions' BOOLEAN;
+
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
 
@@ -1116,11 +1130,18 @@ ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 
 ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
+
 -- Corporation Policies
-ALTER TABLE Policies ADD COLUMN 'CorporationOfficesAsFranchises' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'CorporationFreeFranchiseAbovePopular' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'CorporationRandomForeignFranchise' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'AdditionalNumFranchisesMod' INTEGER DEFAULT 0;				-- 20 = 20% additional, NOT 1/5 of existing value. this stacks, so 120%, 140%, 160%, etc...
+ALTER TABLE Policies ADD COLUMN 'CorporationOfficesAsNumFranchises' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CorporationNumFreeFranchiseAbovePopular' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CorporationRandomForeignFranchiseMod' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'AdditionalNumFranchisesMod' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'AdditionalNumFranchises' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'NoForeignCorpsInCities' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'NoFranchisesInForeignCities' BOOLEAN DEFAULT 0;
+
+
+-- 20 = 20% additional, NOT 1/5 of existing value. this stacks, so 120%, 140%, 160%, etc...
 
 -- Minor Civs
 ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;

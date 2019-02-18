@@ -857,6 +857,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 			end
 			
+			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
+
 			-- Don't give numbers greater than a Unit's max HP
 			if (iMyDamageInflicted > maxUnitHitPoints) then
 				iMyDamageInflicted = maxUnitHitPoints;

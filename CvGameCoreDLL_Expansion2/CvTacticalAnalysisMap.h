@@ -248,6 +248,15 @@ public:
 		m_bIsNavalInvasion = bIsNavalInvasion;
 	};
 
+	inline bool IsPillageZone() const
+	{
+		return m_bIsPillageZone;
+	};
+	inline void SetPillageZone(bool bIsPillageZone)
+	{
+		m_bIsPillageZone = bIsPillageZone;
+	};
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void Extend(CvPlot* pPlot);
 	int GetCenterX() const { return (m_iAvgX+500)/1000; }
@@ -284,6 +293,7 @@ private:
 	int m_iRangeClosestEnemyUnit;
 	bool m_bIsWater;
 	bool m_bIsNavalInvasion;
+	bool m_bIsPillageZone;
 
 	int m_iAvgX, m_iAvgY;
 	int m_iPlotCount;

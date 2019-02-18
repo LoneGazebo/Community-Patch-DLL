@@ -314,6 +314,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(GetCityPurchaseID);
 	Method(SetCityPurchaseID);
+	Method(GetAirUnitsTooltip);
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(AddMessage);
@@ -2216,6 +2217,48 @@ int CvLuaPlot::lGetCityPurchaseID(lua_State* L)
 int CvLuaPlot::lSetCityPurchaseID(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::SetCityPurchaseID);
+}
+
+int CvLuaPlot::lGetAirUnitsTooltip(lua_State* L)
+{
+	CvString AirTT = "";
+	int iNumAirUnits = 0;
+	CvPlot* kPlot = GetInstance(L);
+
+	CvString tempAirTT = "";
+	if (kPlot != NULL)
+	{
+		for (int iUnitLoop = 0; iUnitLoop < kPlot->getNumUnits(); iUnitLoop++)
+		{
+			CvUnit* pAirUnit = kPlot->getUnitByIndex(iUnitLoop);
+			if (pAirUnit == NULL)
+				continue;
+
+			if (pAirUnit->getDomainType() != DOMAIN_AIR)
+				continue;
+
+			iNumAirUnits++;
+
+			if (!tempAirTT.IsEmpty())
+				tempAirTT += "[NEWLINE]";
+
+			tempAirTT += "[ICON_BULLET] ";
+			tempAirTT += pAirUnit->getName();
+		}
+	}
+
+	if (iNumAirUnits > 0)
+	{
+		Localization::String localizedText = Localization::Lookup("TXT_KEY_STATIONED_AIRCRAFT");
+		localizedText << iNumAirUnits;
+		const char* const localized = localizedText.toUTF8();
+		AirTT = localized;
+		AirTT += "[NEWLINE]";
+		AirTT += tempAirTT;
+	}
+
+	lua_pushstring(L, AirTT.c_str());
+	return 1;
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)

@@ -117,23 +117,18 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 		const TechTypes eTech = static_cast<TechTypes>(iTech);
 		CvTechEntry* entry = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
 		if(entry)
-		{
+		{			
 			// Set its weight by looking at tech's weight for this flavor and using iWeight multiplier passed in
 			paiTempWeights[iTech] = entry->GetFlavorValue(eFlavor) * iWeight;
-#if defined(MOD_BUGFIX_MINOR)
-			// Applying multipliers is not going to change the fact it's zero!
-			if (paiTempWeights[iTech] == 0) continue;
-#endif
 
 			// Multiply the weight by any special player-specific weighting (i.e. to prioritize civ unique bonuses)
-			paiTempWeights[iTech] *= max(1, m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech));
+			paiTempWeights[iTech] += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech);
 
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking resources)
-			paiTempWeights[iTech] *= max(1, m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech));
+			paiTempWeights[iTech] += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech);
 
-#if defined(MOD_BALANCE_CORE)
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking grand strategy stuff)
-			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetGSTechPriority(eTech);
+			paiTempWeights[iTech] += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetGSTechPriority(eTech);
 
 			if(entry->IsAllowsEmbarking())
 			{
@@ -146,7 +141,6 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 					}
 				}
 			}
-#endif
 		}
 	}
 

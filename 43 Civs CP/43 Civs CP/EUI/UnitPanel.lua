@@ -521,6 +521,11 @@ local function UnitToolTip( unit, ... )
 		local combatClass = unitInfo.CombatClass and GameInfo.UnitCombatInfos[unitInfo.CombatClass]
 		local tips = table( UnitColor( Locale_ToUpper( unit:GetNameKey() ) ) .. (combatClass and " ("..L(combatClass.Description)..")" or ""), "----------------", ... )
 
+		local cityName = unit:GetCityName();
+		if(cityName ~= "") then
+			tips:insertLocalized( "TXT_KEY_UNIT_ORIGIN_CITY", cityName )
+		end
+
 		-- Required Resources:
 		local resources = table()
 		for resource in GameInfo.Resources() do

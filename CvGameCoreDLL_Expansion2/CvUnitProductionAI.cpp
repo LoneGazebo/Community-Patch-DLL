@@ -341,7 +341,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_SEA, true);
 				if (iNumUnits <= 2)
-					iBonus += max(0, 400 - (iNumUnits * 100));
+					iBonus += max(0, 300 - (iNumUnits * 100));
 
 				int iNumCities = kPlayer.getNumCities();
 				int iEra = (kPlayer.GetCurrentEra() + 1) * iNumCities;
@@ -350,7 +350,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					iBonus += (iEra - iNumUnits) * 100;
 					if (kPlayer.GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
 					{
-						iBonus += 50;
+						iBonus += 100;
 					}
 				}
 				else
@@ -360,17 +360,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_LAND, true);
 				if (iNumUnits <= 2)
-					iBonus += max(0, 600 - (iNumUnits * 100));
+					iBonus += max(0, 800 - (iNumUnits * 100));
 
 				int iNumCities = kPlayer.getNumCities();
 				int iEra = (kPlayer.GetCurrentEra() + 2) * iNumCities;
 
 				if (iNumUnits <= iEra)
 				{
-					iBonus += (iEra - iNumUnits) * 100;
+					iBonus += (iEra - iNumUnits) * 150;
 					if (kPlayer.GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
 					{
-						iBonus += 100;
+						iBonus += 250;
 					}
 				}
 				else
@@ -412,7 +412,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		bAlone = false;
 	}
-	if (!bFree && bCombat && !kPlayer.isMinorCiv())
+	else if (!bFree && bCombat)
 	{
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -1492,7 +1492,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.isMinorCiv())
 				{
-					iBonus += 100;
+					iBonus += 500;
 				}
 				else
 				{

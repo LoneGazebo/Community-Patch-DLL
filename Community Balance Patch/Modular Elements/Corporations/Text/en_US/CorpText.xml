@@ -93,7 +93,7 @@
 			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREADING}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_BODY">
-			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR]: to foreign cities is an essential element of reaping the most benefit from your Corporation.[NEWLINE][NEWLINE]Active Spread: Corporations actively spread their influence via owned Trade Routes, but only if the origin City (your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. You can only spread your Corporation to each foreign City once, and you cannot have more Franchises than the maximum number of Trade Routes you can support.[NEWLINE][NEWLINE]Passive Spread: Corporations passively spread their influence via foreign Trade Routes, but only if the destination City (your City) has a Corporate Office in it. If your City has a Corporate Office, and another player sends a Trade Route to that City from one of their Cities, a Corporate 'Franchise' will be built in the foreign City when their Trade Route completes. Your Corporation can only spread to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR]: to foreign cities is an essential element of reaping the most benefit from your Corporation.[NEWLINE][NEWLINE]Active Spread: Corporations actively spread their influence via owned Trade Routes, but only if the origin City (your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. There is also a random chance (~5%) that a Franchise will be created in a nearby Foreign city each turn, if you are currently trading with that Civilization. You can only spread your Corporation to each foreign City once, and you cannot have more Franchises than the maximum number of Trade Routes you can support.[NEWLINE][NEWLINE]Passive Spread: Corporations passively spread their influence via foreign Trade Routes, but only if the destination City (your City) has a Corporate Office in it. If your City has a Corporate Office, and another player sends a Trade Route to that City from one of their Cities, a Corporate 'Franchise' will be built in the foreign City when their Trade Route completes. Your Corporation can only spread to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_QUESTION">
 			<Text>How do I spread my Corporation?</Text>
@@ -128,7 +128,7 @@
 			<Text>Free Trade Routes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL">
-			<Text>Resource Bonus</Text>
+			<Text>Franchise Resource Bonus</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL">
 			<Text>Office Bonus</Text>
@@ -228,7 +228,7 @@
 			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREAD}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_BODY">
-			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed.</Text>
+			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foriegn City, if you are trading with that Civilization already.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_QUESTION">
 			<Text>How do I spread my Corporation?</Text>
@@ -241,7 +241,7 @@
 			<Text>{TXT_KEY_TOPIC_CORPORATION_RESOURCE_BONUS}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_BODY">
-			<Text>Most Corporations have a resource bonus which applies to all Cities with a Corporation Headquarters and Office. Each resource bonus provides a bonus to a specific yield, such as [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, or [ICON_RESEARCH] Science. These bonuses stack, so a city with a Corporation HQ and Office will receive double the bonus.</Text>
+			<Text>Most Corporations have a resource bonus which applies to all Cities with a Corporation Franchise. Each resource bonus provides a bonus to a specific yield, such as [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, or [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_QUESTION">
 			<Text>What is a resource bonus?</Text>
@@ -312,14 +312,14 @@
 			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM">
-			<Text>{@2_BldgName} has spread to the City of {@1_City} as a result of the [COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR] Policy. This will increase the value of all of your Corporate Offices!</Text>
+			<Text>{@2_BldgName} has spread to the City of {@1_City}! This will increase the value of all of your Corporate Offices!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY">
 			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM">
-			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of {@1_CivName}'s [COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR] Policy. This will increase the value of their Corporation!</Text>
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City}! This will increase the value of their Corporation!</Text>
 		</Row>
 
 		<!-- Moved/Destroyed Notifications -->
@@ -335,6 +335,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED">
 			<Text>{@1_BldgName} has closed all global offices and franchises as a result of their headquarter's untimely destruction.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY_S">
+			<Text>{@1_BldgName} removed from {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY">
+			<Text>{@1_BldgName} was forcefully closed by {3_Civ} in {2_City}, due to a Tenet or Resolution!</Text>
 		</Row>
 
 		<!-- LUA -->
@@ -358,6 +365,21 @@
 			<Text>[NEWLINE][ICON_BULLET][ICON_INVEST]Corporation Modifier: {1_Num}%</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_HAS_FRANCHISE_TT">
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Franchise Present[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CAN_FRANCHISE_TT">
+			<Text>[COLOR_POSITIVE_TEXT]Franchise Available[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_FRANCHISE_HERE_TT">
+			<Text>Cannot construct a Franchise here for one of the following reasons:[NEWLINE]- Reached Franchise maximum[NEWLINE]- You or other player are sanctioned by the World Congress[NEWLINE]- You or other player have adopted Tenets that prevent the creation of Franchises in foreign cities</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYVIEW_CORPORATIONS_TEXT">
+			<Text>Corporations</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
 			<Text>+{1_Num}% [ICON_CULTURE] from Corporation</Text>
 		</Row>
@@ -366,6 +388,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_CORPORATIONS">
 			<Text>+{1_Num} [ICON_PEACE] from Corporation</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES">
+			<Text>+{1_Num}% Bonus from your Corporate Franchises in their Empire[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
@@ -380,7 +406,11 @@
 			<Text>Franchises Established: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] out of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_MAX_FRANCHISE_TT">
-			<Text>The maximum number of Franchises you can create is a factor of the number of [ICON_INTERNATIONAL_TRADE] Trade Routes you can establish and World Size. Ideology Tenets can also modify this number, and in some cases allow you to exceed your Franchise maximum.</Text>
+			<Text>[ICON_BULLET] {1_Num} from Corporation Headquarters[NEWLINE][ICON_BULLET] {2_Num} from constructed Offices[NEWLINE][ICON_BULLET] {3_Num} from your maximum number of [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET] {4_Num} from Policies and Tenets[NEWLINE][NEWLINE]Note that some Policies and Tenets may allow your current Franchise total to exceed your Franchise Maximum.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_MAX_FRANCHISE_NATIONALIZATION_TT">
+			<Text>[ICON_BULLET] {1_Num} from constructed Offices (Nationalization Tenet)[NEWLINE][NEWLINE]Workers of the World, Unite!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORP_NO_CORP">
@@ -506,7 +536,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR][NEWLINE]Corporate Offices (up to your Global Franchise limit) function as Franchises. Foreign Franchises no longer benefit your Corporation.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR][NEWLINE]Each Corporate Office counts as two Franchises, and Corporate [ICON_INTERNATIONAL_TRADE] Trade Route bonuses to cities with Franchises are doubled. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities, and foreign Corporations can no longer set up Franchises in your Cities. +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
 			<Text>Nationalization</Text>
@@ -516,7 +546,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR][NEWLINE]Each turn, there is a chance that a Corporate Franchise will appear in a foreign City. Global Franchise maximum increased by 20%.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR][NEWLINE]Each turn, increases the a chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
 			<Text>Transnationalism</Text>
@@ -526,7 +556,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_INFILTRATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR][NEWLINE]Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with. Does not count against Global Franchise maximum.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR][NEWLINE]Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with, and this extra Franchise does not count against your Global Franchise maximum. Can establish 5 additional Franchises in foreign Cities. +2 [ICON_PRODUCTION] Production from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_INFILTRATION">
 			<Text>Syndicalism</Text>
@@ -545,13 +575,13 @@
 			<Text>Trader Sid's, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_HELP">
-			<Text>Provides benefits geared toward [ICON_GOLD] Gold generation. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles Land [ICON_INTERNATIONAL_TRADE] Trade Unit maximum distance.[NEWLINE][NEWLINE]Caravansaries and Markets in all Cities produce +2 [ICON_GOLD] Gold.</Text>
+			<Text>Provides benefits geared toward [ICON_GOLD] Gold generation. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles Land [ICON_INTERNATIONAL_TRADE] Trade Unit maximum distance.[NEWLINE][NEWLINE]Caravansaries and Markets in all Cities produce +3 [ICON_GOLD] Gold. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TRADER_SIDS">
-			<Text>[ICON_RES_CLOVES] Cloves, [ICON_RES_COCOA] Cocoa, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_PEPPER] Pepper, [ICON_RES_SALT] Salt, [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid's Office.</Text>
+			<Text>[ICON_RES_CLOVES] Cloves, [ICON_RES_COCOA] Cocoa, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_PEPPER] Pepper, [ICON_RES_SALT] Salt, [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid's Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TRADER_SIDS">
-			<Text>+4 [ICON_GOLD] Gold for every Global Franchise, +1 [ICON_GOLD] Gold on all Trader Sid's Monopoly Resources near the City, and [ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold.</Text>
+			<Text>+4 [ICON_GOLD] Gold for every Global Franchise, and [ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TRADER_SIDS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from owned Cities with a Trader Sid's Office to foreign Cities with a Trader Sid's Franchise produce +25% additional [ICON_GOLD] Gold.</Text>
@@ -583,7 +613,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Trader Sid's. To construct this building in a foreign City, send a Trade Route from an owned City with a Trader Sid's Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_HELP">
-			<Text>Generates revenue for Trader Sid's Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_GOLD] Gold on all Trader Sid's Monopoly Resources near the City. Generates revenue for Trader Sid's Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS">
@@ -603,13 +633,13 @@
 			<Text>Centaurus Extractors, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_HELP">
-			<Text>Provides benefits geared toward [ICON_PRODUCTION] Production and coastal Cities. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles sea [ICON_INTERNATIONAL_TRADE] Trade Unit maximum range.[NEWLINE][NEWLINE]Harbors and Seaports in all Cities also produce +2 [ICON_PRODUCTION] Production.</Text>
+			<Text>Provides benefits geared toward [ICON_PRODUCTION] Production and coastal Cities. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one and doubles sea [ICON_INTERNATIONAL_TRADE] Trade Unit maximum range.[NEWLINE][NEWLINE]Harbors and Seaports in all Cities also produce +2 [ICON_PRODUCTION] Production. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS">
-			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide +1 [ICON_PRODUCTION] Production in cities with Centaurus Extractors Office.</Text>
+			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide +1 [ICON_PRODUCTION] Production in cities with Centaurus Extractors Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_LANDSEA_EXTRACTORS">
-			<Text>+3 [ICON_PRODUCTION] Production for every Global Franchise, +1 [ICON_PRODUCTION] on all Centaurus Extractors Monopoly Resources near the City, and +1 [ICON_PRODUCTION] Production on all Sea Tiles near the City.</Text>
+			<Text>+3 [ICON_PRODUCTION] Production for every Global Franchise, and +1 [ICON_PRODUCTION] Production on all Sea Tiles near the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Centaurus Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
@@ -641,7 +671,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Centaurus Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a Centaurus Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_HELP">
-			<Text>Generates revenue for Centaurus Extractors Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production on all Monopoly Resources associated with Centaurus Extractors. Generates revenue for Centaurus Extractors Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS">
@@ -654,20 +684,20 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Centaurus Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Centaurus Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all Centaurus Extractors Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production on all Monopoly Resources associated with Centaurus Extractors, and +1 [ICON_PRODUCTION] Production on all Sea Tiles near this City. +3 [ICON_PRODUCTION] Production for every Centaurus Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Centaurus Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production on all Sea Tiles near this City. +3 [ICON_PRODUCTION] Production for every Centaurus Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Centaurus Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY">
 			<Text>Hexxon Refinery, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_HELP">
-			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Coal, Nuclear, and Solar Plants.</Text>
+			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Coal, Nuclear, Wind, and Solar Plants. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY">
-			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, and [ICON_RES_BRAZILWOOD] Brazilwood provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Office.</Text>
+			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, and [ICON_RES_BRAZILWOOD] Brazilwood provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Franchises.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_HEXXON_REFINERY">
-			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises. +1 [ICON_PRODUCTION] Production on Hexxon Refineries Monopoly Resources, and +15% [ICON_PRODUCTION] Production towards Military Units.</Text>
+			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises, and +15% [ICON_PRODUCTION] Production towards Military Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_HEXXON_REFINERY">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Hexxon Refinery Franchise grant +10% [ICON_PRODUCTION] Production in origin City.</Text>
@@ -699,7 +729,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Hexxon Refineries. To construct this building in a foreign City, send a Trade Route from an owned City with a Hexxon Refineries Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_HELP">
-			<Text>Generates revenue for Hexxon Refineries Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production on Hexxon Refineries Monopoly Resources. Generates revenue for Hexxon Refineries Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY">
@@ -712,20 +742,20 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production when training Military Units in this City, and +1 [ICON_PRODUCTION] Production on Hexxon Refineries Monopoly Resources. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
+			<Text>+15% [ICON_PRODUCTION] Production when training Military Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER">
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
-			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +1 [ICON_CULTURE] Culture from Specialists in all Cities.</Text>
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
-			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Office.</Text>
+			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER">
-			<Text>+2 [ICON_CULTURE] Culture for every Global Franchise, +1 [ICON_HAPPINESS_1] Happiness, and +1 [ICON_CULTURE] Culture on Giorgio Armeier Monopoly Resources.</Text>
+			<Text>+2 [ICON_CULTURE] Culture for every Global Franchise, and +1 [ICON_HAPPINESS_1] Happiness.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Giorgio Armeier Franchise grant +10% [ICON_CULTURE] Culture to the origin City.</Text>
@@ -757,7 +787,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Giorgio Armeier . To construct this building in a foreign City, send a Trade Route from an owned City with a Giorgio Armeier Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE_HELP">
-			<Text>Generates revenue for Giorgio Armeier Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. Generates revenue for Giorgio Armeier Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER">
@@ -770,20 +800,20 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP">
-			<Text>+1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
+			<Text>+2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS">
 			<Text>Firaxite Materials, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_HELP">
-			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and Trade Units cannot be pillaged (except as a result of a Declaration of War).[NEWLINE][NEWLINE]Factories in all Cities produce +3 [ICON_RESEARCH] Science.</Text>
+			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and Trade Units cannot be pillaged (except as a result of a Declaration of War).[NEWLINE][NEWLINE]Factories and Universities in all Cities produce +3 [ICON_RESEARCH] Science. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_FIRAXITE_MATERIALS">
-			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Office.</Text>
+			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_FIRAXITE_MATERIALS">
-			<Text>+2 [ICON_RESEARCH] Science for every Global Franchise, +1 [ICON_RESEARCH] Science on Firaxite Materials Monopoly Resources, and +20% [ICON_PRODUCTION] Production when constructing Buildings.</Text>
+			<Text>+2 [ICON_RESEARCH] Science for every Global Franchise, and +20% [ICON_PRODUCTION] Production when constructing Buildings.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_FIRAXITE_MATERIALS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +50% additional [ICON_RESEARCH] Science.</Text>
@@ -815,7 +845,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Firaxite Materials. To construct this building in a foreign City, send a Trade Route from an owned City with a Firaxite Materials Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_HELP">
-			<Text>Generates revenue for Firaxite Materials Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. Generates revenue for Firaxite Materials Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS">
@@ -828,20 +858,20 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
-			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City, and +1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce 50% more [ICON_RESEARCH] Science.</Text>
+			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce 50% more [ICON_RESEARCH] Science.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS">
 			<Text>TwoKay Foods, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS_HELP">
-			<Text>Provides benefits geared toward [ICON_FOOD] Food generation and City growth. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and Trade Routes reveal the Fog of War.[NEWLINE][NEWLINE]Grocers and Agribusiness in all Cities produce +2 [ICON_FOOD] Food.</Text>
+			<Text>Provides benefits geared toward [ICON_FOOD] Food generation and City growth. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and Trade Routes reveal the Fog of War.[NEWLINE][NEWLINE]Grocers, Hospitals, and Agribusiness in all Cities produce +3 [ICON_FOOD] Food. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TWOKAY_FOODS">
-			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide +1 [ICON_FOOD] Food in all Cities with a TwoKay Foods Office.</Text>
+			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide +1 [ICON_FOOD] Food in all Cities with a TwoKay Foods Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TWOKAY_FOODS">
-			<Text>+3 [ICON_FOOD] Food for every Global Franchise, +1 [ICON_FOOD] Food on nearby TwoKay Foods Monopoly Resources, and +10% [ICON_FOOD] Food in the City.</Text>
+			<Text>+3 [ICON_FOOD] Food for every Global Franchise, -5% to all Needs Modifiers in the City, and +10% [ICON_FOOD] Food in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TWOKAY_FOODS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a TwoKay Foods Franchise grant +10% [ICON_FOOD] Food to the origin City.</Text>
@@ -873,7 +903,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of TwoKay Foods. To construct this building in a foreign City, send a Trade Route from an owned City with a TwoKay Foods Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_HELP">
-			<Text>Generates revenue for TwoKay Foods Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. Generates revenue for TwoKay Foods Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS">
@@ -886,20 +916,20 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
-			<Text>+10% [ICON_FOOD] Food in the City. +1 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods, and +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
+			<Text>Reduces all Needs Modifiers in the City by 5%. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS">
 			<Text>Civilized Jewelers, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_HELP">
-			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and all [ICON_INTERNATIONAL_TRADE] Trade Units move twice as fast.[NEWLINE][NEWLINE]Banks and Customs Houses in all Cities produce +2 [ICON_GOLDEN_AGE] Golden Age Points.</Text>
+			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and all [ICON_INTERNATIONAL_TRADE] Trade Units move twice as fast.[NEWLINE][NEWLINE]Banks and Customs Houses in all Cities produce +4 [ICON_GOLDEN_AGE] Golden Age Points. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS">
-			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Office.</Text>
+			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_CIVILIZED_JEWELERS">
-			<Text>+15% [ICON_GREAT_PEOPLE] Great Person Rate, and an additional +10% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise. +1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers Monopoly Resources near the City.</Text>
+			<Text>+3% [ICON_GOLDEN_AGE] Golden Age Length Modifier. +15% [ICON_GREAT_PEOPLE] Great Person Rate, and an additional +10% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Civilized Jewelers Franchise grant +10% [ICON_GOLD] Gold in the origin City.</Text>
@@ -931,7 +961,7 @@
 			<Text>This building can only be constructed in Foreign Cities if you were the founder of Civilized Jewelers. To construct this building in a foreign City, send a Trade Route from an owned City with a Civilized Jewelers Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP">
-			<Text>Generates revenue for Civilized Jewelers Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers Monopoly Resources near this City. Generates revenue for Civilized Jewelers Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS">
@@ -944,7 +974,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
-			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +10% for every Civilized Jeweler's Franchise (up to your Franchise Limit). +1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers Monopoly Resources near this City.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
+			<Text>+3% [ICON_GOLDEN_AGE] Golden Age Length Modifier. +15% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +10% for every Civilized Jeweler's Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

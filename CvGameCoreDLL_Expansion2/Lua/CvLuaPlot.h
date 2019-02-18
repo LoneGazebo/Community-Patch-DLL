@@ -332,6 +332,8 @@ protected:
 	static int lGetCityPurchaseID(lua_State* L);
 	static int lSetCityPurchaseID(lua_State* L);
 
+	static int lGetAirUnitsTooltip(lua_State* L);
+
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);
 	LUAAPIEXTN(AddPopupMessage, void, sMessage, fDelay, iNotifyPlayer);

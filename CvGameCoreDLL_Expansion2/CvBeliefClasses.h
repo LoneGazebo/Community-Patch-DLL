@@ -105,6 +105,7 @@ public:
 	int GetYieldFromPolicyUnlock(int i) const;
 	int GetYieldFromEraUnlock(int i) const;
 	int GetYieldFromConversion(int i) const;
+	int GetYieldFromConversionExpo(int i) const;
 	int GetYieldFromWLTKD(int i) const;
 	int GetYieldFromProposal(int i) const;
 	int GetYieldFromHost(int i) const;
@@ -340,6 +341,7 @@ protected:
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromEraUnlock;
 	int* m_piYieldFromConversion;
+	int* m_piYieldFromConversionExpo;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromProposal;
 	int* m_piYieldFromHost;
@@ -563,6 +565,7 @@ public:
 	int GetYieldFromPolicyUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromEraUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromConversion(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldFromConversionExpo(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

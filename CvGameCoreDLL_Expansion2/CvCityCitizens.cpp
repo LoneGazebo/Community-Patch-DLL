@@ -1614,17 +1614,17 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
-		int iMultiplier = iExcessFoodTimes100 <= 0 ? 10 : 5;
+		int iMultiplier = iExcessFoodTimes100 <= 0 ? 15 : 5;
 		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
 		int iPopulation = m_pCity->getPopulation();
 
 		//Smaller cities want to grow fast - larger cities can slow down a bit.
-		int iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) / max(1, iPopulation);
+		int iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * (max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) + max(1, iPopulation));
 
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-			iPenalty = iFoodEmphasisModifier * 8;
+			iPenalty = iFoodEmphasisModifier * 15;
 		else if ((eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
-			iPenalty = iFoodEmphasisModifier * 4;
+			iPenalty = iFoodEmphasisModifier * 10;
 		else
 			iPenalty = iFoodEmphasisModifier;
 	}
@@ -2831,7 +2831,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 						break;
 
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
@@ -2868,7 +2868,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
-					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 						break;
 
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));

@@ -908,7 +908,7 @@ function HappinessTipHandler( control )
 		end
 		if(iHappinessFromBonusResources > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_LUXURY_BONUS", iHappinessFromBonusResources, g_activePlayer:GetAveragePopulation100()/100);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_LUXURY_BONUS", iHappinessFromBonusResources, pPlayer:GetAveragePopulation100()/100);
 		end
 -- END
 -- C4DF

@@ -183,6 +183,9 @@
 		<Row Name="EVENT_MIN_DURATION_BETWEEN">
 			<Value>10</Value>
 		</Row>
+		<Row Name="CITY_EVENT_MIN_DURATION_BETWEEN">
+			<Value>25</Value>
+		</Row>
 	</Defines>
 	<!-- Table definitions -->
 

@@ -346,8 +346,9 @@ CvCity::CvCity() :
 	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
 	, m_aiYieldFromVictory("CvCity::m_aiYieldFromVictory", m_syncArchive)
+	, m_aiYieldFromVictoryGlobal("CvCity::m_aiYieldFromVictoryGlobal", m_syncArchive)
 	, m_aiYieldFromPillage("CvCity::m_aiYieldFromPillage", m_syncArchive)
-	, m_aiYieldFromPillageWater("CvCity::m_aiYieldFromPillageWater", m_syncArchive)
+	, m_aiYieldFromPillageGlobal("CvCity::m_aiYieldFromPillageGlobal", m_syncArchive)
 	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
 	, m_aiLongestPotentialTradeRoute("CvCity::m_aiLongestPotentialTradeRoute", m_syncArchive)
 	, m_aiStaticGlobalYield("CvCity::m_aiStaticGlobalYield", m_syncArchive)
@@ -362,6 +363,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromBorderGrowth("CvCity::m_aiYieldFromBorderGrowth", m_syncArchive)
 	, m_aiYieldFromPolicyUnlock("CvCity::m_aiYieldFromPolicyUnlock", m_syncArchive)
 	, m_aiYieldFromPurchase("CvCity::m_aiYieldFromPurchase", m_syncArchive)
+	, m_aiYieldFromFaithPurchase("CvCity::m_aiYieldFromFaithPurchase", m_syncArchive)
 	, m_aiYieldFromUnitLevelUp("CvCity::m_aiYieldFromUnitLevelUp", m_syncArchive)
 	, m_aiYieldPerAlly("CvCity::m_aiYieldPerAlly", m_syncArchive)
 	, m_aiYieldPerFriend("CvCity::m_aiYieldPerFriend", m_syncArchive)
@@ -1635,8 +1637,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiStaticNeedAdditives.resize(NUM_YIELD_TYPES);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromVictoryGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
-	m_aiYieldFromPillageWater.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromPillageGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
@@ -1647,6 +1650,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromBorderGrowth.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPolicyUnlock.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPurchase.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromFaithPurchase.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
@@ -1731,8 +1735,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiGreatWorkYieldChange.setAt(iI, 0);
 		m_aiYieldFromKnownPantheons.setAt(iI, 0);
 		m_aiYieldFromVictory.setAt(iI, 0);
+		m_aiYieldFromVictoryGlobal.setAt(iI, 0);
 		m_aiYieldFromPillage.setAt(iI, 0);
-		m_aiYieldFromPillageWater.setAt(iI, 0);
+		m_aiYieldFromPillageGlobal.setAt(iI, 0);
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 		m_aiYieldFromWLTKD.setAt(iI, 0);
 		m_aiYieldFromConstruction.setAt(iI, 0);
@@ -1742,6 +1747,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromBorderGrowth.setAt(iI, 0);
 		m_aiYieldFromPolicyUnlock.setAt(iI, 0);
 		m_aiYieldFromPurchase.setAt(iI, 0);
+		m_aiYieldFromFaithPurchase.setAt(iI, 0);
 		m_aiYieldFromUnitLevelUp.setAt(iI, 0);
 		m_aiYieldPerAlly.setAt(iI, 0);
 		m_aiYieldPerFriend.setAt(iI, 0);
@@ -3562,10 +3568,10 @@ bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 
 void CvCity::UpdateGlobalStaticYields()
 {
-	SetGlobalStaticYield(YIELD_GOLD, GC.getGame().GetGoldAverage());
-	SetGlobalStaticYield(YIELD_CULTURE, GC.getGame().GetCultureAverage());
-	SetGlobalStaticYield(YIELD_SCIENCE, GC.getGame().GetScienceAverage());
-	SetGlobalStaticYield(YIELD_PRODUCTION, GC.getGame().GetDefenseAverage());
+	SetGlobalStaticYield(YIELD_GOLD, GET_PLAYER(getOwner()).GetGoldAverage());
+	SetGlobalStaticYield(YIELD_CULTURE, GET_PLAYER(getOwner()).GetCultureAverage());
+	SetGlobalStaticYield(YIELD_SCIENCE, GET_PLAYER(getOwner()).GetScienceAverage());
+	SetGlobalStaticYield(YIELD_PRODUCTION, GET_PLAYER(getOwner()).GetDefenseAverage());
 
 	UpdateStaticTechDeviation(GET_PLAYER(getOwner()).GetTechDeviation());
 
@@ -4020,6 +4026,8 @@ void CvCity::DoEvents()
 			if (pkEventInfo != NULL)
 			{
 				DoStartEvent(eChosenEvent);
+
+				ChangeCityEventCooldown(GC.getCITY_EVENT_MIN_DURATION_BETWEEN());
 
 				//We did it! But reset our increment.
 				IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
@@ -13754,59 +13762,62 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 						}
 
-						//choose one
-						int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
-						ResourceTypes eResourceToGive = vPossibleResources[iChoice];
-
-						int iNumResourceGiven = 0;
-						CvPlot* pLoopPlot;
-
-						for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+						if (vPossibleResources.size() > 0)
 						{
-							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-							if( pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() && 
-								pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder()  && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
-							{
-								if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-								{
-									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-									pLoopPlot->setResourceType(eResourceToGive, 1, false);
-									pLoopPlot->DoFindCityToLinkResourceTo();
-									iNumResourceGiven++;
-									if(iNumResourceGiven >= iNumResourceTotal)
-									{
-										break;
-									}
-								}
-							}
-						}
-						if(iNumResourceGiven < iNumResourceTotal)
-						{
-							for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+							//choose one
+							int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
+							ResourceTypes eResourceToGive = vPossibleResources[iChoice];
+
+							int iNumResourceGiven = 0;
+							CvPlot* pLoopPlot;
+
+							for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 							{
 								pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-								if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) && 
-									!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+								if (pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() &&
+									pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 								{
-									if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
 										pLoopPlot->DoFindCityToLinkResourceTo();
 										iNumResourceGiven++;
-										if(iNumResourceGiven >= iNumResourceTotal)
+										if (iNumResourceGiven >= iNumResourceTotal)
 										{
 											break;
 										}
 									}
 								}
 							}
-						}
-						if(iNumResourceGiven < iNumResourceTotal)
-						{
-							ResourceTypes eCurrentResource = plot()->getResourceType();
-							if (eCurrentResource == NO_RESOURCE)
-								plot()->setResourceType(eResourceToGive, 1, false);
+							if (iNumResourceGiven < iNumResourceTotal)
+							{
+								for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+								{
+									pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
+									if (pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) &&
+										!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+									{
+										if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+										{
+											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+											pLoopPlot->setResourceType(eResourceToGive, 1, false);
+											pLoopPlot->DoFindCityToLinkResourceTo();
+											iNumResourceGiven++;
+											if (iNumResourceGiven >= iNumResourceTotal)
+											{
+												break;
+											}
+										}
+									}
+								}
+							}
+							if (iNumResourceGiven < iNumResourceTotal)
+							{
+								ResourceTypes eCurrentResource = plot()->getResourceType();
+								if (eCurrentResource == NO_RESOURCE)
+									plot()->setResourceType(eResourceToGive, 1, false);
+							}
 						}
 					}
 				}
@@ -14426,14 +14437,19 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0))
+			{
+				ChangeYieldFromVictoryGlobal(eYield, pBuildingInfo->GetYieldFromVictoryGlobal(eYield) * iChange);
+			}
+
 			if ( (pBuildingInfo->GetYieldFromPillage(eYield) > 0))
 			{
 				ChangeYieldFromPillage(eYield, pBuildingInfo->GetYieldFromPillage(eYield) * iChange);
 			}
 
-			if ((pBuildingInfo->GetYieldFromWaterPillage(eYield) > 0))
+			if ((pBuildingInfo->GetYieldFromPillageGlobal(eYield) > 0))
 			{
-				ChangeYieldFromPillageWater(eYield, pBuildingInfo->GetYieldFromWaterPillage(eYield) * iChange);
+				ChangeYieldFromPillageGlobal(eYield, pBuildingInfo->GetYieldFromPillageGlobal(eYield) * iChange);
 			}
 
 			if( (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
@@ -14500,6 +14516,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if( (pBuildingInfo->GetYieldFromPurchase(eYield) > 0))
 			{
 				ChangeYieldFromPurchase(eYield, pBuildingInfo->GetYieldFromPurchase(eYield) * iChange);
+			}
+
+			if ((pBuildingInfo->GetYieldFromFaithPurchase(eYield) > 0))
+			{
+				ChangeYieldFromFaithPurchase(eYield, pBuildingInfo->GetYieldFromFaithPurchase(eYield) * iChange);
 			}
 
 			if( (pBuildingInfo->GetYieldFromUnitLevelUp(eYield) > 0))
@@ -14633,8 +14654,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 					if (pkCorporationInfo)
 					{
-						// Only if this is the headquarters or Office
-						if (pkCorporationInfo->GetOfficeBuildingClass() == eBuildingClass)
+						// Only if this is the Franchise
+						if (pkCorporationInfo->GetFranchiseBuildingClass() == eBuildingClass)
 						{
 							for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 							{
@@ -15319,6 +15340,26 @@ bool CvCity::IsOriginalMajorCapital() const
 }
 
 //	--------------------------------------------------------------------------------
+/// Was this city originally a major civ's capital?
+bool CvCity::IsOriginalMinorCapital() const
+{
+	VALIDATE_OBJECT
+
+		PlayerTypes ePlayer;
+	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		ePlayer = (PlayerTypes)iPlayerLoop;
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
 	if (iMinWaterSize==-1)
@@ -15442,7 +15483,7 @@ void CvCity::DoSellBuilding()
 		if(pkBuildingInfo)
 		{
 			// Has this Building
-			if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && GetCityBuildings()->IsBuildingSellable(*pkBuildingInfo))
+			if (GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && GetCityBuildings()->IsBuildingSellable(*pkBuildingInfo))
 			{
 				int iRefund = GetCityBuildings()->GetSellBuildingRefund(eBuilding);
 				if(iRefund > iBestRefund)
@@ -15914,6 +15955,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, int iCorpMod, CvString* toolTip
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES", iPolicyMod);
 		}
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD) != 0)
+		{
+			int iTraitMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD);
+			iTotalMod += iTraitMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS", iTraitMod);
+		}
 		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 		{
 			int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
@@ -16118,9 +16166,9 @@ int CvCity::growthThreshold() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetUnhappinessFromCitySpecialists()
 {
-	int iUnhappiness = 0;
-	int iUnhappinessFromThisCity;
-	int iUnhappinessPerPop = /*1*/ GC.getUNHAPPINESS_PER_POPULATION() * 100;
+	float iUnhappiness = 0;
+	float iUnhappinessFromThisCity;
+	float iUnhappinessPerPop = /*1*/ (/*1*/ GC.getUNHAPPINESS_PER_POPULATION() + GC.getUNHAPPINESS_PER_POPULATION_FLOAT()) * 100;
 	int iPopulation;
 
 	bool bCityValid;
@@ -16148,7 +16196,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		//Less unhappiness from specialists....
 		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		{
-			iUnhappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
+			iUnhappinessPerPop = (float)/*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
 			int iNoHappinessSpecialists = 0;
 			if (iPopulation > 0)
 			{
@@ -16218,7 +16266,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	}
 #endif
-	return iUnhappiness;
+	return (int)iUnhappiness;
 }
 #endif
 
@@ -20616,19 +20664,28 @@ int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod, bool bForceGlo
 //	--------------------------------------------------------------------------------
 int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 {
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
 	int iModifier = 0;
 	if(IsPuppet())
 	{
-		iModifier += GET_PLAYER(getOwner()).GetPuppetUnhappinessMod();
+		iModifier += kPlayer.GetPuppetUnhappinessMod();
 	}
 	if(GetWeLoveTheKingDayCounter() > 0)
 	{
-		iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGAUnhappinesNeedMod();
+		iModifier += kPlayer.GetPlayerTraits()->GetGAUnhappinesNeedMod();
 	}
-	if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0)
+	if (kPlayer.GetNeedsModifierFromAirUnits() != 0)
 	{
-		iModifier += plot()->countNumAirUnits(getTeam(), true) * GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() * -1;
+		iModifier += plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1;
 	}
+
+	// Handicap mod
+	if (kPlayer.isHuman())
+		iModifier += kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
+	else
+		iModifier += kPlayer.getHandicapInfo().getAIUnhappinessPercent();
+
 	if (eYield == YIELD_FAITH)
 	{
 		//Buildings decrease this by a percentage.
@@ -20637,23 +20694,23 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 			iModifier += GetMinorityUnhappiness();
 		}
 		//Mod from global unhappiness building modifier.
-		if (GET_PLAYER(getOwner()).GetMinorityUnhappinessGlobal() != 0)
+		if (kPlayer.GetMinorityUnhappinessGlobal() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetMinorityUnhappinessGlobal();
+			iModifier += kPlayer.GetMinorityUnhappinessGlobal();
 		}
 		//Trait adds % boost to this value (higher trait = smaller minority population).
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() != 0)
+		if (kPlayer.GetPlayerTraits()->GetMinorityHappinessChange() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange();
+			iModifier += kPlayer.GetPlayerTraits()->GetMinorityHappinessChange();
 		}
 		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (GET_PLAYER(getOwner()).GetMinorityUnhappinessMod() != 0)
+		if (kPlayer.GetMinorityUnhappinessMod() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetMinorityUnhappinessMod();
+			iModifier += kPlayer.GetMinorityUnhappinessMod();
 		}
 		if (isCapital())
 		{
-			iModifier += GET_PLAYER(getOwner()).GetMinorityUnhappinessModCapital();
+			iModifier += kPlayer.GetMinorityUnhappinessModCapital();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -20668,21 +20725,21 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 	if(eYield == YIELD_CULTURE)
 	{
 		//Trait is % reduction to this value (bigger negative trait = lower threshold).
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
+		if(kPlayer.GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange();
+			iModifier += kPlayer.GetPlayerTraits()->GetUnculturedHappinessChange();
 		}
 		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod() != 0)
+		if(kPlayer.GetUnculturedUnhappinessMod() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod();
+			iModifier += kPlayer.GetUnculturedUnhappinessMod();
 		}
 		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital() != 0)
+		if(kPlayer.GetUnculturedUnhappinessModCapital() != 0)
 		{
 			if(isCapital())
 			{
-				iModifier += GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital();
+				iModifier += kPlayer.GetUnculturedUnhappinessModCapital();
 			}
 		}
 		//Buildings decrease this by a flat integer.
@@ -20690,9 +20747,9 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GetUnculturedUnhappiness();
 		}
-		if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessGlobal() != 0)
+		if(kPlayer.GetUnculturedUnhappinessGlobal() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetUnculturedUnhappinessGlobal();
+			iModifier += kPlayer.GetUnculturedUnhappinessGlobal();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -20707,21 +20764,21 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 	else if(eYield == YIELD_GOLD)
 	{
 		//Trait is % reduction of this value (higher trait = lower threshold).
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() != 0)
+		if(kPlayer.GetPlayerTraits()->GetPovertyHappinessChange() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange();
+			iModifier += kPlayer.GetPlayerTraits()->GetPovertyHappinessChange();
 		}
 		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() != 0)
+		if(kPlayer.GetPovertyUnhappinessMod() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessMod();
+			iModifier += kPlayer.GetPovertyUnhappinessMod();
 		}
 		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() != 0)
+		if(kPlayer.GetPovertyUnhappinessModCapital() != 0)
 		{
 			if(isCapital())
 			{
-				iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital();
+				iModifier += kPlayer.GetPovertyUnhappinessModCapital();
 			}
 		}
 		//Buildings decrease this by a flat integer.
@@ -20729,9 +20786,9 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GetPovertyUnhappiness();
 		}
-		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessGlobal() != 0)
+		if(kPlayer.GetPovertyUnhappinessGlobal() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessGlobal();
+			iModifier += kPlayer.GetPovertyUnhappinessGlobal();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -20746,21 +20803,21 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 	else if(eYield == YIELD_SCIENCE)
 	{
 		//Trait is % reduction to this value (higher trait = lower threshold).
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
+		if(kPlayer.GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange();
+			iModifier += kPlayer.GetPlayerTraits()->GetIlliteracyHappinessChange();
 		}
 		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod() != 0)
+		if(kPlayer.GetIlliteracyUnhappinessMod() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod();
+			iModifier += kPlayer.GetIlliteracyUnhappinessMod();
 		}
 		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital() != 0)
+		if(kPlayer.GetIlliteracyUnhappinessModCapital() != 0)
 		{
 			if(isCapital())
 			{
-				iModifier += GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital();
+				iModifier += kPlayer.GetIlliteracyUnhappinessModCapital();
 			}
 		}
 		//Buildings decrease this by a flat integer.
@@ -20768,9 +20825,9 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GetIlliteracyUnhappiness();
 		}
-		if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessGlobal() != 0)
+		if(kPlayer.GetIlliteracyUnhappinessGlobal() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetIlliteracyUnhappinessGlobal();
+			iModifier += kPlayer.GetIlliteracyUnhappinessGlobal();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -20785,21 +20842,21 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 	else if(eYield == YIELD_PRODUCTION)
 	{
 		//Trait is % reduction of this value (higher trait = lower threshold).
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() != 0)
+		if(kPlayer.GetPlayerTraits()->GetDefenseHappinessChange() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange();
+			iModifier += kPlayer.GetPlayerTraits()->GetDefenseHappinessChange();
 		}
 		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetDefenseUnhappinessMod() != 0)
+		if(kPlayer.GetDefenseUnhappinessMod() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessMod();
+			iModifier += kPlayer.GetDefenseUnhappinessMod();
 		}
 		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if(GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital() != 0)
+		if(kPlayer.GetDefenseUnhappinessModCapital() != 0)
 		{
 			if(isCapital())
 			{
-				iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital();
+				iModifier += kPlayer.GetDefenseUnhappinessModCapital();
 			}
 		}
 		//Buildings decrease this by a flat integer.
@@ -20807,9 +20864,9 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 		{
 			iModifier += GetDefenseUnhappiness();
 		}
-		if(GET_PLAYER(getOwner()).GetDefenseUnhappinessGlobal() != 0)
+		if(kPlayer.GetDefenseUnhappinessGlobal() != 0)
 		{
-			iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessGlobal();
+			iModifier += kPlayer.GetDefenseUnhappinessGlobal();
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -20826,22 +20883,16 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 
 int CvCity::getPopThresholdMod() const
 {
-	/*
 	int iPop = getPopulation();
-	int iPopMod = GC.getBALANCE_HAPPINESS_POP_MULTIPLIER() * iPop;
-	iPopMod /= GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE() + (iPop + (iPop / 2));
-	*/
-	return getPopulation();
+	iPop *= (100 + GC.getBALANCE_HAPPINESS_POP_MULTIPLIER());
+	iPop /= 100;
+	
+	return iPop;
 }
 
 int CvCity::getEmpireSizeMod() const
 {
-	/*
-	int iPop = getPopulation();
-	int iPopMod = GC.getBALANCE_HAPPINESS_POP_MULTIPLIER() * iPop;
-	iPopMod /= GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE() + (iPop + (iPop / 2));
-	*/
-	int iBase = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities()) * 2;
+	int iBase = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities()) * GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER();
 	iBase *= min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 	iBase /= 100;
 
@@ -21268,7 +21319,7 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 int CvCity::getUnhappinessFromConnection() const
 {
 	//according to the hierarchy of needs
-	int iLimit = getPopulation();
+	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
 	int iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
@@ -21325,7 +21376,7 @@ int CvCity::getUnhappinessFromPillagedRaw(int iLimit) const
 int CvCity::getUnhappinessFromPillaged() const
 {
 	//according to the hierarchy of needs
-	int iLimit = getPopulation();
+	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
 	int iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
@@ -21378,7 +21429,7 @@ int CvCity::getUnhappinessFromStarvingRaw(int iLimit) const
 int CvCity::getUnhappinessFromStarving() const
 {
 	//according to the hierarchy of needs
-	int iLimit = getPopulation();
+	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
 	int iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 
@@ -21467,6 +21518,15 @@ int CvCity::getUnhappinessFromReligion() const
 	return iContribution;
 }
 
+
+int CvCity::getJFDSpecialUnhappinessSources() const
+{
+	int iContribution = getUnhappinessFromStarvingRaw();
+	iContribution += getUnhappinessFromPillagedRaw();
+	iContribution += getUnhappinessFromConnectionRaw();
+
+	return iContribution;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -22233,24 +22293,28 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
-			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this, true);
+			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this);
 			if (iYieldPerGPT > 0)
 			{
-				int iNetGold = kPlayer.GetTreasury()->CalculateGrossGold();
+				int iNetGold = getYieldRate(YIELD_GOLD, false);
 				if (iNetGold > 0)
 				{
-					iYieldValue += (iNetGold / iYieldPerGPT);
+					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
+					iNetGold = min((iNumFollowers / 2), (iNetGold / iYieldPerGPT));
+					iYieldValue += iNetGold;
 				}
 			}
 
-			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this, true);
+			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this);
 			if (iYieldPerScience > 0)
 			{
-				if (kPlayer.GetScience() > 0)
+				int iNetScience = getYieldRate(YIELD_SCIENCE, false);
+				if (iNetScience > 0)
 				{
-					int iScienceValue = (kPlayer.GetScience() / iYieldPerScience);
+					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
+					iNetScience = min((iNumFollowers / 2), (iNetScience / iYieldPerScience));
 
-					iYieldValue += min(25, iScienceValue);
+					iYieldValue += iNetScience;
 				}
 			}
 
@@ -22434,18 +22498,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 
 	// Golden Age Yield Modifier
-	if(GET_PLAYER(getOwner()).isGoldenAge() && eIndex != YIELD_FOOD)
-	{ 
+	if (GET_PLAYER(getOwner()).isGoldenAge() && eIndex != YIELD_FOOD)
+	{
 		CvYieldInfo* pYield = GC.getYieldInfo(eIndex);
-		if(pYield)
+		if (pYield)
 		{
 			iTempMod = pYield->getGoldenAgeYieldMod();
 			iModifier += iTempMod;
-			if(toolTipSink)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GetGoldenAgeYieldMod(eIndex) != 0)
+		if (GetGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
@@ -22453,12 +22517,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
 		}
 
-		if(GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) != 0)
+		if (GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
-			if(toolTipSink)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES", iTempMod);
+		}
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(eIndex) != 0)
+		{
+			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(eIndex);
+			iModifier += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS", iTempMod);
 		}
 #endif
 	}
@@ -23328,6 +23399,32 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 	}
 }
 
+/// Extra yield from building
+int CvCity::GetYieldFromVictoryGlobal(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromVictoryGlobal[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromVictoryGlobal.setAt(eIndex, m_aiYieldFromVictoryGlobal[eIndex] + iChange);
+		CvAssert(GetYieldFromVictoryGlobal(eIndex) >= 0);
+	}
+}
+
+
+
 int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -23351,17 +23448,17 @@ void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 	}
 }
 
-int CvCity::GetYieldFromPillageWater(YieldTypes eIndex) const
+int CvCity::GetYieldFromPillageGlobal(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
 		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldFromPillageWater[eIndex];
+	return m_aiYieldFromPillageGlobal[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldFromPillageWater(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
 		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
@@ -23369,11 +23466,10 @@ void CvCity::ChangeYieldFromPillageWater(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldFromPillageWater.setAt(eIndex, m_aiYieldFromPillageWater[eIndex] + iChange);
-		CvAssert(GetYieldFromPillageWater(eIndex) >= 0);
+		m_aiYieldFromPillageGlobal.setAt(eIndex, m_aiYieldFromPillageGlobal[eIndex] + iChange);
+		CvAssert(GetYieldFromPillageGlobal(eIndex) >= 0);
 	}
 }
-
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -23593,6 +23689,31 @@ void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromPurchase.setAt(eIndex, m_aiYieldFromPurchase[eIndex] + iChange);
 		CvAssert(GetYieldFromPurchase(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromFaithPurchase(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromFaithPurchase[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromFaithPurchase(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromFaithPurchase.setAt(eIndex, m_aiYieldFromFaithPurchase[eIndex] + iChange);
+		CvAssert(GetYieldFromFaithPurchase(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24178,7 +24299,7 @@ bool CvCity::IsHasOffice() const
 	if(eBuilding == NO_BUILDING)
 		return false;
 
-	return (m_pCityBuildings->GetNumBuilding(eBuilding) > 0);
+	return (m_pCityBuildings->GetNumBuilding(eBuilding) > 0 || m_pCityBuildings->GetNumFreeBuilding(eBuilding) > 0);
 }
 
 bool CvCity::IsHasFranchise(CorporationTypes eCorporation) const
@@ -24193,7 +24314,7 @@ bool CvCity::IsHasFranchise(CorporationTypes eCorporation) const
 		return false;
 
 	// Evaluate offices as franchises if we count Offices as Franchises
-	bool bOfficesAsFranchises = GetPlayer()->GetCorporations()->IsCorporationOfficesAsFranchises();
+	bool bOfficesAsFranchises = GetPlayer()->GetCorporations()->GetCorporationOfficesAsFranchises() > 0;
 	BuildingClassTypes eFranchise = bOfficesAsFranchises ? pkCorporationInfo->GetOfficeBuildingClass() : pkCorporationInfo->GetFranchiseBuildingClass();
 	if (eFranchise == NO_BUILDINGCLASS)
 		return false;

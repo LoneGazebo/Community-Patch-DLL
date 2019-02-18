@@ -798,7 +798,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			//Extend based on population.
-			iBonus += 500 * m_pCity->getPopulation();
+			iBonus += 1000 * m_pCity->getPopulation();
 			bGoodforHappiness = true;
 		}
 	}
@@ -818,18 +818,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 
 	//Corporations!
+	if (pkBuildingInfo->IsCorp())
+	{
+		iBonus += 100 * (max(1, GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetNumOffices()) + max(1, GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetNumFranchises()));
+	}
 	if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 	{
 		if(GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetFoundedCorporation() == pkBuildingInfo->GetBuildingClassInfo().getCorporationType())
 		{
-			iBonus += 100;
+			iBonus += 250;
 		}
 	}
 	if (pkBuildingInfo->GetBuildingClassInfo().IsHeadquarters())
 	{
 		if(GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetFoundedCorporation() == NO_CORPORATION)
 		{
-			iBonus += 100;
+			iBonus += 1000;
 		}
 	}
 

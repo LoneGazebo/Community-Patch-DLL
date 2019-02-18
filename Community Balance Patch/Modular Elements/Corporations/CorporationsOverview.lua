@@ -692,7 +692,7 @@ function UpdateYourCorporation()
 	Controls.YourCorporationOffices:LocalizeAndSetToolTip( "TXT_KEY_NUM_OFFICES_TT" );
 
 	Controls.YourCorporationFranchises:LocalizeAndSetText( "TXT_KEY_CPO_NUM_FRANCHISES", g_pPlayer:GetNumberofGlobalFranchises(), g_pPlayer:GetMaxFranchises() );
-	Controls.YourCorporationFranchises:LocalizeAndSetToolTip( "TXT_KEY_CORP_NUM_FRANCHISE_TT" );
+	Controls.YourCorporationFranchises:LocalizeAndSetToolTip( g_pPlayer:GetNumFranchisesTooltip() );
 	
 	Controls.YourCorporationCurrentBenefit:SetText( g_pPlayer:GetCurrentOfficeBenefit() );
 
