@@ -1554,6 +1554,9 @@ public:
 	void SetGAPBlastStrength(int iValue);
 
 	int getGAPBlast();
+
+	bool IsPromotionEverObtained(PromotionTypes eIndex) const;
+	void SetPromotionEverObtained(PromotionTypes eIndex, bool bValue);
 #endif
 
 	// Arbitrary Script Data
@@ -2322,6 +2325,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
 	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
 	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;
+	FAutoVariable<std::vector<bool>, CvUnit> m_abPromotionEverObtained;
 #endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

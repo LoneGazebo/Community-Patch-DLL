@@ -484,6 +484,7 @@ CvUnit::CvUnit() :
 	, m_iScienceBlastStrength("CvUnit::m_iScienceBlastStrength", m_syncArchive)
 	, m_iCultureBlastStrength("CvUnit::m_iCultureBlastStrength", m_syncArchive)
 	, m_iGAPBlastStrength("CvUnit::m_iGAPBlastStrength", m_syncArchive)
+	, m_abPromotionEverObtained("CvUnit::m_abPromotionEverObtained", m_syncArchive)
 	, m_terrainDoubleHeal("CvUnit::m_terrainDoubleHeal", m_syncArchive)
 	, m_featureDoubleHeal("CvUnit::m_featureDoubleHeal", m_syncArchive)
 #endif
@@ -1756,6 +1757,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
 	m_iGAPBlastStrength = 0;
+	m_abPromotionEverObtained.resize(GC.getNumPromotionInfos());
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		m_abPromotionEverObtained.setAt(iI, false);
+	}
 #endif
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
@@ -2006,6 +2012,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
+			// Transfer memory of the promotions the old unit ever obtained
+			if (pUnit->IsPromotionEverObtained(ePromotion))
+			{
+				SetPromotionEverObtained(ePromotion, true);
+			}
 			if (pUnit->isConvertOnDamage() && pkPromotionInfo->IsConvertOnDamage())
 			{
 				continue;
@@ -2225,6 +2236,15 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			pLoopUnit->setTransportUnit(this);
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	// Transfer original owner
+	PlayerTypes eOriginalOwner = pUnit->GetOriginalOwner();
+	if (eOriginalOwner != NO_PLAYER)
+	{
+		SetOriginalOwner(eOriginalOwner);
+	}
+#endif
 
 	pUnit->kill(true, NO_PLAYER);
 }
@@ -25836,6 +25856,21 @@ int CvUnit::getGAPBlast()
 	}
 	return iValue;
 }
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetPromotionEverObtained(PromotionTypes eIndex, bool bValue)
+{
+	FAssert(eIndex >= 0);
+	FAssert(eIndex < GC.getNumPromotionInfos());
+
+	m_abPromotionEverObtained.setAt(eIndex, bValue);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsPromotionEverObtained(PromotionTypes eIndex) const
+{
+	return m_abPromotionEverObtained[eIndex];
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -27232,7 +27267,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #endif
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if (bNewValue)
+			if (bNewValue && !IsPromotionEverObtained(eIndex))
 			{
 				if (thisPromotion.GetInstantYields(iI).first > 0)
 				{
@@ -27304,6 +27339,13 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		if(getOwner() == eActivePlayer && ((eIndex == eBuffaloChest && isHasPromotion(eBuffaloLoins)) || (eIndex == eBuffaloLoins && isHasPromotion(eBuffaloChest))))
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_27);
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		// Set promotion IsEverObtained to true. This should be the last statement.
+		if (bNewValue && !IsPromotionEverObtained(eIndex))
+		{
+			SetPromotionEverObtained(eIndex, bNewValue);
 		}
 #endif
 	}
