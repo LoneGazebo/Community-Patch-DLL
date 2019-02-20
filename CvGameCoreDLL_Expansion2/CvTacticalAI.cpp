@@ -2612,8 +2612,13 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		// Don't do it if an enemy unit became visible in the meantime
 		if (pPlot->getVisibleEnemyDefender(m_pPlayer->GetID()) != NULL)
 			continue;
-		if (eTarget != AI_TACTICAL_TARGET_CITADEL && m_pPlayer->isEnemyCombatUnitAdjacent(pPlot,true))
-			continue;
+		if (eTarget != AI_TACTICAL_TARGET_CITADEL)
+		{
+			CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				if (aNeighbors[iI] && aNeighbors[iI]->isEnemyUnit(m_pPlayer->GetID(), true, true) && aNeighbors[iI]->getDomain()==pPlot->getDomain())
+					continue;
+		}
 
 		//land first
 		if (!pPlot->isWater())
@@ -9764,7 +9769,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 			}
 			else if (ePlayer != pPlotUnit->getOwner()) //neutral unit
 			{
-				if (pPlotUnit->isNativeDomain(pPlot))
+				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCity())
 				{
 					eType = TP_BLOCKED_NEUTRAL;
 					return; //done, we won't be putting units into this plot
@@ -9774,7 +9779,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 			{
 				if (allOurUnits.find(pPlotUnit) == allOurUnits.end()) //friendly combat unit and not included in sim
 				{
-					if (pPlotUnit->isNativeDomain(pPlot))
+					if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCity())
 					{
 						eType = TP_BLOCKED_FRIENDLY;
 						return; //done, we won't be putting units into this plot

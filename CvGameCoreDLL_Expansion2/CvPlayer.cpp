@@ -46927,19 +46927,6 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	}
 }
 
-//	--------------------------------------------------------------------------------
-bool CvPlayer::isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) const
-{
-	if (!pPlot)
-		return false;
-
-	if (m_pDangerPlots->IsDirty())
-		m_pDangerPlots->UpdateDanger();
-
-	return m_pDangerPlots->isEnemyCombatUnitAdjacent(*pPlot, bSameDomain);
-}
-
-
 int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())

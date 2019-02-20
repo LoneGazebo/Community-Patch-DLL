@@ -185,7 +185,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	int iGridSize = GC.getMap().numPlots();
 	//	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
 	for(int i = 0; i < iGridSize; i++)
-		m_DangerPlots[i].clear();
+		m_DangerPlots[i].reset();
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
@@ -298,6 +298,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
 				if(iDamage>0 && !ShouldIgnoreCitadel(pPlot, false))
 				{
+					m_DangerPlots[iPlotLoop].m_iImprovementDamage += iDamage;
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
@@ -345,14 +346,6 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 		return 0;
 
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
-}
-
-bool CvDangerPlots::isEnemyCombatUnitAdjacent(const CvPlot & Plot, bool bSameDomain) const
-{
-	if(m_DangerPlots.empty())
-		return false;
-
-	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyCombatUnitAdjacent(m_ePlayer,bSameDomain);
 }
 
 /// Return the maximum amount of damage a city could take at this plot
@@ -1064,18 +1057,4 @@ std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
 	}
 
 	return vResult;
-}
-
-bool CvDangerPlotContents::isEnemyCombatUnitAdjacent(PlayerTypes ePlayer, bool bSameDomain) const
-{ 
-	if (!m_bEnemyAdjacent || !m_pPlot)
-		return false;
-
-	//need to recheck, enemy could have been killed in the meantime
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_pPlot);
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		if (aNeighbors[iI] && aNeighbors[iI]->isEnemyUnit(ePlayer, true, true) && (aNeighbors[iI]->getDomain()==m_pPlot->getDomain() || !bSameDomain))
-			return true;
-
-	return false;
 }
