@@ -42,12 +42,12 @@ struct CvDangerPlotContents
 {
 	CvDangerPlotContents()
 	{
-		clear();
+		m_pPlot = NULL;
+		reset();
 	}
 
-	void clear()
+	void reset()
 	{
-		m_pPlot = NULL;
 		m_bFlatPlotDamage = false;
 		m_bEnemyAdjacent = false;
 		m_bEnemyCanCapture = false;
@@ -68,7 +68,6 @@ struct CvDangerPlotContents
 	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
-	bool isEnemyCombatUnitAdjacent(PlayerTypes ePlayer, bool bSameDomain) const;
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
@@ -158,7 +157,6 @@ public:
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer); //deprecated
-	bool isEnemyCombatUnitAdjacent(const CvPlot& pPlot, bool bSameDomain) const;
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	void ResetDangerCache(const CvPlot* pCenterPlot, int iRange);
