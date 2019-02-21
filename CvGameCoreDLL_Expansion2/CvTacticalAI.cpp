@@ -9723,6 +9723,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bEdgeOfTheKnownWorld = false;
 	bAdjacentToEnemyCitadel = false;
 	bHasAirCover = false;
+	bIsOtherEmbarkedUnit = false;
 	iDamageDealt = 0;
 	eType = TP_FARAWAY;
 	pPlot = NULL;
@@ -9758,8 +9759,8 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 			if (pPlotUnit->isDelayedDeath())
 				continue;
 
-			//civilians are handled further down
-			if (!pPlotUnit->IsCombatUnit())
+			//unembarked civilians are handled further down
+			if (!pPlotUnit->IsCanDefend())
 				continue;
 
 			if (GET_PLAYER(ePlayer).IsAtWarWith(pPlotUnit->getOwner()))
@@ -9774,6 +9775,8 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 					eType = TP_BLOCKED_NEUTRAL;
 					return; //done, we won't be putting units into this plot
 				}
+				else
+					bIsOtherEmbarkedUnit = true; //can't put another embarked unit here
 			}
 			else //owned unit
 			{
@@ -9784,6 +9787,8 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 						eType = TP_BLOCKED_FRIENDLY;
 						return; //done, we won't be putting units into this plot
 					}
+					else
+						bIsOtherEmbarkedUnit = true; //can't put another embarked unit here
 				}
 				else
 					bBlockedByFriendlyCombatUnit = true; //friendly combat unit and included in sim
@@ -10574,6 +10579,13 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				if (!pUnit->isNativeDomain(pPlot) && !pPlot->isEnemyCity(*pUnit))
 					continue;
 			}
+			else
+			{
+				//we don't want to fight so embarkation is ok if we don't need to stack with other (non-simulated) embarked units
+				CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+				if (!pUnit->isNativeDomain(pPlot) && tactPlot.isOtherEmbarkedUnit())
+					continue;
+			}
 		}
 
 		//note that if the unit is far away, it won't have any good plots and will be considered blocked
@@ -10706,6 +10718,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	case STacticalAssignment::A_MOVE:
 	case STacticalAssignment::A_MOVE_FORCED:
 	case STacticalAssignment::A_CAPTURE:
+#ifdef VPDEBUG
 		{
 			//plausi checks
 			if (newAssignment.bIsCombatUnit)
@@ -10719,9 +10732,15 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 					OutputDebugString("inconsistent destination\n");
 			}
 
+			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(newAssignment.iUnitID);
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex);
+			if (!pUnit || !pPlot || !pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
+				OutputDebugString("illegal move!\n");
+
 			if (newAssignment.iRemainingMoves > itUnit->iMovesLeft)
 				OutputDebugString("inconsistent moves!\n");
 		}
+#endif
 
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;

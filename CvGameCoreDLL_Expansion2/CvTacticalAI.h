@@ -1027,6 +1027,8 @@ public:
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
 	bool hasAirCover() const { return bHasAirCover; }
+	bool isOtherEmbarkedUnit() const { return bIsOtherEmbarkedUnit; }
+
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
@@ -1060,6 +1062,7 @@ protected:
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
 	bool bAdjacentToEnemyCitadel:1;
 	bool bHasAirCover:1;
+	bool bIsOtherEmbarkedUnit; //can we put an embarked unit there?
 
 	eTactPlotType eType;
 	unsigned char iDamageDealt;
