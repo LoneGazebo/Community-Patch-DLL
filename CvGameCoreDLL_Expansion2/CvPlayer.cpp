@@ -568,7 +568,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_aistrInstantYield("CvPlayer::m_aistrInstantYield", m_syncArchive)
-	, m_aistrInstantGreatPersonProgress("CvPlayer::m_aistrInstantGreatPersonProgress", m_syncArchive)
+	, m_aistrInstantGreatPersonProgress()
 	, m_iJFDCurrency("CvPlayer::m_iJFDCurrency", m_syncArchive)
 	, m_iJFDProsperity("CvPlayer::m_iJFDProsperity", m_syncArchive)
 	, m_strJFDCurrencyName("CvPlayer::m_strJFDCurrencyName", m_syncArchive)
@@ -1995,7 +1995,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aistrInstantYield.resize(NUM_INSTANT_YIELD_TYPES);
 
 	m_aistrInstantGreatPersonProgress.clear();
-	m_aistrInstantGreatPersonProgress.resize(NUM_INSTANT_YIELD_TYPES);
 
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
@@ -11292,13 +11291,17 @@ void CvPlayer::doTurn()
 				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantYield.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
 			}
 			setInstantYieldText(eInstantYield, "");
+		}
+		else if (eInstantYield != NO_INSTANT_YIELD_TYPE && getInstantGreatPersonProgressText(eInstantYield) != "" && getInstantGreatPersonProgressText(eInstantYield) != NULL)
+		{
 			// Instant great person progress
 			Localization::String strInstantGreatPersonProgress = Localization::Lookup(getInstantGreatPersonProgressText(eInstantYield));
-			/*if (pNotifications) // Can't get this to work correctly for some reason
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE");
 				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantGreatPersonProgress.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
-			}*/
+			}
 			setInstantGreatPersonProgressText(eInstantYield, "");
 		}
 	}
@@ -28450,7 +28453,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		{
 			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 			{
-				/*if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL) // Can't get this to work correctly for some reason
+				if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalgpString;
@@ -28464,10 +28467,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					//We do this at the player level once per turn.
 					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
 				}
-				return;*/
-				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
-				localizedText << totalgpString;
-				break;
+				return;
 			}
 			case INSTANT_YIELD_TYPE_CONSTRUCTION:
 				if (eBuilding != NO_BUILDING)
@@ -28475,7 +28475,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkBuildingInfo)
 					{
-						if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+						if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
 						{
 							localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
 							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
@@ -28554,21 +28554,48 @@ void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, CvStrin
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
-	m_aistrInstantGreatPersonProgress.setAt(iType, m_aistrInstantGreatPersonProgress[iType] + strInstantYield);
+	//m_aistrInstantGreatPersonProgress.setAt(iType, m_aistrInstantGreatPersonProgress[iType] + strInstantYield);
+	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
+	if (it != m_aistrInstantGreatPersonProgress.end())
+	{
+		it->second += strInstantYield;
+	}
+	else
+	{
+		m_aistrInstantGreatPersonProgress.insert(std::make_pair((int)iType, strInstantYield));
+	}
 }
 void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
-	m_aistrInstantGreatPersonProgress.setAt(iType, strInstantYield);
+	//m_aistrInstantGreatPersonProgress.setAt(iType, strInstantYield);
+	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
+	if (it != m_aistrInstantGreatPersonProgress.end())
+	{
+		it->second = strInstantYield;
+	}
+	else
+	{
+		m_aistrInstantGreatPersonProgress.insert(std::make_pair((int)iType, strInstantYield));
+	}
 }
 CvString CvPlayer::getInstantGreatPersonProgressText(InstantYieldType iType) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
-	return m_aistrInstantGreatPersonProgress[iType];
+	//return m_aistrInstantGreatPersonProgress[iType];
+	std::map<int, CvString>::const_iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
+	if (it != m_aistrInstantGreatPersonProgress.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		return "";
+	}
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -45826,6 +45853,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_ppiApproachScratchValue;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_aistrInstantGreatPersonProgress;
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
@@ -45991,6 +46019,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piNumBuildings;
 	kStream << m_piNumBuildingsInPuppets;
 	kStream << m_ppiApproachScratchValue;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_aistrInstantGreatPersonProgress;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;
