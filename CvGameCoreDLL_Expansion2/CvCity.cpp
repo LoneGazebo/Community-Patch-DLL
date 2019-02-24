@@ -14225,7 +14225,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			for (std::multimap<int, std::pair<int, int>>::const_iterator it = piiGreatPersonProgressFromConstruction.begin(); it != piiGreatPersonProgressFromConstruction.end(); ++it)
 			{
-				ChangeGreatPersonProgressFromConstruction((GreatPersonTypes)it->first, (EraTypes)it->second.first, it->second.second);
+				if (it->first >= 0 && it->first < GC.getNumGreatPersonInfos() && it->second.first >= 0 && it->second.first < GC.getNumEraInfos())
+				{
+					ChangeGreatPersonProgressFromConstruction((GreatPersonTypes)it->first, (EraTypes)it->second.first, it->second.second);
+				}
 			}
 		}
 #endif

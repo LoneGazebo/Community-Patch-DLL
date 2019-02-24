@@ -28554,7 +28554,6 @@ void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, CvStrin
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
-	//m_aistrInstantGreatPersonProgress.setAt(iType, m_aistrInstantGreatPersonProgress[iType] + strInstantYield);
 	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
 	if (it != m_aistrInstantGreatPersonProgress.end())
 	{
@@ -28570,7 +28569,7 @@ void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, CvStrin
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
-	//m_aistrInstantGreatPersonProgress.setAt(iType, strInstantYield);
+
 	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
 	if (it != m_aistrInstantGreatPersonProgress.end())
 	{
@@ -28586,7 +28585,7 @@ CvString CvPlayer::getInstantGreatPersonProgressText(InstantYieldType iType) con
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
-	//return m_aistrInstantGreatPersonProgress[iType];
+
 	std::map<int, CvString>::const_iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
 	if (it != m_aistrInstantGreatPersonProgress.end())
 	{
