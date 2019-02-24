@@ -24007,15 +24007,6 @@ int CvCity::GetGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson
 		{
 			return it->second;
 		}
-		/*std::map<int, std::map<int, int>>::const_iterator it = m_ppiGreatPersonProgressFromConstruction.find((int)eGreatPerson);
-		if (it != m_ppiGreatPersonProgressFromConstruction.end()) // find returns the iterator to map::end if the key eGreatPerson is not present in the map
-		{
-			std::map<int, int>::const_iterator itr = it->second.find((int)eEra);
-			if (itr != it->second.end())
-			{
-				return itr->second;
-			}
-		}*/
 	}
 
 	return 0;
@@ -24044,23 +24035,6 @@ void CvCity::ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPe
 		{
 			it->second += iChange;
 		}
-		/*std::map<int, std::map<int, int>>::iterator it = m_ppiGreatPersonProgressFromConstruction.find((int)eGreatPerson);
-		if (it == m_ppiGreatPersonProgressFromConstruction.end()) // if the key (eGreatPerson) does not exist
-		{
-			m_ppiGreatPersonProgressFromConstruction.insert(std::make_pair((int)eGreatPerson, std::map<int, int>((int)eEra, iChange)));
-		}
-		else // if the key (eGreatPerson) does exist
-		{
-			std::map<int, int>::iterator itr = it->second.find((int)eEra);
-			if (itr == it->second.end()) // if the key (eEra) does not exist
-			{
-				it->second.insert(std::pair<int, int>((int)eEra, iChange));
-			}
-			else
-			{
-				itr->second += iChange;
-			}
-		}*/
 	}
 }
 #endif
