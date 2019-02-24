@@ -447,6 +447,9 @@ CvCity::CvCity() :
 	, m_ppaiEventFeatureYield(0)
 	, m_ppaiEventSpecialistYield(0)
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	, m_ppiGreatPersonProgressFromConstruction()
+#endif
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
@@ -1432,6 +1435,9 @@ void CvCity::uninit()
 
 	m_ppaaiSpecialistExtraYield.clear();
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	m_ppiGreatPersonProgressFromConstruction.clear();
+#endif
 
 	m_pCityBuildings->Uninit();
 	m_pCityStrategyAI->Uninit();
@@ -2333,6 +2339,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 		
 	}
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	m_ppiGreatPersonProgressFromConstruction.clear();
+#endif
 
 	m_GwYieldCache = vector<int>(NUM_YIELD_TYPES, -1);
 
@@ -14209,6 +14219,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+		std::multimap<int, std::pair<int, int>> piiGreatPersonProgressFromConstruction = pBuildingInfo->GetGreatPersonProgressFromConstructionArray();
+		if (piiGreatPersonProgressFromConstruction.empty() == false)
+		{
+			for (std::multimap<int, std::pair<int, int>>::const_iterator it = piiGreatPersonProgressFromConstruction.begin(); it != piiGreatPersonProgressFromConstruction.end(); ++it)
+			{
+				ChangeGreatPersonProgressFromConstruction((GreatPersonTypes)it->first, (EraTypes)it->second.first, it->second.second);
+			}
+		}
+#endif
+
 		// Resource loop
 		int iCulture, iFaith;
 		ResourceTypes eResource;
@@ -14824,6 +14845,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 			if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)) || ::isNationalWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+			GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_CONSTRUCTION, false, this, eBuilding);
+#endif
 		}
 	}
 	UpdateComboHappiness();
@@ -23962,6 +23987,83 @@ void CvCity::ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange)
 	}
 }
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+//	--------------------------------------------------------------------------------
+/// Extra great person progress from constructing buildings
+int CvCity::GetGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const
+{
+	VALIDATE_OBJECT
+
+	CvAssertMsg(eGreatPerson >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex expected to be < GC.getNumGreatPersonInfos()");
+
+	CvAssertMsg(eEra >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eEra < GC.getNumEraInfos(), "eIndex expected to be < GC.getNumEraInfos()");
+
+	if (eGreatPerson != NO_GREATPERSON && eEra != NO_ERA)
+	{
+		std::map<std::pair<int, int>, short>::const_iterator it = m_ppiGreatPersonProgressFromConstruction.find(std::make_pair((int)eGreatPerson, (int)eEra));
+		if (it != m_ppiGreatPersonProgressFromConstruction.end()) // find returns the iterator to map::end if the key eGreatPerson is not present in the map
+		{
+			return it->second;
+		}
+		/*std::map<int, std::map<int, int>>::const_iterator it = m_ppiGreatPersonProgressFromConstruction.find((int)eGreatPerson);
+		if (it != m_ppiGreatPersonProgressFromConstruction.end()) // find returns the iterator to map::end if the key eGreatPerson is not present in the map
+		{
+			std::map<int, int>::const_iterator itr = it->second.find((int)eEra);
+			if (itr != it->second.end())
+			{
+				return itr->second;
+			}
+		}*/
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra great person progress from constructing buildings
+void CvCity::ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra, int iChange)
+{
+	VALIDATE_OBJECT
+
+	CvAssertMsg(eGreatPerson >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex expected to be < GC.getNumGreatPersonInfos()");
+
+	CvAssertMsg(eEra >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eEra < GC.getNumEraInfos(), "eIndex expected to be < GC.getNumEraInfos()");
+
+	if (eGreatPerson != NO_GREATPERSON && eEra != NO_ERA && iChange != 0)
+	{
+		std::map<std::pair<int, int>, short>::iterator it = m_ppiGreatPersonProgressFromConstruction.find(std::make_pair((int)eGreatPerson, (int)eEra));
+		if (it == m_ppiGreatPersonProgressFromConstruction.end()) // if the key (eGreatPerson, eEra) does not exist
+		{
+			m_ppiGreatPersonProgressFromConstruction.insert(std::pair<std::pair<int, int>, short>(std::make_pair((int)eGreatPerson, (int)eEra), iChange));
+		}
+		else // if the key (eGreatPerson, eEra) does exist
+		{
+			it->second += iChange;
+		}
+		/*std::map<int, std::map<int, int>>::iterator it = m_ppiGreatPersonProgressFromConstruction.find((int)eGreatPerson);
+		if (it == m_ppiGreatPersonProgressFromConstruction.end()) // if the key (eGreatPerson) does not exist
+		{
+			m_ppiGreatPersonProgressFromConstruction.insert(std::make_pair((int)eGreatPerson, std::map<int, int>((int)eEra, iChange)));
+		}
+		else // if the key (eGreatPerson) does exist
+		{
+			std::map<int, int>::iterator itr = it->second.find((int)eEra);
+			if (itr == it->second.end()) // if the key (eEra) does not exist
+			{
+				it->second.insert(std::pair<int, int>((int)eEra, iChange));
+			}
+			else
+			{
+				itr->second += iChange;
+			}
+		}*/
+	}
+}
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -30608,6 +30710,10 @@ void CvCity::read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventSpecialistYield, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
 #endif
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	kStream >> m_ppiGreatPersonProgressFromConstruction;
+#endif
+
 	CvCityManager::OnCityCreated(this);
 }
 
@@ -30712,6 +30818,10 @@ VALIDATE_OBJECT
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventSpecialistYield, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
+#endif
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	kStream << m_ppiGreatPersonProgressFromConstruction;
 #endif
 }
 

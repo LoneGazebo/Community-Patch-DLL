@@ -577,6 +577,10 @@ public:
 #endif
 	int GetBuildingClassHappiness(int i) const;
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	std::multimap<int, std::pair<int, int>> GetGreatPersonProgressFromConstructionArray() const;
+#endif
+
 	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
 	int GetNumThemingBonuses() const {return m_iNumThemingBonuses;};
 
@@ -985,6 +989,9 @@ private:
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int* m_piInstantYield;
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;
 #endif
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;

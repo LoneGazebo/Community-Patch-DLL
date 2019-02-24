@@ -1152,6 +1152,11 @@ public:
 	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	int GetGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const;
+	void ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra, int iChange);
+#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappiness() const;
 	void ChangePovertyUnhappiness(int iChange);
@@ -2031,6 +2036,9 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiReligionBuildingYieldRateModifier;
 	int** m_ppaiLocalBuildingClassYield;
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction; // short because theres an overload for the >> operator in CvUnit.h if map->second is an int, which will cause a compile failure
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;

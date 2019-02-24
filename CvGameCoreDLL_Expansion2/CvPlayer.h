@@ -1240,7 +1240,7 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
-	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING);
 	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;

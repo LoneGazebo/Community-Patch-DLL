@@ -28320,7 +28320,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity)
+void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity, BuildingTypes eBuilding)
 {
 	CvCity* pLoopCity;
 	CvCity* pCapital = getCapitalCity();
@@ -28365,6 +28365,27 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					if (pLoopCity->isCapital() == true)
 					{
 						iValue += GetPlayerTraits()->GetGreatPersonProgressFromPolicyUnlock(eGreatPerson);
+					}
+					break;
+				}
+				case INSTANT_YIELD_TYPE_CONSTRUCTION:
+				{
+					if (eBuilding != NO_BUILDING)
+					{
+						TechTypes eTech = (TechTypes)GC.getBuildingInfo(eBuilding)->GetPrereqAndTech();
+						int iEra;
+						if (eTech == NO_TECH)
+						{
+							iEra = 0;
+						}
+						else
+						{
+							iEra = GC.getTechInfo(eTech)->GetEra();
+						}
+						for (int iLoopEra = 0; iLoopEra <= iEra; ++iLoopEra)
+						{
+							iValue += pLoopCity->GetGreatPersonProgressFromConstruction(eGreatPerson, (EraTypes)iLoopEra);
+						}
 					}
 					break;
 				}
@@ -28448,6 +28469,29 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				localizedText << totalgpString;
 				break;
 			}
+			case INSTANT_YIELD_TYPE_CONSTRUCTION:
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+						{
+							localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
+							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
+							//We do this at the player level once per turn.
+							addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+						}
+						else
+						{
+							localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
+							//We do this at the player level once per turn.
+							addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+						}
+					}
+				}
+				return;
 		}
 		if (pCity == NULL)
 		{
