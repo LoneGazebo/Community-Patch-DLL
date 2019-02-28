@@ -7591,8 +7591,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	{
 		TRSortElement kElement;
 		kElement.m_kTradeConnection = aTradeConnectionList[ui];
-		std::vector<int>ValuesVector;
-		ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
+		std::vector<int> ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
 		if (ValuesVector.size() > 0)
 		{
 			kElement.m_iScore = ValuesVector[0];

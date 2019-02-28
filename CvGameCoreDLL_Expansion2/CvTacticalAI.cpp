@@ -10732,11 +10732,6 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 					OutputDebugString("inconsistent destination\n");
 			}
 
-			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(newAssignment.iUnitID);
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex);
-			if (!pUnit || !pPlot || !pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
-				OutputDebugString("illegal move!\n");
-
 			if (newAssignment.iRemainingMoves > itUnit->iMovesLeft)
 				OutputDebugString("inconsistent moves!\n");
 		}

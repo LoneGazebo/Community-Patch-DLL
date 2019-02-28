@@ -22370,7 +22370,7 @@ void CvPlayer::DoGlobalAvgLogging()
 		CvString strLogName = "GlobalMedian_Log.csv";
 		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-		strOutput.Format("Turn: %03d", GC.getGame().getElapsedGameTurns());
+		strOutput.Format("Global, Turn: %03d", GC.getGame().getElapsedGameTurns());
 		strTemp.Format("Food/Production: %d", GetDefenseAverage());
 		strOutput += ", " + strTemp;
 
