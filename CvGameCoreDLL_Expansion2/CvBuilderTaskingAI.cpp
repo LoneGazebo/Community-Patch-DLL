@@ -811,7 +811,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 		return nd;
 	}
 
-	// go through all the plots the player has under their control
+	// go through all the plots this unit can reach
 	map<CvUnit*, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit);
 	if (thisUnitPlots == allWorkersReachablePlots.end())
 		return BuilderDirective();

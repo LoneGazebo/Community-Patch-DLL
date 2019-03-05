@@ -240,9 +240,8 @@ public:
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoin() const;
 
-	bool IsFeatureSurrounded() const;
-	void SetFeatureSurrounded(bool bValue);
-	void DoUpdateFeatureSurrounded();
+	int GetTerrainImprovementNeed() const;
+	void UpdateTerrainImprovementNeed();
 
 	int GetResourceExtraYield(ResourceTypes eResource, YieldTypes eYield) const;
 	void ChangeResourceExtraYield(ResourceTypes eResource, YieldTypes eYield, int iChange);
@@ -1823,7 +1822,7 @@ protected:
 	FAutoVariable<bool, CvCity> m_bPuppet;
 	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
 	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital;
-	FAutoVariable<bool, CvCity> m_bFeatureSurrounded;
+	FAutoVariable<int, CvCity> m_iTerrainImprovementNeed;
 
 	FAutoVariable<PlayerTypes, CvCity> m_ePreviousOwner;
 	FAutoVariable<PlayerTypes, CvCity> m_eOriginalOwner;

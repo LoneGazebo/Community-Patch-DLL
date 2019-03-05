@@ -215,7 +215,7 @@ CvCity::CvCity() :
 	, m_bPuppet("CvCity::m_bPuppet", m_syncArchive)
 	, m_bIgnoreCityForHappiness("CvCity::m_bIgnoreCityForHappiness", m_syncArchive)
 	, m_bIndustrialRouteToCapital("CvCity::m_bIndustrialRouteToCapital", m_syncArchive)
-	, m_bFeatureSurrounded("CvCity::m_bFeatureSurrounded", m_syncArchive)
+	, m_iTerrainImprovementNeed("CvCity::m_iTerrainImprovementNeed", m_syncArchive)
 	, m_ePreviousOwner("CvCity::m_ePreviousOwner", m_syncArchive)
 	, m_eOriginalOwner("CvCity::m_eOriginalOwner", m_syncArchive)
 	, m_ePlayersReligion("CvCity::m_ePlayersReligion", m_syncArchive)
@@ -1569,7 +1569,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bPuppet = false;
 	m_bIgnoreCityForHappiness = false;
 	m_bIndustrialRouteToCapital = false;
-	m_bFeatureSurrounded = false;
+	m_iTerrainImprovementNeed = 0;
 	m_bOwedCultureBuilding = false;
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	m_bOwedFoodBuilding = false;
@@ -2665,10 +2665,9 @@ void CvCity::PreKill()
 	clearCombat();
 
 	// Could also be non-garrisoned units here that we need to show
-	CvUnit* pLoopUnit;
 	for(int iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 	{
-		pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
+		CvUnit* pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
 
 		if (pLoopUnit->IsGarrisoned())
 			pLoopUnit->SetGarrisonedCity(-1);
@@ -2985,7 +2984,7 @@ void CvCity::doTurn()
 	setMadeAttack(false);
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
 
-	DoUpdateFeatureSurrounded();
+	UpdateTerrainImprovementNeed();
 
 	GetCityStrategyAI()->DoTurn();
 #if !defined(MOD_BALANCE_CORE)
@@ -8704,61 +8703,47 @@ bool CvCity::canJoin() const
 }
 
 //	--------------------------------------------------------------------------------
-// Are there a lot of clearable features around this city?
-bool CvCity::IsFeatureSurrounded() const
+int CvCity::GetTerrainImprovementNeed() const
 {
-	return m_bFeatureSurrounded;
+	return m_iTerrainImprovementNeed;
 }
 
 //	--------------------------------------------------------------------------------
-// Are there a lot of clearable features around this city?
-void CvCity::SetFeatureSurrounded(bool bValue)
+void CvCity::UpdateTerrainImprovementNeed()
 {
-	if(IsFeatureSurrounded() != bValue)
-		m_bFeatureSurrounded = bValue;
-}
+	int iImprovablePlots = 0;
+	int iWorkerCount = 0;
 
-//	--------------------------------------------------------------------------------
-// Are there a lot of clearable features around this city?
-void CvCity::DoUpdateFeatureSurrounded()
-{
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoUpdateFeatureSurrounded, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
-	int iTotalPlots = 0;
-	int iFeaturedPlots = 0;
-
-	// Look two tiles around this city in every direction to see if at least half the plots are covered in a removable feature
-	const int iRange = 2;
-
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
+	for (int iI = 0; iI < RING3_PLOTS; iI++)
 	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
+		//test if reachable?
+		const CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+		if (pLoopPlot && 
+			pLoopPlot->getDomain() == DOMAIN_LAND && 
+			pLoopPlot->getOwner() == getOwner() &&
+			!pLoopPlot->IsTeamImpassable(getTeam()))
 		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+			if (!pLoopPlot->isCity())
+			{
+				//assume that there is an improvement for every type of unimproved plot. no need to check them individually
+				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT || pLoopPlot->IsImprovementPillaged())
+					iImprovablePlots++;
+				//alternatively if there is a route, see if we have better ones
+				else if (pLoopPlot->getRouteType() != NO_ROUTE && (GET_TEAM(getTeam()).GetBestPossibleRoute() != pLoopPlot->getRouteType() || pLoopPlot->IsRoutePillaged()))
+					iImprovablePlots++;
+			}
 
-			// Increase total plot count
-			iTotalPlots++;
-
-			if(pLoopPlot == NULL)
-				continue;
-
-			if(pLoopPlot->getFeatureType() == NO_FEATURE)
-				continue;
-
-			// Must be able to remove this thing?
-			if(!GC.getFeatureInfo(pLoopPlot->getFeatureType())->IsClearable())
-				continue;
-
-			iFeaturedPlots++;
+			for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
+			{
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
+				if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
+					iWorkerCount++;
+			}
 		}
 	}
 
-	bool bFeatureSurrounded = false;
-
-	// At least half have coverage?
-	if(iFeaturedPlots >= iTotalPlots / 2)
-		bFeatureSurrounded = true;
-
-	SetFeatureSurrounded(bFeatureSurrounded);
+	//score > 0 means real need
+	m_iTerrainImprovementNeed = (iImprovablePlots*100)/(iWorkerCount+1)-100;
 }
 
 //	--------------------------------------------------------------------------------

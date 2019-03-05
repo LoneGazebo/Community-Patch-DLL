@@ -3669,7 +3669,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 	}
 }
 
-/// Moves units to explore the map
+/// Moves units to improve plots
 void CvHomelandAI::ExecuteWorkerMoves()
 {
 	// where can our workers go
@@ -3692,7 +3692,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 
 		//how far around each worker should we be checking?
-		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 7;
+		int iTurnLimit = pUnit->IsGreatPerson() ? 12 : 5;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 		if (MOD_AI_SECONDARY_WORKERS && pUnit->IsCombatUnit())
@@ -3739,6 +3739,23 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					MoveCivilianToSafety(pUnit);
 				else
 					MoveCivilianToGarrison(pUnit);
+			}
+			else
+			{
+				int iMaxNeed = 0;
+				CvCity* pBestCity = NULL;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+				{
+					if (pLoopCity->GetTerrainImprovementNeed() > iMaxNeed)
+					{
+						iMaxNeed = pLoopCity->GetTerrainImprovementNeed();
+						pBestCity = pLoopCity;
+					}
+				}
+
+				if (pBestCity)
+					ExecuteMoveToTarget(pUnit, pBestCity->plot(),0);
 			}
 
 			//simply ignore this unit for further building tasks 

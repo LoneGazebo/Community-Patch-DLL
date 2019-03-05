@@ -609,7 +609,7 @@ CvPlayer::CvPlayer() :
 	, m_iFaithPurchaseCooldown("CvPlayer::m_iFaithPurchaseCooldown", m_syncArchive)
 	, m_iCSAllies("CvPlayer::m_iCSAllies", m_syncArchive)
 	, m_iCSFriends("CvPlayer::m_iCSFriends", m_syncArchive)
-	, m_iCitiesFeatureSurrounded("CvPlayer::m_iCitiesFeatureSurrounded", m_syncArchive)
+	, m_iCitiesNeedingTerrainImprovements("CvPlayer::m_iCitiesNeedingTerrainImprovements", m_syncArchive)
 	, m_aiBestMilitaryCombatClassCity("CvPlayer::m_aiBestMilitaryCombatClassCity", m_syncArchive)
 	, m_aiBestMilitaryDomainCity("CvPlayer::m_aiBestMilitaryDomainCity", m_syncArchive)
 	, m_aiEventChoiceDuration("CvPlayer::m_aiEventChoiceDuration", m_syncArchive)
@@ -1621,7 +1621,7 @@ void CvPlayer::uninit()
 	m_iFaithPurchaseCooldown = 0;
 	m_iCSAllies = 0;
 	m_iCSFriends = 0;
-	m_iCitiesFeatureSurrounded = 0;
+	m_iCitiesNeedingTerrainImprovements = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -11157,7 +11157,7 @@ void CvPlayer::doTurn()
 		GetCorporations()->DoTurn();
 	
 		//Reset for reevaluation of citystrategy AI
-		countCitiesFeatureSurrounded(true);
+		countCitiesNeedingTerrainImprovements(true);
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -12330,152 +12330,99 @@ void CvPlayer::ChangeScoreFromScenario4(int iChange)
 //////////////////////////////////////////////////////////////////////////
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 int CvPlayer::countCityFeatures(FeatureTypes eFeature, bool bReset) const
-#else
-int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
-#endif
 {
-	int iCount = 0;
-#if defined(MOD_BALANCE_CORE)
-	if(bReset)
+	if (bReset)
 	{
-#endif
-	const CvCity* pLoopCity;
-	const CvPlot* pLoopPlot;
-	int iLoop;
-	int iI;
+		int iCount = 0;
+		int iLoop = 0;
 
-	iCount = 0;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-
-		for(iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
-
-			if(pLoopPlot != NULL)
+			for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
 			{
-				if(pLoopPlot->getFeatureType() == eFeature)
-				{
+				const CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
+
+				if (pLoopPlot && pLoopPlot->getFeatureType() == eFeature)
 					iCount++;
-				}
 			}
 		}
-	}
-#if defined(MOD_BALANCE_CORE)
-		GET_PLAYER(GetID()).setCityFeatures(eFeature, iCount);
-		return 0;
-	}
-	else
-	{
-		return getCityFeatures(eFeature);
-	}
-#endif
-}
 
+		//const call hack
+		GET_PLAYER(GetID()).setCityFeatures(eFeature, iCount);
+	}
+
+	return getCityFeatures(eFeature);
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::countNumBuildingsInPuppets(BuildingTypes eBuilding, bool bReset) const
 {
-	int iCount = 0;
 	if (bReset)
 	{
-		const CvCity* pLoopCity;
+		int iCount = 0;
+		int iLoop = 0;
 
-		int iLoop;
-
-		iCount = 0;
-
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (!pLoopCity->IsPuppet())
 				continue;
 
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+
+		//const call hack
+		GET_PLAYER(GetID()).setNumBuildingsInPuppets(eBuilding, iCount);
+	}
+
+	return getNumBuildingsInPuppets(eBuilding);
+}
+
+int CvPlayer::countNumBuildings(BuildingTypes eBuilding, bool bReset) const
+{
+	if(bReset)
+	{
+		int iCount = 0;
+		int iLoop = 0;
+
+		for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			}
 		}
-		GET_PLAYER(GetID()).setNumBuildingsInPuppets(eBuilding, iCount);
-		return iCount;
-	}
-	else
-	{
-		return getNumBuildingsInPuppets(eBuilding);
-	}
-}
-#if defined(MOD_BALANCE_CORE)
-int CvPlayer::countNumBuildings(BuildingTypes eBuilding, bool bReset) const
-#else
-int CvPlayer::countNumBuildings(BuildingTypes eBuilding) const
-#endif
-{
-	int iCount = 0;
-#if defined(MOD_BALANCE_CORE)
-	if(bReset)
-	{
-#endif
-	const CvCity* pLoopCity;
-	
-	int iLoop;
 
-	iCount = 0;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-		{
-			iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-		}
-	}
-#if defined(MOD_BALANCE_CORE)
+		//const call hack
 		GET_PLAYER(GetID()).setNumBuildings(eBuilding, iCount);
-		return iCount;
 	}
-	else
-	{
-		return getNumBuildings(eBuilding);
-	}
-#endif
+
+	return getNumBuildings(eBuilding);
 }
 
 //	--------------------------------------------------------------------------------
 /// How many cities in the empire surrounded by features?
-#if defined(MOD_BALANCE_CORE)
-int CvPlayer::countCitiesFeatureSurrounded(bool bReset) const
-#else
-int CvPlayer::countCitiesFeatureSurrounded() const
-#endif
+int CvPlayer::countCitiesNeedingTerrainImprovements(bool bReset) const
 {
-	int iCount = 0;
-#if defined(MOD_BALANCE_CORE)
-	if(bReset)
+	if (bReset)
 	{
-#endif
-	const CvCity* pLoopCity;
-	
-	int iLoop;
+		int iCount = 0;
+		int iLoop = 0;
 
-	iCount = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			//what is a sensible threshold here?
+			if (pLoopCity->GetTerrainImprovementNeed()>0)
+				iCount++;
+		}
 
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		if(pLoopCity->IsFeatureSurrounded())
-			iCount ++;
+		GET_PLAYER(GetID()).setCitiesNeedingTerrainImprovements(iCount);
 	}
-#if defined(MOD_BALANCE_CORE)
-		GET_PLAYER(GetID()).setCitiesFeatureSurrounded(iCount);
-		return 0;
-	}
-	else
-	{
-		return getCitiesFeatureSurrounded();
-	}
-#endif
+
+	return getCitiesNeedingTerrainImprovements();
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvPlayer::setCityFeatures(FeatureTypes eFeature, int iValue)
 {
 	CvAssertMsg(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
@@ -12517,15 +12464,14 @@ int CvPlayer::getNumBuildingsInPuppets(BuildingTypes eBuilding) const
 	return m_piNumBuildingsInPuppets[eBuilding];
 }
 
-void CvPlayer::setCitiesFeatureSurrounded(int iValue)
+void CvPlayer::setCitiesNeedingTerrainImprovements(int iValue)
 {
-	m_iCitiesFeatureSurrounded = iValue;
+	m_iCitiesNeedingTerrainImprovements = iValue;
 }
-int CvPlayer::getCitiesFeatureSurrounded() const
+int CvPlayer::getCitiesNeedingTerrainImprovements() const
 {
-	return m_iCitiesFeatureSurrounded;
+	return m_iCitiesNeedingTerrainImprovements;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)

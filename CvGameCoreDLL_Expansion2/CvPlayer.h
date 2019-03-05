@@ -302,20 +302,12 @@ public:
 	int GetScoreFromScenario4() const;
 	void ChangeScoreFromScenario4(int iChange);
 	// End Civ 5 Score
-
-	
-#if defined(MOD_BALANCE_CORE)
+		
 	int countCityFeatures(FeatureTypes eFeature, bool bReset = false) const;
 	int countNumBuildings(BuildingTypes eBuilding, bool bReset = false) const;
 	int countNumBuildingsInPuppets(BuildingTypes eBuilding, bool bReset = false) const;
-	int countCitiesFeatureSurrounded(bool bReset = false) const;
-#else
-	int countCityFeatures(FeatureTypes eFeature) const;
-	int countNumBuildings(BuildingTypes eBuilding) const;
-	//int countNumCitiesConnectedToCapital() const;
-	int countCitiesFeatureSurrounded() const;
-#endif
-#if defined(MOD_BALANCE_CORE)
+	int countCitiesNeedingTerrainImprovements(bool bReset = false) const;
+
 	void setCityFeatures(FeatureTypes eFeature, int iValue);
 	int getCityFeatures(FeatureTypes eFeature) const;
 	void setNumBuildings(BuildingTypes eBuilding, int iValue);
@@ -324,9 +316,8 @@ public:
 	void setNumBuildingsInPuppets(BuildingTypes eBuilding, int iValue);
 	int getNumBuildingsInPuppets(BuildingTypes eBuilding) const;
 
-	void setCitiesFeatureSurrounded(int iValue);
-	int getCitiesFeatureSurrounded() const;
-#endif
+	void setCitiesNeedingTerrainImprovements(int iValue);
+	int getCitiesNeedingTerrainImprovements() const;
 
 	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
 	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer);
@@ -3379,7 +3370,7 @@ protected:
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
 	std::vector<int> m_piNumBuildingsInPuppets;
-	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;
+	FAutoVariable<int, CvPlayer> m_iCitiesNeedingTerrainImprovements;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiBestMilitaryCombatClassCity;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiBestMilitaryDomainCity;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventChoiceDuration;
