@@ -407,6 +407,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiBuildingClassLocalHappiness(NULL),
 	m_paiSpecificGreatPersonRateModifier(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	m_piiGreatPersonProgressFromConstruction(),
+#endif
 	m_iNumThemingBonuses(0)
 {
 }
@@ -524,6 +527,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassLocalHappiness);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassLocalYieldChanges);
 	SAFE_DELETE_ARRAY(m_paiSpecificGreatPersonRateModifier);
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	m_piiGreatPersonProgressFromConstruction.clear();
 #endif
 }
 
@@ -1307,6 +1313,33 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 			m_ppiBuildingClassLocalYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
 		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	//Building_GreatPersonProgressFromConstruction
+	{
+		std::string strKey("Building_GreatPersonProgressFromConstruction");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Eras.ID as ErasID, Value from Building_GreatPersonProgressFromConstruction inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Eras on EraType = Eras.Type where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iEra = pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+
+			m_piiGreatPersonProgressFromConstruction.insert(std::make_pair(iGreatPerson, std::make_pair(iEra, iValue)));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::multimap<int, std::pair<int, int>>(m_piiGreatPersonProgressFromConstruction).swap(m_piiGreatPersonProgressFromConstruction);
 	}
 #endif
 	{
@@ -3656,7 +3689,12 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
-
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+std::multimap<int, std::pair<int, int>> CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
+{
+	return m_piiGreatPersonProgressFromConstruction;
+}
+#endif
 #if defined(MOD_BALANCE_CORE)
 int CvBuildingEntry::GetNumRequiredTier3Tenets() const
 {

@@ -4607,6 +4607,8 @@ void CvPlayerTraits::Uninit()
 	m_ppaaiSpecialistYieldChange.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_aiDomainFreeExperienceModifier.clear();
+	m_aibUnitCombatProductionCostModifier.clear();
+	m_aiGoldenAgeYieldModifier.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield.clear();

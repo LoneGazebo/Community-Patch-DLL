@@ -1240,7 +1240,7 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
-	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING);
 	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
@@ -3334,7 +3334,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
-	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantGreatPersonProgress;
+	std::map<int, CvString> m_aistrInstantGreatPersonProgress;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abActiveContract;
 	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;
 	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldownRate;
