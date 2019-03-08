@@ -26,7 +26,7 @@
 
 //PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
-#define PATH_DEFENSE_WEIGHT										(80)	//per percent defense bonus on turn end plot
+#define PATH_DEFENSE_WEIGHT										(20)	//per percent defense bonus on turn end plot
 #define PATH_STEP_WEIGHT										(100)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
@@ -501,7 +501,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 			//if we are doing unit pathfinding, maybe we need to do a voluntary stop on the parent node
 			if (!bHaveStopNodeHere)
-			 bHaveStopNodeHere = AddStopNodeIfRequired(node,check);
+				bHaveStopNodeHere = AddStopNodeIfRequired(node,check);
 		}
 	}
 
@@ -2277,6 +2277,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && //obvious
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
 		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
+		next->m_iMoves == 0 &&				//only if we would need to end the turn on the next plot
 		!next->m_kCostCacheData.bIsVisibleNeutralCombatUnit && //don't let ourselves be blocked by other players' units
 		next->m_kCostCacheData.bUnitStackingLimitReached; //finally
 
