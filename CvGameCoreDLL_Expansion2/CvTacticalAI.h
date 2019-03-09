@@ -1023,19 +1023,20 @@ public:
 	bool isEnemyCity() const { return bBlockedByEnemyCity; }
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
 	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
-	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
+	bool isBlockedByFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isOtherEmbarkedUnit() const { return bIsOtherEmbarkedUnit; }
+	bool isBlockedByFriendlyEmbarkedUnit() const { return bIsFriendlyEmbarkedUnit; }
 
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
 	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits); //set initial state depending on current plot status
 	//update fictional state
-	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
-	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
+	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, SUnitStats::eMovementStrategy eMoveType);
+	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, SUnitStats::eMovementStrategy eMoveType);
 	void enemyUnitKilled();
 
 	eTactPlotType getType() const { return eType; }
@@ -1043,7 +1044,7 @@ public:
 	void findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return pPlot != NULL; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
-	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, bool bCombat, int iChange);
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, SUnitStats::eMovementStrategy eMoveType, int iChange);
 	bool isRelevant() const { return eType != TP_BLOCKED_FRIENDLY && eType != TP_BLOCKED_NEUTRAL; }
 
 protected:
@@ -1062,7 +1063,8 @@ protected:
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
 	bool bAdjacentToEnemyCitadel:1;
 	bool bHasAirCover:1;
-	bool bIsOtherEmbarkedUnit; //can we put an embarked unit there?
+	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
+	bool bIsFriendlyEmbarkedUnit:1;
 
 	eTactPlotType eType;
 	unsigned char iDamageDealt;

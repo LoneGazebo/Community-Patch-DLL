@@ -1307,12 +1307,30 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
 			return -1; //forbidden
 
-		//extra cost for ending the turn on various types of undesirable plots (even if explicitly requested)
-		int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns);
-		if (iEndTurnCost < 0)
-			return -1;
+		//extra cost for ending the turn on various types of undesirable plots
+		if (!bIsPathDest)
+		{
+			//important to not add the extra cost for the requested destination
+			int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns);
+			if (iEndTurnCost < 0)
+				return -1;
 
-		iCost += iEndTurnCost;
+			iCost += iEndTurnCost;
+		}
+		else
+		{
+			//apply this even if it's the explicit target
+			if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+			{
+				// Avoid being in a territory that we are not welcome in
+				PlayerTypes ePlotOwner = pToPlot->getOwner();
+				TeamTypes ePlotTeam = pToPlot->getTeam();
+				if (ePlotTeam != NO_TEAM && ePlotTeam != eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
+				{
+					iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
+				}
+			}
+		}
 	}
 
 	if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
@@ -2258,6 +2276,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	if (current->m_iMoves == 0)
 		return false;
 
+	if (HaveFlag(CvUnit::MOVEFLAG_NO_STOPNODES))
+		return false;
+
 	//stop nodes don't make sense if we're only after the reachable plots
 	if (!HasValidDestination())
 		return false;
@@ -2307,7 +2328,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 		//cost is the same plus a little bit to encourage going the full distance when in doubt
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
-		pStopNode->m_iKnownCost = current->m_iKnownCost + PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns) + PATH_STEP_WEIGHT;
+		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
+		pStopNode->m_iKnownCost += PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns);
+		pStopNode->m_iKnownCost += GC.getMOVE_DENOMINATOR() * PATH_BASE_COST; //some fixed cost for the forfeited movement points
 
 		//we sort the nodes by total cost!
 		pStopNode->m_iTotalCost = pStopNode->m_iKnownCost*giKnownCostWeight + pStopNode->m_iHeuristicCost*giHeuristicCostWeight;

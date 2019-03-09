@@ -9638,6 +9638,10 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	if (!tactPlot.isValid())
 		return result;
 
+	//got to be careful with embarked units - they can't stack with each other
+	if (unit.eStrategy == SUnitStats::MS_ESCORTED_EMBARKED && (tactPlot.isBlockedByFriendlyEmbarkedUnit() || tactPlot.isOtherEmbarkedUnit()))
+		return result;
+
 	if (plot.iPlotIndex != unit.iPlotIndex)
 	{
 		//prevent two moves in a row (also for generals, everything else is too complex)
@@ -9724,6 +9728,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bAdjacentToEnemyCitadel = false;
 	bHasAirCover = false;
 	bIsOtherEmbarkedUnit = false;
+	bIsFriendlyEmbarkedUnit = false;
 	iDamageDealt = 0;
 	eType = TP_FARAWAY;
 	pPlot = NULL;
@@ -9791,7 +9796,12 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 						bIsOtherEmbarkedUnit = true; //can't put another embarked unit here
 				}
 				else
-					bBlockedByFriendlyCombatUnit = true; //friendly combat unit and included in sim
+				{
+					if (pPlotUnit->isEmbarked())
+						bIsFriendlyEmbarkedUnit = true; //friendly embarked unit and included in sim
+					else
+						bBlockedByFriendlyCombatUnit = true; //friendly combat unit and included in sim
+				}
 			}
 		}
 
@@ -9825,9 +9835,10 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 	}
 }
 
-void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, bool bCombat, int iChange)
+void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, SUnitStats::eMovementStrategy eMoveType, int iChange)
 {
-	if (!pPlot)
+	//we don't count embarked units
+	if (!pPlot || eMoveType==SUnitStats::MS_ESCORTED_EMBARKED)
 		return;
 
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
@@ -9839,38 +9850,42 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 			CvTacticalPlot& tactPlot = currentPosition.getTactPlot(pNeighbor->GetPlotIndex());
 			if (tactPlot.isValid())
 			{
-				if (bCombat)
+				if (eMoveType==SUnitStats::MS_SUPPORT)
 					tactPlot.nFriendlyCombatUnitsAdjacent += iChange;
-				else
+				else //embarked is already handled
 					tactPlot.nSupportUnitsAdjacent += iChange;
 			}
 		}
 	}
 }
 
-void CvTacticalPlot::friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat)
+void CvTacticalPlot::friendlyUnitMovingIn(CvTacticalPosition& currentPosition, SUnitStats::eMovementStrategy eMoveType)
 {
 	//no more enemies here
 	bBlockedByEnemyCombatUnit = false;
 	bBlockedByEnemyCity = false;
 	bEnemyCivilianPresent = false;
 
-	if (bFriendlyUnitIsCombat)
-		bBlockedByFriendlyCombatUnit = true;
+	if (eMoveType==SUnitStats::MS_SUPPORT)
+		bSupportUnitPresent = true;
+	else if (eMoveType==SUnitStats::MS_ESCORTED_EMBARKED)
+		bIsFriendlyEmbarkedUnit = true;
 	else
-		bSupportUnitPresent = true; //multiple support units per plot should not happen ...
+		bBlockedByFriendlyCombatUnit = true;
 
-	changeNeighboringUnitCount(currentPosition, bFriendlyUnitIsCombat, +1);
+	changeNeighboringUnitCount(currentPosition, eMoveType, +1);
 }
 
-void CvTacticalPlot::friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat)
+void CvTacticalPlot::friendlyUnitMovingOut(CvTacticalPosition& currentPosition, SUnitStats::eMovementStrategy eMoveType)
 {
-	if (bFriendlyUnitIsCombat)
-		bBlockedByFriendlyCombatUnit = false;
-	else
+	if (eMoveType == SUnitStats::MS_SUPPORT)
 		bSupportUnitPresent = false;
+	else if (eMoveType == SUnitStats::MS_ESCORTED_EMBARKED)
+		bIsFriendlyEmbarkedUnit = false;
+	else
+		bBlockedByFriendlyCombatUnit = false;
 
-	changeNeighboringUnitCount(currentPosition, bFriendlyUnitIsCombat, -1);
+	changeNeighboringUnitCount(currentPosition, eMoveType, -1);
 }
 
 void CvTacticalPlot::enemyUnitKilled()
@@ -10181,9 +10196,9 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
 
 		//remove / restore aura for unbiased placement
-		currentPlot.changeNeighboringUnitCount(*this, itUnit->eStrategy!=SUnitStats::MS_SUPPORT, -1);
+		currentPlot.changeNeighboringUnitCount(*this, itUnit->eStrategy, -1);
 		thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit, iMaxChoicesPerUnit);
-		currentPlot.changeNeighboringUnitCount(*this, itUnit->eStrategy!=SUnitStats::MS_SUPPORT, +1);
+		currentPlot.changeNeighboringUnitCount(*this, itUnit->eStrategy, +1);
 
 		//oops we're blocked with no valid move
 		if (thisUnitChoices.empty())
@@ -10312,12 +10327,21 @@ bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& mov
 
 	//find out if there is a combat unit there
 	const CvTacticalPlot& tactPlot = getTactPlot(move.iToPlotIndex);
-	if (tactPlot.isValid() && tactPlot.isFriendlyCombatUnit())
+	if (tactPlot.isValid() && (tactPlot.isBlockedByFriendlyCombatUnit() || tactPlot.isBlockedByFriendlyEmbarkedUnit()))
 	{
 		//make sure it's not a support unit we are trying to move, in that case there's no conflict
 		vector<SUnitStats>::const_iterator itUnit = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(move.iUnitID));
-		if (itUnit != availableUnits.end() && itUnit->eStrategy != SUnitStats::MS_SUPPORT && itUnit->eStrategy != SUnitStats::MS_ESCORTED_EMBARKED)
-			return true;
+
+		//unit not found (should not happen) or it's a support unit which can stack
+		if (itUnit == availableUnits.end() || itUnit->eStrategy == SUnitStats::MS_SUPPORT)
+			return false;
+
+		if (itUnit->eStrategy == SUnitStats::MS_ESCORTED_EMBARKED)
+			//embarked units cannot stack with other embarked units
+			return tactPlot.isBlockedByFriendlyEmbarkedUnit();
+		else
+			//combat unit (naval or land) cannot stack with other combat units
+			return tactPlot.isBlockedByFriendlyCombatUnit();
 	}
 
 	return false; //no info, assume it's ok
@@ -10740,8 +10764,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 		bVisibilityChange = true;
-		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
-		newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit());
+		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->eStrategy);
+		newTactPlot.friendlyUnitMovingIn(*this, itUnit->eStrategy);
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
@@ -10786,8 +10810,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		{
 			itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 			bVisibilityChange = true;
-			oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
-			newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit()); //this removes the enemyUnit flag
+			oldTactPlot.friendlyUnitMovingOut(*this, itUnit->eStrategy);
+			newTactPlot.friendlyUnitMovingIn(*this, itUnit->eStrategy); //this removes the enemyUnit flag
 			if (newAssignment.iRemainingMoves == 0)
 				iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		}
@@ -10961,7 +10985,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 		else
 			eStrategy = SUnitStats::MS_THIRDLINE; //not yet embarked, don't stack
 	}
-	else if (eAggression == AL_NONE && pUnit->isNativeDomain(pTargetPlot) && !pUnit->isEmbarked())
+	else if (eAggression == AL_NONE && pUnit->isNativeDomain(pTargetPlot) && pUnit->isEmbarked())
 	{
 		// target is in native domain, but we are embarked and will need to disembark sooner or later
 		eStrategy = SUnitStats::MS_THIRDLINE; //do not stack
@@ -11120,7 +11144,7 @@ void CvTacticalPosition::dumpPlotStatus(const char* fname) const
 		for (vector<CvTacticalPlot>::const_iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 		{
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked( it->getPlotIndex() );
-			out << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << (it->isEnemy() ? 1 : 0) << "," << (it->isFriendlyCombatUnit() ? 1 : 0) << "," 
+			out << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << (it->isEnemy() ? 1 : 0) << "," << (it->isBlockedByFriendlyCombatUnit() ? 1 : 0) << "," 
 				<< it->getNumAdjacentEnemies() << "," << it->getNumAdjacentFriendlies() << "," << it->getNumAdjacentFirstlineFriendlies() << "," 
 				<< it->isEdgePlot() << ","<< it->hasSupportBonus() << "," << it->getType() << "\n";
 		}
@@ -11577,8 +11601,14 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case STacticalAssignment::A_CAPTURE:
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
+#ifdef VPDEBUG
+			//see if we can indeed reach the target plot this turn ... 
+			pUnit->ClearPathCache(); pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, INT_MAX, NULL, true);
+			if (pUnit->GetPathEndFirstTurnPlot() != pToPlot)
+				OutputDebugString("ouch, pathfinding problem\n");
+#endif
 			if (bPrecondition)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER, false, false, MISSIONAI_OPMOVE); //don't take any detours because of danger
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, false, false, MISSIONAI_OPMOVE); 
 			bPostcondition = (pUnit->plot() == pToPlot); //plot changed
 			break;
 		case STacticalAssignment::A_RANGEATTACK:
