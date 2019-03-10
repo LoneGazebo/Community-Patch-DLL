@@ -9512,10 +9512,6 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	if (unit.eLastAssignment == A_MOVE && unit.iPlotIndex != plot.iPlotIndex)
 		return result;
 
-	//simplification: don't embark if there is another embarked unit there, stacking is too complex to take care of then
-	if (currentPlot.hasFriendlyEmbarkedUnit() && !pUnit->isNativeDomain(pCurrentPlot))
-		return result;
-
 	//check if this is actual movement or whether we simply end the turn
 	if (plot.iPlotIndex != unit.iPlotIndex)
 	{
@@ -10248,8 +10244,11 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		if (itMove->eAssignmentType==A_BLOCKED && overAllChoices.size()>1)
 			continue;
 
-		if (isMoveBlockedByOtherUnit(*itMove))
+		int iCount = 0;
+		while (isMoveBlockedByOtherUnit(*itMove)) //usually there is at most one, but sometimes two
 		{
+			iCount++;
+
 			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex,*itMove).iUnitID;
 			if (iUnitID==0 || iUnitID==itMove->iUnitID)
 			{
@@ -10267,18 +10266,17 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 					movesToAdd.push_back(*itMove2);
 					//mark that this is a forced move so we're allowed to move back later
 					movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
-					//now do the original move
-					movesToAdd.push_back(*itMove);
 					break;
 				}
 			}
-
-			//oops we're blocked
-			if (movesToAdd.empty())
-				continue; //hope it will get better further down the tree
 		}
-		else
-			movesToAdd.push_back(*itMove);
+
+		//did we move all blocks out of the way?
+		if (movesToAdd.size() != iCount)
+			continue;
+
+		//now do the original move
+		movesToAdd.push_back(*itMove);
 
 		if (!movesToAdd.empty())
 		{
@@ -10735,7 +10733,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			//plausi checks
 			int iUnitID = findBlockingUnitAtPlot(newAssignment.iFromPlotIndex,newAssignment).iUnitID;
 			if (iUnitID != 0 && iUnitID != newAssignment.iUnitID)
-				OutputDebugString("inconsistent origin\n");
+				OutputDebugString("inconsistent origin\n"); //can happen if we have a support unit and a combat unit stacking and both about to embark
 
 			iUnitID = findBlockingUnitAtPlot(newAssignment.iToPlotIndex,newAssignment).iUnitID;
 			if (iUnitID != 0)

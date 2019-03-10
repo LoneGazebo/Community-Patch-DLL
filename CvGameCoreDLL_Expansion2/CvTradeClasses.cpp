@@ -6330,21 +6330,22 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 
 #if defined(MOD_BALANCE_CORE)
+	//emphasize gold if we're in the red
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
-	if(iGPT <= 0)
-	{
-		iGoldAmount *= (iGPT * -2);
-	}
+	if(iGPT < -1)
+		iGoldAmount *= (int)sqrt((float)-iGPT);
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
+	//if a city is impoverished, let's send trade routes from there
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{		
 		if(pFromCity->getUnhappinessFromGold() > 0)
 		{
-			iGoldAmount *= (pFromCity->getUnhappinessFromGold() * 10);
+			iGoldAmount += (pFromCity->getUnhappinessFromGold() * 10);
 		}
 	}
+
 	//If we are somewhat influential, let's count that here.
 	if(bHaveTourism && !GET_PLAYER(pFromCity->getOwner()).isMinorCiv())
 	{
