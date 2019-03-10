@@ -159,3 +159,8 @@
 	UPDATE Language_en_US
 	SET Text = '[COLOR_POSITIVE_TEXT]Research[ENDCOLOR] converts 25% of the [ICON_PRODUCTION] Production of this City into [ICON_RESEARCH] Science, and reduces [ICON_RESEARCH] Science Needs by 25%.'
 	WHERE Tag = 'TXT_KEY_PROCESS_RESEARCH_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = 'A Great Musician can travel to another civilization and perform a Concert Tour, which will give you a one-time boost in Tourism in that territory. The Great Musician is expended when used this way.'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_CONCERT_TOUR_HEADING4_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	
