@@ -341,7 +341,6 @@
 			<Civilopedia>TXT_KEY_CONSULATE_DESC</Civilopedia>
 			<ArtDefineTag>UNITED NATIONS</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<GreatWorkCount>-1</GreatWorkCount>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ExtraLeagueVotes>1</ExtraLeagueVotes>
