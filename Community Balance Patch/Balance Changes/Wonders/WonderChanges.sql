@@ -1041,6 +1041,7 @@ VALUES
 
 UPDATE Building_ThemingBonuses SET Bonus = '8' WHERE BuildingType = 'BUILDING_GLOBE_THEATER';
 
+DELETE FROM Building_SpecialistYieldChanges WHERE BuildingType = 'BUILDING_STATUE_OF_LIBERTY' AND SpecialistType = 'SPECIALIST_CITIZEN';
 
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
