@@ -10244,16 +10244,17 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		if (itMove->eAssignmentType==A_BLOCKED && overAllChoices.size()>1)
 			continue;
 
-		int iCount = 0;
-		while (isMoveBlockedByOtherUnit(*itMove)) //usually there is at most one, but sometimes two
+		int iBlockCount = 0;
+		vector<int> removedBlocks;
+		while (isMoveBlockedByOtherUnit(*itMove,removedBlocks)) //usually there is at most one, but sometimes two
 		{
-			iCount++;
+			iBlockCount++;
 
-			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex,*itMove).iUnitID;
+			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex,*itMove,removedBlocks).iUnitID;
 			if (iUnitID==0 || iUnitID==itMove->iUnitID)
 			{
 				OutputDebugString("invalid block!\n");
-				continue; //should not happen!
+				break; //should not happen!
 			}
 
 			//find best non-blocked move for blocking unit (search only one level deep)
@@ -10266,13 +10267,19 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 					movesToAdd.push_back(*itMove2);
 					//mark that this is a forced move so we're allowed to move back later
 					movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
+
+					removedBlocks.push_back( itMove2->iUnitID );
 					break;
 				}
 			}
+
+			//break if it failed
+			if (movesToAdd.size() != iBlockCount)
+				break;
 		}
 
 		//did we move all blocks out of the way?
-		if (movesToAdd.size() != iCount)
+		if (movesToAdd.size() != iBlockCount)
 			continue;
 
 		//now do the original move
@@ -10342,22 +10349,25 @@ void CvTacticalPosition::updateMovePlotsIfRequired()
 	movePlotUpdateFlag = 0;
 }
 
-bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move) const
+bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move, vector<int> removedBlocks) const
 {
 	//only movement can be blocked
 	if (move.eAssignmentType != A_MOVE)
 		return false;
 
-	return findBlockingUnitAtPlot(move.iToPlotIndex, move).iUnitID != 0;
+	return findBlockingUnitAtPlot(move.iToPlotIndex, move, removedBlocks).iUnitID != 0;
 }
 
-STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex, const STacticalAssignment& move) const
+STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex, const STacticalAssignment& move, vector<int> removedBlocks) const
 {
 	const CvTacticalPlot& tactPlot = getTactPlot(iPlotIndex);
 	const vector<STacticalAssignment>& units = tactPlot.getUnitsAtPlot();
 
 	for (size_t i = 0; i < units.size(); i++)
 	{
+		if (std::find(removedBlocks.begin(), removedBlocks.end(), units[i].iUnitID) != removedBlocks.end())
+			continue;
+
 		if (move.isCombatUnit() && units[i].isCombatUnit())
 			return units[i];
 		if (move.isEmbarkedUnit() && units[i].isEmbarkedUnit())

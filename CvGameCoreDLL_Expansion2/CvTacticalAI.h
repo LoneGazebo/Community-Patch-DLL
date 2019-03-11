@@ -1118,7 +1118,7 @@ protected:
 	CvTacticalPosition* addChild(CvTactPosStorage& storage);
 	bool removeChild(CvTacticalPosition* pChild);
 	bool addAssignment(STacticalAssignment newAssignment);
-	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
+	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move, vector<int> unitsToIgnore = vector<int>()) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
 
@@ -1149,7 +1149,7 @@ public:
 	int countChildren() const;
 	float getUnitNumberRatio() const;
 	void countPlotTypes();
-	STacticalAssignment findBlockingUnitAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
+	STacticalAssignment findBlockingUnitAtPlot(int iPlotIndex, const STacticalAssignment& move, vector<int> unitsToIgnore=vector<int>()) const;
 	bool unitHasAssignmentOfType(int iUnit, eUnitAssignmentType assignmentType) const;
 	bool isEquivalent(const CvTacticalPosition& rhs) const;
 
