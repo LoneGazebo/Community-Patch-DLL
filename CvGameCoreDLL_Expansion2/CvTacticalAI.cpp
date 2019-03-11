@@ -9512,6 +9512,10 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	if (unit.eLastAssignment == A_MOVE && unit.iPlotIndex != plot.iPlotIndex)
 		return result;
 
+	//simplification: don't embark if there is another embarked unit there, stacking is too complex to take care of then
+	if (currentPlot.hasFriendlyEmbarkedUnit() && !pUnit->isNativeDomain(pCurrentPlot))
+		return result;
+
 	//check if this is actual movement or whether we simply end the turn
 	if (plot.iPlotIndex != unit.iPlotIndex)
 	{
@@ -9698,9 +9702,9 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	CvUnit* pUnit = GET_PLAYER(assumedPosition.getPlayer()).getUnit(unit.iUnitID);
 	//pass firstline, any combat movement strategy will do
 	STacticalAssignment dummy(0,0,0,0,MS_FIRSTLINE);
-	STacticalAssignment defenderAssignment = assumedPosition.findBlockingUnitAtPlot(tactPlot.getPlotIndex(),dummy);
+	vector<STacticalAssignment> defenderAssignment = assumedPosition.findBlockingUnitsAtPlot(tactPlot.getPlotIndex(),dummy);
 
-	if ((defenderAssignment.iUnitID > 0 && defenderAssignment.iRemainingMoves == 0) || pCurrentPlot->isFriendlyCity(*pUnit,true))
+	if ( (!defenderAssignment.empty() && defenderAssignment.front().iRemainingMoves == 0) || pCurrentPlot->isFriendlyCity(*pUnit,true) )
 		iScore += 100;
 	else
 	{
@@ -10244,43 +10248,31 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		if (itMove->eAssignmentType==A_BLOCKED && overAllChoices.size()>1)
 			continue;
 
-		int iBlockCount = 0;
-		vector<int> removedBlocks;
-		while (isMoveBlockedByOtherUnit(*itMove,removedBlocks)) //usually there is at most one, but sometimes two
+		if (isMoveBlockedByOtherUnit(*itMove))
 		{
-			iBlockCount++;
-
-			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex,*itMove,removedBlocks).iUnitID;
-			if (iUnitID==0 || iUnitID==itMove->iUnitID)
+			 //usually there is at most one, but sometimes two
+			vector<STacticalAssignment> blocks = findBlockingUnitsAtPlot(itMove->iToPlotIndex, *itMove);
+			for (vector<STacticalAssignment>::iterator itBlock = blocks.begin(); itBlock != blocks.end(); ++itBlock)
 			{
-				OutputDebugString("invalid block!\n");
-				break; //should not happen!
-			}
-
-			//find best non-blocked move for blocking unit (search only one level deep)
-			vector<STacticalAssignment> blockingUnitChoices = choicePerUnit[ iUnitID ];
-			for (vector<STacticalAssignment>::iterator itMove2 = blockingUnitChoices.begin(); itMove2 != blockingUnitChoices.end(); ++itMove2)
-			{
-				if (itMove2->eAssignmentType==A_MOVE && !isMoveBlockedByOtherUnit(*itMove2))
+				//find best non-blocked move for blocking unit (search only one level deep)
+				vector<STacticalAssignment> blockingUnitChoices = choicePerUnit[itBlock->iUnitID];
+				for (vector<STacticalAssignment>::iterator itMove2 = blockingUnitChoices.begin(); itMove2 != blockingUnitChoices.end(); ++itMove2)
 				{
-					//add the move to make space
-					movesToAdd.push_back(*itMove2);
-					//mark that this is a forced move so we're allowed to move back later
-					movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
-
-					removedBlocks.push_back( itMove2->iUnitID );
-					break;
+					if (itMove2->eAssignmentType == A_MOVE && !isMoveBlockedByOtherUnit(*itMove2))
+					{
+						//add the move to make space
+						movesToAdd.push_back(*itMove2);
+						//mark that this is a forced move so we're allowed to move back later
+						movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
+						break;
+					}
 				}
 			}
 
-			//break if it failed
-			if (movesToAdd.size() != iBlockCount)
-				break;
+			//did we move all blocks out of the way?
+			if (movesToAdd.size() != blocks.size())
+				continue;
 		}
-
-		//did we move all blocks out of the way?
-		if (movesToAdd.size() != iBlockCount)
-			continue;
 
 		//now do the original move
 		movesToAdd.push_back(*itMove);
@@ -10349,34 +10341,32 @@ void CvTacticalPosition::updateMovePlotsIfRequired()
 	movePlotUpdateFlag = 0;
 }
 
-bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move, vector<int> removedBlocks) const
+bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move) const
 {
 	//only movement can be blocked
 	if (move.eAssignmentType != A_MOVE)
 		return false;
 
-	return findBlockingUnitAtPlot(move.iToPlotIndex, move, removedBlocks).iUnitID != 0;
+	return !findBlockingUnitsAtPlot(move.iToPlotIndex, move).empty();
 }
 
-STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex, const STacticalAssignment& move, vector<int> removedBlocks) const
+vector<STacticalAssignment> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const
 {
+	vector<STacticalAssignment> result;
 	const CvTacticalPlot& tactPlot = getTactPlot(iPlotIndex);
 	const vector<STacticalAssignment>& units = tactPlot.getUnitsAtPlot();
 
 	for (size_t i = 0; i < units.size(); i++)
 	{
-		if (std::find(removedBlocks.begin(), removedBlocks.end(), units[i].iUnitID) != removedBlocks.end())
-			continue;
-
 		if (move.isCombatUnit() && units[i].isCombatUnit())
-			return units[i];
+			result.push_back(units[i]);
 		if (move.isEmbarkedUnit() && units[i].isEmbarkedUnit())
-			return units[i];
+			result.push_back(units[i]);
 		if (move.isSupportUnit() && units[i].isSupportUnit())
-			return units[i];
+			result.push_back(units[i]);
 	}
 
-	return STacticalAssignment();
+	return result;
 }
 
 //can we stop now?
@@ -10741,12 +10731,18 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 #ifdef VPDEBUG
 		{
 			//plausi checks
-			int iUnitID = findBlockingUnitAtPlot(newAssignment.iFromPlotIndex,newAssignment).iUnitID;
-			if (iUnitID != 0 && iUnitID != newAssignment.iUnitID)
-				OutputDebugString("inconsistent origin\n"); //can happen if we have a support unit and a combat unit stacking and both about to embark
+			vector<STacticalAssignment> fromBlocks = findBlockingUnitsAtPlot(newAssignment.iFromPlotIndex, newAssignment);
+			vector<STacticalAssignment> toBlocks = findBlockingUnitsAtPlot(newAssignment.iToPlotIndex, newAssignment);
 
-			iUnitID = findBlockingUnitAtPlot(newAssignment.iToPlotIndex,newAssignment).iUnitID;
-			if (iUnitID != 0)
+			bool bFound = false;
+			for (vector<STacticalAssignment>::iterator itBlock = fromBlocks.begin(); itBlock != fromBlocks.end(); ++itBlock)
+				if (itBlock->iUnitID == newAssignment.iUnitID)
+					bFound = true;
+
+			if (!bFound)
+				OutputDebugString("inconsistent origin\n");
+
+			if (!toBlocks.empty())
 				OutputDebugString("inconsistent destination\n");
 
 			if (newAssignment.iRemainingMoves > itUnit->iMovesLeft)
