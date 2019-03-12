@@ -10264,6 +10264,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	{
 		return false;
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	if (getMoves() <= iMovesOverride && !hasFreePillageMove())
 		return false;
@@ -10323,6 +10324,12 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	}
 	else
 	{
+		//can't pillage what we built ourselves ... stops exploits
+		PlayerTypes eBuilder = pPlot->GetPlayerThatBuiltImprovement();
+		if (eBuilder != NO_PLAYER && GET_PLAYER(eBuilder).getTeam() == getTeam())
+			if ( !GET_PLAYER(getOwner()).IsAtWarWith(pPlot->getOwner()) )
+				return false;
+
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
 		if(pImprovementInfo->IsPermanent())
 		{
