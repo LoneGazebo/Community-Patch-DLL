@@ -1465,8 +1465,8 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 					strSummary << pCity->getNameKey();
 					strSummary << m_pPlayer->getCivilizationShortDescriptionKey();
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY");
-					strMessage << pCity->getNameKey();
 					strMessage << pkBuilding->GetTextKey();
+					strMessage << pCity->getNameKey();
 					strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
 				}
