@@ -235,6 +235,7 @@ local workerHeadingOpen = OptionsManager.IsNoCitizenWarning();
 local slackerHeadingOpen = true;
 local GPHeadingOpen = true;
 local wonderHeadingOpen = true;
+local corpsHeadingOpen = true;
 local greatWorkHeadingOpen = true;
 local specialistBuildingHeadingOpen = true;
 local buildingHeadingOpen = true;
@@ -271,6 +272,11 @@ end
 
 function OnWondersHeaderSelected()
 	wonderHeadingOpen = not wonderHeadingOpen;
+	OnCityViewUpdate();
+end
+
+function OnCorpsHeaderSelected()
+	corpsHeadingOpen = not corpsHeadingOpen;
 	OnCityViewUpdate();
 end
 
@@ -885,114 +891,7 @@ function OnCityViewUpdate()
 		TruncateString(Controls.CityNameTitleBarLabel, cityNameSize, convertedKey); 
 
 -- COMMUNITY PATCH
-		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
-		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
-		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
-		local iDefenseUnhappiness = pCity:GetUnhappinessFromDefense();
-		local iConnectionUnhappiness = pCity:GetUnhappinessFromConnection();
-		local iMinorityUnhappiness = pCity:GetUnhappinessFromMinority();
-		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
-		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
-		local iResistanceUnhappiness = 0;
-		local iOccupationUnhappiness = 0;
-		local iPuppetUnhappiness = 0;
-		if(pCity:IsRazing()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		elseif(pCity:IsResistance()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		elseif(pCity:IsPuppet()) then
-			iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
-		elseif(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness() and not pCity:IsResistance() and not pCity:IsRazing()) then
-			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
-		end
-			
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
-
-		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
-		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
-		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;
-		local iGoldYield = pCity:GetUnhappinessFromGoldYield() / 100;
-		local iCultureNeeded = pCity:GetUnhappinessFromCultureNeeded() / 100;
-		local iDefenseNeeded = pCity:GetUnhappinessFromDefenseNeeded() / 100;
-		local iGoldNeeded = pCity:GetUnhappinessFromGoldNeeded() / 100;
-		local iScienceYield = pCity:GetUnhappinessFromScienceYield() / 100;
-		local iScienceNeeded = pCity:GetUnhappinessFromScienceNeeded() / 100;
-
-		local iCultureDeficit = pCity:GetUnhappinessFromCultureDeficit() / 100;
-		local iDefenseDeficit = pCity:GetUnhappinessFromDefenseDeficit() / 100;
-		local iGoldDeficit = pCity:GetUnhappinessFromGoldDeficit() / 100;
-		local iScienceDeficit = pCity:GetUnhappinessFromScienceDeficit() / 100;
-
-		strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
-
-		if(pCity:IsPuppet()) then
-			if (iPuppetMod ~= 0) then
-				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
-			end
-		end
-		
-		-- Occupation tooltip
-		if (iOccupationUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
-		end
-
-		-- Puppet tooltip
-		if (iPuppetUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
-		end
-
-		-- Resistance tooltip
-		if (iResistanceUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
-		end
-		-- Starving tooltip
-		if (iStarvingUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);
-		end
-		-- Pillaged tooltip
-		if (iPillagedUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
-		end
-				-- Defense tooltip
-		if (iDefenseUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
-		end
-		if ((iDefenseYield - iDefenseNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
-		end
-		-- Gold tooltip
-		if (iGoldUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
-		end
-		if ((iGoldYield - iGoldNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
-		end
-		-- Connection tooltip
-		if (iConnectionUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappiness);
-		end
-		-- Minority tooltip
-		if (iMinorityUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappiness);
-		end
-		-- Science tooltip
-		if (iScienceUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
-		end
-		if ((iScienceYield - iScienceNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
-		end
-		-- Culture tooltip
-		if (iCultureUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
-		end
-		if ((iCultureYield - iCultureNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
-		end
-
-		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
-
-		Controls.CityNameTitleBarLabel:LocalizeAndSetToolTip(strOccupationTT);
+		Controls.CityNameTitleBarLabel:LocalizeAndSetToolTip(pCity:GetCityUnhappinessBreakdown(false));
 -- END
 		
 		Controls.TitleStack:CalculateSize();
@@ -1522,16 +1421,18 @@ function OnCityViewUpdate()
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
-					if (pCity:IsHasBuilding(buildingID)) then
-						numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+				if not (building.IsCorporation == 1) then
+					local buildingID= building.ID;
+					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0 then
+						if (pCity:IsHasBuilding(buildingID)) then
+							numSpecialBuildingsInThisCity = numSpecialBuildingsInThisCity + 1;
+							local element = {};
+							local name = Locale.ConvertTextKey( building.Description )
+							element.name = name;
+							element.ID = building.ID;
+							sortedList[thisId] = element;
+							thisId = thisId + 1;
+						end
 					end
 				end
 			end
@@ -1575,23 +1476,24 @@ function OnCityViewUpdate()
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances > 0 or (thisBuildingClass.MaxPlayerInstances == 1 and building.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0 then
 				local buildingID= building.ID;
-				if (pCity:IsHasBuilding(buildingID)) then
-					numWondersInThisCity = numWondersInThisCity + 1;
-					if(pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0) then
-						numWondersWithSpecialistInThisCity = numWondersWithSpecialistInThisCity + 1;
-					end
+				if not (building.IsCorporation == 1) then
+					if (pCity:IsHasBuilding(buildingID)) then
+						numWondersInThisCity = numWondersInThisCity + 1;
+						if(pCity:GetNumSpecialistsAllowedByBuilding(buildingID) > 0) then
+							numWondersWithSpecialistInThisCity = numWondersWithSpecialistInThisCity + 1;
+						end
 					
-					local element = {};
-					local name = Locale.ConvertTextKey( building.Description )
-					element.name = name;
-					element.ID = building.ID;
-					sortedList[thisId] = element;
-					thisId = thisId + 1;
+						local element = {};
+						local name = Locale.ConvertTextKey( building.Description )
+						element.name = name;
+						element.ID = building.ID;
+						sortedList[thisId] = element;
+						thisId = thisId + 1;
+					end
 				end
 			end
 		end
 		table.sort(sortedList, function(a, b) return a.name < b.name end);
-		
 		
 		Controls.SpecialistControlBox2:SetHide( true );
 		if numWondersInThisCity > 0 then
@@ -1633,15 +1535,17 @@ function OnCityViewUpdate()
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
 				local thisBuilding = GameInfo.Buildings[building.ID];
 				if thisBuilding.GreatWorkCount > 0 then
-					if (pCity:IsHasBuilding(building.ID)) then
-						numGreatWorkBuildingsInThisCity = numGreatWorkBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+					if not (building.IsCorporation == 1) then
+						if (pCity:IsHasBuilding(building.ID)) then
+							numGreatWorkBuildingsInThisCity = numGreatWorkBuildingsInThisCity + 1;
+							local element = {};
+							local name = Locale.ConvertTextKey( building.Description )
+							element.name = name;
+							element.ID = building.ID;
+							sortedList[thisId] = element;
+							thisId = thisId + 1;
 						end
+					end
 				end
 			end
 		end
@@ -1661,6 +1565,49 @@ function OnCityViewUpdate()
 		else
 			Controls.GreatWorkHeader:SetHide( true );
 		end
+
+		--Corps (CBO)
+		local numCorpsInThisCity = 0;
+		if corpsHeadingOpen then
+			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CORPORATIONS_TEXT" );
+			Controls.CorporationsHeaderLabel:SetText(localizedLabel);
+		else
+			local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_CORPORATIONS_TEXT" );
+			Controls.CorporationsHeaderLabel:SetText(localizedLabel);
+		end
+		sortedList = {};
+		thisId = 1;
+		for building in GameInfo.Buildings() do
+			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
+			if (building.IsCorporation == 1) then
+				local buildingID= building.ID;
+				if (pCity:IsHasBuilding(buildingID)) then
+					numCorpsInThisCity = numCorpsInThisCity + 1;				
+					local element = {};
+					local name = Locale.ConvertTextKey( building.Description )
+					element.name = name;
+					element.ID = building.ID;
+					sortedList[thisId] = element;
+					thisId = thisId + 1;
+				end
+			end
+		end
+		table.sort(sortedList, function(a, b) return a.name < b.name end);
+		if numCorpsInThisCity > 0 then
+			--if header is not hidden and is open
+			Controls.CorporationsHeader:SetHide( false );
+			sortOrder = sortOrder + 1;
+			otherSortedList[tostring( Controls.CorporationsHeader )] = sortOrder;
+			if corpsHeadingOpen then
+				Controls.CorporationsHeader:RegisterCallback( Mouse.eLClick, OnCorpsHeaderSelected );
+				for i, v in ipairs(sortedList) do
+					local building = GameInfo.Buildings[v.ID];
+					AddBuildingButton( pCity, building );
+				end
+			end
+		else
+			Controls.CorporationsHeader:SetHide( true );
+		end
 				
 		-- the rest of the buildings
 		local numBuildingsInThisCity = 0;
@@ -1676,16 +1623,18 @@ function OnCityViewUpdate()
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
-				local buildingID= building.ID;
-				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-					if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
-						numBuildingsInThisCity = numBuildingsInThisCity + 1;
-						local element = {};
-						local name = Locale.ConvertTextKey( building.Description )
-						element.name = name;
-						element.ID = building.ID;
-						sortedList[thisId] = element;
-						thisId = thisId + 1;
+				if not (building.IsCorporation == 1) then
+					local buildingID= building.ID;
+					if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
+						if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
+							numBuildingsInThisCity = numBuildingsInThisCity + 1;
+							local element = {};
+							local name = Locale.ConvertTextKey( building.Description )
+							element.name = name;
+							element.ID = building.ID;
+							sortedList[thisId] = element;
+							thisId = thisId + 1;
+						end
 					end
 				end
 			end
@@ -1877,8 +1826,13 @@ function OnCityViewUpdate()
 		Controls.TourismPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iTourismPerTurn) );
 	
 		-- CBP
-		local iHappinessPerTurn = pCity:getHappinessDelta();
+		local iHappinessPerTurn = pCity:GetLocalHappiness();
 		Controls.HappinessPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn) );
+		-- END
+	
+		-- CBP
+		local iUnhappinessPerTurn = pCity:getUnhappinessAggregated();
+		Controls.UnhappinessPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_NET_UNHAPPINESS_TEXT", iUnhappinessPerTurn) );
 		-- END
 
 		local cityGrowth = pCity:GetFoodTurnsLeft();			
@@ -2186,6 +2140,9 @@ function DoUpdateUpperLeftTooltips()
 -- CBP
 	local strCityHappinessTooltip = GetCityHappinessTooltip(pCity);
 	Controls.HappinessBox:SetToolTipString(strCityHappinessTooltip);
+
+	local strCityUnhappinessTooltip = GetCityUnhappinessTooltip(pCity);
+	Controls.UnhappinessBox:SetToolTipString(strCityUnhappinessTooltip);
 -- END
 end
 

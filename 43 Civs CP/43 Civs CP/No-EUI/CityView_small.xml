@@ -4,7 +4,7 @@
   <Image Anchor="L,C" Offset="0,0" Texture="assets\UI\Art\WorldView\1920_LeftSide.DDS" Size="100.1200"/>
   <Image Anchor="R,C" Offset="0,0" Texture="assets\UI\Art\WorldView\1920_RightSide.DDS" Size="100.1200"/>
   <!-- City Information -->
-  <Grid Size="240,413" Anchor="L,T" Offset="-16,-9" Style="Grid9DetailSix140" Hidden="0" ID="TopLeft" ConsumeMouse="1">
+  <Grid Size="240,437" Anchor="L,T" Offset="-16,-9" Style="Grid9DetailSix140" Hidden="0" ID="TopLeft" ConsumeMouse="1">
     <Stack Anchor="L,T" Offset="17,8" Size="0,0" StackGrowth="Bottom" Padding="0">
       <!-- Population Info -->
       <Box Offset="0,32" Anchor="L,T" Size="210,64" Color="255,255,255,0" ID="PopulationBox">
@@ -66,6 +66,13 @@
 			<Label Anchor="L,C" Offset="6,0" String="[ICON_HAPPINESS_1]"/>
 			<Label Anchor="L,C" Offset="32,0" String="TXT_KEY_CITYVIEW_HAPPINESS_TEXT" Font="TwCenMT20" FontStyle="Shadow"/>
 			<Label ID="HappinessPerTurnLabel" Anchor="R,C" String="" Font="TwCenMT20" FontStyle="Shadow"/>
+			<Box Anchor="L,B" Color="27.53.64.255" Offset="4,0" Size="196,1"/>
+		</Box>
+		<!-- Unhappiness Info -->
+		<Box Offset="0,0" Anchor="L,T" Size="196,24" Color="255,255,255,0" ID="UnhappinessBox">
+			<Label Anchor="L,C" Offset="6,0" String="[ICON_HAPPINESS_3]"/>
+			<Label Anchor="L,C" Offset="32,0" String="TXT_KEY_CITYVIEW_UNHAPPINESS_TEXT" Font="TwCenMT20" FontStyle="Shadow"/>
+			<Label ID="UnhappinessPerTurnLabel" Anchor="R,C" String="" Font="TwCenMT20" FontStyle="Shadow"/>
 			<Box Anchor="L,B" Color="27.53.64.255" Offset="4,0" Size="196,1"/>
 		</Box>
 		<!-- END -->
@@ -396,6 +403,9 @@
             </CheckBox>
             <Box Anchor="L,B" Color="27.53.64.255" Offset="0,0" Size="254,2"/>
           </Box>
+		  <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="CorporationsHeader">
+				<Label Anchor="L,C" Offset="12,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CorporationsHeaderLabel"/>
+		  </Button>
           <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="BuildingsHeader">
             <Label Anchor="L,C" Offset="12,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BuildingsHeaderLabel"/>
           </Button>

@@ -173,12 +173,22 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		iTempWeight = 5000;
 	}
+	if (pkProjectInfo->IsRepeatable())
+	{
+		if (m_pCity->isUnderSiege() || m_pCity->IsResistance() || m_pCity->IsBlockaded(false) || m_pCity->IsBlockaded(true))
+			return 0;
+		
+		if (iTempWeight > 350)
+		{
+			iTempWeight = 350;
+		}
+	}
 
 	if(kPlayer.isMinorCiv())
 	{
 		return 0;
 	}
-	if(!kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
+	if(m_pCity->IsPuppet())
 	{
 		return 0;
 	}
@@ -246,6 +256,41 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight *= 100;
 		}
 	}
+
+	bool bGoodforHappiness = false;
+
+	for (int i = 0; i < NUM_YIELD_TYPES; i++)
+	{
+		int iMod = pkProjectInfo->GetHappinessNeedModifier(i) * -1;
+		if (iMod == 0)
+			continue;
+
+		if (i == YIELD_GOLD && m_pCity->getUnhappinessFromGold() > 0)
+		{
+			iTempWeight += 10 * iMod * m_pCity->getUnhappinessFromGold() * m_pCity->getUnhappinessFromGold();
+		}
+		else if (i == YIELD_PRODUCTION && m_pCity->getUnhappinessFromDefense() > 0)
+		{
+			iTempWeight += 10 * iMod * m_pCity->getUnhappinessFromDefense() * m_pCity->getUnhappinessFromDefense();
+		}
+		else if (i == YIELD_CULTURE && m_pCity->getUnhappinessFromCulture() > 0)
+		{
+			iTempWeight += 10 * iMod * m_pCity->getUnhappinessFromCulture() * m_pCity->getUnhappinessFromCulture();
+		}
+		else if (i == YIELD_SCIENCE && m_pCity->getUnhappinessFromScience() > 0)
+		{
+			iTempWeight += 10 * iMod * m_pCity->getUnhappinessFromScience() * m_pCity->getUnhappinessFromScience();
+		}
+		else if (i == YIELD_FAITH && m_pCity->getUnhappinessFromReligion() > 0)
+		{
+			iTempWeight += 10 * iMod * m_pCity->getUnhappinessFromReligion() * m_pCity->getUnhappinessFromReligion();
+		}
+		bGoodforHappiness = true;
+	}
+
+	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
+		iTempWeight /= 25;
+
 	return iTempWeight;
 }
 #endif

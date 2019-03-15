@@ -339,6 +339,10 @@ protected:
 	static int lGetHappiness(lua_State* L);
 	static int lSetHappiness(lua_State* L);
 
+	static int lGetEmpireHappinessForCity(lua_State* L);
+	static int lGetEmpireUnhappinessForCity(lua_State* L);
+	static int lGetHappinessForGAP(lua_State* L);
+
 	static int lGetExcessHappiness(lua_State* L);
 
 	static int lIsEmpireUnhappy(lua_State* L);
@@ -773,9 +777,6 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
 	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	LUAAPIEXTN(CalculateUnhappinessTooltip, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	LUAAPIEXTN(GetPuppetUnhappinessMod, int);

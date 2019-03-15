@@ -755,7 +755,7 @@
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER">
-			<Text>+2 [ICON_CULTURE] Culture for every Global Franchise, and +1 [ICON_HAPPINESS_1] Happiness.</Text>
+			<Text>+2 [ICON_CULTURE] Culture for every Global Franchise, and -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy and [ICON_CULTURE] Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Giorgio Armeier Franchise grant +10% [ICON_CULTURE] Culture to the origin City.</Text>
@@ -800,7 +800,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP">
-			<Text>+2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
+			<Text>+2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit). -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy and [ICON_CULTURE] Boredom[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS">
@@ -916,7 +916,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
-			<Text>Reduces all Needs Modifiers in the City by 5%. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
+			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty and [ICON_FOOD]/[ICON_PRODUCTION] Distress. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS">

@@ -168,7 +168,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- God-King
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith in [ICON_CAPITAL] Capital. +1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every 6 Followers of your Pantheon in owned Cities'
+SET Text = '+1 [ICON_PEACE] Faith in [ICON_CAPITAL] Capital. +1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every 5 Followers of your Pantheon in owned Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sun God
@@ -480,7 +480,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 -- Interfaith Dialog (Now Hero Worship)
 UPDATE Language_en_US
-SET Text = 'Unlocks Great Altar National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City. Bonus scales with City population and Era.'
+SET Text = 'Unlocks Great Altar National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City, as well as [ICON_GREAT_GENERAL] Great General Points (if city is landlocked) or [ICON_GREAT_ADMIRAL] Great Admiral Points (if city is coastal). Bonus scales with City population and Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -489,12 +489,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE_SHORT' AND EXISTS (SELECT * FROM
 
 -- Ceremonial Burial
 UPDATE Language_en_US
-SET Text = 'Unlocks Mausoleum National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle, +5 [ICON_PEACE] Faith from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When a Great Person is expended, gain 8 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your Religion (max 20 Cities).'
+SET Text = 'Unlocks Mausoleum National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle, +5 [ICON_PEACE] Faith from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When a [ICON_GREAT_PEOPLE] Great Person is expended, gain 14 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your Religion (max 20 Cities).'
 WHERE Tag = 'TXT_KEY_BELIEF_CEREMONIAL_BURIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Church Property (Now Holy Law)
 UPDATE Language_en_US
-SET Text = 'Unlocks Divine Court National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +5 [ICON_GOLD] Gold from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you unlock a Policy, gain 5 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your Religion (max 200 Followers).'
+SET Text = 'Unlocks Divine Court National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +5 [ICON_GOLD] Gold from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you unlock a Policy, gain 5 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your Religion (max 250 Followers).'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -530,7 +530,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Pilgrimage (Now Apostolic Tradition)
 UPDATE Language_en_US
-SET Text = 'Unlocks Apostolic Palace National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you increase the number of Followers in a City by spreading Religion, receive 25 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_FOOD] Food in the Holy City, scaling with the number of new Followers of your Religion.'
+SET Text = 'Unlocks Apostolic Palace National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you increase the number of Followers in a City by spreading Religion, receive 25 [ICON_CULTURE] Culture and [ICON_FOOD] Food in the Holy City, scaling with the number of new Followers of your Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

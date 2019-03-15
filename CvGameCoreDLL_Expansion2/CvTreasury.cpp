@@ -442,11 +442,7 @@ int CvTreasury::CalculateGrossGold()
 }
 
 /// Gross income for turn
-#if defined(MOD_BALANCE_CORE)
-int CvTreasury::CalculateGrossGoldTimes100(bool bIgnoreHappiness)
-#else
 int CvTreasury::CalculateGrossGoldTimes100()
-#endif
 {
 	int iNetGold;
 
@@ -486,13 +482,6 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iNetGold += m_pPlayer->GetYieldPerTurnFromMinors(YIELD_GOLD) * 100;
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	//Mod for national unhappiness
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
-	{
-		iNetGold += m_pPlayer->GetYieldPerTurnFromHappiness(YIELD_GOLD, iNetGold);
 	}
 #endif
 

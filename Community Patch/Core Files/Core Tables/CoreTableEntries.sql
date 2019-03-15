@@ -362,6 +362,10 @@ ALTER TABLE Policies ADD COLUMN 'AdmiralLuxuryBonus' INTEGER DEFAULT 0;
 -- CS resources count towards monopolies
 ALTER TABLE Policies ADD COLUMN 'CSResourcesCountForMonopolies' BOOLEAN DEFAULT 0;
 
+-- % modifiers to empire needs modifier - negative = good!
+ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifier' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifierGlobal' INTEGER DEFAULT 0;
+
 -- % modifiers to city unhappiness sources - values should be negative to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' INTEGER DEFAULT 0;
@@ -759,6 +763,9 @@ ALTER TABLE Units ADD COLUMN 'BaseTurnsForGAPToCount' INTEGER DEFAULT 0;
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResourceQuantity' INTEGER DEFAULT 0;
 
+-- Improvement creates happiness for builder when finished.
+ALTER TABLE Improvements ADD COLUMN 'HappinessOnConstruction' INTEGER DEFAULT 0;
+
 -- Grants obsoletion tech to build (tie to improvement below for function)
 ALTER TABLE Builds ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
 
@@ -1065,6 +1072,10 @@ ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
 -- Projects
 ALTER TABLE Projects ADD COLUMN 'FreeBuildingClassIfFirst' TEXT DEFAULT NULL;
 ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
+
+ALTER TABLE Projects ADD COLUMN 'CostScalerEra' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'CostScalerNumRepeats' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'IsRepeatable' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;

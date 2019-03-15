@@ -16,7 +16,7 @@ SET Text = 'The Water Mill can only be constructed in a city located next to a r
 WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City''s current [ICON_PRODUCTION] Production. +2 [ICON_FOOD] Food on Lakes and Oases worked by this city. Reduces [ICON_HAPPINESS_3] Poverty slightly.'
+SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City''s current [ICON_PRODUCTION] Production. +2 [ICON_FOOD] Food on Lakes and Oases worked by this city.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -24,7 +24,7 @@ SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a city needs t
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Scientist, Merchant, and Engineer Specialists in the City produce +1 of their base Yield. Reduces [ICON_HAPPINESS_3] Poverty greatly.'
+SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Scientist, Merchant, and Engineer Specialists in the City produce +1 of their base Yield. [NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -40,11 +40,11 @@ SET Text = 'The Garden increases the speed at which [ICON_GREAT_PEOPLE] Great Pe
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_HOSPITAL_HELP', 'Reduces [ICON_HAPPINESS_3] Poverty. 5% of the City''s [ICON_FOOD] Food is converted into [ICON_RESEARCH] Science every turn. Land Units in this City heal 15 points per turn whether or not they take an action. Increases Military Units supplied by this City''s population by 10%.'
+SELECT 'TXT_KEY_BUILDING_HOSPITAL_HELP', '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. 5% of the City''s [ICON_FOOD] Food is converted into [ICON_RESEARCH] Science every turn. Land Units in this City heal 15 points per turn whether or not they take an action. Increases Military Units supplied by this City''s population by 10%.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_TEMPLE_HELP', 'Reduces [ICON_HAPPINESS_3] Religious Unrest and generates +25% Religious Pressure. Contains 1 slot for a Great Work of Music.[NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE] Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
+SELECT 'TXT_KEY_BUILDING_TEMPLE_HELP', '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_PEACE] Religious Unrest. +25% Religious Pressure. Contains 1 slot for a Great Work of Music.[NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE] Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -72,11 +72,11 @@ SET Text = 'The Museum is a mid-game building which increases [ICON_CULTURE] Cul
 WHERE Tag = 'TXT_KEY_BUILDING_MUSEUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_MUSEUM_HELP', 'Reduces [ICON_HAPPINESS_3] Illiteracy greatly. +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City, and all Artists'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+4 [ICON_CULTURE] Culture if Themed.'
+SELECT 'TXT_KEY_BUILDING_MUSEUM_HELP', '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy. +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City, and all Artists'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+4 [ICON_CULTURE] Culture if Themed.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom greatly. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold if Themed.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -84,15 +84,15 @@ SET Text = 'A Broadcast Tower is a late-game building which increases [ICON_CULT
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+15 XP for all Units. Reduces [ICON_HAPPINESS_3] Distress slightly. Increases the Military Unit Supply Cap by 1.'
+SET Text = '+15 XP for all Units. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. Increases the Military Unit Supply Cap by 1.'
 WHERE Tag = 'TXT_KEY_BUILDING_BARRACKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = '+20 XP for all Units. Reduces [ICON_HAPPINESS_3] Distress.[NEWLINE][NEWLINE]City must have a Barracks. Increases the Military Unit Supply Cap by 1.'
+SET Text = '+20 XP for all Units. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.[NEWLINE][NEWLINE]City must have a Barracks. Increases the Military Unit Supply Cap by 1.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARMORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress greatly. +25 XP for all Units.[NEWLINE][NEWLINE]City must have an Armory. Increases the Military Unit Supply Cap by 1.'
+SET Text = '-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. +25 XP for all Units.[NEWLINE][NEWLINE]City must have an Armory. Increases the Military Unit Supply Cap by 1.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_ACADEMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 UPDATE Language_en_US
@@ -156,11 +156,11 @@ SET Text = 'Markets increase the amount of [ICON_GOLD] Gold a city generates, an
 WHERE Tag = 'TXT_KEY_BUILDING_MARKET_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner.[NEWLINE][NEWLINE]City must have a Market.'
+SET Text = 'When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner.[NEWLINE][NEWLINE]City must have a Market.'
 WHERE Tag = 'TXT_KEY_BUILDING_MINT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Customs House boosts the Gold value of Trade Routes, and boosts the Tourism you generate from Trade Routes to foreign Civilizations. It also reduces Poverty. Build these buildings in all Cities if you wish to improve your Gold ouput as well as the cultural value of your Trade Routes.'
+SET Text = 'The Customs House boosts the Gold value of Trade Routes, and boosts the Tourism you generate from Trade Routes to foreign Civilizations. Build these buildings in all Cities if you wish to improve your Gold ouput as well as the cultural value of your Trade Routes.'
 WHERE Tag = 'TXT_KEY_BUILDING_MINT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -172,7 +172,7 @@ SET Text = 'A custom house or customs house was a building housing the offices f
 WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_MINT_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. When you spend [ICON_GOLD] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science. Caravansaries and Customs Houses (or Hanse) in the City gain +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have a Market.[NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. When you spend [ICON_GOLD] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science. Caravansaries and Customs Houses (or Hanse) in the City gain +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have a Market.[NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -188,19 +188,19 @@ SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here 
 WHERE Tag = 'TXT_KEY_BUILDING_CARAVANSARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy slightly. Requires a Council in the City.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy. Requires a Council in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. Gain 25% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.'
+SET Text = '+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. Gain 25% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.'
 WHERE Tag = 'TXT_KEY_BUILDING_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
     
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] for every 4 [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city. [NEWLINE][NEWLINE]City must have a University.'
+SET Text = '+1 [ICON_RESEARCH] for every 4 [ICON_CITIZEN] Citizens in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city. [NEWLINE][NEWLINE]City must have a University.'
 WHERE Tag = 'TXT_KEY_BUILDING_PUBLIC_SCHOOL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+4 [ICON_RESEARCH] Science from [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_URANIUM] Uranium, and Academies worked by this City. Reduces [ICON_HAPPINESS_3] Illiteracy greatly.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science from Hospitals, Factories, and Medical Labs, and [ICON_GREAT_SCIENTIST] Great Scientists are produced 33% more quickly in this City.[NEWLINE][NEWLINE]City must have a Public School.'
+SET Text = '+4 [ICON_RESEARCH] Science from [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_URANIUM] Uranium, and Academies worked by this City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science from Hospitals, Factories, and Medical Labs, and [ICON_GREAT_SCIENTIST] Great Scientists are produced 33% more quickly in this City.[NEWLINE][NEWLINE]City must have a Public School.'
 WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -232,36 +232,36 @@ SET Text = 'Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPI
 WHERE Tag = 'TXT_KEY_BUILDING_COURTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Walls increase a city Defense Strength by 10 and Hit Points by 50, making the city more difficult to capture. Increases Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. Walls are quite useful for cities located along a frontier.'
+SET Text = 'Walls increase a city Defense Strength by 10 and Hit Points by 50, making the city more difficult to capture. Increases Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. Also helps with managing the Empire Needs Modifier in this City. Walls are quite useful for cities located along a frontier.'
 WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILDING_WALLS_HELP', 'Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Military Units supplied by this City''s population increased by 10%.'
+SELECT 'TXT_KEY_BUILDING_WALLS_HELP', 'Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Military Units supplied by this City''s population increased by 10%.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength by 15, Ranged Strike Damage by 100%, and Hit Points by 100. Increases Military Units supplied by this City''s population by 10%, and increases Production for all nearby Quarries by 1. The city must possess Walls before the Castle can be constructed.'
+SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength by 15, Ranged Strike Damage by 100%, and Hit Points by 100. Increases Military Units supplied by this City''s population by 10%, and increases Production for all nearby Quarries by 1. Also helps with managing the Empire Needs Modifier in this City. The city must possess Walls before the Castle can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have Walls. +1 [ICON_PRODUCTION] Production for Quarries worked by this City. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strength by 100%. Military Units supplied by this City''s population increased by 10%. Contains 1 slot for a Great Work of Art or Artifact.'
+SET Text = 'City must have Walls. +1 [ICON_PRODUCTION] Production for Quarries worked by this City. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strength by 100%. Military Units supplied by this City''s population increased by 10%. Contains 1 slot for a Great Work of Art or Artifact. [NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Arsenal is an Industrial-era military building that increases Defense Strength by 20 and Hit Points by 150, making the city more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and also allows the City to Ranged Strike indirectly, ignoring Line of Sight. Increases Military Units supplied by this City''s population by 15%. The city must possess a Castle before it can construct an Arsenal.'
+SET Text = 'The Arsenal is an Industrial-era military building that increases Defense Strength by 20 and Hit Points by 150, making the city more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and also allows the City to Ranged Strike indirectly, ignoring Line of Sight. Increases Military Units supplied by this City''s population by 15%. Also helps with managing the Empire Needs Modifier in this City. The city must possess a Castle before it can construct an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have a Castle. Military Units supplied by this City''s population increased by 15%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows Indirect Fire. [NEWLINE][NEWLINE]Garrisoned units receive an additional 10 Health when healing in this city. Foreign Spies cannot steal [ICON_RESEARCH] Science from this City.'
+SET Text = 'City must have a Castle. Military Units supplied by this City''s population increased by 15%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows Indirect Fire. [NEWLINE][NEWLINE]Garrisoned units receive an additional 10 Health when healing in this city. Foreign Spies cannot steal [ICON_RESEARCH] Science from this City. [NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress greatly. +25% [ICON_PRODUCTION] Production of Air units, +15 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strength by 100%. Military Units supplied by this City''s population increased by 25%, and garrisoned units receive an additional 10 Health when healing in this city. City must have an Arsenal.'
+SET Text = '-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. +25% [ICON_PRODUCTION] Production of Air units, +15 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strength by 100%. Military Units supplied by this City''s population increased by 25%, and garrisoned units receive an additional 10 Health when healing in this city. [NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 10% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 25 and Hit Points by 200, and improves defense against air units. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 10 Health when healing in this city. Increases Military Units supplied by this City''s population by 25%.'
+SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 25 and Hit Points by 200, and improves defense against air units. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 10 Health when healing in this city. Increases Military Units supplied by this City''s population by 25%. Also helps with managing the Empire Needs Modifier in this City. City must have an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -301,7 +301,7 @@ SET Text = 'Allows airlifts to or from this city. [COLOR_POSITIVE_TEXT]Increases
 WHERE Tag = 'TXT_KEY_BUILDING_AIRPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. When completed, it provides a modest sum of [ICON_CULTURE] Culture and starts 10 turns of ''We Love the King Day'' in the City.[NEWLINE]Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom. When completed, it provides a modest sum of [ICON_CULTURE] Culture and starts 10 turns of ''We Love the King Day'' in the City.[NEWLINE]Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -310,7 +310,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNI
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COLOSSEUM_HELP', '+2 [ICON_TOURISM] Tourism. Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production. Reduces [ICON_HAPPINESS_3] Boredom slightly.'
+SELECT 'TXT_KEY_BUILDING_COLOSSEUM_HELP', '+2 [ICON_TOURISM] Tourism. Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -326,7 +326,7 @@ SET Text = 'Arena'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. Nearby Jungle and Forest tiles gain +1 [ICON_TOURISM] Tourism. Gain 100 [ICON_TOURISM] Tourism (scaling with Era) with all known Civilizations when completed.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom. Nearby Jungle and Forest tiles gain +1 [ICON_TOURISM] Tourism. Gain 100 [ICON_TOURISM] Tourism (scaling with Era) with all known Civilizations when completed.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -342,15 +342,15 @@ SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXt]Cultur
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom greatly. Provides a large sum of [ICON_GOLDEN_AGE] Golden Age Points when completed.[NEWLINE][NEWLINE]25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom. Provides a large sum of [ICON_GOLDEN_AGE] Golden Age Points when completed.[NEWLINE][NEWLINE]25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress greatly. Reduces enemy spy stealing rate by 25%, and prevents the theft of [ICON_GOLD] Gold through Spy Advanced Actions. When an enemy Spy is killed in this City, gain 500 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era and the level of the Spy killed.[NEWLINE][NEWLINE]City must have a Constabulary.'
+SET Text = '-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. Reduces enemy spy stealing rate by 25%, and prevents the theft of [ICON_GOLD] Gold through Spy Advanced Actions. When an enemy Spy is killed in this City, gain 500 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era and the level of the Spy killed.[NEWLINE][NEWLINE]City must have a Constabulary.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress. Reduces enemy spy stealing rate by 25%, and prevents the disruption of Building construction by Spy Advanced Actions.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. Reduces enemy spy stealing rate by 25%, and prevents the disruption of Building construction by Spy Advanced Actions.'
 WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -406,7 +406,7 @@ SET Text = 'The Ironworks National Wonder provides 2 [ICON_RES_IRON] Iron, incre
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy by 2. +75 [ICON_CULTURE] Culture every time you research a Technology. The city must have a university before it can construct Oxford University.'
+SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +75 [ICON_CULTURE] Culture every time you research a Technology. The city must have a university before it can construct Oxford University.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -414,7 +414,7 @@ SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress. The National Intelligence Agency provides an additional spy, improves chance of Great Person assassination via Advanced Actions for spies, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. Empires with a lot of offensive spies will benefit greatly from this building. A city must have a Police Station before it can construct the National Intelligence Agency.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides an additional spy, improves chance of Great Person assassination via Advanced Actions for spies, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. Empires with a lot of offensive spies will benefit greatly from this building. A city must have a Police Station before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -436,11 +436,11 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Recei
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. +2 [ICON_HAPPINESS_1] Happiness, and all Arenas in Empire gain +2 [ICON_GOLD] Gold. Reduces [ICON_HAPPINESS_3] Boredom. Must have built an Arena in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. +2 [ICON_HAPPINESS_1] Happiness, and all Arenas in Empire gain +2 [ICON_GOLD] Gold. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom. Must have built an Arena in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Receive an additional copy of all Luxury Resources around this City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +4 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner.[NEWLINE][NEWLINE]Must have built a Customs House in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. Receive an additional copy of all Luxury Resources around this City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +4 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner.[NEWLINE][NEWLINE]Must have built a Customs House in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -452,7 +452,7 @@ SET Text = 'Provides 2 [ICON_RES_IRON] Iron. +25 [ICON_RESEARCH] Science when yo
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A Great Scientist appears near the City. +75 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for Great Works of Writing. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]Must have built a University in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science if Themed.'
+SET Text = 'A Great Scientist appears near the City. +75 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for Great Works of Writing. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.[NEWLINE][NEWLINE]Must have built a University in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -460,11 +460,11 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress in all Cities. Slows enemy spy effectiveness by 15%, provides an additional spy, and levels up all existing spies. Owned Spies are much more likely to assassinate [ICON_GREAT_PEOPLE] Great People via Advanced Actions.[NEWLINE][NEWLINE]+400 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, complete a City-State Coup or Election Rigging, or kill a foreign [ICON_SPY] Spy in this City (+100 [ICON_GOLD]/[ICON_RESEARCH] for Advanced Actions), all scaling with Era.[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities. Slows enemy spy effectiveness by 15%, provides an additional spy, and levels up all existing spies. Owned Spies are much more likely to assassinate [ICON_GREAT_PEOPLE] Great People via Advanced Actions.[NEWLINE][NEWLINE]+400 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, complete a City-State Coup or Election Rigging, or kill a foreign [ICON_SPY] Spy in this City (+100 [ICON_GOLD]/[ICON_RESEARCH] for Advanced Actions), all scaling with Era.[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All Temples gain +2 [ICON_PEACE] Faith and [ICON_CULTURE] Culture. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'All Temples gain +2 [ICON_PEACE] Faith and [ICON_CULTURE] Culture. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_PEACE] Religious Unrest. Must have built a Temple in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -480,7 +480,7 @@ SET Text = 'Gains an additional trade route slot and a Cargo Ship appears in the
 WHERE Tag = 'TXT_KEY_WONDER_COLOSSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All units gain +15% [ICON_STRENGTH] combat strength when attacking cities. Reduces [ICON_HAPPINESS_3] Distress in all cities. Receive a free Barracks in the City.'
+SET Text = 'All units gain +15% [ICON_STRENGTH] combat strength when attacking cities. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities. Receive a free Barracks in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -508,15 +508,15 @@ SET Text = 'Provides a free Garden in the city in which it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_HANGING_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress in all cities, and increases the Military Unit Supply Cap by 3 in the city. Creates a copy of each type of military land unit you control and places the unit near the city where the Terracotta Army is constructed. Receive a large sum of [ICON_CULTURE] Culture when completed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] UnhappinessNeeds Modifier for [ICON_RESEARCH] Illiteracy by 10% in all Cities, and increases the Military Unit Supply Cap by 3 in the city. Creates a copy of each type of military land unit you control and places the unit near the city where the Terracotta Army is constructed. Receive a large sum of [ICON_CULTURE] Culture when completed.'
 WHERE Tag = 'TXT_KEY_WONDER_TERRA_COTTA_ARMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom in all cities. Increases Military Units supplied by this City''s population by 10%. Contains a prebuilt Great Work of Art in one of the Great Work Slots. All owned Amphitheaters gain +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]+3 [ICON_CULTURE] Culture if themed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom by 10% in all cities. Increases Military Units supplied by this City''s population by 10%. Contains a prebuilt Great Work of Art in one of the Great Work Slots. All owned Amphitheaters gain +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]+3 [ICON_CULTURE] Culture if themed.'
 WHERE Tag = 'TXT_KEY_WONDER_PARTHENON_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Instantly receive 500 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, scaling with Era. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. Receive a free Temple in the City where it is built.'
+SET Text = 'Instantly receive 500 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, scaling with Era. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier from [ICON_RESEARCH] Illiteracy by 10% in all Cities. Receive a free Temple in the City where it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_ORACLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -578,15 +578,15 @@ SELECT 'TXT_KEY_BUILDING_NOTRE_DAME_HELP', 'Receive a free Cathedral in the City
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of Progress Branch. Cost of [ICON_GOLD] Gold purchasing in all cities reduced by 15%. Reduces [ICON_HAPPINESS_3] Poverty in all cities.'
+SET Text = 'Requires completion of Progress Branch. Cost of [ICON_GOLD] Gold purchasing in all cities reduced by 15%. Reduces [ICON_HAPPINESS_3] Unhappiness Need Modifier for [ICON_GOLD] Poverty by 10% in all cities.'
 WHERE Tag = 'TXT_KEY_WONDER_FORBIDDEN_PALACE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%. Reduces [ICON_HAPPINESS_3] Religious Unrest in all cities.'
+SET Text = 'Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%.[NEWLINE][NEWLINE]Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_PEACE] Religious Unrest by 10% in all cities, and Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 10% in all Cities.'
 WHERE Tag = 'TXT_KEY_WONDER_TAJ_MAHAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '1 free Great Writer appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Boredom in all Cities. Writer, Artist, and Musician Specialists in all Cities gain +2 [ICON_GOLDEN_AGE] Golden Age Points. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold if Themed.'
+SET Text = '1 free Great Writer appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom by 10% in all Cities. Writer, Artist, and Musician Specialists in all Cities gain +2 [ICON_GOLDEN_AGE] Golden Age Points. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold if Themed.'
 WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -594,7 +594,7 @@ SET Text = '1 free Great Artist appears near the City where the Wonder was built
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The empire enters a [ICON_GOLDEN_AGE] Golden Age. +1 [ICON_GOLDEN_AGE] Golden Age Points per turn for every 2 [ICON_CITIZEN] Citizens in the City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith in the City for every [ICON_RELIGION] Religion present. Reduces [ICON_HAPPINESS_3] Religious Unrest in all cities.'
+SET Text = 'The empire enters a [ICON_GOLDEN_AGE] Golden Age. +1 [ICON_GOLDEN_AGE] Golden Age Points per turn for every 2 [ICON_CITIZEN] Citizens in the City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith in the City for every [ICON_RELIGION] Religion present. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_PEACE] Religious Unrest by 10% in all cities.'
 WHERE Tag = 'TXT_KEY_WONDER_PYRAMIDS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -610,11 +610,11 @@ SET Text = '+25% generation of [ICON_GREAT_PEOPLE] Great People in the City, and
 WHERE Tag = 'TXT_KEY_WONDER_LEANING_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A Great Scientist appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built.'
+SET Text = 'A Great Scientist appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_RESEARCH] Illiteracy by 10% in all Cities. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_PORCELAIN_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A Great General appears near the City where the Wonder was built and +15 XP for all Units built in this City. Reduces [ICON_HAPPINESS_3] Distress and increases the Military Unit Supply Cap by 10 in the City where it is built.'
+SET Text = 'A Great General appears near the City where the Wonder was built and +15 XP for all Units built in this City. Reduces [ICON_HAPPINESS_3] Unhappiness Need Modifier for [ICON_GOLD] Poverty by 10% in all Cities, and increases the Military Unit Supply Cap by 10 in the City where it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_BRANDENBURG_GATE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -622,11 +622,11 @@ SET Text = 'Requires completion of Artistry branch. 1 free Great Artist and 2 fr
 WHERE Tag = 'TXT_KEY_WONDER_LOUVRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom in all cities. [ICON_CULTURE] Culture cost of adopting new Policies reduced by 10%.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom by 10% in all cities. [ICON_CULTURE] Culture cost of adopting new Policies reduced by 10%.'
 WHERE Tag = 'TXT_KEY_WONDER_EIFFEL_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of Statecraft Branch. Grants 2 additional Delegates in the World Congress for every 8 City-States in the game, and a free Great Merchant. Reduces [ICON_HAPPINESS_3] Poverty in all cities.'
+SET Text = 'Requires completion of Statecraft Branch. Grants 2 additional Delegates in the World Congress for every 8 City-States in the game, and a free Great Merchant. Reduces [ICON_HAPPINESS_3] Unhappiness Need Modifier for [ICON_GOLD] Poverty by 10% in all cities.'
 WHERE Tag = 'TXT_KEY_WONDER_BIG_BEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -642,7 +642,7 @@ SET Text = 'Requires completion of Industry Branch. 1 free Great Musician appear
 WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires Autocracy. +1 [ICON_HAPPINESS_1] Happiness for every 2 Policies you have adopted. 1 Free Social Policy. Enemy Spies cannot disrupt World Wonder [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]Receive 25 [ICON_CULTURE] Culture when any owned Unit pillages a tile, scaling with Era. Must be constructed in a coastal city.'
+SET Text = 'Requires Autocracy. +1 [ICON_HAPPINESS_1] Happiness in [ICON_CAPITAL] Capital for every 2 Policies you have adopted. 1 Free Social Policy. Enemy Spies cannot disrupt World Wonder [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]Receive 25 [ICON_CULTURE] Culture when any owned Unit pillages a tile, scaling with Era. Must be constructed in a coastal city.'
 WHERE Tag = 'TXT_KEY_WONDER_PRORA_RESORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

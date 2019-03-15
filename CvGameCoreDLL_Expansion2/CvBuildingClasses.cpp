@@ -179,6 +179,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGPExpendInfluenceBase(0),
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iEmpireNeedsModifier(0),
+	m_iEmpireNeedsModifierGlobal(0),
 	m_iPovertyHappinessChangeBuilding(0),
 	m_iDefenseHappinessChangeBuilding(0),
 	m_iUnculturedHappinessChangeBuilding(0),
@@ -189,6 +191,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iUnculturedHappinessChangeBuildingGlobal(0),
 	m_iIlliteracyHappinessChangeBuildingGlobal(0),
 	m_iMinorityHappinessChangeBuildingGlobal(0),
+	m_piUnhappinessNeedsFlatReduction(NULL),
 #endif
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
@@ -407,6 +410,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiBuildingClassLocalHappiness(NULL),
 	m_paiSpecificGreatPersonRateModifier(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	m_piiGreatPersonProgressFromConstruction(),
+#endif
 	m_iNumThemingBonuses(0)
 {
 }
@@ -524,6 +530,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassLocalHappiness);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassLocalYieldChanges);
 	SAFE_DELETE_ARRAY(m_paiSpecificGreatPersonRateModifier);
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	m_piiGreatPersonProgressFromConstruction.clear();
 #endif
 }
 
@@ -743,6 +752,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iEmpireNeedsModifier = kResults.GetInt("EmpireNeedsModifier");
+	m_iEmpireNeedsModifierGlobal = kResults.GetInt("EmpireNeedsModifierGlobal");
 	m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
 	m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
 	m_iUnculturedHappinessChangeBuilding = kResults.GetInt("UnculturedHappinessChange");
@@ -892,6 +903,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piLakePlotYieldChange, "Building_LakePlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_piUnhappinessNeedsFlatReduction, "Building_UnhappinessNeedsFlatReduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
@@ -1307,6 +1319,33 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 			m_ppiBuildingClassLocalYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
 		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	//Building_GreatPersonProgressFromConstruction
+	{
+		std::string strKey("Building_GreatPersonProgressFromConstruction");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Eras.ID as ErasID, Value from Building_GreatPersonProgressFromConstruction inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Eras on EraType = Eras.Type where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iGreatPerson = pResults->GetInt(0);
+			const int iEra = pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+
+			m_piiGreatPersonProgressFromConstruction.insert(std::make_pair(iGreatPerson, std::make_pair(iEra, iValue)));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::multimap<int, std::pair<int, int>>(m_piiGreatPersonProgressFromConstruction).swap(m_piiGreatPersonProgressFromConstruction);
 	}
 #endif
 	{
@@ -2225,6 +2264,14 @@ int CvBuildingEntry::GetGPExpendInfluence() const
 }
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+int CvBuildingEntry::GetEmpireNeedsModifier() const
+{
+	return m_iEmpireNeedsModifier;
+}
+int CvBuildingEntry::GetEmpireNeedsModifierGlobal() const
+{
+	return m_iEmpireNeedsModifierGlobal;
+}
 int CvBuildingEntry::GetPovertyHappinessChangeBuilding() const
 {
 	return m_iPovertyHappinessChangeBuilding;
@@ -2653,6 +2700,18 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 // ARRAYS
 
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+/// Change to yield by type
+int CvBuildingEntry::GetUnhappinessNeedsFlatReduction(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piUnhappinessNeedsFlatReduction ? m_piUnhappinessNeedsFlatReduction[i] : -1;
+}
+
+int* CvBuildingEntry::GetUnhappinessNeedsFlatReductionArray() const
+{
+	return m_piUnhappinessNeedsFlatReduction;
+}
 /// Change to yield by type
 int CvBuildingEntry::GetGrowthExtraYield(int i) const
 {
@@ -3656,7 +3715,12 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
-
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+std::multimap<int, std::pair<int, int>> CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
+{
+	return m_piiGreatPersonProgressFromConstruction;
+}
+#endif
 #if defined(MOD_BALANCE_CORE)
 int CvBuildingEntry::GetNumRequiredTier3Tenets() const
 {
@@ -4323,6 +4387,17 @@ int CvCityBuildings::GetTotalBaseBuildingMaintenance() const
 		{
 			if(GetNumBuilding(eBuilding))
 				iTotalCost += (pkBuildingInfo->GetGoldMaintenance() * GetNumBuilding(eBuilding));
+		}
+	}
+
+	for (int iProjectLoop = 0; iProjectLoop < GC.getNumProjectInfos(); iProjectLoop++)
+	{
+		const ProjectTypes eProject = static_cast<ProjectTypes>(iProjectLoop);
+		CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
+
+		if (pkProject && pkProject->GetGoldMaintenance() > 0)
+		{
+			iTotalCost += (m_pCity->getProjectCount(eProject) * pkProject->GetGoldMaintenance());
 		}
 	}
 

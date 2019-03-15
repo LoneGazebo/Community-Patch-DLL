@@ -3113,11 +3113,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 	return bHaveLake && !bHaveOcean;
 }
 #endif
+
 /// "Need Tile Improvers" City Strategy: Do we REALLY need to train some Workers?
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-	int iCurrentNumCities = kPlayer.getNumCities();
+	int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
 
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
 	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 40)
@@ -3140,26 +3141,17 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	}
 	else
 	{
-#if defined(MOD_BALANCE_CORE)
-		//Do we have more/equal workers than/to cities?
-		int iNumCities = max(1, iCurrentNumCities)+1;
-#else
-		int iNumCities = max(1, (iCurrentNumCities * 3) / 4);
-#endif
-		if(iNumWorkers >= iNumCities)
+		//Do we have more workers than cities already?
+		if(iNumWorkers > iCurrentNumCities+1)
 			return false;
+
 		// If we're losing at war, return false
 		if(kPlayer.GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 			return false;
 	}
 
 	// If we're under attack from Barbs and have 1 or fewer Cities and no credible defense then training more Workers will only hurt us
-#if defined(MOD_BALANCE_CORE)
-	//Updated to 4
 	if(iCurrentNumCities <= 4)
-#else
-	if(iCurrentNumCities <= 1)
-#endif
 	{
 		CvMilitaryAI* pMilitaryAI =kPlayer.GetMilitaryAI();
 		MilitaryAIStrategyTypes eStrategyKillBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -3167,27 +3159,20 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 		{
 			if(pMilitaryAI->IsUsingStrategy(eStrategyKillBarbs))
 			{
-#if defined(MOD_BALANCE_CORE)
 				//Do we have enough military units to defend our land? No? Abort.
 				int iNumMilitaryUnits = kPlayer.getNumMilitaryUnits();
 				if((iNumWorkers * 6) >= iNumMilitaryUnits)
-				{
-#endif
-				return false;
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
+					return false;
 			}
 		}
 	}
 
 	CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
 
-	int iModdedNumWorkers = iNumWorkers* /*67*/ pCityStrategy->GetWeightThreshold() / 100;
-	int iModdedNumCities = iCurrentNumCities + kPlayer.countCitiesFeatureSurrounded();
+	int iModdedNumWorkers = iNumWorkers * /*67*/ pCityStrategy->GetWeightThreshold() / 100;
 
 	// We have fewer than we think we should, or we have none at all
-	if(iModdedNumWorkers <= iModdedNumCities || iModdedNumWorkers == 0)
+	if(iModdedNumWorkers <= iCurrentNumCities || iModdedNumWorkers == 0)
 	{
 		// If we don't have any Workers by turn 30 we really need to get moving
 		int iDesperateTurn = /*30*/ GC.getAI_CITYSTRATEGY_NEED_TILE_IMPROVERS_DESPERATE_TURN();
@@ -3220,177 +3205,27 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 	}
 
 	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
-#if defined(MOD_BALANCE_CORE)
 	if(iNumBuilders <= 0)
 	{
 		return true;
 	}
-	int iCurrentNumCities = kPlayer.getNumCities();
+
+	int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
 	if(iNumBuilders >= iCurrentNumCities)
 	{
 		return false;
 	}
-#else
-	if(iNumWorkers >= ((kPlayer.getNumCities() *  3) / 2) + 1)
-		return false;
-#endif
-	// If we're under attack from Barbs and have 1 or fewer cities then training more Workers will only hurt us
-	//if (kPlayer.getNumCities() <= 1)
-	//{
-	//	MilitaryAIStrategyTypes eStrategyKillBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
-	//	if (eStrategyKillBarbs != NO_MILITARYAISTRATEGY)
-	//	{
-	//		if (GET_PLAYER(pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategyKillBarbs))
-	//			return false;
-	//	}
-	//}
 
 	// Don't get desperate for training a Builder here unless the City is at least of a certain size
 	if(pCity->getPopulation() >= /*2*/ GC.getAI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE())
 	{
-#if defined(MOD_BALANCE_CORE)
 		// If we don't even have 1 builder on map or in a queue, turn this on immediately
 		if(iNumBuilders < 1)
-		{
 			return true;
-		}
-		int iNumCities = kPlayer.getNumCities();
+
 		CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
-		int iWeightThresholdModifier = pCityStrategy->GetWeightThreshold();	// 1
-		iWeightThresholdModifier *= iNumCities;
-		if(iNumBuilders < iWeightThresholdModifier)
-		{
+		if(iNumBuilders < iCurrentNumCities * pCityStrategy->GetWeightThreshold()) // limit to x builders per city
 			return true;
-		}
-#else
-		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
-
-		// If we don't even have 1 builder on map or in a queue, turn this on immediately
-		if(iNumBuilders < 1)
-		{
-			return true;
-		}
-		int iWeightThresholdModifier = CityStrategyAIHelpers::GetWeightThresholdModifier(eStrategy, pCity);	// 2 Extra Weight per TILE_IMPROVEMENT Flavor
-		int iPerCityThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 40
-
-		// Look at all Tiles this City could potentially work to see if there are any Water Resources that could be improved
-		CvPlot* pLoopPlot;
-		int iNumResources = 0;
-		int iNumImprovedResources = 0;
-
-
-		for(int iPlotLoop = 0; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-		{
-			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iPlotLoop);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getOwner() == pCity->getOwner())
-				{
-					if(!pLoopPlot->isWater())
-					{
-						ResourceTypes eResource = pLoopPlot->getResourceType(kPlayer.getTeam());
-						if(eResource == NO_RESOURCE)
-						{
-							continue;
-						}
-
-						// loop through the build types to find one that we can use
-						ImprovementTypes eCorrectImprovement = NO_IMPROVEMENT;
-						BuildTypes eCorrectBuild = NO_BUILD;
-						int iBuildIndex;
-						for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
-						{
-							const BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
-							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-							if(pkBuildInfo)
-							{
-								const ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-
-								// if this is the improvement we're looking for
-								if(eImprovement != NO_IMPROVEMENT)
-								{
-									CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-									if(pkImprovementInfo)
-									{
-										if(pkImprovementInfo->IsImprovementResourceTrade(eResource))
-										{
-											eCorrectBuild = eBuild;
-											eCorrectImprovement = eImprovement;
-											break;
-										}
-									}
-								}
-							}
-
-						}
-
-						// no valid build found
-						if(eCorrectBuild == NO_BUILD || eCorrectImprovement == NO_IMPROVEMENT)
-						{
-							continue;
-						}
-
-
-						// if we can't build the improvement for the resource, continue!
-						if(!kPlayer.canBuild(pLoopPlot, eCorrectBuild, false, false))
-						{
-							if(pLoopPlot->getImprovementType() == eCorrectImprovement)
-							{
-								iNumImprovedResources++;
-								iNumResources++;
-							}
-
-							continue;
-						}
-
-						iNumResources++;
-					}
-				}
-			}
-		}
-
-		bool bManyUnimproveResources = (2 * (iNumResources - iNumImprovedResources)) > iNumResources;
-		int iMultiplier = kPlayer.getNumCities();
-		iMultiplier += kPlayer.countCitiesFeatureSurrounded();
-		if(bManyUnimproveResources)
-			iMultiplier += 1;
-
-		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, false);
-		iMultiplier += iNumSettlers;
-
-		int iWeightThreshold = (iPerCityThreshold * iMultiplier);
-
-		//Do we want more Builders?
-		if((iNumBuilders * 100) < iWeightThreshold)
-		{
-			// slewis - need to check to see if training another worker will put us below the -10 threshold.
-			// slewis - todo: move -10 to a xml value
-			return (kPlayer.calculateGoldRate() > -10);
-
-			// Also want to check and see if we have enough happiness to support another builder
-			//int iBuilderUnhappiness = 0;
-			//int iBuildersInGame = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, false, false);
-			//if (iBuildersInGame > 0)
-			//{
-			//	CvUnit *pLoopUnit;
-			//	int iLoop;
-			//	for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-			//	{
-			//		if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
-			//		{
-			//			break;
-			//		}
-			//	}
-			//	if (pLoopUnit)
-			//	{
-			//		iBuilderUnhappiness = pLoopUnit->getUnitInfo().GetUnhappiness();
-			//	}
-			//}
-
-			//return (kPlayer.GetExcessHappiness()) >= (iNumBuilders - iBuildersInGame + 1) * iBuilderUnhappiness;
-		}
-#endif
 	}
 
 	return false;
@@ -3410,94 +3245,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	if (iNumBuilders <= 0)
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
-	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
-
-	int iNumWorkersHere = 0;
-	int iCanImprove = 0;
-	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
-
-		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
-			continue;
-		}
-		//No improved, no city, no impassable, no water.
-		if(!pLoopPlot->isImpassable() && !pLoopPlot->isWater())
-		{
-			CvUnit* pLoopUnit;
-			for(int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
-			{
-				//Workers nearby?
-				pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
-				if(pLoopUnit != NULL && pLoopUnit->getOwner() == pCity->GetID() && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
-				{
-					iNumWorkersHere++;
-				}
-			}
-			//Already improved and not pillaged? Continue.
-			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && !pLoopPlot->IsRoutePillaged())
-				continue;
-
-			//Skip cities.
-			if(pLoopPlot->isCity())
-				continue;
-
-			if(pLoopPlot->IsImprovementPillaged())
-			{
-				iCanImprove++;
-			}
-			else
-			{
-				for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
-				{
-					CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-					if(!pkBuildInfo)
-					{
-						continue;
-					}
-					ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-					if(eImprovement == NO_IMPROVEMENT)
-					{
-						continue;
-					}
-
-					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
-					if(pkEntry->IsCreatedByGreatPerson())
-						continue;
-
-					//Valid right now with any worker valid build?
-					if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
-					{
-						iCanImprove++;
-						break;
-					}
-				}
-			}
-		}
-	}
-	//Tiles to improve?
-	if(iCanImprove <= 0)
-	{
-		return true;
-	}
-
-	//Not enough workers here? 4:1 ratio is good ratio.
-	if((iNumWorkersHere * 4) < iCanImprove)
-	{
-		return false;
-	}
-#endif
 	AICityStrategyTypes eNeedImproversStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
-
 	if(eNeedImproversStrategy != NO_ECONOMICAISTRATEGY)
 	{
 		if(pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedImproversStrategy))
 			return false;
 	}
-
-
 
 	// If it's a minor with at least 1 worker per city, always return true
 	if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
@@ -3516,12 +3269,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 
 	int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pCity);	// 10 Extra Weight per TILE_IMPROVEMENT Flavor
 	int iPerCityThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 100
-
-	int iModdedNumCities = kPlayer.getNumCities() + kPlayer.countCitiesFeatureSurrounded();
-	int iWeightThreshold = (iPerCityThreshold * iModdedNumCities);
+	int iNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
 
 	// Average Player wants no more than 1.50 Builders per City [150 Weight is Average; range is 100 to 200]
-	if((iNumBuilders * 100) >= iWeightThreshold)
+	if((iNumBuilders * 100) >= iPerCityThreshold*iNumCities)
 	{
 		return true;
 	}

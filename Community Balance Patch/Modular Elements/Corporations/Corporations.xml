@@ -1162,7 +1162,6 @@
 			<Help>TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<UnmoddedHappiness>1</UnmoddedHappiness>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>

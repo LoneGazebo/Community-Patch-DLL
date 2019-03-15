@@ -423,25 +423,15 @@ local function UpdateTopPanelNow()
 		if g_isHappinessEnabled then
 
 			local happinessText
-			local excessHappiness = g_activePlayer:GetExcessHappiness()
+			local excessHappiness = g_activePlayer:GetHappinessForGAP()
 			local turnsRemaining = ""
 
 			local population = g_activePlayer:GetTotalPopulation()
 			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
+			local percent = g_activePlayer:GetExcessHappiness()
 
-			if g_activePlayer:IsEmpireSuperUnhappy() then
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
-			elseif g_activePlayer:IsEmpireUnhappy() then
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
-			else
-				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", excessHappiness, unhappypop, population)
-			end
+			happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, population)
 			Controls.HappinessString:SetText(happinessText)
-
-			--if bnw_mode and excessHappiness < 0 then
-				--unhappyProductionModifier = math_max( -excessHappiness * GameDefines.VERY_UNHAPPY_PRODUCTION_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_PRODUCTION_PENALTY )
-				--unhappyGoldModifier = math_max( -excessHappiness * GameDefines.VERY_UNHAPPY_GOLD_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_GOLD_PENALTY )
-			--end
 
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
@@ -845,13 +835,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			
 			-- Science % lost from unhappiness
 			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivs();
-			local iScienceChange = g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_SCIENCE);
 			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
-			if(iScienceChange > 0) then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_GAINED_FROM_HAPPINESS", iScienceChange / 100)
-			else
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_LOST_FROM_UNHAPPINESS", iScienceChange / 100)
-			end
 --END
 			-- Science from Research Agreements
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100 )
@@ -1004,10 +988,9 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 		-- Gold gained from happiness
 	local iInternalRouteGold = g_activePlayer:GetInternalTradeRouteGoldBonus();
 	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs()
-	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
 
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold  + iGoldfromHappiness + iGoldFromMinors + iInternalRouteGold -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + iGoldFromMinors + iInternalRouteGold -- C4DF
 -- C4DF CHANGE
 	if (iGoldFromVassals > 0) then
 		explicitIncome = explicitIncome + iGoldFromVassals;
@@ -1075,19 +1058,11 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
 -- CBP
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
-	-- Gold gained from happiness
-	if(iGoldfromHappiness > 0) then
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldfromHappiness)
-	end
 --END
 	tips:insert( "[ENDCOLOR]" )
 
 	-- Spending
--- COMMUNITY PATCH CHANGE
-	if (iGoldfromHappiness < 0) then
-		iGoldfromHappiness = (iGoldfromHappiness * -1)
-		totalExpenses = (totalExpenses + iGoldfromHappiness)
-	end	
+
 --END
 	tips:insert( "[COLOR:255:150:150:255]" .. L("TXT_KEY_TP_TOTAL_EXPENSES", totalExpenses ) )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNIT_MAINT", unitCost )
@@ -1099,13 +1074,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
--- CBP
-	-- Gold % lost from unhappiness
-	local iGoldfromHappiness2 = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
-	if(iGoldfromHappiness2 < 0) then
-		tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS", (iGoldfromHappiness2 * -1))
-	end
---END
+
 	tips:insert( "[ENDCOLOR]" )
 
 	-- show gold available for trade to the active player
@@ -1181,115 +1150,29 @@ if civ5_mode then
 
 		if g_isHappinessEnabled then
 			local tips = table()
-			local excessHappiness = g_activePlayer:GetExcessHappiness()
+
 		-- CBP EDITS HERE
-			local iTestHappiness = excessHappiness;
-			local iMilitaryHappiness = excessHappiness;
-			if(iTestHappiness > 10) then
-				iTestHappiness = 10;
-			end
-			if(iTestHappiness < -30)then
-				iTestHappiness = -30;
-			end
-			if(iMilitaryHappiness < -20)then
-				iMilitaryHappiness = -20;
-			end
-			if(iTestHappiness < 0) then
-				iTestHappiness = (iTestHappiness * -1);
-			end
-			if(iMilitaryHappiness < 0) then
-				iMilitaryHappiness = (iMilitaryHappiness * -1);
-			end
-			if not g_activePlayer:IsEmpireUnhappy() then
-				tips:insert( L("TXT_KEY_TP_TOTAL_HAPPINESS", excessHappiness, iTestHappiness) )
-			elseif g_activePlayer:IsEmpireVeryUnhappy() then
-				tips:insert( L("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_4]", -excessHappiness) )
-			else
-				tips:insert( L("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_3]", -excessHappiness) )
-			end
 
-			local policiesHappiness = g_activePlayer:GetHappinessFromPolicies()
-			local resourcesHappiness = g_activePlayer:GetHappinessFromResources()
--- CBP
-			local happinessFromMonopoly = g_activePlayer:GetHappinessFromResourceMonopolies();
-			local happinessfromLuxuryBonus = g_activePlayer:GetBonusHappinessFromLuxuries();
-			local happinessfromEvents = g_activePlayer:GetEventHappiness();
--- END
-			local happinessFromExtraResources = g_activePlayer:GetHappinessFromResourceVariety()
-			local extraLuxuryHappiness = g_activePlayer:GetExtraHappinessPerLuxury()
-			local buildingHappiness = g_activePlayer:GetHappinessFromBuildings()
-
-			local cityHappiness = 0
-			local garrisonedUnitsHappiness = 0
-			local minorCivHappiness = 0
-			local religionHappiness = 0
-			if gk_mode then
-				cityHappiness = g_activePlayer:GetHappinessFromCities()
-				minorCivHappiness = g_activePlayer:GetHappinessFromMinorCivs()
-				religionHappiness = g_activePlayer:GetHappinessFromReligion()
-			else
-				garrisonedUnitsHappiness = g_activePlayer:GetHappinessFromGarrisonedUnits()
-				-- Loop through all the Minors the active player knows
-				for minorPlayerID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
-					minorCivHappiness = minorCivHappiness + g_activePlayer:GetHappinessFromMinor(minorPlayerID)
-				end
-			end
-			local tradeRouteHappiness = g_activePlayer:GetHappinessFromTradeRoutes()
-			local naturalWonderHappiness = g_activePlayer:GetHappinessFromNaturalWonders()
-			local extraHappinessPerCity = g_activePlayer:GetExtraHappinessPerCity() * g_activePlayer:GetNumCities()
-			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
-
-			local totalHappiness = g_activePlayer:GetHappiness()
-			local happinessFromVassals = g_activePlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly - happinessfromLuxuryBonus - happinessfromEvents	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-
-			if g_activePlayer:IsEmpireVeryUnhappy() then
-
-				if g_activePlayer:IsEmpireSuperUnhappy() then
-					tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY" .. "[ENDCOLOR]" )
-				end
-				tips:insert("[NEWLINE][NEWLINE]" .. "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[ENDCOLOR]" )
-				
+			if g_activePlayer:IsEmpireSuperUnhappy() then
+					tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")  .. "[ENDCOLOR]" )
+			elseif g_activePlayer:IsEmpireVeryUnhappy() then	
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[ENDCOLOR]" )
 			elseif g_activePlayer:IsEmpireUnhappy() then
-
-				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[ENDCOLOR]" )
-			end
+				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[ENDCOLOR]" )
+			else
+				tips:insert( "[COLOR:150:255:150:255]" .. L("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[ENDCOLOR]" )
 			-- Basic explanation of Happiness
+			end
 
 			if g_isBasicHelp then
 				tips:insert( L"TXT_KEY_TP_HAPPINESS_EXPLANATION" )
 				tips:insert( "" )
 			end
 
-			-- Individual Resource Info
-			local numHappinessResources = 0
-			local availableResources = ""
-			local missingResources = ""
-
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-
-				local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
-				if numResourceAvailable > 0 then
-					if g_activePlayer:GetHappinessFromLuxury( resourceID ) > 0 then
-						availableResources = availableResources
-							.. " [COLOR_POSITIVE_TEXT]"
-							.. numResourceAvailable
-							.. "[ENDCOLOR]"
-							.. resource.IconString
-						numHappinessResources = numHappinessResources + 1
-					end
-				elseif numResourceAvailable == 0 then
-					missingResources = missingResources .. resource.IconString
-				else
-					missingResources = missingResources
-						.. " [COLOR_WARNING_TEXT]"
-						.. numResourceAvailable
-						.. "[ENDCOLOR]"
-						.. resource.IconString
-				end
-			end
-
+			
+			
+			local empireUnhappiness = g_activePlayer:GetEmpireUnhappinessForCity();
+	
 			--------------
 			-- Unhappiness
 			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
@@ -1300,21 +1183,51 @@ if civ5_mode then
 				unhappinessFromPop = 0
 			end
 --END	
-
-			tips:insert( "[COLOR:255:150:150:255]" .. L( "TXT_KEY_TP_UNHAPPINESS_TOTAL", g_activePlayer:GetUnhappiness() ) )
+			tips:insert( "[COLOR:255:150:150:255]" )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", g_activePlayer:GetUnhappinessFromCityCount() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", g_activePlayer:GetUnhappinessFromCapturedCityCount() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POPULATION", unhappinessFromPop / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_min(policiesHappiness,0) ) --can be positive or negative
 			
--- COMMUNITY PATCH CHANGES BELOW
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
 			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", g_activePlayer:GetUnhappinessFromWarWeariness())		
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", g_activePlayer:GetUnhappinessFromWarWeariness())	
+		
+			local empireHappiness = g_activePlayer:GetEmpireHappinessForCity();
+
+			local religionHappiness = 0
+			if gk_mode then
+				religionhappiness = g_activePlayer:GetHappinessFromReligion();
+			end
+			local naturalwonderhappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local minorcivhappiness = g_activePlayer:GetHappinessFromMinorCivs();
+			local leaguehappiness = g_activePlayer:GetHappinessFromLeagues();
+			local vassalhappiness = g_activePlayer:GetHappinessFromVassals();
+			local eventhappiness = g_activePlayer:GetEventHappiness();
+			local tradehappiness = g_activePlayer:GetHappinessFromTradeRoutes();
+
+			------------
+			-- Happiness
+			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
+			
+			local htotal = naturalwonderhappiness + minorcivhappiness + leaguehappiness + vassalhappiness + eventhappiness + tradehappiness + religionHappiness;
+			if(htotal ~= 0) then
+				tips:insert( L("TXT_KEY_TP_HAPPINESS_SOURCES", empireHappiness ) )
+			end
+
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", naturalwonderhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorcivhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leaguehappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", vassalhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", eventhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO", religionHappiness )
+
+			tips:insert( "[ENDCOLOR]" )
+			
+			tips:insert( "[COLOR:255:150:150:255]" )
 			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
 			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
 			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
@@ -1323,6 +1236,18 @@ if civ5_mode then
 			local iUnhappinessFromMinority = g_activePlayer:GetUnhappinessFromCityMinority();
 			local iUnhappinessFromScience = g_activePlayer:GetUnhappinessFromCityScience();
 			local iUnhappinessFromCulture = g_activePlayer:GetUnhappinessFromCityCulture();
+
+			local total = (unhappinessFromSpecialists / 100) + (g_activePlayer:GetUnhappinessFromOccupiedCities() / 100) + (unhappinessFromPupetCities / 100) + iUnhappinessFromStarving + iUnhappinessFromPillaged + iUnhappinessFromGold + iUnhappinessFromDefense + iUnhappinessFromConnection + iUnhappinessFromMinority + iUnhappinessFromScience + iUnhappinessFromCulture;
+
+			if(total ~= 0)then
+				tips:insert( L"TXT_KEY_TP_UNHAPPINESS_NEEDS" )
+			end
+
+-- COMMUNITY PATCH CHANGES BELOW		
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
+
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PILLAGED", iUnhappinessFromPillaged )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_GOLD", iUnhappinessFromGold )
@@ -1331,44 +1256,8 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_MINORITY", iUnhappinessFromMinority )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SCIENCE", iUnhappinessFromScience )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture )
-	
---END CHANGES
-
-			------------
-			-- Happiness
-			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
-			tips:insert( L("TXT_KEY_TP_HAPPINESS_SOURCES", totalHappiness ) )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicapHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_max(policiesHappiness,0) ) --can be positive or negative
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_BUILDINGS", buildingHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITIES", cityHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_GARRISONED_UNITS", garrisonedUnitsHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradeRouteHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION", religionHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", naturalWonderHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_COUNT", extraHappinessPerCity )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorCivHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leagueHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", happinessFromMonopoly )
-
-			if #availableResources > 0 then
-				tips:insert( "[ICON_BULLET]" .. L( "TXT_KEY_TP_HAPPINESS_FROM_RESOURCES", resourcesHappiness ) )
-				tips:insert( "  " .. availableResources )
-			end
-			
-			tips:insert( "[COLOR:150:255:150:255]" )
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_LUXURY_BONUS", happinessfromLuxuryBonus, g_activePlayer:GetAveragePopulation100()/100)
-
-			-- Misc Happiness
-			local miscHappiness = totalHappiness - handicapHappiness - math_max(policiesHappiness,0) - buildingHappiness - cityHappiness - garrisonedUnitsHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - minorCivHappiness - leagueHappiness - happinessFromVassals - happinessFromMonopoly - resourcesHappiness - happinessFromExtraResources - (extraLuxuryHappiness * numHappinessResources) - happinessfromLuxuryBonus
-			if(miscHappiness > 0) then
-				tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
-			end
-
 			tips:insert( "[ENDCOLOR]" )
+--END CHANGES
 
 			----------------------------
 			-- Local Resources in Cities
@@ -1585,7 +1474,7 @@ if civ5_mode then
 		if g_isHappinessEnabled then
 
 			local tips = table()
-			local excessHappiness = g_activePlayer:GetExcessHappiness()
+			local excessHappiness = g_activePlayer:GetHappinessForGAP()
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
@@ -1602,7 +1491,6 @@ if civ5_mode then
 				end
 				tips:insert( L( "TXT_KEY_TP_GOLDEN_AGE_NOW", goldenAgeTurns ) )
 			end
-			local excessHappiness = g_activePlayer:GetExcessHappiness()
 			tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YELLOW]"
 				.. Locale.ToUpper( "TXT_KEY_SPECIALISTSANDGP_GOLDENAGE_HEADING4_TITLE" )
 				.. "[ENDCOLOR]" ) .. " " .. happyProgress .. " / " .. happyNeeded )
@@ -1963,17 +1851,10 @@ g_toolTipHandler.CultureString = function()-- control )
 -- END
 			-- Culture from Golden Age
 -- CBP
-			local communityCulture = g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_CULTURE)
-			
-			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - communityCulture - culturePerTurnFromVassals)
+	
+			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals)
 			
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge)
-			
-			if(communityCulture < 0) then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS", communityCulture)
-			else
-				tips:insertLocalizedIfNonZero("TXT_KEY_TP_CULTURE_GAINED_FROM_HAPPINESS", communityCulture)
-			end
 -- END
 		
 		else
@@ -2041,13 +1922,7 @@ if civ5_mode and gk_mode then
 			end
 -- END			
 -- COMMUNITY PATCH CHANGE
-			-- Faith % lost from unhappiness
-			local faithChange = g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_FAITH);
-			if(faithChange > 0) then
-				tips:insertLocalizedIfNonZero("TXT_KEY_TP_FAITH_GAINED_FROM_HAPPINESS", faithChange)
-			else
-				tips:insertLocalizedIfNonZero("TXT_KEY_TP_FAITH_LOST_FROM_UNHAPPINESS", faithChange)
-			end
+
 --END
 
 			-- New World Deluxe Scenario ( you still need to delete TopPanel.lua from ...\Steam\SteamApps\common\sid meier's civilization v\assets\DLC\DLC_07\Scenarios\Conquest of the New World Deluxe\UI )

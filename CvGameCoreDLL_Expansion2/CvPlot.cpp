@@ -155,6 +155,12 @@ CvPlot::CvPlot() :
 
 	m_szScriptData = NULL;
 
+#if defined(MOD_API_EXTENSIONS)
+    // allocates memory for an array only once
+    m_aiArbitraryYields = FNEW(uint8[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+    ZeroMemory(m_aiArbitraryYields, sizeof(uint8) * NUM_YIELD_TYPES);
+#endif
+
 	reset(0, 0, true);
 }
 
@@ -162,6 +168,11 @@ CvPlot::CvPlot() :
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
+#if defined(MOD_API_EXTENSIONS)
+    // releases memory mirroring the constructor
+    SAFE_DELETE_ARRAY(m_aiArbitraryYields);
+#endif
+
 	std::set<int>::iterator it = FSerialization::plotsToCheck.find(m_iPlotIndex);
 	if (it!=FSerialization::plotsToCheck.end())
 		FSerialization::plotsToCheck.erase(it);
@@ -296,6 +307,9 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 		for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 		{
 			m_aiYield[iI] = 0;
+#if defined(MOD_API_EXTENSIONS)
+            m_aiArbitraryYields[iI] = 0;
+#endif
 		}
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -8072,10 +8086,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 			if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 			{
-				if (GET_PLAYER(eBuilder).getCapitalCity() != NULL)
+				CvCity* pLoopCity = NULL;
+				int iLoop = 0;
+				for (pLoopCity = GET_PLAYER(eBuilder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBuilder).nextCity(&iLoop))
 				{
-					GET_PLAYER(eBuilder).getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(newImprovementEntry.GetHappinessOnConstruction());
-					GET_PLAYER(eBuilder).DoUpdateHappinessFromBuildings();
+					pLoopCity->ChangeUnmoddedHappinessFromBuildings(newImprovementEntry.GetHappinessOnConstruction());
 				}
 			}
 #endif
@@ -9652,6 +9667,16 @@ int CvPlot::getYield(YieldTypes eIndex) const
 	return (int)(m_aiYield[eIndex]);
 }
 
+#if defined(MOD_API_EXTENSIONS)
+void CvPlot::changeYield(YieldTypes eYield, int iChange)
+{
+    CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+    CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+    m_aiArbitraryYields[eYield] += iChange;
+    updateYield();
+}
+#endif
+
 int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature, bool bDisplay) const
 {
 	ResourceTypes eResource;
@@ -10878,6 +10903,13 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, eRoute);
 	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
+
+#if defined(MOD_API_EXTENSIONS)
+    if (m_aiArbitraryYields[eYield])
+    {
+        iYield += m_aiArbitraryYields[eYield];
+    }
+#endif
 
 	return std::max(0, iYield);
 }
@@ -13207,8 +13239,13 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_purchaseCity.eOwner;
 	kStream >> m_purchaseCity.iID;
 
-	for(uint i = 0; i < NUM_YIELD_TYPES; i++)
-		kStream >> m_aiYield[i];
+    for(uint i = 0; i < NUM_YIELD_TYPES; i++)
+    {
+        kStream >> m_aiYield[i];
+#if defined(MOD_API_EXTENSIONS)
+        kStream >> m_aiArbitraryYields[i];
+#endif
+    }
 
 	for(int i = 0; i < MAX_TEAMS; i++)
 	{
@@ -13358,8 +13395,13 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_purchaseCity.eOwner;
 	kStream << m_purchaseCity.iID;
 
-	for(uint i = 0; i < NUM_YIELD_TYPES; i++)
-		kStream << m_aiYield[i];
+    for(uint i = 0; i < NUM_YIELD_TYPES; i++)
+    {
+        kStream << m_aiYield[i];
+#if defined(MOD_API_EXTENSIONS)
+        kStream << m_aiArbitraryYields[i];
+#endif
+    }
 
 	for (int i = 0; i < MAX_TEAMS; i++)
 	{
@@ -13842,6 +13884,13 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 	}
+
+#if defined(MOD_API_EXTENSIONS)
+    if (m_aiArbitraryYields[eYield])
+    {
+        iYield += m_aiArbitraryYields[eYield];
+    }
+#endif
 
 	return std::max(0, iYield);
 }

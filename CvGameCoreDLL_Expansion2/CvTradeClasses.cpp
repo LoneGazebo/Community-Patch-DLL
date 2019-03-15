@@ -4640,6 +4640,27 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
 	return iNumConnections;
 }
 
+int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if (pConnection->m_iOriginX == pCity->getX() && pConnection->m_iOriginY == pCity->getY())
+			{
+				iNumConnections++;
+			}
+		}
+	}
+
+	return iNumConnections;
+}
+
+
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -6330,21 +6351,22 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 
 #if defined(MOD_BALANCE_CORE)
+	//emphasize gold if we're in the red
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
-	if(iGPT <= 0)
-	{
-		iGoldAmount *= (iGPT * -2);
-	}
+	if(iGPT < -1)
+		iGoldAmount *= (int)sqrt((float)-iGPT);
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
+	//if a city is impoverished, let's send trade routes from there
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{		
 		if(pFromCity->getUnhappinessFromGold() > 0)
 		{
-			iGoldAmount *= (pFromCity->getUnhappinessFromGold() * 10);
+			iGoldAmount += (pFromCity->getUnhappinessFromGold() * 10);
 		}
 	}
+
 	//If we are somewhat influential, let's count that here.
 	if(bHaveTourism && !GET_PLAYER(pFromCity->getOwner()).isMinorCiv())
 	{
@@ -7591,8 +7613,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	{
 		TRSortElement kElement;
 		kElement.m_kTradeConnection = aTradeConnectionList[ui];
-		std::vector<int>ValuesVector;
-		ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
+		std::vector<int> ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
 		if (ValuesVector.size() > 0)
 		{
 			kElement.m_iScore = ValuesVector[0];

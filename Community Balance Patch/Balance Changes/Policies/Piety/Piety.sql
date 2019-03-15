@@ -84,7 +84,7 @@ DELETE FROM Policy_BuildingClassYieldModifiers
 WHERE PolicyType = 'POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 	
 UPDATE Policies
-SET HappinessToCulture = '100'
+SET HappinessToCulture = '25'
 WHERE Type = 'POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Reformation (Now Monasticism)

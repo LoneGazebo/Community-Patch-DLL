@@ -2001,21 +2001,20 @@ function RefreshCultureVictory()
 				row.strPublicOpinionToolTip = pPlayer:GetPublicOpinionTooltip();
 				
 				local iUnhappiness = -1 * pPlayer:GetPublicOpinionUnhappiness();
-
 				local strPublicOpinionUnhappiness = tostring(0);
 				if (iUnhappiness < 0) then
-					strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
+					strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT", iUnhappiness);
 				end
-
+				
 				row.iUnhappiness = iUnhappiness;
 				row.strPublicOpinionUnhappiness = strPublicOpinionUnhappiness;
 				row.strPublicOpinionUnhappinessToolTip = pPlayer:GetPublicOpinionUnhappinessTooltip();
 				
 				local iExcessHappiness = pPlayer:GetExcessHappiness();
 				local strExcessHappiness = tostring(0);
-				if (iExcessHappiness < 0) then
+				if (iExcessHappiness <= 75) then
 					strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iExcessHappiness);
-				elseif (iExcessHappiness> 0) then
+				elseif (iExcessHappiness > 75) then
 					strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_HAPPINESS", iExcessHappiness);				
 				end
 				row.iExcessHappiness = iExcessHappiness;
@@ -2182,7 +2181,7 @@ function RefreshPlayerInfluence()
 					end
 					
 					if(iModifiers == 0) then
-						playerInfluence.ModifierText = "--";
+						playerInfluence.ModifierText = "0%";
 					elseif(iModifiers > 0) then
 						playerInfluence.ModifierText = "+" .. iModifiers .. "%";
 					else

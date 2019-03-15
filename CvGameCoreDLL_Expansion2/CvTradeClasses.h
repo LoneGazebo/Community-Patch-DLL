@@ -283,6 +283,8 @@ public:
 	int GetNumberOfCityStateTradeRoutes();
 	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
 
+	int GetNumberOfTradeRoutesFromCity(CvCity* pCity);
+
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetNumberOfInternalTradeRoutes();

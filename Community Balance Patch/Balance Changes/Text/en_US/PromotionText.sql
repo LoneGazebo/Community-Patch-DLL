@@ -121,15 +121,15 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Bombardment now specifically anti-City.
@@ -191,15 +191,15 @@
 -- Wolfpack extremely strong
 
 	UPDATE Language_en_US
-	SET Text = '+20% Combat Bonus when attacking.'
+	SET Text = '+30% Combat Bonus when attacking. +1 Sight'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+20% Combat Bonus when attacking.'
+	SET Text = '+30% Combat Bonus when attacking. +1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+20% Combat Bonus when attacking.'
+	SET Text = '+30% Combat Bonus when attacking. Attempts to withdraw when faced with a melee attack (40% chance)'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

@@ -8,7 +8,7 @@
 
 	<!-- Left Side Panel -->
 	<!-- City Information -->
-	<Grid ID="CityInfoBG" Size="240,390" ConsumeMouse="1" Anchor="L,T" Offset="-16,-9" Style="Grid9DetailSix140" >
+	<Grid ID="CityInfoBG" Size="240,414" ConsumeMouse="1" Anchor="L,T" Offset="-16,-9" Style="Grid9DetailSix140" >
 		<Label Anchor="C,T" Offset="0,18" String="TXT_KEY_CITYVIEW_CITYINFO_TEXT"/>
 		<Stack Anchor="L,T" Offset="17,60" StackGrowth="Bottom" >
 			<!-- Population Info -->
@@ -66,6 +66,12 @@
 				<Label Anchor="L,C" Offset="6,0" String="[ICON_HAPPINESS_1]"/>
 				<Label Anchor="L,C" Offset="32,0" String="TXT_KEY_CITYVIEW_HAPPINESS_TEXT"/>
 				<Label ID="HappinessPerTurnLabel" Anchor="R,C" String=""/>
+				<Box Anchor="L,B" Color="27.53.64.255" Offset="4,0" Size="196,1"/>
+			</Button>
+			<Button ID="UnhappinessBox" Size="196,24">
+				<Label Anchor="L,C" Offset="6,0" String="[ICON_HAPPINESS_3]"/>
+				<Label Anchor="L,C" Offset="32,0" String="TXT_KEY_CITYVIEW_UNHAPPINESS_TEXT"/>
+				<Label ID="UnhappinessPerTurnLabel" Anchor="R,C" String=""/>
 				<Box Anchor="L,B" Color="27.53.64.255" Offset="4,0" Size="196,1"/>
 			</Button>
 			<!-- END -->

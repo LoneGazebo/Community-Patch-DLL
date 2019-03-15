@@ -145,6 +145,7 @@ public:
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
 		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible (not relevant for pathfinder, only for actual movement)
+		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
 	};
 
 	enum MoveResult
@@ -1554,6 +1555,9 @@ public:
 	void SetGAPBlastStrength(int iValue);
 
 	int getGAPBlast();
+
+	bool IsPromotionEverObtained(PromotionTypes eIndex) const;
+	void SetPromotionEverObtained(PromotionTypes eIndex, bool bValue);
 #endif
 
 	// Arbitrary Script Data
@@ -2322,6 +2326,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iScienceBlastStrength;
 	FAutoVariable<int, CvUnit> m_iCultureBlastStrength;
 	FAutoVariable<int, CvUnit> m_iGAPBlastStrength;
+	FAutoVariable<std::vector<bool>, CvUnit> m_abPromotionEverObtained;
 #endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

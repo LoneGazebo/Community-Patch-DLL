@@ -1193,48 +1193,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		}
 		if(pkSmallAwardInfo->GetHappiness() > 0)
 		{
-			int iBonus = iEra * pkSmallAwardInfo->GetHappiness();
-			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
-			{
-				iBonus += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.getGlobalAverage(YIELD_CULTURE)  + 1) * 2;
-				iBonus -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.getGlobalAverage(YIELD_CULTURE)  - 1) * 2;
-			}
-			else
-			{
-				iBonus += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.getGlobalAverage(YIELD_CULTURE) ) * 2;
-			}
-			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
-			{
-				iBonus *= (GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() + 100);
-				iBonus /= 100;
-			}
-			if(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
-			{
-				iBonus *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
-				iBonus /= 100;
-			}
-			if(pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer))
-			{
-				iBonus *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
-				iBonus /= 100;
-			}
-			if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
-			{
-				iBonus *= 75;
-				iBonus /= 100;
-			}
-			if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iBonus *= 125;
-				iBonus /= 100;
-			}
-			if(ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)		// Hostile
-			{
-				iBonus *= 150;
-				iBonus /= 100;
-			}
-			//Cap it both sides to keep things under control.
-			iBonus = min( max(iBonus, pkSmallAwardInfo->GetHappiness()), 4*pkSmallAwardInfo->GetHappiness());
+			int iBonus = (iEra/2) + pkSmallAwardInfo->GetHappiness();
 			SetHappiness(iBonus);
 		}
 		if(pkSmallAwardInfo->GetTourism() > 0)
@@ -9539,7 +9498,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	{
 		if(GET_PLAYER(ePlayer).IsEmpireUnhappy())
 		{
-			iRebelBuildUp += (GET_PLAYER(ePlayer).GetExcessHappiness() * -1);	
+			iRebelBuildUp += 2;	
 		}
 		if(GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
 		{
@@ -9547,7 +9506,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 		}
 		if(GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionUnhappiness() > 0)
 		{
-			iRebelBuildUp += GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionUnhappiness();
+			iRebelBuildUp += 2;
 		}
 		if (eOpinionInMyCiv >= PUBLIC_OPINION_CIVIL_RESISTANCE)
 		{

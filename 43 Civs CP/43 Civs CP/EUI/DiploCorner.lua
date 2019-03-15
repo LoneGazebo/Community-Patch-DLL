@@ -50,7 +50,7 @@ function RefreshAdditionalInformationEntries()
 	-- Now that we have all entries, call methods to sort them
 	LuaEvents.AdditionalInformationDropdownSortEntries(additionalEntries);
 
-	 Controls.MultiPull:ClearEntries();
+	Controls.MultiPull:ClearEntries();
 
 	Controls.MultiPull:RegisterSelectionCallback(function(id)
 		local entry = additionalEntries[id];

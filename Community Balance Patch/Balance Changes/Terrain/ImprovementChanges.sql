@@ -415,6 +415,10 @@ UPDATE ArtDefine_Landmarks
 SET Scale= '0.70'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CUSTOMS_HOUSE';
 
+-- Happiness on Landmark
+UPDATE Improvements
+SET HappinessOnConstruction = '1'
+WHERE Type = 'IMPROVEMENT_LANDMARK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
 -- Pillage values
 

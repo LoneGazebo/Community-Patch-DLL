@@ -498,8 +498,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 -- CBP
-	if (pCity ~= nil) then
-		-- CBP
+	if(pCity ~= nil) then
 		local iCorpGPChange = pBuildingInfo.GPRateModifierPerXFranchises;
 		if iCorpGPChange ~=0 then
 			iCorpGPChange = pCity:GetGPRateModifierPerXFranchises();
@@ -626,7 +625,7 @@ end
 
 
 -- PROJECT
-function GetHelpTextForProject(iProjectID, bIncludeRequirementsInfo)
+function GetHelpTextForProject(iProjectID, pCity, bIncludeRequirementsInfo)
 	local pProjectInfo = GameInfo.Projects[iProjectID];
 	
 	local pActivePlayer = Players[Game.GetActivePlayer()];
@@ -638,7 +637,12 @@ function GetHelpTextForProject(iProjectID, bIncludeRequirementsInfo)
 	strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pProjectInfo.Description ));
 	
 	-- Cost
-	local iCost = pActivePlayer:GetProjectProductionNeeded(iProjectID);
+	local iCost = 0;
+	if(pCity ~= nil)then 
+		iCost = pCity:GetProjectProductionNeeded(iProjectID);
+	else
+		iCost = pActivePlayer:GetProjectProductionNeeded(iProjectID);
+	end
 	strHelpText = strHelpText .. "[NEWLINE]----------------[NEWLINE]";
 	strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_COST", iCost);
 	
@@ -897,7 +901,6 @@ function GetCultureTooltip(pCity)
 			end
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
 		end
-
 -- END
 
 -- CBP -- Yield Increase from Piety
@@ -985,7 +988,6 @@ function GetCultureTooltip(pCity)
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EVENTS", iCultureFromEvent);
 		end
-		-- END 
 
 		-- Yield modifiers string
 		local strCultureFromTR = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE);
@@ -1000,7 +1002,7 @@ function GetCultureTooltip(pCity)
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. strCultureFromTR;
 		end
-		-- END 
+		-- END  
 		
 		-- Empire Culture modifier
 		local iAmount = Players[pCity:GetOwner()]:GetCultureCityModifier();
@@ -1310,229 +1312,13 @@ end
 -- CBP
 function GetCityHappinessTooltip(pCity)
 	
-	local strHappinessBreakdown = "";
-
-	if(pCity) then
-		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
-		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
-		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
-		local iDefenseUnhappiness = pCity:GetUnhappinessFromDefense();
-		local iConnectionUnhappiness = pCity:GetUnhappinessFromConnection();
-		local iMinorityUnhappiness = pCity:GetUnhappinessFromMinority();
-		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
-		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
-		local iResistanceUnhappiness = 0;
-		local iOccupationUnhappiness = 0;
-		local iPuppetUnhappiness = 0;
-		if(pCity:IsRazing()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		elseif(pCity:IsResistance()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		elseif(pCity:IsPuppet()) then
-			iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
-		elseif(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
-		end
-			
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
-
-		local iPuppetMod = 0;
-		if(pCity:IsPuppet()) then
-			iPuppetMod = Players[pCity:GetOwner()]:GetPuppetUnhappinessMod();
-		end
-
-		local iCapitalMod = 0;
-		if(pCity:IsCapital()) then
-			iCapitalMod = Players[pCity:GetOwner()]:GetCapitalUnhappinessModCBP();
-		end
-
-		local iTechDeviationMod = pCity:GetStaticTechDeviation();
-		local iPopMod = pCity:getPopThresholdMod();
-		local iEmpireMod = pCity:getEmpireSizeMod();
-
-		local iThresholdGold = pCity:getHappinessThresholdMod(YieldTypes.YIELD_GOLD);
-		local iThresholdDefense = pCity:getHappinessThresholdMod(YieldTypes.YIELD_PRODUCTION);
-		local iThresholdScience = pCity:getHappinessThresholdMod(YieldTypes.YIELD_SCIENCE);
-		local iThresholdCulture = pCity:getHappinessThresholdMod(YieldTypes.YIELD_CULTURE);
-
-		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
-		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;
-		local iGoldYield = pCity:GetUnhappinessFromGoldYield() / 100;
-		local iCultureNeeded = pCity:GetUnhappinessFromCultureNeeded() / 100;
-		local iDefenseNeeded = pCity:GetUnhappinessFromDefenseNeeded() / 100;
-		local iGoldNeeded = pCity:GetUnhappinessFromGoldNeeded() / 100;
-		local iScienceYield = pCity:GetUnhappinessFromScienceYield() / 100;
-		local iScienceNeeded = pCity:GetUnhappinessFromScienceNeeded() / 100;
-		
-		local iCultureDeficit = pCity:GetUnhappinessFromCultureDeficit() / 100;
-		local iDefenseDeficit = pCity:GetUnhappinessFromDefenseDeficit() / 100;
-		local iGoldDeficit = pCity:GetUnhappinessFromGoldDeficit() / 100;
-		local iScienceDeficit = pCity:GetUnhappinessFromScienceDeficit() / 100;
-
-
-		local iTotalHappiness = pCity:GetLocalHappiness();
-
-		strHappinessBreakdown = Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_HAPPINESS", iTotalHappiness);
-
-		if (not OptionsManager.IsNoBasicHelp()) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION");
-		end
-
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
-		
-		-- Occupation tooltip
-		if (iOccupationUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
-		end
-
-		-- Puppet tooltip
-		if (iPuppetUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
-		end
-
-		-- Resistance tooltip
-		if (iResistanceUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
-		end
-		-- Starving tooltip
-		if (iStarvingUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);
-		end
-		-- Pillaged tooltip
-		if (iPillagedUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
-		end
-		-- Defense tooltip
-		if (iDefenseUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
-		end
-		if ((iDefenseYield - iDefenseNeeded) >= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
-		end
-		-- Gold tooltip
-		if (iGoldUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
-		end
-		if ((iGoldYield - iGoldNeeded) >= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
-		end
-		-- Connection tooltip
-		if (iConnectionUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappiness);
-		end
-		-- Minority tooltip
-		if (iMinorityUnhappiness ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappiness);
-		end
-		-- Science tooltip
-		if (iScienceUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
-		end
-		if ((iScienceYield - iScienceNeeded) >= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
-		end
-		-- Culture tooltip
-		if (iCultureUnhappiness > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
-		end
-		if ((iCultureYield - iCultureNeeded) >= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
-		end
-
-		if (not OptionsManager.IsNoBasicHelp()) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION");
-		end
-
-		if(pCity:IsRazing()) then
-			return strHappinessBreakdown;
-		end
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			return strHappinessBreakdown;
-		end
-
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN");
-		if (iPuppetMod ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
-		end
-
-		if (iCapitalMod ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CAPITAL_UNHAPPINESS_MOD", iCapitalMod);
-		end
-
-		if (iTechDeviationMod ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTechDeviationMod);
-		end
-
-		if (iPopMod ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
-		end
-
-		if (iEmpireMod ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
-		end
-
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_REDUCTION_AVERAGE_MODS_BREAKDOWN");
-		
-		local iReductionDefense = pCity:getThresholdSubtractions(YieldTypes.YIELD_PRODUCTION);
-		if (iReductionDefense ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iReductionDefense);
-		end	
-
-		local iReductionGold = pCity:getThresholdSubtractions(YieldTypes.YIELD_GOLD);
-		if (iReductionGold ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iReductionGold);
-		end	
-
-		local iReductionScience = pCity:getThresholdSubtractions(YieldTypes.YIELD_SCIENCE);
-		if (iReductionScience ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iReductionScience);
-		end	
-
-		local iReductionCulture = pCity:getThresholdSubtractions(YieldTypes.YIELD_CULTURE);
-		if (iReductionCulture ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iReductionCulture);
-		end	
-
-		local iReductionFaith = pCity:getThresholdSubtractions(YieldTypes.YIELD_FAITH);
-		if (iReductionFaith ~= 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH", iReductionFaith);
-		end	
-
-		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS");
-		
-		if(iThresholdDefense > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdDefense);
-		elseif(iThresholdDefense < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdDefense);
-		end
-
-		if(iThresholdGold > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iThresholdGold);
-		elseif(iThresholdGold < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdGold);
-		end
-
-		if(iThresholdScience > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdScience);
-		elseif(iThresholdScience < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdScience);
-		end
-
-		if(iThresholdCulture > 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdCulture);
-		elseif(iThresholdCulture < 0) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdCulture);
-		end
-
-		if (not OptionsManager.IsNoBasicHelp()) then
-			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION");
-		end
-
-		strHappinessBreakdown = strHappinessBreakdown .. pCity:getPotentialUnhappinessWithGrowth();
-	end
-
-
+	local strHappinessBreakdown = pCity:GetCityHappinessBreakdown();
 	return strHappinessBreakdown;
+end
+function GetCityUnhappinessTooltip(pCity)
+	
+	local strUnhappinessBreakdown = pCity:GetCityUnhappinessBreakdown(true);
+	return strUnhappinessBreakdown;
 end
 -- END
 

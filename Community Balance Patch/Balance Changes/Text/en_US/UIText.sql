@@ -365,19 +365,19 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FORT_TEXT';
 
 -- Landmark
 UPDATE Language_en_US
-SET Text = 'Landmarks provide +2 [ICON_HAPPINESS_1] Happiness to the builder on construction, as well as +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on the Tile for each additional Era that has passed in comparison to the original Era of the Artifact.[NEWLINE][NEWLINE]A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson''s Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World''s Largest Ball of Twine may never rise to that stature (though it might well be worth a visit).'
+SET Text = 'Landmarks provide +1 [ICON_HAPPINESS_1] Happiness to every City owned by the builder on construction, as well as +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on the Tile for each additional Era that has passed in comparison to the original Era of the Artifact.[NEWLINE][NEWLINE]A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson''s Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World''s Largest Ball of Twine may never rise to that stature (though it might well be worth a visit).'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LANDMARK_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'When constructed, a Landmark generates +2 [ICON_HAPPINESS_1] for the builder. When worked, a Landmark provides [ICON_CULTURE] Culture and [ICON_GOLD] Gold based on its age. +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold per Era older than this civ''s current Era. Archaeologist will be consumed.'
+SET Text = 'When constructed, a Landmark generates +1 [ICON_HAPPINESS_1] for every city owned by the builder. When worked, a Landmark provides [ICON_CULTURE] Culture and [ICON_GOLD] Gold based on its age. +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold per Era older than this civ''s current Era. Archaeologist will be consumed.'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_RESULT';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another civ''s territory will generate +2 [ICON_HAPPINESS_1] Happiness for you, and give you a permanent diplomatic boost with that nation.[ENDCOLOR]'
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another civ''s territory will generate +1 [ICON_HAPPINESS_1] Happiness in every owned City, and give you a permanent diplomatic boost with that nation.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MAJOR_CIV';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a city state''s territory will generate +2 [ICON_HAPPINESS_1] Happiness for you, and will give you a large, one-time influence boost with that city state.[ENDCOLOR]'
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a city state''s territory will generate +1 [ICON_HAPPINESS_1] Happiness in every owned City, and will give you a large, one-time influence boost with that city state.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MINOR_CIV';
 
 
@@ -435,7 +435,7 @@ WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_SPECIALISTS' AND EXISTS (SELECT * FROM COMMU
 -- Tutorial Text
 
 UPDATE Language_en_US
-SET Text = 'The happiness system in the Community Balance Patch is completely revised, favoring neither tall nor wide playstyles. Happiness is now based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it reaches zero, your population is getting restless. If it starts to dip into negative numbers, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.[NEWLINE][NEWLINE]Positive happiness increases the value of your national yields (i.e. your total science per turn), whereas unhappiness decreases them. You can see your current modifier by hovering over the [ICON_HAPPINESS_1] icon in the Top Panel bar.'
+SET Text = 'The happiness system in the Community Balance Patch is completely revised, favoring neither tall nor wide playstyles. Happiness is now wholly localized, and is based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it starts to drop below 100%, your population is getting restless. If it starts to dip below 75%, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.'
 WHERE Tag = 'TXT_KEY_HAPPINESS_HEADING1_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -447,17 +447,13 @@ SET Text = 'City happiness is no longer directly affected by the number of citiz
 WHERE Tag = 'TXT_KEY_HAPPINESS_CAUSESUNHAPPINESS_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The happiness system in the Community Balance Patch is completely revised, favoring neither tall nor wide playstyles. Happiness is now based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it reaches zero, your population is getting restless. If it starts to dip into negative numbers, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.[NEWLINE][NEWLINE]Positive happiness increases the value of your national yields (i.e. your total science per turn), whereas unhappiness decreases them. You can see your current modifier by hovering over the [ICON_HAPPINESS_1] icon in the Top Panel bar.'
-WHERE Tag = 'TXT_KEY_HAPPINESS_HEADING1_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
-
-UPDATE Language_en_US
 SET Text = 'There are three levels of unhappiness. Unhappy, Unrest, and Revolt. An Unhappy civilization will reduce growth in all cities and the value of your national yields (i.e. your total science per turn). A civilization experiencing Unrest can have many more problems, including combat penalties and open rebellion, and a civilization in Revolt can potentially have cities abandon your empire.'
 WHERE Tag = 'TXT_KEY_HAPPINESS_LEVELSUNHAPPINESS_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Text for city view tooltip.
 INSERT INTO Language_en_US (
 Text, Tag)
-SELECT '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Happiness Modifier: {1_Num}%', 'TXT_KEY_FOODMOD_HAPPY'
+SELECT '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Local Happiness Modifier: {1_Num}%', 'TXT_KEY_FOODMOD_HAPPY'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 0 );
 
 
@@ -469,7 +465,7 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONA
 -- Text for city view tooltip.
 INSERT INTO Language_en_US (
 Text, Tag)
-SELECT '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Happiness Modifier: {1_Num}%', 'TXT_KEY_FOODMOD_HAPPY'
+SELECT '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Local Happiness Modifier: {1_Num}%', 'TXT_KEY_FOODMOD_HAPPY'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Text for city view tooltip.
@@ -477,6 +473,13 @@ INSERT INTO Language_en_US (
 Text, Tag)
 SELECT '[NEWLINE][ICON_BULLET]Modified due to Happiness: {1_Num}%', 'TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+
+-- Text for city view tooltip.
+UPDATE Language_en_US
+Set Text = '[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT][ICON_HAPPINESS_3] Local Unhappiness Modifier: {1_Num}%[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_FOODMOD_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
 
 -- Text for city view tooltip.
 UPDATE Language_en_US
@@ -487,20 +490,20 @@ WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMU
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {2_Num}%[ENDCOLOR]!'
+SET Text = 'More than 50% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_3] Unhappy - your Empire is is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by[COLOR_NEGATIVE_TEXT] 20%[ENDCOLOR]!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Because your [ICON_HAPPINESS_4] Unhappiness has reached 20, the Empire is is in revolt! [ENDCOLOR]Cities may abandon your empire and flip to the civilization that is most culturally influential over your people, and uprisings may occur with rebel (barbarian) units appearing in your territory!'
+SET Text = 'More than 75% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_3] Unhappy - your Empire is fracturing! Rebels (barbarians) will spawn and Cities may abandon your empire and flip to the civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by[COLOR_NEGATIVE_TEXT] 20%[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}%[ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {2_Num}%[ENDCOLOR]!'
+SET Text = 'More than 25% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_3] Unhappy! Because of this, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Units more slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by[COLOR_NEGATIVE_TEXT] 10%[ENDCOLOR]!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Total [ICON_HAPPINESS_1] Happiness Level of the empire is {1_Num}. Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are increased by [COLOR_POSITIVE_TEXT] +{2_num}% [ENDCOLOR].'
+SET Text = 'More than 75% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_1] Happy. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, however [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth and [ICON_PRODUCTION] Unit Production.'
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR
@@ -669,3 +672,46 @@ WHERE Tag = 'TXT_KEY_VP_TITLE';
 UPDATE Language_en_US
 SET Text = 'Demographics'
 WHERE Tag = 'TXT_KEY_DEMOGRAPHICS_TITLE';
+
+-- Happiness
+
+UPDATE Language_en_US
+SET Text = 'Empire-Wide[ICON_HAPPINESS_3] Unhappiness (average per City): {1_Num}[NEWLINE]Unhappiness Totals:'
+WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
+
+UPDATE Language_en_US
+SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness (average per City): {1_Num}[NEWLINE]Happiness Totals:'
+WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} is added per turn from positive [ICON_HAPPINESS_1] Happiness produced by Cities.'
+WHERE Tag = 'TXT_KEY_TP_GOLDEN_AGE_ADDITION';
+
+UPDATE Language_en_US
+SET Text = '[ICON_PLUS] Total City Unhappiness'
+WHERE Tag = 'TXT_KEY_EO_CITY_UNHAPPINESS';
+
+UPDATE Language_en_US
+SET Text = '[ICON_MINUS] Total City Unhappiness'
+WHERE Tag = 'TXT_KEY_EO_CITY_UNHAPPINESS_COLLAPSE';
+
+UPDATE Language_en_US
+SET Text = '[ICON_PLUS] Total City Happiness'
+WHERE Tag = 'TXT_KEY_EO_LOCAL_CITY';
+
+UPDATE Language_en_US
+SET Text = '[ICON_MINUS] Total City Happiness'
+WHERE Tag = 'TXT_KEY_EO_LOCAL_CITY_COLLAPSE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CO_PUBLIC_OPINION_HAPPINESS';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS';
+
+UPDATE Language_en_US
+SET Text = 'Current Empire-Wide [ICON_HAPPINESS_1] Happiness, from 0-100%[NEWLINE][NEWLINE]At 25% or below the civilization will start to lose cities to revolt and may change to the public''s Preferred Ideology (you can find that preference in the Public Opinion tooltip).'
+WHERE Tag = 'TXT_KEY_CO_VICTORY_EXCESS_HAPPINESS_HEADER_TT';
+

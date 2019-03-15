@@ -356,6 +356,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetHappiness);
 	Method(SetHappiness);
+	Method(GetEmpireHappinessForCity);
+	Method(GetEmpireUnhappinessForCity);
+	Method(GetHappinessForGAP);
 
 	Method(GetExcessHappiness);
 	Method(IsEmpireUnhappy);
@@ -796,9 +799,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	Method(GetBonusHappinessFromLuxuries);
 	Method(GetScalingNationalPopulationRequrired);
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	Method(CalculateUnhappinessTooltip);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	Method(GetPuppetUnhappinessMod);
@@ -3815,6 +3815,26 @@ int CvLuaPlayer::lGetHappiness(lua_State* L)
 int CvLuaPlayer::lSetHappiness(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::SetHappiness);
+}
+
+//------------------------------------------------------------------------------
+//void SetHappiness(int iNewValue);
+int CvLuaPlayer::lGetEmpireHappinessForCity(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetEmpireHappinessForCity);
+}
+//------------------------------------------------------------------------------
+//void SetHappiness(int iNewValue);
+int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetEmpireUnhappinessForCity();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetHappinessForGAP(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessForGAP);
 }
 
 //------------------------------------------------------------------------------
@@ -9033,19 +9053,6 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-//------------------------------------------------------------------------------
-//int CalculateUnhappinessTooltip(YieldTypes eYield);
-int CvLuaPlayer::lCalculateUnhappinessTooltip(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const YieldTypes eIndex2 = (YieldTypes)lua_tointeger(L, 2);
-
-	const int iResult = pkPlayer->CalculateUnhappinessTooltip(eIndex2);
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //------------------------------------------------------------------------------
 //int GetPuppetUnhappinessMod();

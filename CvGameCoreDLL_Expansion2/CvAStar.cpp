@@ -26,7 +26,7 @@
 
 //PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
-#define PATH_DEFENSE_WEIGHT										(80)	//per percent defense bonus on turn end plot
+#define PATH_DEFENSE_WEIGHT										(20)	//per percent defense bonus on turn end plot
 #define PATH_STEP_WEIGHT										(100)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
@@ -38,7 +38,7 @@
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
-#define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
+#define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*310)	//don't make it even so we don't get ties
 #define PATH_ASSUMED_MAX_DEFENSE								(100)	//MAX_DEFENSE * DEFENSE_WEIGHT + END_TURN_FOREIGN_TERRITORY + END_TURN_NO_ROUTE should be smaller than END_TURN_WATER
 
 #include <xmmintrin.h>
@@ -501,7 +501,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 			//if we are doing unit pathfinding, maybe we need to do a voluntary stop on the parent node
 			if (!bHaveStopNodeHere)
-			 bHaveStopNodeHere = AddStopNodeIfRequired(node,check);
+				bHaveStopNodeHere = AddStopNodeIfRequired(node,check);
 		}
 	}
 
@@ -1145,7 +1145,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		// Avoid being in a territory that we are not welcome in
 		PlayerTypes ePlotOwner = pToPlot->getOwner();
 		TeamTypes ePlotTeam = pToPlot->getTeam();
-		if (ePlotTeam != NO_TEAM && !GET_PLAYER(ePlotOwner).isMinorCiv() && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam))
+		if (ePlotTeam != NO_TEAM && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
 		{
 			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
 		}
@@ -1307,14 +1307,29 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
 			return -1; //forbidden
 
-		//extra cost for ending the turn on various types of undesirable plots (unless explicitly requested)
+		//extra cost for ending the turn on various types of undesirable plots
 		if (!bIsPathDest)
 		{
+			//important to not add the extra cost for the requested destination
 			int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns);
 			if (iEndTurnCost < 0)
 				return -1;
 
 			iCost += iEndTurnCost;
+		}
+		else
+		{
+			//apply this even if it's the explicit target
+			if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+			{
+				// Avoid being in a territory that we are not welcome in
+				PlayerTypes ePlotOwner = pToPlot->getOwner();
+				TeamTypes ePlotTeam = pToPlot->getTeam();
+				if (ePlotTeam != NO_TEAM && ePlotTeam != eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
+				{
+					iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
+				}
+			}
 		}
 	}
 
@@ -2261,6 +2276,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	if (current->m_iMoves == 0)
 		return false;
 
+	if (HaveFlag(CvUnit::MOVEFLAG_NO_STOPNODES))
+		return false;
+
 	//stop nodes don't make sense if we're only after the reachable plots
 	if (!HasValidDestination())
 		return false;
@@ -2280,6 +2298,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && //obvious
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
 		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
+		next->m_iMoves == 0 &&				//only if we would need to end the turn on the next plot
 		!next->m_kCostCacheData.bIsVisibleNeutralCombatUnit && //don't let ourselves be blocked by other players' units
 		next->m_kCostCacheData.bUnitStackingLimitReached; //finally
 
@@ -2309,7 +2328,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 		//cost is the same plus a little bit to encourage going the full distance when in doubt
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
-		pStopNode->m_iKnownCost = current->m_iKnownCost + PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns) + PATH_STEP_WEIGHT;
+		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
+		pStopNode->m_iKnownCost += PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns);
+		pStopNode->m_iKnownCost += GC.getMOVE_DENOMINATOR() * PATH_BASE_COST; //some fixed cost for the forfeited movement points
 
 		//we sort the nodes by total cost!
 		pStopNode->m_iTotalCost = pStopNode->m_iKnownCost*giKnownCostWeight + pStopNode->m_iHeuristicCost*giHeuristicCostWeight;

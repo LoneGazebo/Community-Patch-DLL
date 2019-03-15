@@ -1197,6 +1197,8 @@ bool isMinorCiv(PlayerTypes p)
 bool isReallyNetworkMultiPlayer()
 {
 	GameTypes eType = gameType();
+	if (eType == GAME_NETWORK_MULTIPLAYER)
+		return true;
 
 	if (s_pushedGameType != GAME_TYPE_NONE) {
 		eType = s_pushedGameType;

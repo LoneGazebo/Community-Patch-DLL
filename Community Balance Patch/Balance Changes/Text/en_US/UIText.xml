@@ -311,7 +311,7 @@
 		
 
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
-			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]   [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_HAPPINESS_3] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_HAPPINESS_3] War Weariness.[NEWLINE]</Text>
+			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]   [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_HAPPINESS_3] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_HAPPINESS_3] War Weariness.[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">
@@ -955,7 +955,7 @@
 			<Text>Sources of [ICON_HAPPINESS_3] [COLOR_NEGATIVE_TEXT]Unhappiness[ENDCOLOR]:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
-			<Text>Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
+			<Text>[ICON_HAPPINESS_3] Unhappiness is listed and accrued in order of importance, and cannot exceed the City's [ICON_CITIZEN] Population.[NEWLINE][NEWLINE]Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
@@ -973,24 +973,24 @@
 		<Row Tag="TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_CITY_STATE] Empire Size: +{1_Num}%</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Number of Cities.</Text>
 		</Row>
+		
 		<Row Tag="TXT_KEY_SCIENCE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Illiteracy ([ICON_RESEARCH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_RESEARCH] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_RESEARCH] per [ICON_CITIZEN][NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR] [ICON_RESEARCH]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Illiteracy ([ICON_RESEARCH] per [ICON_CITIZEN]).[NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] (Up to {3_Num:number "#"} [ICON_HAPPINESS_3])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Boredom ([ICON_CULTURE]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_CULTURE] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_CULTURE] per [ICON_CITIZEN][NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR] [ICON_CULTURE]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Boredom ([ICON_CULTURE] per [ICON_CITIZEN]).[NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] (Up to {3_Num:number "#"} [ICON_HAPPINESS_3])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Distress ([ICON_FOOD]/[ICON_PRODUCTION]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN][NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Distress ([ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN]).[NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] (Up to {3_Num:number "#"} [ICON_HAPPINESS_3])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Poverty ([ICON_GOLD]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_GOLD] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_GOLD] per [ICON_CITIZEN][NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR] [ICON_GOLD]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Poverty ([ICON_GOLD] per [ICON_CITIZEN]).[NEWLINE]          Deficit: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] (Up to {3_Num:number "#"} [ICON_HAPPINESS_3])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONNECTION_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Isolation ([ICON_BLOCKADED] Blockaded, lacks [ICON_CONNECTED] Connection, or needs [ICON_INTERNATIONAL_TRADE] Trade Route with [ICON_CAPITAL] Capital).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Isolation. [NEWLINE]          ([ICON_BLOCKADED] Blockaded / no [ICON_CONNECTED] Connection /[NEWLINE]          no [ICON_CAPITAL] Capital [ICON_INTERNATIONAL_TRADE] Trade Route)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PILLAGED_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RAZING] Pillaged Tiles.</Text>
@@ -999,7 +999,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (Needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions (Needs Majority Religion [ICON_RELIGION] Followers).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions. [NEWLINE]          (Needs {2_Icon} Followers)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESISTANCE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESISTANCE] Resistance.</Text>
@@ -1013,16 +1013,16 @@
 
 		<!-- Surplus Threshold -->
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_CULTURE] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_CULTURE] per [ICON_CITIZEN] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_RESEARCH] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_RESEARCH] per [ICON_CITIZEN] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_FOOD]/[ICON_PRODUCTION] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] per [ICON_CITIZEN] Need.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_PUPPET">
@@ -1041,7 +1041,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_FOOD]/[ICON_PRODUCTION] distressed!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_GOLD] impoverished!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "The city is [ICON_GOLD] impoverished!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCULTURED">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_CULTURE] boring!"</Text>
@@ -1050,13 +1050,21 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_BLOCKADED] disconnected!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_PILLAGED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our lands are [ICON_RAZING] burning!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "The land is [ICON_RAZING] burning!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_STARVING">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] food!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_RELIGION">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want more {2_ReligionIcon} followers!"</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_SPECIALIST">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This place is [ICON_GREAT_PEOPLE] crowded!"</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_EMPIRE">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "[ICON_WAR] War! What is it good for!?"</Text>
 		</Row>
 
 		<!-- Luxury Tooltip -->
@@ -1127,11 +1135,17 @@
 		<Row Tag="TXT_KEY_NET_HAPPINESS_TEXT">
 			<Text>[COLOR_CYAN]{1_num}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NET_UNHAPPINESS_TEXT">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_num}[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_HAPPINESS_TEXT">
 			<Text>[COLOR_CYAN]Happiness[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_UNHAPPINESS_TEXT">
+			<Text>[COLOR_NEGATIVE_TEXT]Unhappiness[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION">
-			<Text>[NEWLINE](Only includes local [ICON_HAPPINESS_1] Happiness provided by buildings, policies and beliefs specific to this City.)</Text>
+			<Text>Cities cannot produce more [ICON_HAPPINESS_1] Happiness than the number of [ICON_CITIZEN] Citizens in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION">
 			<Text>[NEWLINE](These 'Needs' are averages of yields based on the number of [ICON_CITIZEN] Citizens in the City, as well as temporary situations, such as starvation or blockades. Averages increase as the game progresses, and yields per citizen decrease as a city grows. The bigger the divide between your city's yields and your empire-wide average, the higher your city's unhappiness!)</Text>
@@ -1140,7 +1154,7 @@
 			<Text>Local [ICON_HAPPINESS_1] Happiness: [COLOR_POSITIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS">
-			<Text>[COLOR_POSITIVE_TEXT]Total Need Modifiers:[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Total Need Modifiers (City % Modifiers):[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN">
@@ -1151,33 +1165,38 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD">
-			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: {1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Science Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Science Need: {1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE">
-			<Text>[ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Basic Needs: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Basic Needs: {1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE">
-			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: {1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH">
-			<Text>[ICON_BULLET] [ICON_PEACE] Religion Mod: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_PEACE] Religion Mod: {1_Num}% ({2_Num}%)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_GOLD] Gold Need: +{1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Science Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Science Need: +{1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Basic Needs: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Basic Needs: +{1_Num}% ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE">
-			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CULTURE] Culture Need: +{1_Num}% ({2_Num}%)</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH_POSITIVE">
+			<Text>[ICON_BULLET] [ICON_PEACE] Religion Mod: +{1_Num}% ({2_Num}%)</Text>
+		</Row>
+
+		
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION">
 			<Text>[NEWLINE](These modifiers are based on a number of factors, such as Population, Technology level, Policies, Buildings and/or Civilization Traits. Special modifiers, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted. Positive modifiers raise the global average; negative modifiers reduce it.)</Text>
@@ -1318,5 +1337,76 @@
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">
 			<Text>Resolution proposed prior Session, cannot be proposed again until next Session.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_TOTAL_EMPIRE_AVERAGE">
+			<Text>Empire [ICON_HAPPINESS_1] Average (Per City)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS">
+			<Text>Empire [ICON_HAPPINESS_3] Average (Per City)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SPECIALIST_UNHAPPINESS">
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Urbanization ([ICON_GREAT_PEOPLE] Specialists)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EMPIRE_WIDE_UNHAPPINESS">
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_WAR] War Weariness/Public Opinion</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPY_EMPIRE_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Empire-Wide Sources</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPY_HANDICAP_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Handicap</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPY_BUILDINGS_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Buildings</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPY_LUX_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Luxuries and Monopolies</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPY_POLICY_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Policies</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPY_RELIGION_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Religion</Text>
+		</Row>
+
+		
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_NEEDS">
+			<Text>Total [ICON_HAPPINESS_3] Unhappiness Sources from Cities:</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS_TT">
+			<Text>Total [ICON_HAPPINESS_3] Unhappiness Value from Empire Sources is split across all cities evenly, with any remainder going to the Capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOTAL_EMPIRE_AVERAGE_TT">
+			<Text>Total [ICON_HAPPINESS_1] Happiness Value from Empire Sources is split across all cities evenly, with any remainder going to the Capital.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_UNHAPPY">
+			<Text>City has {1_Num} excess [ICON_HAPPINESS_3] Unhappiness!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION_PUPPET">
+			<Text>[ICON_PUPPET] Puppeted, [ICON_OCCUPIED] Occupied, [ICON_RAZE] Razing, or [ICON_RESISTANCE] Resistance Cities do not produce [ICON_HAPPINESS_1] Happiness or benefit from Empire-Wide [ICON_HAPPINESS_1] Happiness sources.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPINESS_TOP_PANEL_CBO">
+			<Text>[ICON_HAPPINESS_1] {1_Val}% ([ICON_HAPPINESS_3]{2_Val}/[ICON_CITIZEN]{3_Val})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+
+		
+
 	</Language_en_US>
 </GameData>

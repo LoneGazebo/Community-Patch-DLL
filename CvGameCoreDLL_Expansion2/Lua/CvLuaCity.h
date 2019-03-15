@@ -355,6 +355,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
 	LUAAPIEXTN(getHappinessDelta, int);
+	LUAAPIEXTN(getUnhappinessAggregated, int);
 	LUAAPIEXTN(getPopThresholdMod, int);
 	LUAAPIEXTN(getEmpireSizeMod, int);
 	LUAAPIEXTN(GetStaticTechDeviation, int);
@@ -364,6 +365,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
 	LUAAPIEXTN(GetUnhappinessFromCultureNeeded, int);
 	LUAAPIEXTN(GetUnhappinessFromCultureDeficit, int);
+	LUAAPIEXTN(GetUnhappinessFromYieldRaw, int);
 	LUAAPIEXTN(GetUnhappinessFromCulture, int);
 	LUAAPIEXTN(GetUnhappinessFromScienceYield, int);
 	LUAAPIEXTN(GetUnhappinessFromScienceNeeded, int);
@@ -382,6 +384,9 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromMinority, int);
 	LUAAPIEXTN(getPotentialUnhappinessWithGrowth, int);
+	LUAAPIEXTN(GetCityUnhappinessBreakdown, int);
+	LUAAPIEXTN(GetCityHappinessBreakdown, int);
+	LUAAPIEXTN(getUnhappinessFromSpecialists, int);
 #endif
 
 	static int lChangeHealRate(lua_State* L);

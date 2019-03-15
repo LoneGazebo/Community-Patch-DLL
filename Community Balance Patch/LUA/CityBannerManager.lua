@@ -243,85 +243,6 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]" .. religionToolTip;
 		end
 
--- COMMUNITY PATCH
-		if (isActivePlayerCity) then
-			local iStarvingUnhappiness = city:GetUnhappinessFromStarving();
-			local iPillagedUnhappiness = city:GetUnhappinessFromPillaged();
-			local iGoldUnhappiness = city:GetUnhappinessFromGold();
-			local iDefenseUnhappiness = city:GetUnhappinessFromDefense();
-			local iConnectionUnhappiness = city:GetUnhappinessFromConnection();
-			local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
-			local iScienceUnhappiness = city:GetUnhappinessFromScience();
-			local iCultureUnhappiness = city:GetUnhappinessFromCulture();
-			local iResistanceUnhappiness = 0;
-			local iOccupationUnhappiness = 0;
-			local iPuppetUnhappiness = 0;
-			if(city:IsRazing()) then
-				iResistanceUnhappiness = (city:GetPopulation() / 2);
-			elseif(city:IsResistance()) then
-				iResistanceUnhappiness = (city:GetPopulation() / 2);
-			elseif(city:IsPuppet()) then
-				iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
-			elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance()) then
-				iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
-			end
-			
-			local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
-
-			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
-
-			
-			-- Resistance tooltip
-			if (iResistanceUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
-
-			-- Puppet tooltip
-			elseif (iPuppetUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_PUPPET", iPuppetUnhappiness);
-			
-			-- Occupation tooltip
-			elseif (iOccupationUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
-			end
-
-			-- Starving tooltip
-			if (iStarvingUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);
-			end
-			-- Pillaged tooltip
-			if (iPillagedUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_PILLAGED", iPillagedUnhappiness);
-			end
-			if(iGoldUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
-			end
-			if(iDefenseUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNDEFENDED", iDefenseUnhappiness);
-			end
-			-- Connection tooltip
-			if (iConnectionUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappiness);
-			end
-			-- Minority tooltip
-			local ePlayerReligion = city:GetReligiousMajority();
-			if (ePlayerReligion >= 0) then
-				local playerreligion = GameInfo.Religions[ePlayerReligion];
-				local strReligionIcon = playerreligion.IconString;
-				if (iMinorityUnhappiness ~= 0) then
-					strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness, strReligionIcon);
-				end
-			end
-			if(iScienceUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
-			end
-			if(iCultureUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
-			end
-
-			strToolTip = strToolTip .. city:getPotentialUnhappinessWithGrowth();
-		end
--- END
-
 		controls.BannerButton:SetToolTipString(strToolTip);
 
 		if (controls.ReligiousIcon ~= nil) then
@@ -388,6 +309,18 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.OccupiedIcon:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_OCCUPIED"));
 		else
 			controls.OccupiedIcon:SetHide(true);
+		end
+
+		-- Happiness Status
+		if (isActiveTeamCity) then
+			local delta = city:getHappinessDelta();
+			if (delta < 0) then
+				controls.UnhappyIcon:SetHide(false);
+				local delta = city:getHappinessDelta() * -1;
+				controls.UnhappyIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. city:GetCityUnhappinessBreakdown(false, true));
+			else
+				controls.UnhappyIcon:SetHide(true);
+			end
 		end
 		
 		if(bHasSpy) then

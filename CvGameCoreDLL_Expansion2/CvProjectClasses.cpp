@@ -18,6 +18,7 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
 #if defined(MOD_BALANCE_CORE)
+	m_piHappinessNeedModifier(NULL),
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 #endif
@@ -27,6 +28,7 @@ CvProjectEntry::CvProjectEntry(void):
 //------------------------------------------------------------------------------
 CvProjectEntry::~CvProjectEntry(void)
 {
+	SAFE_DELETE_ARRAY(m_piHappinessNeedModifier);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
 	SAFE_DELETE_ARRAY(m_piVictoryThreshold);
 	SAFE_DELETE_ARRAY(m_piVictoryMinThreshold);
@@ -51,6 +53,10 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bAllowsNukes = kResults.GetBool("AllowsNukes");
 
 #if defined(MOD_BALANCE_CORE)
+	m_iGoldMaintenance = kResults.GetInt("Maintenance");
+	m_iCostScalerEra = kResults.GetInt("CostScalerEra");
+	m_iCostScalerNumRepeats = kResults.GetInt("CostScalerNumRepeats");
+	m_bIsRepeatable = kResults.GetBool("IsRepeatable");
 	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bInfluenceAllRequired = kResults.GetBool("InfluenceAllRequired");
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
@@ -87,6 +93,8 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	//Arrays
 	const char* szProjectType = GetType();
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Project_ResourceQuantityRequirements", "ResourceType", "ProjectType", szProjectType, "Quantity");
+
+	kUtility.SetYields(m_piHappinessNeedModifier, "Project_NeedsModifierYield", "ProjectType", szProjectType);
 
 	//Victory Thresholds
 	{
@@ -218,6 +226,18 @@ bool CvProjectEntry::IsAllowsNukes() const
 	return m_bAllowsNukes;
 }
 #if defined(MOD_BALANCE_CORE)
+int CvProjectEntry::CostScalerEra() const
+{
+	return m_iCostScalerEra;
+}
+int CvProjectEntry::GetGoldMaintenance() const
+{
+	return m_iGoldMaintenance;
+}
+int CvProjectEntry::CostScalerNumberOfRepeats() const
+{
+	return m_iCostScalerNumRepeats;
+}
 /// Free building if first
 BuildingClassTypes CvProjectEntry::GetFreeBuilding() const
 {
@@ -239,6 +259,23 @@ bool CvProjectEntry::InfluenceAllRequired() const
 bool CvProjectEntry::IdeologyRequired() const
 {
 	return m_bIdeologyRequired;
+}
+
+bool CvProjectEntry::IsRepeatable() const
+{
+	return m_bIsRepeatable;
+}
+int CvProjectEntry::GetHappinessNeedModifier(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piHappinessNeedModifier)
+	{
+		return  m_piHappinessNeedModifier[i];
+	}
+
+	return 0;
 }
 #endif
 

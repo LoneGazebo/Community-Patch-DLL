@@ -748,7 +748,7 @@ function AdjustArtOnGrantedProjectButton( thisButton, thisProjectInfo, textureSi
 		
 		-- Tooltip
 		local bIncludeRequirementsInfo = true;
-		thisButton:SetToolTipString( GetHelpTextForProject(thisProjectInfo.ID, bIncludeRequirementsInfo) );
+		thisButton:SetToolTipString( GetHelpTextForProject(thisProjectInfo.ID, nil, bIncludeRequirementsInfo) );
 
 		local textureOffset, textureSheet = IconLookup( thisProjectInfo.PortraitIndex, textureSize, thisProjectInfo.IconAtlas );				
 		if textureOffset == nil then

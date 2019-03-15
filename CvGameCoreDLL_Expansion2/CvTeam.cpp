@@ -5558,91 +5558,94 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 			if(GC.getGame().isFinalInitialized())
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(bFirst)
+				if (!pkProject->IsRepeatable())
 				{
-					CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT_FIRST", getName().GetCString(), pkProject->GetTextKey());
-					CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST", getName().GetCString(), pkProject->GetTextKey());
-					CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_FIRST", pkProject->GetTextKey());
-
-					const PlayerTypes eTeamLeader = getLeaderID();
-					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
-					CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
-					CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
-					if (pLeadersCapital)
+					if (bFirst)
 					{
-						for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-						{
-							const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
-							CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+						CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT_FIRST", getName().GetCString(), pkProject->GetTextKey());
+						CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST", getName().GetCString(), pkProject->GetTextKey());
+						CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_FIRST", pkProject->GetTextKey());
 
-							if(kPlayer.isAlive())
+						const PlayerTypes eTeamLeader = getLeaderID();
+						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
+						CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
+						CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
+						if (pLeadersCapital)
+						{
+							for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 							{
-								if(isHasMet(kPlayer.getTeam()))
+								const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
+								CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+								if (kPlayer.isAlive())
 								{
-									if(ePlayer == GC.getGame().getActivePlayer())
+									if (isHasMet(kPlayer.getTeam()))
 									{
-										DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+										if (ePlayer == GC.getGame().getActivePlayer())
+										{
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+										}
+										CvNotifications* pNotifications = kPlayer.GetNotifications();
+										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
 									}
-									CvNotifications* pNotifications = kPlayer.GetNotifications();
-									pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
-								}
-								else
-								{
-									if(ePlayer == GC.getGame().getActivePlayer())
+									else
 									{
-										DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+										if (ePlayer == GC.getGame().getActivePlayer())
+										{
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+										}
+										CvNotifications* pNotifications = kPlayer.GetNotifications();
+										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
 									}
-									CvNotifications* pNotifications = kPlayer.GetNotifications();
-									pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
 								}
 							}
 						}
 					}
-				}
-				else
-				{
+					else
+					{
 #endif
-					CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
-					CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
-					CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN", pkProject->GetTextKey());
+						CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
+						CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
+						CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN", pkProject->GetTextKey());
 
-					const PlayerTypes eTeamLeader = getLeaderID();
-					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
+						const PlayerTypes eTeamLeader = getLeaderID();
+						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
 
-					CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
-					CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
+						CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
+						CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
 
-					if (pLeadersCapital)
-					{
-						for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+						if (pLeadersCapital)
 						{
-							const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
-							CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-
-							if(kPlayer.isAlive())
+							for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 							{
-								if(isHasMet(kPlayer.getTeam()))
+								const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
+								CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+								if (kPlayer.isAlive())
 								{
-									if(ePlayer == GC.getGame().getActivePlayer())
+									if (isHasMet(kPlayer.getTeam()))
 									{
-										DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+										if (ePlayer == GC.getGame().getActivePlayer())
+										{
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+										}
+										CvNotifications* pNotifications = kPlayer.GetNotifications();
+										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
 									}
-									CvNotifications* pNotifications = kPlayer.GetNotifications();
-									pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
-								}
-								else
-								{
-									if(ePlayer == GC.getGame().getActivePlayer())
+									else
 									{
-										DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+										if (ePlayer == GC.getGame().getActivePlayer())
+										{
+											DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+										}
+										CvNotifications* pNotifications = kPlayer.GetNotifications();
+										pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
 									}
-									CvNotifications* pNotifications = kPlayer.GetNotifications();
-									pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
 								}
 							}
 						}
-					}
 #if defined(MOD_BALANCE_CORE)
+					}
 				}
 #endif
 			}
@@ -8085,7 +8088,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				{
 					//Free Happiness
 					kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
-					kPlayer.DoUpdateHappinessFromBuildings();
 				}
 
 
