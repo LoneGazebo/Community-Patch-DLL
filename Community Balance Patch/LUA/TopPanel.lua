@@ -98,21 +98,15 @@ function UpdateData()
 			if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)) then
 				strHappiness = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF");
 			else
-				local iHappiness = pPlayer:GetExcessHappiness();
-				local tHappinessTextColor;
+
 				local population = pPlayer:GetTotalPopulation();
 				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds();
 
-				-- Empire Really Unhappy
-				if (pPlayer:IsEmpireSuperUnhappy()) then
-					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
-				-- Empire Unhappy
-				elseif (pPlayer:IsEmpireUnhappy()) then
-					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
-				-- Empire is Happiness
-				else
-					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", iHappiness, unhappypop, population);
-				end
+				local population = pPlayer:GetTotalPopulation()
+				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds()
+				local percent = pPlayer:GetExcessHappiness()
+
+				strHappiness = Locale.ConvertTextKey("TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, population);
 			end
 			
 			Controls.HappinessString:SetText(strHappiness);
@@ -535,25 +529,6 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_MINORS", iScienceFromMinors);
 		end
--- COMMUNITY PATCH CHANGE
-		-- Science % lost from unhappiness
-		local iScienceChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_SCIENCE);
-		if (iScienceChange ~= 0) then
-		
-			-- Add separator for non-initial entries
-			if (bFirstEntry) then
-				bFirstEntry = false;
-			else
-				strText = strText .. "[NEWLINE]";
-			end
-	
-			if(iScienceChange > 0) then
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_GAINED_FROM_HAPPINESS", iScienceChange / 100);
-			else
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_LOST_FROM_UNHAPPINESS", iScienceChange / 100);
-			end
-		end
---END
 		
 		-- Let people know that building more cities makes techs harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
@@ -597,10 +572,9 @@ function GoldTipHandler( control )
 	local fTraitGold = pPlayer:GetGoldPerTurnFromTraits();
 	-- CBP
 	local iInternalRouteGold = pPlayer:GetInternalTradeRouteGoldBonus();
-	local iGoldChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100;
 	local iMinorGold = pPlayer:GetGoldPerTurnFromMinorCivs();
 	-- END
-	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iGoldChange + iInternalRouteGold;
+	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iInternalRouteGold;
 	
 	if (pPlayer:IsAnarchy()) then
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
@@ -636,11 +610,6 @@ function GoldTipHandler( control )
 	if (iMinorGold > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_MINORS", iMinorGold);
 	end
-		-- Gold gained from happiness
-
-		if (iGoldChange > 0) then
-			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldChange);
-		end
 --END
 	strText = strText .. "[/COLOR]";
 	
@@ -649,11 +618,6 @@ function GoldTipHandler( control )
 	local iBuildingMaintenance = pPlayer:GetBuildingGoldMaintenance();
 	local iImprovementMaintenance = pPlayer:GetImprovementGoldMaintenance();
 	local iTotalExpenses = iUnitCost + iUnitSupply + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
--- COMMUNITY PATCH CHANGE
-	if (iGoldChange < 0) then
-		iGoldChange = (iGoldChange * -1);
-		iTotalExpenses = iTotalExpenses + iGoldChange;
-	end	
 --END
 	strText = strText .. "[NEWLINE]";
 	strText = strText .. "[COLOR:255:150:150:255]";
@@ -673,13 +637,6 @@ function GoldTipHandler( control )
 	if (iGoldPerTurnToOtherPlayers > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_TO_OTHERS", iGoldPerTurnToOtherPlayers);
 	end
--- COMMUNITY PATCH CHANGE
-	-- Gold % lost from unhappiness
-	local iGoldChange = (pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100);
-	if (iGoldChange < 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS", (iGoldChange * -1));
-	end
---END
 	strText = strText .. "[/COLOR]";
 	
 	if (fTotalIncome + iTotalGold < 0) then
@@ -705,187 +662,28 @@ end
 -- Happiness Tooltip
 function HappinessTipHandler( control )
 
-	local strText;
+	local strText = "";
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)) then
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP");
 	else
 		local iPlayerID = Game.GetActivePlayer();
 		local pPlayer = Players[iPlayerID];
-		local pTeam = Teams[pPlayer:GetTeam()];
-		local pCity = UI.GetHeadSelectedCity();
-	
-		local iHappiness = pPlayer:GetExcessHappiness();
-		-- CBP EDITS HERE
-		local iTestHappiness = iHappiness;
-		local iMilitaryHappiness = iHappiness;
-		if(iTestHappiness > 10)then
-			iTestHappiness = 10;
-		end
-		if(iTestHappiness < -30)then
-			iTestHappiness = -30;
-		end
-		if(iMilitaryHappiness < -20)then
-			iMilitaryHappiness = -20;
-		end
-		if(iTestHappiness < 0) then
-			iTestHappiness = (iTestHappiness * -1);
-		end
-		if(iMilitaryHappiness < 0) then
-			iMilitaryHappiness = (iMilitaryHappiness * -1);
-		end
-		if (not pPlayer:IsEmpireUnhappy()) then
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS", iHappiness, iTestHappiness);
-		elseif (pPlayer:IsEmpireVeryUnhappy()) then
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_4]", -iHappiness);
-		else
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_3]", -iHappiness);
-		end
-	
-		local iPoliciesHappiness = pPlayer:GetHappinessFromPolicies();
-		local iResourcesHappiness = pPlayer:GetHappinessFromResources();
-		local iExtraLuxuryHappiness = pPlayer:GetExtraHappinessPerLuxury();
-		local iCityHappiness = pPlayer:GetHappinessFromCities();
-		local iBuildingHappiness = pPlayer:GetHappinessFromBuildings();
-		local iTradeRouteHappiness = pPlayer:GetHappinessFromTradeRoutes();
-		local iReligionHappiness = pPlayer:GetHappinessFromReligion();
-		local iNaturalWonderHappiness = pPlayer:GetHappinessFromNaturalWonders();
-		local iExtraHappinessPerCity = pPlayer:GetExtraHappinessPerCity() * pPlayer:GetNumCities();
-		local iMinorCivHappiness = pPlayer:GetHappinessFromMinorCivs();
-		local iLeagueHappiness = pPlayer:GetHappinessFromLeagues();
--- CBP
-		local iHappinessFromBonusResources = pPlayer:GetBonusHappinessFromLuxuries();
-		local iHappinessFromMonopoly = pPlayer:GetHappinessFromResourceMonopolies();
-		local iHappinessFromEvent = pPlayer:GetEventHappiness();
--- END	
--- CBP Edit
-		local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iResourcesHappiness - iCityHappiness - iBuildingHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iHappinessFromBonusResources - iHappinessFromMonopoly - iHappinessFromEvent;
-	
-		if (pPlayer:IsEmpireVeryUnhappy()) then
-	
-			if (pPlayer:IsEmpireSuperUnhappy()) then
-				strText = strText .. "[NEWLINE][NEWLINE]";
-				strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY") .. "[/COLOR]";
-			end
 		
-			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[/COLOR]";
+		if (pPlayer:IsEmpireSuperUnhappy()) then
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY") .. "[/COLOR]";
+		elseif (pPlayer:IsEmpireVeryUnhappy()) then			
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[/COLOR]";
 		elseif (pPlayer:IsEmpireUnhappy()) then
-		
-			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[/COLOR]";
+			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[/COLOR]";
+		else
+			strText = strText .. "[COLOR:150:255:150:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[/COLOR]";
 		end
 
-		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly + iHappinessFromEvent;
-		
-		strText = strText .. "[NEWLINE][NEWLINE]";
-		strText = strText .. "[COLOR:150:255:150:255]";
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", iTotalHappiness);
-	
-		strText = strText .. "[NEWLINE]";
-		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_FROM_RESOURCES", iResourcesHappiness);
-	
-		-- Individual Resource Info
-	
-		local iBaseHappinessFromResources = 0;
-		local iNumHappinessResources = 0;
 
-
-		for resource in GameInfo.Resources() do
-			local resourceID = resource.ID;
-			local iHappiness = pPlayer:GetHappinessFromLuxury(resourceID);
-			if (iHappiness > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_EACH_RESOURCE", iHappiness, resource.IconString, resource.Description);
-				iNumHappinessResources = iNumHappinessResources + 1;
-				iBaseHappinessFromResources = iBaseHappinessFromResources + iHappiness;
-			end
-		end
-
--- CBP
-		if (iHappinessFromEvent > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_EVENT", iHappinessFromEvent);
-		end
-		if (iHappinessFromMonopoly > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", iHappinessFromMonopoly);
-		end
-		if (iHappinessFromBonusResources > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
-		end
-		-- Happiness/Population calculation.
-		local iPopulation = pPlayer:GetTotalPopulation();
-		local iPopNeeded = pPlayer:GetPopNeededForLux();
-		local iGetLuxuryBonus = pPlayer:GetBaseLuxuryHappiness();
-		if(iGetLuxuryBonus > 0) then
-			strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iGetLuxuryBonus);
-		end
--- END
-	
-		-- Happiness from Luxury Variety
-		local iHappinessFromExtraResources = pPlayer:GetHappinessFromResourceVariety();
-		if (iHappinessFromExtraResources > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", iHappinessFromExtraResources);
-		end
-	
-		-- Extra Happiness from each Luxury
-		if (iExtraLuxuryHappiness >= 1) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", iExtraLuxuryHappiness, iNumHappinessResources);
-		end
-	
-		-- Misc Happiness from Resources
-		local iMiscHappiness = iResourcesHappiness - iBaseHappinessFromResources - iHappinessFromExtraResources - (iExtraLuxuryHappiness * iNumHappinessResources);
-		if (iMiscHappiness > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", iMiscHappiness);
-		end
-	
-		strText = strText .. "[NEWLINE]";
-		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CITIES", iCityHappiness);
-		if (iPoliciesHappiness >= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_POLICIES", iPoliciesHappiness);
-		end
-		strText = strText .. "[NEWLINE]";
-		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_BUILDINGS", iBuildingHappiness);
-		if (iTradeRouteHappiness ~= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", iTradeRouteHappiness);
-		end
-		if (iReligionHappiness ~= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_STATE_RELIGION", iReligionHappiness);
-		end
-		if (iNaturalWonderHappiness ~= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", iNaturalWonderHappiness);
-		end
-		if (iExtraHappinessPerCity ~= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CITY_COUNT", iExtraHappinessPerCity);
-		end
-		if (iMinorCivHappiness ~= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", iMinorCivHappiness);
-		end
-		if (iLeagueHappiness ~= 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_LEAGUES", iLeagueHappiness);
-		end
-		strText = strText .. "[NEWLINE]";
-		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", iHandicapHappiness);
-		strText = strText .. "[/COLOR]";
+		local empireUnhappiness = pPlayer:GetEmpireUnhappinessForCity();
 	
 		-- Unhappiness
-		local iTotalUnhappiness = pPlayer:GetUnhappiness();
-		local iUnhappinessFromUnits = Locale.ToNumber( pPlayer:GetUnhappinessFromUnits() / 100, "#.##" );
-		local iUnhappinessFromCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCityCount() / 100, "#.##" );
-		local iUnhappinessFromCapturedCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCapturedCityCount() / 100, "#.##" );
-		
 		local iUnhappinessFromPupetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation() * 100;
 		local unhappinessFromSpecialists = pPlayer:GetUnhappinessFromCitySpecialists();
 -- COMMUNITY PATCH CHANGES BELOW
@@ -894,10 +692,11 @@ function HappinessTipHandler( control )
 --END			
 		local iUnhappinessFromPop = Locale.ToNumber( unhappinessFromPop / 100, "#.##" );
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
-		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
--- COMMUNITY PATCH CHANGES BELOW
-		iUnhappinessPublicOpinion = iUnhappinessPublicOpinion;
+
+		local iUnhappinessFromPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 		local iUnhappinessFromWarWeariness = pPlayer:GetUnhappinessFromWarWeariness();
+
+-- COMMUNITY PATCH CHANGES BELO
 		local iUnhappinessFromStarving = pPlayer:GetUnhappinessFromCityStarving();
 		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
 		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
@@ -907,58 +706,106 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromScience = pPlayer:GetUnhappinessFromCityScience();
 		local iUnhappinessFromCulture = pPlayer:GetUnhappinessFromCityCulture();
 --END
+
+		-- Empire Unhappiness
 		
-		strText = strText .. "[NEWLINE][NEWLINE]";
-		strText = strText .. "[COLOR:255:150:150:255]";
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", iTotalUnhappiness);
--- CBP
-		if (iUnhappinessFromCityCount ~= "0") then
--- END
-		strText = strText .. "[NEWLINE]";
-		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", iUnhappinessFromCityCount);
--- CBP
-		end
--- END
-		if (iUnhappinessFromCapturedCityCount ~= "0") then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", iUnhappinessFromCapturedCityCount);
-		end
+		if(empireUnhappiness ~= 0) then
+
+			strText = strText .. "[NEWLINE][NEWLINE]";
+			strText = strText .. "[COLOR:255:150:150:255]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness);
+
 -- COMMUNITY PATCH CHANGES BELOW
-		if (iUnhappinessFromPop > "0") then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_POPULATION", iUnhappinessFromPop);
-		end
+			if (iUnhappinessFromPop > "0") then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_POPULATION", iUnhappinessFromPop);
+			end
 --END
+
+			if (iUnhappinessFromPublicOpinion ~= 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessFromPublicOpinion);
+			end
+			if (iUnhappinessFromWarWeariness ~= 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWarWeariness);
+			end
+		end
+
+		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR:150:255:150:255]";
+		--Empire Happiness
+
+		local empireHappiness = pPlayer:GetEmpireHappinessForCity();
+
+		local religionHappiness = 0;
+		religionhappiness = pPlayer:GetHappinessFromReligion();
+
+		local naturalwonderhappiness = pPlayer:GetHappinessFromNaturalWonders();
+		local minorcivhappiness = pPlayer:GetHappinessFromMinorCivs();
+		local leaguehappiness = pPlayer:GetHappinessFromLeagues();
+		local vassalhappiness = pPlayer:GetHappinessFromVassals();
+		local eventhappiness = pPlayer:GetEventHappiness();
+		local tradehappiness = pPlayer:GetHappinessFromTradeRoutes();
+
+		local htotal = naturalwonderhappiness + minorcivhappiness + leaguehappiness + vassalhappiness + eventhappiness + tradehappiness + religionHappiness;
+
+		if(htotal ~= 0) then
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", empireHappiness );
+		end
+
+		if(naturalwonderhappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", naturalwonderhappiness);
+		end
+		if(minorcivhappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorcivhappiness);
+		end
+		if(leaguehappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_LEAGUES", leaguehappiness);
+		end
+		if(vassalhappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_VASSALS", vassalhappiness);
+		end
+		if(eventhappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_EVENT", eventhappiness);
+		end
+		if(tradehappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness);
+		end
+		if(religionHappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_STATE_RELIGION", religionHappiness);
+		end
+
+		strText = strText .. "[/COLOR]";
 		
+
+		-- City Unhappiness
+		local total = (unhappinessFromSpecialists / 100) + (iUnhappinessFromOccupiedCities) + (iUnhappinessFromPupetCities/100) + iUnhappinessFromStarving + iUnhappinessFromPillaged + iUnhappinessFromGold + iUnhappinessFromDefense + iUnhappinessFromConnection + iUnhappinessFromMinority + iUnhappinessFromCulture + iUnhappinessFromScience;
+
+		if(total ~= 0)then
+			strText = strText .. "[NEWLINE][NEWLINE][COLOR:255:150:150:255]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_NEEDS" );
+		end
+
 		if(iUnhappinessFromPupetCities > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", iUnhappinessFromPupetCities / 100);
-		end
-		
-		if(unhappinessFromSpecialists > 0) then
-			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100);
 		end
 		
 		if (iUnhappinessFromOccupiedCities ~= "0") then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", iUnhappinessFromOccupiedCities);
 		end
-		if (iUnhappinessFromUnits ~= "0") then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_UNITS", iUnhappinessFromUnits);
-		end
-		if (iPoliciesHappiness < 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_POLICIES", iPoliciesHappiness);
-		end		
-		if (iUnhappinessPublicOpinion > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);
-		end
+	
 --COMMUNITY PATCH CHANGES
-		if (iUnhappinessFromWarWeariness > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWarWeariness);
+		if(unhappinessFromSpecialists > 0) then
+			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100);
 		end
 		if (iUnhappinessFromStarving > 0) then
 			strText = strText .. "[NEWLINE]";
@@ -992,6 +839,7 @@ function HappinessTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture);
 		end
+
 --END CHANGES	
 		strText = strText .. "[/COLOR]";
 	
@@ -1027,7 +875,7 @@ function GoldenAgeTipHandler( control )
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_NOW", pPlayer:GetGoldenAgeTurns());
 		end
 		
-		local iHappiness = pPlayer:GetExcessHappiness();
+		local iHappiness = pPlayer:GetHappinessForGAP();
 
 		if(strText ~= "") then
 			strText = strText .. "[NEWLINE][NEWLINE]";
@@ -1231,8 +1079,7 @@ function CultureTipHandler( control )
 		end
 		
 		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
-		local iCommunityCulture = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_CULTURE);
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCommunityCulture; -- last part added (COMMUNITY PATCH)
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns;
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1243,18 +1090,6 @@ function CultureTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge);
 		end
--- COMMUNITY PATCH CHANGE
-		if(iCommunityCulture ~= 0) then
-
-			if(iCommunityCulture < 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS", iCommunityCulture);
-			else
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_GAINED_FROM_HAPPINESS", iCommunityCulture);
-			end
-		end
--- END
 
 -- CBP
 		if(pPlayer:GetTechsToFreePolicy() >= 0)then
@@ -1358,19 +1193,6 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
 		end
--- COMMUNITY PATCH CHANGE
-		-- Faith % lost from unhappiness
-		local iFaithChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_FAITH);
-		if (iFaithChange ~= 0) then
-			if(iFaithChange > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_GAINED_FROM_HAPPINESS", iFaithChange);
-			else
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_LOST_FROM_UNHAPPINESS", iFaithChange);
-			end
-		end
---END
 		
 		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0) then
 			strText = strText .. "[NEWLINE]";

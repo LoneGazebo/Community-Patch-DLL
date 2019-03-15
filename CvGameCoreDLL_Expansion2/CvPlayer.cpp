@@ -177,7 +177,6 @@ CvPlayer::CvPlayer() :
 	, m_iUnitUpgradeCostMod("CvPlayer::m_iUnitUpgradeCostMod", m_syncArchive)
 	, m_iBarbarianCombatBonus("CvPlayer::m_iBarbarianCombatBonus", m_syncArchive)
 	, m_iAlwaysSeeBarbCampsCount("CvPlayer::m_iAlwaysSeeBarbCampsCount", m_syncArchive)
-	, m_iHappinessFromBuildings("CvPlayer::m_iHappinessFromBuildings", m_syncArchive)
 	, m_iHappinessPerCity("CvPlayer::m_iHappinessPerCity", m_syncArchive)
 	, m_iHappinessPerXPolicies("CvPlayer::m_iHappinessPerXPolicies", m_syncArchive)
 	, m_iExtraHappinessPerXPoliciesFromPolicies("CvPlayer::m_iExtraHappinessPerXPoliciesFromPolicies", m_syncArchive)
@@ -462,6 +461,7 @@ CvPlayer::CvPlayer() :
 	, m_aiCityYieldModFromMonopoly("CvPlayer::m_aiCityYieldModFromMonopoly", m_syncArchive)
 	, m_iUnhappiness("CvPlayer::m_iUnhappiness", m_syncArchive)
 	, m_iHappinessTotal("CvPlayer::m_iHappinessTotal", m_syncArchive)
+	, m_iEmpireNeedsModifierGlobal("CvPlayer::m_iEmpireNeedsModifierGlobal", m_syncArchive)
 	, m_iChangePovertyUnhappinessGlobal("CvPlayer::m_iChangePovertyUnhappinessGlobal", m_syncArchive)
 	, m_iChangeDefenseUnhappinessGlobal("CvPlayer::m_iChangeDefenseUnhappinessGlobal", m_syncArchive)
 	, m_iChangeUnculturedUnhappinessGlobal("CvPlayer::m_iChangeUnculturedUnhappinessGlobal", m_syncArchive)
@@ -480,10 +480,6 @@ CvPlayer::CvPlayer() :
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
 	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
-	, m_iCultureAverage("CvPlayer::m_iCultureAverage", m_syncArchive)
-	, m_iScienceAverage("CvPlayer::m_iScienceAverage", m_syncArchive)
-	, m_iDefenseAverage("CvPlayer::m_iDefenseAverage", m_syncArchive)
-	, m_iGoldAverage("CvPlayer::m_iGoldAverage", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
@@ -568,7 +564,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_aistrInstantYield("CvPlayer::m_aistrInstantYield", m_syncArchive)
-	, m_aistrInstantGreatPersonProgress("CvPlayer::m_aistrInstantGreatPersonProgress", m_syncArchive)
+	, m_aistrInstantGreatPersonProgress()
 	, m_iJFDCurrency("CvPlayer::m_iJFDCurrency", m_syncArchive)
 	, m_iJFDProsperity("CvPlayer::m_iJFDProsperity", m_syncArchive)
 	, m_strJFDCurrencyName("CvPlayer::m_strJFDCurrencyName", m_syncArchive)
@@ -1334,6 +1330,7 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iUnhappiness = 0;
 	m_iHappinessTotal = 0;
+	m_iEmpireNeedsModifierGlobal = 0;
 	m_iChangePovertyUnhappinessGlobal = 0;
 	m_iChangeDefenseUnhappinessGlobal = 0;
 	m_iChangeUnculturedUnhappinessGlobal = 0;
@@ -1403,7 +1400,6 @@ void CvPlayer::uninit()
 	m_iUnitUpgradeCostMod = 0;
 	m_iBarbarianCombatBonus = 0;
 	m_iAlwaysSeeBarbCampsCount = 0;
-	m_iHappinessFromBuildings = 0;
 	m_iHappinessPerCity = 0;
 	m_iHappinessPerXPolicies = 0;
 	m_iExtraHappinessPerXPoliciesFromPolicies = 0;
@@ -1578,10 +1574,6 @@ void CvPlayer::uninit()
 	m_iOnlyTradeSameIdeology = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iSupplyFreeUnits = 0;
-	m_iCultureAverage = 0;
-	m_iScienceAverage = 0;
-	m_iDefenseAverage = 0;
-	m_iGoldAverage = 0;
 	m_strJFDCurrencyName = "";
 	m_iJFDCurrency = -1;
 	m_iJFDProsperity = 0;
@@ -1995,7 +1987,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aistrInstantYield.resize(NUM_INSTANT_YIELD_TYPES);
 
 	m_aistrInstantGreatPersonProgress.clear();
-	m_aistrInstantGreatPersonProgress.resize(NUM_INSTANT_YIELD_TYPES);
 
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
@@ -3594,12 +3585,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		if (!pOldCity->isEverOwned(GetID()))
 		{
-			int iScaler = pOldCity->getPopulation() / 3;
+			int iScaler = pOldCity->getPopulation() / 2;
 			if(iScaler <= 0)
 			{
 				iScaler = 1;
 			}
-			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, false, true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pOldCity);
+			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pOldCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pOldCity);
 
 			if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !isMinorCiv() && !isBarbarian() && (GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 			{
@@ -11090,8 +11081,6 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
-	updateGlobalAverage();
-
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
 		DoVassalLevy();
 
@@ -11361,6 +11350,12 @@ void CvPlayer::doTurnPostDiplomacy()
 #if defined(MOD_BALANCE_CORE)
 			}
 #endif
+		}
+		else
+		{
+			CvBarbarians::DoCampSpawnCounter();
+			CvBarbarians::DoCamps();
+			CvBarbarians::DoUnits();
 		}
 
 		if(isMinorCiv())
@@ -15811,14 +15806,17 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		}
 	}
 
-	if(GC.getGame().isProjectMaxedOut(eProject))
+	if (!pProjectInfo.IsRepeatable())
 	{
-		return false;
-	}
+		if (GC.getGame().isProjectMaxedOut(eProject))
+		{
+			return false;
+		}
 
-	if(GET_TEAM(getTeam()).isProjectMaxedOut(eProject))
-	{
-		return false;
+		if (GET_TEAM(getTeam()).isProjectMaxedOut(eProject))
+		{
+			return false;
+		}
 	}
 
 	if (pProjectInfo.GetNumRequiredTier3Tenets())
@@ -15865,14 +15863,17 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 			}
 		}
 
-		if(GC.getGame().isProjectMaxedOut(eProject, (GET_TEAM(getTeam()).getProjectMaking(eProject) + ((bContinue) ? -1 : 0))))
+		if (!pProjectInfo.IsRepeatable())
 		{
-			return false;
-		}
+			if (GC.getGame().isProjectMaxedOut(eProject, (GET_TEAM(getTeam()).getProjectMaking(eProject) + ((bContinue) ? -1 : 0))))
+			{
+				return false;
+			}
 
-		if(GET_TEAM(getTeam()).isProjectMaxedOut(eProject, (GET_TEAM(getTeam()).getProjectMaking(eProject) + ((bContinue) ? -1 : 0))))
-		{
-			return false;
+			if (GET_TEAM(getTeam()).isProjectMaxedOut(eProject, (GET_TEAM(getTeam()).getProjectMaking(eProject) + ((bContinue) ? -1 : 0))))
+			{
+				return false;
+			}
 		}
 
 		// Nukes disabled? (by UN or something)
@@ -16097,6 +16098,9 @@ bool CvPlayer::isProductionMaxedProject(ProjectTypes eProject) const
 	{
 		return false;
 	}
+
+	if (GC.getProjectInfo(eProject) != NULL && GC.getProjectInfo(eProject)->IsRepeatable())
+		return false;
 
 	if(GC.getGame().isProjectMaxedOut(eProject))
 	{
@@ -16379,7 +16383,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	iProductionNeeded *= GC.getGame().getStartEraInfo().getCreatePercent();
 	iProductionNeeded /= 100;
 
-	if(!isHuman() && !IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !IsAITeammateOfHuman() && !isBarbarian() && !GC.getProjectInfo(eProject)->IsRepeatable())
 	{
 		if(isWorldProject(eProject))
 		{
@@ -16923,6 +16927,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		ChangeMissionaryExtraStrength(pBuildingInfo->GetExtraMissionaryStrength() * iChange);
 	}
 
+	if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetEmpireNeedsModifierGlobal() != 0)
+	{
+		ChangeEmpireNeedsModifierGlobal(pBuildingInfo->GetEmpireNeedsModifierGlobal() * iChange);
+	}
 	if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)
 	{
 		ChangePovertyUnhappinessGlobal(pBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() * iChange);
@@ -17211,12 +17219,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 			}
 		}
+		//and update city happiness for all cities, as we may have changed something somewhere...
+		pLoopCity->UpdateHappinessFromBuildingClasses();
 	}
 #if defined(MOD_BALANCE_CORE)
 	//Refresh cache data.
 	countNumBuildings(eBuilding, true);
 	countNumBuildingsInPuppets(eBuilding, true);
-	DoUpdateHappinessFromBuildings(); // fix for 3939, this function needs player's building count already updated!
 #endif
 }
 
@@ -18422,11 +18431,7 @@ void CvPlayer::changeTotalLandScored(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Total culture per turn
-#if defined(MOD_BALANCE_CORE)
-int CvPlayer::GetTotalJONSCulturePerTurn(bool bIgnoreHappiness) const
-#else
 int CvPlayer::GetTotalJONSCulturePerTurn() const
-#endif
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
 	{
@@ -18479,12 +18484,6 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	{
 		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
-	{
-		iCulturePerTurn += GetYieldPerTurnFromHappiness(YIELD_CULTURE, iCulturePerTurn);
-	}
-#endif
 
 	return iCulturePerTurn;
 }
@@ -18514,6 +18513,8 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 	{
 		return 0;
 	}
+	if (MOD_BALANCE_CORE_HAPPINESS)
+		return 0;
 
 	if(getHappinessToCulture() != 0)
 	{
@@ -18769,12 +18770,6 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 		{
 			iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-		{
-			iCulturePerTurn += GetYieldPerTurnFromHappiness(YIELD_CULTURE, iCulturePerTurn);
-		}
-#endif
 	}
 
 	if (GetCultureBonusTurns() > 0)
@@ -19115,7 +19110,7 @@ int CvPlayer::GetGAPYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsT
 		}
 		else if (iTurnGAP == -1) // No data for this turn (ex. late era start)
 		{
-			iSum += (3 * GetGoldenAgePointsFromEmpire() + GetExcessHappiness());
+			iSum += (3 * GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
 		}
 	}
 
@@ -20097,11 +20092,7 @@ int CvPlayer::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 
 //	--------------------------------------------------------------------------------
 /// Total faith per turn
-#if defined(MOD_BALANCE_CORE)
-	int CvPlayer::GetTotalFaithPerTurn(bool bIgnoreHappiness ) const
-#else
 int CvPlayer::GetTotalFaithPerTurn() const
-#endif
 {
 	int iFaithPerTurn = 0;
 
@@ -20137,13 +20128,6 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if(!bIgnoreHappiness && MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	{
-		iFaithPerTurn += GetYieldPerTurnFromHappiness(YIELD_FAITH, iFaithPerTurn);
 	}
 #endif
 
@@ -20358,46 +20342,39 @@ void CvPlayer::ChangeFaithEverGenerated(int iChange)
 /// Updates how much Happiness we have
 void CvPlayer::DoUpdateTotalHappiness()
 {
+	m_iHappiness = 0;
 	// Start level
-	m_iHappiness = getHandicapInfo().getHappinessDefault();
+	if (!MOD_BALANCE_CORE_HAPPINESS)
+	{
+		m_iHappiness += getHandicapInfo().getHappinessDefault();
 
 #if defined(MOD_BALANCE_CORE)
-	// Gamespeed Bonus level
-	if(MOD_BALANCE_CORE)
-	{
-		m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
-	}
+		// Gamespeed Bonus level
+		if (MOD_BALANCE_CORE)
+		{
+			m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
+		}
 #endif
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	// Gamespeed Bonus level
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		m_iHappiness += GetHappinessFromResourceMonopolies();
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	if(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	{
-		m_iHappiness += GetBonusHappinessFromLuxuries();
-	}
-#endif
-	// Increase from Luxury Resources
-	m_iHappiness += GetHappinessFromResources();
 
-	// Happiness bonus for multiple Resource types
-	m_iHappiness += GetHappinessFromResourceVariety();
+		// Increase from Luxury Resources
+		m_iHappiness += GetHappinessFromResources();
 
-	// Increase from Local City Happiness
-	m_iHappiness += GetHappinessFromCities();
+		// Happiness bonus for multiple Resource types
+		m_iHappiness += GetHappinessFromResourceVariety();
+
+		// Increase from Local City Happiness
+		m_iHappiness += GetHappinessFromCities();
+
+	}
 
 	// Increase from buildings
-	m_iHappiness += GetHappinessFromBuildings();
+	//m_iHappiness += GetHappinessFromBuildings();
 
 	// Increase from policies
-	m_iHappiness += GetHappinessFromPolicies();
+	//m_iHappiness += GetHappinessFromPolicies();
 
 	// Increase from num cities (player based, for buildings and such)
-	m_iHappiness += getNumCities() * m_iHappinessPerCity;
+	//m_iHappiness += getNumCities() * m_iHappinessPerCity;
 
 	// Increase from Religion
 	m_iHappiness += GetHappinessFromReligion();
@@ -20431,13 +20408,32 @@ void CvPlayer::DoUpdateTotalHappiness()
 	m_iHappiness += GetHappinessFromTradeRoutes();
 
 #if !defined(NO_ACHIEVEMENTS)
-	if(isLocalPlayer() && GetExcessHappiness() >= 100)
+	if (isLocalPlayer() && GetExcessHappiness() >= 100)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_45);
 	}
 #endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+}
+
+int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
+{
+	bool bCapital = pCity == NULL ? false : pCity->isCapital();
+
+	int iCities = max(1, GetNumRealCities());
+	int iRemainder = m_iHappiness % iCities;
+	int iHappiness = m_iHappiness / iCities;
+	return bCapital ? iHappiness + iRemainder : iHappiness;
+}
+int CvPlayer::GetEmpireUnhappinessForCity(CvCity* pCity) const
+{
+	bool bCapital = pCity == NULL ? false : pCity->isCapital();
+
+	int iCities = max(1, GetNumRealCities());
+	int iRemainder = m_iUnhappiness % iCities;
+	int iUnhappiness = m_iUnhappiness / iCities;
+	return bCapital ? iUnhappiness + iRemainder : iUnhappiness;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20484,141 +20480,45 @@ void CvPlayer::CalculateNetHappiness()
 	DoUpdateTotalHappiness();
 	DoUpdateTotalUnhappiness();
 
-	int iHappiness = GetHappiness();
-	int iUnhappiness = GetUnhappiness();
-
-	int iDiff = (iHappiness-iUnhappiness);
-	if (iDiff != m_iHappinessTotal)
+	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		m_iHappinessTotal = iDiff;
-		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		int iUnhappyCitizens = getUnhappinessFromCitizenNeeds();
+		int iPop = getTotalPopulation();
+		int iPercent = (iUnhappyCitizens * 100) / max(1, iPop);
+
+		//Closer to 100 = better
+		int iDiff = 100 - iPercent;
+
+		if (iDiff != m_iHappinessTotal)
+		{
+			m_iHappinessTotal = iDiff;
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		}
+	}
+	else
+	{
+
+		int iHappiness = GetHappiness();
+		int iUnhappiness = GetUnhappiness();
+
+		int iDiff = (iHappiness - iUnhappiness);
+		if (iDiff != m_iHappinessTotal)
+		{
+			m_iHappinessTotal = iDiff;
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		}
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-int CvPlayer::GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const
+void CvPlayer::ChangeEmpireNeedsModifierGlobal(int iChange)
 {
-	//Mechanic to allow for growth malus from happiness/unhappiness.
-	int iHappiness = GetExcessHappiness();
-
-	//If Happiness is greater than or over threshold, calculate city bonus mod.
-	if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
-	{
-		iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
-		//Are there minimums/maximums for the bonus? Restrict this value.
-		if(iHappiness >= GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
-		}
-		else if(iHappiness <= GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
-		}
-		
-	}
-	//If happiness is less than the main threshold, calculate city penalty mod.
-	else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD())
-	{
-		//Are there minimums/maximums for the penalty? Restrict this value.
-		if(iHappiness >= GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
-		}
-		else if(iHappiness <= GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
-		}
-	}
-	if(iHappiness != 0)
-	{
-		//Mechanic to allow for growth malus from happiness/unhappiness.
-		if(eYield == YIELD_GOLD)
-		{
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-		else if(eYield == YIELD_FAITH)
-		{
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_FAITH_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-		else if(eYield == YIELD_CULTURE)
-		{
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_CULTURE_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-		else if(eYield == YIELD_SCIENCE)
-		{
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_SCIENCE_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-	}
-	return 0;
+	m_iEmpireNeedsModifierGlobal += iChange;
 }
-	//LUA Functions
-int CvPlayer::CalculateUnhappinessTooltip(YieldTypes eYield) const
+int CvPlayer::GetEmpireNeedsModifierGlobal() const
 {
-	//Mechanic to allow for growth malus from happiness/unhappiness.
-	int iHappiness = GetExcessHappiness();
-
-	//If Happiness is greater than or over threshold, calculate city bonus mod.
-	if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
-	{
-		iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
-		//Are there minimums/maximums for the bonus? Restrict this value.
-		if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
-		}
-		else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
-		}
-	}
-	//If happiness is less than the main threshold, calculate city penalty mod.
-	else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD())
-	{
-		//Are there minimums/maximums for the penalty? Restrict this value.
-		if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
-		}
-		else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
-		{
-			iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
-		}			
-	}
-	if(iHappiness != 0)
-	{
-		//Mechanic to allow for growth malus from happiness/unhappiness.
-		if(eYield == YIELD_GOLD)
-		{
-			int iValue = GetTreasury()->CalculateGrossGoldTimes100(true);
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-		else if(eYield == YIELD_FAITH)
-		{
-			int iValue = GetTotalFaithPerTurn(true);
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_FAITH_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-		else if(eYield == YIELD_CULTURE)
-		{
-			int iValue = GetTotalJONSCulturePerTurn(true);
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_CULTURE_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-		else if(eYield == YIELD_SCIENCE)
-		{
-			int iValue = GetScienceTimes100(true);
-			iValue = ((iValue * /*3*/ GC.getBALANCE_HAPPINESS_SCIENCE_MODIFIER() * iHappiness) / 100);
-			return iValue;
-		}
-	}
-
-	return 0;
+	return m_iEmpireNeedsModifierGlobal;
 }
+
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvPlayer::GetPovertyUnhappinessGlobal() const
@@ -20712,9 +20612,26 @@ void CvPlayer::ChangeGreatWorksTourismModifierGlobal(int iChange)
 {
 	m_iGreatWorksTourismModifierGlobal += iChange;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
+int CvPlayer::GetHappinessForGAP() const
+{
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		int iTotalGAP = 0;
+		const CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			int iGAP = pLoopCity->getHappinessDelta();
+			if (iGAP > 0)
+				iTotalGAP += iGAP;
+		}
+
+		return iTotalGAP;
+	}
+	return GetExcessHappiness();
+}
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
@@ -20722,6 +20639,7 @@ int CvPlayer::GetExcessHappiness() const
 	{
 		return 0;
 	}
+
 	return m_iHappinessTotal;
 }
 
@@ -20729,30 +20647,20 @@ int CvPlayer::GetExcessHappiness() const
 /// Has the player passed the Happiness limit?
 bool CvPlayer::IsEmpireUnhappy() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		//Mechanic to allow for varied effects of happiness/unhappiness.
-		int iHappiness = GetExcessHappiness();
-		if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
-		{
+		if (GetExcessHappiness() <= GC.getUNHAPPY_THRESHOLD())
 			return true;
-		}
 	}
 	else
 	{
-#endif
-	if(GetExcessHappiness() < 0)
-	{
-		return true;
+		if (GetExcessHappiness() < 0)
+			return true;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	}
-#endif
 	return false;
 }
 
@@ -20760,30 +20668,19 @@ bool CvPlayer::IsEmpireUnhappy() const
 /// Is the empire REALLY unhappy? (other penalties)
 bool CvPlayer::IsEmpireVeryUnhappy() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		//Mechanic to allow for varied effects of happiness/unhappiness.
-		int iHappiness = GetExcessHappiness();
-		if(iHappiness <= (/*-10*/ GC.getVERY_UNHAPPY_THRESHOLD() + GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN()))
-		{
+		if (GetExcessHappiness() <= GC.getVERY_UNHAPPY_THRESHOLD())
 			return true;
-		}
 	}
-	else
-	{
-#endif
-	if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+	else if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	}
-#endif
 	return false;
 }
 
@@ -20791,30 +20688,19 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 /// Is the empire SUPER unhappy? (leads to revolts)
 bool CvPlayer::IsEmpireSuperUnhappy() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS) || isMinorCiv() || isBarbarian())
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		//Mechanic to allow for varied effects of happiness/unhappiness.
-		int iHappiness = GetExcessHappiness();
-		if(iHappiness <= (/*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD() + GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN()))
-		{
+		if (GetExcessHappiness() <= GC.getSUPER_UNHAPPY_THRESHOLD())
 			return true;
-		}
 	}
-	else
-	{
-#endif
-	if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+	else if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	}
-#endif
 	return false;
 }
 
@@ -20824,7 +20710,7 @@ void CvPlayer::DoUpdateUprisings()
 {
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	//Revolts only happen if super unhappy.
-	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireSuperUnhappy())
+	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
 		if(GetUprisingCounter() > 0)
@@ -21473,7 +21359,8 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 				continue;
 
 			// mind the sign change
-			int iUnhappiness = -1 * pLoopCity->getHappinessDelta(); 
+			int iUnhappiness = -1 * pLoopCity->getHappinessDelta(true);
+			pLoopCity->setHappinessDelta(iUnhappiness * -1);
 
 			if (iUnhappiness <= 0)
 				continue;
@@ -21632,59 +21519,7 @@ PlayerTypes CvPlayer::GetMostUnhappyCityRecipient(CvCity* pMostUnhappyCity)
 /// Returns the amount of Happiness being added by Policies
 int CvPlayer::GetHappinessFromPolicies() const
 {
-	int iHappiness = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS);
-	iHappiness += (getNumCities() * m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS_PER_CITY));
-
-#ifdef HH_MOD_NATURAL_WONDER_MODULARITY
-	/*
-	see CvPlayer::GetHappinessFromNaturalWonders()
-	*/
-#endif
-
-	int iHappinessPerXPopulation;
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	int m_iHappinessPerXPopulationGlobal;
-	m_iHappinessPerXPopulationGlobal = GetHappinessPerXPopulationGlobal();
-#endif
-	iHappinessPerXPopulation = GetHappinessPerXPopulation();
-
-	if(iHappinessPerXPopulation > 0)
-	{
-		const CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity && !pLoopCity->IsPuppet())
-			{
-				int iExtraHappiness = pLoopCity->getPopulation() / iHappinessPerXPopulation;
-
-				iHappiness += iExtraHappiness;
-			}
-		}
-	}
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	if(MOD_BALANCE_CORE_POLICIES && m_iHappinessPerXPopulationGlobal > 0)
-	{
-		int iTotalPop = getTotalPopulation();
-		if(iTotalPop > 0)
-		{
-			int iExtraHappinessGlobal = (iTotalPop / m_iHappinessPerXPopulationGlobal);
-			iHappiness += iExtraHappinessGlobal;
-		}
-	}
-
-	if (GetHappinessPerActiveTradeRoute() > 0)
-	{
-		iHappiness += (GetTrade()->GetNumberOfTradeRoutes() * GetHappinessPerActiveTradeRoute());
-	}
-
-	if (GetExtraHappinessPerXPoliciesFromPolicies() > 0)
-	{
-		iHappiness += GetPlayerPolicies()->GetNumPoliciesOwned() / GetExtraHappinessPerXPoliciesFromPolicies();
-	}
-#endif
-
-	return iHappiness;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -21707,81 +21542,17 @@ int CvPlayer::GetHappinessFromCities() const
 }
 
 //	--------------------------------------------------------------------------------
-/// Returns the amount of Global Happiness being added by Buildings
-int CvPlayer::GetHappinessFromBuildings() const
-{
-	return m_iHappinessFromBuildings;
-}
-void CvPlayer::DoUpdateHappinessFromBuildings()
-{
-	int iHappiness = 0;
-	BuildingClassTypes eBuildingClass;
-
-	// Building Class Mods
-	int iSpecialBuildingHappiness = 0;
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-	{
-		eBuildingClass = (BuildingClassTypes) iI;
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
-		{
-			continue;
-		}
-
-		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-		int iNumTotal = countNumBuildings(eBuilding) - (MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0);
-		if (eBuilding != NO_BUILDING && iNumTotal > 0)
-		{
-			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-			if(pkBuilding)
-			{
-				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
-				{
-					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes) jJ;
-					int iHappinessPerBuilding = pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness);
-					if(iHappinessPerBuilding > 0)
-					{
-						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
-						if(eBuildingThatGivesHappiness != NO_BUILDING)
-						{
-							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - (MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0);
-
-							iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
-						}
-					}
-				}
-			}
-		}
-	}
-	iHappiness += iSpecialBuildingHappiness;
-
-	const CvCity* pLoopCity;
-	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-			continue;
-
-		iHappiness += pLoopCity->GetHappinessFromBuildings();
-	}
-
-	// Increase from num policies -- MOVE THIS CODE (and provide a new tool tip string) if we ever get happiness per X policies to something beside a building
-	if (m_iHappinessPerXPolicies > 0)
-	{
-		iHappiness += GetPlayerPolicies()->GetNumPoliciesOwned() / m_iHappinessPerXPolicies;
-	}
-	if (m_iHappinessFromBuildings != iHappiness)
-	{
-		m_iHappinessFromBuildings = iHappiness;
-	}
-}
-
-//	--------------------------------------------------------------------------------
 /// Returns the amount of extra Happiness per City
 int CvPlayer::GetExtraHappinessPerCity() const
 {
 	return m_iHappinessPerCity;
+}
+
+//	--------------------------------------------------------------------------------
+/// Returns the amount of extra Happiness per City
+int CvPlayer::GetHappinessFromBuildings() const
+{
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -21976,21 +21747,7 @@ int CvPlayer::GetHappinessFromReligion()
 					iHappinessFromReligion += (iPantheon * iHappiness);
 				}
 			}
-			iHappiness = pReligion->m_Beliefs.GetFullyConvertedHappiness(GetID(), pHolyCity, true);
-			if (iHappiness > 0)
-			{
-				int iLoop;
-				for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-				{
-					if (pLoopCity == NULL)
-						continue;
-
-					if (pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eFoundedReligion) > 0)
-						continue;
-
-					iHappinessFromReligion += iHappiness;
-				}
-			}
+			
 			int iSpyHappiness = pReligion->m_Beliefs.GetHappinessFromForeignSpies(GetID(), pHolyCity, true);
 			if (iSpyHappiness > 0)
 			{
@@ -22169,171 +21926,22 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 
 	if(eYield == YIELD_CULTURE)
 	{
-		iYield = GetCultureAverage();
-		//iYield = GC.getGame().GetCultureAverage();
+		iYield = GC.getGame().GetCultureAverage();
 	}
 	else if(eYield == YIELD_SCIENCE)
 	{
-		iYield = GetScienceAverage();
-		//iYield = GC.getGame().GetScienceAverage();
+		iYield = GC.getGame().GetScienceAverage();
 	}
 	else if(eYield == YIELD_PRODUCTION)
 	{
-		iYield = GetDefenseAverage();
-		//iYield = GC.getGame().GetDefenseAverage();
+		iYield = GC.getGame().GetDefenseAverage();
 	}
 	else if(eYield == YIELD_GOLD)
 	{
-		iYield = GetGoldAverage();
-		//iYield = GC.getGame().GetGoldAverage();
+		iYield = GC.getGame().GetGoldAverage();
 	}
 
 	return iYield;
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::updateGlobalAverage()
-{
-	CvCity* pLoopCity;
-	int iCityLoop;
-	int iPopulation = 0;
-	int iCultureYield = 0;
-	int iScienceYield = 0;
-	int iDefenseYield = 0;
-	int iGoldYield = 0;
-
-	std::vector<float> vfCultureYield;
-	std::vector<float> vfScienceYield;
-	std::vector<float> vfDefenseYield;
-	std::vector<float> vfGoldYield;
-
-	if (!isAlive() || isMinorCiv() || isBarbarian())
-		return;
-
-	for (pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
-	{
-		if (pLoopCity != NULL)
-		{
-			iPopulation = pLoopCity->getPopulation();
-
-			//Uncultured
-			iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100;
-			float iCultureAvg = iCultureYield / (float)iPopulation;
-			vfCultureYield.push_back((float)iCultureAvg);
-
-			//Illiteracy
-			iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
-			float iScienceAvg = iScienceYield / (float)iPopulation;
-			vfScienceYield.push_back((float)iScienceAvg);
-
-			//Disorder
-			iDefenseYield = (pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true)) / 2;
-			float iDefenseAvg = iDefenseYield / (float)iPopulation;
-			vfDefenseYield.push_back((float)iDefenseAvg);
-
-			//Poverty
-			iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
-			float iGoldAvg = iGoldYield / (float)iPopulation;
-			vfGoldYield.push_back((float)iGoldAvg);
-		}
-	}
-	//Cannot define median if calculations are at zero.
-	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty())
-	{
-		return;
-	}
-
-	//Select n-th percentile of each category
-	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
-
-	//Find it ...
-	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin() + n, vfCultureYield.end());
-	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin() + n, vfScienceYield.end());
-	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin() + n, vfDefenseYield.end());
-	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin() + n, vfGoldYield.end());
-
-	//And set it.
-	SetCultureAverage(vfCultureYield[n]);
-	SetScienceAverage(vfScienceYield[n]);
-	SetDefenseAverage(vfDefenseYield[n]);
-	SetGoldAverage(vfGoldYield[n]);
-
-	DoGlobalAvgLogging();
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetCultureAverage(float fValue)
-{
-	float fAlpha = 0.5f;
-	float iAverage = (0.5f + (fValue * fAlpha) + (GetCultureAverage() * (1 - fAlpha)));
-	m_iCultureAverage = (int)iAverage;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetScienceAverage(float fValue)
-{
-	float fAlpha = 0.5f;
-	float iAverage = (0.5f + (fValue * fAlpha) + (GetScienceAverage() * (1 - fAlpha)));
-	m_iScienceAverage = (int)iAverage;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetDefenseAverage(float fValue)
-{
-	float fAlpha = 0.5f;
-	float iAverage = (0.5f + (fValue * fAlpha) + (GetDefenseAverage() * (1 - fAlpha)));
-	m_iDefenseAverage = (int)iAverage;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetGoldAverage(float fValue)
-{
-	float fAlpha = 0.5f;
-	float iAverage = (0.5f + (fValue * fAlpha) + (GetGoldAverage() * (1 - fAlpha)));
-	m_iGoldAverage = (int)iAverage;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetCultureAverage() const
-{
-	return m_iCultureAverage;
-}
-int CvPlayer::GetScienceAverage() const
-{
-	return m_iScienceAverage;
-}
-int CvPlayer::GetDefenseAverage() const
-{
-	return m_iDefenseAverage;
-}
-int CvPlayer::GetGoldAverage() const
-{
-	return m_iGoldAverage;
-}
-
-void CvPlayer::DoGlobalAvgLogging()
-{
-	if (GC.getLogging() && GC.getAILogging())
-	{
-		CvString strOutput;
-		CvString strTemp;
-
-		CvString strLogName = "GlobalMedian_Log.csv";
-		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		strOutput.Format("Global, Turn: %03d", GC.getGame().getElapsedGameTurns());
-		strTemp.Format("Food/Production: %d", GetDefenseAverage());
-		strOutput += ", " + strTemp;
-
-		strTemp.Format("Gold: %d", GetGoldAverage());
-		strOutput += ", " + strTemp;
-
-		strTemp.Format("Science: %d", GetScienceAverage());
-		strOutput += ", " + strTemp;
-
-		strTemp.Format("Culture: %d", GetCultureAverage());
-		strOutput += ", " + strTemp;
-
-		CvString strPlayerName = getCivilizationShortDescription();
-		strOutput = strPlayerName + ", " + strOutput;
-
-		pLog->Msg(strOutput);
-	}
 }
 #endif
 
@@ -22351,22 +21959,49 @@ int CvPlayer::GetPlayerHappinessLuxuryCountFactor1000() const
 	return GC.getBALANCE_HAPPINESS_LUXURY_COUNT_SCALER();
 }
 
-int CvPlayer::GetBonusHappinessFromLuxuries() const
+int CvPlayer::GetBonusHappinessFromLuxuries(int iPop) const
 {
+	if (iPop == 0)
+		return 0;
+
 	int iTotalResourceWeight = 0;
-	int iCurrentWeight = 1000;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-		if(eResource != NO_RESOURCE && GetHappinessFromLuxury(eResource) > 0)
+		int iBaseVal = GetHappinessFromLuxury(eResource) * 1000;
+		if (iBaseVal <= 0)
+			continue;
+
+		iBaseVal += (GetExtraHappinessPerLuxury() * 1000);
+
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
+		if (pInfo && pInfo->isMonopoly())
 		{
-			iTotalResourceWeight += iCurrentWeight;
-			iCurrentWeight = (iCurrentWeight*GetPlayerHappinessLuxuryCountFactor1000()) / 1000; //reduce the weight for each additional luxury
+			if (HasGlobalMonopoly(eResource) && pInfo->getMonopolyHappiness() > 0)
+			{
+				iBaseVal += (pInfo->getMonopolyHappiness() + GetMonopolyModFlat()) * 1000;
+			}
 		}
+
+		// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
+		if (IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
+		{
+			iBaseVal *= /*150*/ GC.getMINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER();
+			iBaseVal /= 100;
+		}
+
+		iTotalResourceWeight += iBaseVal;
 	}
 
+	if (iTotalResourceWeight <= 0)
+		return 0;
+
 	//scaler is in 1/1000th
-	return int(0.5f + iTotalResourceWeight / 1000.f * getAveragePopulation() * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000.f );
+	//int iEmpireScaler = (GetNumRealCities() * 100) + 1000;
+	int iScaled = int(0.5f + iTotalResourceWeight / 1000.f * iPop * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000);
+
+	return max(1, iScaled);
+	
 }
 
 int CvPlayer::GetBonusHappinessFromLuxuriesGradient() const
@@ -22403,10 +22038,10 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 	iWarWeariness *= (iTechProgress + iPop);
 	iWarWeariness /= 100;
 
-	//Never more than 5% of pop...
-	if (iWarWeariness > (iPop / 5))
+	//Never more than 34% of pop...
+	if (iWarWeariness > (iPop / 3))
 	{
-		iWarWeariness = (iPop / 5);
+		iWarWeariness = (iPop / 3);
 	}
 
 	//Always at least one just in case.
@@ -22502,12 +22137,11 @@ void CvPlayer::ChangeUnhappinessFromUnits(int iChange)
 int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted)
 {
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(isMinorCiv() || isBarbarian())
+	if (isMinorCiv() || isBarbarian())
 	{
 		return 0;
 	}
-#endif
+
 	int iUnhappiness = 0;
 
 	// City Count Unhappiness
@@ -22519,8 +22153,11 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 	// City Population Unhappiness
 	iUnhappiness += GetUnhappinessFromCityPopulation(pAssumeCityAnnexed, pAssumeCityPuppeted);
 
-	// Occupied City Population Unhappiness
-	iUnhappiness += GetUnhappinessFromOccupiedCities(pAssumeCityAnnexed, pAssumeCityPuppeted);
+	if (!MOD_BALANCE_CORE_HAPPINESS)
+	{
+		// Occupied City Population Unhappiness
+		iUnhappiness += GetUnhappinessFromOccupiedCities(pAssumeCityAnnexed, pAssumeCityPuppeted);
+	}
 
 	// Unit Unhappiness (Builders)
 	iUnhappiness += GetUnhappinessFromUnits();
@@ -22534,16 +22171,10 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 		iUnhappiness += getUnhappinessFromCityJFDSpecial();
 	}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS && !isMinorCiv() && !isBarbarian())
 	{
 		iUnhappiness += GetUnhappinessFromWarWeariness();
-
-		//These values should return either a positive number, or zero.
-		iUnhappiness += (GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100);
-		iUnhappiness += getUnhappinessFromCitizenNeeds();
 	}
-#endif
 	if (!MOD_BALANCE_CORE_HAPPINESS)
 	{
 		// AI gets reduced Unhappiness on higher levels
@@ -23245,10 +22876,9 @@ int CvPlayer::getUnhappinessFromCitizenNeeds() const
 	{
 		if(pLoopCity != NULL)
 		{
-			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-				continue;
-
-			iUnhappiness += pLoopCity->getUnhappinessAggregated();
+			int iVal = pLoopCity->getHappinessDelta();
+			if (iVal < 0)
+				iUnhappiness += (iVal*-1);
 		}
 	}
 	return iUnhappiness;
@@ -25213,7 +24843,7 @@ void CvPlayer::DoProcessGoldenAge()
 		{
 #endif
 			// Note: This will actually REDUCE the GA meter if the player is running in the red
-			ChangeGoldenAgeProgressMeter(GetExcessHappiness());
+			ChangeGoldenAgeProgressMeter(GetHappinessForGAP());
 			
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			ChangeGoldenAgeProgressMeter(GetGoldenAgePointsFromEmpire());
@@ -26789,7 +26419,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
+						if (pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true) > 0)
+						{
+							if (eYield == YIELD_GREAT_ADMIRAL_POINTS && bDomainSea)
+							{
+								iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
+							}
+							else if (eYield == YIELD_GREAT_GENERAL_POINTS && !bDomainSea)
+							{
+								iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
+							}
+							else
+							{
+								iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
+							}
+						}
 					}
 					if (iPassYield != 0 && iValue != 0)
 					{
@@ -27012,20 +26656,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							iTempValue *= max(1, iPassYield+1);
 
 							iValue += iTempValue;
-						}
-						CvCity* pCity = pPlot->getPlotCity();
-						if (pCity == NULL)
-						{
-							pCity = pPlot->GetAdjacentCity();
-						}
-						if (pCity != NULL)
-						{
-							if (eYield == YIELD_SCIENCE && iPassYield > 0)
+
+							CvCity* pCity = pPlot->getPlotCity();
+							if (pCity == NULL)
 							{
-								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
-								if (eCurrentReligion != eReligion)
+								pCity = pPlot->GetAdjacentCity();
+							}
+							if (pCity != NULL)
+							{
+								if (eYield == YIELD_SCIENCE && iPassYield > 0)
 								{
-									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity, true));
+									ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
+									if (eCurrentReligion != eReligion)
+									{
+										iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity, true));
+									}
 								}
 							}
 						}
@@ -28266,7 +27911,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity)
+void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress, CvCity* pCity, BuildingTypes eBuilding)
 {
 	CvCity* pLoopCity;
 	CvCity* pCapital = getCapitalCity();
@@ -28311,6 +27956,27 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					if (pLoopCity->isCapital() == true)
 					{
 						iValue += GetPlayerTraits()->GetGreatPersonProgressFromPolicyUnlock(eGreatPerson);
+					}
+					break;
+				}
+				case INSTANT_YIELD_TYPE_CONSTRUCTION:
+				{
+					if (eBuilding != NO_BUILDING)
+					{
+						TechTypes eTech = (TechTypes)GC.getBuildingInfo(eBuilding)->GetPrereqAndTech();
+						int iEra;
+						if (eTech == NO_TECH)
+						{
+							iEra = 0;
+						}
+						else
+						{
+							iEra = GC.getTechInfo(eTech)->GetEra();
+						}
+						for (int iLoopEra = 0; iLoopEra <= iEra; ++iLoopEra)
+						{
+							iValue += pLoopCity->GetGreatPersonProgressFromConstruction(eGreatPerson, (EraTypes)iLoopEra);
+						}
 					}
 					break;
 				}
@@ -28375,7 +28041,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		{
 			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 			{
-				/*if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL) // Can't get this to work correctly for some reason
+				if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalgpString;
@@ -28389,11 +28055,31 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					//We do this at the player level once per turn.
 					addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
 				}
-				return;*/
-				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
-				localizedText << totalgpString;
-				break;
+				return;
 			}
+			case INSTANT_YIELD_TYPE_CONSTRUCTION:
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
+						{
+							localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
+							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
+							//We do this at the player level once per turn.
+							addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+						}
+						else
+						{
+							localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
+							//We do this at the player level once per turn.
+							addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+						}
+					}
+				}
+				return;
 		}
 		if (pCity == NULL)
 		{
@@ -28456,21 +28142,47 @@ void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, CvStrin
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
-	m_aistrInstantGreatPersonProgress.setAt(iType, m_aistrInstantGreatPersonProgress[iType] + strInstantYield);
+	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
+	if (it != m_aistrInstantGreatPersonProgress.end())
+	{
+		it->second += strInstantYield;
+	}
+	else
+	{
+		m_aistrInstantGreatPersonProgress.insert(std::make_pair((int)iType, strInstantYield));
+	}
 }
 void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
-	m_aistrInstantGreatPersonProgress.setAt(iType, strInstantYield);
+
+	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
+	if (it != m_aistrInstantGreatPersonProgress.end())
+	{
+		it->second = strInstantYield;
+	}
+	else
+	{
+		m_aistrInstantGreatPersonProgress.insert(std::make_pair((int)iType, strInstantYield));
+	}
 }
 CvString CvPlayer::getInstantGreatPersonProgressText(InstantYieldType iType) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
-	return m_aistrInstantGreatPersonProgress[iType];
+
+	std::map<int, CvString>::const_iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
+	if (it != m_aistrInstantGreatPersonProgress.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		return "";
+	}
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -33145,11 +32857,6 @@ int CvPlayer::calculateEconomicMight() const
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
 	iEconomicMight += calculateTotalYield(YIELD_CULTURE);
 
-	if(IsEmpireUnhappy())
-	{
-		iEconomicMight += GetExcessHappiness() * 25;
-	}
-
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
 	int iNumCities = (getNumCities() * 10) + 100;
 	if (iNumCities > 0)
@@ -36396,11 +36103,7 @@ int CvPlayer::GetScience() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-int CvPlayer::GetScienceTimes100(bool bIgnoreHappiness) const
-#else
 int CvPlayer::GetScienceTimes100() const
-#endif
 {
 	// If we're in anarchy, then no Research is done!
 	if(IsAnarchy())
@@ -36468,14 +36171,6 @@ int CvPlayer::GetScienceTimes100() const
 		}
 	}
 #endif
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	//Mod for national unhappiness
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
-	{
-		iValue += GetYieldPerTurnFromHappiness(YIELD_SCIENCE, iValue);
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	if(!isHuman())
 	{
@@ -36534,6 +36229,8 @@ int CvPlayer::GetScienceFromHappinessTimes100() const
 	{
 		return 0;
 	}
+	if (MOD_BALANCE_CORE_HAPPINESS)
+		return 0;
 
 	int iScience = 0;
 
@@ -36638,6 +36335,10 @@ void CvPlayer::SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bNewValue)
 /// Player spending too much cash?
 void CvPlayer::DoDeficit()
 {
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE) {
+		return;
+	}
+
 	int iNumMilitaryUnits = 0;
 
 	CvUnit* pLoopUnit;
@@ -43370,12 +43071,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
 #endif
 
-
-	if (GetExtraHappinessPerXPolicies() != 0)
-	{
-		DoUpdateHappinessFromBuildings();
-	}
-
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
 		GetCorporations()->SetCorporationOfficesAsFranchises(pPolicy->GetCorporationOfficesAsFranchises() * iChange);
@@ -45214,15 +44909,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 #endif
 	CalculateNetHappiness();
-#if defined(MOD_BALANCE_CORE)
-	for(pLoopCity2 = firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = nextCity(&iLoop2))
-	{
-		if(pLoopCity2 != NULL)
-		{
-			pLoopCity2->UpdateComboHappiness();
-		}
-	}
-#endif
 
 	doUpdateBarbarianCampVisibility();
 
@@ -45728,6 +45414,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_ppiApproachScratchValue;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_aistrInstantGreatPersonProgress;
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
@@ -45893,6 +45580,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piNumBuildings;
 	kStream << m_piNumBuildingsInPuppets;
 	kStream << m_ppiApproachScratchValue;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_aistrInstantGreatPersonProgress;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;
@@ -46957,6 +46647,26 @@ CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bS
 }
 
 //	--------------------------------------------------------------------------------
+
+int CvPlayer::GetNumRealCities() const
+{
+	int iNum = 0;
+
+	const CvCity* pLoopCity;
+	int iLoop;
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			continue;
+
+		if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
+			continue;
+
+		iNum++;
+	}
+
+	return iNum;
+}
 // How many Puppet Cities does this player own
 int CvPlayer::GetNumPuppetCities() const
 {
@@ -49000,7 +48710,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		
 #if defined(MOD_BALANCE_CORE)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iGameTurn, GetCulture()->GetTourism() / 100);
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GAPPERTURN"), iGameTurn, GetGoldenAgePointsFromEmpire() + GetExcessHappiness());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_GAPPERTURN"), iGameTurn, GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
 #endif
 
 		// 	Happiness
@@ -49130,8 +48840,16 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 	int iAmount = 0;
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 	{
-		iAmount += GET_PLAYER(ePlayer).GetExcessHappiness() * (GC.getVASSAL_HAPPINESS_PERCENT() + GetVassalCSBonusModifier());
-		iAmount /= 100;
+		if (MOD_BALANCE_CORE_HAPPINESS)
+		{
+			iAmount += 10 * (GC.getVASSAL_HAPPINESS_PERCENT() + GetVassalCSBonusModifier());
+			iAmount /= 100;
+		}
+		else
+		{
+			iAmount += GET_PLAYER(ePlayer).GetExcessHappiness() * (GC.getVASSAL_HAPPINESS_PERCENT() + GetVassalCSBonusModifier());
+			iAmount /= 100;
+		}
 	}
 	return iAmount;
 }

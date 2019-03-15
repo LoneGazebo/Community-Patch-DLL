@@ -658,6 +658,17 @@ void CvCityCitizens::DoTurn()
 		}
 	}
 
+	CvCity* pLoopCity;
+	int iLoop = 0;
+	for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
+	{
+		if (pLoopCity != NULL)
+		{
+			//mind the sign change
+			int iUnhappiness = pLoopCity->getHappinessDelta() * -1;
+			pLoopCity->setHappinessDelta(iUnhappiness * -1);
+		}
+	}
 
 	if (!thisPlayer.isHuman() && thisPlayer.IsEmpireUnhappy())
 	{
@@ -671,8 +682,8 @@ void CvCityCitizens::DoTurn()
 		if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
 		{
 			int iUnhappyAverage = 0;
-			CvCity* pLoopCity;
-			int iLoop = 0;
+			
+			iLoop = 0;
 			int iNumCities = 0;
 			int iThisCityValue = 0;
 
@@ -681,8 +692,7 @@ void CvCityCitizens::DoTurn()
 				if (pLoopCity != NULL)
 				{
 					//mind the sign change
-					int iUnhappiness = pLoopCity->getHappinessDelta() * -1;
-
+					int iUnhappiness = pLoopCity->getHappinessDelta(true) * -1;
 					iNumCities++;
 
 					if (iUnhappiness > 0)
@@ -1031,7 +1041,7 @@ bool CvCityCitizens::IsAvoidGrowth()
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if (!GetPlayer()->isHuman() && GetPlayer()->IsEmpireSuperUnhappy())
+	if (!GetPlayer()->isHuman() && GetPlayer()->IsEmpireVeryUnhappy())
 #else
 	if (GetPlayer()->GetExcessHappiness() < 0)
 #endif
@@ -1614,8 +1624,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
-		int iMultiplier = iExcessFoodTimes100 <= 0 ? 15 : 5;
-		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
+		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * 3, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
 		int iPopulation = m_pCity->getPopulation();
 
 		//Smaller cities want to grow fast - larger cities can slow down a bit.
@@ -1668,11 +1677,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iYield *= 10;
+				iYield *= 14;
 			}
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 			{
-				iYield *= 5;
+				iYield *= 7;
 			}
 			if (eYield == YIELD_FOOD)
 			{
@@ -1688,11 +1697,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
 				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 				{
-					iYield *= 6;
+					iYield *= 8;
 				}
 				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
 				{
-					iYield *= 3;
+					iYield *= 4;
 				}
 			}
 			else if (eYield == YIELD_GOLD)
@@ -1700,11 +1709,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				iYield *= GC.getAI_CITIZEN_VALUE_GOLD();
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 				{
-					iYield *= 6;
+					iYield *= 8;
 				}
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
-					iYield *= 3;
+					iYield *= 4;
 				}
 			}
 			else if (eYield == YIELD_SCIENCE)
@@ -1712,7 +1721,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				iYield *= GC.getAI_CITIZEN_VALUE_SCIENCE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 				{
-					iYield *= 6;
+					iYield *= 8;
 				}
 			}
 			else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
@@ -1720,7 +1729,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				iYield *= GC.getAI_CITIZEN_VALUE_CULTURE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 				{
-					iYield *= 6;
+					iYield *= 8;
 				}
 			}
 			else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
@@ -1728,7 +1737,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
 				if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 				{
-					iYield *= 6;
+					iYield *= 8;
 				}
 			}
 			else
@@ -1753,7 +1762,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 					}
 					break;
 				case YIELD_CULTURE:
-					if (m_pCity->getUnhappinessFromScience() > 0)
+					if (m_pCity->getUnhappinessFromCulture() > 0)
 					{
 						iYield *= 5;
 					}
@@ -1774,7 +1783,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			}
 
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
-				iYield /= 5;
+				iYield /= 2;
 
 			iValue += iYield;
 		}
@@ -2069,24 +2078,34 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	///////
 	//Penalties
 	//////////
-	int iUnhappinessYieldValue = 0;
+	int iCityUnhappiness = 0;
 
-	int iCityUnhappiness = m_pCity->GetUnhappinessFromCitySpecialists() / 100;
-
-	int iTotalUnhappiness = GetPlayer()->GetHappiness() - GetPlayer()->GetUnhappiness();
-
-	//What percent is this city's specialist count having on our overall unhappiness?
-	if (iTotalUnhappiness < 0)
+	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iCityUnhappiness *= 100;
-		iCityUnhappiness /= abs(iTotalUnhappiness);
+		//if we're above unhappy, reduce specialist value by 15% for each point over.
+		iCityUnhappiness = m_pCity->getHappinessDelta();
+		if (iCityUnhappiness < 0)
+			iCityUnhappiness *= -25;
+		else
+			iCityUnhappiness = 0;
+	}
+	else
+	{
+		iCityUnhappiness = m_pCity->GetUnhappinessFromCitySpecialists() / 100;
+
+		int iTotalUnhappiness = GetPlayer()->GetHappiness() - GetPlayer()->GetUnhappiness();
+
+		//What percent is this city's specialist count having on our overall unhappiness?
+		if (iTotalUnhappiness < 0)
+		{
+			iCityUnhappiness *= 100;
+			iCityUnhappiness /= abs(iTotalUnhappiness);
+		}
 	}
 
 	//And reduce the specialist's value based on this.
 	iValue *= max(1, (100 - iCityUnhappiness));
 	iValue /= 100;
-
-	iValue -= iUnhappinessYieldValue;
 
 	iValue *= 100;
 	iValue /= max(100, 100 + iPenalty);

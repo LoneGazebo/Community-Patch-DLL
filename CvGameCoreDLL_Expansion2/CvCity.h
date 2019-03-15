@@ -510,8 +510,8 @@ public:
 	int foodConsumptionSpecialistTimes100() const;
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
-	int foodDifference(bool bBottom = true) const;
-	int foodDifferenceTimes100(bool bBottom = true, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
+	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
+	int foodDifferenceTimes100(bool bBottom = true, bool bJustCheckingStarve = false, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromCitySpecialists();
@@ -622,7 +622,7 @@ public:
 	int GetJONSCultureThreshold() const;
 
 #if defined(MOD_BALANCE_CORE)
-	int getJONSCulturePerTurn(bool bStatic = true) const;
+	int getJONSCulturePerTurn(bool bStatic = true, bool bIgnoreHappiness = false) const;
 #else
 	int getJONSCulturePerTurn() const;
 #endif
@@ -837,21 +837,25 @@ public:
 	void DoCreatePuppet();
 	void DoAnnex();
 
+	int GetHappinessFromPolicies() const;
+	int GetHappinessFromReligion() const;
+
+	void UpdateHappinessFromBuildingClasses();
+	int GetHappinessFromBuildingClasses() const;
+
 	int GetLocalHappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	void UpdateComboHappiness();
-	void SetComboHappiness(int iValue);
-	int GetComboUnhappiness() const;
-	void SetBuildingClassHappinessFromReligion(int iValue);
-	int GetBuildingClassHappinessFromReligion() const;
-	void UpdateBuildingClassHappinessFromReligion();
-	int getHappinessDelta() const;
+	void setHappinessDelta(int iValue);	
+	int getHappinessDelta(bool bStatic = false) const;
 	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
 	int getThresholdSubtractions(YieldTypes eYield) const;
 	int getThresholdAdditions(/*YieldTypes eYield = NO_YIELD*/) const;
 	int getUnhappyCitizenCount() const;
 	int getPopThresholdMod() const;
 	int getEmpireSizeMod() const;
+
+	CvString GetCityUnhappinessBreakdown(bool bIncludeMedian = false, bool bFlavorText = false);
+	CvString GetCityHappinessBreakdown();
 
 	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
 	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
@@ -881,6 +885,7 @@ public:
 	int getJFDSpecialUnhappinessSources() const;
 
 	int getUnhappinessAggregated() const;
+	int getUnhappinessFromSpecialists(int iSpecialists) const;
 
 	CvString getPotentialUnhappinessWithGrowth();
 	int getPotentialUnhappinessWithGrowthVal() const;
@@ -1006,16 +1011,16 @@ public:
 	void SetSpecialReligionYields(YieldTypes eIndex, int iValue);
 #endif
 
-	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
+	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL, bool bIgnoreHappiness = false) const;
 #if defined(MOD_BALANCE_CORE)
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
-	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
+	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true, bool bIgnoreHappiness = false) const;
 #else
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
 #if defined(MOD_PROCESS_STOCKPILE)
-	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bIgnoreHappiness = false) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1151,7 +1156,18 @@ public:
 	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	int GetGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const;
+	void ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra, int iChange);
+#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	void ChangeEmpireNeedsModifier(int iChange);
+	int GetEmpireNeedsModifier() const;
+
+	int GetFlatNeedsReduction(YieldTypes eYield) const;
+	void ChangeFlatNeedsReduction(YieldTypes eYield, int iValue);
+
 	int GetPovertyUnhappiness() const;
 	void ChangePovertyUnhappiness(int iChange);
 
@@ -1488,6 +1504,9 @@ public:
 	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true, bool bIsPurchase = false);
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);
+
+	void changeProjectCount(ProjectTypes eProject, int iValue);
+	int getProjectCount(ProjectTypes eProject) const;
 
 	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
@@ -1847,6 +1866,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
+	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
@@ -1909,6 +1929,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iCityRank;
 	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
 	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
+	FAutoVariable<int, CvCity> m_iEmpireNeedsModifier;
 	FAutoVariable<int, CvCity> m_iChangeDefenseUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappiness;
@@ -1925,6 +1946,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromMinors;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceQuantityPerXFranchises;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldChangeFromCorporationFranchises;
+	FAutoVariable<std::vector<int>, CvCity> m_aiNeedsFlatReduction;
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
@@ -1985,10 +2007,10 @@ protected:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvCity> m_iComboUnhappiness;
+	FAutoVariable<int, CvCity> m_iHappinessDelta;
 	FAutoVariable<int, CvCity> m_iPillagedPlots;
 	FAutoVariable<int, CvCity> m_iGrowthFromTourism;
-	FAutoVariable<int, CvCity> m_iBuildingClassHappinessFromReligion;
+	FAutoVariable<int, CvCity> m_iBuildingClassHappiness;
 	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
 	std::vector<int> m_vAttachedUnits;
 #endif
@@ -2030,6 +2052,9 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiReligionBuildingYieldRateModifier;
 	int** m_ppaiLocalBuildingClassYield;
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
+	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction; // short because theres an overload for the >> operator in CvUnit.h if map->second is an int, which will cause a compile failure
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;

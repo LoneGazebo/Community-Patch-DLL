@@ -4640,6 +4640,27 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
 	return iNumConnections;
 }
 
+int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if (pConnection->m_iOriginX == pCity->getX() && pConnection->m_iOriginY == pCity->getY())
+			{
+				iNumConnections++;
+			}
+		}
+	}
+
+	return iNumConnections;
+}
+
+
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();

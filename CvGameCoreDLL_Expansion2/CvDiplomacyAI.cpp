@@ -40152,8 +40152,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	else
 		iWantVassalageScore += 40;
 
+	int iVal = MOD_BALANCE_CORE_HAPPINESS ? 50 : 0;
 	// Small mod based on happiness
-	if(GetPlayer()->GetExcessHappiness() < 0)
+	if (GetPlayer()->GetExcessHappiness() < iVal)
 		iWantVassalageScore += 5;
 
 	// Account for this player's flavors

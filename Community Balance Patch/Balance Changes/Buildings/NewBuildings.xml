@@ -380,7 +380,6 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<GreatWorkCount>3</GreatWorkCount>
 			<NeverCapture>true</NeverCapture>
-			<Happiness>1</Happiness>
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>

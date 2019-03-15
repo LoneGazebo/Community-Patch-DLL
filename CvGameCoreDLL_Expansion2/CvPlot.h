@@ -669,6 +669,9 @@ public:
 	void changeRiverCrossingCount(int iChange);
 
 	int getYield(YieldTypes eIndex) const;
+#if defined(MOD_API_EXTENSIONS)
+    void changeYield(YieldTypes eYield, int iChange);
+#endif
 
 	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature = false, bool bDisplay = false) const;
 
@@ -1063,6 +1066,10 @@ protected:
 	bool m_bIsTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
 	int m_iPlotIndex;
+#endif
+    // memory allocated by the plot object itself
+#if defined(MOD_API_EXTENSIONS)
+    uint8* m_aiArbitraryYields;
 #endif
 
 	char* m_szScriptData;

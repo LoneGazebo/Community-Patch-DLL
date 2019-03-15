@@ -11,6 +11,10 @@ SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 INSERT INTO Defines (Name, Value)
 SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.0';
 
+-- FOR JFD
+INSERT INTO Defines (Name, Value)
+SELECT 'UNHAPPY_THRESHOLD', '25';
+
 -- AI Citystrategy
 
 -- food is different because we include consumption.

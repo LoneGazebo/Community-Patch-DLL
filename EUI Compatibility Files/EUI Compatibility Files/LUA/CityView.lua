@@ -73,6 +73,8 @@ local GetFaithTooltip = EUI.GetFaithTooltip
 local GetTourismTooltip = EUI.GetTourismTooltip
 --CBP
 local GetCityHappinessTooltip = EUI.GetCityHappinessTooltip
+local GetCityUnhappinessTooltip = EUI.GetCityUnhappinessTooltip
+
 local UpdateCityView
 --END
 
@@ -524,7 +526,7 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 
 		elseif orderID == OrderTypes.ORDER_CREATE then
 			itemInfo = GameInfo.Projects
-			strToolTip = GetHelpTextForProject( itemID, true )
+			strToolTip = GetHelpTextForProject( itemID, city, true )
 		elseif orderID == OrderTypes.ORDER_MAINTAIN then
 			itemInfo = GameInfo.Processes
 			strToolTip = GetHelpTextForProcess( itemID, true )
@@ -1691,8 +1693,10 @@ local function UpdateCityViewNow()
 			if bnw_mode then
 				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
 				-- CBP
-				local iHappinessPerTurn = city:getHappinessDelta();
+				local iHappinessPerTurn = city:GetLocalHappiness();
+				local iUnhappinessPerTurn = city:getUnhappinessAggregated();
 				Controls.HappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn)
+				Controls.UnhappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_UNHAPPINESS_TEXT", iUnhappinessPerTurn)
 				-- END
 				Controls.NoAutoSpecialistCheckbox2:SetCheck( isNoAutoAssignSpecialists )
 				Controls.NoAutoSpecialistCheckbox2:SetDisabled( g_isViewingMode )
@@ -1747,115 +1751,7 @@ local function UpdateCityViewNow()
 		TruncateString( Controls.CityNameTitleBarLabel, math_abs(Controls.NextCityButton:GetOffsetX()) * 2 - Controls.NextCityButton:GetSizeX() - size, cityName )
 
 		-- COMMUNITY PATCH
-		local iStarvingUnhappiness = city:GetUnhappinessFromStarving();
-		local iPillagedUnhappiness = city:GetUnhappinessFromPillaged();
-		local iGoldUnhappiness = city:GetUnhappinessFromGold();
-		local iDefenseUnhappiness = city:GetUnhappinessFromDefense();
-		local iConnectionUnhappiness = city:GetUnhappinessFromConnection();
-		local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
-		local iScienceUnhappiness = city:GetUnhappinessFromScience();
-		local iCultureUnhappiness = city:GetUnhappinessFromCulture();
-		local iResistanceUnhappiness = 0;
-		local iOccupationUnhappiness = 0;
-		local iPuppetUnhappiness = 0;
-		if(city:IsRazing()) then
-			iResistanceUnhappiness = (city:GetPopulation() / 2);
-		elseif(city:IsResistance()) then
-			iResistanceUnhappiness = (city:GetPopulation() / 2);
-		elseif(city:IsPuppet()) then
-			iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
-		elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance() and not city:IsRazing()) then
-			iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
-		end
-
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
-
-		local iPuppetMod = cityOwner:GetPuppetUnhappinessMod();
-		local iCultureYield = city:GetUnhappinessFromCultureYield() / 100;
-		local iDefenseYield = city:GetUnhappinessFromDefenseYield() / 100;
-		local iGoldYield = city:GetUnhappinessFromGoldYield() / 100;
-		local iCultureNeeded = city:GetUnhappinessFromCultureNeeded() / 100;
-		local iDefenseNeeded = city:GetUnhappinessFromDefenseNeeded() / 100;
-		local iGoldNeeded = city:GetUnhappinessFromGoldNeeded() / 100;
-		local iScienceYield = city:GetUnhappinessFromScienceYield() / 100;
-		local iScienceNeeded = city:GetUnhappinessFromScienceNeeded() / 100;
-
-		local iCultureDeficit = city:GetUnhappinessFromCultureDeficit() / 100;
-		local iDefenseDeficit = city:GetUnhappinessFromDefenseDeficit() / 100;
-		local iGoldDeficit = city:GetUnhappinessFromGoldDeficit() / 100;
-		local iScienceDeficit = city:GetUnhappinessFromScienceDeficit() / 100;
-
-
-		strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
-
-		if(city:IsPuppet()) then
-			if (iPuppetMod ~= 0) then
-				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
-			end
-		end
-		
-				
-		-- Resistance tooltip
-		if (iResistanceUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
-		end
-
-		-- Puppet tooltip
-		if (iPuppetUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
-		end
-
-		-- Occupation tooltip
-		if (iOccupationUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
-		end
-
-		-- Starving tooltip
-		if (iStarvingUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);
-		end
-		-- Pillaged tooltip
-		if (iPillagedUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
-		end
-				-- Defense tooltip
-		if (iDefenseUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
-		end
-		if ((iDefenseYield - iDefenseNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
-		end
-		-- Gold tooltip
-		if (iGoldUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
-		end
-		if ((iGoldYield - iGoldNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
-		end
-		-- Connection tooltip
-		if (iConnectionUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappiness);
-		end
-		-- Minority tooltip
-		if (iMinorityUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappiness);
-		end
-		-- Science tooltip
-		if (iScienceUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
-		end
-		if ((iScienceYield - iScienceNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
-		end
-		-- Culture tooltip
-		if (iCultureUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
-		end
-		if ((iCultureYield - iCultureNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
-		end
-
-		Controls.CityNameTitleBarLabel:LocalizeAndSetToolTip(strOccupationTT);
+		Controls.CityNameTitleBarLabel:LocalizeAndSetToolTip(city:GetCityUnhappinessBreakdown(false));
 		-- END
 		
 		Controls.Defense:SetText( math_floor( city:GetStrengthValue() / 100 ) )
@@ -2450,6 +2346,9 @@ local g_toolTips = {
 	HappinessBox = function()
 		return SetToolTipString( GetCityHappinessTooltip )
 	end,
+	UnhappinessBox = function()
+		return SetToolTipString( GetCityUnhappinessTooltip )
+	end,
 -- END
 	ProductionPortraitButton = ProductionToolTip
 }
@@ -2580,6 +2479,8 @@ Controls.FaithFocusButton:SetHide( civBE_mode or not gk_mode )
 Controls.TourismBox:SetHide( not civ5bnw_mode )
 -- CBP
 Controls.HappinessBox:SetHide(not civ5bnw_mode);
+Controls.UnhappinessBox:SetHide(not civ5bnw_mode);
+
 -- END
 SetupCallbacks( Controls, g_toolTips, "EUI_CityViewLeftTooltip", g_callBacks )
 

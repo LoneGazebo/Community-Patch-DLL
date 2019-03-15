@@ -73,7 +73,7 @@
 			<Text>Bran, the Sleeping Guardian</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA">
-			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science for every 4 Followers of your Pantheon in owned Cities. +2 [ICON_HAPPINESS_1] Happiness from Ceilidh Hall</Text>
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every 3 Followers of your Pantheon in owned Cities. +2 [ICON_HAPPINESS_1] Happiness from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
 			<Text>Dagda, the All-Father</Text>

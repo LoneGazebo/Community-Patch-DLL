@@ -489,11 +489,7 @@ public:
 	void DoUpdateCityConnectionHappiness();
 
 	// Culture
-#if defined(MOD_BALANCE_CORE)
-	int GetTotalJONSCulturePerTurn(bool bIgnoreHappiness = false) const;
-#else
 	int GetTotalJONSCulturePerTurn() const;
-#endif
 
 
 	int GetJONSCulturePerTurnFromCities() const;
@@ -614,11 +610,7 @@ public:
 #endif
 
 	// Faith
-#if defined(MOD_BALANCE_CORE)
-	int GetTotalFaithPerTurn(bool bIgnoreHappiness = false) const;
-#else
 	int GetTotalFaithPerTurn() const;
-#endif
 
 	int GetFaithPerTurnFromCities() const;
 	int GetFaithPerTurnFromMinorCivs() const;
@@ -644,6 +636,8 @@ public:
 	// Happiness
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
 	void DoUpdateTotalHappiness();
+	int GetEmpireHappinessForCity(CvCity* pCity = NULL) const;
+	int GetEmpireUnhappinessForCity(CvCity* pCity = NULL) const;
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
 	void SetUnhappiness(int iNewValue);
@@ -651,9 +645,8 @@ public:
 	void CalculateNetHappiness();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	//LUA Functions
-	int GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const;
-	int CalculateUnhappinessTooltip(YieldTypes eYield) const;
+	void ChangeEmpireNeedsModifierGlobal(int iChange);
+	int GetEmpireNeedsModifierGlobal() const;
 
 	int GetPovertyUnhappinessGlobal() const;
 	void ChangePovertyUnhappinessGlobal(int iChange);
@@ -676,6 +669,7 @@ public:
 	void ChangeGreatWorksTourismModifierGlobal(int iChange);
 	int GetGreatWorksTourismModifierGlobal() const;
 #endif
+	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
 	bool IsEmpireVeryUnhappy() const;
@@ -700,7 +694,6 @@ public:
 	int GetHappinessFromPolicies() const;
 	int GetHappinessFromCities() const;
 	int GetHappinessFromBuildings() const;
-	void DoUpdateHappinessFromBuildings();
 
 	int GetExtraHappinessPerCity() const;
 	void ChangeExtraHappinessPerCity(int iChange);
@@ -733,21 +726,11 @@ public:
 	void ChangeExtraHappinessPerLuxury(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int getGlobalAverage(YieldTypes eYield) const;
-	void updateGlobalAverage();
-	int GetCultureAverage() const;
-	void SetCultureAverage(float fValue);
-	int GetScienceAverage() const;
-	void SetScienceAverage(float fValue);
-	int GetDefenseAverage() const;
-	void SetDefenseAverage(float fValue);
-	int GetGoldAverage() const;
-	void SetGoldAverage(float fValue);
-	void DoGlobalAvgLogging();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
 	int GetPlayerHappinessLuxuryCountFactor1000() const;
-	int GetBonusHappinessFromLuxuries() const;
+	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
 	int GetBonusHappinessFromLuxuriesGradient() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1231,7 +1214,7 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
-	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING);
 	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
@@ -2153,11 +2136,7 @@ public:
 	// Science
 
 	int GetScience() const;
-#if defined(MOD_BALANCE_CORE)
-	int GetScienceTimes100(bool bIgnoreHappiness = false) const;
-#else
 	int GetScienceTimes100() const;
-#endif
 
 
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
@@ -2577,6 +2556,7 @@ public:
 	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
 
 	int GetNumPuppetCities() const;
+	int GetNumRealCities() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined(MOD_BALANCE_CORE)
 	int GetNumCapitalCities() const;
 	int GetNumMinorsControlled() const;
@@ -3006,6 +2986,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
 	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
+	FAutoVariable<int, CvPlayer> m_iEmpireNeedsModifierGlobal;
 	FAutoVariable<int, CvPlayer> m_iChangePovertyUnhappinessGlobal;
 	FAutoVariable<int, CvPlayer> m_iChangeDefenseUnhappinessGlobal;
 	FAutoVariable<int, CvPlayer> m_iChangeUnculturedUnhappinessGlobal;
@@ -3022,10 +3003,10 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
 
-	FAutoVariable<int, CvPlayer> m_iCultureAverage;
-	FAutoVariable<int, CvPlayer> m_iScienceAverage;
-	FAutoVariable<int, CvPlayer> m_iDefenseAverage;
-	FAutoVariable<int, CvPlayer> m_iGoldAverage;
+	//FAutoVariable<int, CvPlayer> m_iCultureAverage;
+//	FAutoVariable<int, CvPlayer> m_iScienceAverage;
+//	FAutoVariable<int, CvPlayer> m_iDefenseAverage;
+//	FAutoVariable<int, CvPlayer> m_iGoldAverage;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3060,7 +3041,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUnitUpgradeCostMod;
 	FAutoVariable<int, CvPlayer> m_iBarbarianCombatBonus;
 	FAutoVariable<int, CvPlayer> m_iAlwaysSeeBarbCampsCount;
-	FAutoVariable<int, CvPlayer> m_iHappinessFromBuildings;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerCity;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPolicies;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerXPoliciesFromPolicies;
@@ -3325,7 +3305,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
-	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantGreatPersonProgress;
+	std::map<int, CvString> m_aistrInstantGreatPersonProgress;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abActiveContract;
 	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;
 	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldownRate;

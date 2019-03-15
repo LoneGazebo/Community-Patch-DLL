@@ -528,7 +528,7 @@
 			<Text>Evacuate the City and sandbag everything.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_1_HELP">
-			<Text>Lose 1000 [ICON_GOLD] Gold. The City is well-prepared for the hurricane.</Text>
+			<Text>Lose {1_YieldCost}. The City is well-prepared for the hurricane.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_2">
 			<Text>Buckle down and hope for the best. There's nothing we can do.</Text>
@@ -540,19 +540,19 @@
 			<Text>Send in the military to protect property.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_3_HELP">
-			<Text>Lose 500 [ICON_GOLD] Gold. If the hurricane hits, expect large losses of life.</Text>
+			<Text>Lose {1_YieldCost}. If the hurricane hits, expect large losses of life.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_4">
 			<Text>Send in the military to protect the populace.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_4_HELP">
-			<Text>Lose 500 [ICON_GOLD] Gold. If the hurricane hits, expect major property damage.</Text>
+			<Text>Lose {1_YieldCost}. If the hurricane hits, expect major property damage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_5">
 			<Text>Our river's levee will protect us from surge water!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_5_HELP">
-			<Text>Lose 500 [ICON_GOLD] Gold and rely on the river's levee. If the hurricane hits, expect major property damage.</Text>
+			<Text>Lose {1_YieldCost} and rely on the river's levee. If the hurricane hits, expect major property damage.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_SUCCESSFUL_S">

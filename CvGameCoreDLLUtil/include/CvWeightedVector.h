@@ -188,6 +188,10 @@ public:
 	/// Return a random entry (ignoring weight)
 	T ChooseAtRandom(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
+		// the easy case
+		if (GC.getGame().isReallyNetworkMultiPlayer())
+			return m_pItems[0].m_Element;
+
 		// Based on the number of elements we have, pick one at random
 		int iChoice = (*rndFcn)(m_pItems.size(), szRollName);
 		return m_pItems[iChoice].m_Element;
@@ -196,6 +200,10 @@ public:
 	/// Choose by weight (even considering unlikely candidates)
 	T ChooseByWeight(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
+		// the easy case
+		if (GC.getGame().isReallyNetworkMultiPlayer())
+			return m_pItems[0].m_Element;
+
 		// Random roll up to total weight
 		int iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
 
@@ -237,7 +245,7 @@ public:
 		}
 
 		// the easy case
-		if (iNumChoices == 1)
+		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
 			return m_pItems[0].m_Element;
 
 		int iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);

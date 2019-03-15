@@ -4914,12 +4914,10 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if (m_pPlayer->getUnhappinessFromCityCulture() < iBoredom)
+		int iDelta = iBoredom - m_pPlayer->getUnhappinessFromCityCulture();
+		if (iDelta > 0)
 		{
-			if (iBoredom != 0)
-			{
-				iMultiplier += (iBoredom * 3);
-			}
+			iMultiplier += (iDelta * 3);
 		}
 	}
 
@@ -5134,13 +5132,12 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if (m_pPlayer->getUnhappinessFromCityCulture() < iBoredom)
+		int iDelta = iBoredom - m_pPlayer->getUnhappinessFromCityCulture();
+
+		if (iDelta > 0)
 		{
 			iBoredom *= 3;
-			if (iBoredom != 0)
-			{
-				szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iBoredom) + "[ENDCOLOR]";
-			}
+			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iBoredom) + "[ENDCOLOR]";
 		}
 	}
 
@@ -7694,12 +7691,11 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if (kCityPlayer.getUnhappinessFromCityCulture() < iBoredom)
+		int iDelta = iBoredom - kCityPlayer.getUnhappinessFromCityCulture();
+
+		if (iDelta > 0)
 		{
-			if (iBoredom != 0)
-			{
-				iMultiplier += (iBoredom * 3);
-			}
+			iMultiplier += (iBoredom * 3);
 		}
 	}
 

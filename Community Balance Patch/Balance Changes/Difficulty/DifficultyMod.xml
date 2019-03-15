@@ -9,7 +9,7 @@
 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>90</AdvancedStartPointsMod>
-			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefault>5</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -69,7 +69,7 @@
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>85</AdvancedStartPointsMod>
-			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefault>5</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -130,7 +130,7 @@
 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>80</AdvancedStartPointsMod>
-			<HappinessDefault>7</HappinessDefault>
+			<HappinessDefault>4</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -191,7 +191,7 @@
 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>75</AdvancedStartPointsMod>
-			<HappinessDefault>7</HappinessDefault>
+			<HappinessDefault>4</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -252,7 +252,7 @@
 			<Help>TXT_KEY_HANDICAP_KING_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>65</AdvancedStartPointsMod>
-			<HappinessDefault>6</HappinessDefault>
+			<HappinessDefault>4</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -314,7 +314,7 @@
 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>55</AdvancedStartPointsMod>
-			<HappinessDefault>6</HappinessDefault>
+			<HappinessDefault>3</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -377,7 +377,7 @@
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>50</AdvancedStartPointsMod>
-			<HappinessDefault>5</HappinessDefault>
+			<HappinessDefault>3</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -440,7 +440,7 @@
 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>45</AdvancedStartPointsMod>
-			<HappinessDefault>5</HappinessDefault>
+			<HappinessDefault>2</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -503,7 +503,7 @@
 			<Help>TXT_KEY_HANDICAP_AI_DEFAULT_HELP</Help>
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>100</AdvancedStartPointsMod>
-			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefault>4</HappinessDefault>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>

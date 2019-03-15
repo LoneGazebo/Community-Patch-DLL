@@ -1072,11 +1072,12 @@
 			<Description>TXT_KEY_PROMOTION_WOLFPACK_1</Description>
 			<Help>TXT_KEY_PROMOTION_WOLFPACK_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<VisibilityChange>1</VisibilityChange>
 			<PortraitIndex>18</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_1</PediaEntry>
-			<AttackMod>20</AttackMod>
+			<AttackMod>30</AttackMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_WOLFPACK_2</Type>
@@ -1085,10 +1086,11 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_1</PromotionPrereqOr1>
 			<PortraitIndex>19</PortraitIndex>
+			<MovesChange>1</MovesChange>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_2</PediaEntry>
-			<AttackMod>20</AttackMod>
+			<AttackMod>30</AttackMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_WOLFPACK_3</Type>
@@ -1097,10 +1099,11 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
+			<ExtraWithdrawal>40</ExtraWithdrawal>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_3</PediaEntry>
-			<AttackMod>20</AttackMod>
+			<AttackMod>30</AttackMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_FLIGHT_DECK_1</Type>
@@ -3946,7 +3949,7 @@
 			<PortraitIndex>40</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SIEGE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_SIEGE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_SENTRY</Type>

@@ -64,7 +64,7 @@ function MapGlobals:New()
 	
 
 	--Percent of land tiles on the map.
-	mglobal.landPercent			= 0.29
+	mglobal.landPercent			= 0.35
 	
 	--Top and bottom map latitudes.
 	mglobal.topLatitude				= 90
@@ -93,7 +93,7 @@ function MapGlobals:New()
 	
 	-- Terrain
 	mglobal.mountainWeight		= 0.7  --Weight of the mountain elevation map versus the coastline elevation map.
-	mglobal.belowMountainPercent	= 0.90 -- Percent of non-mountain land
+	mglobal.belowMountainPercent	= 0.94 -- Percent of non-mountain land
 										   -- flatPercent to belowMountainPercent : hills
 	mglobal.flatPercent			= 0.78 -- Percent of flat land
 	mglobal.hillsBlendPercent		= 0.45 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.

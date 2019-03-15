@@ -3,8 +3,6 @@
 -------------------------------------------------
 include( "InstanceManager" );
 
-Controls.LuxuryHappinessStack:SetHide( true );
-Controls.CityBuildingStack:SetHide( true );
 Controls.TradeRouteStack:SetHide( true );
 Controls.LocalCityStack:SetHide( true );
 Controls.CityUnhappinessStack:SetHide( true );
@@ -18,38 +16,6 @@ if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 else
 	Controls.Religion:SetHide(false);
 end
-
--------------------------------------------------
--------------------------------------------------
-function OnLuxuryHappinessToggle()
-    local bWasHidden = Controls.LuxuryHappinessStack:IsHidden();
-    Controls.LuxuryHappinessStack:SetHide( not bWasHidden );
-    if( bWasHidden ) then
-        Controls.LuxuryHappinessToggle:LocalizeAndSetText("TXT_KEY_EO_LUXURY_HAPPINESS_COLLAPSE");
-    else
-        Controls.LuxuryHappinessToggle:LocalizeAndSetText("TXT_KEY_EO_LUXURY_HAPPINESS");
-    end
-    Controls.HappinessStack:CalculateSize();
-    Controls.HappinessStack:ReprocessAnchoring();
-    Controls.HappinessScroll:CalculateInternalSize();
-end
-Controls.LuxuryHappinessToggle:RegisterCallback( Mouse.eLClick, OnLuxuryHappinessToggle );
-
--------------------------------------------------
--------------------------------------------------
-function OnCityBuildingToggle()
-    local bWasHidden = Controls.CityBuildingStack:IsHidden();
-    Controls.CityBuildingStack:SetHide( not bWasHidden );
-    if( bWasHidden ) then
-        Controls.CityBuildingToggle:LocalizeAndSetText("TXT_KEY_EO_CITY_BUILDINGS_COLLAPSE");
-    else
-        Controls.CityBuildingToggle:LocalizeAndSetText("TXT_KEY_EO_CITY_BUILDINGS");
-    end
-    Controls.HappinessStack:CalculateSize();
-    Controls.HappinessStack:ReprocessAnchoring();
-    Controls.HappinessScroll:CalculateInternalSize();
-end
-Controls.CityBuildingToggle:RegisterCallback( Mouse.eLClick, OnCityBuildingToggle );
 
 -------------------------------------------------
 -------------------------------------------------
@@ -182,123 +148,25 @@ function UpdateScreen()
 	-- Happiness
 	-----------------------------------------------
 	
-	Controls.TotalHappinessValue:SetText("[COLOR_POSITIVE_TEXT]" .. pPlayer:GetHappiness() .. "[ENDCOLOR]");
-	
-	local iHappiness = pPlayer:GetExcessHappiness();
+	local iEmpireHappiness = pPlayer:GetEmpireHappinessForCity();
 
-	local iPoliciesHappiness = pPlayer:GetHappinessFromPolicies();
-	local iResourcesHappiness = pPlayer:GetHappinessFromResources();
-	local iExtraLuxuryHappiness = pPlayer:GetExtraHappinessPerLuxury();
-	local iBuildingHappiness = pPlayer:GetHappinessFromBuildings();
+	Controls.TotalHappinessValue:SetText("[COLOR_POSITIVE_TEXT]" .. iEmpireHappiness .. "[ENDCOLOR]");
+
 	local iCityHappiness = pPlayer:GetHappinessFromCities();
 	local iTradeRouteHappiness = pPlayer:GetHappinessFromTradeRoutes();
-	local iReligionHappiness = pPlayer:GetHappinessFromReligion();
+	local iReligionHappiness = 0;
+	iReligionHappiness = pPlayer:GetHappinessFromReligion();
 	local iNaturalWonderHappiness = pPlayer:GetHappinessFromNaturalWonders();
-	local iExtraHappinessPerCity = pPlayer:GetExtraHappinessPerCity() * pPlayer:GetNumCities();
 	local iMinorCivHappiness = pPlayer:GetHappinessFromMinorCivs();
+	local iEvent = 0;
+	iEvent = pPlayer:GetEventHappiness();
 	local iLeagueHappiness = pPlayer:GetHappinessFromLeagues();
-	-- CBP
-	local iHappinessFromMonopoly = pPlayer:GetHappinessFromResourceMonopolies();
-	local iHappinessFromBonusResources = pPlayer:GetBonusHappinessFromLuxuries();
-	-- END
+	
 	-- C4DF
 	local iHappinessFromVassal = pPlayer:GetHappinessFromVassals();
 	-- END
 	
-	-- EDIT
-	local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iHappinessFromMonopoly - iHappinessFromBonusResources - iResourcesHappiness - iBuildingHappiness - iCityHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iHappinessFromVassal;
-
 	local iTotalHappiness = iHappiness;
-	
-	-- Luxury Resource Details
-
-	local iBaseHappinessFromResources = 0;
-	local iNumHappinessResources = 0;
-	
-    Controls.LuxuryHappinessStack:DestroyAllChildren();
-
-	for resource in GameInfo.Resources() do
-		local resourceID = resource.ID;
-		local iHappiness = pPlayer:GetHappinessFromLuxury(resourceID);
-		if (iHappiness > 0) then
-			iNumHappinessResources = iNumHappinessResources + 1;
-			iBaseHappinessFromResources = iBaseHappinessFromResources + iHappiness;
-				
-			local instance = {};
-			ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.LuxuryHappinessStack );
-	            
-			instance.CityName:SetText( Locale.ConvertTextKey(resource.Description));
-			instance.TradeIncomeValue:SetText( Locale.ToNumber( iHappiness, "#.##" ) );
-		end
-	end
-	
-	Controls.LuxuryHappinessValue:SetText(iBaseHappinessFromResources);
-    
-    if( iBaseHappinessFromResources > 0 ) then
-        Controls.LuxuryHappinessToggle:SetDisabled( false );
-        Controls.LuxuryHappinessToggle:SetAlpha( 1.0 );
-    else
-        Controls.LuxuryHappinessToggle:SetDisabled( true );
-        Controls.LuxuryHappinessToggle:SetAlpha( 0.5 );
-    end
-    Controls.LuxuryHappinessStack:CalculateSize();
-    Controls.LuxuryHappinessStack:ReprocessAnchoring();
-	
-	-- Happiness from Luxury Variety
-	local iHappinessFromExtraResources = pPlayer:GetHappinessFromResourceVariety();
-	if (iHappinessFromExtraResources > 0) then
-		Controls.LuxuryVarietyValue:SetText(iHappinessFromExtraResources);
-		Controls.LuxuryVariety:SetHide(false);
-	else
-		Controls.LuxuryVariety:SetHide(true);
-	end
-	
-	-- Extra Happiness from each Luxury
-	if (iExtraLuxuryHappiness >= 1) then
-		Controls.LuxuryBonusValue:SetText(iExtraLuxuryHappiness);
-		Controls.LuxuryBonus:SetHide(false);
-	else
-		Controls.LuxuryBonus:SetHide(true);
-	end
-	
-	-- Misc Happiness from Resources
-	local iMiscHappiness = iResourcesHappiness - iBaseHappinessFromResources - iHappinessFromExtraResources - (iExtraLuxuryHappiness * iNumHappinessResources);
-	if (iMiscHappiness > 0) then
-		Controls.LuxuryMiscValue:SetText(iMiscHappiness);
-		Controls.LuxuryMisc:SetHide(false);
-	else
-		Controls.LuxuryMisc:SetHide(true);
-	end
-	
-	-- City Buildings
-    Controls.CityBuildingStack:DestroyAllChildren();
-    for pCity in pPlayer:Cities() do
-	    
-	    local iCityHappiness = pCity:GetHappiness();
-	    
-		local instance = {};
-		ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.CityBuildingStack );
-        
-        -- Make it a dash instead of a zero, so it stands out more
-        if (iCityHappiness == 0) then
-			iCityHappiness = "-";
-        end
-        
-        instance.CityName:SetText( pCity:GetName() );
-		instance.TradeIncomeValue:SetText( iCityHappiness );
-	end
-	
-	Controls.CityBuildingValue:SetText(iBuildingHappiness);
-    
-    if( iBuildingHappiness > 0 ) then
-        Controls.CityBuildingToggle:SetDisabled( false );
-        Controls.CityBuildingToggle:SetAlpha( 1.0 );
-    else
-        Controls.CityBuildingToggle:SetDisabled( true );
-        Controls.CityBuildingToggle:SetAlpha( 0.5 );
-    end
-    Controls.CityBuildingStack:CalculateSize();
-    Controls.CityBuildingStack:ReprocessAnchoring();
 	
 	-- Trade Routes
 	
@@ -336,40 +204,37 @@ function UpdateScreen()
 	
 	-- LocalCityHappiness
 	
-	if (iCityHappiness > 0) then
-		Controls.LocalCityStack:DestroyAllChildren();
-		for pCity in pPlayer:Cities() do
+	local iCityHappiness = 0;
+
+	Controls.LocalCityStack:DestroyAllChildren();
+	for pCity in pPlayer:Cities() do
 		    
-		    local strLocalCity = "-";
+		local strLocalCity = "-";
 		    
-			if (pCity:GetLocalHappiness() > 0) then
-				strLocalCity = pCity:GetLocalHappiness();
-			end
+		strLocalCity = pCity:GetLocalHappiness();
+		iCityHappiness = iCityHappiness + pCity:GetLocalHappiness()
 			
-			local instance = {};
-			ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.LocalCityStack );
+		local instance = {};
+		ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.LocalCityStack );
 	        
-			instance.CityName:SetText( pCity:GetName() );
-			instance.TradeIncomeValue:SetText( strLocalCity );
-		end
-		
-		Controls.LocalCityValue:SetText(iCityHappiness);
+		instance.CityName:SetText( pCity:GetName() );
+		instance.TradeIncomeValue:SetText( strLocalCity );
+		instance.TradeIncome:SetToolTipString(pCity:GetCityHappinessBreakdown());
 	end
+		
+	Controls.LocalCityValue:SetText(iCityHappiness);
     
-    if( iCityHappiness > 0 ) then
-        Controls.LocalCityToggle:SetHide( false );
-    else
-        Controls.LocalCityToggle:SetHide( true );
-    end
+    Controls.LocalCityToggle:SetHide( false );
     Controls.LocalCityStack:CalculateSize();
     Controls.LocalCityStack:ReprocessAnchoring();
 	
 	-- City-States
 	Controls.MinorCivHappinessValue:SetText(iMinorCivHappiness);
-	
-	-- Policies
-	Controls.PoliciesHappinessValue:SetText(iPoliciesHappiness);
-	
+
+	-- Events
+	Controls.EventHappinessValue:SetText(iEvent);
+
+
 	-- Religion
 	Controls.ReligionHappinessValue:SetText(iReligionHappiness);
 	
@@ -381,13 +246,6 @@ function UpdateScreen()
 		Controls.NaturalWonders:SetHide(true);
 	end
 	
-	-- Free Happiness per City
-	if (iExtraHappinessPerCity > 0) then
-		Controls.FreeCityHappinessValue:SetText(iExtraHappinessPerCity);
-		Controls.FreeCityHappiness:SetHide(false);
-	else
-		Controls.FreeCityHappiness:SetHide(true);
-	end
 	
 	-- Leagues
 	if (iLeagueHappiness ~= 0) then
@@ -395,21 +253,6 @@ function UpdateScreen()
 		Controls.LeagueHappiness:SetHide(false);
 	else
 		Controls.LeagueHappiness:SetHide(true);
-	end
-
-	-- CBP
-	if (iHappinessFromMonopoly ~= 0) then
-		Controls.MonopolyHappinessValue:SetText(iHappinessFromMonopoly);
-		Controls.MonopolyHappiness:SetHide(false);
-	else
-		Controls.MonopolyHappiness:SetHide(true);
-	end
-
-	if (iHappinessFromBonusResources ~= 0) then
-		Controls.ExtraLuxuryHappinessValue:SetText(iHappinessFromBonusResources);
-		Controls.ExtraLuxuryHappiness:SetHide(false);
-	else
-		Controls.ExtraLuxuryHappiness:SetHide(true);
 	end
 
 	-- END
@@ -420,187 +263,15 @@ function UpdateScreen()
 	else
 		Controls.VassalHappiness:SetHide(true);
 	end
-	
-	-- END
-	-- iHandicapHappiness
-	Controls.HandicapHappinessValue:SetText(iHandicapHappiness);
-
-
 
 	-----------------------------------------------
 	-- Unhappiness
 	-----------------------------------------------
-	
-	local pHandicap = GameInfo.HandicapInfos[iHandicap];
-	
-	local iTotalUnhappiness = pPlayer:GetUnhappiness();
-	local iUnhappinessFromUnits = Locale.ToNumber( pPlayer:GetUnhappinessFromUnits() / 100, "#.##" );
-	local iUnhappinessFromCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCityCount() / 100, "#.##" );
-	local iUnhappinessFromCapturedCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCapturedCityCount() / 100, "#.##" );
-	local iUnhappinessFromPop = Locale.ToNumber( pPlayer:GetUnhappinessFromCityPopulation() / 100, "#.##" );
-	local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
-	
-	local iOccupiedPop = 0;
-	local iNumOccupiedCities = 0;
-	for pCity in pPlayer:Cities() do
-		if (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			iNumOccupiedCities = iNumOccupiedCities + 1;
-			iOccupiedPop = iOccupiedPop + pCity:GetPopulation();
-		end
-	end
-	
-	local iNumNormalCities = pPlayer:GetNumCities() - iNumOccupiedCities;
-	local iNormalPop = pPlayer:GetTotalPopulation() - iOccupiedPop;
+
+	local iEmpireUnhappiness = pPlayer:GetEmpireUnhappinessForCity();
 	
 	-- Total Unhappiness
-	Controls.TotalUnhappinessValue:SetText("[COLOR_NEGATIVE_TEXT]" .. iTotalUnhappiness .. "[ENDCOLOR]");
-	
-	-- Normal City Count
-	Controls.CityCountUnhappinessTitle:SetText(Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_CITIES", iNumNormalCities));
-	Controls.CityCountUnhappinessValue:SetText(iUnhappinessFromCityCount);
-	
-	local strTTExtraInfo = "";
-	
-	local iCityCountMod = pHandicap.NumCitiesUnhappinessMod;	-- Handicap
-	if (iCityCountMod ~= 100) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_CITIES_HANDICAP_TT", 100 - iCityCountMod);
-	end
-	
-	iCityCountMod = pPlayer:GetCityCountUnhappinessMod();		-- Player Mod
-	if (iCityCountMod ~= 0) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_PLAYER", iCityCountMod);
-	end
-	
-	iCityCountMod = pPlayer:GetTraitCityUnhappinessMod();		-- Trait Mod
-	if (iCityCountMod ~= 0) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_TRAIT", iCityCountMod);
-	end
-	
-	local iCityCountMod = Game:GetWorldNumCitiesUnhappinessPercent();	-- World Size
-	if (iCityCountMod ~= 100) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_MAP", 100 - iCityCountMod);
-	end
-	
-	local strTooltip;
-	if (strTTExtraInfo~= "") then
-		strTooltip = Locale.Lookup("TXT_KEY_NUMBER_OF_CITIES_TT_NORMALLY") .. strTTExtraInfo;
-	else
-		strTooltip = Locale.Lookup("TXT_KEY_NUMBER_OF_CITIES_TT");
-	end
-	
-	Controls.CityCountUnhappiness:SetToolTipString(strTooltip);
-	
-	-- Occupied City Count
-	if (iUnhappinessFromCapturedCityCount ~= "0") then
-		Controls.OCityCountUnhappinessTitle:SetText(Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_OCCUPIED_CITIES", iNumOccupiedCities));
-		Controls.OCityCountUnhappinessValue:SetText(iUnhappinessFromCapturedCityCount);
-		
-		strTooltip = Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_OCCUPIED_CITIES_TT");
-		strTTExtraInfo = "";
-		
-		local iCityCountMod = pHandicap.NumCitiesUnhappinessMod;	-- Handicap
-		if (iCityCountMod ~= 100) then
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_CITIES_HANDICAP_TT", 100 - iCityCountMod);
-		end
-		
-		iCityCountMod = pPlayer:GetCityCountUnhappinessMod();		-- Player Mod
-		if (iCityCountMod ~= 0) then
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_PLAYER", iCityCountMod);
-		end
-		
-		iCityCountMod = pPlayer:GetTraitCityUnhappinessMod();		-- Trait Mod
-		if (iCityCountMod ~= 0) then
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_TRAIT", iCityCountMod);
-		end
-		
-		local iCityCountMod = Game:GetWorldNumCitiesUnhappinessPercent();	-- World Size
-		if (iCityCountMod ~= 100) then
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_MAP", 100 - iCityCountMod);
-		end
-		
-		if (strTTExtraInfo~= "") then
-			strTooltip = strTooltip .. " " .. Locale.ConvertTextKey("TXT_KEY_NORMALLY") .. "." .. strTTExtraInfo;
-		else
-			strTooltip = strTooltip .. ".";
-		end
-			
-		Controls.OCityCountUnhappiness:SetToolTipString(strTooltip);
-		Controls.OCityCountUnhappiness:SetHide(false);
-	else
-		Controls.OCityCountUnhappiness:SetHide(true);
-	end
-	
-	-- Normal Population
-	Controls.PopulationUnhappinessTitle:SetText(Locale.ConvertTextKey("TXT_KEY_POP_UNHAPPINESS", iNormalPop));
-	Controls.PopulationUnhappinessValue:SetText(iUnhappinessFromPop);
-	
-	strTooltip = Locale.ConvertTextKey("TXT_KEY_POP_UNHAPPINESS_TT");
-	strTTExtraInfo = "";
-	
-	local iPopulationMod = pHandicap.PopulationUnhappinessMod;	-- Handicap
-	if (iPopulationMod ~= 100) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_CITIES_HANDICAP_TT", 100 - iPopulationMod);
-	end
-	
-	iCityCountMod = pPlayer:GetUnhappinessMod();		-- Player Mod
-	if (iCityCountMod ~= 0) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_PLAYER", iCityCountMod);
-	end
-	
-	iCityCountMod = pPlayer:GetTraitPopUnhappinessMod();		-- Trait Mod
-	if (iCityCountMod ~= 0) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_TRAIT", iCityCountMod);
-	end
-	
-	iCityCountMod = pPlayer:GetCapitalUnhappinessMod();		-- Capital Mod
-	if (iCityCountMod ~= 0) then
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_CAPITAL", iCityCountMod);
-	end
-	
-	if (pPlayer:IsHalfSpecialistUnhappiness()) then		-- Specialist Happiness
-		strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_SPECIALIST");
-	end
-	
-	if (strTTExtraInfo ~= "") then
-		strTooltip = strTooltip .. " " .. Locale.ConvertTextKey("TXT_KEY_NORMALLY") .. "." .. strTTExtraInfo;
-	else
-		strTooltip = strTooltip .. ".";
-	end
-	
-	Controls.PopulationUnhappiness:SetToolTipString(strTooltip);
-	
-	-- Occupied City Count
-	if (iOccupiedPop ~= 0) then
-		Controls.OPopulationUnhappinessTitle:SetText(Locale.ConvertTextKey("TXT_KEY_OCCUPIED_POP_UNHAPPINESS", iOccupiedPop));
-		Controls.OPopulationUnhappinessValue:SetText(iUnhappinessFromOccupiedCities);
-		
-		strTooltip = Locale.ConvertTextKey("TXT_KEY_OCCUPIED_POP_UNHAPPINESS_TT");
-		strTTExtraInfo = "";
-		
-		if (iPopulationMod ~= 100) then		-- Handicap
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NUMBER_OF_CITIES_HANDICAP_TT", 100 - iPopulationMod);
-		end
-		
-		iCityCountMod = pPlayer:GetOccupiedPopulationUnhappinessMod();		-- Player Mod
-		if (iCityCountMod ~= 0) then
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_PLAYER", iCityCountMod);
-		end
-		
-		if (pPlayer:IsHalfSpecialistUnhappiness()) then		-- Specialist Happiness
-			strTTExtraInfo = strTTExtraInfo .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNHAPPINESS_MOD_SPECIALIST");
-		end
-		
-		if (strTTExtraInfo ~= "") then
-			strTooltip = strTooltip .. " " .. Locale.ConvertTextKey("TXT_KEY_NORMALLY") .. "." .. strTTExtraInfo;
-		else
-			strTooltip = strTooltip .. ".";
-		end
-		
-		Controls.OPopulationUnhappiness:SetToolTipString(strTooltip);
-		Controls.OPopulationUnhappiness:SetHide(false);
-	else
-		Controls.OPopulationUnhappiness:SetHide(true);
-	end
+	Controls.TotalUnhappinessValue:SetText("[COLOR_NEGATIVE_TEXT]" .. iEmpireUnhappiness .. "[ENDCOLOR]");
 	
 	-- Public Opinion
 	local iUnhappinessPublicOpinion =  pPlayer:GetUnhappinessFromPublicOpinion();
@@ -622,142 +293,36 @@ function UpdateScreen()
 	end	
 
 	-- City Breakdown
+
+	
+	
+	local iTotalUnhappiness = 0;
     Controls.CityUnhappinessStack:DestroyAllChildren();
     for pCity in pPlayer:Cities() do
 	    
-	    local fUnhappinessTimes100 = pPlayer:GetUnhappinessFromCityForUI(pCity);
-		-- COMMUNITY CHANGE
-		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
-		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
-		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
-		local iDefenseUnhappiness = pCity:GetUnhappinessFromDefense();
-		local iConnectionUnhappiness = pCity:GetUnhappinessFromConnection();
-		local iMinorityUnhappiness = pCity:GetUnhappinessFromMinority();
-		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
-		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
-		local iResistanceUnhappiness = 0;
-		local iOccupationUnhappiness = 0;
-		local iPuppetUnhappiness = 0;
-		if(pCity:IsRazing()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		elseif(pCity:IsResistance()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		elseif(pCity:IsPuppet()) then
-			iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
-		elseif(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
-		end
-
-		local iTotalUnhappyCP = (iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iResistanceUnhappiness + iOccupationUnhappiness + iPuppetUnhappiness) * 100;
-		fUnhappinessTimes100 = fUnhappinessTimes100 + iTotalUnhappyCP;
-		--END
+	    local iUnhappiness = pCity:getUnhappinessAggregated();
 		local instance = {};
 		ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.CityUnhappinessStack );
         
-        -- Make it a dash instead of a zero, so it stands out more
-        if (fUnhappinessTimes100 == 0) then
-			fUnhappinessTimes100 = "-";
-		else
-			fUnhappinessTimes100 = fUnhappinessTimes100 / 100;
-        end
-        
         instance.CityName:SetText( pCity:GetName() );
-		instance.TradeIncomeValue:SetText( Locale.ToNumber( fUnhappinessTimes100, "#.##" ) );
+		instance.TradeIncomeValue:SetText( iUnhappiness );
+
+		iTotalUnhappiness = iTotalUnhappiness + iUnhappiness;
 		
 		-- Occupation tooltip
-		strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_IS_NOT_OCCUPIED");
+		local strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_IS_NOT_OCCUPIED");
 		if (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
 			strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_IS_OCCUPIED");
 		end
 
 -- COMMUNITY CHANGE
-		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
-		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
-		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;
-		local iGoldYield = pCity:GetUnhappinessFromGoldYield() / 100;
-		local iCultureNeeded = pCity:GetUnhappinessFromCultureNeeded() / 100;
-		local iDefenseNeeded = pCity:GetUnhappinessFromDefenseNeeded() / 100;
-		local iGoldNeeded = pCity:GetUnhappinessFromGoldNeeded() / 100;
-		local iScienceYield = pCity:GetUnhappinessFromScienceYield() / 100;
-		local iScienceNeeded = pCity:GetUnhappinessFromScienceNeeded() / 100;
-
-		local iCultureDeficit = pCity:GetUnhappinessFromCultureDeficit() / 100;
-		local iDefenseDeficit = pCity:GetUnhappinessFromDefenseDeficit() / 100;
-		local iGoldDeficit = pCity:GetUnhappinessFromGoldDeficit() / 100;
-		local iScienceDeficit = pCity:GetUnhappinessFromScienceDeficit() / 100;
-
-
-		if(pCity:IsPuppet()) then
-			if (iPuppetMod ~= 0) then
-				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
-			end
-		end
-
-		-- Puppet tooltip
-		if (iPuppetUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
-		end
-
-		-- Occupation tooltip
-		if (iOccupationUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
-		end
-
-		-- Resistance tooltip
-		if (iResistanceUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
-		end
-		-- Starving tooltip
-		if (iStarvingUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);
-		end
-		-- Pillaged tooltip
-		if (iPillagedUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
-		end
-		-- Defense tooltip
-		if (iDefenseUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
-		end
-		if ((iDefenseYield - iDefenseNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
-		end
-		-- Gold tooltip
-		if (iGoldUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded, iGoldDeficit);
-		end
-		if ((iGoldYield - iGoldNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
-		end
-		-- Connection tooltip
-		if (iConnectionUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappiness);
-		end
-		-- Minority tooltip
-		if (iMinorityUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappiness);
-		end
-		-- Science tooltip
-		if (iScienceUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded, iScienceDeficit);
-		end
-		if ((iScienceYield - iScienceNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
-		end
-		-- Culture tooltip
-		if (iCultureUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded, iCultureDeficit);
-		end
-		if ((iCultureYield - iCultureNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
-		end
-
+		strOccupationTT = strOccupationTT .. pCity:GetCityUnhappinessBreakdown(false);
 -- END CHANGE
-
-		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
 		
 		instance.TradeIncome:SetToolTipString(strOccupationTT);
 	end
+
+	Controls.CityUnhappinessValue:SetText(iTotalUnhappiness);
     
     if( pPlayer:GetNumCities() > 0 ) then
         Controls.CityUnhappinessToggle:SetDisabled( false );

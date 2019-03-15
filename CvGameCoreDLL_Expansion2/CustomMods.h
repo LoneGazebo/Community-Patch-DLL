@@ -410,6 +410,7 @@
 #define MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES())
 #define MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_BOMBARD_RANGE_BUILDINGS())
 #define MOD_BALANCE_CORE_TOURISM_HUNDREDS		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_TOURISM_HUNDREDS())
+#define MOD_BALANCE_CORE_TOURISM_HUNDREDS		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_TOURISM_HUNDREDS())
 #endif
 
 #define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
@@ -1179,6 +1180,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerBuilding				"PlayerBuilding",				"iiiiib"
 #define GAMEEVENT_PlayerBuilt					"PlayerBuilt",					"iiiii"
 #define GAMEEVENT_PlayerBullied					"PlayerBullied",				"iiiiiii"
+#define GAMEEVENT_PlayerCanDisband				"PlayerCanDisband",				"i"
+#define GAMEEVENT_PlayerCanDisbandUnit			"PlayerCanDisbandUnit",			"ii"
 #define GAMEEVENT_PlayerCanAdoptIdeology		"PlayerCanAdoptIdeology",		"ii"
 #define GAMEEVENT_PlayerCanAdoptTenet			"PlayerCanAdoptTenet",			"ii"
 #define GAMEEVENT_PlayerCanBuild				"PlayerCanBuild",				"iiiii"

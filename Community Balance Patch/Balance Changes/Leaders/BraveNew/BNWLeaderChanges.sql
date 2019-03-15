@@ -131,11 +131,6 @@ UPDATE Traits
 SET ReducePuppetPenalties = '30'
 WHERE Type = 'TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-INSERT INTO Trait_PerPuppetGreatPersonRateModifier
-	(TraitType, GreatPersonType, Modifier)
-VALUES
-	('TRAIT_SUPER_CITY_STATE', 'GREATPERSON_MERCHANT', '20');
-
 -- MoV - Town expands borders around it.
 DELETE FROM Unit_Builds
 WHERE UnitType = 'UNIT_VENETIAN_MERCHANT';

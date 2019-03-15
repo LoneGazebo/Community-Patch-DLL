@@ -191,7 +191,7 @@
 			<Text>[NEWLINE][ICON_BULLET]Modifier from Resource Monopoly: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +6 [ICON_HAPPINESS_1] Global Happiness</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +6 [ICON_HAPPINESS_1] Happiness added to Empire-Wide Luxury value</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length, +2 [ICON_GOLDEN_AGE] Golden Age Points from Resource tiles.</Text>

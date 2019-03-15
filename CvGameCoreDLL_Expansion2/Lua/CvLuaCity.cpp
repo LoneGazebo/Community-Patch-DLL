@@ -367,12 +367,14 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(getPopThresholdMod);
 	Method(getEmpireSizeMod);
 	Method(getHappinessDelta);
+	Method(getUnhappinessAggregated);
 	Method(getHappinessThresholdMod);
 	Method(getThresholdSubtractions);
 	Method(getThresholdAdditions);
 	Method(GetUnhappinessFromCultureYield);
 	Method(GetUnhappinessFromCultureNeeded);
 	Method(GetUnhappinessFromCultureDeficit);
+	Method(GetUnhappinessFromYieldRaw);
 	Method(GetUnhappinessFromCulture);
 	Method(GetUnhappinessFromScienceYield);
 	Method(GetUnhappinessFromScienceNeeded);
@@ -391,6 +393,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromStarving);
 	Method(GetUnhappinessFromMinority);
 	Method(getPotentialUnhappinessWithGrowth);
+	Method(GetCityUnhappinessBreakdown);
+	Method(GetCityHappinessBreakdown);
+	Method(getUnhappinessFromSpecialists);
 #endif
 
 	Method(ChangeHealRate);
@@ -2135,7 +2140,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	{	
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
-		pkCity->foodDifferenceTimes100(true, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
+		pkCity->foodDifferenceTimes100(true, false, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
 	}
 
 	lua_pushstring(L, toolTip.c_str());
@@ -2396,7 +2401,7 @@ int CvLuaCity::lFoodDifference(lua_State* L)
 int CvLuaCity::lFoodDifferenceTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->foodDifferenceTimes100(true,-1,NULL);
+	const int iResult = pkCity->foodDifferenceTimes100(true, false,-1,NULL);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3764,6 +3769,13 @@ int CvLuaCity::lgetHappinessDelta(lua_State* L)
 	lua_pushinteger(L, pkCity->getHappinessDelta());
 	return 1;
 }
+int CvLuaCity::lgetUnhappinessAggregated(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessAggregated());
+	return 1;
+}
+
 //int getHappinessThresholdMod();
 int CvLuaCity::lgetHappinessThresholdMod(lua_State* L)
 {
@@ -3812,17 +3824,37 @@ int CvLuaCity::lGetUnhappinessFromCultureDeficit(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iPop = pkCity->getPopulation();
 	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromCultureYield() * iPop;
-	int iNeed = pkCity->getUnhappinessFromCultureNeeded() * iPop;
+	int iYield = pkCity->getUnhappinessFromCultureYield();
+	int iNeed = pkCity->getUnhappinessFromCultureNeeded();
 	if(iNeed > iYield)
 	{
 		iResult = iNeed - iYield;
 	}
 	else
 	{
-		iResult = iYield - iNeed;
+		iResult = (iYield * iPop) - (iNeed * iPop);
 	}
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaCity::lGetUnhappinessFromYieldRaw(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+
+	int iValue = 0;
+	if (eIndex == YIELD_GOLD)
+
+		iValue = pkCity->getUnhappinessFromGoldRaw();
+	else if (eIndex == YIELD_PRODUCTION)
+		iValue = pkCity->getUnhappinessFromDefenseRaw();
+	else if (eIndex == YIELD_SCIENCE)
+		iValue = pkCity->getUnhappinessFromScienceRaw();
+	else if (eIndex == YIELD_CULTURE)
+		iValue = pkCity->getUnhappinessFromCultureRaw();
+
+	lua_pushinteger(L, iValue);
 	return 1;
 }
 //int getUnhappinessFromCulture();
@@ -3852,15 +3884,15 @@ int CvLuaCity::lGetUnhappinessFromScienceDeficit(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iPop = pkCity->getPopulation();
 	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromScienceYield() * iPop;
-	int iNeed = pkCity->getUnhappinessFromScienceNeeded() * iPop;
+	int iYield = pkCity->getUnhappinessFromScienceYield();
+	int iNeed = pkCity->getUnhappinessFromScienceNeeded();
 	if(iNeed > iYield)
 	{
 		iResult = iNeed - iYield;
 	}
 	else
 	{
-		iResult = iYield - iNeed;
+		iResult = (iYield * iPop) - (iNeed * iPop);
 	}
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3892,15 +3924,15 @@ int CvLuaCity::lGetUnhappinessFromDefenseDeficit(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iPop = pkCity->getPopulation();
 	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromDefenseYield() * iPop;
-	int iNeed = pkCity->getUnhappinessFromDefenseNeeded() * iPop;
+	int iYield = pkCity->getUnhappinessFromDefenseYield();
+	int iNeed = pkCity->getUnhappinessFromDefenseNeeded();
 	if(iNeed > iYield)
 	{
 		iResult = iNeed - iYield;
 	}
 	else
 	{
-		iResult = iYield - iNeed;
+		iResult = (iYield * iPop) - (iNeed * iPop);
 	}
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3932,15 +3964,15 @@ int CvLuaCity::lGetUnhappinessFromGoldDeficit(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iPop = pkCity->getPopulation();
 	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromGoldYield() * iPop;
-	int iNeed = pkCity->getUnhappinessFromGoldNeeded() * iPop;
+	int iYield = pkCity->getUnhappinessFromGoldYield();
+	int iNeed = pkCity->getUnhappinessFromGoldNeeded();
 	if(iNeed > iYield)
 	{
 		iResult = iNeed - iYield;
 	}
 	else
 	{
-		iResult = iYield - iNeed;
+		iResult = (iYield * iPop) - (iNeed * iPop);
 	}
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3985,6 +4017,29 @@ int CvLuaCity::lgetPotentialUnhappinessWithGrowth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushstring(L, pkCity->getPotentialUnhappinessWithGrowth());
+	return 1;
+}
+
+int CvLuaCity::lGetCityUnhappinessBreakdown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const bool bIncludeMedian = luaL_optbool(L, 2, false);
+	const bool bFlavor = luaL_optbool(L, 3, false);
+	lua_pushstring(L, pkCity->GetCityUnhappinessBreakdown(bIncludeMedian, bFlavor));
+	return 1;
+}
+
+int CvLuaCity::lGetCityHappinessBreakdown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushstring(L, pkCity->GetCityHappinessBreakdown());
+	return 1;
+}
+
+int CvLuaCity::lgetUnhappinessFromSpecialists(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromSpecialists(pkCity->GetCityCitizens()->GetTotalSpecialistCount()));
 	return 1;
 }
 #endif
@@ -4221,12 +4276,6 @@ int CvLuaCity::lGetHappiness(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(pkCity->getOwner());
-
-	const int numPolicyInfos = GC.getNumPolicyInfos();
-	const int numBuildingInfos = GC.getNumBuildingInfos();
-
-	CvPlayerPolicies* pkPlayerPolicies = kPlayer.GetPlayerPolicies();
-	CvCityBuildings* pkCityBuildings = pkCity->GetCityBuildings();
 
 	int iHappiness = pkCity->GetHappinessFromBuildings();
 

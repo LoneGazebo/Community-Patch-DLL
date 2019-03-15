@@ -772,7 +772,11 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 {
 	// Gather basic Ideology info
+#if !defined(MOD_BALANCE_CORE)
 	int iCurrentHappiness = pPlayer->GetExcessHappiness();
+#endif
+	bool bVUnhappy = pPlayer->IsEmpireVeryUnhappy();
+	bool bSUnhappy = pPlayer->IsEmpireSuperUnhappy();
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
 	PolicyBranchTypes ePreferredIdeology = pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology();
 	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -811,7 +815,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #endif	
 	// Possible enough that we need to look at this in detail?
 #if defined(MOD_BALANCE_CORE)
-	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= (-1 * GC.getSUPER_UNHAPPY_THRESHOLD()))
+	if (bSUnhappy && iPublicOpinionUnhappiness >= (-1 * GC.getSUPER_UNHAPPY_THRESHOLD()))
 	{
 		//Sanity check - would a change to this branch simply make us unhappy in another way? If so, don't do it.
 		if(ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
@@ -837,7 +841,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	else if (iCurrentHappiness <= GC.getVERY_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= (-1 * GC.getVERY_UNHAPPY_THRESHOLD()))
+	else if (bVUnhappy && iPublicOpinionUnhappiness >= (-1 * GC.getVERY_UNHAPPY_THRESHOLD()))
 #else
 	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= 10)
 #endif

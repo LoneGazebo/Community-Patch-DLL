@@ -239,85 +239,11 @@ local g_cityToolTips = {
 				if gk_mode and city:GetReligiousMajority() < 0 then
 					tipText = tipText .. "[NEWLINE]" .. GetReligionTooltip(city)
 				end
-
-				-- COMMUNITY PATCH
-				local iStarvingUnhappiness = city:GetUnhappinessFromStarving();
-				local iPillagedUnhappiness = city:GetUnhappinessFromPillaged();
-				local iGoldUnhappiness = city:GetUnhappinessFromGold();
-				local iDefenseUnhappiness = city:GetUnhappinessFromDefense();
-				local iConnectionUnhappiness = city:GetUnhappinessFromConnection();
-				local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
-				local iScienceUnhappiness = city:GetUnhappinessFromScience();
-				local iCultureUnhappiness = city:GetUnhappinessFromCulture();
-				local iResistanceUnhappiness = 0;
-				local iOccupationUnhappiness = 0;
-				local iPuppetUnhappiness = 0;
-				if(city:IsRazing()) then
-					iResistanceUnhappiness = (city:GetPopulation() / 2);
-				elseif(city:IsResistance()) then
-					iResistanceUnhappiness = (city:GetPopulation() / 2);
-				elseif(city:IsPuppet()) then
-					iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
-				elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance()) then
-					iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
-				end
-			
-				local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
-
-				tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
-
-				-- Resistance tooltip
-				if (iResistanceUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
-
-					-- Resistance tooltip
-				elseif (iPuppetUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_PUPPET", iPuppetUnhappiness);
-
-				-- Occupation tooltip
-				elseif (iOccupationUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
-				end
-				-- Starving tooltip
-				if (iStarvingUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);
-				end
-				-- Pillaged tooltip
-				if (iPillagedUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_PILLAGED", iPillagedUnhappiness);
-				end
-				if(iGoldUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
-				end
-				if(iDefenseUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNDEFENDED", iDefenseUnhappiness);
-				end
-				-- Connection tooltip
-				if (iConnectionUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappiness);
-				end
-				-- Minority tooltip
-				local ePlayerReligion = city:GetReligiousMajority();
-				if (ePlayerReligion >= 0) then
-					local playerreligion = GameInfo.Religions[ePlayerReligion];
-					local strReligionIcon = playerreligion.IconString;
-					if (iMinorityUnhappiness ~= 0) then
-						tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness, strReligionIcon);
-					end
-				end
-				if(iScienceUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
-				end
-				if(iCultureUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
-				end
-
-				tipText = tipText .. city:getPotentialUnhappinessWithGrowth();
-
-				tipText = tipText .. "[NEWLINE]";
+					
 				-- COMMUNITY PATCH END
 
 				if not OptionsManager.IsNoBasicHelp() then
+					tipText = tipText .. "[NEWLINE]";
 					if cityOwnerID == g_activePlayerID then
 						tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_CITY_ENTER_CITY_SCREEN")
 					else
@@ -579,6 +505,11 @@ local g_cityToolTips = {
 	end,
 	CityIsOccupied = function()
 		return L"TXT_KEY_CITY_OCCUPIED"
+	end,
+
+	CityIsUnhappy = function( city)
+		local delta = city:getHappinessDelta() * -1;
+		return L("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. L(city:GetCityUnhappinessBreakdown(false, true))
 	end,
 } -- g_cityToolTips
 
@@ -1060,15 +991,25 @@ local function RefreshCityBannersNow()
 
 			-- Blockaded ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
-
+			
 			-- Garrisoned ?
 			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( activeTeamID, true ) and city:GetGarrisonedUnit() ) )
+
+			-- Happiness
+			instance.CityIsUnhappy:SetHide(true)
 
 			instance.CityBannerBackground:SetColor( backgroundColor )
 			instance.CityBannerRightBackground:SetColor( backgroundColor )
 			instance.CityBannerLeftBackground:SetColor( backgroundColor )
 
 			if isActiveType then
+
+				local delta = city:getHappinessDelta();
+				if(delta < 0) then
+					instance.CityIsUnhappy:SetHide(false)
+				else
+					instance.CityIsUnhappy:SetHide(true)
+				end
 
 				instance.CityBannerBGLeftHL:SetColor( backgroundColor )
 				instance.CityBannerBGRightHL:SetColor( backgroundColor )

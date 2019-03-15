@@ -43,11 +43,16 @@ public:
 	bool IsSpaceship() const;
 	bool IsAllowsNukes() const;
 #if defined(MOD_BALANCE_CORE)
+	int CostScalerNumberOfRepeats() const;
+	int GetGoldMaintenance() const;
+	int CostScalerEra() const;
 	PolicyTypes GetFreePolicy() const;
 	BuildingClassTypes  GetFreeBuilding() const;
 	int GetNumRequiredTier3Tenets() const;
 	bool InfluenceAllRequired() const;
 	bool IdeologyRequired() const;
+	bool IsRepeatable() const;
+	int GetHappinessNeedModifier(int i) const;
 #endif
 	const char* GetMovieArtDef() const;
 
@@ -76,11 +81,16 @@ protected:
 	bool m_bSpaceship;
 	bool m_bAllowsNukes;
 #if defined(MOD_BALANCE_CORE)
+	int m_iGoldMaintenance;
+	int m_iCostScalerEra;
+	int m_iCostScalerNumRepeats;
 	BuildingClassTypes m_eFreeBuilding;
 	PolicyTypes m_eFreePolicy;
+	bool m_bIsRepeatable;
 	int m_iNumRequiredTier3Tenets;
 	bool m_bInfluenceAllRequired;
 	bool m_bIdeologyRequired;
+	int* m_piHappinessNeedModifier;
 #endif
 
 	CvString m_strCreateSound;

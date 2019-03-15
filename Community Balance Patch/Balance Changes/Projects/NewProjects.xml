@@ -18,12 +18,58 @@
 			<IconAtlas>BW_ATLAS_2</IconAtlas>
 			<PortraitIndex>43</PortraitIndex>
 		</Row>
+		<Row>
+			<Type>PROJECT_PUBLIC_WORKS</Type>
+			<Description>TXT_KEY_PROJECT_PUBLIC_WORKS</Description>
+			<Help>TXT_KEY_PROJECT_PUBLIC_WORKS_HELP</Help>
+			<Civilopedia>TXT_KEY_PROJECT_PUBLIC_WORKS_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_PROJECT_PUBLIC_WORKS_STRATEGY</Strategy>
+			<TechPrereq>TECH_MACHINERY</TechPrereq>
+			<IsRepeatable>true</IsRepeatable>
+			<Cost>300</Cost>
+			<CostScalerEra>100</CostScalerEra>
+			<CostScalerNumRepeats>100</CostScalerNumRepeats>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
+		</Row>
 	</Projects>
+	<Project_NeedsModifierYield>
+		<Row>
+			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>-10</Yield>
+		</Row>
+		<Row>
+			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>-10</Yield>
+		</Row>
+		<Row>
+			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>-10</Yield>
+		</Row>
+		<Row>
+			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>-10</Yield>
+		</Row>
+		<Row>
+			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>-10</Yield>
+		</Row>
+	</Project_NeedsModifierYield>
 	<Project_Flavors>
 		<Row>
 			<ProjectType>PROJECT_UTOPIA_PROJECT</ProjectType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>300</Flavor>
+		</Row>
+		<Row>
+			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
 		</Row>
 	</Project_Flavors>
 </GameData>
