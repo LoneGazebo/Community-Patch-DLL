@@ -26429,7 +26429,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							{
 								iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
 							}
-							else
+							else if (eYield != YIELD_GREAT_ADMIRAL_POINTS && eYield != YIELD_GREAT_GENERAL_POINTS)
 							{
 								iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
 							}
