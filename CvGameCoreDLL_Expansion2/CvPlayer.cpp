@@ -32131,7 +32131,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 						if (eWinningTeam != NO_TEAM)
 						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+							if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 							{
 								if (eWinningPlayer == GetID())
 								{
@@ -32219,7 +32219,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 						if (eWinningTeam != NO_TEAM)
 						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+							if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 							{
 								if (eWinningPlayer == GetID())
 								{
