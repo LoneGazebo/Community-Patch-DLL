@@ -64,9 +64,9 @@ INSERT INTO ArtDefine_LandmarkTypes(Type, LandmarkType, FriendlyName)
 SELECT 'ART_DEF_IMPROVEMENT_EMBASSY', 'Improvement', 'EMBASSY';
 
 INSERT INTO ArtDefine_Landmarks(Era, State, Scale, ImprovementType, LayoutHandler, ResourceType, Model, TerrainContour)
-SELECT 'Any', 'UnderConstruction', 1.2,  'ART_DEF_IMPROVEMENT_EMBASSY', 'RANDOM', 'ART_DEF_RESOURCE_NONE', 'Embassy.fxsxml', 1 UNION ALL
-SELECT 'Any', 'Constructed', 1.2,  'ART_DEF_IMPROVEMENT_EMBASSY', 'RANDOM', 'ART_DEF_RESOURCE_NONE', 'Embassy.fxsxml', 1 UNION ALL
-SELECT 'Any', 'Pillaged', 1.2,  'ART_DEF_IMPROVEMENT_EMBASSY', 'RANDOM', 'ART_DEF_RESOURCE_NONE', 'Embassy.fxsxml', 1;
+SELECT 'Any', 'UnderConstruction', 1.2,  'ART_DEF_IMPROVEMENT_EMBASSY', 'RANDOM', 'ART_DEF_RESOURCE_ALL', 'Embassy.fxsxml', 1 UNION ALL
+SELECT 'Any', 'Constructed', 1.2,  'ART_DEF_IMPROVEMENT_EMBASSY', 'RANDOM', 'ART_DEF_RESOURCE_ALL', 'Embassy.fxsxml', 1 UNION ALL
+SELECT 'Any', 'Pillaged', 1.2,  'ART_DEF_IMPROVEMENT_EMBASSY', 'RANDOM', 'ART_DEF_RESOURCE_ALL', 'Embassy.fxsxml', 1;
 
 -- Changes to Barbarians (enables their city artstyle)
 
