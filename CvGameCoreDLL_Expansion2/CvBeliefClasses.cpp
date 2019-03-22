@@ -4492,7 +4492,7 @@ bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit)
 #endif
 
 	// Convert the barbarian into our unit
-	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
 	CvAssertMsg(pNewUnit, "pNewUnit is not assigned a valid value");
 	pNewUnit->convert(pUnit, false);
 	pNewUnit->setupGraphical();

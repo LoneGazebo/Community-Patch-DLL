@@ -7716,7 +7716,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 
 		// Convert the barbarian into our unit
 		FAssertMsg(m_eCampGuardType < GC.getNumUnitInfos(), "Illegal camp guard unit type");
-		pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, NO_DIRECTION, true /*bNoMove*/);
+		pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, REASON_CONVERT, true /*bNoMove*/);
 		if (!pGiftUnit->jumpToNearestValidPlot())
 			pGiftUnit->kill(false);
 		else
@@ -7734,7 +7734,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		// Convert any extra units
 		for(int iI = 0; iI < m_iLandBarbarianConversionExtraUnits; iI++)
 		{
-			pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, NO_DIRECTION, true /*bNoMove*/);
+			pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, REASON_CONVERT, true /*bNoMove*/);
 			if (!pGiftUnit->jumpToNearestValidPlot())
 				pGiftUnit->kill(false);
 			else
@@ -7807,7 +7807,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 #endif
 
 		// Convert the barbarian into our unit
-		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
 		CvAssertMsg(pGiftUnit, "GiftUnit is not assigned a valid value");
 		pGiftUnit->convert(pUnit, false);
 		pGiftUnit->setupGraphical();

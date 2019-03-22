@@ -115,7 +115,7 @@ void CvHomelandAI::RecruitUnits()
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Sanity check
-		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>0)
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>99)
 			OutputDebugString("undefended general found!\n");
 
 		// Never want immobile/dead units or ones that have already moved

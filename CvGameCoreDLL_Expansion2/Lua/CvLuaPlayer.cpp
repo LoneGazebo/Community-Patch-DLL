@@ -1599,12 +1599,12 @@ int CvLuaPlayer::lInitUnit(lua_State* L)
 	const int y = lua_tointeger(L, 4);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 5, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 6, NO_DIRECTION);
-#if defined(MOD_BALANCE_CORE)
 	const bool bHistoric = luaL_optbool(L, 7, true);
-	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, eFacingDirection, false, true, 0, 0, NO_CONTRACT, bHistoric);
-#else
-	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, eFacingDirection);
-#endif
+
+	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, REASON_LUA, false, true, 0, 0, NO_CONTRACT, bHistoric);
+	if (pkUnit)
+		pkUnit->setFacingDirection(eFacingDirection);
+
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
@@ -1620,16 +1620,16 @@ int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 	const int y = lua_tointeger(L, 5);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 6, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 7, NO_DIRECTION);
-#if defined(MOD_BALANCE_CORE)
 	const bool bHistoric = luaL_optbool(L, 8, true);
-	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, eFacingDirection, false, true, 0, 0, NO_CONTRACT, bHistoric);
-#else
-	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, eFacingDirection);
-#endif
+
+	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, REASON_LUA, false, true, 0, 0, NO_CONTRACT, bHistoric);
+	if (pkUnit)
+		pkUnit->setFacingDirection(eFacingDirection);
+
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
+
 //CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION);
 int CvLuaPlayer::lInitNamedUnit(lua_State* L)
 {
@@ -1641,11 +1641,14 @@ int CvLuaPlayer::lInitNamedUnit(lua_State* L)
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 6, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 7, NO_DIRECTION);
 
-	CvUnit* pkUnit = pkPlayer->initNamedUnit(eUnit, strKey, x, y, eUnitAI, eFacingDirection);
+	CvUnit* pkUnit = pkPlayer->initNamedUnit(eUnit, strKey, x, y, eUnitAI, REASON_LUA);
+	if (pkUnit)
+		pkUnit->setFacingDirection(eFacingDirection);
+
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 // ---------------------------------------------------------------------
 //bool CvPlayer::GetResourceMonopolyPlayer(ResourceTypes eResource)

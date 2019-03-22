@@ -6798,7 +6798,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 								for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 								{
 									UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-									int iResult = CreateUnit(eLoopUnit, eUnitAI);
+									int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
 
 									CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -6834,7 +6834,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeSpecificUnits((UnitTypes)iI); iJ++)
 					{
 						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eUnit, eUnitAI);
+						int iResult = CreateUnit(eUnit, eUnitAI, REASON_GIFT);
 
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -15652,7 +15652,7 @@ void CvCity::CheckForOperationUnits()
 
 							//and train it!
 							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
+							int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
 							CvAssertMsg(iResult != -1, "Unable to create unit");
 							if (iResult != -1)
 							{
@@ -15748,7 +15748,7 @@ void CvCity::CheckForOperationUnits()
 
 				//and train it!
 				UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-				int iResult = CreateUnit(eBestUnit, eUnitAI, false);
+				int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
 				CvAssertMsg(iResult != -1, "Unable to create unit");
 				if (iResult != -1)
 				{
@@ -28352,7 +28352,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 		if(bFinish)
 		{
-			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit);
+			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit, REASON_TRAIN);
 			if(iResult != -1)
 			{
 #if defined(MOD_BALANCE_CORE)
@@ -28426,7 +28426,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestLandUnit, eUnitAI);
+								int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -28454,7 +28454,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eWarrior, eUnitAI);
+								int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -29000,7 +29000,7 @@ bool CvCity::CleanUpQueue(void)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation, bool bIsPurchase)
+int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationReason eReason, bool bUseToSatisfyOperation, bool bIsPurchase)
 {
 	VALIDATE_OBJECT
 	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
@@ -29009,7 +29009,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		pUnitPlot = plot(); 
 
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType);
+	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType, eReason);
 	if(!pUnit)
 	{
 		CvAssertMsg(false, "CreateUnit failed");
@@ -30090,7 +30090,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else
 			{
 #endif
-			int iResult = CreateUnit(eUnitType, NO_UNITAI, false, true);
+			int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult != -1)
 			{
@@ -30281,7 +30281,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 		if(eUnitType >= 0)
 		{
-			int iResult = CreateUnit(eUnitType);
+			int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_TRAIN);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult == -1)
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.

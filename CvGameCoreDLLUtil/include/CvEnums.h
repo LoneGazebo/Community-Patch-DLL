@@ -573,6 +573,17 @@ enum CameraLookAtTypes
 	CAMERALOOKAT_HOTSEAT,
 };
 
+enum UnitCreationReason
+{
+	REASON_DEFAULT,
+	REASON_TRAIN,
+	REASON_BUY,
+	REASON_UPGRADE,
+	REASON_GIFT,
+	REASON_CONVERT,
+	REASON_LUA
+};
+
 enum DirectionTypes					
 {
 #if defined(MOD_BALANCE_CORE)
