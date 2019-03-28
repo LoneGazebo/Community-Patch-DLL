@@ -105,27 +105,23 @@ void CvHomelandAI::Write(FDataStream& kStream)
 /// Mark all the units that will be under tactical AI control this turn
 void CvHomelandAI::RecruitUnits()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
-
 	m_CurrentTurnUnits.clear();
 	m_automatedTargetPlots.clear();
 
 	// Loop through our units
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	int iLoop;
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>99)
 			OutputDebugString("undefended general found!\n");
 
-		// Never want immobile/dead units or ones that have already moved
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove())
-		{
+		// Never want units that have already moved or zombies
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
 			continue;
-		}
 
-		//units we don't know how to handle here or which should have been processed in tactical AI
-		if(pLoopUnit->getArmyID()!=-1 || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || !pLoopUnit->canMove())
+		//don't touch armies or units which are out of moves
+		if(!pLoopUnit->canMove() || pLoopUnit->getArmyID()!=-1)
 		{
 			pLoopUnit->SetTurnProcessed(true);
 			continue;

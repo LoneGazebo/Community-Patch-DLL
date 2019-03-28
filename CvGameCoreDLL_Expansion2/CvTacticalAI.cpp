@@ -10254,16 +10254,19 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		{
 			 //usually there is at most one, but sometimes two
 			vector<STacticalAssignment> blocks = findBlockingUnitsAtPlot(itMove->iToPlotIndex, *itMove);
+			set<int> blockMoveToPlots;
 			for (vector<STacticalAssignment>::iterator itBlock = blocks.begin(); itBlock != blocks.end(); ++itBlock)
 			{
 				//find best non-blocked move for blocking unit (search only one level deep)
 				vector<STacticalAssignment> blockingUnitChoices = choicePerUnit[itBlock->iUnitID];
 				for (vector<STacticalAssignment>::iterator itMove2 = blockingUnitChoices.begin(); itMove2 != blockingUnitChoices.end(); ++itMove2)
 				{
-					if (itMove2->eAssignmentType == A_MOVE && !isMoveBlockedByOtherUnit(*itMove2))
+					if (itMove2->eAssignmentType == A_MOVE && !isMoveBlockedByOtherUnit(*itMove2) && blockMoveToPlots.find(itMove2->iToPlotIndex)==blockMoveToPlots.end())
 					{
 						//add the move to make space
 						movesToAdd.push_back(*itMove2);
+						//make sure a second block doesn't try to move into the same plot
+						blockMoveToPlots.insert(itMove2->iToPlotIndex);
 						//mark that this is a forced move so we're allowed to move back later
 						movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
 						break;

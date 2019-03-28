@@ -65,6 +65,9 @@
 // for statistics
 int saiTaskWhenKilled[100] = {0};
 
+// for diagnosing movement problems, it's useful so set this flag to true on a breakpoint and examine the AI units in game
+bool g_bFreezeUnits = false;
+
 namespace FSerialization
 {
 
@@ -29521,6 +29524,12 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//potential deadlock in pathfinder, be careful
 	if (!GET_PLAYER(getOwner()).isTurnActive())
 		return;
+
+	if (g_bFreezeUnits)
+	{
+		finishMoves(0);
+		return;
+	}
 
 	//any mission resets the cache
  	ClearReachablePlots();
