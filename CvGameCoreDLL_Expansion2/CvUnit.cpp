@@ -13377,7 +13377,7 @@ bool CvUnit::blastTourism()
 
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			GET_PLAYER(getOwner()).getCapitalCity()->ChangeBaseHappinessFromBuildings(iCap);
+			GET_PLAYER(getOwner()).getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
 		}
 
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();

@@ -99,14 +99,11 @@ function UpdateData()
 				strHappiness = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF");
 			else
 
-				local population = pPlayer:GetTotalPopulation();
-				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds();
-
-				local population = pPlayer:GetTotalPopulation()
+				local happypop = pPlayer:GetHappinessFromCitizenNeeds()
 				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds()
 				local percent = pPlayer:GetExcessHappiness()
 
-				strHappiness = Locale.ConvertTextKey("TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, population);
+				strHappiness = Locale.ConvertTextKey("TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, happypop);
 			end
 			
 			Controls.HappinessString:SetText(strHappiness);
@@ -746,11 +743,18 @@ function HappinessTipHandler( control )
 		local vassalhappiness = pPlayer:GetHappinessFromVassals();
 		local eventhappiness = pPlayer:GetEventHappiness();
 		local tradehappiness = pPlayer:GetHappinessFromTradeRoutes();
+		local resourcehappiness = pPlayer:GetBonusHappinessFromLuxuriesFlat();
+		local handicaphappiness = pPlayer:GetHandicapHappiness();
 
-		local htotal = naturalwonderhappiness + minorcivhappiness + leaguehappiness + vassalhappiness + eventhappiness + tradehappiness + religionHappiness;
+		local htotal = naturalwonderhappiness + minorcivhappiness + leaguehappiness + vassalhappiness + eventhappiness + tradehappiness + religionHappiness + resourcehappiness + handicaphappiness;
 
 		if(htotal ~= 0) then
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", empireHappiness );
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", htotal, empireHappiness );
+		end
+
+		if(handicaphappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicaphappiness);
 		end
 
 		if(naturalwonderhappiness ~= 0) then
@@ -780,6 +784,10 @@ function HappinessTipHandler( control )
 		if(religionHappiness ~= 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_STATE_RELIGION", religionHappiness);
+		end
+		if(resourcehappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness);
 		end
 
 		strText = strText .. "[/COLOR]";

@@ -33,7 +33,7 @@
 			<Text>Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO">
-			<Text>{1_Num} from Religion</Text>
+			<Text>{1_Num} from Religion.</Text>
 		</Row>
 
 	</Language_en_US>

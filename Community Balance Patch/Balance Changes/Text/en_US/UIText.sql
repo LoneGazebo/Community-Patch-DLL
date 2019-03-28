@@ -435,7 +435,7 @@ WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_SPECIALISTS' AND EXISTS (SELECT * FROM COMMU
 -- Tutorial Text
 
 UPDATE Language_en_US
-SET Text = 'The happiness system in the Community Balance Patch is completely revised, favoring neither tall nor wide playstyles. Happiness is now wholly localized, and is based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it starts to drop below 100%, your population is getting restless. If it starts to dip below 75%, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.'
+SET Text = 'The happiness system in the Community Balance Patch is completely revised, favoring neither tall nor wide playstyles. Happiness is now wholly localized, and is based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it starts to drop below 75%, your population is getting restless. If it starts to dip below 60%, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.'
 WHERE Tag = 'TXT_KEY_HAPPINESS_HEADING1_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -490,20 +490,20 @@ WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMU
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'More than 50% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_3] Unhappy - your Empire is is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by[COLOR_NEGATIVE_TEXT] 20%[ENDCOLOR]!'
+SET Text = 'Your approval rating is less than 40% - your Empire is is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Military Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'More than 75% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_3] Unhappy - your Empire is fracturing! Rebels (barbarians) will spawn and Cities may abandon your empire and flip to the civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by[COLOR_NEGATIVE_TEXT] 20%[ENDCOLOR]'
+SET Text = 'Your approval rating is less than 20% - your Empire is fracturing! Rebels (barbarians) will spawn and Cities may abandon your empire and flip to the civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Military Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'More than 25% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_3] Unhappy! Because of this, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Units more slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by[COLOR_NEGATIVE_TEXT] 10%[ENDCOLOR]!'
+SET Text = 'Your approval rating is less than 60%! Because of this, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Military Units more slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by 10%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'More than 75% of your [ICON_CITIZEN] Citizens are [ICON_HAPPINESS_1] Happy. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, however [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth and [ICON_PRODUCTION] Unit Production.'
+SET Text = 'Your approval rating is higher than 60%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, however [ICON_HAPPINESS_3] Unhappy Cities will still suffer penalties to [ICON_FOOD] Growth and [ICON_PRODUCTION] Military Unit Production.'
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR
@@ -680,7 +680,7 @@ SET Text = 'Empire-Wide[ICON_HAPPINESS_3] Unhappiness (average per City): {1_Num
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness (average per City): {1_Num}[NEWLINE]Happiness Totals:'
+SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {2_Num} (average per City: {1_Num})[NEWLINE]Happiness Totals:'
 WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
 
 UPDATE Language_en_US
@@ -712,6 +712,6 @@ SET Text = '[COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS';
 
 UPDATE Language_en_US
-SET Text = 'Current Empire-Wide [ICON_HAPPINESS_1] Happiness, from 0-100%[NEWLINE][NEWLINE]At 25% or below the civilization will start to lose cities to revolt and may change to the public''s Preferred Ideology (you can find that preference in the Public Opinion tooltip).'
+SET Text = 'Current Empire-Wide [ICON_HAPPINESS_1] Happiness, from 0-100%[NEWLINE][NEWLINE]At 20% or below the civilization will start to lose cities to revolt and may change to the public''s Preferred Ideology (you can find that preference in the Public Opinion tooltip).'
 WHERE Tag = 'TXT_KEY_CO_VICTORY_EXCESS_HAPPINESS_HEADER_TT';
 

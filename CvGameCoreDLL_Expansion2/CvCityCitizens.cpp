@@ -673,11 +673,13 @@ void CvCityCitizens::DoTurn()
 	if (!thisPlayer.isHuman() && thisPlayer.IsEmpireUnhappy())
 	{
 		int iExcessHappiness = thisPlayer.GetExcessHappiness();
-		int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal();
+		int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal()  - m_pCity->getPotentialHappinessWithGrowthVal() * 5;
 		
-		bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= -20;
+		int iLock = MOD_BALANCE_CORE_HAPPINESS ? GC.getVERY_UNHAPPY_THRESHOLD() : -20;
+		bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= iLock;
 
-		m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= 0;
+		int iDiscourage = MOD_BALANCE_CORE_HAPPINESS ? GC.getUNHAPPY_THRESHOLD() : 0;
+		m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= iDiscourage;
 
 		if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
 		{

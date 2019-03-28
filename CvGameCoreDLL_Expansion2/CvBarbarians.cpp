@@ -139,15 +139,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iSpawnTurnAddition = 0;
-	if (kGame.getHandicapInfo().getAIDifficultyBonusBase() == 0)
-	{
-		iSpawnTurnAddition = 10;
-	}
-	else
-	{
-		iSpawnTurnAddition = 14 - kGame.getHandicapInfo().getAIDifficultyBonusBase();
-	}
+	int iSpawnTurnAddition = 12;
 	bool isMP = kGame.isReallyNetworkMultiPlayer();
 	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
 	int iAddVal = isMP ? 5 : iRand;

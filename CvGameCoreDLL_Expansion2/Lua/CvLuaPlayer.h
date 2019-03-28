@@ -360,6 +360,9 @@ protected:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	LUAAPIEXTN(GetHappinessFromResourceMonopolies, int);
 	LUAAPIEXTN(GetUnhappinessFromCitizenNeeds, int);
+	LUAAPIEXTN(GetHappinessFromCitizenNeeds, int);
+	LUAAPIEXTN(GetBonusHappinessFromLuxuriesFlat, int);
+	LUAAPIEXTN(GetHandicapHappiness, int);
 #endif
 	static int lGetHappinessFromResourceVariety(lua_State* L);
 	static int lGetExtraHappinessPerLuxury(lua_State* L);
