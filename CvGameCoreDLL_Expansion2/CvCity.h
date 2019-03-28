@@ -122,6 +122,14 @@ public:
 
 	int GetStaticTechDeviation() const;
 	void UpdateStaticTechDeviation(int iValue);
+
+	int GetHappinessFromLuxuries() const;
+
+	int GetHappinessFromEmpire() const;
+	void UpdateHappinessFromEmpire();
+
+	int GetUnhappinessFromEmpire() const;
+	void UpdateUnhappinessFromEmpire();
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -837,13 +845,14 @@ public:
 	void DoCreatePuppet();
 	void DoAnnex();
 
-	int GetHappinessFromPolicies() const;
+	int GetHappinessFromPolicies(int iPopMod = 0) const;
 	int GetHappinessFromReligion() const;
+	void UpdateHappinessFromReligion();
 
 	void UpdateHappinessFromBuildingClasses();
 	int GetHappinessFromBuildingClasses() const;
 
-	int GetLocalHappiness() const;
+	int GetLocalHappiness(int iPopMod = 0) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void setHappinessDelta(int iValue);	
 	int getHappinessDelta(bool bStatic = false) const;
@@ -886,6 +895,9 @@ public:
 
 	int getUnhappinessAggregated() const;
 	int getUnhappinessFromSpecialists(int iSpecialists) const;
+
+	CvString getPotentialHappinessWithGrowth();
+	int getPotentialHappinessWithGrowthVal() const;
 
 	CvString getPotentialUnhappinessWithGrowth();
 	int getPotentialUnhappinessWithGrowthVal() const;
@@ -1865,6 +1877,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvCity> m_iHappinessFromEmpire;
+	FAutoVariable<int, CvCity> m_iUnhappinessFromEmpire;
 	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
@@ -1902,7 +1916,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iCoastalThreatRank;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
-	FAutoVariable<int, CvCity> m_iDummy;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldownCivilian;
 	FAutoVariable<int, CvCity> m_iUnitFaithPurchaseCooldown;
@@ -2011,6 +2024,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iPillagedPlots;
 	FAutoVariable<int, CvCity> m_iGrowthFromTourism;
 	FAutoVariable<int, CvCity> m_iBuildingClassHappiness;
+	FAutoVariable<int, CvCity> m_iReligionHappiness;
 	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
 	std::vector<int> m_vAttachedUnits;
 #endif

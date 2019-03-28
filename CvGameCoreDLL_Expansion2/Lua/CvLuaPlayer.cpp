@@ -358,6 +358,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetHappiness);
 	Method(GetEmpireHappinessForCity);
 	Method(GetEmpireUnhappinessForCity);
+	Method(GetBonusHappinessFromLuxuriesFlat);
+	Method(GetHandicapHappiness);
 	Method(GetHappinessForGAP);
 
 	Method(GetExcessHappiness);
@@ -376,6 +378,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetHappinessFromResourceMonopolies);
 	Method(GetUnhappinessFromCitizenNeeds);
+	Method(GetHappinessFromCitizenNeeds);
 #endif
 	Method(GetHappinessFromResourceVariety);
 	Method(GetExtraHappinessPerLuxury);
@@ -3919,6 +3922,27 @@ int CvLuaPlayer::lGetUnhappinessFromCitizenNeeds(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getUnhappinessFromCitizenNeeds);
 }
+//int getUnhappinessFromCitizenNeeds() const;
+int CvLuaPlayer::lGetHappinessFromCitizenNeeds(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getHappinessFromCitizenNeeds);
+}
+
+int CvLuaPlayer::lGetBonusHappinessFromLuxuriesFlat(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetBonusHappinessFromLuxuriesFlat);
+}
+
+int CvLuaPlayer::lGetHandicapHappiness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	int iHappiness = pkPlayer->getHandicapInfo().getHappinessDefault() + GC.getGame().getGameSpeedInfo().GetStartingHappiness();
+	
+	lua_pushinteger(L, iHappiness);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int GetHappinessFromResourceVariety() const;
@@ -9068,9 +9092,7 @@ int CvLuaPlayer::lGetPuppetUnhappinessMod(lua_State* L)
 //int GetCapitalUnhappinessModCBP();
 int CvLuaPlayer::lGetCapitalUnhappinessModCBP(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->GetCapitalUnhappinessModCBP();
+	const int iResult = GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

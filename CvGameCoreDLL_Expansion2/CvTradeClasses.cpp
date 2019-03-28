@@ -6771,14 +6771,14 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 					{
 						if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 						{
-							iScore *= 10;
+							iScore *= 25;
 						}
 					}
 				}
 			}
 			if(m_pPlayer->GetEventTourismCS() > 0)
 			{
-				iScore *= m_pPlayer->GetEventTourismCS();
+				iScore *= (m_pPlayer->GetEventTourismCS() + m_pPlayer->GetEventTourismCS());
 			}
 		}
 		if (m_pPlayer->GetCorporations()->CanCreateFranchiseInCity(pFromCity, pToCity))
@@ -6916,7 +6916,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	{
 		case TRADE_CONNECTION_FOOD:
 		{
-			iScore = ((pOriginCity->foodDifference() + pOriginCity->getPopulation() * 3) - (pDestCity->foodDifference() + pDestCity->getPopulation()));
+			iScore = ((pOriginCity->getBaseYieldRate(YIELD_FOOD) + pOriginCity->getPopulation()) - (pDestCity->getBaseYieldRate(YIELD_FOOD) + pDestCity->getPopulation()));
 			if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_FOOD)
 				iScore *= 20;
 			break;
@@ -6924,7 +6924,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		case TRADE_CONNECTION_PRODUCTION:
 		case TRADE_CONNECTION_WONDER_RESOURCE:
 		{
-			iScore = (pOriginCity->getBaseYieldRate(YIELD_PRODUCTION) * 3 - pDestCity->getBaseYieldRate(YIELD_PRODUCTION));
+			iScore = (pOriginCity->getBaseYieldRate(YIELD_PRODUCTION) - pDestCity->getBaseYieldRate(YIELD_PRODUCTION));
 			if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_PRODUCTION)
 				iScore *= 20;
 			BuildingTypes eBuilding = pDestCity->getProductionBuilding();
@@ -6947,14 +6947,9 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	//direct connection to capital via TR
 	if(pDestCity->getUnhappinessFromConnection() > 0 && pOriginCity->isCapital())
 	{
-		iScore *= 3;
+		iScore *= 2;
 	}
 	if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
-	{
-		iScore *= 3;
-	}
-	//indirect connection to capital also counts
-	if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 	{
 		iScore *= 2;
 	}
@@ -6963,7 +6958,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
 	if(iGPT <= 0)
 	{
-		iScore += (iGPT * 5);
+		iScore += (iGPT * 10);
 	}
 #endif
 
@@ -6971,11 +6966,11 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	{
 		if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 		{
-			iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop));
+			iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop)) * 10;
 		}
 		if(m_pPlayer->GetGoldInternalTrade() > 0)
 		{
-			iScore += m_pPlayer->GetGoldInternalTrade();
+			iScore += m_pPlayer->GetGoldInternalTrade() * 10;
 		}
 	}
 
@@ -7028,7 +7023,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	}
 #endif
 
-	return (iScore * 2) / (iDistance + iDangerSum);
+	return iScore / (iDistance + iDangerSum);
 }
 
 int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList)

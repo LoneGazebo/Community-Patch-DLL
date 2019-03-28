@@ -1339,11 +1339,15 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_TOTAL_EMPIRE_AVERAGE">
-			<Text>Empire [ICON_HAPPINESS_1] Average (Per City)</Text>
+			<Text>Total Empire [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS">
-			<Text>Empire [ICON_HAPPINESS_3] Average (Per City)</Text>
+			<Text>Total Empire [ICON_HAPPINESS_3] Unhappiness</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LUXURY_HAPPINESS_INFORMATION">
+			<Text>Luxuries</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPECIALIST_UNHAPPINESS">
@@ -1355,19 +1359,19 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPY_EMPIRE_CBO">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Empire-Wide Sources</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Empire Sources</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPY_HANDICAP_CBO">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Handicap</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] for being the [ICON_CAPITAL] Capital</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPY_BUILDINGS_CBO">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Buildings</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_HAPPY_LUX_CBO">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Luxuries and Monopolies</Text>
+		<Row Tag="TXT_KEY_HAPPY_OTHER_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Quests, Musicians, Landmarks</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPY_POLICY_CBO">
@@ -1377,17 +1381,20 @@
 		<Row Tag="TXT_KEY_HAPPY_RELIGION_CBO">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Religion</Text>
 		</Row>
-
+		
+		<Row Tag="TXT_KEY_TP_HAPPINESS_RESOURCE_CITY">
+			<Text>{1_Num} from Imported and Controlled Luxuries</Text>
+		</Row>
 		
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_NEEDS">
 			<Text>Total [ICON_HAPPINESS_3] Unhappiness Sources from Cities:</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS_TT">
-			<Text>Total [ICON_HAPPINESS_3] Unhappiness Value from Empire Sources is split across all cities evenly, with any remainder going to the Capital.</Text>
+			<Text>Total [ICON_HAPPINESS_3] Unhappiness Value from Empire Sources is split across all cities evenly, with any remainder divided up amongst your cities, starting with the Capital and progressing from oldest to newest (in terms of founding).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOTAL_EMPIRE_AVERAGE_TT">
-			<Text>Total [ICON_HAPPINESS_1] Happiness Value from Empire Sources is split across all cities evenly, with any remainder going to the Capital.</Text>
+			<Text>Total [ICON_HAPPINESS_1] Happiness Value from Empire Sources is split across all cities evenly, with any remainder divided up amongst your cities, starting with the Capital and progressing from oldest to newest (in terms of founding).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_UNHAPPY">
@@ -1399,7 +1406,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPINESS_TOP_PANEL_CBO">
-			<Text>[ICON_HAPPINESS_1] {1_Val}% ([ICON_HAPPINESS_3]{2_Val}/[ICON_CITIZEN]{3_Val})</Text>
+			<Text>[ICON_CITIZEN] {1_Val}% ([ICON_HAPPINESS_1]{3_Val}/[ICON_HAPPINESS_3]{2_Val})</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">

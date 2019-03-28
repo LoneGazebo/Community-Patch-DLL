@@ -2954,6 +2954,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iStartingLocationPercent(0),
 	m_iAdvancedStartPointsMod(0),
 	m_iHappinessDefault(0),
+	m_iHappinessDefaultCapital(0),
 	m_iExtraHappinessPerLuxury(0),
 	m_iNumCitiesUnhappinessMod(0),
 	m_iPopulationUnhappinessMod(0),
@@ -3051,6 +3052,11 @@ int CvHandicapInfo::getStartingPolicyPoints() const
 int CvHandicapInfo::getHappinessDefault() const
 {
 	return m_iHappinessDefault;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHappinessDefaultCapital() const
+{
+	return m_iHappinessDefaultCapital;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getExtraHappinessPerLuxury() const
@@ -3390,6 +3396,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAdvancedStartPointsMod = kResults.GetInt("AdvancedStartPointsMod");
 	m_iStartingPolicyPoints = kResults.GetInt("StartingPolicyPoints");
 	m_iHappinessDefault = kResults.GetInt("HappinessDefault");
+	m_iHappinessDefaultCapital = kResults.GetInt("HappinessDefaultCapital");
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iNumCitiesUnhappinessMod = kResults.GetInt("NumCitiesUnhappinessMod");
 	m_iPopulationUnhappinessMod = kResults.GetInt("PopulationUnhappinessMod");

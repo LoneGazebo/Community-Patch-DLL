@@ -31,13 +31,13 @@
 	-- Puppets produce flat unhappines based on # of citizens in the city. Divisor is this, never set to zero.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '3'
+	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '4'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- Per non-puppet city % modifier for unhappiness thresholds (i.e. # cities * value below = % modifier).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '8'
+	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '5'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- Flat unhappiness per founded city.
@@ -65,13 +65,13 @@
 -- 	Base Value of Tech - % of techs researched v. techs known, multiplied by this value. 100 is default (each tech increases % by fraction of techs remaining v. techs researched).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '175'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '250'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own (1 citizen = 1%). Modifier increases as cities grow. 50 is default. Is a % modifier, so 25 would be a 25% increase over 1%.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '300'
+	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '250'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is modified based on the remaining population

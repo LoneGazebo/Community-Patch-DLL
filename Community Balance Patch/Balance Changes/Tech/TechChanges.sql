@@ -157,7 +157,7 @@ WHERE Type = 'TECH_OPTICS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMU
 
 -- Future Tech
 UPDATE Technologies
-SET Happiness = '10'
+SET Happiness = '1'
 WHERE Type = 'TECH_FUTURE_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Road/Railroad Speed Changes

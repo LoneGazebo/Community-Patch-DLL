@@ -5028,9 +5028,10 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
 			CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
-			int iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
-			if (plotDistance(*pTargetPlot,*pUnit->plot())==2)
-				iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+			int iFlag = CvUnit::MOVEFLAG_NO_EMBARK;
+
+			//move into ring 2 unless we are already there and still can't see the target
+			iFlag |= plotDistance(*pTargetPlot,*pUnit->plot())>2 ? CvUnit::MOVEFLAG_APPROX_TARGET_RING2 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 			//fast units - we want to have some spare movement points to be able to retreat
 			if ( (pUnit->AI_getUnitAIType()==UNITAI_FAST_ATTACK || pUnit->AI_getUnitAIType()==UNITAI_ATTACK_SEA) && 
@@ -5045,9 +5046,10 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
 			CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
-			int iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
-			if (plotDistance(*pTargetPlot,*pUnit->plot())==2)
-				iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+			int iFlag = CvUnit::MOVEFLAG_NO_EMBARK;
+
+			//move into ring 2 unless we are already there and still can't see the target
+			iFlag |= plotDistance(*pTargetPlot,*pUnit->plot())>2 ? CvUnit::MOVEFLAG_APPROX_TARGET_RING2 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 			// tank - soak it up (unitai defense includes ranged units ... don't use it here)
 			if ((pUnit->AI_getUnitAIType() == UNITAI_ATTACK || pUnit->AI_getUnitAIType() == UNITAI_COUNTER) &&
@@ -10565,6 +10567,9 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 	CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
 	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots);
 
+	//need to know this if we're doing defensive positioning
+	bool bTargetIsEnemy = pTargetPlot->isEnemyUnit(ePlayer, true, true) || pTargetPlot->isEnemyCity(*pUnit);
+
 	//try to save some memory here
 	ReachablePlots reachablePlotsPruned;
 	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -10590,8 +10595,9 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			{
 				//we don't want to fight so embarkation is ok if we don't need to stack with other (non-simulated) embarked units
 				CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
-				if (!pUnit->isNativeDomain(pPlot) && tactPlot.isOtherEmbarkedUnit())
-					continue;
+				if (!pUnit->isNativeDomain(pPlot))
+					if (bTargetIsEnemy || tactPlot.isOtherEmbarkedUnit())
+						continue;
 			}
 		}
 

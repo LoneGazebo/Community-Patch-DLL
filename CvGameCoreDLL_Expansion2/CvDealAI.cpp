@@ -3754,17 +3754,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	//Asking about a vassal? Abort!
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
+	//NO FUCKING VASSALS GODDAMMIT STOP IT
+	if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
 	{
 		return INT_MAX;
 	}
-	//No vassal/master war requests, please.
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
+	if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
 	{
 		return INT_MAX;
 	}
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(GetPlayer()->GetID()).getTeam()))
+	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 	{
 		return INT_MAX;
 	}
@@ -4872,6 +4871,10 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 				if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
 					TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+					if (GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).IsVassalOfSomeone() || GET_TEAM(GET_PLAYER(eThem).getTeam()).IsVassalOfSomeone() || GET_TEAM(eOtherTeam).IsVassalOfSomeone())
+						continue;
+
 					// Can't already be a War Commitment in the Deal
 					if(!pDeal->IsThirdPartyWarTrade(eThem, eOtherTeam) && !pDeal->IsThirdPartyWarTrade(eMyPlayer, eOtherTeam))
 					{
@@ -4958,6 +4961,10 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 				if(eLoopPlayer != NO_PLAYER && eLoopPlayer != eThem && eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
 					TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();				
+
+					if (GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).IsVassalOfSomeone() || GET_TEAM(GET_PLAYER(eThem).getTeam()).IsVassalOfSomeone() || GET_TEAM(eOtherTeam).IsVassalOfSomeone())
+						continue;
+
 					// Can't already be a Trade Commitment in the Deal
 					if(!pDeal->IsThirdPartyWarTrade(eThem, eOtherTeam) && !pDeal->IsThirdPartyWarTrade(eMyPlayer, eOtherTeam))
 					{

@@ -880,6 +880,7 @@ public:
 	int getAdvancedStartPointsMod() const;
 	int getStartingPolicyPoints() const;
 	int getHappinessDefault() const;
+	int getHappinessDefaultCapital() const;
 	int getExtraHappinessPerLuxury() const;
 	int getNumCitiesUnhappinessMod() const;
 	int getPopulationUnhappinessMod() const;
@@ -959,6 +960,7 @@ protected:
 	int m_iAdvancedStartPointsMod;
 	int m_iStartingPolicyPoints;
 	int m_iHappinessDefault;
+	int m_iHappinessDefaultCapital;
 	int m_iExtraHappinessPerLuxury;
 	int m_iNumCitiesUnhappinessMod;
 	int m_iPopulationUnhappinessMod;

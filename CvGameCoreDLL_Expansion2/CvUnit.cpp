@@ -10347,7 +10347,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	}
 	else
 	{
-		//can't pillage what we built ourselves ... stops exploits
+		//can't pillage what we built ourselves unless at war with the new owner ... stops exploits
 		PlayerTypes eBuilder = pPlot->GetPlayerThatBuiltImprovement();
 		if (eBuilder != NO_PLAYER && GET_PLAYER(eBuilder).getTeam() == getTeam())
 			if (!GET_PLAYER(getOwner()).IsAtWarWith(pPlot->getOwner()))
@@ -13386,7 +13386,7 @@ bool CvUnit::blastTourism()
 
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			GET_PLAYER(getOwner()).getCapitalCity()->ChangeBaseHappinessFromBuildings(iCap);
+			GET_PLAYER(getOwner()).getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
 		}
 
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();

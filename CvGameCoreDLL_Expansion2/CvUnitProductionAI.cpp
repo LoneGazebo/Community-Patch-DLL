@@ -823,7 +823,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (10 * iAircraft);
+				iBonus += (20 * iAircraft);
 			}
 			if (m_pCity->GetGarrisonedUnit() == NULL)
 			{

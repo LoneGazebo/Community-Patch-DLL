@@ -598,9 +598,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iFriendlyLandsAttackModifier = kResults.GetInt("FriendlyLandsAttackModifier");
 	m_iOutsideFriendlyLandsModifier = kResults.GetInt("OutsideFriendlyLandsModifier");
 #if defined(MOD_UNITS_NO_SUPPLY)
-	if (MOD_UNITS_NO_SUPPLY) {
-		m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
-	}
+	m_bNoSupply = kResults.GetBool("NoSupply");
 #endif
 #if defined(MOD_UNITS_MAX_HP)
 	if (MOD_UNITS_MAX_HP) {

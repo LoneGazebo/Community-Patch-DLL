@@ -4016,7 +4016,8 @@ int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
 int CvLuaCity::lgetPotentialUnhappinessWithGrowth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushstring(L, pkCity->getPotentialUnhappinessWithGrowth());
+	CvString string = pkCity->getPotentialUnhappinessWithGrowth() + pkCity->getPotentialHappinessWithGrowth();
+	lua_pushstring(L, string);
 	return 1;
 }
 

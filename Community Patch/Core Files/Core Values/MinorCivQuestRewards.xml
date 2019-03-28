@@ -49,7 +49,7 @@
 		</Row>
 		<Row>
 			<Type>MINOR_CIV_QUEST_CONTEST_CULTURE</Type>
-			<Influence>20</Influence>
+			<Influence>40</Influence>
 			<QuestDuration>30</QuestDuration>
 		</Row>
 		<Row>

@@ -1639,41 +1639,39 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		// Message everyone about what happened
 		if(!isBarbarian() && !(GET_TEAM(eTeam).isBarbarian()))
 		{
+			PlayerTypes ePlayer;
+			for(iI = 0; iI < MAX_PLAYERS; iI++)
 			{
-				PlayerTypes ePlayer;
-				for(iI = 0; iI < MAX_PLAYERS; iI++)
-				{
-					ePlayer = (PlayerTypes) iI;
+				ePlayer = (PlayerTypes) iI;
 
-					if(GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetNotifications())
+				if(GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetNotifications())
+				{
+					// If this declaration is a minor following a major's declaration, don't send out these individual notifications
+					if(!bMinorAllyPact)
 					{
-						// If this declaration is a minor following a major's declaration, don't send out these individual notifications
-						if(!bMinorAllyPact)
+						// Players on team that declared
+						if(GET_PLAYER(ePlayer).getTeam() == GetID())
 						{
-							// Players on team that declared
-							if(GET_PLAYER(ePlayer).getTeam() == GetID())
+							if(ePlayer == GC.getGame().getActivePlayer())
 							{
-								if(ePlayer == GC.getGame().getActivePlayer())
-								{
-									locString = Localization::Lookup("TXT_KEY_MISC_YOU_DECLARED_WAR_ON");
-									locString << GET_TEAM(eTeam).getName().GetCString();
-									DLLUI->AddMessage(0, (ePlayer), true, GC.getEVENT_MESSAGE_TIME(), locString.toUTF8()/*, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT")*/);
-								}
+								locString = Localization::Lookup("TXT_KEY_MISC_YOU_DECLARED_WAR_ON");
+								locString << GET_TEAM(eTeam).getName().GetCString();
+								DLLUI->AddMessage(0, (ePlayer), true, GC.getEVENT_MESSAGE_TIME(), locString.toUTF8()/*, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT")*/);
 							}
-							// Players on team that got declared on
-							else if(GET_PLAYER(ePlayer).getTeam() == eTeam)
-							{
-								locString = Localization::Lookup("TXT_KEY_MISC_DECLARED_WAR_ON_YOU");
-								locString << getName().GetCString();
-								GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_WAR_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, this->getLeaderID());
-							}
-							// Players that are on neither team, but know both parties
-							else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam))
-							{
-								locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_DECLARED_WAR");
-								locString << getName().GetCString() << GET_TEAM(eTeam).getName().GetCString();
-								GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_WAR, locString.toUTF8(), locString.toUTF8(), -1, -1, this->getLeaderID(), eTeam);
-							}
+						}
+						// Players on team that got declared on
+						else if(GET_PLAYER(ePlayer).getTeam() == eTeam)
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_DECLARED_WAR_ON_YOU");
+							locString << getName().GetCString();
+							GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_WAR_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, this->getLeaderID());
+						}
+						// Players that are on neither team, but know both parties
+						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_DECLARED_WAR");
+							locString << getName().GetCString() << GET_TEAM(eTeam).getName().GetCString();
+							GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_WAR, locString.toUTF8(), locString.toUTF8(), -1, -1, this->getLeaderID(), eTeam);
 						}
 					}
 				}
@@ -8084,12 +8082,16 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 			if(kPlayer.getCapitalCity() != NULL)
 			{
+				//Free Happiness
 				if (pTech->GetHappiness() != 0)
 				{
-					//Free Happiness
-					kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+					int iLoop;
+					CvCity* pLoopCity;
+					for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					{
+						pLoopCity->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
+					}
 				}
-
 
 				//Free building in capital unlocked via tech?
 				if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)

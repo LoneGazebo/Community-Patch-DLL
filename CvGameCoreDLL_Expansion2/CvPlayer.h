@@ -636,6 +636,7 @@ public:
 	// Happiness
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
 	void DoUpdateTotalHappiness();
+	void DoUpdateLuxuryHappiness();
 	int GetEmpireHappinessForCity(CvCity* pCity = NULL) const;
 	int GetEmpireUnhappinessForCity(CvCity* pCity = NULL) const;
 	int GetHappiness() const;
@@ -721,7 +722,7 @@ public:
 	int GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const;
 #endif
 
-	int GetHappinessFromLuxury(ResourceTypes eResource) const;
+	int GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport = true) const;
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -731,6 +732,7 @@ public:
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
 	int GetPlayerHappinessLuxuryCountFactor1000() const;
 	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
+	int GetBonusHappinessFromLuxuriesFlat() const;
 	int GetBonusHappinessFromLuxuriesGradient() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -754,6 +756,7 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getHappinessFromCitizenNeeds() const;
 	int getUnhappinessFromCitizenNeeds() const;
 	int getUnhappinessFromCityCulture() const;
 	int getUnhappinessFromCityScience() const;
@@ -1665,8 +1668,6 @@ public:
 	void ChangeIlliteracyUnhappinessModCapital(int iChange);
 	int GetMinorityUnhappinessModCapital() const;
 	void ChangeMinorityUnhappinessModCapital(int iChange);
-	int GetCapitalUnhappinessModCBP() const;
-	void ChangeCapitalUnhappinessModCBP(int iChange);
 	int GetPuppetUnhappinessMod() const;
 	void ChangePuppetUnhappinessMod(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
@@ -3176,7 +3177,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iIlliteracyUnhappinessModCapital;
 	FAutoVariable<int, CvPlayer> m_iMinorityUnhappinessModCapital;
 	FAutoVariable<int, CvPlayer> m_iPuppetUnhappinessMod;
-	FAutoVariable<int, CvPlayer> m_iCapitalUnhappinessModCBP;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialists;
 	FAutoVariable<int, CvPlayer> m_iHappfromXSpecialists;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialistsCapital;
