@@ -274,12 +274,17 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	}
 
 	//this is for debugging
-	float fVarX = (iTotalX2 / (float)iNumUnits) - (iTotalX/(float)iNumUnits)*(iTotalX/(float)iNumUnits);
-	float fVarY = (iTotalY2 / (float)iNumUnits) - (iTotalY/(float)iNumUnits)*(iTotalY/(float)iNumUnits);
+	float fNUnits = (float)iNumUnits;
+	float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
+	float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
 
-	//finally, compute average (with rounding)
-	int iAvgX = (iTotalX + (iNumUnits / 2)) / iNumUnits + iRefX;
-	int iAvgY = (iTotalY + (iNumUnits / 2)) / iNumUnits + iRefY;
+	//finally, compute average
+	float fAvgX = (iTotalX/fNUnits) + iRefX;
+	float fAvgY = (iTotalY/fNUnits) + iRefY;
+
+	//rounding to nearest integer
+	int iAvgX = fAvgX > 0 ? int(fAvgX + 0.5f) : int(fAvgX - 0.5f);
+	int iAvgY = fAvgY > 0 ? int(fAvgY + 0.5f) : int(fAvgY - 0.5f);
 
 	if (fVarX > 64 || fVarY > 64)
 	{

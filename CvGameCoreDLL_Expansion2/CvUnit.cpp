@@ -29527,7 +29527,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 
 	if (g_bFreezeUnits)
 	{
-		finishMoves(0);
+		finishMoves();
 		return;
 	}
 

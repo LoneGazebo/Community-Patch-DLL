@@ -4254,8 +4254,18 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
 	//so we move them explicitly and independently
 	for (vector<CvUnit*>::iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
-		if (!(*it)->TurnProcessed())
-			ExecuteMoveToPlot(*it, pTurnTarget, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+		CvUnit* pUnit = *it;
+		if (pUnit->TurnProcessed())
+			continue;
+
+		if (pUnit->GetDanger() == INT_MAX) //don't leave a general out in the cold
+		{
+			CvPlot* pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
+			UnitProcessed(pUnit->GetID());
+		}
+		else
+			ExecuteMoveToPlot(pUnit, pTurnTarget, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
 	}
 
 	// Update army's current location
@@ -8878,7 +8888,7 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 	iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker, pDefender->plot(), pAttacker->plot(), iDamageReceived);
 
 	//is it worth it?
-	if ( iDamageDealt > pDefender->GetCurrHitPoints() && iDamageReceived < 3*pAttacker->GetCurrHitPoints()/4 )
+	if ( iDamageDealt+7 > pDefender->GetCurrHitPoints() && pAttacker->GetCurrHitPoints()-iDamageReceived > GC.getMAX_HIT_POINTS()/2 )
 	{
 		if (pAttacker->isRanged())
 		{
@@ -9644,10 +9654,6 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	if (!tactPlot.isValid())
 		return result;
 
-	//got to be careful with embarked units - they can't stack with each other
-	if (unit.eStrategy == MS_ESCORTED_EMBARKED && (tactPlot.hasFriendlyEmbarkedUnit() || tactPlot.isOtherEmbarkedUnit()))
-		return result;
-
 	if (plot.iPlotIndex != unit.iPlotIndex)
 	{
 		//prevent two moves in a row (also for generals, everything else is too complex)
@@ -9695,9 +9701,9 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 		if (tactPlot.hasSupportBonus() && plot.iPlotIndex!=unit.iPlotIndex)
 			iScore /= 2;
 
-		//don't want our general to stack with other friendly or neutral units
-		if (!tactPlot.isRelevant())
-			return result;
+		//don't want our general to stack with other friendly or neutral units but allow it as a last resort
+		if (tactPlot.isRelevant())
+			iScore += 10;
 	}
 
 	//we want one of our own combat units covering us
@@ -10584,6 +10590,11 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			//we are embarked and stay embarked, so we can stack with combat units
 			if (pUnit->isNativeDomain(pPlot))
 				continue; //ignore all plots where we would disembark
+
+			//embarked units can't stack with non-simulated embarked units
+			CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+			if (tactPlot.isOtherEmbarkedUnit())
+				continue;
 		}
 		else
 		{
@@ -10597,10 +10608,15 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			else
 			{
 				//we don't want to fight so embarkation is ok if we don't need to stack with other (non-simulated) embarked units
-				CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
 				if (!pUnit->isNativeDomain(pPlot))
-					if (bTargetIsEnemy || tactPlot.isOtherEmbarkedUnit())
+				{
+					if (bTargetIsEnemy)
 						continue;
+
+					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+					if (tactPlot.isOtherEmbarkedUnit())
+						continue;
+				}
 			}
 		}
 
@@ -10966,18 +10982,28 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	//later in updateMoveAndAttackPlotsForUnits we try and filter the reachable plots according to unit strategy
 	//also, only land units can embark and but melee ships can move into certain land plots (cities) so it's tricky
 
+	//dimensions
+	// - attacking / defending
+	// - combat unit / non-combat unit
+	// - native domain target / non-native domain target
+
 	if (eAggression != AL_NONE && pUnit->isEmbarked()) //we want to fight but some units can't right now (ignore amphibious attacks ...)
 	{
 		// embarked units stay simply away from enemies and don't try to stack
-		eStrategy = MS_THIRDLINE; 
+		if (pUnit->IsCombatUnit())
+			eStrategy = MS_THIRDLINE;
+		else
+			eStrategy = MS_SUPPORT;
 	}
 	else if (eAggression == AL_NONE && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
 	{
 		// if the target is outside of our native domain, we will need to embark sooner or later
 		if ( pUnit->isEmbarked() )
 			eStrategy = MS_ESCORTED_EMBARKED; //already embarked, can stack
-		else
+		else if (pUnit->IsCombatUnit())
 			eStrategy = MS_THIRDLINE; //not yet embarked, don't stack
+		else
+			eStrategy = MS_SUPPORT;
 	}
 	else if (eAggression == AL_NONE && pUnit->isNativeDomain(pTargetPlot) && pUnit->isEmbarked())
 	{
