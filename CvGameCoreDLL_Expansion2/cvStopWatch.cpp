@@ -74,6 +74,21 @@ double cvStopWatch::GetDeltaInSeconds() const
 {
 	return m_dtseconds;
 }
+
+unsigned long long cvStopWatch::GetCurrentTicks()
+{
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&now);
+	return now.QuadPart;
+}
+
+unsigned long long cvStopWatch::GetTickFrequency()
+{
+	LARGE_INTEGER freq;
+	QueryPerformanceFrequency(&freq);
+	return freq.QuadPart;
+}
+
 //------------------------------------------------------------------------------
 void cvStopWatch::PerfLog(const char* szName, double dtSeconds)
 {
