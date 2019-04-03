@@ -228,6 +228,3 @@ private:
 	std::vector<std::pair<uint, CvDllNetLoadGameInfo*> > m_NetLoadGameInfos;
 	unsigned int m_uiNetLoadGameInfoCounter;
 };
-
-//rate limiting helper
-void DelayIfNecessary();

@@ -493,9 +493,6 @@ void CvDllGame::UpdateSelectionList()
 void CvDllGame::UpdateTestEndTurn()
 {
 	m_pGame->updateTestEndTurn();
-
-	//hack for limiting cpu usage
-	DelayIfNecessary();
 }
 //------------------------------------------------------------------------------
 void CvDllGame::Read(FDataStream& kStream)

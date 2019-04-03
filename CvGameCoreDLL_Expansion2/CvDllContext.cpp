@@ -46,7 +46,6 @@
 #include "CvDllUnitCombatClassInfo.h"
 #include "CvDllVictoryInfo.h"
 #include "CvDllWorldBuilderMapLoader.h"
-#include "cvStopWatch.h"
 
 CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
@@ -1129,20 +1128,3 @@ void CvDllGameContext::SetEngineUserInterface(ICvUserInterface2* pUI)
 	GC.SetEngineUserInterface(pUI);
 }
 //------------------------------------------------------------------------------
-
-//poor man's rate limiting to reduce cpu usage
-void DelayIfNecessary()
-{
-	static unsigned long long lastCallTicks = 0;
-	static float fMaxFps = 60.f;
-
-	unsigned long long nowTicks = cvStopWatch::GetCurrentTicks();
-
-	float elapsedTime = float(nowTicks - lastCallTicks) / float(cvStopWatch::GetTickFrequency());
-	float minTimeBetweenCalls = 1000 / fMaxFps;
-
-	if (elapsedTime < minTimeBetweenCalls - 1)
-		Sleep( DWORD(minTimeBetweenCalls - elapsedTime) );
-
-	lastCallTicks = cvStopWatch::GetCurrentTicks();
-}

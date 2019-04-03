@@ -28,9 +28,6 @@ public:
 
 	double GetDeltaInSeconds() const;
 
-	static unsigned long long GetCurrentTicks();
-	static unsigned long long GetTickFrequency();
-
 protected:
 	void PerfLog(const char* szName, double dtSeconds);
 
