@@ -4174,11 +4174,6 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		int iMinDistForThisUnit = INT_MAX;
 		for (set<CvPlot*>::iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
 		{
-			//if we are gathering units, don't get distracted by enemies not posing immediate danger
-			if (pArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP &&
-				(*it)->getOwner() != pArmy->GetOwner())
-				continue;
-
 			int iDistance = plotDistance(*vUnitsInitial[i]->plot(), **it);
 			if (iDistance < iMinDistGlobal)
 			{
@@ -9610,7 +9605,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 1000;
 
 			//use normalized danger for scoring
-			result.iScore -= (iDanger * 10) / (pUnit->GetCurrHitPoints() + 1);
+			result.iScore -= (iDanger * 20) / (pUnit->GetCurrHitPoints() + 1);
 		}
 
 		if (currentPlot.getNumAdjacentFriendlies() > 0)
@@ -9694,7 +9689,6 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	if (unit.eStrategy == MS_SUPPORT)
 	{
 		//points for supported units (count only the first ring ...)
-		//todo: make sure they intend to stay there. movement phase and attack phase?
 		iScore += 10 * tactPlot.getNumAdjacentFriendlies();
 
 		//avoid overlap. this works only because we eliminated our own aura before calling this function!
@@ -9712,6 +9706,7 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	STacticalAssignment dummy(0,0,0,0,MS_FIRSTLINE);
 	vector<STacticalAssignment> defenderAssignment = assumedPosition.findBlockingUnitsAtPlot(tactPlot.getPlotIndex(),dummy);
 
+	//todo: check if the defender is not embarked! 
 	if ( (!defenderAssignment.empty() && defenderAssignment.front().iRemainingMoves == 0) || pCurrentPlot->isFriendlyCity(*pUnit,true) )
 		iScore += 100;
 	else
@@ -10578,6 +10573,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 
 	//need to know this if we're doing defensive positioning
 	bool bTargetIsEnemy = pTargetPlot->isEnemyUnit(ePlayer, true, true) || pTargetPlot->isEnemyCity(*pUnit);
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
 	//try to save some memory here
 	ReachablePlots reachablePlotsPruned;
@@ -10610,8 +10606,12 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				//we don't want to fight so embarkation is ok if we don't need to stack with other (non-simulated) embarked units
 				if (!pUnit->isNativeDomain(pPlot))
 				{
-					if (bTargetIsEnemy)
-						continue;
+					if (!pUnit->isEmbarked())
+					{
+						//for embarked units, every attacker is bad news, so don't embark if we are not embarked already
+						if (bTargetIsEnemy || !kPlayer.GetPossibleAttackers(*pPlot).empty())
+							continue;
+					}
 
 					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
 					if (tactPlot.isOtherEmbarkedUnit())

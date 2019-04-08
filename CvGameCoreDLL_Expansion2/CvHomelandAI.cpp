@@ -7707,15 +7707,6 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	if (!pUnit || !pTarget)
 		return false;
 
-	//nothing to do?
-	if ((plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY()) < 3) &&
-		(eDomain == NO_DOMAIN || pTarget->getDomain() == eDomain) &&
-		(pUnit->plot()->isAdjacentToArea(pTarget->getArea())))
-	{
-		pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		return true;
-	}
-
 	int iFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
 	if (eDomain == pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;

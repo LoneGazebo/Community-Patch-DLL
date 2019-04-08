@@ -1434,6 +1434,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			return FALSE;
 		if(!kToNodeCacheData.bCanEnterTerritory)
 			return FALSE;
+		if(kToNodeCacheData.bIsVisibleNeutralCombatUnit && kToNodeCacheData.bIsVisibleEnemyUnit)
+			return FALSE;
 
 		//we check stacking once we know whether we end the turn here (in PathCost)
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))

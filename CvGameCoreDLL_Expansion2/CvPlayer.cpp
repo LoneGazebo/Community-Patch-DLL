@@ -4407,6 +4407,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #endif
+	bool bKeepBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || bVenice;
 	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -4423,7 +4424,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
 			}
 
-			if (GetPlayerTraits()->IsKeepConqueredBuildings() && paiNumFreeBuilding[iI] > 0)
+			if (bKeepBuildings && paiNumFreeBuilding[iI] > 0)
 			{
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
 				if (::isWorldWonderClass(kLoopBuildingClassInfo))
@@ -4431,7 +4432,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					eBuilding = eLoopBuilding;
 				}
 #if defined(MOD_BALANCE_CORE)
-				else if (GetPlayerTraits()->IsKeepConqueredBuildings())
+				else if (bKeepBuildings)
 				{
 					//If we keep buildings, but we have a replacement, grab the replacement instead.
 					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
@@ -4485,7 +4486,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					eBuilding = eLoopBuilding;
 				}
 #if defined(MOD_BALANCE_CORE)
-				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
+				else if(bKeepBuildings)
 				{
 					//If we keep buildings, but we have a replacement, grab the replacement instead.
 					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))

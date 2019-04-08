@@ -8080,8 +8080,8 @@ void CvGame::doTurn()
 	GC.getMap().DoKillCountDecay();
 #endif
 
-	//create an autosave when ending the turn
-	if(isNetworkMultiPlayer())
+	//create an autosave at turn start
+	if(!isNetworkMultiPlayer())
 		gDLL->AutoSave(false, false);
 
 	// END OF TURN
@@ -8322,8 +8322,8 @@ void CvGame::doTurn()
 
 	LogGameState();
 
-	//autosave when starting the turn
-	if (!isNetworkMultiPlayer())
+	//autosave after doing a turn
+	if (isNetworkMultiPlayer())
 		gDLL->AutoSave(false, false);
 }
 
