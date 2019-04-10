@@ -2271,62 +2271,16 @@ void CvHomelandAI::PlotUpgradeMoves()
 		}
 
 		// Already in friendly territory
-#if !defined(MOD_BALANCE_CORE)
-		if(pUnit->plot()->getOwner() == pUnit->getOwner())
-#endif
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				CvString strTemp;
+			CvString strLogString;
+			CvString strTemp;
 
-				strTemp = pUnit->getUnitInfo().GetDescription();
-				strLogString.Format("Need gold for %s upgrade, GOLD: Available = %d, Needed = %d, Priority = %d",
-				                    strTemp.GetCString(), m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority);
-				LogHomelandMessage(strLogString);
-			}
+			strTemp = pUnit->getUnitInfo().GetDescription();
+			strLogString.Format("Need gold for %s upgrade, GOLD: Available = %d, Needed = %d, Priority = %d",
+				                strTemp.GetCString(), m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority);
+			LogHomelandMessage(strLogString);
 		}
-#if !defined(MOD_BALANCE_CORE)
-		else
-		{
-			// Move top priority unit toward closest city
-			CvCity* pUpgradeCity = NULL;
-			int iBestDistance = MAX_INT;
-			for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
-			{
-				CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-				CvCity* pCity = pTarget->getPlotCity();
-
-				int iDistance = plotDistance(pCity->getX(), pCity->getY(), pUnit->getX(), pUnit->getY());
-
-				if(iDistance < iBestDistance)
-				{
-					iBestDistance = iDistance;
-					pUpgradeCity = pCity;
-				}
-			}
-
-			if(pUpgradeCity)
-			{
-				if(MoveToEmptySpaceNearTarget(pUnit, pUpgradeCity->plot(), DOMAIN_LAND, 23))
-				{
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						CvString strTemp;
-						strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-						strLogString.Format("Moving %s for upgrade at %s, GOLD: Available = %d, Needed = %d, Priority = %d, Dist = %d",
-						                    strTemp.GetCString(), pUpgradeCity->getName().GetCString(),
-						                    m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority, iBestDistance);
-						LogHomelandMessage(strLogString);
-					}
-				}
-			}
-		}
-#endif
 	}
 
 	return;
@@ -3504,7 +3458,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if(iTotalScore > iBestPlotScore)
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
-					if (!pUnit->CanReachInXTurns(pEvalPlot,1,false,false))
+					if (pUnit->TurnsToReachTarget(pEvalPlot,false,false,1)>1)
 						continue;
 
 					pBestPlot = pEvalPlot;

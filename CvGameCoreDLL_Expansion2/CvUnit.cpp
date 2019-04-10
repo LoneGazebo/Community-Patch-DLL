@@ -31884,27 +31884,13 @@ bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 
 //	--------------------------------------------------------------------------------
 /// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
-bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, bool bAllowEmbark, int* piTurns /* = NULL */)
+bool CvUnit::CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns)
 {
 	if (!pTarget)
 		return false;
 
-	int iFlags = 0;
-	if (!bAllowEmbark)
-		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
-
-	if (bIgnoreUnits)
-	{
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
-	}
-
-	int iTurnsCalculated = TurnsToReachTarget(pTarget, iFlags, iTurns);
-	if (piTurns)
-		*piTurns = iTurnsCalculated;
-
-	return (iTurnsCalculated <= iTurns);
+	//stop pathfinding if we need to end the turn on a dangerous plot
+	return (TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, iTurns) <= iTurns);
 }
 
 //	--------------------------------------------------------------------------------

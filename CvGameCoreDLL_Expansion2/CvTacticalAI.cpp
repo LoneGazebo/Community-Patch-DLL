@@ -4436,7 +4436,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 								}
 							}
 						}
-						else if(pEnemyUnit->CanReachInXTurns(pLoopPlot, 1))
+						else if(pEnemyUnit->TurnsToReachTarget(pLoopPlot,false,false,1)<=1)
 						{
 							bPriorityTarget = true;
 						}
@@ -5318,7 +5318,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 				if(pBestPlot)
 				{
-					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, pUnit->getDomainType(), 12))
+					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, pUnit->getDomainType(), 12, true))
 					{
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 						
@@ -5347,7 +5347,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 				if(pBestPlot)
 				{
-					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
+					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12, true))
 					{
 						bMoveMade = true;
 
@@ -5395,7 +5395,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 						CvCity* pTargetCity = m_pPlayer->GetClosestCity(pUnit->plot(),INT_MAX,true);
 						if (pTargetCity)
 						{
-							bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetCity->plot(), DOMAIN_SEA, 12);
+							bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetCity->plot(), DOMAIN_SEA, 12, true);
 
 							if (GC.getLogging() && GC.getAILogging())
 							{
@@ -5527,7 +5527,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					CvPlot* pMovePlot = pClosestCity ? pClosestCity->plot() : NULL;
 					if(pMovePlot != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit,pMovePlot,DOMAIN_LAND,42);
+						MoveToEmptySpaceNearTarget(pUnit,pMovePlot,DOMAIN_LAND,42,true);
 						pUnit->SetTurnProcessed(true);
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -6493,9 +6493,9 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 					(pNextZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pNextZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN))
 				{
 					pTargetPlot = GC.getMap().plot(pNextZone->GetCenterX(), pNextZone->GetCenterY());
-					if (pUnit->CanReachInXTurns(pTargetPlot,5))
+					if (pUnit->CanSafelyReachInXTurns(pTargetPlot,12))
 					{
-						bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12);
+						bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
 						break;
 					}
 				}
@@ -6508,10 +6508,10 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 				if (pNearestCity)
 					pTargetPlot = pNearestCity->plot();
 
-				if (pUnit->CanReachInXTurns(pTargetPlot, 5))
+				if (pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
 					bMoveMade = pUnit->IsCivilianUnit() ?
 						ExecuteMoveToPlot(pUnit, pTargetPlot) :
-						MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12);
+						MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
 			}
 
 			if (bMoveMade)
@@ -7330,7 +7330,7 @@ bool CvTacticalAI::IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot*
 }
 
 /// Move up close to our target avoiding our own units if possible
-bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns)
+bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns, bool bMustBeSafePath)
 {
 	if (!pUnit || !pTarget)
 		return false;
@@ -7341,6 +7341,9 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 	if (eDomain==pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+	if (bMustBeSafePath)
+		iFlags |= CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+
 	int iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
 
 	//if not possible, try again with more leeway
@@ -7605,7 +7608,7 @@ CvPlot* CvTacticalAI::FindBarbarianGankTradeRouteTarget(CvUnit* pUnit)
 				continue;
 			}
 
-			if(!pUnit->CanReachInXTurns( pPlot, 2))
+			if(pUnit->TurnsToReachTarget( pPlot, false, false, 1) > 1)
 			{
 				continue;
 			}
@@ -8995,6 +8998,51 @@ CvPlot* TacticalAIHelpers::GetFirstTargetInRange(CvUnit * pUnit, bool bMustBeAbl
 	}
 
 	return NULL;
+}
+
+pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth)
+{
+	if (!pOrigin)
+		return make_pair(0, 0);
+
+	//do not set a player - that way we can traverse unrevealed plots and foreign territory
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iRangeInTurns);
+	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pOrigin, data);
+
+	int iTeamAPower = 0;
+	int iTeamBPower = 0;
+
+	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		if (!pLoopPlot)
+			continue;
+
+		if (bMustBeVisibleToBoth && !(pLoopPlot->isVisible(eTeamA) && pLoopPlot->isVisible(eTeamB)))
+			continue;
+
+		// If there are Units here, loop through them
+		if (pLoopPlot->getNumUnits() > 0)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+			while (pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// Is a combat unit
+				if (pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
+				{
+					if (pLoopUnit->getTeam() == eTeamA)
+						iTeamAPower += pLoopUnit->GetPower();
+					if (pLoopUnit->getTeam() == eTeamB)
+						iTeamBPower += pLoopUnit->GetPower();
+				}
+			}
+		}
+	}
+
+	return pair<int, int>(iTeamAPower,iTeamBPower);
 }
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC) 
