@@ -390,6 +390,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessForecast);
 
 	Method(GetUnhappinessFromCityForUI);
+	Method(GetHappinessRatioRawPercent);
 
 	Method(GetUnhappinessFromCityCount);
 	Method(GetUnhappinessFromCapturedCityCount);
@@ -3848,6 +3849,13 @@ int CvLuaPlayer::lGetHappinessForGAP(lua_State* L)
 int CvLuaPlayer::lGetExcessHappiness(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetExcessHappiness);
+}
+
+//------------------------------------------------------------------------------
+//int GetExcessHappiness();
+int CvLuaPlayer::lGetHappinessRatioRawPercent(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessRatioRawPercent);
 }
 
 //------------------------------------------------------------------------------

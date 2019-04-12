@@ -20483,6 +20483,13 @@ int CvPlayer::GetUnhappiness() const
 	return m_iUnhappiness;
 }
 
+int CvPlayer::GetHappinessRatioRawPercent()
+{
+	int iUnhappyCitizens = getUnhappinessFromCitizenNeeds();
+	int iHappyCitizens = getHappinessFromCitizenNeeds();
+	return (iHappyCitizens * 100) / max(1, iUnhappyCitizens);
+}
+
 void CvPlayer::CalculateNetHappiness()
 {
 	//Not active player, or a barb, or a minor? Get out!

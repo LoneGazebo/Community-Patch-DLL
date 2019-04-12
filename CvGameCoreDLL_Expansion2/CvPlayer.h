@@ -637,6 +637,7 @@ public:
 	void SetUnhappiness(int iNewValue);
 	int GetUnhappiness() const;
 	void CalculateNetHappiness();
+	int GetHappinessRatioRawPercent();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	void ChangeEmpireNeedsModifierGlobal(int iChange);
