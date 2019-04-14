@@ -15923,6 +15923,8 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 #if defined(MOD_BALANCE_CORE)
 		iFoodPerPop += GetAdditionalFood();
+		iFoodPerPop += GET_PLAYER(getOwner()).getNonSpecialistFoodChange();
+		iFoodPerPop = max(1, iFoodPerPop); //cannot reduce food per citizen to less than 1
 #endif
 
 		int iNormalFood = iPopulation * iFoodPerPop;
@@ -15978,6 +15980,15 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
+	}
+	if (GET_PLAYER(getOwner()).getNonSpecialistFoodChange() != 0)
+	{
+		int iFoodChangePerPop = GET_PLAYER(getOwner()).getNonSpecialistFoodChange();
+		if (GC.getFOOD_CONSUMPTION_PER_POPULATION() - iFoodChangePerPop < 1)
+		{
+			iFoodChangePerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION() - 1; //can't reduce food consumption per citizen to less than 1
+		}
+		iNum += max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop;
 	}
 #endif
 	return iNum;

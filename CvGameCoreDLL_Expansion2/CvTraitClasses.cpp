@@ -2023,7 +2023,11 @@ std::pair <int, bool> CvTraitEntry::GetUnitCombatProductionCostModifier(const in
 
 	return std::make_pair(0, false);
 }
-
+/// Accessor:: Does the civ require less food for non-specialists?
+int CvTraitEntry::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
+}
 #endif
 
 /// Has this trait become obsolete?
@@ -2870,6 +2874,27 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::pair<int, bool>>(m_pibUnitCombatProductionCostModifier).swap(m_pibUnitCombatProductionCostModifier);
 	}
+	//Populate m_iNonSpecialistFoodChange
+	{
+		std::string sqlKey = "Trait_NonSpecialistFoodChange";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select FoodChange from Trait_NonSpecialistFoodChange where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iFoodChange = pResults->GetInt(0);
+
+			m_iNonSpecialistFoodChange = iFoodChange;
+		}
+
+		pResults->Reset();
+	}
 #endif
 
 	//Populate m_MaintenanceModifierUnitCombats
@@ -3701,7 +3726,8 @@ void CvPlayerTraits::SetIsExpansionist()
 		GetGAUnhappinesNeedMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
-		GetPolicyGEorGM() != 0)
+		GetPolicyGEorGM() != 0 ||
+		GetNonSpecialistFoodChange() > 0)
 	{
 		m_bIsExpansionist = true;
 		return;
@@ -4078,6 +4104,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
 #if defined(MOD_BALANCE_CORE)
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
+			m_iNonSpecialistFoodChange += trait->GetNonSpecialistFoodChange();
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 			if(trait->IsBullyAnnex())
@@ -4786,6 +4813,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings = 0;
 	m_eFreeUnitOnConquest = NO_UNIT;
+	m_iNonSpecialistFoodChange = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = false;
@@ -5591,6 +5619,10 @@ std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCom
 	}
 
 	return std::make_pair(0, false);
+}
+int CvPlayerTraits::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
 }
 #endif
 
@@ -7151,6 +7183,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 	kStream >> m_aiGoldenAgeYieldModifier;
 	kStream >> m_aibUnitCombatProductionCostModifier;
+	kStream >> m_iNonSpecialistFoodChange;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7595,6 +7628,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
 	kStream << m_aiGoldenAgeYieldModifier;
 	kStream << m_aibUnitCombatProductionCostModifier;
+	kStream << m_iNonSpecialistFoodChange;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

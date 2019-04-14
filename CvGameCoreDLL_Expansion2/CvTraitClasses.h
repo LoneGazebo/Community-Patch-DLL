@@ -388,6 +388,7 @@ public:
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	int GetGoldenAgeYieldModifier(const int iYield) const;
 	std::pair<int, bool> GetUnitCombatProductionCostModifier(const int unitCombatID) const;
+	int GetNonSpecialistFoodChange() const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
@@ -734,6 +735,7 @@ protected:
 	std::multimap<int, int> m_piUpgradeUnitClass;
 	std::map<int, int> m_piGoldenAgeYieldModifier;
 	std::map<int, std::pair<int, bool>> m_pibUnitCombatProductionCostModifier;
+	int m_iNonSpecialistFoodChange;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1852,6 +1854,7 @@ public:
 	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
 	int GetGoldenAgeYieldModifier(YieldTypes eYield) const;
 	std::pair <int, bool> GetUnitCombatProductionCostModifier(UnitCombatTypes eUnitCombat) const;
+	int GetNonSpecialistFoodChange() const;
 #endif
 
 	// Public functions to make trait-based game state changes
@@ -2217,6 +2220,7 @@ private:
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
 	std::map<int, int> m_aiGoldenAgeYieldModifier;
 	std::map<int, std::pair<int, bool>> m_aibUnitCombatProductionCostModifier;
+	int m_iNonSpecialistFoodChange;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;

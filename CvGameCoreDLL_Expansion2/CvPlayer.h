@@ -1395,6 +1395,9 @@ public:
 	bool isHalfSpecialistFoodCapital() const;
 	void changeHalfSpecialistFoodCapitalCount(int iChange);
 
+	int getNonSpecialistFoodChange() const;
+	void changeNonSpecialistFoodChange(int iChange);
+
 	int getTradeRouteLandDistanceModifier() const;
 	void changeTradeRouteLandDistanceModifier(int iChange);
 
@@ -3277,6 +3280,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCapitalCount;
+	FAutoVariable<int, CvPlayer> m_iNonSpecialistFoodChange;
 	FAutoVariable<int, CvPlayer> m_iTradeRouteLandDistanceModifier;
 	FAutoVariable<int, CvPlayer> m_iTradeRouteSeaDistanceModifier;
 	FAutoVariable<bool, CvPlayer> m_bNullifyInfluenceModifier;

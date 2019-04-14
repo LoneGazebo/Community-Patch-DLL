@@ -558,6 +558,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iHalfSpecialistFoodCapitalCount("CvPlayer::m_iHalfSpecialistFoodCapitalCount", m_syncArchive)
+	, m_iNonSpecialistFoodChange("CvPlayer::m_iNonSpecialistFoodChange", m_syncArchive)
 	, m_iTradeRouteLandDistanceModifier("CvPlayer::m_iTradeRouteLandDistanceModifier", m_syncArchive)
 	, m_iTradeRouteSeaDistanceModifier("CvPlayer::m_iTradeRouteSeaDistanceModifier", m_syncArchive)
 	, m_bNullifyInfluenceModifier("CvPlayer::m_bNullifyInfluenceModifier", m_syncArchive)
@@ -989,6 +990,9 @@ void CvPlayer::init(PlayerTypes eID)
 		GetTreasury()->ChangeCityConnectionTradeRouteGoldChange(GetPlayerTraits()->GetCityConnectionTradeRouteChange());
 		changeWonderProductionModifier(GetPlayerTraits()->GetWonderProductionModifier());
 		ChangeImprovementGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
+#if defined(MOD_BALANCE_CORE)
+		changeNonSpecialistFoodChange(GetPlayerTraits()->GetNonSpecialistFoodChange());
+#endif
 
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
@@ -1546,6 +1550,7 @@ void CvPlayer::uninit()
 	m_iHalfSpecialistFoodCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iHalfSpecialistFoodCapitalCount = 0;
+	m_iNonSpecialistFoodChange = 0;
 	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradeRouteSeaDistanceModifier = 0;
 	m_bNullifyInfluenceModifier = false;
@@ -29977,6 +29982,21 @@ void CvPlayer::changeHalfSpecialistFoodCapitalCount(int iChange)
 	{
 		m_iHalfSpecialistFoodCapitalCount = (m_iHalfSpecialistFoodCapitalCount + iChange);
 		CvAssert(getHalfSpecialistFoodCapitalCount() >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeNonSpecialistFoodChange(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iNonSpecialistFoodChange = (m_iNonSpecialistFoodChange + iChange);
 	}
 }
 
