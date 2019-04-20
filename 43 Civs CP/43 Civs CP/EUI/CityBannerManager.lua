@@ -476,7 +476,9 @@ local g_cityToolTips = {
 		end
 	end,
 	CityIsPuppet = function( city )
-		if bnw_mode and g_activePlayer:MayNotAnnex() or city:GetOwner() == g_activePlayerID then
+		if city:GetOwner() ~= g_activePlayerID then
+			return L"TXT_KEY_CITY_PUPPET_OTHER"
+		elseif g_activePlayer:MayNotAnnex() then
 			return L"TXT_KEY_CITY_PUPPET"
 		else
 			return L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT"

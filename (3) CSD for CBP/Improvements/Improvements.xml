@@ -13,6 +13,7 @@
 			<ImprovementLeagueVotes>1</ImprovementLeagueVotes>
 			<PortraitIndex>0</PortraitIndex>
 			<CreatedByGreatPerson>true</CreatedByGreatPerson>
+			<BuildableOnResources>true</BuildableOnResources>
 			<IconAtlas>TERRAIN_IMPROVEMENT_EMBASSY</IconAtlas>
 		</Row>
 	</Improvements>

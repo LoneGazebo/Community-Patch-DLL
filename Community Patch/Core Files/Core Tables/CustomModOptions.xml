@@ -72,6 +72,10 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="6" Name="GLOBAL_CITY_WORKING" Value="0" DbUpdates="1"/>
 
+    <!-- Permit cities to work additional slots (tiles and specialists) with automatons (v89) -->
+    <!-- See also: "Tech - City Automaton Workers" -->
+    <Row Class="6" Name="GLOBAL_CITY_AUTOMATON_WORKERS" Value="0" DbUpdates="1"/>
+
     <!-- Enables rebasing to and airlifting to/from improvements (v74) -->
     <!-- See also: "Units - Dwarf Broad Axeman" -->
     <Row Class="5" Name="GLOBAL_RELOCATION" Value="0" DbUpdates="1"/>

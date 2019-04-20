@@ -274,7 +274,7 @@
 			<LandmarksTourismPercent>25</LandmarksTourismPercent>
 			<GreatWorksTourismModifier>25</GreatWorksTourismModifier>
 			<NukeImmune>true</NukeImmune>
-			<Happiness>3</Happiness>
+			<Happiness>1</Happiness>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<Quote>TXT_KEY_WONDER_OLYMPIC_VILLAGE_QUOTE</Quote>
