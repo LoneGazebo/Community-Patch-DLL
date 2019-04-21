@@ -329,6 +329,9 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
 
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then declared war on them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR';
 
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
@@ -446,14 +449,6 @@ WHERE Tag = 'TXT_KEY_UNITS_NATIONAL_HEADING2_BODY';
 UPDATE Language_en_US
 SET Text = 'If another civ has captured a City-State and you capture it from them, you have the option to "liberate" that city-state. If you do so, you will receive a large amount of [ICON_INFLUENCE] Influence from the City-State, usually enough to make you [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with it.'
 WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY';
-
-
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then declared war on them![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR';
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them!'
-WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
 
 -- Barbarians
 
