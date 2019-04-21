@@ -4149,7 +4149,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 						defaultBuilding = GameInfo.Buildings[classrow.DefaultBuilding];
 					end
 				end
-				if defaultBuilding then
+				if row.BuildingType then
 					thisCiv = GameInfo.Civilizations[row.CivilizationType];
 					break;
 				end
