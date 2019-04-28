@@ -315,7 +315,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">
-			<Text>Expending a {1_UnitName} increased your Military Unit Supply Cap by {2_Num}!</Text>
+			<Text>Expending {1_UnitName} increased your Military Unit Supply Cap by {2_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY_S">
 			<Text>Military Unit Supply Cap Increased!</Text>

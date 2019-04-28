@@ -40,7 +40,13 @@ ALTER TABLE Buildings ADD COLUMN 'IsNoRiver' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;
 
 -- Requirement that allows you to bypass prereq techs to get something.
-ALTER TABLE Buildings ADD COLUMN 'NumPoliciesNeeded' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'NumPoliciesNeeded' INTEGER DEFAULT 0;
+
+-- Reduce specialist unhappiness from urbanization (CBO)
+ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
+-- Reduce specialist unhappiness from urbanization (CBO)
+ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialistsGlobal' INTEGER DEFAULT 0;
+
 
 -- Belief requires an improvement on a terrain type to grant its yield.
 

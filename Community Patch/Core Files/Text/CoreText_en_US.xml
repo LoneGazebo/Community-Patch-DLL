@@ -2719,7 +2719,7 @@
 			<Text>Warscore must be above 75. Current Warscore: {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT">
-			<Text>Cannot add to non-surrendering party in Peace Deal</Text>
+			<Text>Cannot add to non-surrendering party in Peace Deal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_BLOCKED">
 			<Text>A diplomatic situation prevents this action.</Text>
@@ -2884,7 +2884,7 @@
 			<Text>My advisors have informed me that you are not yet committed to a vote for the upcoming World Congress session. What do you think of this proposition?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_2">
-			<Text>The upcoming World Congress session is very important to me. I would like to see this resolution passed, and I need your help. Does this offer seem suitable?</Text>
+			<Text>The upcoming World Congress session is very important to me. I would like to see this resolution achieved, and I need your help. Does this offer seem suitable?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VOTE_COMMITMENT_REQUEST_3">
 			<Text>Your vote on this World Congress resolution is very valuable to me. I hope that this offer reflects that. If not, mind telling me what it would take to earn your vote?</Text>
@@ -3010,7 +3010,7 @@
 			<Text>Your machinations in the World Congress are pathetic. A true hero fights his battles with swords, not coins and silver tongues.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_CULTURE_1">
-			<Text>Your culture washes over the earth light a carless child, tossing aside anything that does not suit your fancy. Your influence will wane soon enough.</Text>
+			<Text>Your culture washes over the earth like a careless child, tossing aside anything that does not suit your fancy. Your influence will wane soon enough.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_SPACESHIP_1">
 			<Text>Your quest for science will bring you nothing but ruin. While you look to the stars, I and others look at your lands.</Text>
@@ -3037,7 +3037,7 @@
 			<Text>The foolish warmonger stirs the sleeping dragon. You have bit off more than you can chew.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_WARMONGER_1">
-			<Text>We may lack your military strength, however I would rather die a noble death than be a bloody tyrant like you.</Text>
+			<Text>We may lack your military strength; however, I would rather die a noble death than be a bloody tyrant like you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WARMONGER_1">
 			<Text>This war will test both of our empires. Others may have fallen to your sword, but your campaign of violence ends here.</Text>
@@ -3095,7 +3095,7 @@
 			<Text>The sharing of embassies will faciliate greater cooperation between our peoples. Do you agree?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BULLIED_PROTECTED_CITY_STATE_3">
-			<Text>Your war against {@1_MinorCivName} is unacceptable. They are under my protection, and I will not tolerate such defiance.</Text>
+			<Text>Your behavior towards {@1_MinorCivName} is unacceptable. They are under my protection, and I will not tolerate such defiance.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HOSTILE_WE_BULLIED_YOUR_MINOR_3">
 			<Text>{@1_MinorCivName} benefits very little from your protection, it seems. I reminded them of this when I recently demanded tribute from them. Care to prove me wrong?</Text>
@@ -3143,7 +3143,7 @@
 			<Text>{1_PlayerName} is plotting against you. I hope this warning does not arrive too late.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_KNOWN_CITY_2">
-			<Text>I recently learned that {1_PlayerName} has an army headed towards your city of {2_CityName}. Consider this warning a favor, one that I hope you one day return.</Text>
+			<Text>I recently learned that {1_PlayerName} has an army headed towards your city of {2_CityName}. Consider this warning a favor, one that I hope you will one day return.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_UNKNOWN_CITY_2">
 			<Text>Prepare yourself! {1_PlayerName} is about to launch a sneak attack against you! If anyone is planning the same for us, I do hope you will let us know.</Text>
@@ -3269,7 +3269,7 @@
 			<Text>You have embraced Order, and will now be a part of our glorious future. It is a good thing, too, as our proletarian revolution shall soon claim the entire world!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SWITCHED_TO_AUTOCRACY_2">
-			<Text>The new world order of Autocracy is force that cannot be denied. Your decision to join our cause was inevitable, and will lead to a great and triumphant future.</Text>
+			<Text>The new world order of Autocracy is a force that cannot be denied. Your decision to join our cause was inevitable, and will lead to a great and triumphant future.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GENERIC_REPEAT_TRADE_4">
@@ -3322,7 +3322,7 @@
 			<Text>I am late for my morning ritual, but I can spare a moment for you, if you'd like.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_RAMESSES_GREETING_POLITE_HELLO_2">
-			<Text>The Lord the Nile speaks with you. What do you say in return?</Text>
+			<Text>The Lord of the Nile speaks with you. What do you say in return?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_ELIZABETH_GREETING_POLITE_HELLO_2">
 			<Text>I'm off to the theatre, but...I suppose we can chat, if only for a moment.</Text>
@@ -3382,7 +3382,7 @@
 			<Text>How may the President of the United States help you?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_HARUN_GREETING_NEUTRAL_HELLO_2">
-			<Text>Welcome to Arabia, I do hope the sands were not too harsh for you.</Text>
+			<Text>Welcome to Arabia; I do hope the sands were not too harsh for you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_GREETING_NEUTRAL_HELLO_2">
 			<Text>Did you bring an offering for my altar?</Text>
@@ -3400,7 +3400,7 @@
 			<Text>Welcome to France. Shall I show you my art collection?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_BISMARCK_GREETING_NEUTRAL_HELLO_2">
-			<Text>As Chancellor, I am formally and legally required to welcome you to Germany. So welcome.</Text>
+			<Text>As Chancellor, I am formally and legally required to welcome you to Germany. So, welcome.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_GANDHI_GREETING_NEUTRAL_HELLO_2">
 			<Text>I am humbled by your visit to India.</Text>
@@ -3445,7 +3445,7 @@
 			<Text>You are brave, showing your face here.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_ALEXANDER_GREETING_HOSTILE_HELLO_2">
-			<Text>Tremble before the might armies of Greece, fiend.</Text>
+			<Text>Tremble before the mighty armies of Greece, fiend.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_WASHINGTON_GREETING_HOSTILE_HELLO_2">
 			<Text>I find it hard to speak freely with tyrants such as yourself.</Text>
@@ -3774,7 +3774,7 @@
 		</Row>
 		<!--- STOPPED HERE -->
 		<Row Tag="TXT_KEY_WASHINGTON_EXPANSION_SERIOUS_WARNING_2">
-			<Text>I will not warn you again: you are settling in lands claimed by the United State of America.</Text>
+			<Text>I will not warn you again: you are settling in lands claimed by the United States of America.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HARUN_EXPANSION_SERIOUS_WARNING_2">
 			<Text>I shall have your head if you take one more piece of land near our borders.</Text>
@@ -4009,7 +4009,7 @@
 			<Text>When I look at your pathetic economy, it makes me sad. I'd help, but I'm too busy being rich and powerful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INSULT_CULTURE_3">
-			<Text>You are barbaric and crude. Shall I send one my artists over to show you what real culture looks like?</Text>
+			<Text>You are barbaric and crude. Shall I send one of my artists over to show you what real culture looks like?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INSULT_CULTURE_4">
 			<Text>Your culture is the embodiment of darkness and solitude. And no, that isn't a compliment.</Text>
@@ -5352,7 +5352,7 @@
 			<Text>Your imperialist aggression has grown tiresome. Cease trying to convince my people to follow the path of Freedom before I am forced to take drastic action. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_1">
-			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this envangelizing of Order at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this evangelizing of Order at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_2">
 			<Text>Keep your radical Order beliefs away from my people's ears before I show you what 'better dead than red' really means. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
@@ -5616,7 +5616,7 @@
 			<Text>What? Who? I'm sorry, the voices in my head tell me that our offer is bad. Is it? I'm not sure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_ATTILA_TRADE_CANT_MATCH">
-			<Text>I would offer more, but I've spent to much time talking and not enough time pillaging. Is this acceptable?</Text>
+			<Text>I would offer more, but I've spent too much time talking and not enough time pillaging. Is this acceptable?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_BOUDICCA_TRADE_CANT_MATCH">
 			<Text>I wish I could offer more, but I cannot. Is this acceptable?</Text>
@@ -5677,10 +5677,10 @@
 			<Text>Bah! You are a fool to offer us so much. We will offer you far less, as you can see.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_3">
-			<Text>What makes you think we would match you offer, even if we could? This is what we will offer you.</Text>
+			<Text>What makes you think we would match your offer, even if we could? This is what we will offer you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_4">
-			<Text>An impossible offer that we cannot hope to match. You are simply embarassing yourself, especially if you accept this trade.</Text>
+			<Text>An impossible offer that we cannot hope to match. You are simply embarrassing yourself, especially if you accept this trade.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_5">
 			<Text>This is the best we can do. If you accept this, you will be a laughing stock at home and in our country.</Text>
@@ -7314,6 +7314,19 @@
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE">
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_PRODUCTION]/[ICON_FOOD] Distress: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_PRODUCTION]/[ICON_FOOD] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

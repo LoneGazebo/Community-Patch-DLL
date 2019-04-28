@@ -59,7 +59,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY' AND EXISTS (SELECT * FRO
 -- Assyria
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for Great Works of Writing, and comes with both a free Great Work and a free Library in the City. Every Great Work of Writing you control grants +5 XP to units created in any City (maximum of 45 XP).[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own. [NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if Themed.'
+SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages, 1 Specialist no longer creates [ICON_HAPPINESS_3] Unhappiness from Urbanization. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for Great Works of Writing, and comes with both a free Great Work and a free Library in the City. Every Great Work of Writing you control grants +5 XP to units created in any City (maximum of 45 XP).[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own. [NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
  
 UPDATE Language_en_US
@@ -458,7 +458,65 @@ UPDATE Language_en_US
 SET Text = 'This unit is much cheaper than the Pikeman, can pillage without using any movement points, and receives full XP from the city when purchased. Steals gold when attacking a city. Unlocked through completing the Authority Policy Branch, these units may not be built; they must be purchased through gold. May move immediately after purchase.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LANDSKNECHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'Aachen'
+WHERE Tag = 'TXT_KEY_CITY_NAME_ESSEN';
 
+UPDATE Language_en_US
+SET Text = 'Regensburg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_DUISBURG';
+
+UPDATE Language_en_US
+SET Text = 'Augsburg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_BOCHUM';
+
+UPDATE Language_en_US
+SET Text = 'Kiel'
+WHERE Tag = 'TXT_KEY_CITY_NAME_BONN';
+
+UPDATE Language_en_US
+SET Text = 'Freiburg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_MULHEIM';
+
+UPDATE Language_en_US
+SET Text = 'Heidelberg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_DARMSTADT';
+
+UPDATE Language_en_US
+SET Text = 'Bamberg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_CHEMNITZ';
+
+UPDATE Language_en_US
+SET Text = 'Magdeburg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_OBERHAUSEN';
+
+UPDATE Language_en_US
+SET Text = 'Erfurt'
+WHERE Tag = 'TXT_KEY_CITY_NAME_BIELEFELD';
+
+UPDATE Language_en_US
+SET Text = 'Trier'
+WHERE Tag = 'TXT_KEY_CITY_NAME_HERNE';
+
+UPDATE Language_en_US
+SET Text = 'Konstanz'
+WHERE Tag = 'TXT_KEY_CITY_NAME_WOLFSBURG';
+
+UPDATE Language_en_US
+SET Text = 'Mainz'
+WHERE Tag = 'TXT_KEY_CITY_NAME_HAMM';
+
+UPDATE Language_en_US
+SET Text = 'Paderborn'
+WHERE Tag = 'TXT_KEY_CITY_NAME_NEUSS';
+
+UPDATE Language_en_US
+SET Text = 'Lübeck'
+WHERE Tag = 'TXT_KEY_CITY_NAME_HAGEN';
+
+UPDATE Language_en_US
+SET Text = 'Duisburg'
+WHERE Tag = 'TXT_KEY_CITY_NAME_HILDESHEIM';
 
 --------------------
 -- Greece
@@ -552,7 +610,7 @@ WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 -- Indonesia
 --------------------
 UPDATE Language_en_US
-SET Text = 'Unique Indonesian Garden replacement. A [ICON_RES_CLOVES] Clove, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when built.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City. +20% to [ICON_PEACE] Faith and [ICON_CULTURE] Culture in the City during ''We Love the King Day.''[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SET Text = 'Unique Indonesian Garden replacement. A [ICON_RES_CLOVES] Clove, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when built.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City. 1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE] +20% to [ICON_PEACE] Faith and [ICON_CULTURE] Culture in the City during ''We Love the King Day.''[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -785,11 +843,11 @@ WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNI
 
 
 UPDATE Language_en_US
-SET Text = 'A Polder can be built on tiles with access to fresh water. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched.'
+SET Text = 'A Polder can be built on tiles with access to fresh water, as well as Marshes. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A Polder can be built on tiles with access to fresh water. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched.[NEWLINE][NEWLINE]A polder is a low-lying tract enclosed by dikes with the water drained. In general, polder is land reclaimed from a lake or seabed, from flood plains, or from marshes. In time, the drained land subsides so that all polder is eventually below the surrounding water level. Because of this, water seeps into the drained area and must be pumped out or otherwise drained. The dikes are usually made of readily available materials, earth or sand; in modern times these barriers might be covered or completely composed of concrete. The drained land is extremely fertile and makes excellent pasturage or cropland.[NEWLINE][NEWLINE]The first polders of reclaimed land were constructed in the 11th Century AD, although building embankments as barriers to water date back to the Romans. The Dutch have a long history of reclaiming marshes and fenland, and even the seabed, and possess half of the polder acreage in Europe. Although there are polders in other countries of Europe, and examples can be found in Asia and North America, Holland has some 3000 polders accounting for about 27 percent of the country''s land. Amsterdam itself is built largely upon polder. As the Dutch homily states, "God made the world, but the Dutch made Holland."'
+SET Text = 'A Polder can be built on tiles with access to fresh water, as well as Marshes. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched.[NEWLINE][NEWLINE]A polder is a low-lying tract enclosed by dikes with the water drained. In general, polder is land reclaimed from a lake or seabed, from flood plains, or from marshes. In time, the drained land subsides so that all polder is eventually below the surrounding water level. Because of this, water seeps into the drained area and must be pumped out or otherwise drained. The dikes are usually made of readily available materials, earth or sand; in modern times these barriers might be covered or completely composed of concrete. The drained land is extremely fertile and makes excellent pasturage or cropland.[NEWLINE][NEWLINE]The first polders of reclaimed land were constructed in the 11th Century AD, although building embankments as barriers to water date back to the Romans. The Dutch have a long history of reclaiming marshes and fenland, and even the seabed, and possess half of the polder acreage in Europe. Although there are polders in other countries of Europe, and examples can be found in Asia and North America, Holland has some 3000 polders accounting for about 27 percent of the country''s land. Amsterdam itself is built largely upon polder. As the Dutch homily states, "God made the world, but the Dutch made Holland."'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 --------------------

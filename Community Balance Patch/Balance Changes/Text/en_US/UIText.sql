@@ -477,7 +477,7 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONA
 
 -- Text for city view tooltip.
 UPDATE Language_en_US
-Set Text = '[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT][ICON_HAPPINESS_3] Local Unhappiness Modifier: {1_Num}%[ENDCOLOR]'
+Set Text = '[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT][ICON_HAPPINESS_3] Unhappiness Modifier: {1_Num}%[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_FOODMOD_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 
@@ -715,3 +715,10 @@ UPDATE Language_en_US
 SET Text = 'Current Empire-Wide [ICON_HAPPINESS_1] Happiness, from 0-100%[NEWLINE][NEWLINE]At 20% or below the civilization will start to lose cities to revolt and may change to the public''s Preferred Ideology (you can find that preference in the Public Opinion tooltip).'
 WHERE Tag = 'TXT_KEY_CO_VICTORY_EXCESS_HAPPINESS_HEADER_TT';
 
+UPDATE Language_en_US
+SET Text = 'With [ICON_GOLD] Gold you may purchase land and units, or invest in buildings in your cities.'
+WHERE Tag = 'TXT_KEY_TP_GOLD_EXPLANATION';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another civ''s territory will give you a temporary diplomatic boost with that nation.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MAJOR_CIV';

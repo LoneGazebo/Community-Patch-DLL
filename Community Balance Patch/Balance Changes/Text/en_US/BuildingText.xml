@@ -336,7 +336,7 @@
 			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes to or from this City generate 50 [ICON_FOOD] Food in their Origin City when completed, scaling with Era.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
@@ -522,7 +522,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration,and +10% to all City Yields. Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the Tradition Finisher.</Text>
+			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization. [NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the Tradition Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>

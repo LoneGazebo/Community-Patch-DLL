@@ -633,7 +633,7 @@
 			<Text>Centaurus Extractors, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_HELP">
-			<Text>Provides benefits geared toward [ICON_PRODUCTION] Production and coastal Cities. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one and doubles sea [ICON_INTERNATIONAL_TRADE] Trade Unit maximum range.[NEWLINE][NEWLINE]Harbors and Seaports in all Cities also produce +2 [ICON_PRODUCTION] Production. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_PRODUCTION] Production and coastal Cities. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles sea [ICON_INTERNATIONAL_TRADE] Trade Unit maximum range.[NEWLINE][NEWLINE]Harbors and Seaports in all Cities also produce +2 [ICON_PRODUCTION] Production. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS">
 			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide +1 [ICON_PRODUCTION] Production in cities with Centaurus Extractors Franchise.</Text>
@@ -691,7 +691,7 @@
 			<Text>Hexxon Refinery, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_HELP">
-			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Coal, Nuclear, Wind, and Solar Plants. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Coal, Nuclear, Wind, and Solar Plants. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY">
 			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, and [ICON_RES_BRAZILWOOD] Brazilwood provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Franchises.</Text>
@@ -749,7 +749,7 @@
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
-			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +2 [ICON_CULTURE] Culture from Great Writers, Musicians, and Artists in all Cities. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Franchise.</Text>
@@ -807,7 +807,7 @@
 			<Text>Firaxite Materials, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_HELP">
-			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and Trade Units cannot be pillaged (except as a result of a Declaration of War).[NEWLINE][NEWLINE]Factories and Universities in all Cities produce +3 [ICON_RESEARCH] Science. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and Trade Units cannot be pillaged (except as a result of a Declaration of War).[NEWLINE][NEWLINE]Factories and Universities in all Cities produce +3 [ICON_RESEARCH] Science. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_FIRAXITE_MATERIALS">
 			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Franchise.</Text>
@@ -923,7 +923,7 @@
 			<Text>Civilized Jewelers, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_HELP">
-			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and all [ICON_INTERNATIONAL_TRADE] Trade Units move twice as fast.[NEWLINE][NEWLINE]Banks and Customs Houses in all Cities produce +4 [ICON_GOLDEN_AGE] Golden Age Points. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and all [ICON_INTERNATIONAL_TRADE] Trade Units move twice as fast.[NEWLINE][NEWLINE]Banks and Customs Houses in all Cities produce +4 [ICON_GOLDEN_AGE] Golden Age Points. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS">
 			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Franchise.</Text>
