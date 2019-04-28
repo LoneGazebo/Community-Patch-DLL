@@ -30,7 +30,7 @@ enum AIOperationTypes
     AI_OPERATION_PILLAGE_ENEMY,
 
 	AI_OPERATION_CITY_CLOSE_DEFENSE,
-	AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE,
+	AI_OPERATION_BULLY_CITY_STATE,
     AI_OPERATION_RAPID_RESPONSE,
 
 	AI_OPERATION_CITY_BASIC_ATTACK,
@@ -905,27 +905,35 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIOperationDefendCity
-//!  \brief		Defend a specific city
+//  CLASS:      CvAIOperationBullyCityState
+//!  \brief		Move units next to a city state, but don't attack. Allowed during peace.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationDefendCityPeace : public CvAIOperationDefendCity
+class CvAIOperationBullyCityState : public CvAIOperationCityStateAttack
 {
 public:
 
-	CvAIOperationDefendCityPeace();
-	virtual ~CvAIOperationDefendCityPeace();
+	CvAIOperationBullyCityState();
+	virtual ~CvAIOperationBullyCityState();
 
 	virtual int GetOperationType() const
 	{
-		return AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE;
+		return 	AI_OPERATION_BULLY_CITY_STATE;
 	}
 	virtual const char* GetOperationName() const
 	{
-		return "AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE";
+		return "AI_OPERATION_BULLY_CITY_STATE";
+	}
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{
 		return true;
+	}
+	virtual int GetDeployRange() const
+	{ 
+		return 4;
 	}
 
 private:

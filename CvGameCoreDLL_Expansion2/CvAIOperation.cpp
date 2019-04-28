@@ -258,8 +258,8 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
 		return FNEW(CvAIOperationPillageEnemy(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_CLOSE_DEFENSE:
 		return FNEW(CvAIOperationDefendCity(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE:
-		return FNEW(CvAIOperationDefendCityPeace(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_BULLY_CITY_STATE:
+		return FNEW(CvAIOperationBullyCityState(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_RAPID_RESPONSE:
 		return FNEW(CvAIOperationDefenseRapidResponse(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_SNEAK_ATTACK:
@@ -1743,6 +1743,7 @@ int CvAIOperationOffensive::GetMaximumRecruitTurnsBase() const
 
 AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
+	//should we be concentrating on defense instead?
 	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(false);
 	if (pTroubleSpot)
 	{
@@ -1874,8 +1875,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy);
-			if (pCenterOfMass && pTarget && IsOffensive() && !bShowOfForce)
+			if (pCenterOfMass && pTarget && IsOffensive())
 			{
 				bool bInPlace = (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange());
 
@@ -1912,8 +1912,10 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 
 				if(bInPlace)
 				{
-					// Notify Diplo AI we're in place for attack
-					if(!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+					bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) || (GetOperationType() == AI_OPERATION_BULLY_CITY_STATE);
+
+					// Notify Diplo AI we're in place for attack (unless this is just for show)
+					if(!bShowOfForce && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
 						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetMusteringForAttack(m_eEnemy, true);
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
@@ -2983,42 +2985,35 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationDefendCity - Place holder
+// CvAIOperationBullyCityState - Place holder
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationDefendCityPeace::CvAIOperationDefendCityPeace()
+CvAIOperationBullyCityState::CvAIOperationBullyCityState()
 {
 }
 
 /// Destructor
-CvAIOperationDefendCityPeace::~CvAIOperationDefendCityPeace()
+CvAIOperationBullyCityState::~CvAIOperationBullyCityState()
 {
 }
 
-/// Find the best blocking position against the current threats
-CvPlot* CvAIOperationDefendCityPeace::FindBestTarget(CvPlot** ppMuster) const
+/// simply use the enemy capital
+CvPlot* CvAIOperationBullyCityState::FindBestTarget(CvPlot** ppMuster) const
 {
-	CvCity* pTargetCity;
-	CvPlot* pPlot = NULL;
+	CvCity* pTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
+	if (!pTargetCity)
+		return NULL;
 
-	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
+	//todo: make sure this is not across the ocean?
+	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	if (!pMusterCity)
+		return NULL;
 
-	if(pTargetCity != NULL)
-	{
-		pPlot = pTargetCity->plot();
+	if (ppMuster)
+		*ppMuster = pMusterCity->plot();
 
-		if (ppMuster)
-		{
-			CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCity(pPlot,23,true);
-			if (!pMusterCity)
-				pMusterCity = pTargetCity;
-			*ppMuster = pMusterCity->plot();
-		}
-	}
-
-	return pPlot;
+	return pTargetCity->plot();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

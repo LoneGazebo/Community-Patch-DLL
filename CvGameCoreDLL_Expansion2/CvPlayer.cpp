@@ -22089,30 +22089,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesGradient() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetUnhappinessFromWarWeariness() const
 {
-	int iWarWeariness = GetCulture()->GetWarWeariness();
-
-	if (iWarWeariness <= 0)
-		return 0;
-
-	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-	iTechProgress /= 2;
-
-	int iPop = (getTotalPopulation() / 2);
-
-	iWarWeariness *= (iTechProgress + iPop);
-	iWarWeariness /= 100;
-
-	//Never more than 34% of pop...
-	if (iWarWeariness > (iPop / 3))
-	{
-		iWarWeariness = (iPop / 3);
-	}
-
-	//Always at least one just in case.
-	if (iWarWeariness <= 0)
-		iWarWeariness = 1;
-	
-	return iWarWeariness;
+	return GetCulture()->GetWarWeariness();
 }
 #endif
 //	--------------------------------------------------------------------------------

@@ -240,6 +240,7 @@ public:
 	bool RequestPillageAttack(PlayerTypes eEnemy);
 	bool RequestNukeAttack(PlayerTypes eEnemy);
 	bool RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnitsWillingToBuild);
+	bool RequestBullyingOperation(PlayerTypes eEnemy);
 	CvAIOperation* GetSneakAttackOperation(PlayerTypes eEnemy);
 	CvAIOperation* GetShowOfForceOperation(PlayerTypes eEnemy);
 	CvAIOperation* GetBasicAttackOperation(PlayerTypes eEnemy);

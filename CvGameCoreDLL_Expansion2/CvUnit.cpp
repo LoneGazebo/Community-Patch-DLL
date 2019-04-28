@@ -4994,34 +4994,6 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Returns the ID of the minor we'd be bullying with this move
-PlayerTypes CvUnit::GetBullyMinorMove(const CvPlot* pPlot) const
-{
-	VALIDATE_OBJECT
-	PlayerTypes eMinor;
-
-	CvAssert(isHuman());
-
-	if(getDomainType() != DOMAIN_AIR)
-	{
-		eMinor = pPlot->getRevealedOwner(getTeam());
-
-		if(eMinor != NO_PLAYER)
-		{
-			if(GET_PLAYER(eMinor).isMinorCiv())
-			{
-				if(!canEnterTerritory(GET_PLAYER(eMinor).getTeam(), false /*bIgnoreRightOfPassage*/))
-				{
-					return eMinor;
-				}
-			}
-		}
-	}
-
-	return NO_PLAYER;
-}
-
-//	--------------------------------------------------------------------------------
 /// Returns the ID of the team to declare war against
 TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 {
@@ -5650,7 +5622,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	for (int i = 0; i < 3; i++)
 	{
 		//remember we're calling this because the unit is trapped, so use really permissive flags
-		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING, 3);
+		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 3);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
@@ -5705,6 +5677,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	if(pBestPlot != NULL)
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
+		SetActivityType(ACTIVITY_AWAKE);
 		if (pBestPlot->needsEmbarkation(this))
 			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
@@ -5775,6 +5748,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
+		SetActivityType(ACTIVITY_AWAKE);
 		if (pBestPlot->needsEmbarkation(this))
 			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
