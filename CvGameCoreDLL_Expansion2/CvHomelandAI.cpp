@@ -3398,9 +3398,10 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				break;
 			}
 
-			//is there a lone civilian we can capture back?
+			//is there a lone civilian we can capture back (or kill if embarked)
 			if (pEvalPlot->isEnemyUnit(pUnit->getOwner(), false, true, false) &&
 				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false) &&
+				pUnit->canMoveInto(*pEvalPlot,CvUnit::MOVEFLAG_ATTACK) &&
 				pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints())
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pEvalPlot->getX(), pEvalPlot->getY());

@@ -47490,8 +47490,13 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
 
-		bool isDangerous = (it==reachablePlots.end());
-		bool bCanReachThisTurn = (it != reachablePlots.end() && it->iTurns==0);
+		bool bDangerous = true;
+		bool bCanReachThisTurn = false;
+		if (it != reachablePlots.end())
+		{
+			bDangerous = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))>30); //a ranged attack or some fog danger is ok
+			bCanReachThisTurn = (it->iTurns==0) || (it->iTurns==1 && !bDangerous); //also allow next turn if no visible danger
+		}
 
 		//check if it's too close to an enemy
 		for (size_t j=0; j<vBadPlots.size(); j++)
@@ -47502,28 +47507,23 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			int iDistanceToDanger = plotDistance(*pTestPlot,*(vBadPlots[j]));
 			if (iDistanceToDanger<4 && !bCanReachThisTurn)
 			{
-				isDangerous = true;
+				bDangerous = true;
 				break;
 			}
 		}
 
 		//if it's too far from our existing cities, it's dangerous
-		if (!isDangerous)
+		if (!bDangerous && !bCanReachThisTurn)
 		{
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider distance to settler here in case of re-targeting an operation
-			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
-				isDangerous = true;
-
-			//closer to enemy than to us?
-			if (GetClosestCityByEstimatedTurns(pTestPlot) != GC.getGame().GetClosestCityByEstimatedTurns(pTestPlot))
-				isDangerous = true;
-
+			if (iDistanceToCity>4 && pTestPlot->getOwner()!=m_eID)
+				bDangerous = true;
 		}
 
 		if (bNeedSafePlot)
 		{
-			if (!isDangerous)
+			if (!bDangerous)
 			{
 				bIsSafe = true;
 				return pTestPlot;
@@ -47531,7 +47531,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		}
 		else //don't care about safety but return the status nevertheless
 		{
-			bIsSafe = !isDangerous;
+			bIsSafe = !bDangerous;
 			return pTestPlot;
 		}
 	}

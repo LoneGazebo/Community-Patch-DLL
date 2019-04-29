@@ -1580,7 +1580,7 @@ CvString CvAIOperation::GetLogFileName(CvString& playerName)
 	return strLogName;
 }
 
-bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPlot, CvPlot * pDeployPlot, CvUnit* pInitialUnit, bool bOceanMoves)
+bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPlot, CvPlot * pDeployPlot, CvUnit* pInitialUnit, bool bOceanMoves, bool bSkipRecruiting)
 {
 	//pDeployPlot may be null ...
 	if (!pMusterPlot || !pTargetPlot)
@@ -1597,6 +1597,7 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 		return false;
 
 	//this is for the operation
+	SetTurnStarted(GC.getGame().getGameTurn());
 	LogOperationStart();
 	SetTargetPlot(pTargetPlot);
 	SetMusterPlot(pMusterPlot);
@@ -1615,10 +1616,18 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (pInitialUnit)
 		pArmyAI->AddUnit(pInitialUnit->GetID(),0);
 
-	SetTurnStarted(GC.getGame().getGameTurn());
-	pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
-	m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
-	LogOperationSpecialMessage("Initial stage is recruiting");
+	if (bSkipRecruiting && pInitialUnit)
+	{
+		pArmyAI->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+		m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+		LogOperationSpecialMessage("Skip recruiting, start with movement stage");
+	}
+	else
+	{
+		pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
+		m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+		LogOperationSpecialMessage("Initial stage is recruiting");
+	}
 
 	// Find the list of units we need to build before starting this operation in earnest
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -2177,11 +2186,13 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		return;
 	}
 
-	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
-
 	CvPlot* pMusterPlot = pOurCivilian->plot();
+	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
+	bool bCloseTarget = (pOurCivilian->TurnsToReachTarget(pTargetSite, 0, 1) < 1);
+
 	//don't wait for the escort in the wild (happens with settlers a lot)
-	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || pOurCivilian->GetDanger(pMusterPlot)>0)
+	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || 
+		(pOurCivilian->GetDanger(pMusterPlot)>30 && pOurCivilian->GetDanger(pTargetSite)>30))
 	{
 		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
 		if (pClosestCity)
@@ -2231,7 +2242,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		}
 	}
 
-	SetupWithSingleArmy(pMusterPlot,pTargetSite,pTargetSite,pOurCivilian);
+	SetupWithSingleArmy(pMusterPlot,pTargetSite,pTargetSite,pOurCivilian,GET_PLAYER(m_eOwner).CanCrossOcean(),bCloseTarget);
 }
 
 bool CvAIOperationCivilian::CheckTransitionToNextStage()
@@ -3653,7 +3664,7 @@ bool CvAIOperationCivilian::IsEscorted()
 	{
 		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo( GetFormation() );
 
-		if (thisFormation && thisFormation->getNumFormationSlotEntries()>1)
+		if (thisFormation && thisFormation->getNumFormationSlotEntriesRequired()>1)
 			return true;
 
 		return false;

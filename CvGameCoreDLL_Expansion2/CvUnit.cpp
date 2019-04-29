@@ -29842,7 +29842,9 @@ bool CvUnit::IsCanAttackWithMoveNow() const
 }
 
 //	--------------------------------------------------------------------------------
-/// Unit able to fight back when attacked?
+// Unit able to fight back when attacked?
+//  ignores embarked units!
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT

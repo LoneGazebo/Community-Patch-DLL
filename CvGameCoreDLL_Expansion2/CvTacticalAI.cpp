@@ -8899,7 +8899,6 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 			}
 			
 			//need to move and shoot
-			
 			bool bIgnoreLOS = pAttacker->IsRangeAttackIgnoreLOS();
 			std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pDefender->plot(),pAttacker->GetRange(), false, !bIgnoreLOS);
 			for (std::vector<CvPlot*>::iterator it=vAttackPlots.begin(); it!=vAttackPlots.end(); ++it)
@@ -9766,8 +9765,8 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 			iScore -= 1000;
 		else
 		{
-			if (tactPlot.isEdgePlot())
-				iDanger += 50;
+			if (tactPlot.isEdgePlot()) //if we don't expect combat, we can afford to be less careful - embarked units have limited vision!
+				iDanger += (assumedPosition.getAggressionLevel()==AL_NONE) ? 20 : 50;
 			iScore -= iDanger / 10;
 		}
 	}
@@ -10633,8 +10632,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		if (unit.eStrategy == MS_ESCORTED_EMBARKED)
 		{
 			//we are embarked and stay embarked, so we can stack with combat units
-			if (pUnit->isNativeDomain(pPlot))
-				continue; //ignore all plots where we would disembark
+
+			//only allow disembarking if it takes us closer to the target
+			if (pUnit->isNativeDomain(pPlot) && plotDistance(*pPlot,*pTargetPlot)>=plotDistance(*pUnit->plot(),*pTargetPlot))
+				continue; 
 
 			//embarked units can't stack with non-simulated embarked units
 			CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
@@ -10655,12 +10656,9 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				//we don't want to fight so embarkation is ok if we don't need to stack with other (non-simulated) embarked units
 				if (!pUnit->isNativeDomain(pPlot))
 				{
-					if (!pUnit->isEmbarked())
-					{
-						//for embarked units, every attacker is bad news, so don't embark if we are not embarked already
-						if (bTargetIsEnemy || !kPlayer.GetPossibleAttackers(*pPlot).empty())
-							continue;
-					}
+					//for embarked units, every attacker is bad news
+					if (bTargetIsEnemy || !kPlayer.GetPossibleAttackers(*pPlot).empty())
+						continue;
 
 					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
 					if (tactPlot.isOtherEmbarkedUnit())
@@ -11026,7 +11024,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	eUnitMovementStrategy eStrategy = MS_NONE;
 
 	//ok this is a bit involved
-	//case a) we only have combat units we want to fight. units should stay in their native domain so they can fight.
+	//case a) we only have combat units and we want to fight. units should stay in their native domain so they can fight.
 	//case b) we have escorted units which are embarked or need to embark and are not expected to fight. embarked units can stack with their escort but yet-unembarked units cannot stack.
 	//later in updateMoveAndAttackPlotsForUnits we try and filter the reachable plots according to unit strategy
 	//also, only land units can embark and but melee ships can move into certain land plots (cities) so it's tricky

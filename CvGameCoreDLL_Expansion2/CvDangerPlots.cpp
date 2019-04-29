@@ -104,7 +104,8 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 			if (pLoopUnit->isNativeDomain(pMoveTile))
 			{
 				AssignUnitDangerValue(pLoopUnit, pMoveTile);
-				m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
+				if (!pMoveTile->isEnemyCity(*pLoopUnit)) //only melee units can move into enemy cities
+					m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
 			}
 		}
 	}
