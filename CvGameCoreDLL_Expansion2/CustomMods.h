@@ -1139,6 +1139,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityPrepared					"CityPrepared",					"iiiii"
 #define GAMEEVENT_CitySoldBuilding				"CitySoldBuilding",				"iii"
 #define GAMEEVENT_CityTrained					"CityTrained",					"iiibb"
+#define GAMEEVENT_CityProjectComplete			"CityProjectComplete",			"iii"
 #define GAMEEVENT_CustomMissionCompleted		"CustomMissionCompleted",		"iiiiiii"
 #define GAMEEVENT_CustomMissionCameraTime		"CustomMissionCameraTime",		"iiiiiii"
 #define GAMEEVENT_CustomMissionDoStep			"CustomMissionDoStep",			"iiiiiii"

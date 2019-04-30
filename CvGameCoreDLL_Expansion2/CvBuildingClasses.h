@@ -199,6 +199,8 @@ public:
 	int GetTradeReligionModifier() const;
 	int GetNumFreeArtifacts() const;
 	int GetResourceDiversityModifier() const;
+	int GetNoUnhappfromXSpecialists() const;
+	int GetNoUnhappfromXSpecialistsGlobal() const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetCannotFailSpies() const;
@@ -799,6 +801,8 @@ private:
 	int m_iFreeArtifacts;
 	int m_iResourceDiversityModifier;
 	bool m_bAnyWater;
+	int m_iNoUnhappfromXSpecialists;
+	int m_iNoUnhappfromXSpecialistsGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	int m_iEventRequiredActive;

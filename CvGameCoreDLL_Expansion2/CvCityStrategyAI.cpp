@@ -5274,10 +5274,15 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
 	//Skip if null
-	if(pkBuildingInfo == NULL)
+	if (pkBuildingInfo == NULL)
 		return 0;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+	//puppets don't care.
+	if (pCity != NULL && pCity->IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+		return 0;
+
 
 	//Start with 0 value for modifier.
 
@@ -5673,6 +5678,15 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	{
 		iValue += ((pkBuildingInfo->GetResourceDiversityModifier() + kPlayer.GetTrade()->GetNumTradeRoutesPossible()) * 5);
 	}
+	if (pkBuildingInfo->GetNoUnhappfromXSpecialists())
+	{
+		iValue += (pkBuildingInfo->GetNoUnhappfromXSpecialists() + pCity->GetCityCitizens()->GetSpecialistSlotsTotal());
+	}
+	if (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal())
+	{
+		iValue += (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() + (pCity->GetCityCitizens()->GetSpecialistSlotsTotal() * pCity->GetCityCitizens()->GetSpecialistSlotsTotal()));
+	}
+	
 	if(pkBuildingInfo->GetPolicyCostModifier() <= 0)
 	{
 		iValue += (-10 * ((kPlayer.GetPolicyCostBuildingModifier() + pkBuildingInfo->GetPolicyCostModifier())));

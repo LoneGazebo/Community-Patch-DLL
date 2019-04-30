@@ -2023,7 +2023,11 @@ std::pair <int, bool> CvTraitEntry::GetUnitCombatProductionCostModifier(const in
 
 	return std::make_pair(0, false);
 }
-
+/// Accessor:: Does the civ require less food for non-specialists?
+int CvTraitEntry::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
+}
 #endif
 
 /// Has this trait become obsolete?
@@ -2302,6 +2306,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings						= kResults.GetInt("NumFreeBuildings");
+	m_iNonSpecialistFoodChange				= kResults.GetInt("NonSpecialistFoodChange");
 #endif
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("FreeUnit");
@@ -3701,7 +3706,8 @@ void CvPlayerTraits::SetIsExpansionist()
 		GetGAUnhappinesNeedMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
-		GetPolicyGEorGM() != 0)
+		GetPolicyGEorGM() != 0 ||
+		GetNonSpecialistFoodChange() > 0)
 	{
 		m_bIsExpansionist = true;
 		return;
@@ -4078,6 +4084,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
 #if defined(MOD_BALANCE_CORE)
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
+			m_iNonSpecialistFoodChange += trait->GetNonSpecialistFoodChange();
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 			if(trait->IsBullyAnnex())
@@ -4786,6 +4793,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings = 0;
 	m_eFreeUnitOnConquest = NO_UNIT;
+	m_iNonSpecialistFoodChange = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = false;
@@ -7151,6 +7159,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 	kStream >> m_aiGoldenAgeYieldModifier;
 	kStream >> m_aibUnitCombatProductionCostModifier;
+	kStream >> m_iNonSpecialistFoodChange;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7595,6 +7604,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
 	kStream << m_aiGoldenAgeYieldModifier;
 	kStream << m_aibUnitCombatProductionCostModifier;
+	kStream << m_iNonSpecialistFoodChange;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

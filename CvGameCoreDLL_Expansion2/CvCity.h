@@ -417,7 +417,7 @@ public:
 
 	int getProductionModifier(_In_opt_ CvString* toolTipSink = NULL) const;
 	int getGeneralProductionModifiers(_In_opt_ CvString* toolTipSink = NULL) const;
-	int getProductionModifier(UnitTypes eUnit, _In_opt_ CvString* toolTipSink = NULL) const;
+	int getProductionModifier(UnitTypes eUnit, _In_opt_ CvString* toolTipSink = NULL, bool bIgnoreHappiness = false) const;
 	int getProductionModifier(BuildingTypes eBuilding, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(ProjectTypes eProject, _In_opt_ CvString* toolTipSink = NULL) const;
 	int getProductionModifier(SpecialistTypes eSpecialist, _In_opt_ CvString* toolTipSink = NULL) const;
@@ -630,7 +630,7 @@ public:
 	int GetJONSCultureThreshold() const;
 
 #if defined(MOD_BALANCE_CORE)
-	int getJONSCulturePerTurn(bool bStatic = true, bool bIgnoreHappiness = false) const;
+	int getJONSCulturePerTurn(bool bStatic = true) const;
 #else
 	int getJONSCulturePerTurn() const;
 #endif
@@ -1023,16 +1023,16 @@ public:
 	void SetSpecialReligionYields(YieldTypes eIndex, int iValue);
 #endif
 
-	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL, bool bIgnoreHappiness = false) const;
+	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
-	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true, bool bIgnoreHappiness = false) const;
+	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
 #else
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
 #if defined(MOD_PROCESS_STOCKPILE)
-	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bIgnoreHappiness = false) const;
+	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1258,6 +1258,9 @@ public:
 
 	void ChangeResourceDiversityModifier(int iChange);
 	int GetResourceDiversityModifier() const;
+
+	void ChangeNoUnhappfromXSpecialists(int iChange);
+	int GetNoUnhappfromXSpecialists() const;
 
 	bool IsBastion() const;
 	void SetBastion(bool bValue);
@@ -1964,6 +1967,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
 	FAutoVariable<int, CvCity> m_iResourceDiversityModifier;
+	FAutoVariable<int, CvCity> m_iNoUnhappfromXSpecialists;
 	FAutoVariable<bool, CvCity> m_bIsBastion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGreatWorkYieldChange;
 #endif

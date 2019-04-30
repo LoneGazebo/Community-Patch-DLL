@@ -152,6 +152,9 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
+-- TRAIT: Changes the food consumed by each non-specialist citizen. --
+ALTER TABLE Traits ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
+
 -- Abnormal scaler. Works for:
 ---- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)
 ---- FreeSocialPoliciesPerEra column in Traits

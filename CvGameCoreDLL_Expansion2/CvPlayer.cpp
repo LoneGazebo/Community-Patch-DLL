@@ -2752,7 +2752,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 	}
 
-#if !defined(MOD_VENETIAN_SETTLERS)
+//#if defined(MOD_VENETIAN_SETTLERS)
 	// Venice can receive settlers but not build any ...
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -2787,7 +2787,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 		}	
 	}
-#endif
+//#endif
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -9863,6 +9863,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWarmongerThreat(eMePlayer, THREAT_NONE);
+			pDiploAI->SetOtherPlayerWarmongerAmountTimes100(eMePlayer, 0);
 
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
@@ -16884,6 +16885,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			SetNullifyInfluenceModifier(true);
 		else
 			SetNullifyInfluenceModifier(false);
+	}
+
+	if (pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() != 0)
+	{
+		ChangeNoUnhappfromXSpecialists(pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() * iChange);
 	}
 
 	if(pBuildingInfo->IsSecondaryPantheon())
@@ -46205,8 +46211,11 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 		iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 		iThreshold /= 100;
 
-		iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
-		iThreshold /= 100;
+		if (!MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+			iThreshold /= 100;
+		}
 	}
 
 	return std::max(1, iThreshold);

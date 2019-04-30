@@ -620,6 +620,7 @@ public:
 
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
+	void SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iValue);
 #if defined(MOD_API_EXTENSIONS)
 	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
 #else
@@ -803,7 +804,7 @@ public:
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
 
 	// Human Demand
-	void DoDemandMade(PlayerTypes ePlayer);
+	void DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDemand);
 	bool IsDemandTooSoon(PlayerTypes ePlayer) const;
 	short GetDemandTooSoonNumTurns(PlayerTypes ePlayer) const;
 

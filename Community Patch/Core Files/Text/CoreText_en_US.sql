@@ -608,3 +608,7 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_LETSHEARIT_1';
 UPDATE Language_en_US
 SET Text = 'You come to mighty Persia as you are? What do you want?'
 WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
+
+UPDATE Language_en_US
+SET Text = 'Happily agreed.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';

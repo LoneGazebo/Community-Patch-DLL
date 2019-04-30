@@ -913,12 +913,6 @@
 		<Column name="CostModifier" type="integer" default="0"/>
 		<Column name="IsGoldenAgeOnly" type="boolean" default="false"/>
 	</Table>
-
-	<!-- TRAIT: Changes the food consumed by each non-specialist citizen. -->
-	<Table name="Trait_NonSpecialistFoodChange">
-		<Column name="TraitType" type="text" reference="Traits(Type)"/>
-		<Column name="FoodChange" type="integer" notnull="true"/>
-	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">

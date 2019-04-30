@@ -222,6 +222,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iReformationFollowerReduction(0),
 	m_iFreeArtifacts(0),
 	m_iResourceDiversityModifier(0),
+	m_iNoUnhappfromXSpecialists(0),
+	m_iNoUnhappfromXSpecialistsGlobal(0),
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	 m_iCannotFailSpies(-1),
@@ -566,6 +568,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iReformationFollowerReduction = kResults.GetInt("ReformationFollowerReduction");
 	m_iFreeArtifacts = kResults.GetInt("FreeArtifacts");
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
+	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
+	m_iNoUnhappfromXSpecialistsGlobal = kResults.GetInt("NoUnhappfromXSpecialistsGlobal");
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
@@ -3771,6 +3775,15 @@ int CvBuildingEntry::GetNumFreeArtifacts() const
 int CvBuildingEntry::GetResourceDiversityModifier() const
 {
 	return m_iResourceDiversityModifier;
+}
+
+int CvBuildingEntry::GetNoUnhappfromXSpecialists() const
+{
+	return m_iNoUnhappfromXSpecialists;
+}
+int CvBuildingEntry::GetNoUnhappfromXSpecialistsGlobal() const
+{
+	return m_iNoUnhappfromXSpecialistsGlobal;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)

@@ -1546,7 +1546,7 @@ int CvMultiUnitFormationInfo::getNumFormationSlotEntries() const
 int CvMultiUnitFormationInfo::getNumFormationSlotEntriesRequired() const
 {
 	int iCount = 0;
-	for (int i = 0; i < m_vctSlotEntries.size(); i++)
+	for (size_t i = 0; i < m_vctSlotEntries.size(); i++)
 		if (m_vctSlotEntries[i].m_requiredSlot)
 			iCount++;
 	return iCount;
