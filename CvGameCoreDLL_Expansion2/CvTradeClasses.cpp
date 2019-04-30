@@ -2046,7 +2046,7 @@ void CvGameTrade::CreateTradeUnitForRoute(int iIndex)
 #if !defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			CvPlayer& kPlayer = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 #endif
-			CvUnit* pkUnit = kPlayer.initUnit(eUnitType, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, NO_UNITAI, NO_DIRECTION, false, true, TRADE_UNIT_MAP_LAYER);
+			CvUnit* pkUnit = kPlayer.initUnit(eUnitType, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, NO_UNITAI, REASON_DEFAULT, false, true, TRADE_UNIT_MAP_LAYER);
 			if (pkUnit)
 			{
 				pkUnit->SetAutomateType(AUTOMATE_TRADE);

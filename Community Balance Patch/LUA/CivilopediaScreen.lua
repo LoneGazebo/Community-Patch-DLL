@@ -4145,9 +4145,11 @@ function SelectBuildingOrWonderArticle( buildingID )
 			if row.CivilizationType ~= "CIVILIZATION_BARBARIAN" and row.CivilizationType ~= "CIVILIZATION_MINOR" then
 				local otherCondition = "Type = '" .. row.BuildingClassType .. "'";
 				for classrow in GameInfo.BuildingClasses( otherCondition ) do
-					defaultBuilding = GameInfo.Buildings[classrow.DefaultBuilding];
+					if classrow.DefaultBuilding then
+						defaultBuilding = GameInfo.Buildings[classrow.DefaultBuilding];
+					end
 				end
-				if defaultBuilding then
+				if row.BuildingType then
 					thisCiv = GameInfo.Civilizations[row.CivilizationType];
 					break;
 				end

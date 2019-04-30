@@ -1103,7 +1103,7 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - cost for ending the turn on a given plot
-int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture)
+int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, bool bAbortInDanger)
 {
 	//human knows best, don't try to be smart
 	if (!pUnitDataCache->isAIControl())
@@ -1213,6 +1213,10 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			else if (iPlotDanger > 0)
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
 		}
+
+		//sometimes we need to abort if there are only bad options around
+		if (bAbortInDanger && iTurnsInFuture < 2 && iPlotDanger > pUnit->GetCurrHitPoints() / 2)
+			return -1;
 	}
 
 	return iCost;
@@ -1311,7 +1315,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (!bIsPathDest)
 		{
 			//important to not add the extra cost for the requested destination
-			int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns);
+			int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns, finder->HaveFlag(CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER));
 			if (iEndTurnCost < 0)
 				return -1;
 
@@ -1433,6 +1437,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
 		if(!kToNodeCacheData.bCanEnterTerritory)
+			return FALSE;
+		if(kToNodeCacheData.bIsVisibleNeutralCombatUnit && kToNodeCacheData.bIsVisibleEnemyUnit)
 			return FALSE;
 
 		//we check stacking once we know whether we end the turn here (in PathCost)
@@ -2318,6 +2324,11 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 	if (bBlockAhead || bTempPlotAhead || bAttrition)
 	{
+		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
+		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, HaveFlag(CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER));
+		if (iEndTurnCost < 0)
+			return false;
+
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
 		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
 
@@ -2327,9 +2338,8 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		pStopNode->m_iHeuristicCost = current->m_iHeuristicCost;
 
 		//cost is the same plus a little bit to encourage going the full distance when in doubt
-		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
 		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
-		pStopNode->m_iKnownCost += PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns);
+		pStopNode->m_iKnownCost += iEndTurnCost;
 		pStopNode->m_iKnownCost += GC.getMOVE_DENOMINATOR() * PATH_BASE_COST; //some fixed cost for the forfeited movement points
 
 		//we sort the nodes by total cost!

@@ -390,6 +390,7 @@ CvCity::CvCity() :
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
 	, m_iResourceDiversityModifier("CvCity::m_iResourceDiversityModifier", m_syncArchive)
+	, m_iNoUnhappfromXSpecialists("CvCity::m_iNoUnhappfromXSpecialists", m_syncArchive)
 	, m_bIsBastion("CvCity::m_bIsBastion", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
@@ -1676,6 +1677,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iSeaTourismBonus = 0;
 	m_iAlwaysHeal = 0;
 	m_iResourceDiversityModifier = 0;
+	m_iNoUnhappfromXSpecialists = 0;
 	m_bIsBastion = false;
 	m_bNoWarmonger = false;
 #endif
@@ -6868,7 +6870,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 								for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 								{
 									UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-									int iResult = CreateUnit(eLoopUnit, eUnitAI);
+									int iResult = CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
 
 									CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -6904,7 +6906,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeSpecificUnits((UnitTypes)iI); iJ++)
 					{
 						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eUnit, eUnitAI);
+						int iResult = CreateUnit(eUnit, eUnitAI, REASON_GIFT);
 
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -11873,7 +11875,7 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
+int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool bIgnoreHappiness) const
 {
 	VALIDATE_OBJECT
 
@@ -11984,6 +11986,47 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 			}
 		}
 	}
+	#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
+	{
+		if (getProductionUnit() != NO_UNIT && (GC.getUnitInfo(getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(getProductionUnit())->GetRangedCombat() > 0))
+		{
+			//Mechanic to allow for production malus from happiness/unhappiness.
+			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+
+			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			{
+				if (iTempMod > 0)
+					iTempMod = 0;
+
+				iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+			}
+
+			//malus?
+			if (iTempMod < 0)
+			{
+				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+				{
+					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
+				}
+				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+				{
+					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
+				}
+				//If happiness is less than the main threshold, calculate city penalty mod.
+				if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+				{
+					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+				}
+				//Let's do the yield mods.			
+
+				iMultiplier += iTempMod;
+				if (iTempMod != 0 && toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			}
+		}
+	}
+#endif
 #endif
 
 	// Military production bonus
@@ -14163,6 +14206,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeResourceDiversityModifier(pBuildingInfo->GetResourceDiversityModifier() * iChange);
 		}
+
+		if (pBuildingInfo->GetNoUnhappfromXSpecialists() != 0)
+		{
+			ChangeNoUnhappfromXSpecialists(pBuildingInfo->GetNoUnhappfromXSpecialists() * iChange);
+		}
+
 		if(bFirst && iChange > 0 && pBuildingInfo->GetNumFreeArtifacts() > 0)
 		{
 			for(int iI = 0; iI < pBuildingInfo->GetNumFreeArtifacts(); iI++)
@@ -15723,7 +15772,7 @@ void CvCity::CheckForOperationUnits()
 
 							//and train it!
 							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-							int iResult = CreateUnit(eBestUnit, eUnitAI, true);
+							int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
 							CvAssertMsg(iResult != -1, "Unable to create unit");
 							if (iResult != -1)
 							{
@@ -15819,7 +15868,7 @@ void CvCity::CheckForOperationUnits()
 
 				//and train it!
 				UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-				int iResult = CreateUnit(eBestUnit, eUnitAI, false);
+				int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
 				CvAssertMsg(iResult != -1, "Unable to create unit");
 				if (iResult != -1)
 				{
@@ -15923,6 +15972,8 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 #if defined(MOD_BALANCE_CORE)
 		iFoodPerPop += GetAdditionalFood();
+		iFoodPerPop += GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
+		iFoodPerPop = max(1, iFoodPerPop); //cannot reduce food per citizen to less than 1
 #endif
 
 		int iNormalFood = iPopulation * iFoodPerPop;
@@ -15978,6 +16029,15 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
+	}
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange() != 0)
+	{
+		int iFoodChangePerPop = GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
+		if (GC.getFOOD_CONSUMPTION_PER_POPULATION() - iFoodChangePerPop < 1)
+		{
+			iFoodChangePerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION() - 1; //can't reduce food consumption per citizen to less than 1
+		}
+		iNum += max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop;
 	}
 #endif
 	return iNum;
@@ -16286,7 +16346,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 					iNoHappinessSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialistsCapital();
 				}
 				//...elsewhere?	
-				iNoHappinessSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialists();
+				iNoHappinessSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
 			}
 			//Can't give more free happiness than specialists.
 			if (iNoHappinessSpecialists > iPopulation)
@@ -17595,11 +17655,7 @@ int CvCity::GetJONSCultureThreshold() const
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-int CvCity::getJONSCulturePerTurn(bool bStatic, bool bIgnoreHappiness) const
-#else
-int CvCity::getJONSCulturePerTurn() const
-#endif
+int CvCity::getJONSCulturePerTurn(bool bStatic) const
 {
 	VALIDATE_OBJECT
 
@@ -17620,7 +17676,7 @@ int CvCity::getJONSCulturePerTurn() const
 
 	// City modifier
 #if defined(MOD_API_UNIFIED_YIELDS)
-	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, 0, NULL, bIgnoreHappiness);
+	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, 0, NULL);
 	// the below section is executed within getBaseYieldRateModifier()
 #else
 	iModifier += getCultureRateModifier();
@@ -17670,8 +17726,11 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (IsRouteToCapitalConnected())
 	{
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if (iEra <= 0)
+			iEra = 1;
 		iCulturePerTurn += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(YIELD_CULTURE);
-		iCulturePerTurn += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_CULTURE);
+		iCulturePerTurn += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_CULTURE) * iEra;
 	}
 #endif
 
@@ -17963,8 +18022,11 @@ int CvCity::GetFaithPerTurn() const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (IsRouteToCapitalConnected())
 	{
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if (iEra <= 0)
+			iEra = 1;
 		iFaith += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(YIELD_FAITH);
-		iFaith += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_FAITH);
+		iFaith += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_FAITH) * iEra;
 	}
 #endif
 
@@ -19192,6 +19254,7 @@ int CvCity::GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvStrin
 #endif
 
 		// Resource wonder bonus
+		int iTotalBonus = 0;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
@@ -19235,13 +19298,16 @@ int CvCity::GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvStrin
 							}
 						}
 
-						iMultiplier += iBonus;
-						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_LOCAL_RES", iBonus, pkBuildingInfo->GetDescription());
+						iTotalBonus += iBonus;
 					}
 				}
 			}
 		}
-
+		if (iTotalBonus != 0)
+		{
+			iMultiplier += iTotalBonus;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_LOCAL_RES", iTotalBonus, pkBuildingInfo->GetDescription());
+		}
 	}
 
 	return iMultiplier;
@@ -20644,7 +20710,7 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 				iNoHappinessSpecialists += kPlayer.GetNoUnhappfromXSpecialistsCapital();
 			}
 			//...elsewhere?	
-			iNoHappinessSpecialists += kPlayer.GetNoUnhappfromXSpecialists();
+			iNoHappinessSpecialists += kPlayer.GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
 		}
 		//Can't give more free happiness than specialists.
 		if (iNoHappinessSpecialists > iSpecialists)
@@ -20758,13 +20824,25 @@ CvString CvCity::getPotentialUnhappinessWithGrowth()
 	CvString strPotential = GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH");
 
 	if (potDefUnhappy != 0)
-		strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE", potDefUnhappy);
+		if (potDefUnhappy > 0)
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE", potDefUnhappy);
+		else
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS", potDefUnhappy);
 	if (potGoldUnhappy != 0)
-		strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD", potGoldUnhappy);
+		if (potGoldUnhappy > 0)
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD", potGoldUnhappy);
+		else
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS", potGoldUnhappy);
 	if (potSciUnhappy != 0)
-		strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE", potSciUnhappy);
+		if (potSciUnhappy > 0)
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE", potSciUnhappy);
+		else
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS", potSciUnhappy);
 	if (potCulUnhappy != 0)
-		strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE", potCulUnhappy);
+		if (potCulUnhappy > 0)
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE", potCulUnhappy);
+		else
+			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS", potCulUnhappy);
 
 	return strPotential;
 }
@@ -21650,7 +21728,7 @@ int CvCity::getUnhappinessFromCulture(int iPopMod, bool bForceGlobal) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromScienceYield(int iModPop) const
 {
-	int iCityResearch = getYieldRateTimes100(YIELD_SCIENCE, false, true, true);
+	int iCityResearch = getYieldRateTimes100(YIELD_SCIENCE, false, true);
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -21762,7 +21840,7 @@ int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseYield(int iModPop) const
 {
-	int iDefenseYield = (getYieldRateTimes100(YIELD_FOOD, false, true, true) + getYieldRateTimes100(YIELD_PRODUCTION, false, false, true)) / 2;
+	int iDefenseYield = (getYieldRateTimes100(YIELD_FOOD, false, true) + getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 2;
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -21870,7 +21948,7 @@ int CvCity::getUnhappinessFromDefense(int iPopMod, bool bForceGlobal) const
 int CvCity::getUnhappinessFromGoldYield(int iModPop) const
 {
 
-	int iGold = getYieldRateTimes100(YIELD_GOLD, false, true, true);
+	int iGold = getYieldRateTimes100(YIELD_GOLD, false, true);
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -23133,7 +23211,7 @@ void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 #endif
 
 //	--------------------------------------------------------------------------------
-int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink, bool bIgnoreHappiness) const
+int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
 	int iModifier = 0;
@@ -23520,48 +23598,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 
 	iModifier += iExtra;
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
-	{
-		if (eIndex == YIELD_PRODUCTION && getProductionUnit() != NO_UNIT && (GC.getUnitInfo(getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(getProductionUnit())->GetRangedCombat() > 0))
-		{
-			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
-
-			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
-			{
-				if (iTempMod > 0)
-					iTempMod = 0;
-
-				iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
-			}
-
-			//malus?
-			if (iTempMod < 0)
-			{
-				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-				{
-					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
-				}
-				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-				{
-					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
-				}
-				//If happiness is less than the main threshold, calculate city penalty mod.
-				if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
-				{
-					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
-				}
-				//Let's do the yield mods.			
-
-				iModifier += iTempMod;
-				if (iTempMod != 0 && toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
-			}
-		}
-	}
-#endif
-
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
 	// so if any extra checked things are added here, the cache needs to be invalidated
 
@@ -23618,7 +23654,7 @@ int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const
 }
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic, bool bIgnoreHappiness) const
+int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic) const
 #else
 int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 #endif
@@ -23687,10 +23723,10 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 	}
 
 #if defined(MOD_PROCESS_STOCKPILE)
-	return getBasicYieldRateTimes100(eIndex, bIgnoreTrade, bIgnoreHappiness) + iProcessYield;
+	return getBasicYieldRateTimes100(eIndex, bIgnoreTrade) + iProcessYield;
 }
 
-int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bIgnoreHappiness) const
+int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 {
 #endif
 	// Sum up yield rate
@@ -23705,7 +23741,7 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool
 		 iBaseYield += iBonusTimes100;
 	}
 
-	int iModifiedYield = iBaseYield * getBaseYieldRateModifier(eIndex, 0, NULL, bIgnoreHappiness);
+	int iModifiedYield = iBaseYield * getBaseYieldRateModifier(eIndex, 0, NULL);
 	iModifiedYield /= 100;
 
 #if !defined(MOD_PROCESS_STOCKPILE)
@@ -23785,8 +23821,11 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (IsRouteToCapitalConnected())
 	{
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if (iEra <= 0)
+			iEra = 1;
 		iValue += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(eIndex);
-		iValue += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(eIndex);
+		iValue += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(eIndex) * iEra;
 	}
 #endif
 
@@ -25427,6 +25466,20 @@ int CvCity::GetResourceDiversityModifier() const
 	VALIDATE_OBJECT
 	return m_iResourceDiversityModifier;
 }
+
+
+void CvCity::ChangeNoUnhappfromXSpecialists(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iNoUnhappfromXSpecialists += iChange;
+}
+int CvCity::GetNoUnhappfromXSpecialists() const
+{
+	VALIDATE_OBJECT
+		return m_iNoUnhappfromXSpecialists;
+}
+
+
 
 //	--------------------------------------------------------------------------------
 bool CvCity::IsBastion() const
@@ -28439,7 +28492,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 		if(bFinish)
 		{
-			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit);
+			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit, REASON_TRAIN);
 			if(iResult != -1)
 			{
 #if defined(MOD_BALANCE_CORE)
@@ -28513,7 +28566,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestLandUnit, eUnitAI);
+								int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -28541,7 +28594,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eWarrior, eUnitAI);
+								int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -29087,7 +29140,7 @@ bool CvCity::CleanUpQueue(void)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation, bool bIsPurchase)
+int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationReason eReason, bool bUseToSatisfyOperation, bool bIsPurchase)
 {
 	VALIDATE_OBJECT
 	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
@@ -29096,7 +29149,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		pUnitPlot = plot(); 
 
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType);
+	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType, eReason);
 	if(!pUnit)
 	{
 		CvAssertMsg(false, "CreateUnit failed");
@@ -29396,6 +29449,8 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			}
 		}
 	}
+
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
 
 	return true;
 }
@@ -30177,7 +30232,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else
 			{
 #endif
-			int iResult = CreateUnit(eUnitType, NO_UNITAI, false, true);
+			int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult != -1)
 			{
@@ -30368,7 +30423,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 		if(eUnitType >= 0)
 		{
-			int iResult = CreateUnit(eUnitType);
+			int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_TRAIN);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult == -1)
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.

@@ -717,9 +717,11 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 	if(ePlayer != NO_PLAYER)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-		CvUnit* pkGameplayUnit = kPlayer.initUnit(eUnitType, iPlotX, iPlotY, eAIType, eFacing, false);
+		CvUnit* pkGameplayUnit = kPlayer.initUnit(eUnitType, iPlotX, iPlotY, eAIType);
 		if(pkGameplayUnit != NULL)
 		{
+			pkGameplayUnit->setFacingDirection(eFacing);
+
 			if(kSavedUnit.GetFlag(CvWorldBuilderMap::Unit::UNIT_FORTIFIED))
 			{
 				if(pkGameplayUnit->canFortify(pkGameplayUnit->plot()))

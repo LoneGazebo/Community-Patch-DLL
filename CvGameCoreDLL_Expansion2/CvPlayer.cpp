@@ -2752,7 +2752,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 	}
 
-#if !defined(MOD_VENETIAN_SETTLERS)
+//#if defined(MOD_VENETIAN_SETTLERS)
 	// Venice can receive settlers but not build any ...
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -2787,7 +2787,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 		}	
 	}
-#endif
+//#endif
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -4407,6 +4407,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #endif
+	bool bKeepBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || bVenice;
 	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -4423,7 +4424,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
 			}
 
-			if (GetPlayerTraits()->IsKeepConqueredBuildings() && paiNumFreeBuilding[iI] > 0)
+			if (bKeepBuildings && paiNumFreeBuilding[iI] > 0)
 			{
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
 				if (::isWorldWonderClass(kLoopBuildingClassInfo))
@@ -4431,7 +4432,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					eBuilding = eLoopBuilding;
 				}
 #if defined(MOD_BALANCE_CORE)
-				else if (GetPlayerTraits()->IsKeepConqueredBuildings())
+				else if (bKeepBuildings)
 				{
 					//If we keep buildings, but we have a replacement, grab the replacement instead.
 					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
@@ -4485,7 +4486,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					eBuilding = eLoopBuilding;
 				}
 #if defined(MOD_BALANCE_CORE)
-				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
+				else if(bKeepBuildings)
 				{
 					//If we keep buildings, but we have a replacement, grab the replacement instead.
 					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
@@ -9459,7 +9460,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 									for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI); iJ++)
 									{
 										UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-										int iResult = pLoopCity->CreateUnit(eLoopUnit, eUnitAI);
+										int iResult = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
 
 										CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -9510,7 +9511,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 								{
 									continue;
 								}
-								int iResult = pLoopCity->CreateUnit(eUnit, eUnitAI);
+								int iResult = pLoopCity->CreateUnit(eUnit, eUnitAI, REASON_GIFT);
 
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -9862,6 +9863,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWarmongerThreat(eMePlayer, THREAT_NONE);
+			pDiploAI->SetOtherPlayerWarmongerAmountTimes100(eMePlayer, 0);
 
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
@@ -10053,11 +10055,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE_JFD)
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
-#else
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
-#endif
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10068,7 +10066,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	if (pkUnitDef == NULL)
 		return NULL;
 
-	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4)
+	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason!=REASON_UPGRADE && eReason!=REASON_GIFT)
 	{
 		OutputDebugString("Creating unit over supply limit\n");
 	}
@@ -10077,11 +10075,8 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-#if defined(MOD_BALANCE_CORE_JFD)
-		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
-#else
-		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
-#endif
+		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
 		if(pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
@@ -10095,7 +10090,8 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	m_kPlayerAchievements.AddUnit(pUnit);
 	return pUnit;
 }
-CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
+
+CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10110,7 +10106,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -10126,9 +10122,9 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 
 	return pUnit;
 }
-#if defined(MOD_BALANCE_CORE)
+
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
+CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10152,7 +10148,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if (NULL != pUnit)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, -1, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, NO_CONTRACT, true, true);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, -1, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, NO_CONTRACT, true, true);
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -10200,7 +10196,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 
 	return pUnit;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 void CvPlayer::disbandUnit(bool)
 {
@@ -13956,7 +13952,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				}
 			}
 
-			CvUnit* pNewUnit = initUnit(eUpgradeUnit, pPlot->getX(), pPlot->getY(), newAIDefault, NO_DIRECTION, false, false, 0, pUnit->GetNumGoodyHutsPopped());
+			CvUnit* pNewUnit = initUnit(eUpgradeUnit, pPlot->getX(), pPlot->getY(), newAIDefault, REASON_GIFT, false, false, 0, pUnit->GetNumGoodyHutsPopped());
 			pUnit->finishMoves();
 			pUnit->SetBeenPromotedFromGoody(true);
 
@@ -16889,6 +16885,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			SetNullifyInfluenceModifier(true);
 		else
 			SetNullifyInfluenceModifier(false);
+	}
+
+	if (pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() != 0)
+	{
+		ChangeNoUnhappfromXSpecialists(pBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() * iChange);
 	}
 
 	if(pBuildingInfo->IsSecondaryPantheon())
@@ -20486,6 +20487,13 @@ void CvPlayer::SetUnhappiness(int iNewValue)
 int CvPlayer::GetUnhappiness() const
 {
 	return m_iUnhappiness;
+}
+
+int CvPlayer::GetHappinessRatioRawPercent()
+{
+	int iUnhappyCitizens = getUnhappinessFromCitizenNeeds();
+	int iHappyCitizens = getHappinessFromCitizenNeeds();
+	return (iHappyCitizens * 100) / max(1, iUnhappyCitizens);
 }
 
 void CvPlayer::CalculateNetHappiness()
@@ -32134,7 +32142,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 						if (eWinningTeam != NO_TEAM)
 						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+							if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 							{
 								if (eWinningPlayer == GetID())
 								{
@@ -32222,7 +32230,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 						if (eWinningTeam != NO_TEAM)
 						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+							if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 							{
 								if (eWinningPlayer == GetID())
 								{
@@ -35426,8 +35434,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 		if (pkUnitEntry)
 		{
 			UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-			int iResult = pCity->CreateUnit(eBestUnit, eUnitAI);
-
+			int iResult = pCity->CreateUnit(eBestUnit, eUnitAI, REASON_GIFT);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 
 			if (iResult != -1)
@@ -44517,7 +44524,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestLandUnit, eUnitAI);
+								int iResult = pCapital->CreateUnit(eBestLandUnit, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44539,7 +44546,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eWarrior, eUnitAI);
+								int iResult = pCapital->CreateUnit(eWarrior, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44611,7 +44618,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI);
+								int iResult = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44633,7 +44640,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eArcher, eUnitAI);
+								int iResult = pCapital->CreateUnit(eArcher, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44709,7 +44716,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestSeaUnit, eUnitAI);
+								int iResult = pCapital->CreateUnit(eBestSeaUnit, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44731,7 +44738,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eCaravel, eUnitAI);
+								int iResult = pCapital->CreateUnit(eCaravel, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44803,7 +44810,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI);
+								int iResult = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -44825,7 +44832,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							if(pkbUnitEntry)
 							{
 								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = pCapital->CreateUnit(eGalleass, eUnitAI);
+								int iResult = pCapital->CreateUnit(eGalleass, eUnitAI, REASON_GIFT);
 								CvAssertMsg(iResult != -1, "Unable to create unit");
 								if (iResult != -1)
 								{
@@ -46227,8 +46234,11 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 		iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 		iThreshold /= 100;
 
-		iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
-		iThreshold /= 100;
+		if (!MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+			iThreshold /= 100;
+		}
 	}
 
 	return std::max(1, iThreshold);

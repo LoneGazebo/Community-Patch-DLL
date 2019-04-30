@@ -6196,6 +6196,9 @@
 			<Text>Pledge of Protection secured.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET]Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must be in the top 60% of the world in terms of Military Power. Yours is ranked at {1_Num}% of world Military Power.[ENDCOLOR]</Text>
 		</Row>

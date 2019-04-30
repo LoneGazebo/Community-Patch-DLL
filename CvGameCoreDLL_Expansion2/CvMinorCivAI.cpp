@@ -13158,7 +13158,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod > iCurrentTurn)
 	{
-		Localization::String sPledgeBroken = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_INFLUENCE_TT");
+		Localization::String sPledgeBroken = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT");
 		int iTurn = ((iLastPledgeBrokenTurn + iGracePeriod) - iCurrentTurn);
 		sPledgeBroken << iTurn;
 
@@ -15619,119 +15619,20 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// +0 ~ +125
 	// **************************
-	int iComparisonRadius = 0;
-	if (MOD_BALANCE_CORE_MINORS)
-	{
-		iComparisonRadius = 6;
-		if (!GET_PLAYER(eBullyPlayer).isHuman())
-		{
-			iComparisonRadius += (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2);
-		}
-	}
-	else
-	{
-		iComparisonRadius = std::max(GC.getMap().getGridWidth() / 15, 4);
-	}
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if(pMinorCapital == NULL)
 		return iFailScore;
-	CvPlot* pMinorCapitalPlot = pMinorCapital->plot();
-	if(pMinorCapitalPlot == NULL)
-		return iFailScore;
-	int iMinorCapitalX = pMinorCapitalPlot->getX();
-	int iMinorCapitalY = pMinorCapitalPlot->getY();
-	int iMinorLocalPower = 0;
-	int iBullyLocalPower = 0;
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
 
-	// Include the minor's city power
-	iMinorLocalPower += pMinorCapital->GetPower();
-
-	for(int iDX = -iComparisonRadius; iDX <= iComparisonRadius; iDX++)
-	{
-		for(int iDY = -iComparisonRadius; iDY <= iComparisonRadius; iDY++)
-		{
-			pLoopPlot = ::plotXYWithRangeCheck(iMinorCapitalX, iMinorCapitalY, iDX, iDY, iComparisonRadius);
-
-			if(pLoopPlot != NULL)
-			{
-				// If there are Units here, loop through them
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					pUnitNode = pLoopPlot->headUnitNode();
-
-					while(pUnitNode != NULL)
-					{
-						pLoopUnit = ::getUnit(*pUnitNode);
-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-						// Is a combat unit
-						if(pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
-						{
-							if(pLoopUnit->getOwner() == eBullyPlayer)
-							{
-								iBullyLocalPower += pLoopUnit->GetPower();
-							}
-							else if(pLoopUnit->getOwner() == GetPlayer()->GetID())
-							{
-								iMinorLocalPower += pLoopUnit->GetPower();
-							}
-						}
-					}
-				}
-
-			}
-		}
-	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	float fLocalPowerRatio = 0;
-	int iLocalPowerScore = 0;
-	if (MOD_BALANCE_CORE_MINORS)
-	{
-		if (iMinorLocalPower < (iBullyLocalPower / 3))
-			iMinorLocalPower = (iBullyLocalPower / 3);
-
-		fLocalPowerRatio = (float)iBullyLocalPower * 100 / (float)iMinorLocalPower;
-
-		iLocalPowerScore += (int)fLocalPowerRatio;
-	}
-	else
-	{
-#endif
-
-	fLocalPowerRatio = (float)iBullyLocalPower / (float)iMinorLocalPower;
-
-	if(fLocalPowerRatio >= 3.0)
-	{
-		iLocalPowerScore += 125;
-	}
-	else if(fLocalPowerRatio >= 2.0)
-	{
-		iLocalPowerScore += 100;
-	}
-	else if(fLocalPowerRatio >= 1.5)
-	{
-		iLocalPowerScore += 75;
-	}
-	else if(fLocalPowerRatio >= 1.0)
-	{
-		iLocalPowerScore += 50;
-	}
-	else if(fLocalPowerRatio >= 0.5)
-	{
-		iLocalPowerScore += 25;
-	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	}
-#endif
-	iScore += iLocalPowerScore;
+	int iComparisonRadius = 4;
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pMinorCapital->plot(), iComparisonRadius, GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
+	//don't forget the city itself
+	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
+	iScore += iLocalPowerRatio;
 
 	if (sTooltipSink)
 	{
 		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-		strPositiveFactor << iLocalPowerScore;
+		strPositiveFactor << iLocalPowerRatio;
 		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
 		sFactors += strPositiveFactor.toUTF8();
 	}
@@ -15746,7 +15647,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if (iPoliciesMod != 0)
 	{
 		iPoliciesScore += iGlobalMilitaryScore;
-		iPoliciesScore += iLocalPowerScore;
+		iPoliciesScore += iLocalPowerRatio;
 
 		iPoliciesScore *= iPoliciesMod;
 		iPoliciesScore /= 100;
@@ -15779,7 +15680,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	}
 
 	if (GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IsBullyAnnex())
-		iBaseReluctanceScore += (GET_PLAYER(eBullyPlayer).GetNumMinorsControlled() * -10);
+		iBaseReluctanceScore -= (GET_PLAYER(eBullyPlayer).GetNumMinorsControlled() * 20);
 
 #endif
 	if (sTooltipSink)

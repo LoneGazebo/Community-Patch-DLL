@@ -65,6 +65,9 @@
 // for statistics
 int saiTaskWhenKilled[100] = {0};
 
+// for diagnosing movement problems, it's useful so set this flag to true on a breakpoint and examine the AI units in game
+bool g_bFreezeUnits = false;
+
 namespace FSerialization
 {
 
@@ -535,24 +538,13 @@ CvUnit::~CvUnit()
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE_JFD)
-void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
-#else
-void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped)
-#endif
+void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
 {
-#if defined(MOD_BALANCE_CORE_JFD)
-	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
-#else
-	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
-#endif
+	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
 }
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, bool bSkipNaming)
-#else
-void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped)
-#endif
+
+void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason /*eReason*/, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, bool bSkipNaming)
 {
 	VALIDATE_OBJECT
 	CvString strBuffer;
@@ -568,10 +560,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// Init saved data
 	reset(iID, eUnit, eOwner);
 
-	if(eFacingDirection == NO_DIRECTION)
-		m_eFacingDirection = DIRECTION_SOUTHEAST;
-	else
-		m_eFacingDirection = eFacingDirection;
+	//set to some default
+	m_eFacingDirection = DIRECTION_SOUTHEAST;
 
 	// If this is a hovering unit, we must add that promotion before setting XY, or else it'll get the embark promotion (which we don't want)
 	PromotionTypes ePromotion;
@@ -6255,7 +6245,7 @@ void CvUnit::gift(bool bTestTransport)
 	}
 
 	CvAssertMsg(plot()->getOwner() != NO_PLAYER, "plot()->getOwner() is not expected to be equal with NO_PLAYER");
-	pGiftUnit = GET_PLAYER(plot()->getOwner()).initUnit(getUnitType(), getX(), getY(), AI_getUnitAIType(), NO_DIRECTION, false, false);
+	pGiftUnit = GET_PLAYER(plot()->getOwner()).initUnit(getUnitType(), getX(), getY(), AI_getUnitAIType(), REASON_GIFT, false, false);
 
 	CvAssertMsg(pGiftUnit != NULL, "GiftUnit is not assigned a valid value");
 
@@ -10288,6 +10278,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	{
 		return false;
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	if (getMoves() <= iMovesOverride && !hasFreePillageMove())
 		return false;
@@ -14840,7 +14831,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 #endif
 
 	// Add newly upgraded Unit & kill the old one
-	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, NO_DIRECTION, false, false);
+	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, REASON_UPGRADE, false, false);
 
 	if(NULL != pNewUnit)
 	{
@@ -20124,7 +20115,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					{
 						//! Be sure the unit your initializing has as its unitinfo (GetDomainType() == IsConvertDomain(pNewPlot->getDomain())
 						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
+						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, REASON_CONVERT, true, true, 0, 0, NO_CONTRACT, false);
 						kill(true, NO_PLAYER);
 						pNewUnit->finishMoves();
 					}
@@ -24287,7 +24278,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 							if(iExistingDamage > iDamageTheshold)
 							{
 								CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
-								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
 								pConvertUnit->convert(pAdjacentUnit, false);
 								pConvertUnit->setupGraphical();
 								pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
@@ -24428,7 +24419,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 					if(pkbUnitEntry)
 					{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-						pConvertUnit = kPlayer.initUnit(eBestLandUnit, this->getX(), this->getY(), eUnitAI, NO_DIRECTION, true);
+						pConvertUnit = kPlayer.initUnit(eBestLandUnit, this->getX(), this->getY(), eUnitAI, REASON_CONVERT, true);
 						pConvertUnit->convert(this, false);
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if (pNotifications)
@@ -24448,7 +24439,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 					if(pkbUnitEntry)
 					{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-						pConvertUnit = kPlayer.initUnit(eWarrior, this->getX(), this->getY(), eUnitAI, NO_DIRECTION, true);
+						pConvertUnit = kPlayer.initUnit(eWarrior, this->getX(), this->getY(), eUnitAI, REASON_CONVERT, true);
 						pConvertUnit->convert(this, false);
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if (pNotifications)
@@ -29537,6 +29528,12 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if (!GET_PLAYER(getOwner()).isTurnActive())
 		return;
 
+	if (g_bFreezeUnits)
+	{
+		finishMoves();
+		return;
+	}
+
 	//any mission resets the cache
  	ClearReachablePlots();
 	m_lastStrengthModifiers.clear();
@@ -31890,27 +31887,13 @@ bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 
 //	--------------------------------------------------------------------------------
 /// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
-bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, bool bAllowEmbark, int* piTurns /* = NULL */)
+bool CvUnit::CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns)
 {
 	if (!pTarget)
 		return false;
 
-	int iFlags = 0;
-	if (!bAllowEmbark)
-		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
-
-	if (bIgnoreUnits)
-	{
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
-	}
-
-	int iTurnsCalculated = TurnsToReachTarget(pTarget, iFlags, iTurns);
-	if (piTurns)
-		*piTurns = iTurnsCalculated;
-
-	return (iTurnsCalculated <= iTurns);
+	//stop pathfinding if we need to end the turn on a dangerous plot
+	return (TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, iTurns) <= iTurns);
 }
 
 //	--------------------------------------------------------------------------------

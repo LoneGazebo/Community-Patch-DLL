@@ -1526,9 +1526,9 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	//how much happiness from one additional luxury?
 	int iBaseHappiness = 0;
 	if (bFromMe)
-		iBaseHappiness += GetPlayer()->GetHappinessFromLuxury(eResource) + GetPlayer()->GetBonusHappinessFromLuxuriesGradient();
+		iBaseHappiness += GetPlayer()->GetHappinessFromLuxury(eResource);
 	else
-		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource) + GET_PLAYER(eOtherPlayer).GetBonusHappinessFromLuxuriesGradient();
+		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
 
 	int iItemValue = max(1, iBaseHappiness) * iNumTurns;
 

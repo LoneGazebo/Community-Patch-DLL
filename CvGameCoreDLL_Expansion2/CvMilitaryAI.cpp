@@ -1193,7 +1193,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 				if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
 				{
 					// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-					int iResult = pCity->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
+					int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
 
 					CvAssertMsg(iResult != -1, "Unable to create unit");
 
@@ -1237,7 +1237,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 				m_pPlayer->ChangeFaith(-iFaithCost);
 
 				// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-				int iResult = pCity->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
+				int iResult = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
 
 				CvAssertMsg(iResult != -1, "Unable to create unit");
 				CvUnit* pUnit = m_pPlayer->getUnit(iResult);
@@ -3136,6 +3136,46 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 	}
 }
 
+/// Log it if we try to DOW a vassal
+void CvMilitaryAI::LogVassalFailure(TeamTypes eOpponentTeam)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strOpponentName;
+		CvString strPlayerName;
+		CvString strTemp;
+		FILogFile* pLog;
+
+		// Open the right file
+		strPlayerName = GetPlayer()->getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += strPlayerName + ", ";
+
+		// Collect the names of the players on the team
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+		{
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kPlayer.isAlive() && kPlayer.getTeam() == eOpponentTeam)
+			{
+				if (strOpponentName.GetLength() != 0)
+					strOpponentName += ", ";
+
+				strOpponentName += kPlayer.getCivilizationShortDescription();
+			}
+		}
+		// Strategy Info
+		strTemp.Format("Tried to DOW a vassal without war on master first...WTF! : %d (%s)", (int)eOpponentTeam, strOpponentName.GetCString());
+		strOutBuf = strBaseString + strTemp;
+		pLog->Msg(strOutBuf);
+
+		LogMilitarySummaryMessage(strTemp);
+	}
+}
 
 /// Log that a unit is being scrapped because of the deficit checks
 void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit)

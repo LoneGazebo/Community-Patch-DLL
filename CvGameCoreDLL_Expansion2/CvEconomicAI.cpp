@@ -2042,7 +2042,7 @@ void CvEconomicAI::DoHurry()
 					else
 					{
 						UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
-						int iResult = pSelectedCity->CreateUnit(eUnitType, eUnitAI, false);
+						int iResult = pSelectedCity->CreateUnit(eUnitType, eUnitAI, REASON_BUY, false);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
 						{

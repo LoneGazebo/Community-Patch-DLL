@@ -1355,6 +1355,31 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
+	//we got here, and we are STILL trying to hit a vassal without hitting the master first? WTF bro.
+	if (GET_TEAM(eTeam).GetMaster() != NO_PLAYER && eTeam != GetID() && GET_TEAM(eTeam).GetMaster() != GetID())
+	{
+		if (!isAtWar(GET_TEAM(eTeam).GetMaster()))
+		{
+			PlayerTypes eOurPlayer;
+			for (int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
+			{
+				eOurPlayer = (PlayerTypes)iOurPlayerLoop;
+				CvPlayer& pOurPlayer = GET_PLAYER(eOurPlayer);
+
+				if (pOurPlayer.isAlive())
+				{
+					// Our Team
+					if (pOurPlayer.getTeam() == GetID())
+					{
+						pOurPlayer.GetMilitaryAI()->LogVassalFailure(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
+						DoDeclareWar(eOurPlayer, bAggressor, GET_TEAM(eTeam).GetMaster(), bDefensivePact);
+					}
+				}
+			}
+			return;
+		}
+	}
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
@@ -10108,6 +10133,24 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 
 	setVassal(eTeam, true, bVoluntary);	// We become the vassal of eTeam
 	GET_TEAM(eTeam).AcquireMap(GetID(), /*bTerritoryOnly*/ true);	// eTeam acquires our territory map
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+		{
+			for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+			{
+				if ((PlayerTypes)iPlayerLoop2 == NO_PLAYER)
+					continue;
+
+				if (!GET_PLAYER((PlayerTypes)iPlayerLoop2).isAlive())
+					continue;
+
+				GET_PLAYER((PlayerTypes)iPlayerLoop2).GetDiplomacyAI()->KilledPlayerCleanup(eLoopPlayer);
+			}
+		}
+	}
 
 	// Let's save some stuff
 	setNumCitiesWhenVassalMade(getNumCities());

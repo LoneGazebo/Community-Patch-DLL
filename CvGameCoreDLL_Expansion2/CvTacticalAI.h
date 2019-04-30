@@ -884,7 +884,7 @@ private:
 	int ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget);
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
-	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns);
+	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns, bool bMustBeSafePath = false);
 
 	CvPlot* FindBestBarbarianLandMove(CvUnit* pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(CvUnit* pUnit);
@@ -1222,6 +1222,7 @@ namespace TacticalAIHelpers
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	CvPlot* GetFirstTargetInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
+	pair<int, int> EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);

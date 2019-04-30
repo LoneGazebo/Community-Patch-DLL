@@ -105,27 +105,23 @@ void CvHomelandAI::Write(FDataStream& kStream)
 /// Mark all the units that will be under tactical AI control this turn
 void CvHomelandAI::RecruitUnits()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
-
 	m_CurrentTurnUnits.clear();
 	m_automatedTargetPlots.clear();
 
 	// Loop through our units
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	int iLoop;
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Sanity check
-		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>0)
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>99)
 			OutputDebugString("undefended general found!\n");
 
-		// Never want immobile/dead units or ones that have already moved
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove())
-		{
+		// Never want units that have already moved or zombies
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
 			continue;
-		}
 
-		//units we don't know how to handle here or which should have been processed in tactical AI
-		if(pLoopUnit->getArmyID()!=-1 || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || !pLoopUnit->canMove())
+		//don't touch armies or units which are out of moves
+		if(!pLoopUnit->canMove() || pLoopUnit->getArmyID()!=-1)
 		{
 			pLoopUnit->SetTurnProcessed(true);
 			continue;
@@ -2275,62 +2271,16 @@ void CvHomelandAI::PlotUpgradeMoves()
 		}
 
 		// Already in friendly territory
-#if !defined(MOD_BALANCE_CORE)
-		if(pUnit->plot()->getOwner() == pUnit->getOwner())
-#endif
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				CvString strTemp;
+			CvString strLogString;
+			CvString strTemp;
 
-				strTemp = pUnit->getUnitInfo().GetDescription();
-				strLogString.Format("Need gold for %s upgrade, GOLD: Available = %d, Needed = %d, Priority = %d",
-				                    strTemp.GetCString(), m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority);
-				LogHomelandMessage(strLogString);
-			}
+			strTemp = pUnit->getUnitInfo().GetDescription();
+			strLogString.Format("Need gold for %s upgrade, GOLD: Available = %d, Needed = %d, Priority = %d",
+				                strTemp.GetCString(), m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority);
+			LogHomelandMessage(strLogString);
 		}
-#if !defined(MOD_BALANCE_CORE)
-		else
-		{
-			// Move top priority unit toward closest city
-			CvCity* pUpgradeCity = NULL;
-			int iBestDistance = MAX_INT;
-			for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
-			{
-				CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-				CvCity* pCity = pTarget->getPlotCity();
-
-				int iDistance = plotDistance(pCity->getX(), pCity->getY(), pUnit->getX(), pUnit->getY());
-
-				if(iDistance < iBestDistance)
-				{
-					iBestDistance = iDistance;
-					pUpgradeCity = pCity;
-				}
-			}
-
-			if(pUpgradeCity)
-			{
-				if(MoveToEmptySpaceNearTarget(pUnit, pUpgradeCity->plot(), DOMAIN_LAND, 23))
-				{
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						CvString strTemp;
-						strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-						strLogString.Format("Moving %s for upgrade at %s, GOLD: Available = %d, Needed = %d, Priority = %d, Dist = %d",
-						                    strTemp.GetCString(), pUpgradeCity->getName().GetCString(),
-						                    m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority, iBestDistance);
-						LogHomelandMessage(strLogString);
-					}
-				}
-			}
-		}
-#endif
 	}
 
 	return;
@@ -3508,7 +3458,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if(iTotalScore > iBestPlotScore)
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
-					if (!pUnit->CanReachInXTurns(pEvalPlot,1,false,false))
+					if (pUnit->TurnsToReachTarget(pEvalPlot,false,false,1)>1)
 						continue;
 
 					pBestPlot = pEvalPlot;
@@ -7710,15 +7660,6 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 {
 	if (!pUnit || !pTarget)
 		return false;
-
-	//nothing to do?
-	if ((plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY()) < 3) &&
-		(eDomain == NO_DOMAIN || pTarget->getDomain() == eDomain) &&
-		(pUnit->plot()->isAdjacentToArea(pTarget->getArea())))
-	{
-		pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		return true;
-	}
 
 	int iFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
 	if (eDomain == pTarget->getDomain())
