@@ -11948,43 +11948,15 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		return;
 	}
 
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		// Find the name of this civ and city
-		CvString playerName = GetPlayer()->getCivilizationShortDescription();
-		CvString otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-
-		// Open the log file
-		CvString strLogName = GC.getPlayerAndCityAILogSplit() ? "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv" : "DiplomacyAI_ExpansionLogic_Log.csv";
-		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		CvString strBaseString;
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
-		strBaseString += otherplayerName + ", ";
-
-		// Actual info
-		CvString strOutBuf(strBaseString);
-		strOutBuf += (bFromPromise ? "promised: " : "previous: ");
-		strOutBuf += pOurOldClosestCity->getName() + ", ";
-		strOutBuf += pTheirOldClosestCity->getName() + ", ";
-		strOutBuf += "now: ";
-		strOutBuf += pOurNewClosestCity->getName() + ", ";
-		strOutBuf += pTheirNewClosestCity->getName();
-
-		pLog->Msg(strOutBuf);
-	}
-
-	// First calculate distances (minus 1 so we only count the plots in between the cities)
-	int iOldDistance = plotDistance(*pOurOldClosestCity->plot(),*pTheirOldClosestCity->plot())-1;
-	int iNewDistance = plotDistance(*pOurNewClosestCity->plot(),*pTheirNewClosestCity->plot())-1;
+	// First calculate distance
+	int iOldDistance = plotDistance(*pOurOldClosestCity->plot(),*pTheirOldClosestCity->plot());
+	int iNewDistance = plotDistance(*pOurNewClosestCity->plot(),*pTheirNewClosestCity->plot());
 
 	//Last turn posture.
 	AggressivePostureTypes eLastAggressivePosture = GetExpansionAggressivePosture(ePlayer);
 
 	//If same distance we can't be mad at them for expanding, so no change in aggressive posture.
-	if (iNewDistance >= iOldDistance || eLastAggressivePosture == AGGRESSIVE_POSTURE_NONE)
+	if (iNewDistance >= iOldDistance && eLastAggressivePosture != AGGRESSIVE_POSTURE_NONE)
 		return;
 
 	//If their city is newer, they are being aggressive!
@@ -12026,8 +11998,19 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 					"AGGRESSIVE_POSTURE_HIGH",
 					"AGGRESSIVE_POSTURE_INCREDIBLE" };
 
-				CvString strOutBuf;
-				strOutBuf.Format("%s, ***** NEW STANCE: %s, distance %d", strBaseString.c_str(), names[eNewAggressivePosture], iNewDistance);
+				// Actual info
+				CvString strOutBuf(strBaseString);
+				CvString strTmp;
+				strOutBuf += (bFromPromise ? "promised: " : "previous: ");
+				strOutBuf += pOurOldClosestCity->getName() + ", ";
+				strOutBuf += pTheirOldClosestCity->getName() + ", ";
+				strTmp.Format("%s, distance %d", names[eLastAggressivePosture], iOldDistance);
+				strOutBuf += strTmp + ", ";
+				strOutBuf += "now: ";
+				strOutBuf += pOurNewClosestCity->getName() + ", ";
+				strOutBuf += pTheirNewClosestCity->getName() + ", ";
+				strTmp.Format("%s, distance %d", names[eNewAggressivePosture], iNewDistance);
+				strOutBuf += strTmp;
 
 				pLog->Msg(strOutBuf);
 			}
