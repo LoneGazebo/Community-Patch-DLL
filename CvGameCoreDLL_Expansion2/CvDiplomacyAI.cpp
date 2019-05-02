@@ -11994,6 +11994,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 			strBaseString += otherplayerName + ", ";
 
 			char *names[] = {
+				"AGGRESSIVE_POSTURE_UNDEFINED",
 				"AGGRESSIVE_POSTURE_NONE",
 				"AGGRESSIVE_POSTURE_LOW",
 				"AGGRESSIVE_POSTURE_MEDIUM",
@@ -12006,12 +12007,12 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 			strOutBuf += (bFromPromise ? "promised: " : "previous: ");
 			strOutBuf += pOurOldClosestCity->getName() + ", ";
 			strOutBuf += pTheirOldClosestCity->getName() + ", ";
-			strTmp.Format("%s, distance %d", names[eLastAggressivePosture], iOldDistance);
+			strTmp.Format("%s, distance %d", names[eLastAggressivePosture+1], iOldDistance);
 			strOutBuf += strTmp + ", ";
 			strOutBuf += "now: ";
 			strOutBuf += pOurNewClosestCity->getName() + ", ";
 			strOutBuf += pTheirNewClosestCity->getName() + ", ";
-			strTmp.Format("%s, distance %d", names[eNewAggressivePosture], iNewDistance);
+			strTmp.Format("%s, distance %d", names[eNewAggressivePosture+1], iNewDistance);
 			strOutBuf += strTmp;
 
 			pLog->Msg(strOutBuf);
