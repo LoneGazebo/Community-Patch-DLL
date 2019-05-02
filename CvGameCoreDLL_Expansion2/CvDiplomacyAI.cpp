@@ -11873,7 +11873,7 @@ pair<int,int> CvDiplomacyAI::GetClosestCityPair(PlayerTypes eOtherPlayer)
 		int iDistance = plotDistance(*pOtherCity->plot(), *pOurClosestCity->plot());
 		if (iDistance < iMinDistance)
 		{
-			iDistance = iMinDistance;
+			iMinDistance = iDistance;
 			result = make_pair( pOurClosestCity->plot()->GetPlotIndex(),pOtherCity->plot()->GetPlotIndex() );
 		}
 	}
@@ -11899,10 +11899,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(!IsPlayerValid(ePlayer))
+	if (!IsPlayerValid(ePlayer))
 		return;
 
-	if(GET_PLAYER(ePlayer).isMinorCiv())
+	if (GET_PLAYER(ePlayer).isMinorCiv())
 		return;
 
 	CvCity* pOurOldClosestCity = NULL;
@@ -11910,13 +11910,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	bool bFromPromise = false;
 
 	//They promised not to expand?
-	if(IsPlayerMadeExpansionPromise(ePlayer))
+	if (IsPlayerMadeExpansionPromise(ePlayer))
 	{
 		pair<int, int> promisedPair = GetNoExpansionPromiseClosestCities(ePlayer);
-		if(promisedPair.first>=0) //valid?
+		if (promisedPair.first >= 0) //valid?
 		{
-			pOurOldClosestCity = GetPlotCityAndVerifyOwnership(promisedPair.first,m_pPlayer->GetID());
-			pTheirOldClosestCity = GetPlotCityAndVerifyOwnership(promisedPair.second,ePlayer);
+			pOurOldClosestCity = GetPlotCityAndVerifyOwnership(promisedPair.first, m_pPlayer->GetID());
+			pTheirOldClosestCity = GetPlotCityAndVerifyOwnership(promisedPair.second, ePlayer);
 			bFromPromise = true;
 		}
 	}
@@ -11927,93 +11927,94 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		pair<int, int> lastTurnPair = GetLastTurnEmpireDistance(ePlayer);
 		if (lastTurnPair.first >= 0) //valid?
 		{
-			pOurOldClosestCity = GetPlotCityAndVerifyOwnership(lastTurnPair.first,m_pPlayer->GetID());
-			pTheirOldClosestCity = GetPlotCityAndVerifyOwnership(lastTurnPair.second,ePlayer);
+			pOurOldClosestCity = GetPlotCityAndVerifyOwnership(lastTurnPair.first, m_pPlayer->GetID());
+			pTheirOldClosestCity = GetPlotCityAndVerifyOwnership(lastTurnPair.second, ePlayer);
 			bFromPromise = false;
 		}
 	}
 
 	//the current pair for comparison
 	pair<int, int> thisTurnPair = GetClosestCityPair(ePlayer);
-	CvCity* pOurNewClosestCity = GetPlotCityAndVerifyOwnership(thisTurnPair.first,m_pPlayer->GetID());
-	CvCity* pTheirNewClosestCity = GetPlotCityAndVerifyOwnership(thisTurnPair.second,ePlayer);
+	CvCity* pOurNewClosestCity = GetPlotCityAndVerifyOwnership(thisTurnPair.first, m_pPlayer->GetID());
+	CvCity* pTheirNewClosestCity = GetPlotCityAndVerifyOwnership(thisTurnPair.second, ePlayer);
 
 	//In any case save off our new value for next turn, it'll be our new test point ...
 	SetLastTurnEmpireDistance(ePlayer, thisTurnPair);
 
 	//Null? Must be first turn or something. Ignore.
 	if (!pOurOldClosestCity || !pTheirOldClosestCity || !pOurNewClosestCity || !pTheirNewClosestCity)
-	{
-		SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
-	}
 
 	// First calculate distance
-	int iOldDistance = plotDistance(*pOurOldClosestCity->plot(),*pTheirOldClosestCity->plot());
-	int iNewDistance = plotDistance(*pOurNewClosestCity->plot(),*pTheirNewClosestCity->plot());
+	int iOldDistance = plotDistance(*pOurOldClosestCity->plot(), *pTheirOldClosestCity->plot());
+	int iNewDistance = plotDistance(*pOurNewClosestCity->plot(), *pTheirNewClosestCity->plot());
 
-	//Last turn posture.
+	// Assume no change
 	AggressivePostureTypes eLastAggressivePosture = GetExpansionAggressivePosture(ePlayer);
+	AggressivePostureTypes eNewAggressivePosture = eLastAggressivePosture;
 
-	//If same distance we can't be mad at them for expanding, so no change in aggressive posture.
-	if (iNewDistance >= iOldDistance && eLastAggressivePosture != AGGRESSIVE_POSTURE_NONE)
-		return;
-
-	//If their city is newer, they are being aggressive!
-	if( pTheirNewClosestCity->getGameTurnAcquired() > pOurNewClosestCity->getGameTurnAcquired() )
-	{ 
-		AggressivePostureTypes eNewAggressivePosture = AGGRESSIVE_POSTURE_LOW;
-
-		if(iNewDistance <= /*2*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH() + (GetBoldness() / 4)))
+	if (
+		//if we got closer to each other and their city is newer, they are being aggressive (else we are being aggressive)
+		(iNewDistance<iOldDistance && pTheirNewClosestCity->getGameTurnAcquired() > pOurNewClosestCity->getGameTurnAcquired())
+		||
+		//if one of us lost a city relax the posture, no matter what
+		(iNewDistance>iOldDistance)
+		)
+	{
+		if (iNewDistance <= /*2*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH() + (GetBoldness() / 4)))
 			eNewAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
-		else if(iNewDistance <= /*5*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM() + (GetBoldness() / 4)))
+		else if (iNewDistance <= /*5*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM() + (GetBoldness() / 4)))
 			eNewAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-		else if(iNewDistance <= /*9*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW() + (GetBoldness() / 4)))
+		else if (iNewDistance <= /*9*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW() + (GetBoldness() / 4)))
 			eNewAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
+		else if (iNewDistance <= /*18*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW()*2 + (GetBoldness() / 4)))
+			eNewAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+		else //default
+			eNewAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+	}
 
-		if (eNewAggressivePosture != eLastAggressivePosture)
+	if (eNewAggressivePosture != eLastAggressivePosture)
+	{
+		SetExpansionAggressivePosture(ePlayer, eNewAggressivePosture);
+
+		if (GC.getLogging() && GC.getAILogging())
 		{
-			SetExpansionAggressivePosture(ePlayer, eNewAggressivePosture);
+			// Find the name of this civ and city
+			CvString playerName = GetPlayer()->getCivilizationShortDescription();
+			CvString otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				// Find the name of this civ and city
-				CvString playerName = GetPlayer()->getCivilizationShortDescription();
-				CvString otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+			// Open the log file
+			CvString strLogName = GC.getPlayerAndCityAILogSplit() ? "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv" : "DiplomacyAI_ExpansionLogic_Log.csv";
+			FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-				// Open the log file
-				CvString strLogName = GC.getPlayerAndCityAILogSplit() ? "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv" : "DiplomacyAI_ExpansionLogic_Log.csv";
-				FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+			// Get the leading info for this line
+			CvString strBaseString;
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
 
-				// Get the leading info for this line
-				CvString strBaseString;
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
-				strBaseString += otherplayerName + ", ";
+			char *names[] = {
+				"AGGRESSIVE_POSTURE_NONE",
+				"AGGRESSIVE_POSTURE_LOW",
+				"AGGRESSIVE_POSTURE_MEDIUM",
+				"AGGRESSIVE_POSTURE_HIGH",
+				"AGGRESSIVE_POSTURE_INCREDIBLE" };
 
-				char *names[] = {
-					"AGGRESSIVE_POSTURE_NONE",
-					"AGGRESSIVE_POSTURE_LOW",
-					"AGGRESSIVE_POSTURE_MEDIUM",
-					"AGGRESSIVE_POSTURE_HIGH",
-					"AGGRESSIVE_POSTURE_INCREDIBLE" };
+			// Actual info
+			CvString strOutBuf(strBaseString);
+			CvString strTmp;
+			strOutBuf += (bFromPromise ? "promised: " : "previous: ");
+			strOutBuf += pOurOldClosestCity->getName() + ", ";
+			strOutBuf += pTheirOldClosestCity->getName() + ", ";
+			strTmp.Format("%s, distance %d", names[eLastAggressivePosture], iOldDistance);
+			strOutBuf += strTmp + ", ";
+			strOutBuf += "now: ";
+			strOutBuf += pOurNewClosestCity->getName() + ", ";
+			strOutBuf += pTheirNewClosestCity->getName() + ", ";
+			strTmp.Format("%s, distance %d", names[eNewAggressivePosture], iNewDistance);
+			strOutBuf += strTmp;
 
-				// Actual info
-				CvString strOutBuf(strBaseString);
-				CvString strTmp;
-				strOutBuf += (bFromPromise ? "promised: " : "previous: ");
-				strOutBuf += pOurOldClosestCity->getName() + ", ";
-				strOutBuf += pTheirOldClosestCity->getName() + ", ";
-				strTmp.Format("%s, distance %d", names[eLastAggressivePosture], iOldDistance);
-				strOutBuf += strTmp + ", ";
-				strOutBuf += "now: ";
-				strOutBuf += pOurNewClosestCity->getName() + ", ";
-				strOutBuf += pTheirNewClosestCity->getName() + ", ";
-				strTmp.Format("%s, distance %d", names[eNewAggressivePosture], iNewDistance);
-				strOutBuf += strTmp;
-
-				pLog->Msg(strOutBuf);
-			}
+			pLog->Msg(strOutBuf);
 		}
 	}
 }
