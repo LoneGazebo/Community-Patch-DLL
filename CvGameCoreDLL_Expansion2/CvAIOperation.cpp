@@ -688,8 +688,10 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	}
 
 	// use the step path finder to get the path
-	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy);
+	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy, 42);
 	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
+		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 	SPath path = GC.GetStepFinder().GetPath(pCurrentPosition, pTarget, data);
 	if (!path)
 		return NULL;
@@ -1921,7 +1923,10 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 
 				if(bInPlace)
 				{
-					bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) || (GetOperationType() == AI_OPERATION_BULLY_CITY_STATE);
+					//should probably create a virtual method for this
+					bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) || 
+										(GetOperationType() == AI_OPERATION_BULLY_CITY_STATE) ||
+										(GetOperationType() == AI_OPERATION_NAVAL_BULLY_CITY_STATE);
 
 					// Notify Diplo AI we're in place for attack (unless this is just for show)
 					if(!bShowOfForce && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
@@ -3016,13 +3021,47 @@ CvPlot* CvAIOperationBullyCityState::FindBestTarget(CvPlot** ppMuster) const
 	if (!pTargetCity)
 		return NULL;
 
-	//todo: make sure this is not across the ocean?
 	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
 	if (!pMusterCity)
 		return NULL;
 
+	//need to use a naval bullying op in that case
+	if (pMusterCity->getArea() != pTargetCity->getArea())
+		return NULL;
+
 	if (ppMuster)
 		*ppMuster = pMusterCity->plot();
+
+	return pTargetCity->plot();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationNavalBullyCityState - Place holder
+////////////////////////////////////////////////////////////////////////////////
+
+/// Constructor
+CvAIOperationNavalBullyCityState::CvAIOperationNavalBullyCityState()
+{
+}
+
+/// Destructor
+CvAIOperationNavalBullyCityState::~CvAIOperationNavalBullyCityState()
+{
+}
+
+/// simply use the enemy capital
+CvPlot* CvAIOperationNavalBullyCityState::FindBestTarget(CvPlot** ppMuster) const
+{
+	CvCity* pTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
+	if (!pTargetCity || !pTargetCity->isCoastal())
+		return NULL;
+
+	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	if (!pMusterCity || !pMusterCity->isCoastal())
+		return NULL;
+
+	if (ppMuster)
+		*ppMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterCity->plot(),true);
 
 	return pTargetCity->plot();
 }

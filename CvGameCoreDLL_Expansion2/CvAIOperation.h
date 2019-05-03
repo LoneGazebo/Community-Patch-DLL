@@ -44,6 +44,7 @@ enum AIOperationTypes
 	AI_OPERATION_NAVAL_ONLY_CITY_ATTACK,
     AI_OPERATION_NAVAL_SUPERIORITY,
 	AI_OPERATION_NAVAL_BOMBARDMENT,
+	AI_OPERATION_NAVAL_BULLY_CITY_STATE,
 
 	AI_OPERATION_NUKE_ATTACK,
 	AI_OPERATION_ALLY_DEFENSE,
@@ -926,6 +927,42 @@ public:
 	virtual MultiunitFormationTypes GetFormation() const
 	{
 		return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+	}
+	virtual bool CanTacticalAIInterruptOperation() const
+	{
+		return true;
+	}
+	virtual int GetDeployRange() const
+	{ 
+		return 4;
+	}
+
+private:
+	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
+};
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvAIOperationNavalBullyCityState
+//!  \brief		Move units next to a city state, but don't attack. Allowed during peace.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvAIOperationNavalBullyCityState : public CvAIOperationNavalOnlyCityAttack
+{
+public:
+
+	CvAIOperationNavalBullyCityState();
+	virtual ~CvAIOperationNavalBullyCityState();
+
+	virtual int GetOperationType() const
+	{
+		return 	AI_OPERATION_NAVAL_BULLY_CITY_STATE;
+	}
+	virtual const char* GetOperationName() const
+	{
+		return "AI_OPERATION_NAVAL_BULLY_CITY_STATE";
+	}
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_PURE_NAVAL_CITY_ATTACK;
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{

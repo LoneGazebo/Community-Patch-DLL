@@ -4107,7 +4107,10 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	// MOVING TO TARGET
 	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 	{
-		bool bShowOfForce = (m_pPlayer->GetDiplomacyAI()->GetWarGoal(pOperation->GetEnemy()) == WAR_GOAL_DEMAND) || (pOperation->GetOperationType() == AI_OPERATION_BULLY_CITY_STATE);
+		//should probably create a virtual method for this
+		bool bShowOfForce = (m_pPlayer->GetDiplomacyAI()->GetWarGoal(pOperation->GetEnemy()) == WAR_GOAL_DEMAND) || 
+							(pOperation->GetOperationType() == AI_OPERATION_BULLY_CITY_STATE) ||
+							(pOperation->GetOperationType() == AI_OPERATION_NAVAL_BULLY_CITY_STATE);
 
 		//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
 		if (!bShowOfForce && !m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) && pOperation->GetEnemy()!=NO_PLAYER && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
