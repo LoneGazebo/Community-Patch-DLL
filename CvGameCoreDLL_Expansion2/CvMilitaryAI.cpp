@@ -1067,7 +1067,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 		}
 	}
 
-	if (GET_PLAYER(eEnemy).GetMilitaryMight() < iMinorPower / iMinorCount)
+	if (GET_PLAYER(eEnemy).GetMilitaryMight() > iMinorPower / iMinorCount)
 		return false;
 
 	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 4) //if the target is very close assume we can embark or don't even need to
@@ -1075,7 +1075,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;
 		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
-		if (iFilledSlots == iNumRequiredSlots)
+		if (iFilledSlots >= iNumRequiredSlots)
 		{
 			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
 			if (pOperation != NULL && !pOperation->ShouldAbort())
@@ -1089,7 +1089,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;
 		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_PURE_NAVAL_CITY_ATTACK, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
-		if (iFilledSlots == iNumRequiredSlots)
+		if (iFilledSlots >= iNumRequiredSlots)
 		{
 			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
 			if (pOperation != NULL && !pOperation->ShouldAbort())
@@ -1439,15 +1439,18 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 	//update the cache
 	m_cachedWaterDistances[pCity][pOtherCity] = iDistance;
 
-	if (GC.getLogging() && GC.getAILogging())
+	/*
+	if (GC.getLogging() && GC.getAILogging() && iDistance!=-1)
 	{
-		CvString strOutBuf = CvString::format("%d, %s, updated WATER distance map between cities, %s, Muster: %s, Distance: %d",
+		CvString strOutBuf = CvString::format("%03d, %s, updated WATER distance map between cities, %s, Muster: %s, Distance: %d",
 			GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
 			pCity->getName().c_str(), iDistance);
-		FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 		if (pLog)
 			pLog->Msg(strOutBuf);
 	}
+	*/
 
 	return iDistance;
 }
@@ -1481,15 +1484,18 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 	//update the cache
 	m_cachedLandDistances[pCity][pOtherCity] = iDistance;
 
-	if (GC.getLogging() && GC.getAILogging())
+	/*
+	if (GC.getLogging() && GC.getAILogging() && iDistance!=-1)
 	{
-		CvString strOutBuf = CvString::format("%d, %s, updated LAND distance map between cities, %s, Muster: %s, Distance: %d",
+		CvString strOutBuf = CvString::format("%03d, %s, updated LAND distance map between cities, %s, Muster: %s, Distance: %d",
 			GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
 			pCity->getName().c_str(), iDistance);
-		FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 		if (pLog)
 			pLog->Msg(strOutBuf);
 	}
+	*/
 
 	return iDistance;
 }
@@ -1689,7 +1695,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 						CvString strOutBuf = CvString::format("%d, %s, refreshed our attack target, %s, Muster: %s",
 							GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
 							newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
-						FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+						CvString playerName = GetPlayer()->getCivilizationShortDescription();
+						FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 						if (pLog)
 							pLog->Msg(strOutBuf);
 					}
@@ -1710,7 +1717,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 					CvString strOutBuf = CvString::format("%d, %s, keeping cached attack target, %s, Muster: %s",
 						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pCachedTargetCity->getName().c_str(), 
 						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE");
-					FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+					CvString playerName = GetPlayer()->getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 					if (pLog)
 						pLog->Msg(strOutBuf);
 				}
@@ -1741,7 +1749,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s, Muster: %s",
 					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
 					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
-				FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+				CvString playerName = GetPlayer()->getCivilizationShortDescription();
+				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 				if (pLog)
 					pLog->Msg(strOutBuf);
 			}
@@ -2491,6 +2500,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
 
+	/*
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		// Open the right file
@@ -2502,6 +2512,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
 		pLog->Msg( msg.c_str() );
 	}
+	*/
 
 	return iRtnValue;
 }
@@ -2861,23 +2872,11 @@ void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTyp
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
 		CvString strLogName;
 
-		// Find the name of this civ
-		playerName = m_pPlayer->getCivilizationShortDescription();
-
 		// Open the log file
-		FILogFile* pLog;
-		if(GC.getPlayerAndCityAILogSplit())
-		{
-			strLogName = "CustomMods_" + playerName + ".csv";
-		}
-		else
-		{
-			strLogName = "CustomMods.csv";
-		}
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -2939,31 +2938,11 @@ void CvMilitaryAI::LogChosenTarget(AIOperationTypes eAIOperationType, PlayerType
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
 		CvString strLogName;
 
-		// Find the name of this civ and city
-		playerName = m_pPlayer->getCivilizationShortDescription();
-
 		// Open the log file
-		FILogFile* pLog;
-		if(GC.getPlayerAndCityAILogSplit())
-		{
-#if defined(MOD_BALANCE_CORE)
-			strLogName = "CustomMods_" + playerName + ".csv";
-#else
-			strLogName = "OperationalAILog_" + playerName + ".csv";
-#endif
-		}
-		else
-		{
-#if defined(MOD_BALANCE_CORE)
-			strLogName = "CustomMods.csv" + playerName + ".csv";
-#else
-			strLogName = "OperationalAILog.csv";
-#endif
-		}
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
