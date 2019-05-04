@@ -1630,6 +1630,8 @@ bool ExternalPause()
 		{
 			//couldn't acquire it, we should pause
 			bPause = true;
+			//sleep a little bit for simple rate limiting
+			Sleep(200);
 		}
 		//close the handle in any case
 		CloseHandle(hMutex);
@@ -10853,13 +10855,11 @@ void CvGame::DoGlobalAvgLogging()
 void CvGame::SetHighestPotential()
 {
 	m_iLargestBasePotential = 0;
-	int iPotential = 0;	
-	PlayerTypes eLoopPlayer;
 
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
@@ -10872,7 +10872,7 @@ void CvGame::SetHighestPotential()
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
+				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
 
 				if (iPotential > m_iLargestBasePotential)
 				{
@@ -10920,7 +10920,7 @@ void CvGame::SetHighestPotential()
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
+				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn( pLoopCity->isCapital() ? SPY_STATE_GATHERING_INTEL : SPY_STATE_PREPARING_HEIST, pLoopCity, -1);
 				pLoopCity->SetEspionageRanking(iPotential, bNotify);
 			}
 		}

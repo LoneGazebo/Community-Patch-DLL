@@ -217,7 +217,6 @@ public:
 	void PlayActionSound();
 
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
-	PlayerTypes GetBullyMinorMove(const CvPlot* pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
 
 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;

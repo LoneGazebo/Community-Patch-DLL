@@ -5426,9 +5426,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 					iWarDamage /= 100;
 				}
 
-				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
-				iWarTurns -= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
-
+				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID()) - GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
 				if (iWarTurns <= 0)
 					continue;
 
@@ -5437,25 +5435,17 @@ int CvPlayerCulture::ComputeWarWeariness()
 					iMostWarTurns = iWarTurns;
 					eMostWarTurnsPlayer = kPlayer.GetID();
 				}
+
 				//Let's also get our most recent wars.
-				if ((iWarTurns < iLeastWarTurns) && iWarTurns > 0)
-				{
-					iLeastWarTurns = iWarTurns;
-				}
+				iLeastWarTurns = min(iLeastWarTurns, iWarTurns);
 				
 				//Warscore matters.
-				if (iWarDamage > iHighestWarDamage)
-				{
-					iHighestWarDamage = iWarDamage;
-				}
+				iHighestWarDamage = max(iHighestWarDamage, iWarDamage);
 			}
 			else
 			{
 				int iPeaceTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtPeace(kPlayer.GetID());
-				if(iPeaceTurns < iLeastPeaceTurns || iLeastPeaceTurns<0)
-				{
-					iLeastPeaceTurns = iPeaceTurns;
-				}
+				iLeastPeaceTurns = min(iLeastPeaceTurns, iPeaceTurns);
 			}
 		}
 	}
@@ -5463,12 +5453,19 @@ int CvPlayerCulture::ComputeWarWeariness()
 	//by default, war weariness is slowly falling over time
 	int iFallingWarWeariness = 0;
 	int iRisingWarWeariness = 0;
+	int iOldWarWeariness = m_iRawWarWeariness;
 
 	if (iLeastPeaceTurns>1)
 	{
 		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = max(3, GC.getGame().getSmallFakeRandNum( max(6, iLeastPeaceTurns/3), iHighestWarDamage));
-		iFallingWarWeariness = max(m_iRawWarWeariness-iReduction, 0);
+		int iReduction = max(1, GC.getGame().getSmallFakeRandNum( max(3, iLeastPeaceTurns/2), iHighestWarDamage));
+		iFallingWarWeariness = max(iOldWarWeariness-iReduction, 0);
+	}
+	else
+	{
+		//signed peace last turn - halve value for immediate relief
+		//if we eliminate another player, this won't apply!
+		iFallingWarWeariness = iOldWarWeariness/2;
 	}
 
 	//but if we have a war going, it will generate rising unhappiness	
@@ -5476,24 +5473,14 @@ int CvPlayerCulture::ComputeWarWeariness()
 	{
 		int iInfluenceModifier = max(3, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 2));
 
-		int iWarValue = 0;
-
 		//War damage should influence this.
-		iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
-		
+		int iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
 		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 
-		iWarValue *= (100 + iTechProgress);
+		iWarValue *= (100 + iTechProgress*2);
 		iWarValue /= 100;
-
-		int iX = (iMostWarTurns * iWarValue);
 		
-		iRisingWarWeariness = iX / 100;
-
-		if (iRisingWarWeariness > 100)
-		{
-			iRisingWarWeariness = 100;
-		}
+		iRisingWarWeariness = max(100,(iMostWarTurns * iWarValue) / 100);
 
 		int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
 		if (iMod > 100)
@@ -5501,56 +5488,21 @@ int CvPlayerCulture::ComputeWarWeariness()
 
 		iRisingWarWeariness *= (100 - iMod);
 		iRisingWarWeariness /= 100;
+
+		//smoothing
+		float fAlpha = 0.3f;
+		iRisingWarWeariness = int(0.5f + (iRisingWarWeariness * fAlpha) + (iOldWarWeariness * (1 - fAlpha)));
+
+		//at least one per turn
+		if (iRisingWarWeariness == iOldWarWeariness)
+			iRisingWarWeariness++;
+
+		//but never more than x% of pop...
+		iRisingWarWeariness = min(iRisingWarWeariness, m_pPlayer->getTotalPopulation() / 4);
 	}
 
-	int iNewWarWeariness = 0;
-
-	//see which one is worse
-	if (iRisingWarWeariness >= iFallingWarWeariness)
-	{
-		iNewWarWeariness = iRisingWarWeariness;
-	}
-	else
-	{
-		iNewWarWeariness = iFallingWarWeariness;
-	}
-
-	int iOldWarWeariness = m_iRawWarWeariness;
-
-	//Going up?
-	if (m_iRawWarWeariness < iNewWarWeariness)
-	{
-		float fAlpha = 0.30f;
-		m_iRawWarWeariness = int(0.5f + (iNewWarWeariness * fAlpha) + (m_iRawWarWeariness * (1 - fAlpha)));
-	}
-	//Going down?
-	else
-	{
-		float fAlpha = 0.50f;
-		m_iRawWarWeariness = int(0.5f + (iNewWarWeariness * fAlpha) + (m_iRawWarWeariness * (1 - fAlpha)));
-	}
-
-	if (iLeastPeaceTurns == 1 || iLeastWarTurns == 1)
-	{
-		//signed peace last turn - halve value for immediate relief
-		//If we just started a war, half our weariness. Enthusiasm!
-		//if we eliminate another player, this won't apply!
-		m_iRawWarWeariness /= 2;
-	}
-
-
-	//Not changing, but should be?
-	if (m_iRawWarWeariness == iOldWarWeariness)
-	{
-		if (iNewWarWeariness > m_iRawWarWeariness)
-		{
-			m_iRawWarWeariness++;
-		}
-		else if (iNewWarWeariness < m_iRawWarWeariness)
-		{
-			m_iRawWarWeariness--;
-		}
-	}
+	//whichever is worse counts
+	m_iRawWarWeariness = max(iFallingWarWeariness,iRisingWarWeariness);
 
 	if (GC.getLogging() && GC.getAILogging() && m_iRawWarWeariness > 0)
 	{
@@ -5571,14 +5523,16 @@ int CvPlayerCulture::ComputeWarWeariness()
 		strTemp += strTurn;
 
 		CvString strData;
-		strData.Format(" --- War Weariness: %d. Longest War: %d. Rising: %d. Falling: %d. Current Supply Cap: %d", m_iRawWarWeariness, iMostWarTurns, iRisingWarWeariness, iFallingWarWeariness, m_pPlayer->GetNumUnitsSupplied());
+		strData.Format(" --- War Weariness: %d. Longest War: %d. Shortest peace: %d. Rising: %d. Falling: %d. Current Supply Cap: %d", 
+			m_iRawWarWeariness, iMostWarTurns, iLeastPeaceTurns, iRisingWarWeariness, iFallingWarWeariness, m_pPlayer->GetNumUnitsSupplied());
 		strTemp += strData;
 
 		pLog->Msg(strTemp);
 	}
 
-	return GetWarWeariness(); //return the modified value
+	return m_iRawWarWeariness;
 }
+
 void CvPlayerCulture::SetWarWeariness(int iValue)
 {
 	m_iRawWarWeariness = iValue;

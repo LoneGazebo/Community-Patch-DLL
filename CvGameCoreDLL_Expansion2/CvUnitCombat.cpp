@@ -1219,7 +1219,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
 						{
-							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
+							int iRand = GC.getGame().getSmallFakeRandNum(10, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex()) * 10;
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBack(*pkAttacker);

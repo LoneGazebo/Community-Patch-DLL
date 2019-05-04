@@ -1032,6 +1032,76 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 	return false;
 }
 
+bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
+{
+	// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
+	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_BULLY_CITY_STATE))
+		return false;
+
+	if (!GET_PLAYER(eEnemy).isMinorCiv())
+		return false;
+
+	CvCity* pTargetCity = GET_PLAYER(eEnemy).getCapitalCity();
+	if (!pTargetCity)
+		return false;
+
+	int iDistanceTurns = m_pPlayer->GetCityDistanceInEstimatedTurns(pTargetCity->plot());
+	if (iDistanceTurns > 12)
+		return false;
+
+	CvCity* pMusterCity = m_pPlayer->GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	if (!pMusterCity)
+		return false;
+
+	//only attack weak targets ...
+	//todo: make sure our army is strong enough
+	int iMinorCount = 0;
+	int iMinorPower = 0;
+	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+		if (kPlayer.isMinorCiv() && kPlayer.isAlive())
+		{
+			iMinorCount++;
+			iMinorPower += kPlayer.GetMilitaryMight();
+		}
+	}
+
+	if (GET_PLAYER(eEnemy).GetMilitaryMight() < iMinorPower / iMinorCount)
+		return false;
+
+	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 4) //if the target is very close assume we can embark or don't even need to
+	{
+		//don't try to build additional units, only do this if we have enough at hand
+		int iNumRequiredSlots, iLandReservesUsed;
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		if (iFilledSlots == iNumRequiredSlots)
+		{
+			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
+			if (pOperation != NULL && !pOperation->ShouldAbort())
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		//don't try to build additional units, only do this if we have enough at hand
+		int iNumRequiredSlots, iLandReservesUsed;
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_PURE_NAVAL_CITY_ATTACK, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		if (iFilledSlots == iNumRequiredSlots)
+		{
+			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
+			if (pOperation != NULL && !pOperation->ShouldAbort())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 /// Get a pointer to the sneak attack operation against a target
 CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
 {

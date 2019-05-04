@@ -4526,6 +4526,8 @@ bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 }
 
 //	-----------------------------------------------------------------------------------------------
+//  ignores embarked units!
+//	-----------------------------------------------------------------------------------------------
 CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();

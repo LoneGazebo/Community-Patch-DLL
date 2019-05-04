@@ -258,8 +258,8 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
 		return FNEW(CvAIOperationPillageEnemy(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_CLOSE_DEFENSE:
 		return FNEW(CvAIOperationDefendCity(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE:
-		return FNEW(CvAIOperationDefendCityPeace(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_BULLY_CITY_STATE:
+		return FNEW(CvAIOperationBullyCityState(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_RAPID_RESPONSE:
 		return FNEW(CvAIOperationDefenseRapidResponse(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_SNEAK_ATTACK:
@@ -688,8 +688,10 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	}
 
 	// use the step path finder to get the path
-	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy);
+	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy, 42);
 	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
+		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 	SPath path = GC.GetStepFinder().GetPath(pCurrentPosition, pTarget, data);
 	if (!path)
 		return NULL;
@@ -1580,7 +1582,7 @@ CvString CvAIOperation::GetLogFileName(CvString& playerName)
 	return strLogName;
 }
 
-bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPlot, CvPlot * pDeployPlot, CvUnit* pInitialUnit, bool bOceanMoves)
+bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPlot, CvPlot * pDeployPlot, CvUnit* pInitialUnit, bool bOceanMoves, bool bSkipRecruiting)
 {
 	//pDeployPlot may be null ...
 	if (!pMusterPlot || !pTargetPlot)
@@ -1597,6 +1599,7 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 		return false;
 
 	//this is for the operation
+	SetTurnStarted(GC.getGame().getGameTurn());
 	LogOperationStart();
 	SetTargetPlot(pTargetPlot);
 	SetMusterPlot(pMusterPlot);
@@ -1615,10 +1618,18 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (pInitialUnit)
 		pArmyAI->AddUnit(pInitialUnit->GetID(),0);
 
-	SetTurnStarted(GC.getGame().getGameTurn());
-	pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
-	m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
-	LogOperationSpecialMessage("Initial stage is recruiting");
+	if (bSkipRecruiting && pInitialUnit)
+	{
+		pArmyAI->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+		m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+		LogOperationSpecialMessage("Skip recruiting, start with movement stage");
+	}
+	else
+	{
+		pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
+		m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+		LogOperationSpecialMessage("Initial stage is recruiting");
+	}
 
 	// Find the list of units we need to build before starting this operation in earnest
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -1743,6 +1754,7 @@ int CvAIOperationOffensive::GetMaximumRecruitTurnsBase() const
 
 AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
+	//should we be concentrating on defense instead?
 	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(false);
 	if (pTroubleSpot)
 	{
@@ -1874,8 +1886,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy);
-			if (pCenterOfMass && pTarget && IsOffensive() && !bShowOfForce)
+			if (pCenterOfMass && pTarget && IsOffensive())
 			{
 				bool bInPlace = (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange());
 
@@ -1912,8 +1923,13 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 
 				if(bInPlace)
 				{
-					// Notify Diplo AI we're in place for attack
-					if(!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+					//should probably create a virtual method for this
+					bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) || 
+										(GetOperationType() == AI_OPERATION_BULLY_CITY_STATE) ||
+										(GetOperationType() == AI_OPERATION_NAVAL_BULLY_CITY_STATE);
+
+					// Notify Diplo AI we're in place for attack (unless this is just for show)
+					if(!bShowOfForce && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
 						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetMusteringForAttack(m_eEnemy, true);
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
@@ -2175,11 +2191,13 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		return;
 	}
 
-	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
-
 	CvPlot* pMusterPlot = pOurCivilian->plot();
+	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
+	bool bCloseTarget = (pOurCivilian->TurnsToReachTarget(pTargetSite, 0, 1) < 1);
+
 	//don't wait for the escort in the wild (happens with settlers a lot)
-	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || pOurCivilian->GetDanger(pMusterPlot)>0)
+	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || 
+		(pOurCivilian->GetDanger(pMusterPlot)>30 && pOurCivilian->GetDanger(pTargetSite)>30))
 	{
 		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
 		if (pClosestCity)
@@ -2229,7 +2247,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		}
 	}
 
-	SetupWithSingleArmy(pMusterPlot,pTargetSite,pTargetSite,pOurCivilian);
+	SetupWithSingleArmy(pMusterPlot,pTargetSite,pTargetSite,pOurCivilian,GET_PLAYER(m_eOwner).CanCrossOcean(),bCloseTarget);
 }
 
 bool CvAIOperationCivilian::CheckTransitionToNextStage()
@@ -2983,42 +3001,70 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationDefendCity - Place holder
+// CvAIOperationBullyCityState - Place holder
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationDefendCityPeace::CvAIOperationDefendCityPeace()
+CvAIOperationBullyCityState::CvAIOperationBullyCityState()
 {
 }
 
 /// Destructor
-CvAIOperationDefendCityPeace::~CvAIOperationDefendCityPeace()
+CvAIOperationBullyCityState::~CvAIOperationBullyCityState()
 {
 }
 
-/// Find the best blocking position against the current threats
-CvPlot* CvAIOperationDefendCityPeace::FindBestTarget(CvPlot** ppMuster) const
+/// simply use the enemy capital
+CvPlot* CvAIOperationBullyCityState::FindBestTarget(CvPlot** ppMuster) const
 {
-	CvCity* pTargetCity;
-	CvPlot* pPlot = NULL;
+	CvCity* pTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
+	if (!pTargetCity)
+		return NULL;
 
-	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
+	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	if (!pMusterCity)
+		return NULL;
 
-	if(pTargetCity != NULL)
-	{
-		pPlot = pTargetCity->plot();
+	//need to use a naval bullying op in that case
+	int iDistance = plotDistance(*pMusterCity->plot(), *pTargetCity->plot());
+	if (pMusterCity->getArea() != pTargetCity->getArea() && iDistance>6)
+		return NULL;
 
-		if (ppMuster)
-		{
-			CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCity(pPlot,23,true);
-			if (!pMusterCity)
-				pMusterCity = pTargetCity;
-			*ppMuster = pMusterCity->plot();
-		}
-	}
+	if (ppMuster)
+		*ppMuster = pMusterCity->plot();
 
-	return pPlot;
+	return pTargetCity->plot();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationNavalBullyCityState - Place holder
+////////////////////////////////////////////////////////////////////////////////
+
+/// Constructor
+CvAIOperationNavalBullyCityState::CvAIOperationNavalBullyCityState()
+{
+}
+
+/// Destructor
+CvAIOperationNavalBullyCityState::~CvAIOperationNavalBullyCityState()
+{
+}
+
+/// simply use the enemy capital
+CvPlot* CvAIOperationNavalBullyCityState::FindBestTarget(CvPlot** ppMuster) const
+{
+	CvCity* pTargetCity = GET_PLAYER(m_eEnemy).getCapitalCity();
+	if (!pTargetCity || !pTargetCity->isCoastal())
+		return NULL;
+
+	CvCity* pMusterCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	if (!pMusterCity || !pMusterCity->isCoastal())
+		return NULL;
+
+	if (ppMuster)
+		*ppMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterCity->plot(),true);
+
+	return pTargetCity->plot();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3658,7 +3704,7 @@ bool CvAIOperationCivilian::IsEscorted()
 	{
 		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo( GetFormation() );
 
-		if (thisFormation && thisFormation->getNumFormationSlotEntries()>1)
+		if (thisFormation && thisFormation->getNumFormationSlotEntriesRequired()>1)
 			return true;
 
 		return false;
