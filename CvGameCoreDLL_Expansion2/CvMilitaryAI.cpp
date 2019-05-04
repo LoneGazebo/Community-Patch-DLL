@@ -1070,7 +1070,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (GET_PLAYER(eEnemy).GetMilitaryMight() < iMinorPower / iMinorCount)
 		return false;
 
-	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 3) //if the target is very close assume we can embark or don't even need to
+	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 4) //if the target is very close assume we can embark or don't even need to
 	{
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;

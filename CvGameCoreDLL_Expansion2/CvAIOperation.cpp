@@ -3026,7 +3026,8 @@ CvPlot* CvAIOperationBullyCityState::FindBestTarget(CvPlot** ppMuster) const
 		return NULL;
 
 	//need to use a naval bullying op in that case
-	if (pMusterCity->getArea() != pTargetCity->getArea())
+	int iDistance = plotDistance(*pMusterCity->plot(), *pTargetCity->plot());
+	if (pMusterCity->getArea() != pTargetCity->getArea() && iDistance>6)
 		return NULL;
 
 	if (ppMuster)
