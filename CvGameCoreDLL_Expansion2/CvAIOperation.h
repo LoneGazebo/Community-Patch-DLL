@@ -249,10 +249,10 @@ public:
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
-	void LogOperationStart();
-	void LogOperationStatus(bool bPreTurn);
-	void LogOperationSpecialMessage(const CvString& strMsg);
-	void LogOperationEnd();
+	void LogOperationStart() const;
+	void LogOperationStatus(bool bPreTurn) const;
+	void LogOperationSpecialMessage(const CvString& strMsg) const;
+	void LogOperationEnd() const;
 
 	virtual const char* GetInfoString();
 
@@ -936,6 +936,7 @@ public:
 	{ 
 		return 4;
 	}
+	virtual void OnSuccess() const;
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;

@@ -5754,13 +5754,10 @@ void CvDiplomacyAI::SetDemandTargetPlayer(PlayerTypes ePlayer)
 void CvDiplomacyAI::DoUpdateDemands()
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veDemandTargetPlayers;
-
-	int iWeight;
-
-	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		int iWeight = 0;
 
 		if(IsPlayerValid(eLoopPlayer))
 		{
@@ -5896,8 +5893,9 @@ void CvDiplomacyAI::DoUpdateDemands()
 		{
 			veDemandTargetPlayers.SortItems();
 
-			int iChanceOfDemand = /*100*/ GC.getDEMAND_RAND();	// Maybe change this later to a lower value (10%?) - leaving it at 100 for now because the AI has a bit of trouble getting everything together to make a demand right now
-			if (iChanceOfDemand > GC.getGame().getSmallFakeRandNum(veDemandTargetPlayers.GetWeight(0), veDemandTargetPlayers.GetElement(0)))
+			// Maybe change this later to a lower value (10%?) - leaving it at 100 for now because the AI has a bit of trouble getting everything together to make a demand right now
+			int iChanceOfDemand = /*100*/ GC.getDEMAND_RAND();	
+			if (iChanceOfDemand/10 > GC.getGame().getSmallFakeRandNum(10, veDemandTargetPlayers.GetWeight(0)))
 			{
 				DoStartDemandProcess(veDemandTargetPlayers.GetElement(0));
 			}
@@ -6143,7 +6141,7 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 	}
 #endif
 
-	int iIdealValue = 20 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int iIdealValue = 10 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if (Value > 0)
 	{

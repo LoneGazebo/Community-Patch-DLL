@@ -9766,7 +9766,7 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 		int iDanger = pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
 		if (iDanger == INT_MAX)
 			iScore -= 1000;
-		else
+		else if (result.eMoveType==A_FINISH || result.iRemainingMoves==0) //only if we are going to end the turn here
 		{
 			if (tactPlot.isEdgePlot()) //if we don't expect combat, we can afford to be less careful - embarked units have limited vision!
 				iDanger += (assumedPosition.getAggressionLevel()==AL_NONE) ? 20 : 50;
@@ -10932,6 +10932,10 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 					bRestartRequired = true;
 			}
 		}
+
+		//in case this was a move which revealed new plots, pretend it was a forced move so we can move again
+		if (itUnit->eLastAssignment == A_MOVE)
+			itUnit->eLastAssignment = A_MOVE_FORCED;
 	}
 
 	//we don't update the moves plots lazily because it takes a while and we don't know yet if we will ever follow up on this position
@@ -11037,15 +11041,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	// - combat unit / non-combat unit
 	// - native domain target / non-native domain target
 
-	if (eAggression != AL_NONE && pUnit->isEmbarked()) //we want to fight but some units can't right now (ignore amphibious attacks ...)
-	{
-		// embarked units stay simply away from enemies and don't try to stack
-		if (pUnit->IsCombatUnit())
-			eStrategy = MS_THIRDLINE;
-		else
-			eStrategy = MS_SUPPORT;
-	}
-	else if (eAggression == AL_NONE && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
+	if (eAggression == AL_NONE && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
 	{
 		// if the target is outside of our native domain, we will need to embark sooner or later
 		if ( pUnit->isEmbarked() )

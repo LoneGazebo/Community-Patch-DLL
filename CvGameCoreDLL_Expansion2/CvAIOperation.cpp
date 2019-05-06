@@ -1256,7 +1256,7 @@ const char* CvAIOperation::GetInfoString()
 // PRIVATE FUNCTIONS
 
 /// Log that an operation has started
-void CvAIOperation::LogOperationStart()
+void CvAIOperation::LogOperationStart() const
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -1338,7 +1338,7 @@ void CvAIOperation::LogOperationStart()
 }
 
 /// Log current status of the operation
-void CvAIOperation::LogOperationStatus(bool bPreTurn)
+void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -1444,7 +1444,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 	}
 }
 
-void CvAIOperation::LogOperationSpecialMessage(const CvString& strMsg)
+void CvAIOperation::LogOperationSpecialMessage(const CvString& strMsg) const
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -1463,7 +1463,7 @@ void CvAIOperation::LogOperationSpecialMessage(const CvString& strMsg)
 }
 
 /// Log that an operation has ended
-void CvAIOperation::LogOperationEnd()
+void CvAIOperation::LogOperationEnd() const
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -3012,6 +3012,21 @@ CvAIOperationBullyCityState::CvAIOperationBullyCityState()
 /// Destructor
 CvAIOperationBullyCityState::~CvAIOperationBullyCityState()
 {
+}
+
+void CvAIOperationBullyCityState::OnSuccess() const
+{
+	if (GetTargetPlot()->isCity() && GET_PLAYER(m_eEnemy).isMinorCiv())
+	{
+		//taken from CalculateBullyMetric
+		int iComparisonRadius = 4;
+		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetTargetPlot(), iComparisonRadius, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
+		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + GetTargetPlot()->getPlotCity()->GetPower()));
+
+		CvString strMsg;
+		strMsg.Format("local power ratio %d, bully unit is %s", iLocalPowerRatio, (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner, true)) ? "possible" : "impossible");
+		LogOperationSpecialMessage(strMsg);
+	}
 }
 
 /// simply use the enemy capital
