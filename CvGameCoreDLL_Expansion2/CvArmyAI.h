@@ -16,20 +16,12 @@ class CvPlot;
 
 class CvArmyFormationSlot
 {
-	//magic numbers
-	enum eMarkers
-	{
-		ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT = -3,
-		ARMYSLOT_NOT_INCLUDING_IN_OPERATION = -2,
-		ARMYSLOT_NO_UNIT = -1,
-	};
-
 public:
 	CvArmyFormationSlot()
 	{
-		m_iUnitID = ARMYSLOT_NO_UNIT;
-		m_iEstimatedTurnsToCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
-		m_iPrevEstimatedTurnsToCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
+		m_iUnitID = -1;
+		m_iEstimatedTurnsToCheckpoint = -1;
+		m_iPrevEstimatedTurnsToCheckpoint = -1;
 	};
 
 	int GetUnitID() const
@@ -52,9 +44,8 @@ public:
 
 	bool IsMakingProgressTowardsCheckpoint(int iNextValue);
 
-	bool IsFree() const { return m_iUnitID == ARMYSLOT_NO_UNIT; }
-	bool IsUsed() const { return m_iUnitID > ARMYSLOT_NO_UNIT; }
-	void SetUnused() { m_iUnitID = ARMYSLOT_NOT_INCLUDING_IN_OPERATION; }
+	bool IsFree() const { return m_iUnitID == -1; }
+	bool IsUsed() const { return m_iUnitID >= 0; }
 
 	int m_iUnitID;
 	int m_iEstimatedTurnsToCheckpoint;

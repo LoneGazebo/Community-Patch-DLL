@@ -9723,7 +9723,7 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	case CvTacticalPlot::TP_THIRDLINE:
 		iScore = 23; //nice. different to first line is worth more than two adjacent units (check below)
 		break;
-	case CvTacticalPlot::TP_FARAWAY:
+	case CvTacticalPlot::TP_FARAWAY: //from enemies, not from target
 	default:
 		iScore = 2; //usual case for gathering moves, otherwise not really interesting
 		break;
@@ -9732,6 +9732,7 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
 	if (!targetPlot.isEnemy()) //gathering around a target
 	{
+		//can be treacherous with impassable terrain in between but everything else is much more complex
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
 		iScore = iScore + 3 - iPlotDistance;
 	}

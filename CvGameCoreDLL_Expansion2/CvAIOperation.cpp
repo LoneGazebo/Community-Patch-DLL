@@ -302,13 +302,7 @@ void CvAIOperation::BuildListOfUnitsWeStillNeedToBuild()
 					{
 						//is it still open?
 						if (pThisArmy->GetFormationSlot(iThisSlotIndex)->GetUnitID()<0)
-						{
-							OperationSlot thisOperationSlot;
-							thisOperationSlot.m_iOperationID = m_iID;
-							thisOperationSlot.m_iArmyID = m_viArmyIDs[uiI];
-							thisOperationSlot.m_iSlotID = iThisSlotIndex;
-							m_viListOfUnitsWeStillNeedToBuild.push_back(thisOperationSlot);
-						}
+							m_viListOfUnitsWeStillNeedToBuild.push_back(OperationSlot(m_iID,m_viArmyIDs[uiI],iThisSlotIndex));
 					}
 				}
 			}
@@ -332,12 +326,10 @@ void CvAIOperation::BuildListOfUnitsWeStillNeedToBuild()
 /// Find out the next item to build for this operation
 OperationSlot CvAIOperation::PeekAtNextUnitToBuild()
 {
-	OperationSlot thisSlot;
 	if(!m_viListOfUnitsWeStillNeedToBuild.empty())
-	{
-		thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
-	}
-	return thisSlot;
+		return m_viListOfUnitsWeStillNeedToBuild.front();
+
+	return OperationSlot();
 }
 
 /// Called by a city when it decides to build a unit
@@ -494,9 +486,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	if (m_viListOfUnitsWeStillNeedToBuild.empty())
 		return true;
 
-	bool rtnValue = true;
-	bool success;
-	std::deque<OperationSlot>::iterator it;
+	int iExtraUnits = 0; //optional slot but filled
 	CvString strMsg;
 
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
@@ -550,30 +540,28 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 			UnitChoices.SortItems();
 
-			// Copy over the list
-			std::deque<OperationSlot> secondList = m_viListOfUnitsWeStillNeedToBuild;
-			// Clear main list
+			//rebuild the list
 			m_viListOfUnitsWeStillNeedToBuild.clear();
-			for (it = secondList.begin(); it != secondList.end(); ++it)
+			for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
 			{
-				success = FindBestFitReserveUnit(*it, UnitChoices);
+				CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
+				if (!pSlot)
+					return false;
 
-				if (!success)
+				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+				if (pSlot->IsFree())
 				{
-					if (OperationalAIHelpers::IsSlotRequired(m_eOwner, *it))
+					OperationSlot opSlot(m_iID, pArmy->GetID(), iI);
+					if (!FindBestFitReserveUnit(opSlot, UnitChoices))
 					{
-						// Return false to say that operation is not ready to roll yet
-						rtnValue = false;
-
-						// And add them back to the list of units needed
-						m_viListOfUnitsWeStillNeedToBuild.push_back(*it);
+						if (thisSlotEntry.m_requiredSlot)
+							m_viListOfUnitsWeStillNeedToBuild.push_back(opSlot);
 					}
-					else
-					{
-						CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(it->m_iArmyID);
-						if (pArmy)
-							pArmy->GetFormationSlot(it->m_iSlotID)->SetUnused();
-					}
+				}
+				else
+				{
+					if (!thisSlotEntry.m_requiredSlot)
+						iExtraUnits++;
 				}
 			}
 		}
@@ -626,34 +614,34 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 		UnitChoices.SortItems();
 
-		// Copy over the list
-		std::deque<OperationSlot> secondList = m_viListOfUnitsWeStillNeedToBuild;
-		// Clear main list
+		//rebuild the list
 		m_viListOfUnitsWeStillNeedToBuild.clear();
-		for (it = secondList.begin(); it != secondList.end(); ++it)
+		for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
 		{
-			success = FindBestFitReserveUnit(*it, UnitChoices);
-			if (!success)
-			{
-				if (OperationalAIHelpers::IsSlotRequired(m_eOwner, *it))
-				{
-					// Return false to say that operation is not ready to roll yet
-					rtnValue = false;
+			CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
+			if (!pSlot)
+				return false;
 
-					// And add them back to the list of units needed
-					m_viListOfUnitsWeStillNeedToBuild.push_back(*it);
-				}
-				else
+			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+			if (pSlot->IsFree())
+			{
+				OperationSlot opSlot(m_iID, pArmy->GetID(), iI);
+				if (!FindBestFitReserveUnit(opSlot, UnitChoices))
 				{
-					CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(it->m_iArmyID);
-					if (pArmy)
-						pArmy->GetFormationSlot(it->m_iSlotID)->SetUnused();
+					if (thisSlotEntry.m_requiredSlot)
+						m_viListOfUnitsWeStillNeedToBuild.push_back(opSlot);
 				}
+			}
+			else
+			{
+				if (!thisSlotEntry.m_requiredSlot)
+					iExtraUnits++;
 			}
 		}
 	}
 
-	return rtnValue;
+	//two optional units can make up for one required unit
+	return (size_t)iExtraUnits>=2*m_viListOfUnitsWeStillNeedToBuild.size();
 }
 
 CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTarget, int iStep, bool bForward) const
@@ -1024,12 +1012,8 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 		{
-			// If recruiting units, read this unit to the list of what we need
-			OperationSlot slotToFill;
-			slotToFill.m_iOperationID = m_iID;
-			slotToFill.m_iArmyID = iArmyID;
-			slotToFill.m_iSlotID = iSlotID;
-			m_viListOfUnitsWeStillNeedToBuild.push_back(slotToFill);
+			// If recruiting units, add this unit to the list of what we need
+			m_viListOfUnitsWeStillNeedToBuild.push_back( OperationSlot(m_iID,iArmyID,iSlotID) );
 			break;
 		}
 
@@ -3014,8 +2998,11 @@ CvAIOperationBullyCityState::~CvAIOperationBullyCityState()
 {
 }
 
-void CvAIOperationBullyCityState::OnSuccess() const
+//just some additional logging
+bool CvAIOperationBullyCityState::DoTurn()
 {
+	CvAIOperationCityStateAttack::DoTurn();
+
 	if (GetTargetPlot()->isCity() && GET_PLAYER(m_eEnemy).isMinorCiv())
 	{
 		//taken from CalculateBullyMetric
@@ -3024,9 +3011,10 @@ void CvAIOperationBullyCityState::OnSuccess() const
 		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + GetTargetPlot()->getPlotCity()->GetPower()));
 
 		CvString strMsg;
-		strMsg.Format("local power ratio %d, bully unit is %s", iLocalPowerRatio, (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner, true)) ? "possible" : "impossible");
+		strMsg.Format("local power ratio %d, bullying for unit is %s", iLocalPowerRatio, (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner, true)) ? "possible" : "impossible");
 		LogOperationSpecialMessage(strMsg);
 	}
+	return true;
 }
 
 /// simply use the enemy capital
@@ -4024,31 +4012,28 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
 	
 	//Check formation entry here.
-	if(thisFormation != NULL)
+	if(thisFormation && pArmy)
 	{
-		if (pArmy)
+		bool bGood = false;
+		for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
 		{
-			bool bGood = false;
-			for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
-				if (!pSlot)
-					return false;
+			CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
+			if (!pSlot)
+				return false;
 
-				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-				if (pSlot->IsFree())
+			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+			if (pSlot->IsFree())
+			{
+				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 				{
-					if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
-					{
-						bGood = true;
-						break;
-					}
+					bGood = true;
+					break;
 				}
 			}
-			if (!bGood)
-			{
-				return false;
-			}
+		}
+		if (!bGood)
+		{
+			return false;
 		}
 	}
 

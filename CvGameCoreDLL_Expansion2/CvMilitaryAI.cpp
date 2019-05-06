@@ -1034,10 +1034,6 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 
 bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 {
-	// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_BULLY_CITY_STATE))
-		return false;
-
 	if (!GET_PLAYER(eEnemy).isMinorCiv())
 		return false;
 
@@ -1072,9 +1068,13 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 
 	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 4) //if the target is very close assume we can embark or don't even need to
 	{
+		// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
+		if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_BULLY_CITY_STATE))
+			return false;
+
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;
-		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CITY_STATE_ATTACK_FORCE, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
 		if (iFilledSlots >= iNumRequiredSlots)
 		{
 			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
@@ -1086,9 +1086,13 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	}
 	else
 	{
+		// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
+		if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_BULLY_CITY_STATE))
+			return false;
+
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;
-		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_PURE_NAVAL_CITY_ATTACK, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_NAVAL_SQUADRON, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
 		if (iFilledSlots >= iNumRequiredSlots)
 		{
 			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);

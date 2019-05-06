@@ -106,11 +106,11 @@ typedef CvWeightedVector<int, 128, true> WeightedUnitIdVector;
 
 struct OperationSlot
 {
-	OperationSlot()
+	explicit OperationSlot(int opId=-1, int armyId=-1, int slotId=-1)
 	{
-		m_iOperationID = -1;
-		m_iArmyID = -1;
-		m_iSlotID = -1;
+		m_iOperationID = opId;
+		m_iArmyID = armyId;
+		m_iSlotID = slotId;
 	}
 
 	bool operator==(const OperationSlot& other) const
@@ -926,7 +926,7 @@ public:
 	}
 	virtual MultiunitFormationTypes GetFormation() const
 	{
-		return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+		return MUFORMATION_CITY_STATE_ATTACK_FORCE;
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{
@@ -936,7 +936,7 @@ public:
 	{ 
 		return 4;
 	}
-	virtual void OnSuccess() const;
+	virtual bool DoTurn();
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -963,7 +963,7 @@ public:
 	}
 	virtual MultiunitFormationTypes GetFormation() const
 	{
-		return MUFORMATION_PURE_NAVAL_CITY_ATTACK;
+		return MUFORMATION_NAVAL_SQUADRON;
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{

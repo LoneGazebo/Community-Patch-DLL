@@ -35355,8 +35355,8 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 
 				if (pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 				{
-					int iChance = GC.getGame().getSmallFakeRandNum(100, pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage() + iUnitLoop);
-					if (iChance < 50)
+					int iChance = GC.getGame().getSmallFakeRandNum(10, pCity->plot()->GetPlotIndex() + getTotalPopulation());
+					if (iChance < 5)
 					{
 						continue;
 					}
@@ -35383,11 +35383,8 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				{
 					continue;
 				}
-				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage()));
 
-				iCombatStrength *= pkUnitEntry->GetProductionCost();
-				iCombatStrength /= max(1, (pkUnitEntry->GetProductionCost() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetProductionCost(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage())));
-
+				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + getTotalPopulation()));
 				if (pkUnitEntry->GetRange() > 0)
 				{
 					iCombatStrength *= 50;
@@ -47703,9 +47700,8 @@ void CvPlayer::SetBestWonderCities()
 				FILogFile* pLog;
 				CvString strBaseString;
 				CvString strOutBuf;
-				CvString strFileName = "CustomMods.csv";
 				playerName = getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				pLog = LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
 				strOutBuf.Format("%s is the best city to construct %s", pBestCity->getName().GetCString(), pkeBuildingInfo->GetDescription());
