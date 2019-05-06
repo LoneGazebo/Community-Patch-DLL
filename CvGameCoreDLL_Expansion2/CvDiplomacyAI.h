@@ -1296,7 +1296,7 @@ public:
 	int GetLiberatedCitiesScore(PlayerTypes ePlayer);
 	int GetEmbassyScore(PlayerTypes ePlayer);
 	int GetForgaveForSpyingScore(PlayerTypes ePlayer);
-	int GetNoSetterRequestScore(PlayerTypes ePlayer);
+	int GetNoSettleRequestScore(PlayerTypes ePlayer);
 	int GetStopSpyingRequestScore(PlayerTypes ePlayer);
 	int GetDemandEverMadeScore(PlayerTypes ePlayer);
 	int GetTimesCultureBombedScore(PlayerTypes ePlayer);
