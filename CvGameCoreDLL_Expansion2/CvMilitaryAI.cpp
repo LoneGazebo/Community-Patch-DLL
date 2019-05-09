@@ -1041,33 +1041,25 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (!pTargetCity)
 		return false;
 
-	int iDistanceTurns = m_pPlayer->GetCityDistanceInEstimatedTurns(pTargetCity->plot());
-	if (iDistanceTurns > 12)
-		return false;
-
 	CvCity* pMusterCity = m_pPlayer->GetClosestCityByEstimatedTurns(pTargetCity->plot());
 	if (!pMusterCity)
 		return false;
 
-	//only attack weak targets ...
-	//todo: make sure our army is strong enough
-	int iMinorCount = 0;
-	int iMinorPower = 0;
-	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
-		if (kPlayer.isMinorCiv() && kPlayer.isAlive())
-		{
-			iMinorCount++;
-			iMinorPower += kPlayer.GetMilitaryMight();
-		}
-	}
+	//taken from CalculateBullyMetric
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pTargetCity->plot(), MINOR_POWER_COMPARISON_RADIUS, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
+	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
 
-	if (GET_PLAYER(eEnemy).GetMilitaryMight() > iMinorPower / iMinorCount)
+	//check if we have a chance ...
+	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyMetric(m_pPlayer->GetID(), true);
+	if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
 		return false;
 
+	int iDistanceTurns = m_pPlayer->GetCityDistanceInEstimatedTurns(pTargetCity->plot());
 	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 4) //if the target is very close assume we can embark or don't even need to
 	{
+		if (iDistanceTurns > 12)
+			return false;
+
 		// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
 		if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_BULLY_CITY_STATE))
 			return false;
@@ -1718,7 +1710,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
 				{
-					CvString strOutBuf = CvString::format("%d, %s, keeping cached attack target, %s, Muster: %s",
+					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, Muster: %s",
 						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pCachedTargetCity->getName().c_str(), 
 						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE");
 					CvString playerName = GetPlayer()->getCivilizationShortDescription();

@@ -3006,13 +3006,23 @@ bool CvAIOperationBullyCityState::DoTurn()
 	if (GetTargetPlot()->isCity() && GET_PLAYER(m_eEnemy).isMinorCiv())
 	{
 		//taken from CalculateBullyMetric
-		int iComparisonRadius = 4;
-		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetTargetPlot(), iComparisonRadius, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
+		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetTargetPlot(), MINOR_POWER_COMPARISON_RADIUS, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
 		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + GetTargetPlot()->getPlotCity()->GetPower()));
 
 		CvString strMsg;
-		strMsg.Format("local power ratio %d, bullying for unit is %s", iLocalPowerRatio, (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner, true)) ? "possible" : "impossible");
+		strMsg.Format("%s, local power ratio %d, unit bullying metric %d", GET_PLAYER(m_eEnemy).getName(), iLocalPowerRatio, GET_PLAYER(m_eEnemy).GetMinorCivAI()->CalculateBullyMetric(m_eOwner,true));
 		LogOperationSpecialMessage(strMsg);
+
+		if (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyUnit(m_eOwner))
+		{
+			GC.getGame().DoMinorBullyUnit(m_eOwner, m_eEnemy);
+			SetToAbort(AI_ABORT_SUCCESS);
+		}
+		else if (GET_PLAYER(m_eEnemy).GetMinorCivAI()->CanMajorBullyGold(m_eOwner))
+		{
+			GC.getGame().DoMinorBullyUnit(m_eOwner, m_eEnemy);
+			SetToAbort(AI_ABORT_SUCCESS);
+		}
 	}
 	return true;
 }

@@ -5965,16 +5965,13 @@ bool CvUnit::canScrap(bool bTestVisible) const
 {
 	VALIDATE_OBJECT
 	if(plot()->isUnitFighting())
-	{
 		return false;
-	}
 
 	if(!canMove())
-	{
 		return false;
-	}
 
-	if (getDomainType()!=DOMAIN_AIR && GetDanger() > 0) //prevent an exploit where players disband units to deny kill yields to their enemies
+	//prevent an exploit where players disband units to deny kill yields to their enemies
+	if (getDomainType()!=DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot()).empty() && !plot()->isCity()) 
 		return false;
 
 	if(!bTestVisible)
@@ -5985,10 +5982,8 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		}
 	}
 
-	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisbandUnit, getOwner(), GetID()) == GAMEEVENTRETURN_FALSE) {
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisbandUnit, getOwner(), GetID()) == GAMEEVENTRETURN_FALSE)
 		return false;
-	}
-
 
 	return true;
 }

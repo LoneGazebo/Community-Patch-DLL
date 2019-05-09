@@ -17,6 +17,7 @@
 #define ENABLE_QUESTS_AT_START false
 #define ENABLE_PERMANENT_WAR false
 #define SAFE_ESTIMATE_NUM_QUESTS_PER_PLAYER (5)
+#define MINOR_POWER_COMPARISON_RADIUS (4)
 
 enum MinorCivStatusTypes
 {
