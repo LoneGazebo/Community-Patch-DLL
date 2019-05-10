@@ -1225,6 +1225,7 @@ namespace TacticalAIHelpers
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	CvPlot* GetFirstTargetInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 	pair<int, int> EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
+	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);

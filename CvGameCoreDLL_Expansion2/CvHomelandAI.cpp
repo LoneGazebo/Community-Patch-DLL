@@ -2055,14 +2055,36 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 				LogHomelandMessage(strLogString);
 			}
 
-			if (pBestTarget != pUnit->plot())
+			if (pBestTarget == pUnit->plot() && !pUnit->IsHurt())
 			{
+				//check our immediate neighbors if we can increase our visibility
+				int iBestCount = 0;
+				CvPlot* pBestNeighbor = NULL;
+				for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+				{
+					CvPlot* pNeighbor = iterateRingPlots(pUnit->plot(), i);
+					if (!pNeighbor || !pUnit->canMoveInto(*pNeighbor,CvUnit::MOVEFLAG_DESTINATION))
+						continue;
+
+					int iCount = TacticalAIHelpers::CountAdditionallyVisiblePlots(pUnit, pNeighbor);
+					if (iCount > iBestCount)
+					{
+						iBestCount = iCount;
+						pBestNeighbor = pNeighbor;
+					}
+				}
+
+				if (pBestNeighbor)
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestNeighbor->getX(), pBestNeighbor->getY());
+			}
+
+			if (pUnit->canMove() && pUnit->plot() != pBestTarget)
 				//use the exact target location - GetPatrolTarget makes sure there is a free spot
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
-			}
 
 			if (pUnit->canMove())
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
 			pUnit->SetTurnProcessed(true);
 		}
 	}

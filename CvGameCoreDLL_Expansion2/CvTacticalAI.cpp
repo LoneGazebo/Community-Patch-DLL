@@ -9048,6 +9048,24 @@ pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(CvPlot* pOrigin, int iR
 	return pair<int, int>(iTeamAPower,iTeamBPower);
 }
 
+//could we see additional plot when the unit moves to the test plot?
+int TacticalAIHelpers::CountAdditionallyVisiblePlots(CvUnit * pUnit, CvPlot * pTestPlot)
+{
+	if (!pUnit || !pTestPlot)
+		return 0;
+
+	int iCount = 0;
+	for (int iRange = 2; iRange < pUnit->visibilityRange(); iRange++)
+	{
+		const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRange(pUnit->plot(), iRange, true, true);
+		for (size_t i = 0; i < vPlots.size(); i++)
+			if (!vPlots[i]->isVisible(pUnit->getTeam()))
+				iCount++;
+	}
+	
+	return iCount;
+}
+
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC) 
 
 //Unbelievable bad logic but taken like this from CvUnitCombat

@@ -7121,9 +7121,6 @@ MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAtt
 
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
-	std::vector< CvFormationSlotEntry > slotsToFill;
-	std::vector< CvFormationSlotEntry >::iterator it;
-	
 	CvPlayerAI& ownerPlayer = GET_PLAYER(pPlayer->GetID());
 
 	int iWillBeFilled = 0;
@@ -7134,6 +7131,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 	if (piNumberLandReservesUsed) 
 		*piNumberLandReservesUsed = 0;
 
+	std::vector< CvFormationSlotEntry > slotsToFill;
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(formation);
 	for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
 	{
@@ -7243,7 +7241,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			}
 
 			//Do we fit in any slot?
-			for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+			for(std::vector< CvFormationSlotEntry >::iterator it = slotsToFill.begin(); it != slotsToFill.end(); it++)
 			{
 				CvFormationSlotEntry thisSlotEntry = *it;
 				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
@@ -7251,11 +7249,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 					slotsToFill.erase(it);
 
 					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
-					{
 						iLandReservesUsed++;
-					}
-					iWillBeFilled++;
 
+					iWillBeFilled++;
 					break;
 				}
 			}
