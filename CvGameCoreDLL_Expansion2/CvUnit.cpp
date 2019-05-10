@@ -16971,6 +16971,71 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
+		{
+			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+			{
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(kPlayer.GetID());
+				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherUnit->getOwner());
+				if(eTheirReligion == NO_RELIGION)
+				{
+					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
+				} 
+				if (eFoundedReligion != NO_RELIGION)
+				{
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
+					if(pReligion)
+					{
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						//Other religion! Full bonus.
+						if(eTheirReligion != eFoundedReligion)
+						{			
+							// Bonus in own land
+							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+							if((iOtherOwn > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
+							{
+									iTempModifier = iOtherOwn;
+									iModifier += iTempModifier;
+							}
+							//Bonus in their land
+							else if((iOtherTheir > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+							{
+								iTempModifier = iOtherTheir;
+								iModifier += iTempModifier;
+							}
+						}
+						//Same religion (or no religion) - half bonus.
+						else
+						{
+							// Bonus in own land
+							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+
+							if((iOtherOwn > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
+							{
+									iTempModifier = (iOtherOwn / 2);
+									iModifier += iTempModifier;
+							}
+							//Bonus in their land
+							else if((iOtherTheir > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+							{
+								iTempModifier = (iOtherTheir / 2);
+								iModifier += iTempModifier;
+							}
+						}
+					}
+				}
+			}
+		}
+#endif
+
 	}
 
 	////////////////////////

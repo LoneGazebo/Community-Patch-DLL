@@ -260,6 +260,8 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
 		return FNEW(CvAIOperationDefendCity(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_BULLY_CITY_STATE:
 		return FNEW(CvAIOperationBullyCityState(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_NAVAL_BULLY_CITY_STATE:
+		return FNEW(CvAIOperationNavalBullyCityState(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_RAPID_RESPONSE:
 		return FNEW(CvAIOperationDefenseRapidResponse(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_SNEAK_ATTACK:
