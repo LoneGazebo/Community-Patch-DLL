@@ -9317,12 +9317,14 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 
 		//works for both melee and ranged
 		int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
+		//ranged attacks are cross-domain
+		CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pAssumedUnitPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
 		for (int iRange = 1; iRange < iMaxRange + 1; iRange++)
 		{
 			//performance optimization
-			if (iRange == 1 && currentPlot.getType() != CvTacticalPlot::TP_FRONTLINE)
+			if (iRange == 1 && currentPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE)
 				continue;
-			if (iRange == 2 && currentPlot.getType() != CvTacticalPlot::TP_FRONTLINE && currentPlot.getType() != CvTacticalPlot::TP_SECONDLINE)
+			if (iRange == 2 && currentPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE && currentPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_SECONDLINE)
 				continue;
 
 			vAttackPlots = GC.getMap().GetPlotsAtRange(pCurrentPlot, iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
@@ -9465,7 +9467,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				{ -1,-1, 1, 8, 12 }, //thirdline
 				{ -1,-1, 1, 8,  8 }, //support (should not occur)
 			};
-			iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
+			iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType(eRelevantDomain)];
 
 			//the danger value reflects any defensive terrain bonuses
 			//but unfortunately danger is not very useful here, because ZOC is unclear during simulation
@@ -9585,6 +9587,9 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			return result;
 	}
 
+	//ranged attacks are cross-domain
+	CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pCurrentPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
+
 	//lookup score by unit strategy / plot type
 	//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
 	int iPlotTypeScores[5][5] = {
@@ -9594,7 +9599,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 		{  1,-1, 1, 8, 20 }, //thirdline
 		{  1,-1, 1, 4, 4 }, //support (should not occur)
 	};
-	result.iScore = iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
+	result.iScore = iPlotTypeScores[unit.eStrategy][currentPlot.getType(eRelevantDomain)];
 
 	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
 	if (targetPlot.isEnemy()) //we want to come close to prepare for a future attack and be ready for a counterattack from "inside"
@@ -9789,7 +9794,9 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bHasAirCover = false;
 	bIsOtherEmbarkedUnit = false;
 	iDamageDealt = 0;
-	eType = TP_FARAWAY;
+	eType[0] = TP_FARAWAY;
+	eType[1] = TP_FARAWAY;
+	eType[2] = TP_FARAWAY;
 	pPlot = NULL;
 	nEnemyCombatUnitsAdjacent = 0;
 	nFriendlyCombatUnitsAdjacent = 0;
@@ -9866,7 +9873,9 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 			{
 				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCity())
 				{
-					eType = TP_BLOCKED_NEUTRAL;
+					eType[0] = TP_BLOCKED_NEUTRAL;
+					eType[1] = TP_BLOCKED_NEUTRAL;
+					eType[2] = TP_BLOCKED_NEUTRAL;
 					return; //done, we won't be putting units into this plot
 				}
 				else
@@ -9876,7 +9885,9 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 			{
 				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCity())
 				{
-					eType = TP_BLOCKED_FRIENDLY;
+					eType[0] = TP_BLOCKED_FRIENDLY;
+					eType[1] = TP_BLOCKED_FRIENDLY;
+					eType[2] = TP_BLOCKED_FRIENDLY;
 					return; //done, we won't be putting units into this plot
 				}
 				else
@@ -9966,13 +9977,14 @@ void CvTacticalPlot::enemyUnitKilled()
 	bBlockedByEnemyCombatUnit = false;
 }
 
-void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates)
+void CvTacticalPlot::findType(eTactPlotDomain eDomain, const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates)
 {
 	//nothing to do, these never change
-	if (getType() == TP_BLOCKED_FRIENDLY || getType() == TP_BLOCKED_NEUTRAL)
+	if (getType(eDomain) == TP_BLOCKED_FRIENDLY || getType(eDomain) == TP_BLOCKED_NEUTRAL)
 		return;
 
-	eTactPlotType eOldType = eType;
+	eTactPlotType eOldType = getType(eDomain);
+	eTactPlotType eNewType = eOldType;
 	nFriendlyCombatUnitsAdjacent = 0;
 	nEnemyCombatUnitsAdjacent = 0;
 	nFriendlyFirstlineUnitsAdjacent = 0;
@@ -9988,26 +10000,31 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 		CvPlot* pNeighbor = aNeighbors[i];
 		if (pNeighbor)
 		{
+			bool bMatchingDomain = (eDomain == CvTacticalPlot::TD_BOTH) ||
+				(eDomain == CvTacticalPlot::TD_LAND && !pNeighbor->isWater()) ||
+				(eDomain == CvTacticalPlot::TD_SEA && pNeighbor->isWater());
+
 			const CvTacticalPlot& tactPlot = currentPosition.getTactPlot(pNeighbor->GetPlotIndex());
 			if (tactPlot.isValid())
 			{
 				//transient or permanent friendly unit
-				if (tactPlot.hasFriendlyCombatUnit() || tactPlot.getType()==TP_BLOCKED_FRIENDLY)
+				if (tactPlot.hasFriendlyCombatUnit() || tactPlot.getType(eDomain)==TP_BLOCKED_FRIENDLY)
 					nFriendlyCombatUnitsAdjacent++;
-				if (tactPlot.bBlockedByEnemyCombatUnit)
+				//ignore enemy units if the domain doesn't match, ie we cannot attack (ignore amphibious ...)
+				if (tactPlot.bBlockedByEnemyCombatUnit && bMatchingDomain)
 					nEnemyCombatUnitsAdjacent++;
 				if (tactPlot.bBlockedByEnemyCity)
 					bEnemyCityAdjacent = true;
 
-				if (tactPlot.getType() == TP_FRONTLINE)
+				if (tactPlot.getType(eDomain) == TP_FRONTLINE)
 					iFL++;
-				if (tactPlot.getType() == TP_SECONDLINE)
+				if (tactPlot.getType(eDomain) == TP_SECONDLINE)
 					iSL++;
-				if (tactPlot.getType() == TP_THIRDLINE)
+				if (tactPlot.getType(eDomain) == TP_THIRDLINE)
 					iTL++;
 
 				//let's hope it's the right kind of unit
-				if (tactPlot.getType() == TP_FRONTLINE && (tactPlot.hasFriendlyCombatUnit() || tactPlot.getType()==TP_BLOCKED_FRIENDLY))
+				if (tactPlot.getType(eDomain) == TP_FRONTLINE && (tactPlot.hasFriendlyCombatUnit() || tactPlot.getType(eDomain)==TP_BLOCKED_FRIENDLY))
 					nFriendlyFirstlineUnitsAdjacent++;
 			}
 			//if the tactical plot is invalid, it's out of range or invisible. don't ignore enemy cities there.
@@ -10027,19 +10044,20 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 	}
 
 	if (bBlockedByEnemyCombatUnit || bBlockedByEnemyCity)
-		eType = TP_ENEMY;
+		eNewType = TP_ENEMY;
 	else if (nEnemyCombatUnitsAdjacent>0 || bEnemyCityAdjacent)
-		eType = TP_FRONTLINE;
+		eNewType = TP_FRONTLINE;
 	else if (iFL>0)
-		eType = TP_SECONDLINE;
+		eNewType = TP_SECONDLINE;
 	else if (iSL>0)
-		eType = TP_THIRDLINE;
+		eNewType = TP_THIRDLINE;
 	else
-		eType = TP_FARAWAY;
+		eNewType = TP_FARAWAY;
 	
 	//we we changed our status, maybe our neighbors need to switch too
-	if (eType != eOldType)
+	if (eNewType != eOldType)
 	{
+		setType(eDomain, eNewType);
 		for (int i = 0; i < 6; i++)
 		{
 			CvPlot* pNeighbor = aNeighbors[i];
@@ -10467,6 +10485,13 @@ bool CvTacticalPosition::isOffensive() const
 
 void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
 {
+	updateTacticalPlotTypes(CvTacticalPlot::TD_BOTH,iStartPlot);
+	updateTacticalPlotTypes(CvTacticalPlot::TD_LAND,iStartPlot);
+	updateTacticalPlotTypes(CvTacticalPlot::TD_SEA,iStartPlot);
+}
+
+void CvTacticalPosition::updateTacticalPlotTypes(CvTacticalPlot::eTactPlotDomain eDomain, int iStartPlot)
+{
 	set<int> outstanding;
 
 	if (iStartPlot<0)
@@ -10479,7 +10504,7 @@ void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
 	{
 		CvTacticalPlot& tactPlot = getTactPlot(iStartPlot);
 		if (tactPlot.isValid())
-			tactPlot.findType(*this,outstanding);
+			tactPlot.findType(eDomain,*this,outstanding);
 	}
 
 	//now this one update may cause neighbors to switch as well
@@ -10489,7 +10514,7 @@ void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
 		outstanding.erase(outstanding.begin());
 		CvTacticalPlot& tactPlot = getTactPlot(index);
 		if (tactPlot.isValid())
-			tactPlot.findType(*this,outstanding);
+			tactPlot.findType(eDomain,*this,outstanding);
 	}
 }
 
