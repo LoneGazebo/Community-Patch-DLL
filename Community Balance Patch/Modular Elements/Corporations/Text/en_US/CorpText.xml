@@ -144,6 +144,16 @@
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CORPORATION">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Corporation: {1_Num}%</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_GREAT_PERSON_RATE_BENEFIT_DETAILS">
+			<Text>+{1_Num}% [ICON_GREAT_PEOPLE] Great People Rate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BENEFIT_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_YIELD_BENEFIT_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
 		
 		<!-- Civilopedia-->
 		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESRC_LABEL">
@@ -587,7 +597,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from owned Cities with a Trader Sid's Office to foreign Cities with a Trader Sid's Franchise produce +25% additional [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_GOLD] Gold.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ">
@@ -645,7 +655,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Centaurus Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_PRODUCTION] Production.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">
@@ -703,7 +713,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Hexxon Refinery Franchise grant +10% [ICON_PRODUCTION] Production in origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ">
@@ -761,7 +771,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Giorgio Armeier Franchise grant +10% [ICON_CULTURE] Culture to the origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_CULTURE] Culture.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ">
@@ -819,7 +829,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +50% additional [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_RESEARCH] Science.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ">
@@ -877,7 +887,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a TwoKay Foods Franchise grant +10% [ICON_FOOD] Food to the origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_FOOD] Food.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ">
@@ -935,7 +945,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Civilized Jewelers Franchise grant +10% [ICON_GOLD] Gold in the origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num}% [ICON_GREAT_PEOPLE] Great Person Rate.</Text>
+			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ">
