@@ -27301,11 +27301,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				if (thisPromotion.GetInstantYields(iI).first > 0)
 				{
 					CvCity* pCity = getOriginCity();
-					if (pCity == NULL && GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+					if (pCity != NULL)
 					{
-						pCity = GET_PLAYER(getOwner()).getCapitalCity();
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, (YieldTypes)iI, this);
 					}
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, (YieldTypes)iI, this);
 				}
 			}
 #endif
