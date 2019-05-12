@@ -10055,7 +10055,11 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
+#else
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
+#endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10075,7 +10079,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
+#if defined(MOD_BALANCE_CORE)
+		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
+#else
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+#endif
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -10091,7 +10099,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	return pUnit;
 }
 
+#if defined(MOD_BALANCE_CORE)
+CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
+#else
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
+#endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10106,7 +10118,11 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
+#if defined(MOD_BALANCE_CORE)
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
+#else
 		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+#endif
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial

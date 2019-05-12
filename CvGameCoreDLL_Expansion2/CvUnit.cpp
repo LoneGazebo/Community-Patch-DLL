@@ -538,13 +538,25 @@ CvUnit::~CvUnit()
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
+#else
 void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
+#endif
 {
+#if defined(MOD_BALANCE_CORE)
+	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, false, pPassUnit);
+#else
 	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+#endif
 }
 //	--------------------------------------------------------------------------------
 
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, bool bSkipNaming, CvUnit* pPassUnit)
+#else
 void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason /*eReason*/, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, bool bSkipNaming)
+#endif
 {
 	VALIDATE_OBJECT
 	CvString strBuffer;
@@ -567,10 +579,20 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	PromotionTypes ePromotion;
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		ePromotion = (PromotionTypes)iI;
+
+		// If upgrading, transfer memory of the promotions the old unit has ever obtained (this is in initWithNamedOffset() instead of convert() because promotions can get granted here, and the game needs to know if the promotion is ever obtained before promotions are granted)
+		if (eReason == REASON_UPGRADE && pPassUnit != NULL && pPassUnit->IsPromotionEverObtained(ePromotion))
+		{
+			SetPromotionEverObtained(ePromotion, true);
+	}
+#endif
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
-			ePromotion = (PromotionTypes) iI;
-
+#if !defined(MOD_BALANCE_CORE)
+			ePromotion = (PromotionTypes)iI;
+#endif
 			if(GC.getPromotionInfo(ePromotion)->IsHoveringUnit())
 				setHasPromotion(ePromotion, true);
 
@@ -2002,11 +2024,6 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			// Transfer memory of the promotions the old unit ever obtained
-			if (pUnit->IsPromotionEverObtained(ePromotion))
-			{
-				SetPromotionEverObtained(ePromotion, true);
-			}
 			if (pUnit->isConvertOnDamage() && pkPromotionInfo->IsConvertOnDamage())
 			{
 				continue;
@@ -14831,7 +14848,11 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 #endif
 
 	// Add newly upgraded Unit & kill the old one
+#if defined(MOD_BALANCE_CORE)
+	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, REASON_UPGRADE, false, false, 0, 0, NO_CONTRACT, true, this);
+#else
 	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, REASON_UPGRADE, false, false);
+#endif
 
 	if(NULL != pNewUnit)
 	{
@@ -27284,7 +27305,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 					{
 						pCity = GET_PLAYER(getOwner()).getCapitalCity();
 					}
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, getOriginCity(), false, true, false, (YieldTypes)iI, this);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, (YieldTypes)iI, this);
 				}
 			}
 #endif
