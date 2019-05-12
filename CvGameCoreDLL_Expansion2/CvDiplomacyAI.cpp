@@ -14585,6 +14585,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 #if defined(MOD_BALANCE_CORE)
 					}
+			// Shouldn't clear out positive diplomatic values if WE declared war (except recent trade, since we're no longer trade partners)
+			if (!bDefensivePact)
+			{
 #endif
 
 					// Clear civilians returned and landmarks built so they don't affect relations any more
@@ -14593,15 +14596,22 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					if(GetNumLandmarksBuiltForMe(ePlayer) > 0)
 						ChangeNumLandmarksBuiltForMe(ePlayer, -GetNumLandmarksBuiltForMe(ePlayer));
 
-					// Clear positive diplomatic values
-					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
+					// Clear positive diplomatic values					
 					ChangeCommonFoeValue(ePlayer, -GetCommonFoeValue(ePlayer));
 					if (GetRecentAssistValue(ePlayer) < 0)
 					{
 						ChangeRecentAssistValue(ePlayer, -GetRecentAssistValue(ePlayer));
 					}
-
-					// clear out their values
+#if defined(MOD_BALANCE_CORE)
+                    // Clear intrigue shared
+					if(GetNumTimesIntrigueSharedBy(ePlayer) > 0)
+                        ChangeNumTimesIntrigueSharedBy(ePlayer, -GetNumTimesIntrigueSharedBy(ePlayer));
+            }	
+#endif					
+										
+					// Clear out recent trade/DoF values
+					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentTradeValue(GetPlayer()->GetID(), -GetRecentTradeValue(GetPlayer()->GetID()));
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
