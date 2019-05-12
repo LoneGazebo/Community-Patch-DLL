@@ -2999,11 +2999,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 			eOpinion = MAJOR_CIV_OPINION_ENEMY;
 		else if(iOpinionWeight >= /*10*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 			eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
-		else if(iOpinionWeight >= /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+		else if(iOpinionWeight > /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 			eOpinion = MAJOR_CIV_OPINION_NEUTRAL;
-		else if(iOpinionWeight >= /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
+		else if(iOpinionWeight > /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
 			eOpinion = MAJOR_CIV_OPINION_FAVORABLE;
-		else if(iOpinionWeight >= /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
+		else if(iOpinionWeight > /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
 			eOpinion = MAJOR_CIV_OPINION_FRIEND;
 		else
 			eOpinion = MAJOR_CIV_OPINION_ALLY;
@@ -3356,14 +3356,14 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 							eOpinion = MAJOR_CIV_OPINION_ENEMY;
 						else if(iOpinionWeight >= /*10*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 							eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
-						else if(iOpinionWeight < /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
-							eOpinion = MAJOR_CIV_OPINION_FAVORABLE;
-						else if(iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
-							eOpinion = MAJOR_CIV_OPINION_FRIEND;
-						else if(iOpinionWeight < /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
-							eOpinion = MAJOR_CIV_OPINION_ALLY;
-						else
+						else if(iOpinionWeight > /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 							eOpinion = MAJOR_CIV_OPINION_NEUTRAL;
+						else if(iOpinionWeight > /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
+							eOpinion = MAJOR_CIV_OPINION_FAVORABLE;
+						else if(iOpinionWeight > /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
+							eOpinion = MAJOR_CIV_OPINION_FRIEND;
+						else
+							eOpinion = MAJOR_CIV_OPINION_ALLY;
 
 						// Finally, set the Opinion
 						SetMajorCivOtherPlayerOpinion(eLoopPlayer, eLoopOtherPlayer, eOpinion);
