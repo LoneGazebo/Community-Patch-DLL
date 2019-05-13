@@ -11553,7 +11553,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iScore += 50;
 				}
-				if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eTargetPlayer))
+				if(GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eTargetPlayer))
 				{
 					iScore += 50;
 				}

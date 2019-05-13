@@ -37,7 +37,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aePeaceTreatyWillingToOffer()
 	, m_aePeaceTreatyWillingToAccept()
 	, m_aiNumWondersBeatenTo()
-	, m_abMusteringForAttack()
+	, m_abArmyInPlaceForAttack()
 	, m_abWantsResearchAgreementWithPlayer()
 	, m_abWantToRouteToMinor()
 	, m_aeWarFace()
@@ -227,7 +227,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paePeaceTreatyWillingToOffer(NULL),
 	m_paePeaceTreatyWillingToAccept(NULL),
 	m_paiNumWondersBeatenTo(NULL),
-	m_pabMusteringForAttack(NULL),
+	m_pabArmyInPlaceForAttack(NULL),
 	m_pabWantsResearchAgreementWithPlayer(NULL),
 	m_pabWantToRouteToMinor(NULL),
 	m_paeWarFace(NULL),
@@ -486,7 +486,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paePeaceTreatyWillingToOffer = &m_pDiploData->m_aePeaceTreatyWillingToOffer[0];
 	m_paePeaceTreatyWillingToAccept = &m_pDiploData->m_aePeaceTreatyWillingToAccept[0];
 	m_paiNumWondersBeatenTo = &m_pDiploData->m_aiNumWondersBeatenTo[0];
-	m_pabMusteringForAttack = &m_pDiploData->m_abMusteringForAttack[0];
+	m_pabArmyInPlaceForAttack = &m_pDiploData->m_abArmyInPlaceForAttack[0];
 	m_pabWantsResearchAgreementWithPlayer = &m_pDiploData->m_abWantsResearchAgreementWithPlayer[0];
 	m_pabWantToRouteToMinor = &m_pDiploData->m_abWantToRouteToMinor[0];
 	m_paeWarFace = &m_pDiploData->m_aeWarFace[0];
@@ -796,7 +796,7 @@ void CvDiplomacyAI::Uninit()
 	m_paePeaceTreatyWillingToOffer = NULL;
 	m_paePeaceTreatyWillingToAccept = NULL;
 	m_paiNumWondersBeatenTo = NULL;
-	m_pabMusteringForAttack = NULL;
+	m_pabArmyInPlaceForAttack = NULL;
 	m_pabWantsResearchAgreementWithPlayer = NULL;
 	m_pabWantToRouteToMinor = NULL;
 	m_paeWarFace = NULL;
@@ -1243,7 +1243,7 @@ void CvDiplomacyAI::Reset()
 		m_paeApproachScratchPad[iI] = -1;
 
 		m_paiNumWondersBeatenTo[iI] = 0;
-		m_pabMusteringForAttack[iI] = false;
+		m_pabArmyInPlaceForAttack[iI] = false;
 
 		m_paeWantPeaceCounter[iI] = 0;
 
@@ -1391,8 +1391,8 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiNumWondersBeatenTo(MAX_CIV_PLAYERS, m_paiNumWondersBeatenTo);
 	kStream >> wrapm_paiNumWondersBeatenTo;
 
-	ArrayWrapper<bool> wrapm_pabMusteringForAttack(MAX_CIV_PLAYERS, m_pabMusteringForAttack);
-	kStream >> wrapm_pabMusteringForAttack;
+	ArrayWrapper<bool> wrapm_pabArmyInPlaceForAttack(MAX_CIV_PLAYERS, m_pabArmyInPlaceForAttack);
+	kStream >> wrapm_pabArmyInPlaceForAttack;
 
 
 	ArrayWrapper<bool> wrapm_pabWantsResearchAgreementWithPlayer(MAX_MAJOR_CIVS, m_pabWantsResearchAgreementWithPlayer);
@@ -2010,7 +2010,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paeApproachTowardsUsGuessCounter);
 
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumWondersBeatenTo);
-	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabMusteringForAttack);
+	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabArmyInPlaceForAttack);
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsResearchAgreementWithPlayer);
 	kStream << ArrayWrapper<bool>(MAX_MINOR_CIVS, m_pabWantToRouteToMinor);
@@ -5937,7 +5937,7 @@ void CvDiplomacyAI::DoStartDemandProcess(PlayerTypes ePlayer)
 	CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation((ePlayer));
 
 	// Not yet readying an attack
-	if(pOperation == NULL && !IsMusteringForAttack(ePlayer))	// If we're "mustering" it means we had a Sneak Attack Operation that finished
+	if(pOperation == NULL && !IsArmyInPlaceForAttack(ePlayer))
 	{
 		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
@@ -5981,7 +5981,7 @@ void CvDiplomacyAI::DoCancelHaltDemandProcess()
 			if(pOperation != NULL)
 			{
 				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
-				SetMusteringForAttack(eDemandTarget, false);
+				SetArmyInPlaceForAttack(eDemandTarget, false);
 			}
 #if defined(MOD_BALANCE_CORE)
 			}
@@ -6010,9 +6010,9 @@ void CvDiplomacyAI::DoTestDemandReady()
 				if(!IsAtWar(eDemandTarget))
 				{
 					// If we're at least 85% of the way to our objective, let loose the dogs of war!
-					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
+					if(IsArmyInPlaceForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))
 					{
-						SetMusteringForAttack(eDemandTarget, false);
+						SetArmyInPlaceForAttack(eDemandTarget, false);
 
 						SetDemandReady(true);
 					}
@@ -6434,7 +6434,7 @@ bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if(IsMusteringForAttack(ePlayer))
+	if(IsArmyInPlaceForAttack(ePlayer))
 	{
 		return false;
 	}
@@ -6477,7 +6477,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if(IsMusteringForAttack(ePlayer))
+	if(IsArmyInPlaceForAttack(ePlayer))
 	{
 		return false;
 	}
@@ -6574,7 +6574,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if (IsMusteringForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
+	if (IsArmyInPlaceForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
 	{
 		return false;
 	}
@@ -7445,7 +7445,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	}
 
 	// Not yet readying an attack
-	if(pOperation == NULL && !IsMusteringForAttack(eTargetPlayer))	// If we're "mustering" it means we had a Sneak Attack Operation that finished
+	if(pOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
 	{
 		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
@@ -7499,15 +7499,10 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
 #endif
 				{
-					// If we're at least 85% of the way to our objective, let loose the dogs of war!
-#if defined(MOD_BALANCE_CORE)
-					if(IsMusteringForAttack(eTargetPlayer) || (pOperation != NULL && pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
-#else
-					if(IsMusteringForAttack(eTargetPlayer) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 85))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
-#endif
+					if(IsArmyInPlaceForAttack(eTargetPlayer) || (pOperation != NULL && pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
 					{
 						bDeclareWar = true;
-						SetMusteringForAttack(eTargetPlayer, false);
+						SetArmyInPlaceForAttack(eTargetPlayer, false);
 #if defined(MOD_BALANCE_CORE)
 						SetWantsSneakAttack(eTargetPlayer, false);
 #endif
@@ -7526,7 +7521,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 #endif
 				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
-				SetMusteringForAttack(eTargetPlayer, false);
+				SetArmyInPlaceForAttack(eTargetPlayer, false);
 			}
 		}
 
@@ -7830,19 +7825,19 @@ void CvDiplomacyAI::SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eWarF
 }
 
 /// Are we building up for an attack on ePlayer?
-bool CvDiplomacyAI::IsMusteringForAttack(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsArmyInPlaceForAttack(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return m_pabMusteringForAttack[ePlayer];
+	return m_pabArmyInPlaceForAttack[ePlayer];
 }
 
 /// Sets whether or not we're building up for an attack on ePlayer
-void CvDiplomacyAI::SetMusteringForAttack(PlayerTypes ePlayer, bool bValue)
+void CvDiplomacyAI::SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_pabMusteringForAttack[ePlayer] = bValue;
+	m_pabArmyInPlaceForAttack[ePlayer] = bValue;
 
 	if (bValue)
 		DoTestDemandReady();
@@ -10907,7 +10902,7 @@ bool CvDiplomacyAI::IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer)
 		return false;
 	}
 
-	if(IsMusteringForAttack(ePlayer))
+	if(IsArmyInPlaceForAttack(ePlayer))
 	{
 		return false;
 	}
@@ -14342,7 +14337,7 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 		if(GET_PLAYER(ePeacePlayer).getTeam() == eOtherTeam)
 		{
 			// In case we had an ongoing operation, kill it
-			SetMusteringForAttack(ePeacePlayer, false);
+			SetArmyInPlaceForAttack(ePeacePlayer, false);
 
 			if(!GET_PLAYER(ePeacePlayer).isMinorCiv())
 			{
@@ -15551,7 +15546,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetSneakAttackOperation(GetPlayer()->GetID());
 				}
 
-				if ((pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 75) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMusteringForAttack(GetPlayer()->GetID()))
+				if ((pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 75) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsArmyInPlaceForAttack(GetPlayer()->GetID()))
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetPlayer()->getTeam()))
 					{
@@ -32809,7 +32804,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 			{
 				return true;
 			}
-			if(IsMusteringForAttack(eLoopPlayer))
+			if(IsArmyInPlaceForAttack(eLoopPlayer))
 			{
 				return true;
 			}
@@ -41598,7 +41593,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 					}
 
 					// In case we had an ongoing operation against our Master, kill it
-					SetMusteringForAttack(eOtherTeamPlayer, false);
+					SetArmyInPlaceForAttack(eOtherTeamPlayer, false);
 
 					// Master had agreed to not settle nearby
 					if(GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->IsPlayerNoSettleRequestAccepted(GetPlayer()->GetID()))

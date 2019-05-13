@@ -177,6 +177,7 @@ public:
 	virtual bool IsOffensive() const { return false; }
 	virtual bool IsAllowedDuringPeace() const { return false; }
 	virtual bool IsDefensive() const { return false; }
+	virtual bool IsShowOfForce() const { return false; }
 	virtual void OnSuccess() const {}
 
 	//accessors
@@ -348,6 +349,7 @@ public:
 	virtual int GetMaximumRecruitTurnsBase() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool IsOffensive() const { return true; }
+	virtual bool IsShowOfForce() const;
 
 protected:
 };
@@ -510,6 +512,7 @@ public:
 	{
 		return true;
 	}
+	virtual void OnSuccess() const;
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
@@ -834,6 +837,7 @@ public:
 	}
 	virtual bool IsDefensive() const { return true; }
 	virtual bool IsOffensive() const { return false; }
+	virtual void OnSuccess() const;
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
@@ -937,6 +941,7 @@ public:
 		return 4;
 	}
 	virtual bool DoTurn();
+	virtual bool IsShowOfForce() const { return true; }
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -973,6 +978,7 @@ public:
 	{ 
 		return 4;
 	}
+	virtual bool IsShowOfForce() const { return true; }
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;

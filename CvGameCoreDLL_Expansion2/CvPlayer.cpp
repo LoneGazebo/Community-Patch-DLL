@@ -46933,7 +46933,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 			bool bWarMayBeComing = false;
 
 			//do we want to start a war?
-			if(GetDiplomacyAI()->IsMusteringForAttack(eLoopPlayer) || GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
+			if(GetDiplomacyAI()->IsArmyInPlaceForAttack(eLoopPlayer) || GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
 				bWarMayBeComing = true;
 
 			//do they want to start a war?

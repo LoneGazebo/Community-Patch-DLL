@@ -3107,7 +3107,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	int iItemValue = 500;
 
 #if defined(MOD_BALANCE_CORE_DEALS)
-	if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eOtherPlayer))
+	if(GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eOtherPlayer))
 	{
 		return INT_MAX;
 	}
@@ -3771,11 +3771,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Already moving on asker?
-	if(bFromMe && pDiploAI->IsMusteringForAttack(eOtherPlayer))
+	if(bFromMe && pDiploAI->IsArmyInPlaceForAttack(eOtherPlayer))
 	{
 		return INT_MAX;
 	}
-	if(!bFromMe && pDiploAI->IsMusteringForAttack(eOtherPlayer))
+	if(!bFromMe && pDiploAI->IsArmyInPlaceForAttack(eOtherPlayer))
 	{
 		iItemValue += 500;
 	}
@@ -3789,11 +3789,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 
 	//Already moving on target?
-	if(bFromMe && pDiploAI->IsMusteringForAttack(eWithPlayer))
+	if(bFromMe && pDiploAI->IsArmyInPlaceForAttack(eWithPlayer))
 	{
 		iItemValue += 250;
 	}
-	if(!bFromMe && pDiploAI->IsMusteringForAttack(eWithPlayer))
+	if(!bFromMe && pDiploAI->IsArmyInPlaceForAttack(eWithPlayer))
 	{
 		iItemValue += 500;
 	}
@@ -3922,7 +3922,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 #endif
 
-		if(pDiploAI->IsMusteringForAttack(eWithPlayer))
+		if(pDiploAI->IsArmyInPlaceForAttack(eWithPlayer))
 		{
 			iItemValue *= 75;
 			iItemValue /= 100;

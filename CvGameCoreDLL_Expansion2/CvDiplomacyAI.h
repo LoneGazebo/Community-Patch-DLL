@@ -226,8 +226,8 @@ public:
 	void SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eFace);
 
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
-	bool IsMusteringForAttack(PlayerTypes ePlayer) const;
-	void SetMusteringForAttack(PlayerTypes ePlayer, bool bValue);
+	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
+	void SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue);
 
 	// Set default values when we're attacked and its not our turn
 	void DoSomeoneDeclaredWarOnMe(TeamTypes eTeam);
@@ -1554,7 +1554,7 @@ private:
 		char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
 		char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
 		short m_aiNumWondersBeatenTo[REALLY_MAX_PLAYERS];
-		bool m_abMusteringForAttack[REALLY_MAX_PLAYERS];
+		bool m_abArmyInPlaceForAttack[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
@@ -1872,7 +1872,7 @@ private:
 	char* m_paePeaceTreatyWillingToAccept;
 
 	short* m_paiNumWondersBeatenTo;
-	bool* m_pabMusteringForAttack;
+	bool* m_pabArmyInPlaceForAttack;
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
 #if defined(MOD_BALANCE_CORE_DEALS)

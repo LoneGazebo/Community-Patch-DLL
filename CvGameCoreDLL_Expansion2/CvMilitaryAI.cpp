@@ -710,30 +710,13 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 /// Send an army to force concessions
 bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 {
-	CvAIOperation* pOperation = 0;
-	int iOperationID;
-	int iNumUnitsWillingBuild = 1;
 	// Let's only allow us to be sneak attacking one opponent at a time, so abort if already have one of these operations active against any opponent
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID))
-	{
+	if (GetShowOfForceOperation(eEnemy) != NULL)
 		return false;
-	}
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_SNEAK_ATTACK, &iOperationID))
-	{
-		return false;
-	}
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID))
-	{
-		return false;
-	}
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID))
-	{
-		return false;
-	}
+
 	if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-	{
 		return false;
-	}
+
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -746,6 +729,10 @@ bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 			return false;
 		}
 	}
+
+	CvAIOperation* pOperation = 0;
+	int iNumUnitsWillingBuild = 1;
+
 	CvMilitaryTarget target = FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eEnemy);
 	if (!target.m_pTargetCity || !target.m_pMusterCity)
 	{
@@ -1101,32 +1088,16 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 /// Get a pointer to the sneak attack operation against a target
 CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
 {
-	int iOperationID;
-	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_SNEAK_ATTACK, &iOperationID, eEnemy);
-
-	if(bHasOperationUnderway)
+	CvAIOperation* pOp = m_pPlayer->getFirstAIOperation();
+	while (pOp)
 	{
-		return m_pPlayer->getAIOperation(iOperationID);
-	}
-	else
-	{
-		bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID, eEnemy);
-
-		if(bHasOperationOfType)
+		if (eEnemy == NO_PLAYER || pOp->GetEnemy() == eEnemy)
 		{
-			return m_pPlayer->getAIOperation(iOperationID);
+			if (pOp->IsOffensive() && pOp->IsAllowedDuringPeace())
+				return pOp;
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		else
-		{
-			bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, eEnemy);
 
-			if(bHasOperationOfType)
-			{
-				return m_pPlayer->getAIOperation(iOperationID);
-			}
-		}
-#endif
+		pOp = m_pPlayer->getNextAIOperation();
 	}
 
 	return NULL;
@@ -1135,31 +1106,16 @@ CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
 /// Get a pointer to the show of force operation against a target
 CvAIOperation* CvMilitaryAI::GetShowOfForceOperation(PlayerTypes eEnemy)
 {
-	int iOperationID;
-
-	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_SNEAK_ATTACK, &iOperationID, eEnemy);
-
-	if(bHasOperationUnderway)
+	CvAIOperation* pOp = m_pPlayer->getFirstAIOperation();
+	while (pOp)
 	{
-		return m_pPlayer->getAIOperation(iOperationID);
-	}
-	else
-	{
-		bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID, eEnemy);
-
-		if(bHasOperationOfType)
+		if (eEnemy == NO_PLAYER || pOp->GetEnemy() == eEnemy)
 		{
-			return m_pPlayer->getAIOperation(iOperationID);
+			if (pOp->IsShowOfForce())
+				return pOp;
 		}
-		else
-		{
-			bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, eEnemy);
 
-			if(bHasOperationOfType)
-			{
-				return m_pPlayer->getAIOperation(iOperationID);
-			}
-		}
+		pOp = m_pPlayer->getNextAIOperation();
 	}
 
 	return NULL;

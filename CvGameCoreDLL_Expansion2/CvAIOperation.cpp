@@ -1764,6 +1764,12 @@ AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pA
 	return NO_ABORT_REASON;
 }
 
+//sometimes we don't really mean it
+bool CvAIOperationOffensive::IsShowOfForce() const
+{
+	return GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND;
+}
+
 /// Kick off this operation
 void CvAIOperationOffensive::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster, bool /*bOceanMoves */)
 {
@@ -1909,27 +1915,14 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 
 				if(bInPlace)
 				{
-					//should probably create a virtual method for this
-					bool bShowOfForce = (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) == WAR_GOAL_DEMAND) || 
-										(GetOperationType() == AI_OPERATION_BULLY_CITY_STATE) ||
-										(GetOperationType() == AI_OPERATION_NAVAL_BULLY_CITY_STATE);
-
 					// Notify Diplo AI we're in place for attack (unless this is just for show)
-					if(!bShowOfForce && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
-						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetMusteringForAttack(m_eEnemy, true);
+					if(!IsShowOfForce() && !GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
+						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetArmyInPlaceForAttack(m_eEnemy, true);
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
 					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 					pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
 					LogOperationSpecialMessage("Transition to finished stage");
-
-					//pillagers should be told to pillage!
-					if (GetFormation() == MUFORMATION_FAST_PILLAGERS || GetFormation() ==  MUFORMATION_NAVAL_SQUADRON)
-					{
-						CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pTarget);
-						if (pZone)
-							pZone->SetPillageZone(true);
-					}
 
 					OnSuccess();
 					bStateChanged = true;
@@ -2045,6 +2038,14 @@ void CvAIOperationPillageEnemy::Init(int iID, PlayerTypes eOwner, PlayerTypes eE
 int CvAIOperationPillageEnemy::GetDeployRange() const
 {
 	return 3;
+}
+
+//pillagers should be told to pillage!
+void CvAIOperationPillageEnemy::OnSuccess() const
+{
+	CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot( GetTargetPlot() );
+	if (pZone)
+		pZone->SetPillageZone(true);
 }
 
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
@@ -2932,6 +2933,14 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 	}
 
 	return pPlot;
+}
+
+//pillagers should be told to pillage!
+void CvAIOperationNavalSuperiority::OnSuccess() const
+{
+	CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot( GetTargetPlot() );
+	if (pZone)
+		pZone->SetPillageZone(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
