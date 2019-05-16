@@ -16232,6 +16232,11 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 				{
 					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if(pkeBuildingInfo == NULL)
+					{
+						//This should never happen.
+						return 1;
+					}
 				
 					// Has this Building
 					if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
