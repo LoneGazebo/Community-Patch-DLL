@@ -10820,7 +10820,7 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 	}
 #endif
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------

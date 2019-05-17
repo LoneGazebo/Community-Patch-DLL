@@ -16235,7 +16235,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 					if(pkeBuildingInfo == NULL)
 					{
 						//This should never happen.
-						return 1;
+						continue;
 					}
 				
 					// Has this Building
