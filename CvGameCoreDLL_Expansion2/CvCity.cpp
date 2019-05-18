@@ -7656,17 +7656,15 @@ void CvCity::clearWorkingOverride(int iIndex)
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential) const
+int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement) const
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot;
 	int iCount = 0;
-	int iI;
 
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
-	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
+	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
-		pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
 
 		if(pLoopPlot != NULL)
 		{
@@ -7674,7 +7672,7 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential
 			{
 				if(eImprovement != NO_IMPROVEMENT)
 				{
-					if((pLoopPlot->getImprovementType() == eImprovement && !pLoopPlot->IsImprovementPillaged()) || (bPotential && pLoopPlot->canHaveImprovement(eImprovement, getOwner())))
+					if(pLoopPlot->getImprovementType() == eImprovement && !pLoopPlot->IsImprovementPillaged())
 					{
 						++iCount;
 					}
@@ -7690,6 +7688,41 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential
 	return iCount;
 }
 
+//	--------------------------------------------------------------------------------
+int CvCity::countNumImprovablePlots(ImprovementTypes eImprovement, DomainTypes eDomain) const
+{
+	VALIDATE_OBJECT
+	int iCount = 0;
+
+	CvCityCitizens* pCityCitizens = GetCityCitizens();
+	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
+	{
+		CvPlot* pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+
+		if(pLoopPlot != NULL && !pLoopPlot->isCity() && (eDomain == NO_DOMAIN || pLoopPlot->getDomain()==eDomain) )
+		{
+			if(pLoopPlot->getOwningCityID() == GetID() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isBlockaded(getOwner()) && pLoopPlot->hasYield())
+			{
+				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT || pLoopPlot->IsImprovementPillaged())
+				{
+					if (eImprovement != NO_IMPROVEMENT)
+					{
+						if (pLoopPlot->canHaveImprovement(eImprovement, getOwner()))
+						{
+							++iCount;
+						}
+					}
+					else if (pLoopPlot->getDomain() == DOMAIN_LAND || (pLoopPlot->getDomain() == DOMAIN_SEA && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE))
+					{
+						++iCount;
+					}
+				}
+			}
+		}
+	}
+
+	return iCount;
+}
 
 //	--------------------------------------------------------------------------------
 int CvCity::countNumWaterPlots() const

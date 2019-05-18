@@ -220,7 +220,8 @@ public:
 	int GetNumWorkablePlots(int iChange = 0) const;
 
 	void clearWorkingOverride(int iIndex);
-	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, bool bPotential = false) const;
+	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT) const;
+	int countNumImprovablePlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, DomainTypes eDomain = DOMAIN_LAND) const;
 	int countNumWaterPlots() const;
 	int countNumRiverPlots() const;
 	int countNumForestPlots() const;

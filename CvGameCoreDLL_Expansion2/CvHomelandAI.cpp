@@ -1556,17 +1556,40 @@ void CvHomelandAI::PlotSentryMoves()
 		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 		{
 			CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
-			if(pSentry)
-			{
-				ExecuteMoveToTarget(pSentry, pTarget, 0, true);
-				UnitProcessed(pSentry->GetID());
+			if (!pSentry)
+				continue;
 
-				if(GC.getLogging() && GC.getAILogging())
+			if (pSentry->atPlot(*pTarget))
+			{
+				//check our immediate neighbors if we can increase our visibility
+				int iBestCount = 0;
+				CvPlot* pBestNeighbor = NULL;
+				for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
 				{
-					CvString strLogString;
-					strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
-					LogHomelandMessage(strLogString);
+					CvPlot* pNeighbor = iterateRingPlots(pSentry->plot(), i);
+					if (!pNeighbor || !pSentry->canMoveInto(*pNeighbor,CvUnit::MOVEFLAG_DESTINATION))
+						continue;
+
+					int iCount = TacticalAIHelpers::CountAdditionallyVisiblePlots(pSentry, pNeighbor);
+					if (iCount > iBestCount)
+					{
+						iBestCount = iCount;
+						pBestNeighbor = pNeighbor;
+					}
 				}
+
+				if (pBestNeighbor)
+					pSentry->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestNeighbor->getX(), pBestNeighbor->getY());
+			}
+
+			ExecuteMoveToTarget(pSentry, pTarget, 0, true);
+			UnitProcessed(pSentry->GetID());
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
+				LogHomelandMessage(strLogString);
 			}
 		}
 	}
@@ -2093,7 +2116,6 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 /// Find units that we can upgrade
 void CvHomelandAI::PlotUpgradeMoves()
 {
-	MoveUnitsArray::iterator moveUnitIt;
 	ResourceTypes eResource;
 	int iNumResource;
 	int iNumResourceInUnit;
@@ -2113,7 +2135,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 				continue;
 
 			//And on land.
-			if(pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
+			if(!pUnit->isNativeDomain(pUnit->plot()))
 				continue;
 #endif
 
@@ -2215,27 +2237,23 @@ void CvHomelandAI::PlotUpgradeMoves()
 				iFlavorMilitaryTraining = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		//Why 1/3?
 		iFlavorMilitaryTraining = max(1 , iFlavorMilitaryTraining);
-#else
-		iFlavorMilitaryTraining = max(1,iFlavorMilitaryTraining/3);
-#endif
 		int iBonusUpgrades = max(0,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties (the AI should have more money to spend)
 		iFlavorMilitaryTraining += iBonusUpgrades;
 
 		// Try to find a unit that can upgrade immediately
 		int iNumUpgraded = 0;
-		for(moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
+		CvUnit* pFirstNonUpgradedUnit = NULL;
+		for(MoveUnitsArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
-			if(pUnit->CanUpgradeRightNow(false))
+			if (pUnit->CanUpgradeRightNow(false))
 			{
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
 				UnitProcessed(pUnit->GetID());
 				UnitProcessed(pNewUnit->GetID());
 
-				if(GC.getLogging() && GC.getAILogging())
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					CvString strTemp1, strTemp2;
@@ -2246,23 +2264,21 @@ void CvHomelandAI::PlotUpgradeMoves()
 				}
 
 				iNumUpgraded++;
-				if(iNumUpgraded >= iFlavorMilitaryTraining)
-				{
-					return; // Only upgrade iFlavorMilitaryTraining units per turn
-				}
+
+				// Only upgrade iFlavorMilitaryTraining units per turn
+				if (iNumUpgraded >= iFlavorMilitaryTraining)
+					return;
 			}
+			else if (pFirstNonUpgradedUnit==NULL)
+				pFirstNonUpgradedUnit = pUnit;
 		}
-		if(iNumUpgraded > iFlavorMilitaryTraining)
-		{
+
+		//return if there is nothing left to do
+		if (iNumUpgraded == m_CurrentMoveUnits.size())
 			return;
-		}
 
 		// Couldn't do all upgrades this turn, get ready for highest priority unit to upgrade
-		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-		if(!pUnit)
-			return;
-
-		int iAmountRequired = pUnit->upgradePrice(pUnit->GetUpgradeUnitType());
+		int iAmountRequired = pFirstNonUpgradedUnit->upgradePrice(pFirstNonUpgradedUnit->GetUpgradeUnitType());
 		bool bRequiresGold = (iAmountRequired > 0);
 		int iGoldPriority = 0;
 
@@ -2298,7 +2314,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 			CvString strLogString;
 			CvString strTemp;
 
-			strTemp = pUnit->getUnitInfo().GetDescription();
+			strTemp = pFirstNonUpgradedUnit->getUnitInfo().GetDescription();
 			strLogString.Format("Need gold for %s upgrade, GOLD: Available = %d, Needed = %d, Priority = %d",
 				                strTemp.GetCString(), m_pPlayer->GetTreasury()->GetGold(), iAmountRequired, iGoldPriority);
 			LogHomelandMessage(strLogString);
@@ -6226,7 +6242,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 {
 	WeightedPlotVector aBestPlotList;
-	aBestPlotList.clear();
 	int iLoopCity;
 	for(CvCity *pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
@@ -6244,16 +6259,24 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 #endif
 			continue;
 
-		//Try to spread out (workers typically)
-		int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType());
-		if(pLoopPlot == pUnit->plot())
-			iNumFriendlies--;
+		int iValue = 0; //default
 
-		int iValue = 100 - iNumFriendlies*10;
-		//try to go to the frontier, most action should be there
-		if (m_pPlayer->getCapitalCity())
-			iValue += plotDistance(m_pPlayer->getCapitalCity()->getX(), m_pPlayer->getCapitalCity()->getY(), pLoopCity->getX(), pLoopCity->getY());
-			
+		//see if there is work to do
+		if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
+			iValue += pLoopCity->countNumImprovablePlots(NO_IMPROVEMENT, DOMAIN_LAND) * 10;
+		else
+		{
+			//try to spread out
+			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType());
+			if (pLoopPlot == pUnit->plot())
+				iNumFriendlies--;
+			iValue -= iNumFriendlies * 20;
+
+			//stay close to the core
+			if (m_pPlayer->getCapitalCity())
+				iValue -= plotDistance(m_pPlayer->getCapitalCity()->getX(), m_pPlayer->getCapitalCity()->getY(), pLoopCity->getX(), pLoopCity->getY());
+		}
+
 		aBestPlotList.push_back(pLoopPlot, iValue);
 	}
 

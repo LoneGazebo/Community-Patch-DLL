@@ -9034,10 +9034,12 @@ pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(CvPlot* pOrigin, int iR
 				// Is a combat unit
 				if (pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
 				{
+					int iScale = pLoopUnit->isNativeDomain(pLoopPlot) ? 1 : 2;
+
 					if (pLoopUnit->getTeam() == eTeamA)
-						iTeamAPower += pLoopUnit->GetPower();
+						iTeamAPower += pLoopUnit->GetPower() / iScale;
 					if (pLoopUnit->getTeam() == eTeamB)
-						iTeamBPower += pLoopUnit->GetPower();
+						iTeamBPower += pLoopUnit->GetPower() / iScale;
 				}
 			}
 		}
