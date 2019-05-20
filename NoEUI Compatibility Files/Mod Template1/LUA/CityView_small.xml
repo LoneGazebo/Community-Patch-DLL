@@ -383,7 +383,10 @@
           <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="SpecialBuildingsHeader">
             <Label Anchor="L,C" Offset="12,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="SpecialBuildingsHeaderLabel"/>
           </Button>
-          <Box Anchor="L,C" Color="White.0" Offset="0,0" Size="254,32" ID="SpecialistControlBox">
+			<Label Anchor="L,C" AnchorSide="O.I" Color0="Food.255" Offset="-15,32" Font="TwCenMT14" ID="FreeSpecialistLabel">
+				<Label Anchor="R,C" AnchorSide="O.I" Offset="5,0" Font="TwCenMT14" String="" ID="FreeSpecialistLabelSuffix"/>
+			</Label>
+          <Box Anchor="L,C" Color="White.0" Offset="0,0" Size="254,50" ID="SpecialistControlBox">
             <Label Anchor="R,T" Offset="64,8" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             <CheckBox Style="SquareCheck" Anchor="L,B" ID="NoAutoSpecialistCheckbox" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
               <Label Offset="0,0" Anchor="R,C" AnchorSide="O.I" String="TXT_KEY_CITYVIEW_MANUAL_SPEC_CONTROL" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Hidden="0"/>
@@ -396,7 +399,7 @@
           <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="WondersHeader">
             <Label Anchor="L,C" Offset="12,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="WondersHeaderLabel"/>
           </Button>
-          <Box Anchor="L,C" Color="White.0" Offset="0,0" Size="254,32" ID="SpecialistControlBox2">
+          <Box Anchor="L,C" Color="White.0" Offset="0,0" Size="254,50" ID="SpecialistControlBox2">
             <Label Anchor="R,T" Offset="64,8" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
             <CheckBox Style="SquareCheck" Anchor="L,B" ID="NoAutoSpecialistCheckbox2" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
               <Label Offset="0,0" Anchor="R,C" AnchorSide="O.I" String="TXT_KEY_CITYVIEW_MANUAL_SPEC_CONTROL" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Hidden="0"/>

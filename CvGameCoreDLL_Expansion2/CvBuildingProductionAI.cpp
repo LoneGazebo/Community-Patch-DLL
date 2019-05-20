@@ -1068,8 +1068,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					iYieldValue += iHappinessReduction * 50;
 
+					//explicit check for stonehenge.
+					if (pkBuildingInfo->GetInstantYield(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon() && kPlayer.GetCurrentEra() <= 3)
+						iReligion /= 100;
+
 					iYieldValue += (iReligion * 10);
 					iYieldTrait += (iReligion * 10);
+
 					bGoodforHappiness = true;
 				}
 				break;

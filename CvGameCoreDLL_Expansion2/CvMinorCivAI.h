@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -17,7 +17,7 @@
 #define ENABLE_QUESTS_AT_START false
 #define ENABLE_PERMANENT_WAR false
 #define SAFE_ESTIMATE_NUM_QUESTS_PER_PLAYER (5)
-#define MINOR_POWER_COMPARISON_RADIUS (4)
+#define MINOR_POWER_COMPARISON_RADIUS (5)
 
 enum MinorCivStatusTypes
 {

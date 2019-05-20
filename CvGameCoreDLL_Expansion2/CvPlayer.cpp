@@ -9867,6 +9867,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
+#if defined(MOD_BALANCE_CORE)
+			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
+#endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));
 			pDiploAI->ChangeNegativeReligiousConversionPoints(eMePlayer, -pDiploAI->GetNegativeReligiousConversionPoints(eMePlayer));
@@ -10055,7 +10058,11 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
+#else
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
+#endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10075,7 +10082,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
+#if defined(MOD_BALANCE_CORE)
+		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
+#else
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+#endif
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -10091,7 +10102,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	return pUnit;
 }
 
+#if defined(MOD_BALANCE_CORE)
+CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
+#else
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
+#endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -10106,7 +10121,11 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
+#if defined(MOD_BALANCE_CORE)
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
+#else
 		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
+#endif
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -16200,19 +16219,16 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
+int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 {
-	int iProductionNeeded;
-
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eTheBuilding);
 	if(pkBuildingInfo == NULL)
 	{
 		//This should never happen.
 		return 1;
 	}
 
-	iProductionNeeded = pkBuildingInfo->GetProductionCost();
-
+	int iProductionNeeded = pkBuildingInfo->GetProductionCost();
 	int iProductionModifier = 0;
 
 	if(pkBuildingInfo->GetNumCityCostMod() > 0 && getNumCities() > 0)
@@ -16222,9 +16238,8 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 #if defined(MOD_BALANCE_CORE_WONDER_COST_INCREASE)
 	if(MOD_BALANCE_CORE_WONDER_COST_INCREASE && isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 	{
-		const CvCity* pLoopCity;
 		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if(pLoopCity->getNumWorldWonders() > 0)
 			{
@@ -20672,9 +20687,9 @@ int CvPlayer::GetHappinessForGAP() const
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
-	if(isMinorCiv() || isBarbarian())
+	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0))
 	{
-		return 0;
+		return 100;
 	}
 
 	return m_iHappinessTotal;
@@ -20709,12 +20724,7 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 	{
 		return false;
 	}
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	{
-		if (GetExcessHappiness() <= GC.getVERY_UNHAPPY_THRESHOLD())
-			return true;
-	}
-	else if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+	if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
@@ -20729,12 +20739,7 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 	{
 		return false;
 	}
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	{
-		if (GetExcessHappiness() <= GC.getSUPER_UNHAPPY_THRESHOLD())
-			return true;
-	}
-	else if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+	if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
@@ -20833,6 +20838,11 @@ void CvPlayer::DoResetUprisingCounter(bool bFirstTime)
 	if(bFirstTime)
 		iTurns /= 2;
 
+	if (IsEmpireSuperUnhappy())
+	{
+		iTurns *= 75;
+		iTurns /= 100;
+	}
 	if(iTurns <= 0)
 		iTurns = 1;
 
@@ -20977,7 +20987,7 @@ void CvPlayer::DoUprising()
 void CvPlayer::DoUpdateCityRevolts()
 {
 	int iPublicUnhappiness = 0;
-	if (GetCulture()->GetPublicOpinionUnhappiness() > 0 || IsEmpireSuperUnhappy())
+	if (GetCulture()->GetPublicOpinionUnhappiness() > 0 || IsEmpireSuperUnhappy() || (MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy()))
 	{
 		iPublicUnhappiness = 1;
 	}
@@ -21106,6 +21116,12 @@ void CvPlayer::DoResetCityRevoltCounter()
 	if(iMod > 100)
 	{
 		iTurns *= iMod;
+		iTurns /= 100;
+	}
+
+	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireSuperUnhappy())
+	{
+		iTurns *= 75;
 		iTurns /= 100;
 	}
 
@@ -21869,6 +21885,8 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 			iHappiness += iPlotHappiness;
 		}
 	}
+
+	iHappiness +=  GET_TEAM(getTeam()).GetNumLandmarksBuilt();
 #else
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{

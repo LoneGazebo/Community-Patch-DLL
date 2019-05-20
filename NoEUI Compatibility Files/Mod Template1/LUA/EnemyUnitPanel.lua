@@ -857,6 +857,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 			end
 			
+			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
+
 			-- Don't give numbers greater than a Unit's max HP
 			if (iMyDamageInflicted > maxUnitHitPoints) then
 				iMyDamageInflicted = maxUnitHitPoints;
@@ -1885,6 +1887,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 
+				if(bRanged) then
+					local iModifier = pTheirUnit:GetRangedDefenseModifier();
+					if (iModifier ~= 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end	
+				end
+
 				-- UnitClassDefenseModifier
 				iModifier = pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
 				if (iModifier ~= 0) then
@@ -2309,6 +2320,13 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
+
+		local iModifier = theirUnit:GetRangedDefenseModifier();
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end	
 		
 		-- HillsDefenseModifier
 		if (theirPlot:IsHills()) then

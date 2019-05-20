@@ -3003,8 +3003,16 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			//here we have more advanced logic and allow some movement if it's safe
 			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2);
 
-			//do not call finishMoves() else the garrison will not heal!
-			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
+			if (pGarrison->CanUpgradeRightNow(false))
+			{
+				CvUnit* pNewUnit = pGarrison->DoUpgrade();
+				UnitProcessed(pNewUnit->GetID());
+			}
+			else
+			{
+				//do not call finishMoves() else the garrison will not heal!
+				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
+			}
 			UnitProcessed(pGarrison->GetID());
 		}
 		else if ( !pCity->isInDangerOfFalling() )
@@ -3050,6 +3058,11 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
 		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 		{
+			if (pUnit->CanUpgradeRightNow(false))
+			{
+				CvUnit* pNewUnit = pUnit->DoUpgrade();
+				UnitProcessed(pNewUnit->GetID());
+			}
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -3075,6 +3088,11 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
 		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 		{
+			if (pUnit->CanUpgradeRightNow(false))
+			{
+				CvUnit* pNewUnit = pUnit->DoUpgrade();
+				UnitProcessed(pNewUnit->GetID());
+			}
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -3699,7 +3717,14 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			CvPlot* pSafePlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
 			if (pSafePlot)
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
+				if (pUnit->CanUpgradeRightNow(false))
+				{
+					CvUnit* pNewUnit = pUnit->DoUpgrade();
+					UnitProcessed(pNewUnit->GetID());
+				}
+				else
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
+
 				if (!pUnit->canMove())
 					pUnit->SetTurnProcessed(true);
 			}

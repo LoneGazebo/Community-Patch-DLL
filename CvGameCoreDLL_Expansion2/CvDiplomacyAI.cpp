@@ -2950,7 +2950,7 @@ void CvDiplomacyAI::DoCounters()
 
 
 
-/// What is our basic opinion of the role a player has in our game?
+/// Determines our Diplomatic Opinions of all players we've met
 void CvDiplomacyAI::DoUpdateOpinions()
 {
 	// Loop through all (known) Majors
@@ -2999,11 +2999,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 			eOpinion = MAJOR_CIV_OPINION_ENEMY;
 		else if(iOpinionWeight >= /*10*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 			eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
-		else if(iOpinionWeight >= /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+		else if(iOpinionWeight > /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 			eOpinion = MAJOR_CIV_OPINION_NEUTRAL;
-		else if(iOpinionWeight >= /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
+		else if(iOpinionWeight > /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
 			eOpinion = MAJOR_CIV_OPINION_FAVORABLE;
-		else if(iOpinionWeight >= /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
+		else if(iOpinionWeight > /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
 			eOpinion = MAJOR_CIV_OPINION_FRIEND;
 		else
 			eOpinion = MAJOR_CIV_OPINION_ALLY;
@@ -3046,7 +3046,7 @@ void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinion
 }
 #endif
 
-// What is the number value of our opinion towards ePlayer?
+/// What is the number value of our opinion towards ePlayer?
 int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
@@ -3203,8 +3203,8 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
 #endif
 
-	iOpinionWeight += GetGaveAssistanceToScore(ePlayer);
-	iOpinionWeight += GetPaidTributeToScore(ePlayer);
+	//iOpinionWeight += GetGaveAssistanceToScore(ePlayer);
+	//iOpinionWeight += GetPaidTributeToScore(ePlayer);
 
 	//////////////////////////////////////
 	// XP2
@@ -3254,7 +3254,7 @@ MajorCivOpinionTypes CvDiplomacyAI::GetMajorCivOpinion(PlayerTypes ePlayer) cons
 	return (MajorCivOpinionTypes) m_paeMajorCivOpinion[ePlayer];
 }
 
-/// Sets what our Diplomatic Opinion is of a Major Civ
+/// Sets what our Diplomatic Opinion of a Major Civ is
 void CvDiplomacyAI::SetMajorCivOpinion(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -3284,7 +3284,7 @@ int CvDiplomacyAI::GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const
 }
 
 
-/// What is our our guess as to other players' Opinions about everyone else?
+/// What is our guess as to other players' Opinions about everyone else?
 void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 {
 	MajorCivOpinionTypes eOpinion;
@@ -3310,12 +3310,12 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 				// Don't compare a player to himself
 				if(eLoopPlayer != eLoopOtherPlayer)
 				{
-					// Do both we and the guy we're looking about know the third guy?
+					// Do both we and the guy we're looking at know the third guy?
 					if(IsPlayerValid(eLoopOtherPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
 					{
 						iOpinionWeight = 0;
 
-						// Look at Land Dispute
+						// Estimate Land Dispute
 						switch(GetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer))
 						{
 						case DISPUTE_LEVEL_FIERCE:
@@ -3332,7 +3332,7 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 							break;
 						}
 
-						// Look at Victory Competition Dispute
+						// Estimate Victory Competition Dispute
 						switch(GetEstimateOtherPlayerVictoryDisputeLevel(eLoopPlayer, eLoopOtherPlayer))
 						{
 						case DISPUTE_LEVEL_FIERCE:
@@ -3356,14 +3356,14 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 							eOpinion = MAJOR_CIV_OPINION_ENEMY;
 						else if(iOpinionWeight >= /*10*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 							eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
-						else if(iOpinionWeight < /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
-							eOpinion = MAJOR_CIV_OPINION_FAVORABLE;
-						else if(iOpinionWeight < /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
-							eOpinion = MAJOR_CIV_OPINION_FRIEND;
-						else if(iOpinionWeight < /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
-							eOpinion = MAJOR_CIV_OPINION_ALLY;
-						else
+						else if(iOpinionWeight > /*-10*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 							eOpinion = MAJOR_CIV_OPINION_NEUTRAL;
+						else if(iOpinionWeight > /*-30*/ GC.getOPINION_THRESHOLD_FRIEND())
+							eOpinion = MAJOR_CIV_OPINION_FAVORABLE;
+						else if(iOpinionWeight > /*-50*/ GC.getOPINION_THRESHOLD_ALLY())
+							eOpinion = MAJOR_CIV_OPINION_FRIEND;
+						else
+							eOpinion = MAJOR_CIV_OPINION_ALLY;
 
 						// Finally, set the Opinion
 						SetMajorCivOtherPlayerOpinion(eLoopPlayer, eLoopOtherPlayer, eOpinion);
@@ -3384,7 +3384,7 @@ MajorCivOpinionTypes CvDiplomacyAI::GetMajorCivOtherPlayerOpinion(PlayerTypes eP
 	return (MajorCivOpinionTypes) m_ppaaeOtherPlayerMajorCivOpinion[ePlayer][eWithPlayer];
 }
 
-/// Sets what our is guess as to what a player's Diplomatic Opinion is of another player
+/// Sets what our guess is as to what a player's Diplomatic Opinion is of another player
 void CvDiplomacyAI::SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivOpinionTypes ePlayerOpinion)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -3397,7 +3397,7 @@ void CvDiplomacyAI::SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTyp
 }
 
 
-/// Determine our general approach to each Player we've met
+/// Determine our general Approach towards each player we've met
 void CvDiplomacyAI::DoUpdateMajorCivApproaches()
 {
 	int iPlayerLoop;
@@ -3524,7 +3524,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches()
 	}
 }
 
-/// What is the best approach to take towards a player?  Can also pass in iHighestWeight by reference if you just want to know what the player feels most strongly about without actually caring about WHAT it is
+/// What is the best Approach to take towards a player?  Can also pass in iHighestWeight by reference if you just want to know what the player feels most strongly about without actually caring about WHAT it is
 MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, int& iHighestWeight, bool bLookAtOtherPlayers, bool bLog, WarFaceTypes& eWarFace)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -3544,6 +3544,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	// Bias for our current Approach.  This should prevent it from jumping around from turn-to-turn as much
 	// We use the scratch pad here since the normal array has been cleared so that we have knowledge of who we've already assigned an Approach for this turn; this should be the only place the scratch pad is used
+	// Not used in VP except if previously planning a war/demand - replaced with a gradual change function using averages
 	MajorCivApproachTypes eOldApproach = (MajorCivApproachTypes)m_paeApproachScratchPad[ePlayer];
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
@@ -3628,6 +3629,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 		}
 	}
+	
+	////////////////////////////////////
+	// RESEARCH AGREEMENT
+	////////////////////////////////////
+	
 	if (GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(ePlayer).getTeam()))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
@@ -3648,7 +3654,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// DENOUNCE
+	// DENOUNCEMENTS
 	////////////////////////////////////
 
 	// We denounced them
@@ -3658,7 +3664,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 	}
 
-	// We were friends and they betrayed us!
+	// We were friends and they betrayed us! (or they've backstabbed too many friends)
 	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -3674,7 +3680,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 	}
 
-	//Coop War Denied?
+	// Coop War Denied?
 	if (GetNumTimesCoopWarDenied(ePlayer) > 0)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + GetNumTimesCoopWarDenied(ePlayer));
@@ -3733,7 +3739,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		break;
 	}
-
+	
+    // Weight for victory issues
 	switch (GetVictoryBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_NONE:
@@ -3755,7 +3762,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	}
 
-	// Weight for victory issues
+	// Weight for World Wonder competition
 	switch (GetWonderDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_NONE:
@@ -3799,6 +3806,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	}
 
+    // Weight for land dispute
 	switch (GetLandDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_NONE:
@@ -3820,6 +3828,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	}
 
+    // If either of us are close to victory, that should influence our decision
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
@@ -4006,7 +4015,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 						}
-						//Is the target also a neighbor? Doubly important to have him on our good side!
+						//Is the target a neighbor? We want others on our good side if we're going to war with neighbors
 						if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE)
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
@@ -4029,7 +4038,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 							break;
 					}
-					//Has a defensive pact with him? Let's reduce our war interest.
+					//Has a defensive pact with him? If they're at least as strong as we are, let's reduce our war interest.
 					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 					{
 						if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
@@ -4086,7 +4095,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) 
 	{
-		//Master? Let's consider opinion of other people
+		//They have vassals? Let's consider our opinion of them.
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumVassals() > 0)
 		{
 			TeamTypes eLoopTeam;
@@ -4099,7 +4108,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 					if (GET_TEAM(eLoopTeam).IsVassal(GET_PLAYER(ePlayer).getTeam()))
 					{
-						// Add opinion of vassal into this.
+						// Add our approach towards the vassal into this.
 						switch (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false))
 						{
 						case MAJOR_CIV_APPROACH_HOSTILE:
@@ -4118,10 +4127,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					}
 				}
 			}
-			//we like our vassal.
+			//we like our vassals (unless they're blocking our path to victory)
 			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
 			{
-				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() > 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
@@ -4165,12 +4174,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					break;
 			}
 		}
+		//They were our vassal and they declared their independence by force!
 		if(IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*4*/ GC.getAPPROACH_WAR_VASSAL_FORCEFULLY_REVOKED();
 			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*-10*/ GC.getAPPROACH_DECEPTIVE_VASSAL_FORCEFULLY_REVOKED();
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += /*-10*/ GC.getAPPROACH_FRIENDLY_VASSAL_FORCEFULLY_REVOKED();
 		}
+		//They were our master and they liberated us peacefully
 		if(IsHappyAboutPlayerVassalagePeacefullyRevoked(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*-4*/ GC.getAPPROACH_WAR_VASSAL_PEACEFULLY_REVOKED();
@@ -4208,6 +4219,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	}
 
+    // Military target value - how tough is this guy to kill?
 	switch(GetPlayerTargetValue(ePlayer))
 	{
 	case TARGET_VALUE_IMPOSSIBLE:
@@ -4231,7 +4243,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	}
 
-	// Military Aggressive Posture
+	// Military Aggressive Posture - how aggressively has ePlayer deployed their units near our borders?
 	switch(GetMilitaryAggressivePosture(ePlayer))
 	{
 	case AGGRESSIVE_POSTURE_NONE:
@@ -4293,6 +4305,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				if (GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_STALEMATE)
 				{
+					//If we can't take them, we don't want them attacking us after finishing with this guy
 					bThinkingAboutDogpiling = false;
 				}
 				if(bThinkingAboutDogpiling)
@@ -4341,7 +4354,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #endif
 
 	////////////////////////////////////
-	// PEACE TREATY - have we made peace with this player before?  If so, reduce war weight
+	// PEACE TREATY - have we made peace with this player recently?  If so, reduce war weight
 	////////////////////////////////////
 
 	if(GetNumWarsFought(ePlayer) > 0)
@@ -4380,7 +4393,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 	}
 
+	////////////////////////////////////
 	// DEFENSIVE PACT
+	////////////////////////////////////
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
@@ -4392,18 +4407,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		// Made a military promise?
 		////////////////////////////////////
 
-		// Don't declare war if we made a military promise
+		// Don't declare war if we promised that our troops weren't on their borders for war
 		if(IsPlayerMadeMilitaryPromise(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 		}
-	}
-#endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// If we agreed not to go to war with this player, destroy weight for that
+		// If we agreed to remove our troops from their borders, destroy weight for war
 		if(IsPlayerMoveTroopsRequestAccepted(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
@@ -4579,6 +4590,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 	}
 
+    // Most important players in our game
 	if (GetBiggestCompetitor() == ePlayer)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -4594,7 +4606,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 
-	//// NO WAR?
+	// NO WAR?
 	if (!GC.getGame().isVictoryValid(eDominationVictory))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
@@ -4684,7 +4696,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//Save off the scratch value for logging!
 	vector<int> viApproachWeightsScratch;
 
-	//Let's make this a gradual process no rapid jumping from value to value!
+	//Let's make this a gradual process - no rapid jumping from value to value!
 	for(int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 	{
 		int iLastTurnValue = GetPlayer()->GetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop);
@@ -4723,7 +4735,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		eWarFace = GetWarFaceWithPlayer(ePlayer);
 
-		// If we haven't set WarFace on a previous turn, figure out what it should be
+		// If we haven't set War Face on a previous turn, figure out what it should be
 		if(eWarFace == NO_WAR_FACE_TYPE)
 		{
 			MajorCivApproachTypes eTempApproach;
@@ -4732,6 +4744,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			eTempApproach = vApproachWeightsForSorting.GetElement(1);
 
 			// Pick among the Approach types
+			// Select a war face based on the next highest Approach score
 			switch(eTempApproach)
 			{
 
@@ -4758,6 +4771,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 	else
 	{
+		// Reset this so a new War Face can be picked next time
 		eWarFace = NO_WAR_FACE_TYPE;
 	}
 
@@ -4777,7 +4791,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 }
 
 
-/// What is our Diplomatic approach to this Major Civ?
+/// What is our Diplomatic Approach towards this Major Civ?
 MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -4821,7 +4835,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer, bo
 	return eApproach;
 }
 
-/// Sets what our Diplomatic approach is to a Major Civ
+/// Sets what our Diplomatic Approach is towards a Major Civ
 void CvDiplomacyAI::SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -4851,7 +4865,7 @@ int CvDiplomacyAI::GetNumMajorCivApproach(MajorCivApproachTypes eApproach) const
 }
 
 
-/// Determine our general approach to each Minor Civ we've met
+/// Determine our general Approach to each Minor Civ we've met
 void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 {
 	int iPlayerLoop;
@@ -4935,7 +4949,7 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 }
 
 
-/// What is the best approach to take towards a Minor Civ?  Can also pass in iHighestWeight by reference if you just want to know what the player feels most strongly about without actually caring about WHAT it is
+/// What is the best Approach to take towards a Minor Civ?  Can also pass in iHighestWeight by reference if you just want to know what the player feels most strongly about without actually caring about WHAT it is
 MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, int& iHighestWeight, bool bLookAtOtherPlayers, bool bLog)
 {
 	CvAssertMsg(ePlayer >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -4954,6 +4968,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 
 	// Bias for our current Approach.  This should prevent it from jumping around from turn-to-turn as much
 	// We use the scratch pad here since the normal array has been cleared so that we have knowledge of who we've already assigned an Approach for this turn; this should be the only place the scratch pad is used
+	// Not used in VP except if previously planning a war
 	MinorCivApproachTypes eOldApproach = (MinorCivApproachTypes)m_paeApproachScratchPad[ePlayer];
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		eOldApproach = MINOR_CIV_APPROACH_IGNORE;
@@ -5104,7 +5119,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// TRAITS THAT EFFECT MINORS - These are heavy handed, but that is intentional
+	// TRAITS THAT AFFECT MINORS - These are heavy handed, but that is intentional
 	////////////////////////////////////
 	int iBonusTraitMod = 0;
 	iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetCityStateFriendshipModifier() > 0) ? 10 : 0;
@@ -5370,7 +5385,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// PEACE TREATY - have we made peace with this player before?  If so, reduce war weight
+	// PEACE TREATY - have we made peace with this player recently?  If so, reduce war weight
 	////////////////////////////////////
 
 	int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(eTeam);
@@ -5410,7 +5425,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		}
 	}
 
-	// See if this minor is on same continent as a major power we want to attack
+	// See if this minor is on the same continent as a major power we want to attack
 	if (bCheckIfGoodWarTarget)
 	{
 		CvCity *pkMinorCapital = GET_PLAYER(ePlayer).getCapitalCity();
@@ -5579,7 +5594,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	return eApproach;
 }
 
-/// What is our Diplomatic approach to this Minor Civ?
+/// What is our Diplomatic Approach towards this Minor Civ?
 MinorCivApproachTypes CvDiplomacyAI::GetMinorCivApproach(PlayerTypes ePlayer) const
 {
 	// Remove the Majors from here, since we're only actually storing Data for the Minors
@@ -5590,7 +5605,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetMinorCivApproach(PlayerTypes ePlayer) co
 	return (MinorCivApproachTypes) m_paeMinorCivApproach[eMinor];
 }
 
-/// Sets what our Diplomatic approach is to a Minor Civ
+/// Sets what our Diplomatic Approach is towards a Minor Civ
 void CvDiplomacyAI::SetMinorCivApproach(PlayerTypes ePlayer, MinorCivApproachTypes eApproach)
 {
 	// Remove the Majors from here, since we're only actually storing Data for the Minors
@@ -5623,7 +5638,7 @@ int CvDiplomacyAI::GetNumMinorCivApproach(MinorCivApproachTypes eApproach) const
 	return iCount;
 }
 
-/// Does this AI want to connect to a minor with a route
+/// Sets if this AI want to connect to a minor with a route
 void CvDiplomacyAI::SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant)
 {
 	int iArrayIndex = eMinor - MAX_MAJOR_CIVS;
@@ -5633,7 +5648,7 @@ void CvDiplomacyAI::SetWantToRouteConnectToMinor(PlayerTypes eMinor, bool bWant)
 		m_pabWantToRouteToMinor[iArrayIndex] = bWant;
 }
 
-/// Does this AI want to connect to a minor with a route
+/// Does this AI want to connect to a minor with a route?
 bool CvDiplomacyAI::IsWantToRouteConnectToMinor(PlayerTypes eMinor)
 {
 	int iArrayIndex = eMinor - MAX_MAJOR_CIVS;
@@ -5656,8 +5671,7 @@ bool CvDiplomacyAI::IsHasActiveGoldQuest()
 	return false;
 }
 
-
-/// Our guess as to another player's approach towards us
+/// Returns our guess as to another player's Approach towards us
 MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -5668,7 +5682,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetApproachTowardsUsGuess(PlayerTypes ePlay
 	//return (MajorCivApproachTypes) m_paeApproachTowardsUsGuess[ePlayer];
 }
 
-/// Sets our guess as to another player's approach towards us
+/// Sets our guess as to another player's Approach towards us
 void CvDiplomacyAI::SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -5678,7 +5692,7 @@ void CvDiplomacyAI::SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivAppro
 	m_paeApproachTowardsUsGuess[ePlayer] = eApproach;
 }
 
-/// How long have we thought ePlayer has had his Approach towards us
+/// Returns how long we've thought ePlayer has had his Approach towards us
 int CvDiplomacyAI::GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -5750,7 +5764,7 @@ void CvDiplomacyAI::SetDemandTargetPlayer(PlayerTypes ePlayer)
 	m_eDemandTargetPlayer = ePlayer;
 }
 
-/// Update out desire to make a demand from a player
+/// Updates our desire to make a demand from a player
 void CvDiplomacyAI::DoUpdateDemands()
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veDemandTargetPlayers;
@@ -6210,7 +6224,7 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 
 
 
-/// Is this AI willing to make a request of ePlayer
+/// Is this AI willing to make a request of ePlayer?
 bool CvDiplomacyAI::IsMakeRequest(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed)
 {
 	bool bFriendly = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true) == MAJOR_CIV_APPROACH_FRIENDLY;
@@ -6252,7 +6266,7 @@ bool CvDiplomacyAI::IsMakeRequest(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRan
 	return false;
 }
 
-/// Does this AI want something?
+/// Does this AI want a luxury resource gift from ePlayer?
 bool CvDiplomacyAI::IsLuxuryRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias)
 {
 	iWeightBias = 0;
@@ -6315,7 +6329,7 @@ bool CvDiplomacyAI::IsLuxuryRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWe
 		}
 	}
 
-	// Add a little something extra since we're in dire straights
+	// Add a little something extra since we're in dire straits
 	if(GetPlayer()->IsEmpireUnhappy())
 		iWeightBias += 5;
 
@@ -6325,7 +6339,7 @@ bool CvDiplomacyAI::IsLuxuryRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWe
 	return true;
 }
 
-/// Does this AI want something?
+/// Does this AI want a gold gift from ePlayer?
 bool CvDiplomacyAI::IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias)
 {
 	iWeightBias = 0;
@@ -6364,7 +6378,7 @@ bool CvDiplomacyAI::IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeig
 		return false;
 	}
 
-	// Add a little something extra since we're in dire straights
+	// Add a little something extra since we're in dire straits
 	if(iOurGPT < 0)
 		iWeightBias += 5;
 
@@ -6551,9 +6565,9 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-// If going for culture win always want open borders against civs we need influence on
+// If going for culture win we always want open borders against civs we need influence on
 #if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	//If we need influence over them, we want to give, thanks.
+	//If we need influence over them, we want to give OB, thanks.
 	if ((m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) > INFLUENCE_LEVEL_FAMILIAR) && (m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer) >= INFLUENCE_TREND_STATIC))
 	{
 		return true;
@@ -6626,7 +6640,7 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-/// Do we want to make peace with anyone Minors we're at war with?
+/// Make peace with vassals if we're not at war with the master
 void CvDiplomacyAI::DoMakePeaceWithVassals()
 {
 	PlayerTypes eLoopPlayer;
@@ -6653,7 +6667,8 @@ void CvDiplomacyAI::DoMakePeaceWithVassals()
 	}
 }
 #endif
-/// Do we want to make peace with anyone Minors we're at war with?
+
+/// Do we want to make peace with any Minors we're at war with?
 void CvDiplomacyAI::DoMakePeaceWithMinors()
 {
 	if((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
@@ -6672,7 +6687,7 @@ void CvDiplomacyAI::DoMakePeaceWithMinors()
 				if(IsAtWar(eLoopPlayer))
 				{
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					if(MOD_DIPLOMACY_CIV4_FEATURES && !GET_TEAM(GetPlayer()->getTeam()).IsVassalLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()))	// Locked into war for a period of time? (coop war, war deal, etc.)
+					if(MOD_DIPLOMACY_CIV4_FEATURES && !GET_TEAM(GetPlayer()->getTeam()).IsVassalLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()))	// Vassals can't make peace if their master is at war
 					{
 						if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) <= 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
 						{
@@ -6742,6 +6757,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 			if(IsAtWar(eLoopPlayer))
 			{
 				// Have to be at war with the human for a certain amount of time before the AI will agree to peace
+				// No special rules for humans in VP
 				if(GET_PLAYER(eLoopPlayer).isHuman())
 				{
 					if(!IsWillingToMakePeaceWithHuman(eLoopPlayer))
@@ -6861,7 +6877,7 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 	return IsWantsPeaceWithPlayer(ePlayer);
 }
 
-// What are we willing to give up to ePlayer to make peace?
+/// What are we willing to give up to ePlayer to make peace?
 PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToOffer(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -6869,7 +6885,7 @@ PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToOffer(PlayerTypes ePlayer) con
 	return (PeaceTreatyTypes) m_paePeaceTreatyWillingToOffer[ePlayer];
 }
 
-// Sets what are we willing to give up to ePlayer to make peace
+/// Sets what we are willing to give up to ePlayer to make peace
 void CvDiplomacyAI::SetTreatyWillingToOffer(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -6879,7 +6895,7 @@ void CvDiplomacyAI::SetTreatyWillingToOffer(PlayerTypes ePlayer, PeaceTreatyType
 	m_paePeaceTreatyWillingToOffer[ePlayer] = eTreaty;
 }
 
-// What are we willing to accept from ePlayer to make peace?
+/// What are we willing to accept from ePlayer to make peace?
 PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToAccept(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -6887,7 +6903,7 @@ PeaceTreatyTypes CvDiplomacyAI::GetTreatyWillingToAccept(PlayerTypes ePlayer) co
 	return (PeaceTreatyTypes) m_paePeaceTreatyWillingToAccept[ePlayer];
 }
 
-// Sets what are we willing to accept from ePlayer to make peace
+/// Sets what we are willing to accept from ePlayer to make peace
 void CvDiplomacyAI::SetTreatyWillingToAccept(PlayerTypes ePlayer, PeaceTreatyTypes eTreaty)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -7285,10 +7301,10 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		iWantPeace += (iTheirDanger * -1);
 
 		//Lack of progress in war increases desire for peace.
-		iWantPeace += max( 0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12 ); 
+		iWantPeace += max(0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12 ); 
 
 		//Num of turns since they captured a city?
-		if ( GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
 			iWantPeace--;
 
 		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
@@ -7359,7 +7375,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 }
 
 
-/// How long have we had our current War Goal with ePlayer?
+/// How long have we wanted to make peace with ePlayer?
 int CvDiplomacyAI::GetWantPeaceCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -7367,7 +7383,7 @@ int CvDiplomacyAI::GetWantPeaceCounter(PlayerTypes ePlayer) const
 	return (WarGoalTypes) m_paeWantPeaceCounter[ePlayer];
 }
 
-/// Sets how long we've had our current War Goal with ePlayer
+/// Sets how long we've wanted to make peace with ePlayer
 void CvDiplomacyAI::SetWantPeaceCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -7377,7 +7393,7 @@ void CvDiplomacyAI::SetWantPeaceCounter(PlayerTypes ePlayer, int iValue)
 	m_paeWantPeaceCounter[ePlayer] = iValue;
 }
 
-/// Changes how long we've had our current War Goal with ePlayer
+/// Changes how long we've wanted to make peace with ePlayer
 void CvDiplomacyAI::ChangeWantPeaceCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetWantPeaceCounter(ePlayer, GetWantPeaceCounter(ePlayer) + iChange);
@@ -7736,6 +7752,7 @@ bool CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 	}
 	return false;
 }
+
 /// We've decided to declare war on someone
 bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 {
@@ -7814,6 +7831,7 @@ WarFaceTypes CvDiplomacyAI::GetWarFaceWithPlayer(PlayerTypes ePlayer) const
 	return (WarFaceTypes) m_paeWarFace[ePlayer];
 }
 
+/// Sets how we're acting while we prepare for our war against ePlayer
 void CvDiplomacyAI::SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eWarFace)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -7843,7 +7861,7 @@ void CvDiplomacyAI::SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue)
 		DoTestDemandReady();
 }
 
-/// Player was attacked by another!  Change appropriate Diplomacy stuff
+/// Player was attacked by another!  Change appropriate diplomacy stuff
 void CvDiplomacyAI::DoSomeoneDeclaredWarOnMe(TeamTypes eTeam)
 {
 	PlayerTypes eLoopPlayer;
@@ -7877,7 +7895,7 @@ void CvDiplomacyAI::DoSomeoneDeclaredWarOnMe(TeamTypes eTeam)
 }
 
 
-/// What is the state of war with this Player
+/// What is the state of war with this player?
 WarStateTypes CvDiplomacyAI::GetWarState(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -7895,7 +7913,7 @@ void CvDiplomacyAI::SetWarState(PlayerTypes ePlayer, WarStateTypes eWarState)
 	m_paeWarState[ePlayer] = eWarState;
 }
 
-/// Updates what the state of war is with all Players
+/// Updates what the state of war is with all players
 void CvDiplomacyAI::DoUpdateWarStates()
 {
 	WarStateTypes eWarState = WAR_STATE_STALEMATE;
@@ -8066,12 +8084,13 @@ void CvDiplomacyAI::DoUpdateWarStates()
 		SetStateAllWars(STATE_ALL_WARS_WINNING);
 }
 
-/// Overall assessment of winning or losing all the wars we are in
+/// Overall assessment of whether we're winning or losing all the wars we are in
 StateAllWars CvDiplomacyAI::GetStateAllWars() const
 {
 	return m_eStateAllWars;
 }
 
+/// Sets our overall assessment of whether we're winning or losing all the wars we are in
 void CvDiplomacyAI::SetStateAllWars(StateAllWars eState)
 {
 	CvAssertMsg(eState >= 0, "DIPLOMACY_AI: Invalid StateAllWar.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8080,8 +8099,7 @@ void CvDiplomacyAI::SetStateAllWars(StateAllWars eState)
 	m_eStateAllWars = eState;
 }
 
-
-/// What is the Projection of war with this Player
+/// What is the Projection of war with this player?
 WarProjectionTypes CvDiplomacyAI::GetWarProjection(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8089,7 +8107,7 @@ WarProjectionTypes CvDiplomacyAI::GetWarProjection(PlayerTypes ePlayer) const
 	return (WarProjectionTypes) m_paeWarProjection[ePlayer];
 }
 
-/// Sets what ourProjection of war with this Player is
+/// Sets what our Projection of war with this player is
 void CvDiplomacyAI::SetWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8109,6 +8127,7 @@ WarProjectionTypes CvDiplomacyAI::GetLastWarProjection(PlayerTypes ePlayer) cons
 
 }
 
+/// sets the previous value of GetWarProjection
 void CvDiplomacyAI::SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -8121,7 +8140,7 @@ void CvDiplomacyAI::SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes
 }
 
 
-/// Updates what the Projection of war is with all Players
+/// Updates what the Projection of war is with all players
 void CvDiplomacyAI::DoUpdateWarProjections()
 {
 	WarProjectionTypes eWarProjection;
@@ -8249,6 +8268,7 @@ int CvDiplomacyAI::GetHighestWarscore()
 
 	return iHighestWarscore;
 }
+
 /// What is the integer value of how well we think the war with ePlayer is going?
 #if defined(MOD_BALANCE_CORE)
 int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation, bool bDebug)
@@ -8563,7 +8583,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 }
 
 
-/// What is the Goal of war with this Player
+/// What is the Goal of war with this player?
 WarGoalTypes CvDiplomacyAI::GetWarGoal(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8571,7 +8591,7 @@ WarGoalTypes CvDiplomacyAI::GetWarGoal(PlayerTypes ePlayer) const
 	return (WarGoalTypes) m_paeWarGoal[ePlayer];
 }
 
-/// Sets what the Goal of war is with this Players
+/// Sets what the Goal of war is with this player
 void CvDiplomacyAI::SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8587,7 +8607,7 @@ void CvDiplomacyAI::SetWarGoal(PlayerTypes ePlayer, WarGoalTypes eWarGoal)
 	m_paeWarGoal[ePlayer] = eWarGoal;
 }
 
-/// Updates what the Goal of war is with all Players
+/// Updates what the Goal of war is with all players
 void CvDiplomacyAI::DoUpdateWarGoals()
 {
 	// Are we going for World conquest?  If so, then we want to fight our wars to the death
@@ -8902,7 +8922,7 @@ int CvDiplomacyAI::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
 }
 #endif
 
-/// How many turns have we been at war with this Player?
+/// How many turns have we been at war with this player?
 int CvDiplomacyAI::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8910,7 +8930,7 @@ int CvDiplomacyAI::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const
 	return m_paiPlayerNumTurnsAtWar[ePlayer];
 }
 
-/// Sets how many turns we've been at war with this Player
+/// Sets how many turns we've been at war with this player
 void CvDiplomacyAI::SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8920,7 +8940,7 @@ void CvDiplomacyAI::SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue)
 	m_paiPlayerNumTurnsAtWar[ePlayer] = iValue;
 }
 
-/// Sets how many turns we've been at war with this Player
+/// Sets how many turns we've been at war with this player
 void CvDiplomacyAI::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -8930,6 +8950,7 @@ void CvDiplomacyAI::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
 }
 
 #if defined(MOD_BALANCE_CORE)
+/// How many turns have we been at peace with this player?
 int CvDiplomacyAI::GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8937,7 +8958,7 @@ int CvDiplomacyAI::GetPlayerNumTurnsAtPeace(PlayerTypes ePlayer) const
 	return m_paiPlayerNumTurnsAtPeace[ePlayer];
 }
 
-/// Sets how many turns we've been at war with this Player
+/// Sets how many turns we've been at peace with this player
 void CvDiplomacyAI::SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8947,7 +8968,7 @@ void CvDiplomacyAI::SetPlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iValue)
 	m_paiPlayerNumTurnsAtPeace[ePlayer] = iValue;
 }
 
-/// Sets how many turns we've been at war with this Player
+/// Updates how many turns we've been at peace with this player
 void CvDiplomacyAI::ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -8956,7 +8977,7 @@ void CvDiplomacyAI::ChangePlayerNumTurnsAtPeace(PlayerTypes ePlayer, int iChange
 	}
 }
 
-/// How many turns have we been at war with this Player?
+/// How many turns have passed since we captured a city from this player?
 int CvDiplomacyAI::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8964,7 +8985,7 @@ int CvDiplomacyAI::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
 	return m_paiPlayerNumTurnsSinceCityCapture[ePlayer];
 }
 
-/// Sets how many turns we've been at war with this Player
+/// Sets how many turns have passed since we captured a city from this player
 void CvDiplomacyAI::SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8974,7 +8995,7 @@ void CvDiplomacyAI::SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int i
 	m_paiPlayerNumTurnsSinceCityCapture[ePlayer] = iValue;
 }
 
-/// Sets how many turns we've been at war with this Player
+/// Sets how many turns have passed since we captured a city from this player
 void CvDiplomacyAI::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -8983,7 +9004,8 @@ void CvDiplomacyAI::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, in
 	}
 }
 #endif
-/// How many times have we gone to war?
+
+/// How many times have we gone to war with ePlayer?
 int CvDiplomacyAI::GetNumWarsFought(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8991,7 +9013,7 @@ int CvDiplomacyAI::GetNumWarsFought(PlayerTypes ePlayer) const
 	return m_paiNumWarsFought[ePlayer];
 }
 
-/// How many times have we gone to war?
+/// Sets how many times we have gone to war with ePlayer
 void CvDiplomacyAI::SetNumWarsFought(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9001,7 +9023,7 @@ void CvDiplomacyAI::SetNumWarsFought(PlayerTypes ePlayer, int iValue)
 	m_paiNumWarsFought[ePlayer] = iValue;
 }
 
-/// How many times have we gone to war?
+/// Updates how many times we have gone to war with ePlayer
 void CvDiplomacyAI::ChangeNumWarsFought(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -9010,7 +9032,7 @@ void CvDiplomacyAI::ChangeNumWarsFought(PlayerTypes ePlayer, int iChange)
 	}
 }
 
-/// What is our assessment of this player's overall Military strength?
+/// What is our assessment of this player's overall Military Strength?
 StrengthTypes CvDiplomacyAI::GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9018,7 +9040,7 @@ StrengthTypes CvDiplomacyAI::GetPlayerMilitaryStrengthComparedToUs(PlayerTypes e
 	return (StrengthTypes) m_paePlayerMilitaryStrengthComparedToUs[ePlayer];
 }
 
-/// Set assessment of this player's overall Military strength
+/// Sets what our assessment is of this player's overall Military Strength
 void CvDiplomacyAI::SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eMilitaryStrength)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9028,7 +9050,7 @@ void CvDiplomacyAI::SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, S
 	m_paePlayerMilitaryStrengthComparedToUs[ePlayer] = eMilitaryStrength;
 }
 
-/// Updates what our assessment is of all players' overall military strength
+/// Updates what our assessment is of all players' overall Military Strength
 void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 {
 	// Loop through all (known) Players
@@ -9041,7 +9063,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 	}
 }
 
-/// Updates what our assessment is of all players' overall military strength
+/// Updates what our assessment is of a player's overall Military Strength
 void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9144,7 +9166,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 }
 
 
-/// What is our assessment of this player's overall Economic strength?
+/// What is our assessment of this player's overall Economic Strength?
 StrengthTypes CvDiplomacyAI::GetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9152,7 +9174,7 @@ StrengthTypes CvDiplomacyAI::GetPlayerEconomicStrengthComparedToUs(PlayerTypes e
 	return (StrengthTypes) m_paePlayerEconomicStrengthComparedToUs[ePlayer];
 }
 
-/// Set assessment of this player's overall Economic strength
+/// Sets what our assessment is of this player's overall Economic Strength
 void CvDiplomacyAI::SetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eEconomicStrength)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9162,7 +9184,7 @@ void CvDiplomacyAI::SetPlayerEconomicStrengthComparedToUs(PlayerTypes ePlayer, S
 	m_paePlayerEconomicStrengthComparedToUs[ePlayer] = eEconomicStrength;
 }
 
-/// Updates what our assessment is of all players' overall Economic strength
+/// Updates what our assessment is of all players' overall Economic Strength
 void CvDiplomacyAI::DoUpdatePlayerEconomicStrengths()
 {
 	// Loop through all (known) Players
@@ -9175,6 +9197,7 @@ void CvDiplomacyAI::DoUpdatePlayerEconomicStrengths()
 	}
 }
 
+/// Updates what our assessment is of a player's overall Economic Strength
 void CvDiplomacyAI::DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9221,7 +9244,7 @@ TargetValueTypes CvDiplomacyAI::GetPlayerTargetValue(PlayerTypes ePlayer) const
 	return (TargetValueTypes) m_paePlayerTargetValue[ePlayer];
 }
 
-/// Set assessment of this player's value as a military target
+/// Sets what our assessment is of this player's value as a military target
 void CvDiplomacyAI::SetPlayerTargetValue(PlayerTypes ePlayer, TargetValueTypes eTargetValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9244,7 +9267,7 @@ void CvDiplomacyAI::DoUpdatePlayerTargetValues()
 	}
 }
 
-/// Updates what our assessment is of all players' value as a military target
+/// Updates what our assessment is of a player's value as a military target
 void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -9334,7 +9357,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		iMyMilitaryStrength /= 100;
 	}
 
-	// Factor in Minors we are allied tp
+	// Factor in Minors we are allied to
 	int iMinorCivLoop;
 	if(!GetPlayer()->isMinorCiv() && !GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -9500,14 +9523,14 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	}
 #endif
 	
-	// If we are expanding aggressively, we're probaly weaker
+	// If we are expanding aggressively, we're probably weaker
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
 	{
 		iMyMilitaryStrength *= 90;
 		iMyMilitaryStrength /= 100;
 	}
 
-	// If we've been at war for a LONG time, we're probaly weaker
+	// If we've been at war for a LONG time, we're probably weaker
 	int iMostMyWarTurns = 0;
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
@@ -9588,7 +9611,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		iOtherPlayerMilitaryStrength /= 100;
 	}
 
-	// Factor in Minors we are allied tp
+	// Factor in Minors we are allied to
 	if(!GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		// Loop through all minors to check our relationship with them
@@ -9796,7 +9819,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	}
 #endif
 	
-	// If they are expanding aggressively, they're probaly weaker
+	// If they are expanding aggressively, they're probably weaker
 	if(IsPlayerRecklessExpander(ePlayer))
 	{
 		iOtherPlayerMilitaryStrength *= 90;
@@ -9815,7 +9838,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		{
 			continue;
 		}
-		// If they've been at war for a LONG time, they're probaly weaker
+		// If they've been at war for a LONG time, they're probably weaker
 		int iTurns = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsAtWar(eMajor);
 		if(iTurns > iMostWarTurns)
 		{
@@ -10086,7 +10109,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 // Threats to this Player
 // ************************************
 
-/// How threatening is this player Militarily?
+/// How threatening is this player militarily?
 ThreatTypes CvDiplomacyAI::GetMilitaryThreat(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10104,7 +10127,7 @@ void CvDiplomacyAI::SetMilitaryThreat(PlayerTypes ePlayer, ThreatTypes eMilitary
 	m_paeMilitaryThreat[ePlayer] = eMilitaryThreat;
 }
 
-/// Updates how threatening each player is Militarily
+/// Updates how threatening each player is militarily
 void CvDiplomacyAI::DoUpdateMilitaryThreats()
 {
 	int iMilitaryThreat;
@@ -10455,7 +10478,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerMilitaryThreats()
 	}
 }
 
-/// How much of a threat are these guys to run amok and break everything
+/// How much of a threat are these guys to run amok and break everything?
 ThreatTypes CvDiplomacyAI::GetWarmongerThreat(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10463,7 +10486,7 @@ ThreatTypes CvDiplomacyAI::GetWarmongerThreat(PlayerTypes ePlayer) const
 	return (ThreatTypes) m_paeWarmongerThreat[ePlayer];
 }
 
-/// Sets how much of a threat are these guys to run amok and break everything
+/// Sets how much of a threat these guys are to run amok and break everything
 void CvDiplomacyAI::SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmongerThreat)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10597,7 +10620,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 /////////////////////////////////////////////////////////
 
 
-
+/// Updates our desire to make Research Agreements and Defensive Pacts with all players
 void CvDiplomacyAI::DoUpdatePlanningExchanges()
 {
 	//int iRandRoll;
@@ -10710,7 +10733,7 @@ bool CvDiplomacyAI::IsWantsResearchAgreementWithPlayer(PlayerTypes ePlayer) cons
 	return m_pabWantsResearchAgreementWithPlayer[ePlayer];
 }
 
-/// Sets this AI want to want a Research Agreement with ePlayer
+/// Sets if this AI wants to make a Research Agreement with ePlayer
 void CvDiplomacyAI::SetWantsResearchAgreementWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10753,7 +10776,7 @@ void CvDiplomacyAI::DoAddWantsResearchAgreementWithPlayer(PlayerTypes ePlayer)
 	LogWantRA(ePlayer);
 }
 
-/// AI wants to cancel a Research Agreement with ePlayer, so handle everything that means
+/// AI wants to cancel its desire to make a Research Agreement with ePlayer, so handle everything that means
 void CvDiplomacyAI::DoCancelWantsResearchAgreementWithPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10814,7 +10837,7 @@ bool CvDiplomacyAI::IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer)
 	return true;
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
-/// Does this AI want to sneak attack a ePlayer?
+/// Does this AI want to sneak attack ePlayer?
 bool CvDiplomacyAI::IsWantsSneakAttack(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10822,7 +10845,7 @@ bool CvDiplomacyAI::IsWantsSneakAttack(PlayerTypes ePlayer) const
 	return m_pabWantsSneakAttack[ePlayer];
 }
 
-/// Sets this AI want to want to sneak attack ePlayer
+/// Sets if this AI wants to sneak attack ePlayer
 void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10838,7 +10861,7 @@ bool CvDiplomacyAI::IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const
 	return m_pabWantsDefensivePactWithPlayer[ePlayer];
 }
 
-/// Sets this AI want to want a Defensive Pact with ePlayer
+/// Sets if this AI wants to make a Defensive Pact with ePlayer
 void CvDiplomacyAI::SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10846,7 +10869,7 @@ void CvDiplomacyAI::SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bV
 	m_pabWantsDefensivePactWithPlayer[ePlayer] = bValue;
 }
 
-/// How many different players does this AI want a RA with?
+/// How many different players does this AI want a DP with?
 int CvDiplomacyAI::GetNumDefensivePactsWanted(PlayerTypes ePlayer) const
 {
 	int iNum = 0;
@@ -10866,7 +10889,8 @@ int CvDiplomacyAI::GetNumDefensivePactsWanted(PlayerTypes ePlayer) const
 
 	return iNum;
 }
-/// AI wants a Defensive Pact with ePlayer, so handle everything that means
+
+/// AI wants to make a Defensive Pact with ePlayer, so handle everything that means
 void CvDiplomacyAI::DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10879,7 +10903,7 @@ void CvDiplomacyAI::DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer)
 	LogWantDP(ePlayer);
 }
 
-/// AI wants to cancel a Defensive Pact with ePlayer, so handle everything that means
+/// AI wants to cancel its desire to make a Defensive Pact with ePlayer, so handle everything that means
 void CvDiplomacyAI::DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -11007,7 +11031,7 @@ DisputeLevelTypes CvDiplomacyAI::GetLandDisputeLevel(PlayerTypes ePlayer) const
 	return (DisputeLevelTypes) m_paePlayerLandDisputeLevel[ePlayer];
 }
 
-/// Sets what is our level of Dispute with a player is over Land
+/// Sets what our level of Dispute is with a player over Land
 void CvDiplomacyAI::SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -11017,7 +11041,7 @@ void CvDiplomacyAI::SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes e
 	m_paePlayerLandDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
-/// Updates what is our level of Dispute with a player is over Land
+/// Updates what our level of Dispute is with a player over Land
 void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 {
 	PlayerTypes ePlayer;
@@ -11109,7 +11133,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			// Add weight for Player's natural EXPANSION preference
 			iLandDisputeWeight *= iExpansionFlavor;
 
-			// Now See what our new Dispute Level should be
+			// Now see what our new Dispute Level should be
 			if(iLandDisputeWeight >= /*400*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 			else if(iLandDisputeWeight >= /*230*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
@@ -11236,19 +11260,22 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 
 	return true;
 }
-// Return value of expansion broken promise
+
+/// Returns the value of broken expansion promises
 int CvDiplomacyAI::GetBrokenExpansionPromiseValue(PlayerTypes ePlayer)
 {
 	return m_paiBrokenExpansionPromiseValue[(int)ePlayer];
 }
-// Setting the value of the expansion broken promise
+
+/// Sets the value of broken expansion promises
 void CvDiplomacyAI::SetBrokenExpansionPromiseValue(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	m_paiBrokenExpansionPromiseValue[(int)ePlayer] = iValue;
 }
-// Changing the value of the expansion broken promise
+
+/// Changes the value of broken expansion promises
 void CvDiplomacyAI::ChangeBrokenExpansionPromiseValue(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11262,19 +11289,22 @@ void CvDiplomacyAI::ChangeBrokenExpansionPromiseValue(PlayerTypes ePlayer, int i
 		}
 	}
 }
-// Return value of expansion ignored promise
+
+/// Returns the value of ignored expansion promises
 int CvDiplomacyAI::GetIgnoredExpansionPromiseValue(PlayerTypes ePlayer)
 {
 	return m_paiIgnoredExpansionPromiseValue[(int)ePlayer];	
 }
-// Setting the value of the expansion ignored promise
+
+/// Sets the value of ignored expansion promises
 void CvDiplomacyAI::SetIgnoredExpansionPromiseValue(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	m_paiIgnoredExpansionPromiseValue[(int)ePlayer] = iValue;
 }
-// Changing the value of the expansion ignored promise
+
+/// Changes the value of ignored expansion promises
 void CvDiplomacyAI::ChangeIgnoredExpansionPromiseValue(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11289,11 +11319,13 @@ void CvDiplomacyAI::ChangeIgnoredExpansionPromiseValue(PlayerTypes ePlayer, int 
 	}
 }
 
+/// Returns the value of broken border promises
 int CvDiplomacyAI::GetBrokenBorderPromiseValue(PlayerTypes ePlayer)
 {
 	return m_paiBrokenBorderPromiseValue[(int)ePlayer];
 }
 
+/// Sets the value of broken border promises
 void CvDiplomacyAI::SetBrokenBorderPromiseValue(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11302,6 +11334,7 @@ void CvDiplomacyAI::SetBrokenBorderPromiseValue(PlayerTypes ePlayer, int iValue)
 
 }
 
+/// Changes the value of broken border promises
 void CvDiplomacyAI::ChangeBrokenBorderPromiseValue(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11316,11 +11349,13 @@ void CvDiplomacyAI::ChangeBrokenBorderPromiseValue(PlayerTypes ePlayer, int iCha
 	}
 }
 
+/// Returns the value of ignored border promises
 int CvDiplomacyAI::GetIgnoredBorderPromiseValue(PlayerTypes ePlayer)
 {
 	return m_paiIgnoredBorderPromiseValue[(int)ePlayer];	
 }
 
+/// Sets the value of ignored border promises
 void CvDiplomacyAI::SetIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11328,6 +11363,7 @@ void CvDiplomacyAI::SetIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iValue
 	m_paiIgnoredBorderPromiseValue[(int)ePlayer] = iValue;
 }
 
+/// Changes the value of ignored border promises
 void CvDiplomacyAI::ChangeIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11342,11 +11378,13 @@ void CvDiplomacyAI::ChangeIgnoredBorderPromiseValue(PlayerTypes ePlayer, int iCh
 	}
 }
 
+/// Returns the value of friend ePlayer backstabbing this player
 int CvDiplomacyAI::GetDeclaredWarOnFriendValue(PlayerTypes ePlayer)
 {
 	return m_paiDeclaredWarOnFriendValue[(int)ePlayer];
 }
 
+/// Changes the value of friend ePlayer backstabbing this player
 void CvDiplomacyAI::ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11361,11 +11399,13 @@ void CvDiplomacyAI::ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iCha
 	}
 }
 
+/// Returns the number of cities liberated by ePlayer
 int CvDiplomacyAI::GetNumCitiesLiberated(PlayerTypes ePlayer)
 {
 	return m_paiNumCitiesLiberated[(int)ePlayer];
 }
 
+/// Changes the number of cities liberated by ePlayer
 void CvDiplomacyAI::ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -11378,13 +11418,13 @@ void CvDiplomacyAI::ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange)
 }
 
 
-/// Return value of recent trades
+/// Returns the value of recent trades
 int CvDiplomacyAI::GetRecentTradeValue(PlayerTypes ePlayer)
 {
 	return m_paiTradeValue[(int)ePlayer];
 }
 
-/// Set value of recent trades
+/// Sets the value of recent trades
 void CvDiplomacyAI::ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -11402,13 +11442,13 @@ void CvDiplomacyAI::ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange)
 	}
 }
 
-/// Return value of combat damage inflicted on a common enemy
+/// Returns the value of combat damage inflicted on a common enemy
 int CvDiplomacyAI::GetCommonFoeValue(PlayerTypes ePlayer)
 {
 	return m_paiCommonFoeValue[(int)ePlayer];
 }
 
-/// Set value of combat damage inflicted on a common enemy
+/// Sets the value of combat damage inflicted on a common enemy
 void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0 && ePlayer < MAX_MAJOR_CIVS)
@@ -11430,13 +11470,13 @@ void CvDiplomacyAI::ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange)
 	}
 }
 
-/// Return value of aid given
+/// Returns the value of diplomatic assistance given
 int CvDiplomacyAI::GetRecentAssistValue(PlayerTypes ePlayer)
 {
 	return m_paiAssistValue[(int)ePlayer];
 }
 
-/// Set value of aid given
+/// Sets the value of diplomatic assistance given
 void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -11458,21 +11498,25 @@ void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange)
 	}
 }
 
+/// Unused vanilla value
 bool CvDiplomacyAI::IsGaveAssistanceTo(PlayerTypes /*ePlayer*/)
 {
 	return false;
 }
 
+/// Unused vanilla value
 bool CvDiplomacyAI::IsHasPaidTributeTo(PlayerTypes /*ePlayer*/)
 {
 	return false;
 }
 
+/// Returns if this player has been nuked by ePlayer
 bool CvDiplomacyAI::IsNukedBy(PlayerTypes ePlayer)
 {
 	return (GetNumTimesNuked(ePlayer) > 0);
 }
 
+/// Returns if this player's original capital is currently owned by ePlayer
 bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer)
 {
 	if(m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
@@ -11482,6 +11526,7 @@ bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Returns if this player's Holy City is currently owned by ePlayer
 bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer)
 {
 	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
@@ -11491,6 +11536,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Are we angry about ePlayer killing one of our protected Minors?
 bool CvDiplomacyAI::IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11509,6 +11555,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Are we angry about ePlayer attacking one of our protected Minors?
 bool CvDiplomacyAI::IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11531,6 +11578,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Are we angry about ePlayer bullying one of our protected Minors?
 bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11549,7 +11597,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer)
 	return false;
 }
 
-// Are we angry about ePlayer choosing to side with one of their protected minors that we attacked/bullied?
+/// Are we angry about ePlayer choosing to side with one of their protected minors that we attacked/bullied?
 bool CvDiplomacyAI::IsAngryAboutSidedWithTheirProtectedMinor(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11569,7 +11617,7 @@ bool CvDiplomacyAI::IsAngryAboutSidedWithTheirProtectedMinor(PlayerTypes ePlayer
 	return false;
 }
 
-// How long since we really liked this player's proposal to the World Congress?
+/// How many turns has it been since we really liked this player's proposal to the World Congress?
 int CvDiplomacyAI::GetTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11579,6 +11627,7 @@ int CvDiplomacyAI::GetTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer)
 	return m_paiOtherPlayerTurnsSinceWeLikedTheirProposal[ePlayer];
 }
 
+/// Sets how many turns it has been since we really liked this player's proposal to the World Congress
 void CvDiplomacyAI::SetTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11588,12 +11637,13 @@ void CvDiplomacyAI::SetTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer, int i
 	m_paiOtherPlayerTurnsSinceWeLikedTheirProposal[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since we really liked this player's proposal to the World Congress
 void CvDiplomacyAI::ChangeTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer, int iChange)
 {
 	SetTurnsSinceWeLikedTheirProposal(ePlayer, GetTurnsSinceWeLikedTheirProposal(ePlayer) + iChange);
 }
 
-// How long since we really disliked this player's proposal to the World Congress?
+/// How many turns has it been since we really disliked this player's proposal to the World Congress?
 int CvDiplomacyAI::GetTurnsSinceWeDislikedTheirProposal(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11603,6 +11653,7 @@ int CvDiplomacyAI::GetTurnsSinceWeDislikedTheirProposal(PlayerTypes ePlayer)
 	return m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal[ePlayer];
 }
 
+/// Sets how many turns it has been since we really disliked this player's proposal to the World Congress
 void CvDiplomacyAI::SetTurnsSinceWeDislikedTheirProposal(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11612,12 +11663,13 @@ void CvDiplomacyAI::SetTurnsSinceWeDislikedTheirProposal(PlayerTypes ePlayer, in
 	m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since we really disliked this player's proposal to the World Congress
 void CvDiplomacyAI::ChangeTurnsSinceWeDislikedTheirProposal(PlayerTypes ePlayer, int iChange)
 {
 	SetTurnsSinceWeDislikedTheirProposal(ePlayer, GetTurnsSinceWeDislikedTheirProposal(ePlayer) + iChange);
 }
 
-// How long since they supported our proposal to the World Congress?
+/// How many turns has it been since they supported our proposal to the World Congress?
 int CvDiplomacyAI::GetTurnsSinceTheySupportedOurProposal(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11627,6 +11679,7 @@ int CvDiplomacyAI::GetTurnsSinceTheySupportedOurProposal(PlayerTypes ePlayer)
 	return m_paiOtherPlayerTurnsSinceTheySupportedOurProposal[ePlayer];
 }
 
+/// Sets how many turns it has been since they supported our proposal to the World Congress
 void CvDiplomacyAI::SetTurnsSinceTheySupportedOurProposal(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11636,12 +11689,14 @@ void CvDiplomacyAI::SetTurnsSinceTheySupportedOurProposal(PlayerTypes ePlayer, i
 	m_paiOtherPlayerTurnsSinceTheySupportedOurProposal[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since they supported our proposal to the World Congress
 void CvDiplomacyAI::ChangeTurnsSinceTheySupportedOurProposal(PlayerTypes ePlayer, int iChange)
 {
 	SetTurnsSinceTheySupportedOurProposal(ePlayer, GetTurnsSinceTheySupportedOurProposal(ePlayer) + iChange);
 }
 
-// How long since they foiled our proposal to the World Congress?
+
+/// How many turns has it been since they foiled our proposal to the World Congress?
 int CvDiplomacyAI::GetTurnsSinceTheyFoiledOurProposal(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11651,6 +11706,7 @@ int CvDiplomacyAI::GetTurnsSinceTheyFoiledOurProposal(PlayerTypes ePlayer)
 	return m_paiOtherPlayerTurnsSinceTheyFoiledOurProposal[ePlayer];
 }
 
+/// Sets how many turns it has been since they foiled our proposal to the World Congress
 void CvDiplomacyAI::SetTurnsSinceTheyFoiledOurProposal(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11660,12 +11716,13 @@ void CvDiplomacyAI::SetTurnsSinceTheyFoiledOurProposal(PlayerTypes ePlayer, int 
 	m_paiOtherPlayerTurnsSinceTheyFoiledOurProposal[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since they foiled our proposal to the World Congress
 void CvDiplomacyAI::ChangeTurnsSinceTheyFoiledOurProposal(PlayerTypes ePlayer, int iChange)
 {
 	SetTurnsSinceTheyFoiledOurProposal(ePlayer, GetTurnsSinceTheyFoiledOurProposal(ePlayer) + iChange);
 }
 
-// How long since they supported relocating the World Congress to our lands?
+/// How many turns has it been since they supported relocating the World Congress to our lands?
 int CvDiplomacyAI::GetTurnsSinceTheySupportedOurHosting(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11675,6 +11732,7 @@ int CvDiplomacyAI::GetTurnsSinceTheySupportedOurHosting(PlayerTypes ePlayer)
 	return m_paiOtherPlayerTurnsSinceTheySupportedOurHosting[ePlayer];
 }
 
+/// Sets how many turns it has been since they supported relocating the World Congress to our lands
 void CvDiplomacyAI::SetTurnsSinceTheySupportedOurHosting(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -11684,13 +11742,14 @@ void CvDiplomacyAI::SetTurnsSinceTheySupportedOurHosting(PlayerTypes ePlayer, in
 	m_paiOtherPlayerTurnsSinceTheySupportedOurHosting[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since they supported relocating the World Congress to our lands
 void CvDiplomacyAI::ChangeTurnsSinceTheySupportedOurHosting(PlayerTypes ePlayer, int iChange)
 {
 	SetTurnsSinceTheySupportedOurHosting(ePlayer, GetTurnsSinceTheySupportedOurHosting(ePlayer) + iChange);
 }
 
 
-/// Updates what is our guess as to the levels of Dispute between other players over Land is
+/// Updates what our guesses are as to the levels of Dispute between other players over Land
 void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 {
 	PlayerTypes eLoopOtherPlayer;
@@ -11732,7 +11791,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 
 		if(IsPlayerValid(eLoopPlayer))
 		{
-			// Before looking at anyone else, try to guess how much this player values Expansion based on how many Cities he has relative the rest of the world
+			// Before looking at anyone else, try to guess how much this player values Expansion based on how many Cities he has relative to the rest of the world
 
 			iCityRatio = GET_PLAYER(eLoopPlayer).getNumCities() * 10000;
 			iCityRatio /= iWorldAverageNumCities;	// 100 means 1 City, which is why we multiplied by 10000 on the line above... 10000/100 = 100
@@ -11768,7 +11827,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 				// Don't compare a player to himself
 				if(eLoopPlayer != eLoopOtherPlayer)
 				{
-					// Do both we and the guy we're looking about know the third guy?
+					// Do both we and the guy we're looking at know the third guy?
 					if(IsPlayerValid(eLoopOtherPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
 					{
 						eDisputeLevel = DISPUTE_LEVEL_NONE;
@@ -11786,7 +11845,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 						else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 							iLandDisputeWeight += /*40*/ GC.getLAND_DISPUTE_NEIGHBORS();
 
-						// Is the player already cramped?  If so, multiply our current Weight by 1.5x
+						// Is the player already cramped? If so, multiply our current Weight by 1.5x
 						if(GET_PLAYER(eLoopPlayer).IsCramped())
 						{
 							iLandDisputeWeight *= /*0*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER();
@@ -11806,7 +11865,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 						// EXPANSION 5		: 100
 						// EXPANSION 1		: 20
 
-						// Now See what our new Dispute Level should be
+						// Now see what our new estimated Dispute Level should be
 						if(iLandDisputeWeight >= /*300*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 						else if(iLandDisputeWeight >= /*200*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
@@ -11814,7 +11873,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 						else if(iLandDisputeWeight >= /*100*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
-						// Actually set the Level
+						// Actually set the estimated Level
 						SetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer, eDisputeLevel);
 					}
 				}
@@ -11832,7 +11891,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 	return (AggressivePostureTypes) m_paeExpansionAggressivePosture[ePlayer];
 }
 
-/// Set how aggressively this player has settled in relation to us
+/// Sets how aggressively this player has settled in relation to us
 void CvDiplomacyAI::SetExpansionAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -11843,7 +11902,7 @@ void CvDiplomacyAI::SetExpansionAggressivePosture(PlayerTypes ePlayer, Aggressiv
 	m_paeExpansionAggressivePosture[ePlayer] = ePosture;
 }
 
-/// Updates how aggressively this player's Units are positioned in relation to us
+/// Updates how aggressively all players have settled in relation to us
 void CvDiplomacyAI::DoUpdateExpansionAggressivePostures()
 {
 	// Loop through all (known) Players
@@ -11851,6 +11910,7 @@ void CvDiplomacyAI::DoUpdateExpansionAggressivePostures()
 		DoUpdateOnePlayerExpansionAggressivePosture((PlayerTypes)iPlayerLoop);
 }
 
+/// Returns plot indices!
 //returns plot indices!
 pair<int,int> CvDiplomacyAI::GetClosestCityPair(PlayerTypes eOtherPlayer)
 {
@@ -11886,7 +11946,7 @@ CvCity* GetPlotCityAndVerifyOwnership(int iPlotIndex, PlayerTypes eSupposedOwner
 	return NULL;
 }
 
-/// Updates how aggressively this player's Units are positioned in relation to us
+/// Updates how aggressively a player has settled in relation to us
 void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -12021,7 +12081,7 @@ AggressivePostureTypes CvDiplomacyAI::GetPlotBuyingAggressivePosture(PlayerTypes
 	return (AggressivePostureTypes) m_paePlotBuyingAggressivePosture[ePlayer];
 }
 
-/// Set how aggressively this player has bought land near us
+/// Sets how aggressively this player has bought land near us
 void CvDiplomacyAI::SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -12032,7 +12092,7 @@ void CvDiplomacyAI::SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, Aggressi
 	m_paePlotBuyingAggressivePosture[ePlayer] = ePosture;
 }
 
-/// Updates how aggressively ePlayer is buying land near us
+/// Updates how aggressively all players have bought land near us
 void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePosture()
 {
 	PlayerTypes eLoopPlayer;
@@ -12085,7 +12145,7 @@ BlockLevelTypes CvDiplomacyAI::GetVictoryBlockLevel(PlayerTypes ePlayer) const
 	return (BlockLevelTypes) m_paePlayerVictoryBlockLevel[ePlayer];
 }
 
-/// Sets what is our level of block over a player is over Victory
+/// Sets what our level of Desire is to block a player over Victory
 void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -12095,7 +12155,7 @@ void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eB
 	m_paePlayerVictoryBlockLevel[ePlayer] = eBlockLevel;
 }
 
-/// Updates what is our level of Dispute with a player is over Victory
+/// Updates what our level of Desire is to block all players over Victory
 void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 {
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -12132,7 +12192,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
 				continue;
 			}
-			// Minors can't really be an issue with Victory!
+			// Minors and Barbarians can't really be an issue with Victory!
 			if(!GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
 				MajorCivOpinionTypes eOpinion;
@@ -12253,7 +12313,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 					// Average of each is 5, and era goes up by one throughout game.
 					iVictoryBlockWeight += (GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GetPlayer()->GetCurrentEra());
 
-					// Now See what our new Block Level should be
+					// Now see what our new Block Level should be
 					if(iVictoryBlockWeight >= 40)
 					{					
 						eBlockLevel = BLOCK_LEVEL_FIERCE;
@@ -12275,6 +12335,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 	}
 }
 
+/// Updates our valuation of potential friends, DPs or enemies
 void CvDiplomacyAI::DoRelationshipPairing()
 {
 	// Loop through all (known) Players
@@ -12486,7 +12547,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += -10;
 			}
 
-			// We were friends and they betrayed us!
+			// We were friends and they betrayed us! (or they've backstabbed too many friends)
 			if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
 			{
 				iEnemyWeight += 25;
@@ -12556,6 +12617,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				break;
 			}
 
+            // Weight for victory issues
 			switch (GetVictoryBlockLevel(ePlayer))
 			{
 			case BLOCK_LEVEL_NONE:
@@ -12604,6 +12666,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				break;
 			}
 
+            // Weight for land dispute
 			switch (GetLandDisputeLevel(ePlayer))
 			{
 			case DISPUTE_LEVEL_NONE:
@@ -12636,6 +12699,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iEnemyWeight += -10;
 			}
 
+			// If they're close to victory, that should influence our decision
+            // Modify enemy weight for humans based on human difficulty level
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
 			{
 				if (GET_PLAYER(ePlayer).isHuman())
@@ -12934,6 +12999,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		}
 	}
 }
+
+/// Returns the value of a Defensive Pact with ePlayer
 int CvDiplomacyAI::GetDefensivePactValue(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -12941,6 +13008,7 @@ int CvDiplomacyAI::GetDefensivePactValue(PlayerTypes ePlayer)
 	return m_paiDefensivePactValue[ePlayer];
 }
 
+/// Returns the player who we consider our most valuable potential DP
 PlayerTypes CvDiplomacyAI::GetMostValuableDefensivePact(bool bIgnoreDPs)
 {
 	int iBestValue = 18;
@@ -12975,12 +13043,16 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDefensivePact(bool bIgnoreDPs)
 	}
 	return NO_PLAYER;
 }
+
+/// Returns the value of a Declaration of Friendship with ePlayer
 int CvDiplomacyAI::GetDoFValue(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_paiDoFValue[ePlayer];
 }
+
+/// Returns the player who we consider our most valuable potential friend
 PlayerTypes CvDiplomacyAI::GetMostValuableDoF(bool bIgnoreDoFs)
 {
 	int iBestValue = GC.getDOF_THRESHOLD();
@@ -13015,12 +13087,16 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDoF(bool bIgnoreDoFs)
 	}
 	return NO_PLAYER;
 }
+
+/// Returns how much we value ePlayer as being a competitor of ours
 int CvDiplomacyAI::GetCompetitorValue(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_paiCompetitorValue[ePlayer];
 }
+
+/// Returns the player who we consider our biggest competitor
 PlayerTypes CvDiplomacyAI::GetBiggestCompetitor()
 {
 	int iBestValue = 18;
@@ -13047,6 +13123,7 @@ PlayerTypes CvDiplomacyAI::GetBiggestCompetitor()
 	return eBestPlayer;
 }
 #endif
+
 /// What is our level of Dispute with a player over Victory?
 DisputeLevelTypes CvDiplomacyAI::GetVictoryDisputeLevel(PlayerTypes ePlayer) const
 {
@@ -13055,7 +13132,7 @@ DisputeLevelTypes CvDiplomacyAI::GetVictoryDisputeLevel(PlayerTypes ePlayer) con
 	return (DisputeLevelTypes) m_paePlayerVictoryDisputeLevel[ePlayer];
 }
 
-/// Sets what is our level of Dispute with a player is over Victory
+/// Sets what our level of Dispute is with a player over Victory
 void CvDiplomacyAI::SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13065,7 +13142,7 @@ void CvDiplomacyAI::SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelType
 	m_paePlayerVictoryDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
-/// Updates what is our level of Dispute with a player is over Victory
+/// Updates what our level of Dispute is with all players over Victory
 void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 {
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -13100,8 +13177,8 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 				continue;
 			}
 #endif
-			// Minors can't really be an issue with Victory!
-			if(!GET_PLAYER(ePlayer).isMinorCiv())
+			// Minors and Barbarians can't really be an issue with Victory!
+			if(!GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
 				iVictoryDisputeWeight = 0;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
@@ -13154,7 +13231,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 				// VictoryCompetitiveness 5		: 50
 				// VictoryCompetitiveness 1		: 10
 
-				// Now See what our new Dispute Level should be
+				// Now see what our new Dispute Level should be
 				if(iVictoryDisputeWeight >= /*80*/ GC.getVICTORY_DISPUTE_FIERCE_THRESHOLD())
 					eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 				else if(iVictoryDisputeWeight >= /*50*/ GC.getVICTORY_DISPUTE_STRONG_THRESHOLD())
@@ -13192,7 +13269,7 @@ void CvDiplomacyAI::SetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlaye
 	m_ppaaeOtherPlayerVictoryDisputeLevel[ePlayer][eWithPlayer] = eDisputeLevel;
 }
 
-/// Updates what is our guess as to the levels of Dispute between other players over Victory is
+/// Updates what our guesses are as to the levels of Dispute between other players over Victory
 void CvDiplomacyAI::DoUpdateEstimateOtherPlayerVictoryDisputeLevels()
 {
 	PlayerTypes eLoopOtherPlayer;
@@ -13260,7 +13337,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerVictoryDisputeLevels()
 							// Positive, Unsure:		50
 							// Unsure, Unsure:			30
 
-							// Now See what our new Dispute Level should be
+							// Now see what our new estimated Dispute Level should be
 							if(iVictoryDisputeWeight >= /*70*/ GC.getVICTORY_DISPUTE_OTHER_PLAYER_FIERCE_THRESHOLD())
 								eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 							else if(iVictoryDisputeWeight >= /*50*/ GC.getVICTORY_DISPUTE_OTHER_PLAYER_STRONG_THRESHOLD())
@@ -13269,7 +13346,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerVictoryDisputeLevels()
 								eDisputeLevel = DISPUTE_LEVEL_WEAK;
 						}
 
-						// Actually set the Level
+						// Actually set the estimated Level
 						SetEstimateOtherPlayerVictoryDisputeLevel(eLoopPlayer, eLoopOtherPlayer, eDisputeLevel);
 					}
 				}
@@ -13279,7 +13356,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerVictoryDisputeLevels()
 }
 
 
-/// What is our level of Dispute with a player over Wonder?
+/// What is our level of Dispute with a player over World Wonders?
 DisputeLevelTypes CvDiplomacyAI::GetWonderDisputeLevel(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13287,7 +13364,7 @@ DisputeLevelTypes CvDiplomacyAI::GetWonderDisputeLevel(PlayerTypes ePlayer) cons
 	return (DisputeLevelTypes) m_paePlayerWonderDisputeLevel[ePlayer];
 }
 
-/// Sets what is our level of Dispute with a player is over Wonder
+/// Sets what our level of Dispute is with a player over World Wonders
 void CvDiplomacyAI::SetWonderDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13297,7 +13374,7 @@ void CvDiplomacyAI::SetWonderDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes
 	m_paePlayerWonderDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
-/// Updates what is our level of Dispute with a player is over Wonder
+/// Updates what our level of Dispute is with all players over World Wonders
 void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 {
 	PlayerTypes ePlayer;
@@ -13320,7 +13397,7 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 			// Add weight for Player's competitiveness (0 - 10)
 			iWonderDisputeWeight *= GetWonderCompetitiveness();
 
-			// Now See what our new Dispute Level should be
+			// Now see what our new Dispute Level should be
 			if(iWonderDisputeWeight >= /*10*/ GC.getWONDER_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 			else if(iWonderDisputeWeight >= /*7*/ GC.getWONDER_DISPUTE_STRONG_THRESHOLD())
@@ -13343,7 +13420,7 @@ DisputeLevelTypes CvDiplomacyAI::GetMinorCivDisputeLevel(PlayerTypes ePlayer) co
 	return (DisputeLevelTypes) m_paePlayerMinorCivDisputeLevel[ePlayer];
 }
 
-/// Sets what is our level of Dispute with a player is over Minor Civ Friendship
+/// Sets what our level of Dispute is with a player over Minor Civ Friendship
 void CvDiplomacyAI::SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13353,7 +13430,7 @@ void CvDiplomacyAI::SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTyp
 	m_paePlayerMinorCivDisputeLevel[ePlayer] = eDisputeLevel;
 }
 
-/// Updates what is our level of Dispute with a player is over Minor Civ Friendship
+/// Updates what our level of Dispute is with all players over Minor Civ Friendship
 void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 {
 	PlayerTypes ePlayer;
@@ -13572,7 +13649,7 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 #endif
 			}
 
-			// Now See what our new Dispute Level should be
+			// Now Ssee what our new Dispute Level should be
 			if(iMinorCivDisputeWeight >= /*700*/ GC.getMINOR_CIV_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 			else if(iMinorCivDisputeWeight >= /*400*/ GC.getMINOR_CIV_DISPUTE_STRONG_THRESHOLD())
@@ -13586,7 +13663,7 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 	}
 }
 
-/// How many wonders has ePlayer beaten us to?
+/// How many World Wonders has ePlayer beaten us to?
 int CvDiplomacyAI::GetNumWondersBeatenTo(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13594,7 +13671,7 @@ int CvDiplomacyAI::GetNumWondersBeatenTo(PlayerTypes ePlayer) const
 	return m_paiNumWondersBeatenTo[ePlayer];
 }
 
-/// How many wonders has ePlayer beaten us to?
+/// Sets how many World Wonders ePlayer has beaten us to
 void CvDiplomacyAI::SetNumWondersBeatenTo(PlayerTypes ePlayer, int iNewValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13603,13 +13680,13 @@ void CvDiplomacyAI::SetNumWondersBeatenTo(PlayerTypes ePlayer, int iNewValue)
 	m_paiNumWondersBeatenTo[ePlayer] = iNewValue;
 }
 
-/// How many wonders has ePlayer beaten us to?
+/// Changes how many World Wonders ePlayer has beaten us to
 void CvDiplomacyAI::ChangeNumWondersBeatenTo(PlayerTypes ePlayer, int iChange)
 {
 	SetNumWondersBeatenTo(ePlayer, GetNumWondersBeatenTo(ePlayer) + iChange);
 }
 
-/// How much damage have we taken in a war against a particular Player?
+/// How much damage have we taken in a war against a particular player?
 WarDamageLevelTypes CvDiplomacyAI::GetWarDamageLevel(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13617,6 +13694,7 @@ WarDamageLevelTypes CvDiplomacyAI::GetWarDamageLevel(PlayerTypes ePlayer) const
 	return (WarDamageLevelTypes) m_paeWarDamageLevel[ePlayer];
 }
 
+/// Sets how much damage we have taken in a war against a particular player
 void CvDiplomacyAI::SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes eDamageLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13626,7 +13704,7 @@ void CvDiplomacyAI::SetWarDamageLevel(PlayerTypes ePlayer, WarDamageLevelTypes e
 	m_paeWarDamageLevel[ePlayer] = eDamageLevel;
 }
 
-/// Updates how much damage have we taken in a war against all Players
+/// Updates how much damage we have taken in wars against all players
 void CvDiplomacyAI::DoUpdateWarDamageLevel()
 {
 	PlayerTypes eLoopPlayer;
@@ -13711,8 +13789,9 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 		}
 	}
 }
+
 #if defined(MOD_BALANCE_CORE)
-/// How much damage have we taken in a war against a particular Player?
+/// How much damage have we taken in a war against a particular player?
 int CvDiplomacyAI::GetWarDamageValue(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13720,6 +13799,7 @@ int CvDiplomacyAI::GetWarDamageValue(PlayerTypes ePlayer) const
 	return m_paiWarDamageValue[ePlayer];
 }
 
+/// Sets how much damage we have taken in a war against a particular player
 void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13728,6 +13808,7 @@ void CvDiplomacyAI::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 }
 
 #endif
+
 /// Every turn we're at peace war damage goes down a bit
 void CvDiplomacyAI::DoWarDamageDecay()
 {
@@ -13823,7 +13904,7 @@ void CvDiplomacyAI::DoWarDamageDecay()
 	}
 }
 
-// What is the value of stuff (Units & Cities) lost in a war against a particular Player?
+// What is the value of stuff (Units & Cities) lost in a war against a particular player?
 int CvDiplomacyAI::GetWarValueLost(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13831,7 +13912,7 @@ int CvDiplomacyAI::GetWarValueLost(PlayerTypes ePlayer) const
 	return m_paiWarValueLost[ePlayer];
 }
 
-// Sets the value of stuff (Units & Cities) lost in a war against a particular Player
+// Sets the value of stuff (Units & Cities) lost in a war against a particular player
 void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13844,14 +13925,14 @@ void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 		m_paeWarDamageLevel[ePlayer] = WAR_DAMAGE_LEVEL_NONE;
 }
 
-// Changes the value of stuff (Units & Cities) lost in a war against a particular Player
+// Changes the value of stuff (Units & Cities) lost in a war against a particular player
 void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 {
 	SetWarValueLost(ePlayer, GetWarValueLost(ePlayer) + iChange);
 
 	if(iChange > 0)
 	{
-		// Loop through all the other major civs and see if any of them are fighting us.  If so they are happy this player damaged us.
+		// Loop through all the other major civs and see if any of them are fighting us.  If so, they are happy this player damaged us.
 		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -13871,7 +13952,7 @@ void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 }
 
 
-/// See how much damage we think players we know have suffered in war against other players
+/// How much damage do we think players we know have suffered in war against other players?
 WarDamageLevelTypes CvDiplomacyAI::GetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13881,7 +13962,7 @@ WarDamageLevelTypes CvDiplomacyAI::GetOtherPlayerWarDamageLevel(PlayerTypes ePla
 	return (WarDamageLevelTypes) m_ppaaeOtherPlayerWarDamageLevel[ePlayer][eLostToPlayer];
 }
 
-/// Set how much damage we think players we know have suffered in war against other players
+/// Sets how much damage we think players we know have suffered in war against other players
 void CvDiplomacyAI::SetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer, WarDamageLevelTypes eDamageLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13893,7 +13974,7 @@ void CvDiplomacyAI::SetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerType
 	m_ppaaeOtherPlayerWarDamageLevel[ePlayer][eLostToPlayer] = eDamageLevel;
 }
 
-/// Updates what is our guess as to amount of war damage a player has suffered to another player
+/// Updates what our guess is as to the amount of war damage a player has suffered to another player
 void CvDiplomacyAI::DoUpdateOtherPlayerWarDamageLevel()
 {
 	PlayerTypes eLoopOtherPlayer;
@@ -13924,7 +14005,7 @@ void CvDiplomacyAI::DoUpdateOtherPlayerWarDamageLevel()
 				// Don't compare a player to himself
 				if(eLoopPlayer != eLoopOtherPlayer)
 				{
-					// Do both we and the guy we're looking about know the third guy?
+					// Do both we and the guy we're looking at know the third guy?
 					if(IsPlayerValid(eLoopOtherPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
 					{
 						// At War?
@@ -13977,7 +14058,7 @@ void CvDiplomacyAI::DoUpdateOtherPlayerWarDamageLevel()
 	}
 }
 
-// What is the value of stuff (Units & Cities) we estimate a player has lost in a war against a another Player?
+/// What is the value of stuff (Units & Cities) we estimate a player has lost in a war against another player?
 int CvDiplomacyAI::GetOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -13987,7 +14068,7 @@ int CvDiplomacyAI::GetOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes e
 	return m_ppaaiOtherPlayerWarValueLost[ePlayer][eLostToPlayer];
 }
 
-// Sets the value of stuff (Units & Cities) we estimate a player has lost in a war against a another Player
+/// Sets the value of stuff (Units & Cities) we estimate a player has lost in a war against another player
 void CvDiplomacyAI::SetOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14002,13 +14083,13 @@ void CvDiplomacyAI::SetOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes 
 		m_ppaaeOtherPlayerWarDamageLevel[ePlayer][eLostToPlayer] = WAR_DAMAGE_LEVEL_NONE;
 }
 
-// Changes the value of stuff (Units & Cities) we estimate a player has lost in a war against a another Player
+/// Changes the value of stuff (Units & Cities) we estimate a player has lost in a war against another player
 void CvDiplomacyAI::ChangeOtherPlayerWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer, int iChange)
 {
 	SetOtherPlayerWarValueLost(ePlayer, eLostToPlayer, GetOtherPlayerWarValueLost(ePlayer, eLostToPlayer) + iChange);
 }
 
-// Cache the current war value lost in a separate place, so we can track when it changes value
+/// Cache the current war value other players have lost in a separate place, so we can track when it changes value
 void CvDiplomacyAI::CacheOtherPlayerWarValuesLost()
 {
 	for(int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
@@ -14022,7 +14103,7 @@ void CvDiplomacyAI::CacheOtherPlayerWarValuesLost()
 	}
 }
 
-// Old estimate of value ePlayer has lost in war with eLostToPlayer (before this turn)
+/// Old estimate of value ePlayer has lost in war with eLostToPlayer (before this turn)
 int CvDiplomacyAI::GetOtherPlayerLastRoundWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14032,7 +14113,7 @@ int CvDiplomacyAI::GetOtherPlayerLastRoundWarValueLost(PlayerTypes ePlayer, Play
 	return m_ppaaiOtherPlayerLastRoundWarValueLost[ePlayer][eLostToPlayer];
 }
 
-// Set old estimate of value ePlayer has lost in war with eLostToPlayer (before this turn)
+/// Sets the old estimate of value ePlayer has lost in war with eLostToPlayer (before this turn)
 void CvDiplomacyAI::SetOtherPlayerLastRoundWarValueLost(PlayerTypes ePlayer, PlayerTypes eLostToPlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14043,7 +14124,7 @@ void CvDiplomacyAI::SetOtherPlayerLastRoundWarValueLost(PlayerTypes ePlayer, Pla
 	m_ppaaiOtherPlayerLastRoundWarValueLost[ePlayer][eLostToPlayer] = iValue;
 }
 
-/// How aggressively are this player's Units positioned in relation to us?
+/// How aggressively are this player's military Units positioned in relation to us?
 AggressivePostureTypes CvDiplomacyAI::GetMilitaryAggressivePosture(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14051,7 +14132,7 @@ AggressivePostureTypes CvDiplomacyAI::GetMilitaryAggressivePosture(PlayerTypes e
 	return (AggressivePostureTypes) m_paeMilitaryAggressivePosture[ePlayer];
 }
 
-/// Set how aggressively this player has stationed his military Units in relation to us
+/// Sets how aggressively this player has stationed his military Units in relation to us
 void CvDiplomacyAI::SetMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14062,8 +14143,7 @@ void CvDiplomacyAI::SetMilitaryAggressivePosture(PlayerTypes ePlayer, Aggressive
 	m_paeMilitaryAggressivePosture[ePlayer] = ePosture;
 }
 
-
-/// How aggressively are this player's Units positioned in relation to us? (previous turn)
+/// How aggressively were this player's military Units positioned in relation to us last turn?
 AggressivePostureTypes CvDiplomacyAI::GetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14071,7 +14151,7 @@ AggressivePostureTypes CvDiplomacyAI::GetLastTurnMilitaryAggressivePosture(Playe
 	return (AggressivePostureTypes) m_paeLastTurnMilitaryAggressivePosture[ePlayer];
 }
 
-/// Set how aggressively this player has stationed his military Units in relation to us (previous turn)
+/// Sets how aggressively this player had stationed his military Units in relation to us last turn
 void CvDiplomacyAI::SetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14082,7 +14162,7 @@ void CvDiplomacyAI::SetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer, Ag
 	m_paeLastTurnMilitaryAggressivePosture[ePlayer] = ePosture;
 }
 
-/// Updates how aggressively this player's Units are positioned in relation to us
+/// Updates how aggressively all players' military Units are positioned in relation to us
 void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 {
 	// Loop through all (known) Players
@@ -14095,7 +14175,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 	}
 }
 
-/// Updates how aggressively this player's Units are positioned in relation to us
+/// Updates how aggressively a player's military Units are positioned in relation to us
 void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14105,11 +14185,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		return;
 
 #if defined(MOD_BALANCE_CORE)
-	//OB? We sholdn't care.
+	//We're allowing them Open Borders? We shouldn't care.
 	if(GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
-	// We're working together, so don't worry about it
+	//We're working together, so don't worry about it
 	if(IsDoFAccepted(ePlayer))
 		return;
 #endif
@@ -14153,7 +14233,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 				// On our home front
 				if(pUnitPlot->IsHomeFrontForPlayer(eOurPlayerID))
 				{
-					// At war with someone?  Because if this is Unit in the vicinity of another player he's already at war with, don't count this Unit as aggressive
+					// At war with someone?  Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
 					if(bIsAtWarWithSomeone)
 					{
 						// Loop through all players...
@@ -14181,7 +14261,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 
 					iValueToAdd = 10;
 
-					// If the Unit is in the other player's territory, halve it's "aggression value," since he may just be defending himself
+					// If the Unit is in the other player's territory, halve its "aggression value," since he may just be defending himself
 					if(pLoopUnit->plot()->isOwned())
 					{
 						if(pLoopUnit->plot()->getOwner() == ePlayer)
@@ -14218,13 +14298,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 
 
 
-/// How much is this player annoyed when he thinks another player is going for the same victory type
+/// How much is this player annoyed when he thinks another player is going for the same victory type?
 int CvDiplomacyAI::GetVictoryCompetitiveness() const
 {
 	return m_iVictoryCompetitiveness;
 }
 
-/// How annoyed does this player get when beaten to a wonder?
+/// How annoyed does this player get when beaten to a World Wonder?
 int CvDiplomacyAI::GetWonderCompetitiveness() const
 {
 	return m_iWonderCompetitiveness;
@@ -14242,7 +14322,7 @@ int CvDiplomacyAI::GetBoldness() const
 	return m_iBoldness;
 }
 
-/// How much does a leader want to maintain a balance of power in the world?
+/// How much does this leader want to maintain a balance of power in the world?
 int CvDiplomacyAI::GetDiploBalance() const
 {
 	return m_iDiploBalance;
@@ -14272,25 +14352,25 @@ int CvDiplomacyAI::GetLoyalty() const
 	return m_iLoyalty;
 }
 
-/// How much does the AI want the support of its friends in rough times?
+/// How much does this AI want the support of its friends in rough times?
 int CvDiplomacyAI::GetNeediness() const
 {
 	return m_iNeediness;
 }
 
-/// How willing is the AI to overlook transgressions between friends?
+/// How willing is this AI to overlook transgressions between friends?
 int CvDiplomacyAI::GetForgiveness() const
 {
 	return m_iForgiveness;
 }
 
-/// How much does the AI like to pop up and talk
+/// How much does this AI like to pop up and talk?
 int CvDiplomacyAI::GetChattiness() const
 {
 	return m_iChattiness;
 }
 
-/// How much does the AI like to talk smack
+/// How much does this AI like to talk smack?
 int CvDiplomacyAI::GetMeanness() const
 {
 	return m_iMeanness;
@@ -14422,7 +14502,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					if (MOD_DIPLOMACY_CIV4_FEATURES) {
-						// HAD Agreed to not attack them
+						// HAD agreed not to attack them
 						if(IsPlayerMoveTroopsRequestAccepted(eThem))
 						{
 							SetPlayerMoveTroopsRequestAccepted(eThem, false);
@@ -14431,7 +14511,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					}
 #endif
 
-					// HAD agreed to not settle nearby
+					// HAD agreed not to settle nearby
 					if(IsPlayerNoSettleRequestAccepted(eThem))
 					{
 						SetPlayerNoSettleRequestAccepted(eThem, false);
@@ -14466,7 +14546,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					}
 				}
 
-				// If WE were attacked, change our Approach to war so that it's not inappropriate next time the turn cycles
+				// If WE were attacked, change our Approach to War so that it's not inappropriate the next time the turn cycles
 				if(eAttackedPlayer == GetPlayer()->GetID())
 				{
 					// WAS friends with this player
@@ -14475,6 +14555,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 #if defined(MOD_BALANCE_CORE)
 						if(!bDefensivePact)
 						{
+						ChangeRecentAssistValue(eThem, 300);
 #endif
 						SetFriendDeclaredWarOnUs(eThem, true);
 						ChangeDeclaredWarOnFriendValue(eThem, GC.getOPINION_WEIGHT_WAR_FRIEND_EACH() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
@@ -14500,23 +14581,33 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 #if defined(MOD_BALANCE_CORE)
 					}
+			// Shouldn't clear out positive diplomatic values if WE declared war (except recent trade, since we're no longer trade partners)
+			if (!bDefensivePact)
+			{
 #endif
 
-					// Clear civilians returned so they don't affect relations any more
+					// Clear civilians returned and landmarks built so they don't affect relations any more
 					if(GetNumCiviliansReturnedToMe(ePlayer) > 0)
 						ChangeNumCiviliansReturnedToMe(ePlayer, -GetNumCiviliansReturnedToMe(ePlayer));
 					if(GetNumLandmarksBuiltForMe(ePlayer) > 0)
 						ChangeNumLandmarksBuiltForMe(ePlayer, -GetNumLandmarksBuiltForMe(ePlayer));
 
-					// Clear positive diplomatic values
-					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
+					// Clear positive diplomatic values					
 					ChangeCommonFoeValue(ePlayer, -GetCommonFoeValue(ePlayer));
 					if (GetRecentAssistValue(ePlayer) < 0)
 					{
 						ChangeRecentAssistValue(ePlayer, -GetRecentAssistValue(ePlayer));
 					}
-
-					// clear out their values
+#if defined(MOD_BALANCE_CORE)
+                    // Clear intrigue shared
+					if(GetNumTimesIntrigueSharedBy(ePlayer) > 0)
+                        ChangeNumTimesIntrigueSharedBy(ePlayer, -GetNumTimesIntrigueSharedBy(ePlayer));
+            }	
+#endif					
+										
+					// Clear out recent trade/DoF values
+					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentTradeValue(GetPlayer()->GetID(), -GetRecentTradeValue(GetPlayer()->GetID()));
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
@@ -14595,7 +14686,7 @@ void CvDiplomacyAI::DoPlayerKilledSomeone(PlayerTypes ePlayer, PlayerTypes eDead
 	}
 }
 
-/// ePlayer bullied eOtherPlayer, so figure out what that means
+/// ePlayer bullied eOtherPlayer (minor civ), so figure out what that means
 void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14643,7 +14734,7 @@ void CvDiplomacyAI::DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPl
 					{
 						bActive = IsDeclarationLogForIndexActive(iLoop);
 
-						// Is this still an active Declaration?
+						// Is this still an active declaration?
 						if(bActive)
 						{
 							iData1 = GetDeclarationLogData1ForIndex(iLoop);
@@ -14679,7 +14770,7 @@ void CvDiplomacyAI::SetOtherPlayerTurnsSinceAttackedProtectedMinor(PlayerTypes e
 	m_paiOtherPlayerTurnsSinceAttackedProtectedMinor[ePlayer] = iValue;
 }
 
-/// Changes when the last time ePlayer Attacked a Minor we were protecting was
+/// Changes when the last time ePlayer attacked a Minor we were protecting was
 void CvDiplomacyAI::ChangeOtherPlayerTurnsSinceAttackedProtectedMinor(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerTurnsSinceAttackedProtectedMinor(ePlayer, GetTurnsSincePlayerAttackedProtectedMinor(ePlayer) + iChange);
@@ -14703,7 +14794,7 @@ void CvDiplomacyAI::SetOtherPlayerProtectedMinorAttacked(PlayerTypes ePlayer, Pl
 	m_paiOtherPlayerProtectedMinorAttacked[ePlayer] = eAttackedPlayer;
 }
 
-/// How many ProtectedMinors have we seen this Player attack
+/// How many protected Minors have we seen this player attack?
 int CvDiplomacyAI::GetOtherPlayerNumProtectedMinorsAttacked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14711,7 +14802,7 @@ int CvDiplomacyAI::GetOtherPlayerNumProtectedMinorsAttacked(PlayerTypes ePlayer)
 	return m_paiOtherPlayerNumProtectedMinorsAttacked[ePlayer];
 }
 
-/// Sets how many ProtectedMinors have we seen this Player attack
+/// Sets how many protected Minors we have seen this player attack
 void CvDiplomacyAI::SetOtherPlayerNumProtectedMinorsAttacked(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14720,13 +14811,13 @@ void CvDiplomacyAI::SetOtherPlayerNumProtectedMinorsAttacked(PlayerTypes ePlayer
 	m_paiOtherPlayerNumProtectedMinorsAttacked[ePlayer] = iValue;
 }
 
-/// Changes how many ProtectedMinors have we seen this Player attack
+/// Changes how many protected Minors we have seen this player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumProtectedMinorsAttacked(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerNumProtectedMinorsAttacked(ePlayer, GetOtherPlayerNumProtectedMinorsAttacked(ePlayer) + iChange);
 }
 
-/// How many turns has it been since ePlayer Killed a Minor we were protecting?
+/// How many turns has it been since ePlayer killed a Minor we were protecting?
 int CvDiplomacyAI::GetTurnsSincePlayerKilledProtectedMinor(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14738,7 +14829,7 @@ int CvDiplomacyAI::GetTurnsSincePlayerKilledProtectedMinor(PlayerTypes ePlayer) 
 	return m_paiOtherPlayerTurnsSinceKilledProtectedMinor[ePlayer];
 }
 
-/// Sets when the last time ePlayer Killed a Minor we were protecting was
+/// Sets when the last time ePlayer killed a Minor we were protecting was
 void CvDiplomacyAI::SetOtherPlayerTurnsSinceKilledProtectedMinor(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14747,13 +14838,13 @@ void CvDiplomacyAI::SetOtherPlayerTurnsSinceKilledProtectedMinor(PlayerTypes ePl
 	m_paiOtherPlayerTurnsSinceKilledProtectedMinor[ePlayer] = iValue;
 }
 
-/// Changes when the last time ePlayer Killed a Minor we were protecting was
+/// Changes when the last time ePlayer killed a Minor we were protecting was
 void CvDiplomacyAI::ChangeOtherPlayerTurnsSinceKilledProtectedMinor(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerTurnsSinceKilledProtectedMinor(ePlayer, GetTurnsSincePlayerKilledProtectedMinor(ePlayer) + iChange);
 }
 
-/// Who was the last Minor ePlayer Killed that we were protecting?
+/// Who was the last Minor ePlayer killed that we were protecting?
 PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorKilled(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14761,7 +14852,7 @@ PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorKilled(PlayerTypes ePlaye
 	return (PlayerTypes) m_paiOtherPlayerProtectedMinorKilled[ePlayer];
 }
 
-/// Sets who the last Minor that ePlayer Killed that we were protecting is
+/// Sets who the last Minor that ePlayer killed that we were protecting is
 void CvDiplomacyAI::SetOtherPlayerProtectedMinorKilled(PlayerTypes ePlayer, PlayerTypes eKilledPlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14771,7 +14862,7 @@ void CvDiplomacyAI::SetOtherPlayerProtectedMinorKilled(PlayerTypes ePlayer, Play
 	m_paiOtherPlayerProtectedMinorKilled[ePlayer] = eKilledPlayer;
 }
 
-/// How many ProtectedMinors have we seen this Player attack
+/// How many protected Minors have we seen this Player attack?
 int CvDiplomacyAI::GetOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14779,7 +14870,7 @@ int CvDiplomacyAI::GetOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlayer) c
 	return m_paiOtherPlayerNumProtectedMinorsKilled[ePlayer];
 }
 
-/// Sets how many ProtectedMinors have we seen this Player attack
+/// Sets how many protected Minors we have seen this Player attack
 void CvDiplomacyAI::SetOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14787,13 +14878,13 @@ void CvDiplomacyAI::SetOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlayer, 
 	m_paiOtherPlayerNumProtectedMinorsKilled[ePlayer] = iValue;
 }
 
-/// Changes how many ProtectedMinors have we seen this Player attack
+/// Changes how many protected Minors we have seen this Player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerNumProtectedMinorsKilled(ePlayer, GetOtherPlayerNumProtectedMinorsKilled(ePlayer) + iChange);
 }
 
-/// How many turns has it been since this player bullied a minor we were protecting?
+/// How many turns has it been since this player bullied a Minor we were protecting?
 int CvDiplomacyAI::GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPlayer)
 {
 	CvAssertMsg(eBullyPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14807,7 +14898,7 @@ int CvDiplomacyAI::GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPl
 	return (GC.getGame().getGameTurn() - iMostRecentBullyTurn);
 }
 
-/// Which of our protected minors has this player most recently bullied?
+/// Which of our protected Minors has this player most recently bullied?
 PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer)
 {
 	CvAssertMsg(eBullyPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14839,7 +14930,7 @@ PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorBullied(PlayerTypes eBull
 	return eMostRecentBulliedMinor;
 }
 
-/// How many ProtectedMinors have we seen this Player bully
+/// How many protected Minors have we seen this Player bully?
 int CvDiplomacyAI::GetOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14847,7 +14938,7 @@ int CvDiplomacyAI::GetOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer) 
 	return m_paiOtherPlayerNumProtectedMinorsBullied[ePlayer];
 }
 
-/// Sets how many ProtectedMinors have we seen this Player bully
+/// Sets how many protected Minors we have seen this Player bully
 void CvDiplomacyAI::SetOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14856,13 +14947,13 @@ void CvDiplomacyAI::SetOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer,
 	m_paiOtherPlayerNumProtectedMinorsBullied[ePlayer] = iValue;
 }
 
-/// Changes how many ProtectedMinors have we seen this Player bully
+/// Changes how many protected Minors we have seen this Player bully
 void CvDiplomacyAI::ChangeOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerNumProtectedMinorsBullied(ePlayer, GetOtherPlayerNumProtectedMinorsBullied(ePlayer) + iChange);
 }
 
-// We bullied or attacked their protected minor, and they didn't take our side!
+/// We bullied or attacked their protected Minor, and they didn't take our side!
 bool CvDiplomacyAI::IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14872,6 +14963,7 @@ bool CvDiplomacyAI::IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer)
 	return (GetTurnsSinceOtherPlayerSidedWithProtectedMinor(ePlayer) >= 0); // -1 means it never happened, as defined in Reset()
 }
 
+/// How many turns has it been since we bullied or attacked their protected Minor and they didn't take our side?
 int CvDiplomacyAI::GetTurnsSinceOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14881,6 +14973,7 @@ int CvDiplomacyAI::GetTurnsSinceOtherPlayerSidedWithProtectedMinor(PlayerTypes e
 	return m_paiOtherPlayerTurnsSinceSidedWithTheirProtectedMinor[ePlayer];
 }
 
+/// Sets how many turns it has been since we bullied or attacked their protected Minor and they didn't take our side
 void CvDiplomacyAI::SetOtherPlayerTurnsSinceSidedWithProtectedMinor(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14890,6 +14983,7 @@ void CvDiplomacyAI::SetOtherPlayerTurnsSinceSidedWithProtectedMinor(PlayerTypes 
 	m_paiOtherPlayerTurnsSinceSidedWithTheirProtectedMinor[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since we bullied or attacked their protected Minor and they didn't take our side
 void CvDiplomacyAI::ChangeOtherPlayerTurnsSinceSidedWithProtectedMinor(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14899,7 +14993,7 @@ void CvDiplomacyAI::ChangeOtherPlayerTurnsSinceSidedWithProtectedMinor(PlayerTyp
 	SetOtherPlayerTurnsSinceSidedWithProtectedMinor(ePlayer, GetTurnsSinceOtherPlayerSidedWithProtectedMinor(ePlayer) + iChange);
 }
 
-/// How many Minors have we seen this Player attack
+/// How many Minors have we seen this Player attack?
 int CvDiplomacyAI::GetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14907,7 +15001,7 @@ int CvDiplomacyAI::GetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer) const
 	return m_paiOtherPlayerNumMinorsAttacked[ePlayer];
 }
 
-/// Sets how many Minors have we seen this Player attack
+/// Sets how many Minors we have seen this Player attack
 void CvDiplomacyAI::SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14916,7 +15010,7 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iVa
 	m_paiOtherPlayerNumMinorsAttacked[ePlayer] = iValue;
 }
 
-/// Changes how many Minors have we seen this Player attack
+/// Changes how many Minors we have seen this Player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange)
 {
 
@@ -14979,7 +15073,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 	DoUpdateWarmongerThreats(true);
 }
 
-/// How many Minors have we seen this Player conquer
+/// How many Minors have we seen this Player conquer?
 int CvDiplomacyAI::GetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14987,7 +15081,7 @@ int CvDiplomacyAI::GetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer) const
 	return m_paiOtherPlayerNumMinorsConquered[ePlayer];
 }
 
-/// Sets how many Minors have we seen this Player conquer
+/// Sets how many Minors we have seen this Player conquer
 void CvDiplomacyAI::SetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14996,14 +15090,14 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer, int iV
 	m_paiOtherPlayerNumMinorsConquered[ePlayer] = iValue;
 }
 
-/// Changes how many Minors have we seen this Player conquer
+/// Changes how many Minors we have seen this Player conquer
 void CvDiplomacyAI::ChangeOtherPlayerNumMinorsConquered(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerNumMinorsConquered(ePlayer, GetOtherPlayerNumMinorsConquered(ePlayer) + iChange);
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000*/ GC.getWARMONGER_THREAT_MINOR_CONQUERED_WEIGHT());
 }
 
-/// How many Majors have we seen this Player attack
+/// How many Majors have we seen this Player attack?
 int CvDiplomacyAI::GetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15011,7 +15105,7 @@ int CvDiplomacyAI::GetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer) const
 	return m_paiOtherPlayerNumMajorsAttacked[ePlayer];
 }
 
-/// Sets how many Majors have we seen this Player attack
+/// Sets how many Majors we have seen this Player attack
 void CvDiplomacyAI::SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15020,7 +15114,7 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iVa
 	m_paiOtherPlayerNumMajorsAttacked[ePlayer] = iValue;
 }
 
-/// Changes how many Majors have we seen this Player attack
+/// Changes how many Majors we have seen this Player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
 	if(iChange > 0)
@@ -15107,7 +15201,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 	DoUpdateWarmongerThreats(true);
 }
 
-/// How many Majors have we seen this Player conquer
+/// How many Majors have we seen this Player conquer?
 int CvDiplomacyAI::GetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15115,7 +15209,7 @@ int CvDiplomacyAI::GetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer) const
 	return m_paiOtherPlayerNumMajorsConquered[ePlayer];
 }
 
-/// Sets how many Majors have we seen this Player conquer
+/// Sets how many Majors we have seen this Player conquer
 void CvDiplomacyAI::SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15124,7 +15218,7 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iV
 	m_paiOtherPlayerNumMajorsConquered[ePlayer] = iValue;
 }
 
-/// Changes how many Majors have we seen this Player conquer
+/// Changes how many Majors we have seen this Player conquer
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iChange)
 {
 	SetOtherPlayerNumMajorsConquered(ePlayer, GetOtherPlayerNumMajorsConquered(ePlayer) + iChange);
@@ -15133,6 +15227,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int
 
 #if defined(MOD_BALANCE_CORE)
 
+/// How many times has ePlayer plotted against us?
 int CvDiplomacyAI::GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15140,6 +15235,7 @@ int CvDiplomacyAI::GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const
 	return m_paiTheyPlottedAgainstUs[ePlayer];
 }
 
+/// Sets how many times ePlayer has plotted against us
 void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15148,13 +15244,14 @@ void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iVa
 	m_paiTheyPlottedAgainstUs[ePlayer] = iValue;
 }
 
+/// Changes how many times ePlayer has plotted against us
 void CvDiplomacyAI::ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange)
 {
 	SetNumTimesTheyPlottedAgainstUs(ePlayer, GetNumTimesTheyPlottedAgainstUs(ePlayer) + iChange);
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000 */ GC.getWARMONGER_THREAT_MAJOR_CONQUERED_WEIGHT());
 }
 
-
+/// How many times has ePlayer lowered our influence with a Minor Civ?
 int CvDiplomacyAI::GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15162,6 +15259,7 @@ int CvDiplomacyAI::GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const
 	return m_paiTheyLoweredOurInfluence[ePlayer];
 }
 
+/// Sets how many times ePlayer has lowered our influence with a Minor Civ
 void CvDiplomacyAI::SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15170,6 +15268,7 @@ void CvDiplomacyAI::SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int 
 	m_paiTheyLoweredOurInfluence[ePlayer] = iValue;
 }
 
+/// Changes how many times ePlayer has lowered our influence with a Minor Civ
 void CvDiplomacyAI::ChangeNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iChange)
 {
 	SetNumTimesTheyLoweredOurInfluence(ePlayer, GetNumTimesTheyLoweredOurInfluence(ePlayer) + iChange);
@@ -15177,7 +15276,7 @@ void CvDiplomacyAI::ChangeNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, i
 }
 #endif
 
-// Get amount of warmongerishness felt toward this player
+/// Get the amount of warmongerishness felt toward this player
 int CvDiplomacyAI::GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -15189,7 +15288,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer)
 #endif
 }
 
-// Change amount of warmongerishness felt toward this player
+/// Change the amount of warmongerishness felt toward this player
 #if defined(MOD_API_EXTENSIONS)
 void CvDiplomacyAI::SetOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iNewValue)
 {
@@ -15214,7 +15313,7 @@ void CvDiplomacyAI::ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iC
 }
 #endif
 
-// The value of the warmonger amount adjusted by how much this player hates warmongers
+/// Return the value of the warmonger amount adjusted by how much this player hates warmongers
 int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 {
 	int iReturnValue = GetOtherPlayerWarmongerAmount(ePlayer);
@@ -15399,7 +15498,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 						}
 					}
 
-					// Is this still an active Declaration?
+					// Is this still an active declaration?
 					if(bActive)
 					{
 						eMustHaveMetPlayer = GetDeclarationLogMustHaveMetPlayerForIndex(iLoop);
@@ -15412,6 +15511,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 	}
 }
 
+/// Initiate relationship values towards a new player on first contact
 void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 {
 	DoUpdateOnePlayerMilitaryStrength(ePlayer);
@@ -15506,7 +15606,7 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 	}
 }
 //	-------------------------------------------------------------------------------------------------------------------
-/// Say hi to someone else
+/// Send a statement to another player
 void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eStatement, int iData1, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -15564,7 +15664,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 	}
 
-	// Player Killed a City State we're protecting
+	// Player killed a City-State we were protecting
 	else if(eStatement == DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE)
 	{
 		if(bHuman)
@@ -15581,7 +15681,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Player Attacked a City State we're protecting
+	// Player attacked a City-State we're protecting
 	else if(eStatement == DIPLO_STATEMENT_ATTACKED_PROTECTED_CITY_STATE)
 	{
 		if(bHuman)
@@ -15617,7 +15717,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 	}
 
-	// Player Bullied a City State we're protecting
+	// Player bullied a City-State we're protecting
 	else if(eStatement == DIPLO_STATEMENT_BULLIED_PROTECTED_CITY_STATE)
 	{
 		if(bHuman)
@@ -15700,7 +15800,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 	}
 
-	// Expansion Broken Promise
+	// Broken Expansion Promise
 	else if(eStatement == DIPLO_STATEMENT_EXPANSION_BROKEN_PROMISE)
 	{
 		if(bHuman)
@@ -15749,7 +15849,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 	}
 
-	// Plot Buying broken promise
+	// Broken Plot Buying Promise
 	else if(eStatement == DIPLO_STATEMENT_PLOT_BUYING_BROKEN_PROMISE)
 	{
 		if(bHuman)
@@ -16299,7 +16399,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 500);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 300);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
 			SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
@@ -16529,7 +16629,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// No AI resolution! This is handled automatically in DoCounters() - no need for diplo exchange
 	}
 
-	// We're making a demand of Player
+	// We're making a demand of this player
 	else if(eStatement == DIPLO_STATEMENT_DEMAND)
 	{
 		// Active human
@@ -16596,7 +16696,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// We're making a request of Player
+	// We're making a request of this player
 	else if(eStatement == DIPLO_STATEMENT_REQUEST)
 	{
 		// Active human
@@ -16631,7 +16731,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Player has a Luxury we'd like
+	// Player has a Luxury Resource we'd like to trade for
 	else if(eStatement == DIPLO_STATEMENT_LUXURY_TRADE)
 	{
 		// Active human
@@ -16666,7 +16766,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer Embassy Exchange
+	// We'd like to exchange embassies with this player
 	else if(eStatement == DIPLO_STATEMENT_EMBASSY_EXCHANGE)
 	{
 		if(bHuman)
@@ -16699,7 +16799,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer Embassy
+	// We want an embassy in this player's capital
 	else if(eStatement == DIPLO_STATEMENT_EMBASSY_OFFER)
 	{
 		if(bHuman)
@@ -16732,7 +16832,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer Open Borders Exchange
+	// We'd like mutual Open Borders with this player
 	else if(eStatement == DIPLO_STATEMENT_OPEN_BORDERS_EXCHANGE)
 	{
 		// Active human
@@ -16767,7 +16867,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer Open Borders
+	// We'd like this player to open their borders to us
 	else if(eStatement == DIPLO_STATEMENT_OPEN_BORDERS_OFFER)
 	{
 		if(bHuman)
@@ -16817,7 +16917,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer Research Agreement
+	// Offer a Research Agreement
 	else if(eStatement == DIPLO_STATEMENT_RESEARCH_AGREEMENT_OFFER)
 	{
 		if(bHuman)
@@ -16851,7 +16951,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// Offer to renew deal
+	// Offer to renew an existing trade deal
 	else if(eStatement == DIPLO_STATEMENT_RENEW_DEAL)
 	{
 		if(bHuman)
@@ -16876,7 +16976,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			{
 				eMessageType = DIPLO_MESSAGE_RENEW_DEAL;
 			}
-			// We want more from this Deal
+			// We want more from this deal
 			else if(iDealValueToMe > -75 &&
 			        iValueImOffering < (iValueTheyreOffering * 5))	// The total value of the deal might not be that bad, but if he's asking for WAY more than he's offering (e.g. something for nothing) then it's not unacceptable, but insulting
 			{
@@ -16938,7 +17038,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// They're now unforgivable
+	// Our Opinion of them is now Unforgivable
 	else if(eStatement == DIPLO_STATEMENT_NOW_UNFORGIVABLE)
 	{
 		if(bHuman)
@@ -16948,7 +17048,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// They're now an enemy
+	// Our Opinion of them is now Enemy
 	else if(eStatement == DIPLO_STATEMENT_NOW_ENEMY)
 	{
 		if(bHuman)
@@ -17011,7 +17111,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 				}
 
-				// add the notification to the 
+				// add the notification to the player
 				GET_PLAYER(ePlayer).GetEspionage()->AddIntrigueMessage(m_pPlayer->GetID(), ePlotterPlayer, ePlayer, NO_BUILDING, NO_PROJECT, eIntrigueType, 0, pCity, false);
 
 				if(bHuman)
@@ -17149,7 +17249,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// We're warning a player his warmongering behavior is attracting attention
+	// We're warning a player that his warmongering behavior is attracting attention
 	else if(eStatement == DIPLO_STATEMENT_WARMONGER)
 	{
 		if(bHuman)
@@ -17159,7 +17259,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// We're warning a player his interactions with city states is not to our liking
+	// We're warning a player that his interactions with City-States are not to our liking
 	else if(eStatement == DIPLO_STATEMENT_MINOR_CIV_COMPETITION)
 	{
 		if(bHuman)
@@ -17276,7 +17376,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 
-	// AI chose same late game policy tree!
+	// AI chose same late game policy tree as the human!
 	else if(eStatement == DIPLO_STATEMENT_SAME_POLICIES_FREEDOM)
 	{
 		if(bHuman)
@@ -17459,7 +17559,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	// Player has a SR we'd like
+	// Player has a Strategic Resource we'd like
 	else if(eStatement == DIPLO_STATEMENT_STRATEGIC_TRADE)
 	{
 		if(bHuman)
@@ -17492,6 +17592,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
+	
+	// Announce to the human that this AI is competing with them for the same victory condition
 	else if(eStatement == DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST)
 	{
 		if(bHuman)
@@ -17532,6 +17634,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 	}
+	
+	// Announce to the human that this AI wants to block them from achieving victory
 	else if(eStatement == DIPLO_STATEMENT_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST)
 	{
 		if(bHuman)
@@ -17567,6 +17671,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// We'd like to purchase this player's World Map
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_MAPS_OFFER)
 	{
 		if(bHuman)
@@ -17598,6 +17703,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
+	// We'd like to purchase a technology from this player
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_TECH_OFFER)
 	{
 		if(bHuman)
@@ -17629,7 +17735,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
-	// We're making a generous offer to Player
+	// We're making a generous offer to this player
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_GENEROUS_OFFER)
 	{
 		if(bHuman)
@@ -17661,6 +17767,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
+	//We want to declare independence from our master
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_REVOKE_VASSALAGE)
 	{
 		if(bHuman)
@@ -17706,6 +17813,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GET_TEAM(kVassalPlayer.getTeam()).DoEndVassal(kMasterPlayer.getTeam(), bPeaceful, false);
 		}
 	}
+	//We want this player to liberate their vassals
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_REVOKE_VASSALAGE_THIRD_PARTY)
 	{
 		if(bHuman)
@@ -17738,7 +17846,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
-	// AI offers ePlayer to be his vassal
+	// AI offers to make ePlayer his voluntary vassal
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_BECOME_MY_VASSAL)
 	{
 		if(bHuman)
@@ -17769,6 +17877,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 		}
 	}
+	// AI is happy that they were liberated from vassalage
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_LIBERATE_VASSAL)
 	{
 		if(bHuman)
@@ -17806,7 +17915,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvAssertMsg(false, "Don't send this message to AI!");
 		}
 	}
-	// AI notifies human that taxes were raised
+	// AI notifies human that their taxes were RAISED
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_VASSAL_TAXES_RAISED_AI_MASTER)
 	{
 		if(bHuman)
@@ -17819,7 +17928,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvAssertMsg(false, "Don't send this message to AI!");
 		}
 	}
-	// AI notifies human that taxes were LOWERED
+	// AI notifies human that their taxes were LOWERED
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eStatement == DIPLO_STATEMENT_VASSAL_TAXES_LOWERED_AI_MASTER)
 	{
 		if(bHuman)
@@ -17946,7 +18055,7 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 	{
 	}
 
-	// Only add this Declaration to the log if it's for everyone, as announcements to specific people are only for catching them up after meeting them later
+	// Only add this declaration to the log if it's for everyone, as announcements to specific people are only for catching them up after meeting them later
 	if(eForSpecificPlayer == NO_PLAYER)
 	{
 		DoAddNewDeclarationToLog(eDeclaration, iData1, iData2, eMustHaveMetPlayer, bActive);
@@ -17984,7 +18093,7 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 	LogPublicDeclaration(eDeclaration, iData1, eForSpecificPlayer);
 }
 
-/// Anyone we want to chat with?
+/// Any Major Civs we want to chat with?
 void CvDiplomacyAI::DoContactMajorCivs()
 {
 	// NOTE: This function is broken up into two sections: AI contact opportunities, and then human contact opportunities
@@ -18381,7 +18490,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	}
 }
 
-/// Anyone we want to chat with?
+/// Any Minor Civs we want to chat with?
 void CvDiplomacyAI::DoContactMinorCivs()
 {
 	// If the player has deleted the DIPLOMACY Flavor we have to account for that
@@ -18423,7 +18532,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	bool bLosingMoney = (eLosingMoney != NO_ECONOMICAISTRATEGY) ? GetPlayer()->GetEconomicAI()->IsUsingStrategy(eLosingMoney) : false;
 
 	// **************************
-	// Would we like to buyout a minor this turn?  (Austria UA)
+	// Would we like to buyout a minor this turn?  (Venice / Austria UA)
 	// **************************
 	bool bWantsToBuyout = false;
 	if(GetPlayer()->IsAbleToAnnexCityStates())
@@ -18485,6 +18594,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// **************************
 	bool bWantsToBullyUnit = false;
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	// Would we like to get Heavy Tribute by bullying this turn?
 	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
 		int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
@@ -19501,7 +19611,7 @@ void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, MinorCivAppro
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Notify human it's time for a coop war they agreed to
 void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -19581,7 +19691,7 @@ void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Coop War Request
 void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -19694,7 +19804,7 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 			return;
 
 #if defined(MOD_BALANCE_CORE)
-		//OB? We sholdn't care.
+		//We're allowing them Open Borders? We shouldn't care.
 		if(GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
 			return;
 #endif
@@ -19725,7 +19835,7 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Killed a City-State we're protective towards
 void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -19763,13 +19873,12 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Attacked a City-State we're protective towards
 void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Attacked a City State we're protective towards
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		// They must be able to declare war on us
@@ -19803,7 +19912,7 @@ void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploState
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Bullied a City-State we're protective towards
 void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -19880,13 +19989,12 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Comment on aggressive expansion by this player
 void CvDiplomacyAI::DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Comment on aggressive expansion
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		bool bSendStatement = false;
@@ -19915,13 +20023,12 @@ void CvDiplomacyAI::DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatem
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Tell the player he broke his expansion promise
 void CvDiplomacyAI::DoExpansionBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Tell the player he broke a promise
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		if(IsPlayerBrokenExpansionPromise(ePlayer))
@@ -19935,13 +20042,12 @@ void CvDiplomacyAI::DoExpansionBrokenPromiseStatement(PlayerTypes ePlayer, Diplo
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Comment on aggressive Plot Buying by this player
 void CvDiplomacyAI::DoPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Comment on aggressive Plot Buying
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		bool bSendStatement = false;
@@ -19967,13 +20073,12 @@ void CvDiplomacyAI::DoPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploState
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Tell the player he broke his Plot Buying promise
 void CvDiplomacyAI::DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Tell the player he broke a promise
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		if(IsPlayerBrokenBorderPromise(ePlayer))
@@ -19987,7 +20092,7 @@ void CvDiplomacyAI::DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, Dipl
 	}
 }
 
-/// Possible Contact Statement - Have we attacked a minor that is protected by someone?
+/// Possible Contact Statement - We attacked a minor that is protected by someone
 void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -20033,7 +20138,7 @@ void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploSta
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We bullied a minor that is protected by someone
 void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -20084,6 +20189,7 @@ void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStat
 	}
 }
 
+/// Possible Contact Statement - We caught this player spying on us
 void CvDiplomacyAI::DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -20126,6 +20232,7 @@ void CvDiplomacyAI::DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 	}
 }
 
+/// Possible Contact Statement - We killed this player's spy
 void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -20153,6 +20260,7 @@ void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 	}
 }
 
+/// Possible Contact Statement - This player killed our spy
 void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -20195,6 +20303,7 @@ void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 
+/// Possible Contact Statement - Share intrigue with this player
 void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -20249,6 +20358,7 @@ void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatement
 	}
 }
 
+/// Possible Contact Statement - They converted one of our cities, and we want them to stop that
 void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -20288,7 +20398,7 @@ void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStateme
 	}
 }
 
-
+/// Possible Contact Statement - They dug up one of our artifacts, and we want them to stop that
 void CvDiplomacyAI::DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -20332,7 +20442,7 @@ void CvDiplomacyAI::DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We want to make a Declaration of Friendship with them
 void CvDiplomacyAI::DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -20387,7 +20497,7 @@ void CvDiplomacyAI::DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eSt
 }
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-/// Possible Contact Statement
+/// Possible Contact Statement - We're ending our Declaration of Friendship with them
 void CvDiplomacyAI::DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -20408,7 +20518,8 @@ void CvDiplomacyAI::DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& 
 	}
 }
 #endif
-/// Possible Contact Statement
+
+/// Possible Contact Statement - We're denouncing one of our friends (backstabbing)
 void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -20444,7 +20555,7 @@ void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatemen
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We're denouncing a player
 void CvDiplomacyAI::DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -20478,7 +20589,7 @@ void CvDiplomacyAI::DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We're requesting that a player denounce someone
 void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -20960,7 +21071,7 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 	}
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
-/// Possible Contact Statement - Strategic Resource Ask
+/// Possible Contact Statement - Strategic Resource Offer
 void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21099,7 +21210,7 @@ void CvDiplomacyAI::DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eSt
 		}
 	}
 }
-/// Possible Contact Statement - War Trade
+/// Possible Contact Statement - Third Party War Trade
 void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21258,7 +21369,7 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 #endif
 
-// Possible Contact Statement - Renew Recently Expired Deal
+/// Possible Contact Statement - Renew Recently Expired Deal
 void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21406,7 +21517,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 //	}
 //}
 
-/// Possible Contact Statement - Request
+/// Possible Contact Statement - Request Help
 void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21453,7 +21564,7 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 	}
 }
 
-/// Possible Contact Statement - Gifrt
+/// Possible Contact Statement - Gift
 void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21561,7 +21672,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 //	}
 //}
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Approach towards player is now HOSTILE
 void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21624,7 +21735,7 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 //	}
 //}
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Approach towards player is now AFRAID
 void CvDiplomacyAI::DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21645,7 +21756,7 @@ void CvDiplomacyAI::DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& 
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Warning the player about their warmongering
 void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21680,7 +21791,7 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Warning the player that we don't like their interactions with "our" City-States
 void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1, bool bIgnoreTurnsBetweenLimit)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21735,7 +21846,7 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We're angry that they befriended a player we denounced
 void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21803,6 +21914,7 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 
+/// Possible Contact Statement - We're angry that they denounced one of our friends
 void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21870,6 +21982,7 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 
+/// Possible Contact Statement - We're happy that they denounced a player we denounced
 void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -21938,6 +22051,7 @@ void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTyp
 	}
 }
 
+/// Possible Contact Statement - We're happy they befriended one of our friends
 void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22048,7 +22162,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We befriended one of the human's enemies and we're letting them know
 void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22133,7 +22247,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We denounced one of the human's friends and we're letting them know
 void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22218,7 +22332,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We denounced someone the human has denounced and we're letting them know
 void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22310,7 +22424,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatement
 	}
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - We befriended one of the human's friends, and we're letting them know
 void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22419,6 +22533,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 	}
 }
 
+/// Possible Contact Statement - We're happy we're following the same ideology as the human
 void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22482,6 +22597,7 @@ void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTyp
 	}
 }
 
+/// Possible Contact Statement - Either AI or human has switched ideologies due to the other's pressure
 void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22599,7 +22715,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-//Statement to human if the AI thinks they are getting close to a victory. 
+/// Possible Contact Statement - Message to human if the AI thinks they are getting close to the victory they're also going for.
 void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22747,7 +22863,8 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 		}
 	}
 }
-//Statement to human if the AI thinks they are getting close to a victory. 
+
+/// Possible Contact Statement - Message to human if the AI thinks they are getting close to a victory that they're not going for.
 void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22818,6 +22935,8 @@ void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementT
 	}
 }
 #endif
+
+/// Possible Contact Statement - We liked the human's proposal to the World Congress
 void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22867,6 +22986,7 @@ void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTy
 	}
 }
 
+/// Possible Contact Statement - We disliked the human's proposal to the World Congress
 void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22917,6 +23037,7 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 	}
 }
 
+/// Possible Contact Statement - The human helped our proposal pass in the World Congress
 void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22967,6 +23088,7 @@ void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStateme
 	}
 }
 
+/// Possible Contact Statement - The human helped our proposal fail in the World Congress
 void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -23017,6 +23139,7 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 	}
 }
 
+/// Possible Contact Statement - The human helped relocate the World Congress to our lands
 void CvDiplomacyAI::DoTheySupportedOurHosting(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -23343,6 +23466,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_EMBASSY_EXCHANGE");
 		break;
 
+        // AI asks for an embassy
 	case DIPLO_MESSAGE_EMBASSY_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_EMBASSY_OFFER");
 		break;
@@ -23367,10 +23491,12 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_RESEARCH_AGREEMENT_OFFER");
 		break;
 
+        // AI wants to renew an expired deal with player
 	case DIPLO_MESSAGE_RENEW_DEAL:
 		strText = GetDiploTextFromTag("RESPONSE_RENEW_DEAL");
 		break;
 
+        // AI wants to renew an expired deal with player, but they need more in exchange
 	case DIPLO_MESSAGE_WANT_MORE_RENEW_DEAL:
 		strText = GetDiploTextFromTag("RESPONSE_WANT_MORE_RENEW_DEAL");
 		break;
@@ -23444,19 +23570,23 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		break;
 #if defined(MOD_BALANCE_CORE)
-	// AI wants a Luxury someone has
+	// AI wants a Strategic Resource that someone has
 	case DIPLO_MESSAGE_STRATEGIC_TRADE:
 		strText = GetDiploTextFromTag("RESPONSE_STRATEGIC_TRADE");
 		break;
+		// AI would like to work with a player they do not trust
 	case DIPLO_MESSAGE_DOF_UNTRUSTWORTHY:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_UNTRUSTWORTHY");
 		break;
+		// AI would like to work with a player they've been friends with
 	case DIPLO_MESSAGE_DOF_FRIENDS:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_FRIENDS");
 		break;
+		// AI would like to work with a player they've been good friends with
 	case DIPLO_MESSAGE_DOF_OLD_FRIENDS:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_ALLIES");
 		break;
+		// AI would like to work with a player they went on a coop war with
 	case DIPLO_MESSAGE_DOF_BATTLE_BROTHERS:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_BATTLE_BROTHERS");
 		break;
@@ -23601,12 +23731,12 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI has a public declaration to make to the world
 		//////////////////////////////////////////////////////////////
 
-		// AI is protecting a City State
+		// AI is protecting a City-State
 	case DIPLO_MESSAGE_DECLARATION_PROTECT_CITY_STATE:
 		strText = GetDiploTextFromTag("RESPONSE_DECLARATION_PROTECT_CITY_STATE", strOptionalKey1, GetPlayer()->getCivilizationShortDescriptionKey());
 		break;
 
-		// AI is no longer protecting a City State
+		// AI is no longer protecting a City-State
 	case DIPLO_MESSAGE_DECLARATION_ABANDON_CITY_STATE:
 		strText = GetDiploTextFromTag("RESPONSE_DECLARATION_ABANDON_CITY_STATE", strOptionalKey1, GetPlayer()->getCivilizationShortDescriptionKey());
 		break;
@@ -23670,12 +23800,12 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_YES");
 		break;
 
-		// Human makes demand of us, and we say no
+		// Human makes demand of us, and we say no because they're too weak
 	case DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_WEAK:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_REFUSE_WEAK");
 		break;
 
-		// Human makes demand of us, and we say no
+		// Human makes demand of us, and we say no because we hate them
 	case DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_HOSTILE:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE");
 		break;
@@ -23685,7 +23815,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH");
 		break;
 
-		// Human makes demand of us, and we say too soon
+		// Human makes demand of us, and we say it's been too soon since last time
 	case DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_SOON:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DEMAND_REFUSE_TOO_SOON");
 		break;
@@ -23714,47 +23844,47 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_AGGRESSIVE_MILITARY_WARNING_GOOD");
 		break;
 
-		// AI attacked Human's Minor, Human vows revenge, our response (hostile)
+		// AI attacked human's Minor, human vows revenge, our response (hostile)
 	case DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_WE_ATTACKED_MINOR_BAD");
 		break;
 
-		// AI attacked Human's Minor, Human forgives us, our response (hostile)
+		// AI attacked human's Minor, human forgives us, our response (hostile)
 	case DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_WE_ATTACKED_MINOR_GOOD");
 		break;
 
-		// AI attacked Human's Minor, Human vows revenge, our response
+		// AI attacked human's Minor, human vows revenge, our response
 	case DIPLO_MESSAGE_HUMAN_WE_ATTACKED_MINOR_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_WE_ATTACKED_MINOR_BAD");
 		break;
 
-		// AI attacked Human's Minor, Human forgives us, our response
+		// AI attacked human's Minor, human forgives us, our response
 	case DIPLO_MESSAGE_HUMAN_WE_ATTACKED_MINOR_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_WE_ATTACKED_MINOR_GOOD");
 		break;
 
-		// AI bullied Human's Minor, Human vows revenge, our response (hostile)
+		// AI bullied human's Minor, human vows revenge, our response (hostile)
 	case DIPLO_MESSAGE_HUMAN_HOSTILE_WE_BULLIED_MINOR_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_WE_BULLIED_MINOR_BAD");
 		break;
 
-		// AI bullied Human's Minor, Human forgives us, our response (hostile)
+		// AI bullied human's Minor, human forgives us, our response (hostile)
 	case DIPLO_MESSAGE_HUMAN_HOSTILE_WE_BULLIED_MINOR_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_WE_BULLIED_MINOR_GOOD");
 		break;
 
-		// AI bullied Human's Minor, Human vows revenge, our response
+		// AI bullied human's Minor, human vows revenge, our response
 	case DIPLO_MESSAGE_HUMAN_WE_BULLIED_MINOR_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_WE_BULLIED_MINOR_BAD");
 		break;
 
-		// AI bullied Human's Minor, Human forgives us, our response
+		// AI bullied human's Minor, human forgives us, our response
 	case DIPLO_MESSAGE_HUMAN_WE_BULLIED_MINOR_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_WE_BULLIED_MINOR_GOOD");
 		break;
 
-		// Other player attacked a City State this AI is protective of
+		// Other player attacked a City-State this AI is protective of
 	case DIPLO_MESSAGE_HUMAN_ATTACKED_PROTECTED_CITY_STATE:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_PROTECTED_CITY_STATE", strOptionalKey1);
 		break;
@@ -23769,7 +23899,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_ATTACKED_MINOR_GOOD");
 		break;
 
-		// Other player killed a City State this AI is protective of
+		// Other player killed a City-State this AI is protective of
 	case DIPLO_MESSAGE_HUMAN_KILLED_PROTECTED_CITY_STATE:
 		strText = GetDiploTextFromTag("RESPONSE_KILLED_PROTECTED_CITY_STATE", strOptionalKey1);
 		break;
@@ -23784,7 +23914,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_KILLED_MINOR_GOOD");
 		break;
 
-		// Other player bullied a City State this AI is protective of
+		// Other player bullied a City-State this AI is protective of
 	case DIPLO_MESSAGE_HUMAN_BULLIED_PROTECTED_CITY_STATE:
 		strText = GetDiploTextFromTag("RESPONSE_BULLIED_PROTECTED_CITY_STATE", strOptionalKey1);
 		break;
@@ -23867,12 +23997,12 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// Trade responses
 		//////////////////////////////////////////////////////////////
 
-		// Human asks to AI for a bad deal too many times
+		// Human asks the AI to accept a bad deal too many times
 	case DIPLO_MESSAGE_REPEAT_TRADE_TOO_MUCH:
 		strText = GetDiploTextFromTag("RESPONSE_REPEAT_TRADE_TOO_MUCH");
 		break;
 
-		// Human asks to AI for a bad deal again
+		// Human asks the AI to accept a bad deal again
 	case DIPLO_MESSAGE_REPEAT_TRADE:
 		strText = GetDiploTextFromTag("RESPONSE_REPEAT_TRADE");
 		break;
@@ -23900,7 +24030,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 #endif
 		break;
 
-		// Human gave into AI demand
+		// Human gave in to AI demand
 	case DIPLO_MESSAGE_TRADE_ACCEPT_AI_DEMAND:
 		strText = GetDiploTextFromTag("RESPONSE_TRADE_ACCEPT_AI_DEMAND");
 		break;
@@ -23939,6 +24069,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_TRADE_NO_DEAL_POSSIBLE");
 		break;
 
+       // AI can't fairly match human's trade offer
 	case DIPLO_MESSAGE_TRADE_CANT_MATCH_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
 		break;
@@ -23992,33 +24123,33 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_BETRAYED");
 		break;
 
-		// AI DoW:  response
+		// Attacked: Broken military promise response
 	case DIPLO_MESSAGE_ATTACKED_MILITARY_PROMISE_BROKEN:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN");
 		break;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-			// AI DoW:  response
+		// Attacked: Human is warmonger and AI is stronger
 	case DIPLO_MESSAGE_ATTACKED_STRONG_WARMONGER:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_STRONG_WARMONGER");
 		break;
 
-			// AI DoW:  response
+		// Attacked: Human is warmonger and AI is weaker
 	case DIPLO_MESSAGE_ATTACKED_WEAK_WARMONGER:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_WEAK_WARMONGER");
 		break;
 
-			// AI DoW:  response
+		// Attacked: Human is warmonger
 	case DIPLO_MESSAGE_ATTACKED_WARMONGER:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_WARMONGER");
 		break;
 
-			// AI DoW:  response
+		// Attacked: Human and AI have different ideologies
 	case DIPLO_MESSAGE_ATTACKED_IDEOLOGY_DIFFERENCE:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_IDEOLOGY_DIFFERENCE");
 		break;
 
-			// AI DoW:  response
+		// Attacked: Human and AI have the same ideology
 	case DIPLO_MESSAGE_ATTACKED_IDEOLOGY_SAME:
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_IDEOLOGY_SAME");
 		break;	
@@ -24029,27 +24160,27 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_DEFENSIVE_PACT_REQUEST");
 		break;
 
-		// trade cities request
+		// Trade Cities request
 	case DIPLO_MESSAGE_TRADE_CITIES_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_TRADE_CITIES_REQUEST");
 		break;
 
-		// exchange cities request		
+		// Exchange Cities request		
 	case DIPLO_MESSAGE_EXCHANGE_CITIES_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_EXCHANGE_CITIES_REQUEST");
 		break;	
 
-		// third party peace
+		// Third party peace
 	case DIPLO_MESSAGE_THIRDPARTY_PEACE_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_THIRD_PARTY_PEACE_REQUEST");
 		break;
 
-		// third party war
+		// Third party war
 	case DIPLO_MESSAGE_THIRDPARTY_WAR_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_THIRD_PARTY_WAR_REQUEST");
 		break;
 
-		// third party war
+		// World Congress vote
 	case DIPLO_MESSAGE_VOTE_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_VOTE_COMMITMENT_REQUEST");
 		break;
@@ -24065,64 +24196,64 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetWarMessage(eForPlayer);
 		break;
 
-		// AI DoW:  response
+		// AI DoW: Generic declaration
 	case DIPLO_MESSAGE_DOW_GENERIC:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_GENERIC");
 		break;
 
-		// AI DoW:  response
+		// AI DoW: Declared war over land dispute
 	case DIPLO_MESSAGE_DOW_LAND:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_LAND");
 		break;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	// AI DoW:  response
+	// AI DoW: AI and human have gone to war several times
 	case DIPLO_MESSAGE_DOW_OLD_ENEMIES:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_OLD_ENEMIES");
 		break;
 
-	// AI DoW:  response
+	// AI DoW: AI is putting an end to the human's warmongering
 	case DIPLO_MESSAGE_DOW_WARMONGER:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_WARMONGER");
 		break;
 
-	// AI DoW:  response
+	// AI DoW: AI and human have different ideologies
 	case DIPLO_MESSAGE_DOW_IDEOLOGY_DIFFERENCE:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_IDEOLOGY_DIFFERENCE");
 		break;
 
-	// AI DoW:  response
+	// AI DoW: AI and human have the same ideology
 	case DIPLO_MESSAGE_DOW_IDEOLOGY_SAME:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_IDEOLOGY_SAME");
 		break;
 #endif
 
-		// AI DoW:  response
+		// AI DoW: AI is going for world conquest
 	case DIPLO_MESSAGE_DOW_WORLD_CONQUEST:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_WORLD_CONQUEST");
 		break;
 
-		// AI DoW:  response
+		// AI DoW: AI is attacking because the player is weak
 	case DIPLO_MESSAGE_DOW_OPPORTUNITY:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_OPPORTUNITY");
 		break;
 
-		// AI DoW:  response
+		// AI DoW: AI is attacking out of desperation
 	case DIPLO_MESSAGE_DOW_DESPERATE:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_DESPERATE");
 		break;
 
-		// AI DoW:  response
+		// AI DoW: AI was pretending to be friendly beforehand
 	case DIPLO_MESSAGE_DOW_BETRAYAL:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_BETRAYAL");
 		break;
 
-		// AI DoW:  response
+		// AI DoW: AI was pretending to be friendly beforehand AND human is weaker
 	case DIPLO_MESSAGE_DOW_WEAK_BETRAYAL:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_WEAK_BETRAYAL");
 		break;
 
-		// AI DoW:  response
+		// AI DoW: AI regrets declaring war
 	case DIPLO_MESSAGE_DOW_REGRET:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_REGRET");
 		break;
@@ -24141,22 +24272,22 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// Post Civ 5 Release Mish-Mash of stuff
 		/////////////////////////////////
 
-		// AI asks a player to denounce another player
+		// AI asks a friend to denounce another player
 	case DIPLO_MESSAGE_DOF_AI_DENOUNCE_REQUEST:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_AI_DENOUNCE_REQUEST", strOptionalKey1);
 		break;
 
-		// AI asks a player to declare war on another player
+		// AI asks a friend to declare war on another player
 	case DIPLO_MESSAGE_DOF_AI_WAR_REQUEST:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_AI_WAR_REQUEST", strOptionalKey1);
 		break;
 
-		// AI asked the player to do something, but they didn't and now the AI is pissed
+		// AI asked a friend to do something, but they didn't and now the AI is pissed
 	case DIPLO_MESSAGE_DOF_NOT_HONORED:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_NOT_HONORED");
 		break;
 
-		// AI denouncing the human, who had been a friend
+		// AI is denouncing the human, who had been a friend
 	case DIPLO_MESSAGE_AI_DOF_BACKSTAB:
 		strText = GetDiploTextFromTag("RESPONSE_AI_DOF_BACKSTAB");
 		break;
@@ -24176,12 +24307,12 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DOFED_ENEMY", strOptionalKey1);
 		break;
 
-		// AI response to human Denouncing a friend
+		// AI response to human denouncing a friend
 	case DIPLO_MESSAGE_HUMAN_DENOUNCED_FRIEND:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DENOUNCED_FRIEND", strOptionalKey1);
 		break;
 
-		// AI response to human Denouncing an enemy
+		// AI response to human denouncing an enemy
 	case DIPLO_MESSAGE_HUMAN_DENOUNCED_ENEMY:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DENOUNCED_ENEMY", strOptionalKey1);
 		break;
@@ -24191,17 +24322,17 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DOF_SO_AI_DOF", strOptionalKey1);
 		break;
 
-		// AI Denounced someone because the human Denounced them (nice)
+		// AI denounced someone because the human denounced them (nice)
 	case DIPLO_MESSAGE_HUMAN_DENOUNCE_SO_AI_DENOUNCE:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DENOUNCE_SO_AI_DENOUNCE", strOptionalKey1);
 		break;
 
-		// AI Denounced someone because the human DoFed them (mean)
+		// AI denounced someone because the human DoFed them (mean)
 	case DIPLO_MESSAGE_HUMAN_DOF_SO_AI_DENOUNCE:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DOF_SO_AI_DENOUNCE", strOptionalKey1);
 		break;
 
-		// AI DoFed someone because the human Denounced them (mean)
+		// AI DoFed someone because the human denounced them (mean)
 	case DIPLO_MESSAGE_HUMAN_DENOUNCE_SO_AI_DOF:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_DENOUNCE_SO_AI_DOF", strOptionalKey1);
 		break;
@@ -24256,39 +24387,42 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// Espionage messages
 		/////////////////////////////////
 
-		// AI response to catching one of your spies
+		// AI response to catching one of human's spies
 	case DIPLO_MESSAGE_CAUGHT_YOUR_SPY:
 		strText = GetDiploTextFromTag("RESPONSE_CAUGHT_YOUR_SPY");
 		break;
 
-		// AI response to killing one of your spies
+		// AI response to killing one of human's spies
 	case DIPLO_MESSAGE_KILLED_YOUR_SPY:
 		strText = GetDiploTextFromTag("RESPONSE_KILLED_YOUR_SPY");
 		break;
 
-		// AI response to you killing one of their spies
+		// AI response to human killing one of their spies
 	case DIPLO_MESSAGE_KILLED_MY_SPY:
 		strText = GetDiploTextFromTag("RESPONSE_KILLED_MY_SPY");
 		break;
 
+        // Human confronts AI about having killed their spy through the notification
 	case DIPLO_MESSAGE_CONFRONT_YOU_KILLED_MY_SPY:
 		strText = GetDiploTextFromTag("RESPONSE_CONFRONT_YOU_KILLED_MY_SPY");
 		break;
 
-		// AI response to you killing one of their spies
+		// AI asks human to stop sending missionaries and prophets
 	case DIPLO_MESSAGE_STOP_CONVERSIONS:
 		strText = GetDiploTextFromTag("RESPONSE_STOP_CONVERSIONS");
 		break;
 
+        // Human agreed to stop spying on AI
 	case DIPLO_MESSAGE_HUMAN_CAUGHT_YOUR_SPY_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_CAUGHT_YOUR_SPY_GOOD");
 		break;
 
+        // Human did not agree to stop spying on AI
 	case DIPLO_MESSAGE_HUMAN_CAUGHT_YOUR_SPY_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_CAUGHT_YOUR_SPY_BAD");
 		break;
 
-		// Human asks us not to spy him, and we say yes
+		// Human asks us not to spy on him, and we say yes
 	case DIPLO_MESSAGE_STOP_SPYING_YES:
 		strText = GetDiploTextFromTag("RESPONSE_STOP_SPYING_YES");
 		break;
@@ -24298,26 +24432,32 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_STOP_SPYING_NO");
 		break;
 
+       // Human warns AI about another civ's war plans/deception towards them
 	case DIPLO_MESSAGE_WARNED_ABOUT_INTRIGUE:
 		strText = GetDiploTextFromTag("RESPONSE_WARNED_ABOUT_INTRIGUE", strOptionalKey1);
 		break;
 
+      // AI warns human that another leader is plotting against them
 	case DIPLO_MESSAGE_SHARE_INTRIGUE:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_DECEPTION", strOptionalKey1);
 		break;
 
+      // AI warns human that another civ is planning a sneak attack against a specific city of theirs
 	case DIPLO_MESSAGE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_KNOWN_CITY:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_KNOWN_CITY", strOptionalKey1, strOptionalKey2);
 		break;
 
+      // AI warns human that another civ is planning a sneak attack against them, but don't know which city
 	case DIPLO_MESSAGE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_UNKNOWN_CITY:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_UNKNOWN_CITY", strOptionalKey1);
 		break;
 
+      // AI warns human that another civ is planning a sneak attack against a specific city of theirs (amphibious)
 	case DIPLO_MESSAGE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_KNOWN_CITY:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_KNOWN_CITY", strOptionalKey1, strOptionalKey2);
 		break;
 
+      // AI warns human that another civ is planning a sneak attack against them, but don't know which city (amphibious)
 	case DIPLO_MESSAGE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_UNKNOWN_CITY:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_UNKNOWN_CITY", strOptionalKey1);
 		break;
@@ -24332,40 +24472,47 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_KILLED_MY_SPY_FORGIVEN");
 		break;
 
+        // AI asks human to stop sending missionaries and prophets. The human agrees.
 	case DIPLO_MESSAGE_HUMAN_STOP_CONVERSIONS_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_STOP_CONVERSIONS_GOOD");
 		break;
 
+        // AI asks human to stop sending missionaries and prophets. The human disagrees.
 	case DIPLO_MESSAGE_HUMAN_STOP_CONVERSIONS_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_STOP_CONVERSIONS_BAD");
 		break;
 
-	// human asks AI to stop sending missionaries and prophets. The AI player agrees.
+	   // Human asks AI to stop sending missionaries and prophets. The AI player agrees.
 	case DIPLO_MESSAGE_STOP_CONVERSIONS_AGREE:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_STOP_CONVERSIONS_AGREE");
 		break;
 
-	// human asks AI to stop sending missionaries and prophets. The AI player disagrees.
+	   // Human asks AI to stop sending missionaries and prophets. The AI player disagrees.
 	case DIPLO_MESSAGE_STOP_CONVERSIONS_DISAGREE:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_STOP_CONVERSIONS_DISAGREE");
 		break;
 
+       // AI asks human to stop digging up their artifacts.
 	case DIPLO_MESSAGE_STOP_DIGGING:
 		strText = GetDiploTextFromTag("RESPONSE_STOP_DIGGING");
 		break;
 
+       // Human asks AI to stop digging up their artifacts. The AI player agrees.
 	case DIPLO_MESSAGE_STOP_DIGGING_AGREE:
 		strText = GetDiploTextFromTag("RESPONSE_STOP_DIGGING_AGREE");
 		break;
 
+       // Human asks AI to stop digging up their artifacts. The AI player disagrees.
 	case DIPLO_MESSAGE_STOP_DIGGING_DISAGREE:
 		strText = GetDiploTextFromTag("RESPONSE_STOP_DIGGING_DISAGREE");
 		break;
 
+       // AI asks human to stop digging up their artifacts. The human disagrees.
 	case DIPLO_MESSAGE_HUMAN_STOP_DIGGING_BAD:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_STOP_DIGGING_BAD");
 		break;
 
+      // AI asks human to stop digging up their artifacts. The human agrees.
 	case DIPLO_MESSAGE_HUMAN_STOP_DIGGING_GOOD:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_STOP_DIGGING_GOOD");
 		break;
@@ -24374,54 +24521,70 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// League messages
 		/////////////////////////////////
 
+       // AI tells human they liked human's proposal to the World Congress
 	case DIPLO_MESSAGE_WE_LIKED_THEIR_PROPOSAL:
 		strText = GetDiploTextFromTag("RESPONSE_WE_LIKE_HUMAN_PROPOSAL", strOptionalKey1);
 		break;
 
+       // AI tells human they disliked human's proposal to the World Congress
 	case DIPLO_MESSAGE_WE_DISLIKED_THEIR_PROPOSAL:
 		strText = GetDiploTextFromTag("RESPONSE_WE_DISLIKE_HUMAN_PROPOSAL", strOptionalKey1);
 		break;
 
+       // AI thanks human for supporting their proposal to the World Congress
 	case DIPLO_MESSAGE_THEY_SUPPORTED_OUR_PROPOSAL:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_SUPPORTED_OUR_PROPOSAL", strOptionalKey1);
 		break;
 
+       // AI is angry at human for helping their proposal fail in the World Congress
 	case DIPLO_MESSAGE_THEY_FOILED_OUR_PROPOSAL:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_FOILED_OUR_PROPOSAL", strOptionalKey1);
 		break;
 
+       // AI thanks human for helping make the AI host of the World Congress
 	case DIPLO_MESSAGE_THEY_SUPPORTED_OUR_HOSTING:
 		strText = GetDiploTextFromTag("RESPONSE_HUMAN_SUPPORTED_OUR_HOSTING", strOptionalKey1);
 		break;
 
-		// Ideological messages
+	  // Ideological messages
+	  // Human has Freedom, AI does not and AI's people are unhappy with their choice of ideology
 	case DIPLO_MESSAGE_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM:
 		strText = GetDiploTextFromTag("RESPONSE_CIVIL_RESISTANCE_ON_AI_BY_FREEDOM");
 		break;
+	  // Human has Order, AI does not and AI's people are unhappy with their choice of ideology	
 	case DIPLO_MESSAGE_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER:
 		strText = GetDiploTextFromTag("RESPONSE_CIVIL_RESISTANCE_ON_AI_BY_ORDER");
 		break;
+	  // Human has Autocracy, AI does not and AI's people are unhappy with their choice of ideology
 	case DIPLO_MESSAGE_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY:
 		strText = GetDiploTextFromTag("RESPONSE_CIVIL_RESISTANCE_ON_AI_BY_AUTOCRACY");
 		break;
+	  // AI has Freedom, human does not and human's people are unhappy with their choice of ideology
 	case DIPLO_MESSAGE_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM:
 		strText = GetDiploTextFromTag("RESPONSE_CIVIL_RESISTANCE_ON_HUMAN_BY_FREEDOM");
 		break;
+	  // AI has Order, human does not and human's people are unhappy with their choice of ideology
 	case DIPLO_MESSAGE_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER:
 		strText = GetDiploTextFromTag("RESPONSE_CIVIL_RESISTANCE_ON_HUMAN_BY_ORDER");
 		break;
+	  // AI has Autocracy, human does not and human's people are unhappy with their choice of ideology
 	case DIPLO_MESSAGE_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY:
 		strText = GetDiploTextFromTag("RESPONSE_CIVIL_RESISTANCE_ON_HUMAN_BY_AUTOCRACY");
 		break;
+	  // Human switched to Freedom and AI has Freedom
 	case DIPLO_MESSAGE_SWITCH_OUR_IDEOLOGY_FREEDOM:
 		strText = GetDiploTextFromTag("RESPONSE_SWITCHED_TO_FREEDOM");
 		break;
+	  // Human switched to Order and AI has Order
 	case DIPLO_MESSAGE_SWITCH_OUR_IDEOLOGY_ORDER:
 		strText = GetDiploTextFromTag("RESPONSE_SWITCHED_TO_ORDER");
 		break;
+	  // Human switched to Autocracy and AI has Autocracy
 	case DIPLO_MESSAGE_SWITCH_OUR_IDEOLOGY_AUTOCRACY:
 		strText = GetDiploTextFromTag("RESPONSE_SWITCHED_TO_AUTOCRACY");
 		break;
+		
+	// Human is influential over the AI - defeat message based on era
 	case DIPLO_MESSAGE_YOUR_CULTURE_INFLUENTIAL:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		if(MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE && eCurrentEra <= 1)
@@ -24444,6 +24607,8 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		}
 #endif
 		break;
+	
+	// AI is influential over human - victory message based on era
 	case DIPLO_MESSAGE_OUR_CULTURE_INFLUENTIAL:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		if(eCurrentEra <= 1)
@@ -24467,115 +24632,126 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 #endif
 		break;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// AI announces that they're competing with human over Domination Victory
 	case DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST");
 		break;
+	// AI announces that they're competing with human over Diplomatic Victory
 	case DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS");
 		break;
+	// AI announces that they're competing with human over Cultural Victory
 	case DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CULTURE:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CULTURE");
 		break;
+	// AI announces that they're competing with human over Science Victory
 	case DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP");
 		break;
+	// AI announces that they're competing with human but doesn't know what victory human is going for
 	case DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CONFUSED:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CONFUSED");
 		break;
+	// AI announces that they want to stop the human's Domination Victory plans (and aren't also going for that victory)
 	case DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST");
 		break;
+	// AI announces that they want to stop the human's Diplomatic Victory plans (and aren't also going for that victory)
 	case DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS");
 		break;
+	// AI announces that they want to stop the human's Cultural Victory plans (and aren't also going for that victory)
 	case DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_CULTURE:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_CULTURE");
 		break;
+	// AI announces that they want to stop the human's Science Victory plans (and aren't also going for that victory)
 	case DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_SPACESHIP:
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_SPACESHIP");
 		break;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Human repeatedly asks AI for opinion of another player after they said no (hostile)
 	case DIPLO_MESSAGE_HOSTILE_REPEAT_SHARE_OPINION_NO:
 		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_REPEAT_SHARE_OPINION_NO");
 		break;
-
+	// Human repeatedly asks AI for opinion of another player after they said no
 	case DIPLO_MESSAGE_REPEAT_SHARE_OPINION_NO:
 		strText = GetDiploTextFromTag("RESPONSE_REPEAT_SHARE_OPINION_NO");
 		break;
+	// Human asks AI for their opinion of another player. The AI refuses. (hostile)
 	case DIPLO_MESSAGE_HOSTILE_SHARE_OPINION_NO:
 		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_SHARE_OPINION_NO");
 		break;
-
+    // Human asks AI for their opinion of another player. The AI refuses.
 	case DIPLO_MESSAGE_SHARE_OPINION_NO:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_NO");
 		break;
-
+    // AI tells human its approach towards another player (FRIENDLY)
 	case DIPLO_MESSAGE_SHARE_OPINION_FRIENDLY:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_FRIENDLY", strOptionalKey1);
 		break;
-
+    // AI tells human its approach towards another player (NEUTRAL)
 	case DIPLO_MESSAGE_SHARE_OPINION_NEUTRAL:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_NEUTRAL", strOptionalKey1);
 		break;
-
+    // AI tells human its approach towards another player (GUARDED)
 	case DIPLO_MESSAGE_SHARE_OPINION_GUARDED:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_GUARDED", strOptionalKey1);
 		break;
-
+    // AI tells human its approach towards another player (HOSTILE)
 	case DIPLO_MESSAGE_SHARE_OPINION_HOSTILE:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_HOSTILE", strOptionalKey1);
 		break;
-
+    // AI tells human it is at war with another player
 	case DIPLO_MESSAGE_SHARE_OPINION_WAR:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_WAR", strOptionalKey1);
 		break;
-
+    // AI tells human its approach towards another player (AFRAID)
 	case DIPLO_MESSAGE_SHARE_OPINION_AFRAID:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_AFRAID", strOptionalKey1);
 		break;
-
+    // AI tells human it is planning war against another player
 	case DIPLO_MESSAGE_SHARE_OPINION_PLANNING_WAR:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_PLANNING_WAR", strOptionalKey1);
 		break;
-
+    // AI tells human its approach towards another player (DECEPTIVE)
 	case DIPLO_MESSAGE_SHARE_OPINION_DECEPTIVE:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_DECEPTIVE", strOptionalKey1);
 		break;
-
+    // AI tells human it hasn't known them long enough to share its opinion of others
 	case DIPLO_MESSAGE_TOO_SOON_FOR_SHARE_OPINION:
 		strText = GetDiploTextFromTag("RESPONSE_TOO_SOON_FOR_SHARE_OPINION");
 		break;
-
+    // AI wants to trade for the player's World Map
 	case DIPLO_MESSAGE_MAPS_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_MAPS_OFFER");
 		break;
-
+    // AI wants to trade for one of the player's technologies
 	case DIPLO_MESSAGE_TECH_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_TECH_OFFER");
 		break;
-
+    // AI is making a generous offer towards the player
 	case DIPLO_MESSAGE_GENEROUS_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_GENEROUS_OFFER");
 		break;
-
+    // AI accepts a human's request for help
 	case DIPLO_MESSAGE_HUMAN_REQUEST_YES:
 		strText = GetDiploTextFromTag("RESPONSE_HELP_REQUEST_YES");
 		break;
-
+    // AI refuses a human's request for help (too much)
 	case DIPLO_MESSAGE_HUMAN_REQUEST_TOO_MUCH:
 		strText = GetDiploTextFromTag("RESPONSE_HELP_REQUEST_REFUSE_TOO_MUCH");
 		break;
-
+    // AI refuses a human's request for help (too soon since last request)
 	case DIPLO_MESSAGE_HUMAN_REQUEST_TOO_SOON:
 		strText = GetDiploTextFromTag("RESPONSE_HELP_REQUEST_REFUSE_TOO_SOON");
 		break;
-
+    // Human attacked his AI vassal
 	case DIPLO_MESSAGE_VASSALAGE_ATTACKED_VASSAL:
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_ATTACKED_VASSAL");
 		break;
 
-	// AI vassal greets his human master
+	// AI vassal greets his human master (hostile)
 	case DIPLO_MESSAGE_GREETING_HOSTILE_VASSALAGE_VASSAL:
 		strText = GetDiploTextFromTag("RESPONSE_GREETING_VASSALAGE_VASSAL_HOSTILE");
 		break;
@@ -24585,7 +24761,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_GREETING_VASSALAGE_VASSAL");
 		break;
 
-	// AI master greets his human vassal
+	// AI master greets his human vassal (hostile)
 	case DIPLO_MESSAGE_GREETING_HOSTILE_VASSALAGE_MASTER:
 		strText = GetDiploTextFromTag("RESPONSE_GREETING_HOSTILE_VASSALAGE_MASTER");
 		break;
@@ -24595,16 +24771,17 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_GREETING_VASSALAGE_MASTER");
 		break;
 
-	// AI master greets his human vassal
+	// Ai wants the player to liberate his vassals (trade offer)
 	case DIPLO_MESSAGE_REVOKE_VASSAL_THIRD_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_TRADE_REVOKE");
 		break;
 
-	// AI asks human to revoke his vassalage
+	// AI asks human to revoke his vassalage of them (hostile)
 	case DIPLO_MESSAGE_REVOKE_VASSALAGE_HOSTILE:
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_REVOKE_VASSALAGE_HOSTILE");
 		break;
 
+    // AI asks human to revoke his vassalage of them
 	case DIPLO_MESSAGE_REVOKE_VASSALAGE:
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_REVOKE_VASSALAGE");
 		break;
@@ -24619,7 +24796,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_REVOKED_HUMAN_WAR");
 		break;
 
-	// AI grants Human independence
+	// AI grants human independence
 	case DIPLO_MESSAGE_VASSALAGE_REVOKED_PEACEFUL:
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_REVOKED_PEACEFUL");
 		break;
@@ -24629,44 +24806,51 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_REVOKED_FORCEFUL");
 		break;
 
+    // AI agrees to remove their troops from human's borders
 	case DIPLO_MESSAGE_MOVE_TROOPS_ACCEPT:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_ACCEPT");
 		break;
-
+    // AI promises their troops are not on human's borders for war
 	case DIPLO_MESSAGE_MOVE_TROOPS_NEUTRAL:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_NEUTRAL");
 		break;
-
+    // AI promises their troops are not on human's borders for war (hostile)
 	case DIPLO_MESSAGE_MOVE_TROOPS_NEUTRAL_HOSTILE:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_NEUTRAL_HOSTILE");
 		break;
-
+    // AI declares war on human after human requested they move their troops
 	case DIPLO_MESSAGE_MOVE_TROOPS_REJECT_CONQUEST:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_REJECT_CONQUEST");
 		break;
-
+    // AI declares war on human after human requested they move their troops
 	case DIPLO_MESSAGE_MOVE_TROOPS_REJECT_DECEPTIVE:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_REJECT_DECEPTIVE");
 		break;
-
+    // AI declares war on human after human requested they move their troops
 	case DIPLO_MESSAGE_MOVE_TROOPS_REJECT_HOSTILE:
 		strText = GetDiploTextFromTag("RESPONSE_MOVE_TROOPS_REJECT_HOSTILE");
 		break;
+	// AI liberates human vassal without being asked
 	case DIPLO_MESSAGE_VASSALAGE_LIBERATED_HUMAN:
 		strText = GetDiploTextFromTag("RESPONSE_VASSALAGE_LIBERATED_HUMAN");
 		break;
+	// AI vassal is unhappy that human raised their taxes
 	case DIPLO_MESSAGE_VASSAL_TAXES_RAISED_HUMAN_MASTER:
 		strText = GetDiploTextFromTag("RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER");
 		break;
+	// AI tells human vassal their taxes are now raised
 	case DIPLO_MESSAGE_VASSAL_TAXES_RAISED_AI_MASTER:
 		strText = GetDiploTextFromTag("RESPONSE_VASSAL_TAXES_RAISED_AI_MASTER");
 		break;
+	// AI vassal is happy that human lowered their taxes
 	case DIPLO_MESSAGE_VASSAL_TAXES_LOWERED_HUMAN_MASTER:
 		strText = GetDiploTextFromTag("RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER");
 		break;
+	// AI tells human vassal their taxes are now lowered
 	case DIPLO_MESSAGE_VASSAL_TAXES_LOWERED_AI_MASTER:
 		strText = GetDiploTextFromTag("RESPONSE_VASSAL_TAXES_LOWERED_AI_MASTER");
 		break;
+	// Human liberates AI vassal without being asked
 	case DIPLO_MESSAGE_VASSALAGE_LIBERATE_VASSAL:
 		strText = GetDiploTextFromTag("RESPONSE_LIBERATE_VASSAL");
 		break;
@@ -24951,7 +25135,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	}
 
 		// *********************************************
-		// Player told the AI to not dig up their yard
+		// Player told the AI to not dig up their yard (artifacts)
 		// *********************************************
 	case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_DIGGING:
 	{
@@ -27702,7 +27886,7 @@ const char* CvDiplomacyAI::GetWarMessage(PlayerTypes ePlayer)
 #endif
 
 		// Land Dispute
-		// If Land Dispute is Strong or higher then this is probably a strong contributer to the DoW
+		// If Land Dispute is Strong or higher then this is probably a strong contributor to the DoW
 		if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 			return GetDiploStringForMessage(DIPLO_MESSAGE_DOW_LAND);
 
@@ -28202,7 +28386,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	return 0;
 }
 
-/// Has ePlayer asked to work Target eTargetPlayer lately?
+/// Has ePlayer asked to start a coop war against eTargetPlayer lately?
 bool CvDiplomacyAI::IsCoopWarMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
 {
 	if(GetCoopWarCounter(ePlayer, eTargetPlayer) >= 0 &&
@@ -28212,7 +28396,7 @@ bool CvDiplomacyAI::IsCoopWarMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eTa
 	return false;
 }
 
-/// Has ePlayer ever asked about working Target us?
+/// Has ePlayer ever asked to start a coop war against us?
 bool CvDiplomacyAI::IsCoopWarEverAsked(PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
 {
 	// Counter set to -1 at start. Gets reset to -666
@@ -28267,7 +28451,7 @@ void CvDiplomacyAI::ChangeCoopWarCounter(PlayerTypes ePlayer, PlayerTypes eTarge
 	SetCoopWarCounter(ePlayer, eTargetPlayer, GetCoopWarCounter(ePlayer, eTargetPlayer) + iChange);
 }
 
-/// Are we done working with anyone Target someone else?
+/// Do we want to stop working against any players we're targeting in a coop war?
 bool CvDiplomacyAI::DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eTargetPlayer)
 {
 	// Loop through all players to see if we can find a good target
@@ -28289,7 +28473,7 @@ bool CvDiplomacyAI::DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerType
 	return true;
 }
 
-/// Do we want to continue working Target ePlayer?
+/// Do we want to continue our coop war against Target ePlayer?
 bool CvDiplomacyAI::IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eTargetPlayer)
 {
 	CvAssertMsg(GetCoopWarAcceptedState(ePlayer, eTargetPlayer) == COOP_WAR_STATE_ACCEPTED, "Diplomacy AI: Testing whether we should continue working Target a player, but we aren't right now. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28361,7 +28545,7 @@ CoopWarStates CvDiplomacyAI::GetGlobalCoopWarAcceptedState(PlayerTypes ePlayer)
 	return eBestState;
 }
 
-/// What is the SHORTEST amount of time on any coop counter?
+/// What is the SHORTEST amount of time on any coop war counter?
 int CvDiplomacyAI::GetGlobalCoopWarCounter(PlayerTypes ePlayer)
 {
 	int iBestCount = MAX_TURNS_SAFE_ESTIMATE;
@@ -28389,7 +28573,7 @@ int CvDiplomacyAI::GetGlobalCoopWarCounter(PlayerTypes ePlayer)
 	return iBestCount;
 }
 
-/// Are we locked into a wawr with ePlayer?
+/// Are we locked into a war with ePlayer?
 bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer)
 {
 	CoopWarStates eCoopWarState = GetGlobalCoopWarAcceptedState(ePlayer);
@@ -28427,7 +28611,7 @@ bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer)
 /////////////////////////////////////////////////////////
 
 
-
+/// Human made a demand against this AI, handle everything that means
 void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDemand)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28454,6 +28638,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 	m_paiDemandTooSoonNumTurns[ePlayer] = iNumTurns;
 }
 
+/// Has it been too soon since the last demand made?
 bool CvDiplomacyAI::IsDemandTooSoon(PlayerTypes ePlayer) const
 {
 	int iDemandTooSoonNumTurns = GetDemandTooSoonNumTurns(ePlayer);
@@ -28470,6 +28655,7 @@ bool CvDiplomacyAI::IsDemandTooSoon(PlayerTypes ePlayer) const
 	return false;
 }
 
+/// Returns the amount of turns required between demands
 short CvDiplomacyAI::GetDemandTooSoonNumTurns(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28477,6 +28663,7 @@ short CvDiplomacyAI::GetDemandTooSoonNumTurns(PlayerTypes ePlayer) const
 	return m_paiDemandTooSoonNumTurns[ePlayer];
 }
 
+/// Returns the number of demands ePlayer has ever made of us
 int CvDiplomacyAI::GetNumDemandEverMade(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28484,6 +28671,7 @@ int CvDiplomacyAI::GetNumDemandEverMade(PlayerTypes ePlayer) const
 	return m_paiDemandEverMade[ePlayer];
 }
 
+/// Returns if ePlayer has ever made a demand of us
 bool CvDiplomacyAI::IsDemandEverMade(PlayerTypes ePlayer) const
 {
 #if defined(MOD_BALANCE_CORE)
@@ -28498,6 +28686,7 @@ bool CvDiplomacyAI::IsDemandEverMade(PlayerTypes ePlayer) const
 #endif
 }
 
+/// How many turns has it been since ePlayer last made a demand of us?
 short CvDiplomacyAI::GetDemandCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28505,6 +28694,7 @@ short CvDiplomacyAI::GetDemandCounter(PlayerTypes ePlayer) const
 	return m_paiDemandCounter[ePlayer];
 }
 
+/// Sets how many turns it has been since ePlayer last made a demand of us
 void CvDiplomacyAI::SetDemandCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28513,6 +28703,7 @@ void CvDiplomacyAI::SetDemandCounter(PlayerTypes ePlayer, int iValue)
 
 }
 
+/// Changes how many turns it has been since ePlayer last made a demand of us
 void CvDiplomacyAI::ChangeDemandCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetDemandCounter(ePlayer, GetDemandCounter(ePlayer) + iChange);
@@ -28670,6 +28861,7 @@ bool CvDiplomacyAI::IsPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer) const
 #endif
 }
 
+/// Has this AI rejected a request from ePlayer to not settle near them?
 bool CvDiplomacyAI::IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const
 {
 	// If the counter is -1, it means he hasn't asked
@@ -28683,6 +28875,7 @@ bool CvDiplomacyAI::IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const
 	return true;
 }
 
+/// Has this AI accepted a request from ePlayer to not settle near them?
 bool CvDiplomacyAI::IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28690,6 +28883,7 @@ bool CvDiplomacyAI::IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const
 	return m_pabPlayerNoSettleRequestAccepted[ePlayer];
 }
 
+/// Marks plots as blocked or not blocked for this AI's settlers depending on if they agreed not to settle near ePlayer
 void CvDiplomacyAI::SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28742,6 +28936,7 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool b
 	}
 }
 
+/// How many turns has it been since ePlayer asked us not to settle near them?
 short CvDiplomacyAI::GetPlayerNoSettleRequestCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28749,6 +28944,7 @@ short CvDiplomacyAI::GetPlayerNoSettleRequestCounter(PlayerTypes ePlayer) const
 	return m_paiPlayerNoSettleRequestCounter[ePlayer];
 }
 
+/// Sets how many turns it has been since ePlayer asked us not to settle near them
 void CvDiplomacyAI::SetPlayerNoSettleRequestCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -28756,6 +28952,7 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestCounter(PlayerTypes ePlayer, int iVa
 	m_paiPlayerNoSettleRequestCounter[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since ePlayer asked us not to settle near them
 void CvDiplomacyAI::ChangePlayerNoSettleRequestCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetPlayerNoSettleRequestCounter(ePlayer, GetPlayerNoSettleRequestCounter(ePlayer) + iChange);
@@ -28787,7 +28984,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer) const
 	return true;
 }
 
-/// Has ePlayer asked about us not spying on him lately?
+/// Has ePlayer asked us not to spy on him lately?
 bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 {
 	if(GetPlayerStopSpyingRequestCounter(ePlayer) >= 0)
@@ -28798,7 +28995,7 @@ bool CvDiplomacyAI::IsStopSpyingMessageTooSoon(PlayerTypes ePlayer) const
 	return false;
 }
 
-/// Has ePlayer ever asked about us not spying on him?
+/// Has ePlayer ever asked us not to spy on him?
 bool CvDiplomacyAI::IsPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer) const
 {
 #if defined(MOD_BALANCE_CORE)
@@ -28815,6 +29012,7 @@ bool CvDiplomacyAI::IsPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer) cons
 #endif
 }
 
+/// Has this AI rejected a request from ePlayer to not spy on them?
 bool CvDiplomacyAI::IsPlayerStopSpyingRequestRejected(PlayerTypes ePlayer) const
 {
 	// If the counter is -1, it means he hasn't asked
@@ -28828,6 +29026,7 @@ bool CvDiplomacyAI::IsPlayerStopSpyingRequestRejected(PlayerTypes ePlayer) const
 	return true;
 }
 
+/// Has this AI accepted a request from ePlayer to not spy on them?
 bool CvDiplomacyAI::IsPlayerStopSpyingRequestAccepted(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -28835,6 +29034,7 @@ bool CvDiplomacyAI::IsPlayerStopSpyingRequestAccepted(PlayerTypes ePlayer) const
 	return m_pabPlayerStopSpyingRequestAccepted[ePlayer];
 }
 
+/// Sets whether or not ePlayer's request not to spy on them has been accepted
 void CvDiplomacyAI::SetPlayerStopSpyingRequestAccepted(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -28846,6 +29046,7 @@ void CvDiplomacyAI::SetPlayerStopSpyingRequestAccepted(PlayerTypes ePlayer, bool
 	}
 }
 
+/// How many turns has it been since ePlayer asked us not to spy on them?
 short CvDiplomacyAI::GetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -28853,6 +29054,7 @@ short CvDiplomacyAI::GetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer) cons
 	return m_paiPlayerStopSpyingRequestCounter[ePlayer];
 }
 
+/// Sets how many turns it has been since ePlayer asked us not to spy on them
 void CvDiplomacyAI::SetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -28860,12 +29062,14 @@ void CvDiplomacyAI::SetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int i
 	m_paiPlayerStopSpyingRequestCounter[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since ePlayer asked us not to spy on them
 void CvDiplomacyAI::ChangePlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetPlayerStopSpyingRequestCounter(ePlayer, GetPlayerStopSpyingRequestCounter(ePlayer) + iChange);
 }
 
 #if defined(MOD_BALANCE_CORE)
+/// How many turns has it been since ePlayer backstabbed us?
 short CvDiplomacyAI::GetPlayerBackstabCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -28873,6 +29077,7 @@ short CvDiplomacyAI::GetPlayerBackstabCounter(PlayerTypes ePlayer) const
 	return m_paiPlayerBackstabCounter[ePlayer];
 }
 
+/// Sets how many turns it has been since ePlayer backstabbed us
 void CvDiplomacyAI::SetPlayerBackstabCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -28885,6 +29090,7 @@ void CvDiplomacyAI::SetPlayerBackstabCounter(PlayerTypes ePlayer, int iValue)
 	m_paiPlayerBackstabCounter[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since ePlayer backstabbed us
 void CvDiplomacyAI::ChangePlayerBackstabCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetPlayerBackstabCounter(ePlayer, GetPlayerBackstabCounter(ePlayer) + iChange);
@@ -28947,7 +29153,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	else if(eOpinion == MAJOR_CIV_OPINION_ENEMY)
 		return false;
 
-	// Has there been a denouncement either direction?
+	// Has there been a denouncement in either direction?
 	if(IsDenouncedPlayer(ePlayer))
 		return false;
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
@@ -29021,6 +29227,7 @@ bool CvDiplomacyAI::IsDoFEverAsked(PlayerTypes ePlayer) const
 #endif
 }
 
+/// Have we rejected ePlayer's request to work with us?
 bool CvDiplomacyAI::IsDoFRejected(PlayerTypes ePlayer) const
 {
 	// If the counter is -1, it means he hasn't asked
@@ -29034,6 +29241,7 @@ bool CvDiplomacyAI::IsDoFRejected(PlayerTypes ePlayer) const
 	return true;
 }
 
+/// Have we accepted ePlayer's request to work with us?
 bool CvDiplomacyAI::IsDoFAccepted(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29041,6 +29249,7 @@ bool CvDiplomacyAI::IsDoFAccepted(PlayerTypes ePlayer) const
 	return m_pabDoFAccepted[ePlayer];
 }
 
+/// We made a Declaration of Friendship with someone, handle everything that means
 void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29093,6 +29302,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
+/// Returns the type of Declaration of Friendship that could potentially be made with this player (based on previous relationship)
 DoFLevelTypes CvDiplomacyAI::GetDoFType(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29100,6 +29310,7 @@ DoFLevelTypes CvDiplomacyAI::GetDoFType(PlayerTypes ePlayer) const
 	return (DoFLevelTypes) m_paeDoFType[ePlayer];
 }
 
+/// Sets the future type of Declaration of Friendship that could potentially be made with this player (based on previous relationship)
 void CvDiplomacyAI::SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29110,6 +29321,7 @@ void CvDiplomacyAI::SetDoFType(PlayerTypes ePlayer, DoFLevelTypes eDoFLevel)
 	m_paeDoFType[ePlayer] = eDoFLevel;
 }
 
+/// Returns the number of times ePlayer has denied our requests to start a coop war against another player
 int CvDiplomacyAI::GetNumTimesCoopWarDenied(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29117,13 +29329,15 @@ int CvDiplomacyAI::GetNumTimesCoopWarDenied(PlayerTypes ePlayer) const
 	return m_paiNumTimesCoopWarDenied[ePlayer];
 }
 
+/// Sets the number of times ePlayer has denied our requests to start a coop war against another player
 void CvDiplomacyAI::SetNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paiNumTimesCoopWarDenied[ePlayer] = iValue;
 }
-/// How many times have we gone to war?
+
+/// Changes how many times ePlayer has denied our requests to start a coop war against another player
 void CvDiplomacyAI::ChangeNumTimesCoopWarDenied(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -29131,12 +29345,16 @@ void CvDiplomacyAI::ChangeNumTimesCoopWarDenied(PlayerTypes ePlayer, int iChange
 		SetNumTimesCoopWarDenied(ePlayer, GetNumTimesCoopWarDenied(ePlayer) + iChange);
 	}
 }
+
+/// Returns if a Declaration of Friendship with ePlayer has been broken
 bool CvDiplomacyAI::IsDoFBroken(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabDoFBroken[ePlayer];
 }
+
+/// Our Declaration of Friendship with ePlayer has been broken, handle everything that means
 void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29185,6 +29403,8 @@ void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #endif
+
+/// Returns how many turns we've had a Declaration of Friendship with ePlayer for
 short CvDiplomacyAI::GetDoFCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29192,6 +29412,7 @@ short CvDiplomacyAI::GetDoFCounter(PlayerTypes ePlayer) const
 	return m_paiDoFCounter[ePlayer];
 }
 
+/// Sets how many turns we've had a Declaration of Friendship with ePlayer for
 void CvDiplomacyAI::SetDoFCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29199,11 +29420,13 @@ void CvDiplomacyAI::SetDoFCounter(PlayerTypes ePlayer, int iValue)
 	m_paiDoFCounter[ePlayer] = iValue;
 }
 
+/// Changes how many turns we've had a Declaration of Friendship with ePlayer for
 void CvDiplomacyAI::ChangeDoFCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetDoFCounter(ePlayer, GetDoFCounter(ePlayer) + iChange);
 }
 
+/// How many Declarations of Friendship do we currently have with other players?
 int CvDiplomacyAI::GetNumDoF()
 {
 	int iRtnValue = 0;
@@ -29225,6 +29448,7 @@ int CvDiplomacyAI::GetNumDoF()
 	return iRtnValue;
 }
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+/// How many Research Agreements do we currently have with other players?
 int CvDiplomacyAI::GetNumRA()
 {
 	int iRtnValue = 0;
@@ -29245,6 +29469,8 @@ int CvDiplomacyAI::GetNumRA()
 
 	return iRtnValue;
 }
+
+/// How many Defensive Pacts do we currently have with other players?
 int CvDiplomacyAI::GetNumDefensePacts()
 {
 	int iRtnValue = 0;
@@ -29291,6 +29517,8 @@ pair<int,int> CvDiplomacyAI::GetLastTurnEmpireDistance(PlayerTypes eOtherPlayer)
 	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_paLastTurnEmpireDistance[eOtherPlayer];
 }
+
+/// How many players have we currently denounced?
 int CvDiplomacyAI::GetNumDenouncements()
 {
 	//Let's get the total number of denouncements this player has made.
@@ -29312,6 +29540,8 @@ int CvDiplomacyAI::GetNumDenouncements()
 
 	return iRtnValue;
 }
+
+/// How many players have denounced US?
 int CvDiplomacyAI::GetNumDenouncementsOfPlayer()
 {
 	//Let's get the total number of denouncements on this player.
@@ -29333,6 +29563,8 @@ int CvDiplomacyAI::GetNumDenouncementsOfPlayer()
 
 	return iRtnValue;
 }
+
+/// Do we have similar or divergent Social Policies?
 int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 {
 	int iNumSame = 0;
@@ -29485,6 +29717,7 @@ bool CvDiplomacyAI::IsPlayerDoFwithAnyEnemy(PlayerTypes ePlayer) const
 // Denounce Player
 ///////////////////////////////
 
+/// Denounces a player
 void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29700,7 +29933,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	}
 }
 
-// Does this player feel it's time to denounce ePlayer?
+/// Does this player feel it's time to denounce ePlayer?
 bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 {
 	// Can't denounce with a civ you're at war with
@@ -29736,6 +29969,7 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 	return false;
 }
 
+/// Returns the weight this AI has for denouncing ePlayer
 int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 {
 	int iWeight = 0;
@@ -29904,6 +30138,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	return iWeight;
 }
 
+/// Have we denounced ePlayer?
 bool CvDiplomacyAI::IsDenouncedPlayer(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29911,6 +30146,7 @@ bool CvDiplomacyAI::IsDenouncedPlayer(PlayerTypes ePlayer) const
 	return m_pabDenouncedPlayer[ePlayer];
 }
 
+/// Sets whether we've denounced ePlayer
 void CvDiplomacyAI::SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29931,6 +30167,7 @@ bool CvDiplomacyAI::IsDenouncingPlayer(PlayerTypes ePlayer) const
 	return (IsDenouncedPlayer(ePlayer) && GetDenouncedPlayerCounter(ePlayer) == 1);
 }
 
+/// How many turns has it been since we denounced ePlayer?
 short CvDiplomacyAI::GetDenouncedPlayerCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29938,6 +30175,7 @@ short CvDiplomacyAI::GetDenouncedPlayerCounter(PlayerTypes ePlayer) const
 	return m_paiDenouncedPlayerCounter[ePlayer];
 }
 
+/// Sets how many turns it has been since we denounced ePlayer
 void CvDiplomacyAI::SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -29945,12 +30183,13 @@ void CvDiplomacyAI::SetDenouncedPlayerCounter(PlayerTypes ePlayer, int iValue)
 	m_paiDenouncedPlayerCounter[ePlayer] = iValue;
 }
 
+/// Changes how many turns it has been since we denounced ePlayer
 void CvDiplomacyAI::ChangeDenouncedPlayerCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetDenouncedPlayerCounter(ePlayer, GetDenouncedPlayerCounter(ePlayer) + iChange);
 }
 
-// They've denounced someone we have a DoF with
+/// Has this player denounced someone we have a DoF with?
 bool CvDiplomacyAI::IsPlayerDenouncedFriend(PlayerTypes ePlayer) const
 {
 	PlayerTypes eLoopPlayer;
@@ -29970,7 +30209,7 @@ bool CvDiplomacyAI::IsPlayerDenouncedFriend(PlayerTypes ePlayer) const
 	return false;
 }
 
-// They've denounced someone we've denounced
+/// Has this player denounced someone we've also denounced?
 bool CvDiplomacyAI::IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const
 {
 	PlayerTypes eLoopPlayer;
@@ -29992,7 +30231,7 @@ bool CvDiplomacyAI::IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const
 ///////////////////////////////
 
 
-
+/// Does this AI want to request that ePlayer denounce someone?
 PlayerTypes CvDiplomacyAI::GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed)
 {
 	bRandFailed = false;
@@ -30062,6 +30301,7 @@ PlayerTypes CvDiplomacyAI::GetRequestFriendToDenounce(PlayerTypes ePlayer, bool&
 	return eTarget;
 }
 
+/// Are we upset that our friend ePlayer refused our request to denounce eAgainstPlayer?
 bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer)
 {
 	ePlayer;
@@ -30089,7 +30329,7 @@ bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, Pla
 /// Has this guy had problems with too many of his friends? If so, then his word isn't worth much
 bool CvDiplomacyAI::IsUntrustworthyFriend()
 {
-	//vassals can't be be untrustworthy, they have no rights.
+	//vassals can't be untrustworthy, they have no rights.
 	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 		return false;
 
@@ -30138,12 +30378,13 @@ int CvDiplomacyAI::GetNumFriendsDenouncedBy()
 	return iNum;
 }
 
+/// Did this player denounce us while we had a DoF?
 bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 {
 	if (ePlayer == BARBARIAN_PLAYER)
 		return false;
 
-	//vassals can't be be untrustworthy, they have no rights.
+	//vassals can't be untrustworthy, they have no rights.
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
 
@@ -30152,6 +30393,7 @@ bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 	return m_pabFriendDenouncedUs[ePlayer];
 }
 
+/// Sets if this player denounced us while we had a DoF
 void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30163,7 +30405,7 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 	}
 }
 
-/// How many friends have WE Denounced ?
+/// How many friends have WE denounced?
 int CvDiplomacyAI::GetWeDenouncedFriendCount()
 {
 	int iNum = 0;
@@ -30182,12 +30424,13 @@ int CvDiplomacyAI::GetWeDenouncedFriendCount()
 	return iNum;
 }
 
+/// Did this player declare war on us while we had a DoF?
 bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 {
 	if (ePlayer == BARBARIAN_PLAYER)
 		return false;
 
-	//vassals can't be be untrustworthy, they have no rights.
+	//vassals can't be untrustworthy, they have no rights.
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
 
@@ -30196,6 +30439,7 @@ bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 	return m_pabFriendDeclaredWarOnUs[ePlayer];
 }
 
+/// Sets if this player declared war on us while we had a DoF
 void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30207,7 +30451,7 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 	}
 }
 
-/// How many friends have WE Declared War on ?
+/// How many friends have WE Declared War on?
 int CvDiplomacyAI::GetWeDeclaredWarOnFriendCount()
 {
 	int iNum = 0;
@@ -30563,7 +30807,7 @@ int CvDiplomacyAI::GetWeDeclaredWarOnFriendCount()
 /////////////////////////////////////////////////////////
 
 
-
+/// Tests if any promises were broken or expired since last turn
 void CvDiplomacyAI::DoTestPromises()
 {
 	AggressivePostureTypes eOldPosture;
@@ -30664,9 +30908,10 @@ void CvDiplomacyAI::DoTestPromises()
 }
 
 #if defined(MOD_BALANCE_CORE)
+/// Check if ePlayer has made a non-expired military promise to us
 int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 {
-	// Agreed to move?
+	// Did they make a military promise?
 	if (!IsPlayerMadeMilitaryPromise(ePlayer))
 	{
 		return -1;
@@ -30676,6 +30921,7 @@ int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 }
 #endif
 
+/// Did ePlayer make a military promise to us?
 bool CvDiplomacyAI::IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30683,6 +30929,7 @@ bool CvDiplomacyAI::IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 	return m_pabPlayerMadeMilitaryPromise[ePlayer];
 }
 
+/// Sets if ePlayer made a military promise to us
 void CvDiplomacyAI::SetPlayerMadeMilitaryPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30690,6 +30937,7 @@ void CvDiplomacyAI::SetPlayerMadeMilitaryPromise(PlayerTypes ePlayer, bool bValu
 	m_pabPlayerMadeMilitaryPromise[ePlayer] = bValue;
 }
 
+/// Did ePlayer break a military promise to us?
 bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30697,6 +30945,7 @@ bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenMilitaryPromise[ePlayer];
 }
 
+/// Sets if ePlayer broke a military promise to us
 void CvDiplomacyAI::SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30709,6 +30958,7 @@ void CvDiplomacyAI::SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bVa
 	}
 }
 
+/// Did ePlayer ignore our request to make a military promise?
 bool CvDiplomacyAI::IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30716,6 +30966,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredMilitaryPromise[ePlayer];
 }
 
+/// Sets if ePlayer ignored our request to make a military promise
 void CvDiplomacyAI::SetPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30723,6 +30974,7 @@ void CvDiplomacyAI::SetPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer, bool bV
 	m_pabPlayerIgnoredMilitaryPromise[ePlayer] = bValue;
 }
 
+/// How long has it been since ePlayer made a military promise to us?
 short CvDiplomacyAI::GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30730,6 +30982,7 @@ short CvDiplomacyAI::GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer)
 	return m_paiPlayerMilitaryPromiseCounter[ePlayer];
 }
 
+/// Sets how long it has been since ePlayer made a military promise to us
 void CvDiplomacyAI::SetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30737,11 +30990,13 @@ void CvDiplomacyAI::SetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iVa
 	m_paiPlayerMilitaryPromiseCounter[ePlayer] = iValue;
 }
 
+/// Changes how long it has been since ePlayer made a military promise to us
 void CvDiplomacyAI::ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetPlayerMilitaryPromiseCounter(ePlayer, GetPlayerMilitaryPromiseCounter(ePlayer) + iChange);
 }
 #if defined(MOD_BALANCE_CORE)
+/// Check if ePlayer has made a non-expired expansion promise to us
 int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
 {
 	if(!IsPlayerMadeExpansionPromise(ePlayer))
@@ -30763,6 +31018,7 @@ int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
 }
 #endif
 
+/// Did ePlayer make an expansion promise to us?
 bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30794,6 +31050,7 @@ bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestG
 	}
 }
 
+/// Sets if this player made an expansion promise to us
 void CvDiplomacyAI::SetPlayerMadeExpansionPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30809,6 +31066,7 @@ void CvDiplomacyAI::SetPlayerMadeExpansionPromise(PlayerTypes ePlayer, bool bVal
 	}
 }
 
+/// Did this player break an expansion promise to us?
 bool CvDiplomacyAI::IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30816,6 +31074,7 @@ bool CvDiplomacyAI::IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenExpansionPromise[ePlayer];
 }
 
+/// Sets if this player broke an expansion promise to us
 void CvDiplomacyAI::SetPlayerBrokenExpansionPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30828,6 +31087,7 @@ void CvDiplomacyAI::SetPlayerBrokenExpansionPromise(PlayerTypes ePlayer, bool bV
 	}
 }
 
+/// Did this player ignore our request to make an expansion promise?
 bool CvDiplomacyAI::IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30835,6 +31095,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredExpansionPromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to make an expansion promise
 void CvDiplomacyAI::SetPlayerIgnoredExpansionPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30856,6 +31117,7 @@ void CvDiplomacyAI::SetPlayerExpansionPromiseData(PlayerTypes ePlayer, Aggressiv
 	m_paePlayerExpansionPromiseData[ePlayer] = eValue;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Sets if this player ever made an expansion promise to us
 void CvDiplomacyAI::SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30863,6 +31125,7 @@ void CvDiplomacyAI::SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue
 
 	m_pabPlayerEverMadeExpansionPromise[ePlayer] = bValue;
 }
+/// Did this player ever make an expansion promise to us?
 bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30870,6 +31133,7 @@ bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 	return m_pabPlayerEverMadeExpansionPromise[ePlayer];
 }
 #else
+/// Did this player ever make an expansion promise to us?
 bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30885,6 +31149,7 @@ bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+/// Check if this player has made a non-expired border promise to us
 int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer)
 {
 	if(!IsPlayerMadeBorderPromise(ePlayer))
@@ -30905,6 +31170,7 @@ int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer)
 	return -1;
 }
 #endif
+/// Did this player make a border promise to us?
 bool CvDiplomacyAI::IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGameTurn)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30936,6 +31202,7 @@ bool CvDiplomacyAI::IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGame
 	}
 }
 
+/// Sets if this player made a border promise to us
 void CvDiplomacyAI::SetPlayerMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30952,6 +31219,7 @@ void CvDiplomacyAI::SetPlayerMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
 	}
 }
 
+/// Did this player break a border promise to us?
 bool CvDiplomacyAI::IsPlayerBrokenBorderPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30959,6 +31227,7 @@ bool CvDiplomacyAI::IsPlayerBrokenBorderPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenBorderPromise[ePlayer];
 }
 
+/// Sets if this player broke a border promise to us
 void CvDiplomacyAI::SetPlayerBrokenBorderPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30971,6 +31240,7 @@ void CvDiplomacyAI::SetPlayerBrokenBorderPromise(PlayerTypes ePlayer, bool bValu
 	}
 }
 
+/// Did this player ignore our request to make a border promise?
 bool CvDiplomacyAI::IsPlayerIgnoredBorderPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30978,6 +31248,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredBorderPromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredBorderPromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to make a border promise
 void CvDiplomacyAI::SetPlayerIgnoredBorderPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30999,6 +31270,7 @@ void CvDiplomacyAI::SetPlayerBorderPromiseData(PlayerTypes ePlayer, AggressivePo
 	m_paePlayerBorderPromiseData[ePlayer] = eValue;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Sets if this player ever made a border promise with us
 void CvDiplomacyAI::SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31006,6 +31278,7 @@ void CvDiplomacyAI::SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue)
 
 	m_pabPlayerEverMadeBorderPromise[ePlayer] = bValue;
 }
+/// Sets if this player has ever asked to make a DoF with us
 void CvDiplomacyAI::SetDoFEverAsked(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31013,6 +31286,7 @@ void CvDiplomacyAI::SetDoFEverAsked(PlayerTypes ePlayer, bool bValue)
 
 	m_pabDoFEverAsked[ePlayer] = bValue;
 }
+/// Sets if this player has ever requested help from us
 void CvDiplomacyAI::SetHelpRequestEverMade(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31020,6 +31294,7 @@ void CvDiplomacyAI::SetHelpRequestEverMade(PlayerTypes ePlayer, bool bValue)
 
 	m_pabHelpRequestEverMade[ePlayer] = bValue;
 }
+/// Sets the number of demands this player has made towards us
 void CvDiplomacyAI::SetNumDemandEverMade(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31029,6 +31304,7 @@ void CvDiplomacyAI::SetNumDemandEverMade(PlayerTypes ePlayer, int iValue)
 	if (m_paiDemandEverMade[ePlayer] <= 0)
 		m_paiDemandEverMade[ePlayer] = 0;
 }
+/// Sets if this player has ever requested that we not settle near their lands
 void CvDiplomacyAI::SetPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31036,6 +31312,7 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer, bool 
 
 	m_pabPlayerNoSettleRequestEverAsked[ePlayer] = bValue;
 }
+/// Sets if this player has ever requested that we stop spying on them
 void CvDiplomacyAI::SetPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31043,6 +31320,7 @@ void CvDiplomacyAI::SetPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer, boo
 
 	m_pabPlayerStopSpyingRequestEverAsked[ePlayer] = bValue;
 }
+/// Did this player ever make a border promise to us?
 bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31050,6 +31328,7 @@ bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 	return m_pabPlayerEverMadeBorderPromise[ePlayer];
 }
 #else
+/// Did this player ever make a border promise to us?
 bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31064,6 +31343,7 @@ bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 	}
 }
 #endif
+/// Did this player promise to stop attacking one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31071,6 +31351,7 @@ bool CvDiplomacyAI::IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer)
 	return m_pabPlayerMadeAttackCityStatePromise[ePlayer];
 }
 
+/// Sets if this player promised to stop attacking one of our protected Minors
 void CvDiplomacyAI::SetPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31078,6 +31359,7 @@ void CvDiplomacyAI::SetPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer, boo
 	m_pabPlayerMadeAttackCityStatePromise[ePlayer] = bValue;
 }
 
+/// Did this player break a promise to stop attacking one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31085,6 +31367,7 @@ bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenAttackCityStatePromise[ePlayer];
 }
 
+/// Sets if this player broke a promise to stop attacking one of our protected Minors
 void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31097,6 +31380,7 @@ void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, b
 	}
 }
 
+/// Did this player ignore our request to stop attacking one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31104,6 +31388,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredAttackCityStatePromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to stop attacking one of our protected Minors
 void CvDiplomacyAI::SetPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31111,7 +31396,7 @@ void CvDiplomacyAI::SetPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer, 
 	m_pabPlayerIgnoredAttackCityStatePromise[ePlayer] = bValue;
 }
 
-// Promise to not bully a City-State
+/// Did this player promise to stop bullying one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -31119,6 +31404,7 @@ bool CvDiplomacyAI::IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer)
 	return m_pabPlayerMadeBullyCityStatePromise[ePlayer];
 }
 
+/// Sets if this player promised to stop bullying one of our protected Minors?
 void CvDiplomacyAI::SetPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -31126,7 +31412,7 @@ void CvDiplomacyAI::SetPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer, bool
 	m_pabPlayerMadeBullyCityStatePromise[ePlayer] = bValue;
 }
 
-// Promise to not bully a City-State
+/// Did this player break a promise to stop bullying one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -31134,6 +31420,7 @@ bool CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenBullyCityStatePromise[ePlayer];
 }
 
+/// Sets if this player broke a promise to stop bullying one of our protected Minors
 void CvDiplomacyAI::SetPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -31141,7 +31428,7 @@ void CvDiplomacyAI::SetPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer, bo
 	m_pabPlayerBrokenBullyCityStatePromise[ePlayer] = bValue;
 }
 
-// Promise to not bully a City-State
+/// Did this player ignore our request to stop bullying one of our protected Minors?
 bool CvDiplomacyAI::IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -31149,6 +31436,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredBullyCityStatePromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to stop bullying one of our protected Minors
 void CvDiplomacyAI::SetPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -31156,6 +31444,7 @@ void CvDiplomacyAI::SetPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer, b
 	m_pabPlayerIgnoredBullyCityStatePromise[ePlayer] = bValue;
 }
 
+/// Did this player promise to stop spying on us?
 bool CvDiplomacyAI::IsPlayerMadeSpyPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31163,6 +31452,7 @@ bool CvDiplomacyAI::IsPlayerMadeSpyPromise(PlayerTypes ePlayer)
 	return m_pabPlayerMadeSpyPromise[ePlayer];
 }
 
+/// Sets if this player promised to stop spying on us
 void CvDiplomacyAI::SetPlayerMadeSpyPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31170,6 +31460,7 @@ void CvDiplomacyAI::SetPlayerMadeSpyPromise(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerMadeSpyPromise[ePlayer] = bValue;
 }
 
+/// Did this player break a promise to stop spying on us?
 bool CvDiplomacyAI::IsPlayerBrokenSpyPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31177,6 +31468,7 @@ bool CvDiplomacyAI::IsPlayerBrokenSpyPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenSpyPromise[ePlayer];
 }
 
+/// Sets if this player broke a promise to stop spying on us
 void CvDiplomacyAI::SetPlayerBrokenSpyPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31184,6 +31476,7 @@ void CvDiplomacyAI::SetPlayerBrokenSpyPromise(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerBrokenSpyPromise[ePlayer] = bValue;
 }
 
+/// Did this player ignore our request to stop spying on us?
 bool CvDiplomacyAI::IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31191,6 +31484,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredSpyPromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to stop spying on us
 void CvDiplomacyAI::SetPlayerIgnoredSpyPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31198,6 +31492,7 @@ void CvDiplomacyAI::SetPlayerIgnoredSpyPromise(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerIgnoredSpyPromise[ePlayer] = bValue;
 }
 
+/// Did this player forgive us for spying on them?
 bool CvDiplomacyAI::IsPlayerForgaveForSpying(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31205,6 +31500,7 @@ bool CvDiplomacyAI::IsPlayerForgaveForSpying(PlayerTypes ePlayer)
 	return m_pabPlayerForgaveForSpying[ePlayer];
 }
 
+/// Sets if this player forgave us for spying on them
 void CvDiplomacyAI::SetPlayerForgaveForSpying(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31212,7 +31508,7 @@ void CvDiplomacyAI::SetPlayerForgaveForSpying(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerForgaveForSpying[ePlayer] = bValue;
 }
 
-
+/// Did this player promise to stop converting our cities?
 bool CvDiplomacyAI::IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31220,6 +31516,7 @@ bool CvDiplomacyAI::IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer)
 	return m_pabPlayerMadeNoConvertPromise[ePlayer];
 }
 
+/// Sets if this player promised to stop converting our cities
 void CvDiplomacyAI::SetPlayerMadeNoConvertPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31227,6 +31524,7 @@ void CvDiplomacyAI::SetPlayerMadeNoConvertPromise(PlayerTypes ePlayer, bool bVal
 	m_pabPlayerMadeNoConvertPromise[ePlayer] = bValue;
 }
 
+/// Did this player break a promise to stop converting our cities?
 bool CvDiplomacyAI::IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31234,6 +31532,7 @@ bool CvDiplomacyAI::IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenNoConvertPromise[ePlayer];
 }
 
+/// Sets if this player promised to stop converting our cities
 void CvDiplomacyAI::SetPlayerBrokenNoConvertPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31241,6 +31540,7 @@ void CvDiplomacyAI::SetPlayerBrokenNoConvertPromise(PlayerTypes ePlayer, bool bV
 	m_pabPlayerBrokenNoConvertPromise[ePlayer] = bValue;
 }
 
+/// Did this player ignore our request to stop converting our cities?
 bool CvDiplomacyAI::IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31248,6 +31548,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredNoConvertPromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to stop converting our cities
 void CvDiplomacyAI::SetPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31255,6 +31556,7 @@ void CvDiplomacyAI::SetPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer, bool b
 	m_pabPlayerIgnoredNoConvertPromise[ePlayer] = bValue;
 }
 
+/// Has ePlayer asked us to stop sending missionaries and prophets to their cities?
 bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31262,6 +31564,7 @@ bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer)
 	return m_pabPlayerAskedNotToConvert[ePlayer];
 }
 
+/// Sets if ePlayer asked us to stop sending missionaries and prophets to their cities
 void CvDiplomacyAI::SetPlayerAskedNotToConvert(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31269,6 +31572,7 @@ void CvDiplomacyAI::SetPlayerAskedNotToConvert(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerAskedNotToConvert[ePlayer] = bValue;
 }
 
+/// Did we agree to stop sending missionaries and prophets to ePlayer's cities?
 bool CvDiplomacyAI::IsPlayerAgreeNotToConvert(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31276,6 +31580,7 @@ bool CvDiplomacyAI::IsPlayerAgreeNotToConvert(PlayerTypes ePlayer)
 	return m_pabPlayerAgreedNotToConvert[ePlayer];
 }
 
+/// Sets if we agreed to stop sending missionaries and prophets to ePlayer's cities
 void CvDiplomacyAI::SetPlayerAgreeNotToConvert(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31283,6 +31588,7 @@ void CvDiplomacyAI::SetPlayerAgreeNotToConvert(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerAgreedNotToConvert[ePlayer] = bValue;
 }
 
+/// Are we willing to agree to sending missionaries and prophets to ePlayer's cities?
 bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 {
 	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION");
@@ -31323,6 +31629,8 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 }
 
 /////////////////
+
+/// Did this player promise to stop digging up our artifacts?
 bool CvDiplomacyAI::IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
@@ -31332,6 +31640,7 @@ bool CvDiplomacyAI::IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer)
 	return m_pabPlayerMadeNoDiggingPromise[ePlayer];
 }
 
+/// Sets if this player promised to stop digging up our artifacts
 void CvDiplomacyAI::SetPlayerMadeNoDiggingPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31339,6 +31648,7 @@ void CvDiplomacyAI::SetPlayerMadeNoDiggingPromise(PlayerTypes ePlayer, bool bVal
 	m_pabPlayerMadeNoDiggingPromise[ePlayer] = bValue;
 }
 
+/// Did this player break a promise to stop digging up our artifacts?
 bool CvDiplomacyAI::IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31346,6 +31656,7 @@ bool CvDiplomacyAI::IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenNoDiggingPromise[ePlayer];
 }
 
+/// Sets if this player promised to stop digging up our artifacts
 void CvDiplomacyAI::SetPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31353,6 +31664,7 @@ void CvDiplomacyAI::SetPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer, bool bV
 	m_pabPlayerBrokenNoDiggingPromise[ePlayer] = bValue;
 }
 
+/// Did this player ignore our request to stop digging up our artifacts?
 bool CvDiplomacyAI::IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31360,6 +31672,7 @@ bool CvDiplomacyAI::IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer)
 	return m_pabPlayerIgnoredNoDiggingPromise[ePlayer];
 }
 
+/// Sets if this player ignored our request to stop digging up our artifacts
 void CvDiplomacyAI::SetPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31367,6 +31680,7 @@ void CvDiplomacyAI::SetPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer, bool b
 	m_pabPlayerIgnoredNoDiggingPromise[ePlayer] = bValue;
 }
 
+/// Did ePlayer ask us not to dig up their artifacts?
 bool CvDiplomacyAI::IsPlayerAskedNotToDig(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31374,6 +31688,7 @@ bool CvDiplomacyAI::IsPlayerAskedNotToDig(PlayerTypes ePlayer)
 	return m_pabPlayerAskedNotToDig[ePlayer];
 }
 
+/// Sets if ePlayer asked us not to dig up their artifacts
 void CvDiplomacyAI::SetPlayerAskedNotToDig(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31381,6 +31696,7 @@ void CvDiplomacyAI::SetPlayerAskedNotToDig(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerAskedNotToDig[ePlayer] = bValue;
 }
 
+/// Did we agree to stop digging up ePlayer's artifacts?
 bool CvDiplomacyAI::IsPlayerAgreeNotToDig(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31388,6 +31704,7 @@ bool CvDiplomacyAI::IsPlayerAgreeNotToDig(PlayerTypes ePlayer)
 	return m_pabPlayerAgreedNotToDig[ePlayer];
 }
 
+/// Sets if we agreed to stop digging up ePlayer's artifacts
 void CvDiplomacyAI::SetPlayerAgreeNotToDig(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -31395,6 +31712,7 @@ void CvDiplomacyAI::SetPlayerAgreeNotToDig(PlayerTypes ePlayer, bool bValue)
 	m_pabPlayerAgreedNotToDig[ePlayer] = bValue;
 }
 
+/// Are we willing to agree to stop digging up ePlayer's artifacts?
 bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 {
 	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE");
@@ -31435,6 +31753,7 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 }
 
 /////////////////
+/// Did this player break a coop war promise to us?
 bool CvDiplomacyAI::IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31442,6 +31761,7 @@ bool CvDiplomacyAI::IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer)
 	return m_pabPlayerBrokenCoopWarPromise[ePlayer];
 }
 
+/// Sets if this player broke a coop war promise to us
 void CvDiplomacyAI::SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31449,7 +31769,7 @@ void CvDiplomacyAI::SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bVal
 	m_pabPlayerBrokenCoopWarPromise[ePlayer] = bValue;
 }
 
-/// Returned civilians?
+/// How many civilians has this player returned to us?
 int CvDiplomacyAI::GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31458,7 +31778,7 @@ int CvDiplomacyAI::GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const
 	return m_paiNumCiviliansReturnedToMe[ePlayer];
 }
 
-/// Returned civilians?
+/// Changes how many players this player has returned to us
 void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31509,7 +31829,7 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-/// Built a landmark?
+/// On what turn did this player most recently return a civilian to us?
 int CvDiplomacyAI::GetCiviliansReturnedToMeTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31518,7 +31838,7 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeTurn(PlayerTypes ePlayer) const
 	return m_paiCiviliansReturnedToMeTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently returned a civilian to us
 void CvDiplomacyAI::SetCiviliansReturnedToMeTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31527,7 +31847,7 @@ void CvDiplomacyAI::SetCiviliansReturnedToMeTurn(PlayerTypes ePlayer, int iChang
 	m_paiCiviliansReturnedToMeTurn[ePlayer] = iChange;
 }
 
-/// Built a landmark?
+/// On what turn did this player most recently liberate one of our cities?
 int CvDiplomacyAI::GetLiberatedCitiesTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31536,7 +31856,7 @@ int CvDiplomacyAI::GetLiberatedCitiesTurn(PlayerTypes ePlayer) const
 	return m_paiLiberatedCitiesTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently liberated one of our cities
 void CvDiplomacyAI::SetLiberatedCitiesTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31545,7 +31865,7 @@ void CvDiplomacyAI::SetLiberatedCitiesTurn(PlayerTypes ePlayer, int iChange)
 	m_paiLiberatedCitiesTurn[ePlayer] = iChange;
 }
 
-/// Built a landmark?
+/// On what turn did this player most recently forgive us for spying?
 int CvDiplomacyAI::GetForgaveForSpyingTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31554,7 +31874,7 @@ int CvDiplomacyAI::GetForgaveForSpyingTurn(PlayerTypes ePlayer) const
 	return m_paiPlayerForgaveForSpyingTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently forgave us for spying
 void CvDiplomacyAI::SetForgaveForSpyingTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31563,7 +31883,7 @@ void CvDiplomacyAI::SetForgaveForSpyingTurn(PlayerTypes ePlayer, int iChange)
 	m_paiPlayerForgaveForSpyingTurn[ePlayer] = iChange;
 }
 
-/// Built a landmark?
+/// On what turn did this player most recently share intrigue with us?
 int CvDiplomacyAI::GetIntrigueSharedTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31572,7 +31892,7 @@ int CvDiplomacyAI::GetIntrigueSharedTurn(PlayerTypes ePlayer) const
 	return m_paiIntrigueSharedTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently shared intrigue with us
 void CvDiplomacyAI::SetIntrigueSharedTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31581,7 +31901,7 @@ void CvDiplomacyAI::SetIntrigueSharedTurn(PlayerTypes ePlayer, int iChange)
 	m_paiIntrigueSharedTurn[ePlayer] = iChange;
 }
 
-/// Built a landmark?
+/// On what turn did this player most recently convert one of our cities?
 int CvDiplomacyAI::GetReligiousConversionTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31590,7 +31910,7 @@ int CvDiplomacyAI::GetReligiousConversionTurn(PlayerTypes ePlayer) const
 	return m_paiReligiousConversionTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently converted one of our cities
 void CvDiplomacyAI::SetReligiousConversionTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31599,7 +31919,7 @@ void CvDiplomacyAI::SetReligiousConversionTurn(PlayerTypes ePlayer, int iChange)
 	m_paiReligiousConversionTurn[ePlayer] = iChange;
 }
 
-/// Built a landmark?
+/// On what turn did this player most recently steal from us?
 int CvDiplomacyAI::GetRobbedTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31608,7 +31928,7 @@ int CvDiplomacyAI::GetRobbedTurn(PlayerTypes ePlayer) const
 	return m_paiTimesRobbedTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently stole from us
 void CvDiplomacyAI::SetRobbedTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31617,7 +31937,7 @@ void CvDiplomacyAI::SetRobbedTurn(PlayerTypes ePlayer, int iChange)
 	m_paiTimesRobbedTurn[ePlayer] = iChange;
 }
 #endif
-/// Built a landmark?
+/// How many landmarks has this player built in my territory?
 int CvDiplomacyAI::GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31626,7 +31946,7 @@ int CvDiplomacyAI::GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const
 	return m_paiNumLandmarksBuiltForMe[ePlayer];
 }
 
-/// Built a landmark?
+/// Changes how many landmarks have been built by ePlayer in my territory
 void CvDiplomacyAI::ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31639,7 +31959,7 @@ void CvDiplomacyAI::ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChang
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-/// Built a landmark?
+/// On what turn did this player most recently build a landmark for me? 
 int CvDiplomacyAI::GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31648,7 +31968,7 @@ int CvDiplomacyAI::GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const
 	return m_paiNumLandmarksBuiltForMeTurn[ePlayer];
 }
 
-/// Built a landmark?
+/// Sets on what turn this player most recently built a landmark for me
 void CvDiplomacyAI::SetLandmarksBuiltForMeTurn(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31658,7 +31978,7 @@ void CvDiplomacyAI::SetLandmarksBuiltForMeTurn(PlayerTypes ePlayer, int iChange)
 }
 #endif
 
-/// Brought player back to life?
+/// Did ePlayer bring us back to life?
 bool CvDiplomacyAI::WasResurrectedBy(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31667,6 +31987,7 @@ bool CvDiplomacyAI::WasResurrectedBy(PlayerTypes ePlayer) const
 	return m_paiResurrectedOnTurn[ePlayer] != -1;
 }
 
+/// Did ePlayer bring us back to life on this turn?
 bool CvDiplomacyAI::WasResurrectedThisTurnBy(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31674,6 +31995,7 @@ bool CvDiplomacyAI::WasResurrectedThisTurnBy(PlayerTypes ePlayer) const
 	return m_paiResurrectedOnTurn[ePlayer] == GC.getGame().getGameTurn();
 }
 
+/// Sets if this player brought us back to life
 void CvDiplomacyAI::SetResurrectedBy(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31688,7 +32010,7 @@ void CvDiplomacyAI::SetResurrectedBy(PlayerTypes ePlayer, bool bValue)
 	}
 }
 
-/// Culture Bombed?
+/// How many times has this player stolen our territory?
 int CvDiplomacyAI::GetNumTimesCultureBombed(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31697,7 +32019,7 @@ int CvDiplomacyAI::GetNumTimesCultureBombed(PlayerTypes ePlayer) const
 	return m_paiNumTimesCultureBombed[ePlayer];
 }
 
-/// Culture Bombed?
+/// Sets how many times this player has stolen our territory
 void CvDiplomacyAI::ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31710,7 +32032,7 @@ void CvDiplomacyAI::ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange
 	}
 }
 
-/// Amount of dug up sites?
+/// How many times has this player dug up our artifacts?
 int CvDiplomacyAI::GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
@@ -31720,6 +32042,7 @@ int CvDiplomacyAI::GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const
 	return iRtnValue;
 }
 
+/// Sets how many times this player has dug up our artifacts
 void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31745,7 +32068,7 @@ void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iCh
 
 
 
-/// Converted religion of my cities?
+/// How many times has this player converted the religion of our cities? (if we care)
 int CvDiplomacyAI::GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31754,7 +32077,7 @@ int CvDiplomacyAI::GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) con
 	return m_paiNegativeReligiousConversionPoints[ePlayer];
 }
 
-/// Converted religion of my cities?
+/// Changes how many times this player has converted the religion of our cities (if we care)
 void CvDiplomacyAI::ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31767,6 +32090,7 @@ void CvDiplomacyAI::ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer,
 	}
 }
 #if defined(MOD_BALANCE_CORE)
+/// How many times has this player razed one of our cities?
 int CvDiplomacyAI::GetNumTimesRazed(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31775,7 +32099,7 @@ int CvDiplomacyAI::GetNumTimesRazed(PlayerTypes ePlayer) const
 	return m_paiNumTimesRazed[ePlayer];
 }
 
-/// Razed?
+/// Changes how many times this player has razed one of our cities
 void CvDiplomacyAI::ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31788,7 +32112,7 @@ void CvDiplomacyAI::ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange)
 	}
 }
 #endif
-/// Nuked?
+/// How many times has this player nuked us?
 int CvDiplomacyAI::GetNumTimesNuked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -31797,7 +32121,7 @@ int CvDiplomacyAI::GetNumTimesNuked(PlayerTypes ePlayer) const
 	return m_paiNumTimesNuked[ePlayer];
 }
 
-/// Nuked?
+/// Changes how many times this player has nuked us
 void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31810,7 +32134,7 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	}
 }
 
-/// Robbed by?
+/// How many times has this player robbed us?
 int CvDiplomacyAI::GetNumTimesRobbedBy(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -31819,7 +32143,7 @@ int CvDiplomacyAI::GetNumTimesRobbedBy(PlayerTypes ePlayer) const
 	return m_paiNumTimesRobbedBy[ePlayer];
 }
 
-/// Robbed by?
+/// Changes how many times this player has robbed us
 void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -31837,7 +32161,7 @@ void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 	}
 }
 
-/// Intrigue was shared by the player?
+/// How many times has this player shared intrigue with us?
 int CvDiplomacyAI::GetNumTimesIntrigueSharedBy(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -31846,7 +32170,7 @@ int CvDiplomacyAI::GetNumTimesIntrigueSharedBy(PlayerTypes ePlayer) const
 	return m_paiNumTimesIntrigueSharedBy[ePlayer];
 }
 
-/// Intrigue was shared by the player?
+/// Changes how many times this player shared intrigue with us
 void CvDiplomacyAI::ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iChange)
 {
 	if(iChange != 0)
@@ -32022,10 +32346,10 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 	if(iOpinionWeight != 0)
 	{
 		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
-		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= iTurn)
+		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > iTurn)
 		{
 			iOpinionWeight /= 2;
-			if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= (iTurn * 2))
+			if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > (iTurn * 2))
 			{
 				iOpinionWeight = 0;
 			}
@@ -32282,9 +32606,9 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 {
 #if defined(MOD_BALANCE_CORE)
 	int iOpinionWeight = 0;
-	int iNumCivs = GetNumTimesIntrigueSharedBy(ePlayer);
-#if defined(MOD_BALANCE_CORE)
-	if(iNumCivs > 0)
+	int iNumIntrigue = GetNumTimesIntrigueSharedBy(ePlayer);
+
+	if(iNumIntrigue > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
 		if((GC.getGame().getGameTurn() - GetIntrigueSharedTurn(ePlayer)) > iTurn)
@@ -32293,19 +32617,19 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 			SetIntrigueSharedTurn(ePlayer, GC.getGame().getGameTurn());
 		}
 	}
-#endif
-	if (iNumCivs > 0)
+
+	if (iNumIntrigue > 0)
 	{
-		if(iNumCivs >= 3)
+		if(iNumIntrigue >= 3)
 		{
-			iNumCivs = 3;
+			iNumIntrigue = 3;
 		}
 		// Full credit for first one
 		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
 		// Partial credit for any after first
-		if (iNumCivs > 1)
+		if (iNumIntrigue > 1)
 		{
-			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 3) * (iNumCivs - 1));
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 3) * (iNumIntrigue - 1));
 		}
 	}
 #else
@@ -32328,11 +32652,8 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broken military promise with us?
-	if(IsPlayerBrokenMilitaryPromise(ePlayer))
-	{
-	}
-	else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise())
+	// Don't add this if they broke a military promise with US
+	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise() && !IsPlayerBrokenMilitaryPromise(ePlayer))
 	{
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
 	}
@@ -32343,16 +32664,8 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broken military promise with us?
-	if(IsPlayerBrokenMilitaryPromise(ePlayer))
-	{
-
-	}
-	else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise())
-	{
-
-	}
-	else if(IsPlayerIgnoredMilitaryPromise(ePlayer))
+	// Don't add this if they broke a military promise with anyone
+	if(IsPlayerIgnoredMilitaryPromise(ePlayer) && !IsPlayerBrokenMilitaryPromise(ePlayer) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise())
 	{
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_IGNORED_MILITARY_PROMISE();
 	}
@@ -32713,7 +33026,8 @@ int CvDiplomacyAI::GetOpenBordersScore(PlayerTypes ePlayer)
 	}
 	return iOpinionWeight;
 }
-//What are our opinions of this player's neigbors?
+
+/// What are our opinions of this player's neigbors?
 MajorCivOpinionTypes CvDiplomacyAI::GetNeighborOpinion(PlayerTypes ePlayer) const
 {
 	if(ePlayer == NO_PLAYER)
@@ -33393,7 +33707,7 @@ int CvDiplomacyAI::GetScenarioModifier3(PlayerTypes ePlayer)
 // Miscellaneous
 /////////////////////////////////////////////////////////
 
-/// Will this player liberate a Minor's City that is now owns?
+/// Will this player liberate a Minor's City that it now owns?
 bool CvDiplomacyAI::DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID)
 {
 	bool bLiberate = false;
@@ -33466,7 +33780,7 @@ bool CvDiplomacyAI::IsGoingForWorldConquest()
 	return false;
 }
 
-/// Does this player want to win by diplo?
+/// Does this player want to win by diplomacy?
 bool CvDiplomacyAI::IsGoingForDiploVictory()
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
@@ -33482,7 +33796,7 @@ bool CvDiplomacyAI::IsGoingForDiploVictory()
 	return false;
 }
 
-/// Does this player want to win by diplo?
+/// Does this player want to win by culture?
 bool CvDiplomacyAI::IsGoingForCultureVictory()
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
@@ -33498,6 +33812,7 @@ bool CvDiplomacyAI::IsGoingForCultureVictory()
 	return false;
 }
 
+/// Does this player want to win by science?
 bool CvDiplomacyAI::IsGoingForSpaceshipVictory()
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
@@ -33513,6 +33828,7 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory()
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Is this player close to a science victory?
 bool CvDiplomacyAI::IsCloseToSSVictory()
 {
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
@@ -33529,8 +33845,6 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 		iTotalTechs /= 100;
 
 		int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
-		iTotalTechs *= 90;
-		iTotalTechs /= 100;
 		
 		if (iOurTechs >= iTotalTechs)
 		{
@@ -33566,6 +33880,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 
 	return false;
 }
+/// Is this player close to a domination victory?
 bool CvDiplomacyAI::IsCloseToDominationVictory()
 {
 	int iNumCivs = GetPlayer()->GetFractionOriginalCapitalsUnderControl();
@@ -33574,6 +33889,7 @@ bool CvDiplomacyAI::IsCloseToDominationVictory()
 
 	return false;
 }
+/// Is this player close to a cultural victory?
 bool CvDiplomacyAI::IsCloseToCultureVictory()
 {
 	int iNumCivsInfluential = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
@@ -33607,6 +33923,7 @@ bool CvDiplomacyAI::IsCloseToCultureVictory()
 	}
 	return false;
 }
+/// Is this player close to a diplomatic victory?
 bool CvDiplomacyAI::IsCloseToDiploVictory()
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -33614,6 +33931,8 @@ bool CvDiplomacyAI::IsCloseToDiploVictory()
 	{
 		int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
 		int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+		iVotesNeededToWin *= 75;
+		iVotesNeededToWin /= 100;
 		if(iVotes >= iVotesNeededToWin)
 		{
 			return true;
@@ -33623,7 +33942,7 @@ bool CvDiplomacyAI::IsCloseToDiploVictory()
 }
 #endif
 
-/// Helper function: is this a valid player to be looking at?  (e.g. are they alive, do we know them, etc.)
+/// Helper function: is this a valid player to be looking at? (e.g. are they alive, do we know them, etc.)
 bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ )
 {
 	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -34412,7 +34731,7 @@ bool CvDiplomacyAI::IsDeclarationLogForIndexActive(int iIndex)
 	return m_paDeclarationsLog[iIndex].m_bActive;
 }
 
-// Make Declaration invalid (so that it doesn't appear for new players we meet, for example)
+/// Make Declaration invalid (so that it doesn't appear for new players we meet, for example)
 void CvDiplomacyAI::DoMakeDeclarationInactive(PublicDeclarationTypes eDeclaration, int iData1, int iData2)
 {
 	CvAssertMsg(eDeclaration >= 0, "DIPLOMACY_AI: Invalid PublicDeclarationType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -34514,6 +34833,7 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType, PlayerTypes eOtherPlayer)
 	return pTargetDeal;
 }
 
+/// Clear deal to renew
 void CvDiplomacyAI::ClearDealToRenew()
 {
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
@@ -34853,7 +35173,7 @@ void CvDiplomacyAI::LogDoF(PlayerTypes ePlayer)
 	}
 }
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-/// Log Dof Broken with a player
+/// Log DoF Broken with a player
 void CvDiplomacyAI::LogBrokenDoF(PlayerTypes ePlayer)
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -35168,7 +35488,7 @@ void CvDiplomacyAI::LogWantRA(PlayerTypes ePlayer)
 	}
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
-/// Log player wanting a RA
+/// Log player wanting a DP
 void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -35213,7 +35533,7 @@ void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 }
 #endif
 
-/// Log Opinion Update
+/// Log Major Civ Opinion Update
 void CvDiplomacyAI::LogOpinionUpdate(PlayerTypes ePlayer, std::vector<int>& viOpinionValues)
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -35431,6 +35751,7 @@ void CvDiplomacyAI::LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApp
 	}
 }
 #endif
+/// Log Major Civ Warmonger Threat update
 void CvDiplomacyAI::LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, bool bUpdateLogsSpecial)
 {
 	if (GC.getLogging() && GC.getAILogging())
@@ -35756,7 +36077,7 @@ void CvDiplomacyAI::LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 	}
 }
 
-// Log the Personality of this player (Flavors & Personality Traits)
+/// Log the Personality of this player (Flavors & Personality Traits)
 void CvDiplomacyAI::LogPersonality()
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -36343,7 +36664,7 @@ void CvDiplomacyAI::LogStatements()
 	}
 }
 
-/// Log our guess as to another player's Expansion Flavor preference
+/// Log our guess as to another player's Expansion Flavor
 void CvDiplomacyAI::LogOtherPlayerExpansionGuess(PlayerTypes ePlayer, int iGuess)
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -36386,7 +36707,7 @@ void CvDiplomacyAI::LogOtherPlayerExpansionGuess(PlayerTypes ePlayer, int iGuess
 	}
 }
 
-/// Log our guesses as to what other Players are up to
+/// Log our guesses as to what other players are up to
 void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 {
 	if((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
@@ -36481,7 +36802,7 @@ void CvDiplomacyAI::LogOtherPlayerGuessStatus()
 					// Don't check a player against himself
 					if(eLoopPlayer != eLoopOtherPlayer)
 					{
-						// Do both we and the guy we're looking about know the third guy?
+						// Do both we and the guy we're looking at know the third guy?
 						if(IsPlayerValid(eLoopOtherPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
 						{
 							thirdPlayerName = GET_PLAYER(eLoopOtherPlayer).getCivilizationShortDescription();
@@ -39008,7 +39329,7 @@ void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatement
 		}
 	}
 }
-/// Possible Contact Statement
+/// Possible Contact Statement - Vassal taxes have been raised
 void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -39056,7 +39377,7 @@ void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploState
 		}
 	}
 }
-/// Possible Contact Statement
+/// Possible Contact Statement - Vassal taxes have been lowered
 void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -39105,7 +39426,7 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 		}
 	}
 }
-/// Possible Contact Statement
+/// Possible Contact Statement - Vassal has been liberated
 void CvDiplomacyAI::DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -39130,7 +39451,7 @@ void CvDiplomacyAI::DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatem
 	}
 }
 
-// Do we want to liberate ePlayer's team?
+/// Do we want to liberate ePlayer's team?
 bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -39209,7 +39530,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 			if(pVassal->GetDiplomacyAI()->IsDenouncedPlayer(pMaster->GetID()))
 				return false;
 
-			// we denounce them?
+			// Did we denounce them?
 			if(pMaster->GetDiplomacyAI()->IsDenouncedPlayer(pVassal->GetID()))
 				return false;
 
@@ -39423,7 +39744,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 
 	int iDominanceOverVassal = eMasterInfluence - eVassalInfluence;
 
-	// someone is pretty dominant over vassal (not too much of a modifier, but helps our chasnces of liberation)
+	// someone is pretty dominant over vassal (not too much of a modifier, but helps our chances of liberation)
 	if(iDominanceOverVassal > 0)
 	{
 		iScoreForLiberate *= 120;
@@ -39455,7 +39776,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	return (iScoreForLiberate > 100);
 }
 
-/// Possible Contact Statement
+/// Possible Contact Statement - Third-party offer for ePlayer to liberate their vassals
 void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -39498,7 +39819,7 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 	if(GET_TEAM(GetPlayer()->getTeam()).isHuman() || GetPlayer()->IsAITeammateOfHuman())
 		return false;
 
-	// Split this function into two evaluations, capitulation (war) and voluntary (voluntary)
+	// Split this function into two evaluations, capitulation (war) and voluntary (peace)
 	if(bWar)
 	{
 		return IsCapitulationAcceptable(ePlayer);
@@ -39509,7 +39830,7 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bWar)
 	}
 }
 
-// Do we want to capitulate due to war to ePlayer?
+/// Do we want to capitulate to ePlayer due to war?
 bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 {
 	TeamTypes eOurTeam = GetPlayer()->getTeam();
@@ -39635,7 +39956,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	return (iWantVassalageScore > iThreshold);
 }
 
-// Do we want to voluntarily become ePlayer's vassal?
+/// Do we want to voluntarily become ePlayer's vassal?
 bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 {
 	TeamTypes eOurTeam = GetPlayer()->getTeam();
@@ -39660,7 +39981,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if (GetPlayer()->IsAtWar())
 		return false;
 	
-	// Don't become vassal if we're diplo and UN is available
+	// Don't become vassal if we're going for diplo victory and UN is available
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
 	{
 		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
@@ -39935,7 +40256,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	return (iWantVassalageScore > iThreshold);
 }
 
-// Are we done being ePlayer's vassal, and now want to end it?
+/// Are we done being ePlayer's vassal, and now want to end it?
 bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 {
 	CvAssertMsg(IsVassal(ePlayer), "Diplomacy AI: Testing whether we should End Vassalage with someone, but we aren't right now. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -39955,7 +40276,7 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).IsVassalsNoRebel())
 		return false;
 
-	// If UN is in session, end vassalage ASAP if going for diplo
+	// If UN is in session, end vassalage ASAP if going for diplo victory
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
 	{
 		if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
@@ -40045,7 +40366,7 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	iChance *= (100 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true) * 20);
 	iChance /= 100;
 
-	// Master losing all of us wars at the moment - not protecting us
+	// Master is losing all of our wars at the moment - not protecting us
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
 		iChance *= 500;
@@ -40184,6 +40505,7 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Possible Contact Statement - We're done being ePlayer's vassal
 void CvDiplomacyAI::DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40207,7 +40529,7 @@ void CvDiplomacyAI::DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementT
 	}
 }
 
-/// Possible Contact Statement - Maps
+/// Possible Contact Statement - World Map
 void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40261,7 +40583,7 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 	}
 }
 
-/// Possible Contact Statement - Technology
+/// Possible Contact Statement - Purchase technology
 void CvDiplomacyAI::DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40353,6 +40675,7 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 		}
 	}
 }
+/// Is this AI offering a gift to ePlayer?
 bool CvDiplomacyAI::IsOfferingGift(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40360,6 +40683,7 @@ bool CvDiplomacyAI::IsOfferingGift(PlayerTypes ePlayer) const
 	return m_pabOfferingGift[ePlayer];
 }
 
+/// Sets if this AI is offering a gift to ePlayer
 void CvDiplomacyAI::SetOfferingGift(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40371,6 +40695,7 @@ void CvDiplomacyAI::SetOfferingGift(PlayerTypes ePlayer, bool bValue)
 	}
 }
 
+/// Did this AI offer a gift to ePlayer?
 bool CvDiplomacyAI::IsOfferedGift(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40378,6 +40703,7 @@ bool CvDiplomacyAI::IsOfferedGift(PlayerTypes ePlayer) const
 	return m_pabOfferedGift[ePlayer];
 }
 
+/// Sets if this AI offered a gift to ePlayer
 void CvDiplomacyAI::SetOfferedGift(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40388,7 +40714,8 @@ void CvDiplomacyAI::SetOfferedGift(PlayerTypes ePlayer, bool bValue)
 		m_pabOfferedGift[ePlayer] = bValue;
 	}
 }
-/// Does this AI want something?
+
+/// Does this AI want to purchase a technology?
 bool CvDiplomacyAI::IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias)
 {
 	iWeightBias = 0;
@@ -40457,6 +40784,7 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Do we want to make a generous offer to ePlayer?
 bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed)
 {
 	bool bFriendly = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true) == MAJOR_CIV_APPROACH_FRIENDLY;
@@ -40502,6 +40830,7 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 	return false;
 }
 
+/// Do we want to make a gift of gold to ePlayer?
 bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 {
 	int iOurGold = GetPlayer()->GetTreasury()->GetGold();
@@ -40509,7 +40838,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	int iOurExpenses = GetPlayer()->GetTreasury()->CalculateInflatedCosts();
 	int iOurGrossIncome = iOurGPT + iOurExpenses;
 
-	// If we have no expenses, don't ask (and also don't crash)
+	// If we have no expenses, don't offer (and also don't crash)
 	if(iOurExpenses == 0)
 		return false;
 
@@ -40517,7 +40846,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	if(iOurGold < 100)
 		return false;
 
-	// If we're not making 35% more than we're spending then don't ask, we're not doing alright
+	// If we're not making 35% more than we're spending then don't offer, we're not doing alright
 	if(iOurGrossIncome * 100 / iOurExpenses < 135)
 		return false;
 
@@ -40529,7 +40858,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	// Don't divide by zero please
 	if(iTheirExpenses != 0)
 	{
-		// If they're making more than 35% more than they're spending then don't ask, they're in good shape
+		// If they're making more than 35% more than they're spending then don't offer, they're in good shape
 		if(iTheirGrossIncome * 100 / iTheirExpenses > 135)
 			return false;
 	}
@@ -40570,6 +40899,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	return true;
 }
 
+/// Do we want to gift a luxury to ePlayer?
 bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 {
 	ResourceTypes eLuxuryToOffer = NO_RESOURCE;
@@ -40636,6 +40966,7 @@ bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	return true;
 }
 
+/// Do we want to gift a technology to ePlayer?
 bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 {
 	TechTypes eTechToOffer = NO_TECH;
@@ -40674,7 +41005,7 @@ bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	return true;
 }
 
-/// Are we willing to share opinion with ePlayer?
+/// Are we willing to share our opinion of other players with ePlayer?
 bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 {
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
@@ -40684,6 +41015,7 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	if(IsVassal(ePlayer))
 		return true;
 
+    // Teammates
 	if(GetTeam() == GET_PLAYER(ePlayer).getTeam())
 	{
 		return true;
@@ -40716,12 +41048,12 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	if(IsTooEarlyForShareOpinion(ePlayer))
 		return false;
 	
-	// If player is unforgivable, always say no
+	// If player is unforgivable or an enemy, always say no
 	if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE ||
 		eOpinion == MAJOR_CIV_OPINION_ENEMY)
 		return false;
 
-	// Has there been a denouncement either direction?
+	// Has there been a denouncement in either direction?
 	if(IsDenouncedPlayer(ePlayer))
 		return false;
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
@@ -40790,12 +41122,12 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	return false;
 }
 
-/// AI won't agree to Share Opinions until they've known a player for at least a few turns.
+/// AI won't agree to share Opinions until they've known a player for at least a few turns.
 bool CvDiplomacyAI::IsTooEarlyForShareOpinion(PlayerTypes ePlayer)
 {
 	int iShareOpinionBuffer = /*20*/ GC.getSHARE_OPINION_TURN_BUFFER();
 
-	// Teammates never too early to share opinion
+	// Never too early for teammates to share opinion
 	if(GET_PLAYER(ePlayer).getTeam() == GetTeam())
 	{
 		return false;
@@ -40964,7 +41296,7 @@ int CvDiplomacyAI::GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) c
 	return iOpinionWeight;
 }
 
-// Opinion weight change based on being vassal
+/// Opinion weight change based on being vassal
 int CvDiplomacyAI::GetVassalScore(PlayerTypes ePlayer) const
 {
 	if(!IsVassal(ePlayer)) return 0;
@@ -40976,7 +41308,7 @@ int CvDiplomacyAI::GetVassalScore(PlayerTypes ePlayer) const
 	return iOpinionWeight;
 }
 
-// Get how we think ePlayer has treated us as our master
+/// Get how we think ePlayer has treated us as our master
 VassalTreatmentTypes CvDiplomacyAI::GetVassalTreatmentLevel(PlayerTypes ePlayer) const
 {
 	if(!IsVassal(ePlayer))
@@ -40996,7 +41328,7 @@ VassalTreatmentTypes CvDiplomacyAI::GetVassalTreatmentLevel(PlayerTypes ePlayer)
 		return VASSAL_TREATMENT_ENSLAVED;
 }
 
-// Tooltip for GetVassalTreatmentLevel()
+/// Tooltip for GetVassalTreatmentLevel()
 CvString CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer) const
 {
 	CvString szRtnValue = "";
@@ -41047,7 +41379,7 @@ CvString CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer) const
 	return szRtnValue;
 }
 
-// Opinion weight change based on how well we've been treated by our master
+/// Opinion weight change based on how well we've been treated by our master
 int CvDiplomacyAI::GetVassalTreatedScore(PlayerTypes ePlayer) const
 {
 	if(!IsVassal(ePlayer)) return 0;
@@ -41303,7 +41635,7 @@ int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer) const
 	return iOpinionWeight;
 }
 
-// Returns value of vassal protection given
+/// Returns value of vassal protection given
 int CvDiplomacyAI::GetVassalProtectValue(PlayerTypes ePlayer) const
 {
 	return m_paiPlayerVassalageProtectValue[(int)ePlayer];
@@ -41353,13 +41685,13 @@ void CvDiplomacyAI::ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iCha
 	}
 }
 
-// Returns value of failed vassal protection
+/// Returns value of failed vassal protection
 int CvDiplomacyAI::GetVassalFailedProtectValue(PlayerTypes ePlayer) const
 {
 	return m_paiPlayerVassalageFailedProtectValue[(int)ePlayer];
 }
 
-// Returns if we've peacefully revoked vassalage (and they agreed)
+/// Returns if we've peacefully revoked vassalage (and they agreed)
 bool CvDiplomacyAI::IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -41395,7 +41727,7 @@ int CvDiplomacyAI::GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePla
 	return iOpinionWeight;
 }
 
-// Returns if we've forcefully revoked vassalage
+/// Returns if we've forcefully revoked vassalage
 bool CvDiplomacyAI::IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -41500,7 +41832,7 @@ void CvDiplomacyAI::ChangeTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlay
 	SetTurnsSinceVassalageForcefullyRevoked(ePlayer, GetTurnsSinceVassalageForcefullyRevoked(ePlayer) + iChange);
 }
 
-// eMasterTeam has changed our taxes
+/// eMasterTeam has changed our taxes
 void CvDiplomacyAI::DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered)
 {
 	if(!GET_TEAM(GetPlayer()->getTeam()).IsVassal(eMasterTeam))
@@ -41519,7 +41851,7 @@ void CvDiplomacyAI::DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered
 	}
 }
 
-// eMasterTeam became our master
+/// eMasterTeam became our master
 void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVoluntary)
 {
 //	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -41550,6 +41882,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						
 						SetPlayerNoSettleRequestCounter(eOtherTeamPlayer, -1);
 						SetPlayerStopSpyingRequestCounter(eOtherTeamPlayer, -1);
+#if defined(MOD_BALANCE_CORE)
+						SetNumDemandEverMade(eOtherTeamPlayer, -GetNumDemandEverMade(eOtherTeamPlayer));
+#endif
 						SetDemandCounter(eOtherTeamPlayer, -1);
 						ChangeNumTimesCultureBombed(eOtherTeamPlayer, -GetNumTimesCultureBombed(eOtherTeamPlayer));
 						ChangeNegativeReligiousConversionPoints(eOtherTeamPlayer, -GetNegativeReligiousConversionPoints(eOtherTeamPlayer));
@@ -41613,7 +41948,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 					SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);
 
 					PlayerTypes eThirdPartyPlayer;	// player we were planning with
-					PlayerTypes eThirdPartyTarget;	// player we were targetting
+					PlayerTypes eThirdPartyTarget;	// player we were targeting
 					for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 					{
 						eThirdPartyPlayer = (PlayerTypes) iThirdPartyLoop;
@@ -41621,7 +41956,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						{
 							eThirdPartyTarget = (PlayerTypes) iThirdPartyTarget;
 							
-							// Reset our coop war counters with every player because as a vassal we shouldn't be in cohoots with anyone
+							// Reset our coop war counters with every player because as a vassal we shouldn't be in cahoots with anyone
 							if(GetCoopWarAcceptedState(eThirdPartyPlayer, eThirdPartyTarget) != NO_COOP_WAR_STATE)
 							{
 								SetCoopWarAcceptedState(eThirdPartyPlayer, eThirdPartyTarget, NO_COOP_WAR_STATE);
@@ -41662,7 +41997,7 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 	}
 }
 
-// We are liberated by a master
+/// We are liberated by a master
 void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 {
 	CvAssertMsg(eTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -41708,7 +42043,7 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 	}
 }
 
-// How does ePlayer think the world is going?
+/// How does ePlayer think the world is going?
 //GlobalStateTypes CvDiplomacyAI::GetGlobalState(PlayerTypes ePlayer) const
 //{
 //	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -41850,7 +42185,7 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 	*/
 //}
 
-// What do we think of our situation with ePlayer?
+/// What do we think of our situation with ePlayer?
 //void CvDiplomacyAI::DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer)
 //{
 
@@ -42133,7 +42468,7 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 	//SetGlobalState(ePlayer, eGlobalState);
 //}
 
-// Determine tax rates for a player, if we can
+/// Determine tax rates for all vassals, if we can
 void CvDiplomacyAI::DoDetermineTaxRateForVassals()
 {
 	PlayerTypes eLoopPlayer;
@@ -42155,7 +42490,7 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassals()
 	}
 }
 
-// Determine how much we are going to tax this player, if we can
+/// Determine how much we are going to tax this player, if we can
 void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 {
 	// Must be able to set taxes for player
@@ -42482,7 +42817,7 @@ int CvDiplomacyAI::GetNumVassals(PlayerTypes eOtherPlayer) const
 //}
 
 // Version 9
-// Is moving our troops from ePlayer's lands acceptable
+/// Is moving our troops from ePlayer's lands acceptable?
 int CvDiplomacyAI::IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJustChecking)
 {
 	// Create a small enum to handle the responses

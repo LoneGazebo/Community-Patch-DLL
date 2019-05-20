@@ -362,6 +362,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeCityWorkingChange);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(GetRemainingFreeSpecialists);
 	Method(GetTheoreticalUnhappinessDecrease);
 	Method(GetStaticTechDeviation);
 	Method(getPopThresholdMod);
@@ -3695,6 +3696,14 @@ int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+int CvLuaCity::lGetRemainingFreeSpecialists(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iCapital = pkCity->isCapital() ? GET_PLAYER(pkCity->getOwner()).GetNoUnhappfromXSpecialistsCapital() : 0;
+	int iTotalSpecialists = (pkCity->GetNoUnhappfromXSpecialists() + GET_PLAYER(pkCity->getOwner()).GetNoUnhappfromXSpecialists() + iCapital) - pkCity->GetCityCitizens()->GetTotalSpecialistCount();
+	lua_pushinteger(L, iTotalSpecialists);
+	return 1;
+}
 int CvLuaCity::lGetTheoreticalUnhappinessDecrease(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);

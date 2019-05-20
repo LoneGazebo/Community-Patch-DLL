@@ -16318,6 +16318,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
 		}
 #endif
+		if (iTotalMod <= -100)
+			return 0;
 
 		iDifference *= iTotalMod;
 		iDifference /= 100;
@@ -20794,9 +20796,6 @@ int CvCity::getUnhappinessAggregated() const
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iNegativeHappiness += iContribution;
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(iSpecialists);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iNegativeHappiness += iContribution;
 	iLimit -= iContribution;
@@ -20819,6 +20818,9 @@ int CvCity::getUnhappinessAggregated() const
 	iNegativeHappiness += iContribution;
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromCultureRaw(iLimit);
+	iNegativeHappiness += iContribution;
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(iSpecialists);
 	iNegativeHappiness += iContribution;
 
 	return iNegativeHappiness;
@@ -21322,9 +21324,6 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	int iEmpireUnhappy = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iNegativeHappiness += iEmpireUnhappy;
 	iLimit -= iEmpireUnhappy;
-	int iSpecialistUnhappy = getUnhappinessFromSpecialists(iSpecialists);
-	iNegativeHappiness += iSpecialistUnhappy;
-	iLimit -= iSpecialistUnhappy;
 	int iStarvingUnhappy = getUnhappinessFromStarvingRaw(iLimit);
 	iNegativeHappiness += iStarvingUnhappy;
 	iLimit -= iStarvingUnhappy;
@@ -21348,6 +21347,9 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	iLimit -= iSciUnhappy;
 	int iCulUnhappy = getUnhappinessFromCultureRaw(iLimit);
 	iNegativeHappiness += iCulUnhappy;
+	iLimit -= iCulUnhappy;
+	int iSpecialistUnhappy = getUnhappinessFromSpecialists(iSpecialists);
+	iNegativeHappiness += iSpecialistUnhappy;
 
 	iNegativeHappiness += iPuppetUnhappy;
 
@@ -21373,10 +21375,6 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 		//Occupation tooltip
 		else if (iResistanceUnhappy != 0)
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_OCCUPATION", iResistanceUnhappy);
-		
-		//Specialist tooltip
-		if (iSpecialistUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iSpecialistUnhappy);
 
 		//Empire tooltip
 		if (iEmpireUnhappy != 0)
@@ -21411,6 +21409,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 		
 		if (iCulUnhappy != 0)
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCULTURED", iCulUnhappy);
+
+		//Specialist tooltip
+		if (iSpecialistUnhappy != 0)
+			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iSpecialistUnhappy);
 		
 		strPotential = strPotential + getPotentialUnhappinessWithGrowth();
 
@@ -21471,11 +21473,13 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	if (iEmpireUnhappy != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_WIDE_UNHAPPINESS", iEmpireUnhappy);
 
-	if (iSpecialistUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
-
 	if (iPuppetUnhappy != 0)
+	{
+		if (iSpecialistUnhappy != 0)
+			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
+
 		return strPotential;
+	}
 
 	if (iStarvingUnhappy != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappy);
@@ -21515,6 +21519,9 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iYieldCul - iNeedCul) / 100);
 	else
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iCulUnhappy, max(1, (iCulDef / 100)), getUnhappinessFromCultureRaw());
+
+	if (iSpecialistUnhappy != 0)
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
 
 	if (bIncludeMedian)
 	{
@@ -21737,8 +21744,6 @@ int CvCity::getUnhappinessFromCulture(int iPopMod, bool bForceGlobal) const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
@@ -21754,7 +21759,9 @@ int CvCity::getUnhappinessFromCulture(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromCultureRaw(iLimit, iPopMod, bForceGlobal);
-
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
+	
 	return iContribution;
 }
 
@@ -21851,8 +21858,6 @@ int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
@@ -21866,6 +21871,8 @@ int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromReligionRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -21966,13 +21973,13 @@ int CvCity::getUnhappinessFromDefense(int iPopMod, bool bForceGlobal) const
 	//order is very important
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22070,8 +22077,6 @@ int CvCity::getUnhappinessFromGold(int iPopMod, bool bForceGlobal) const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
@@ -22079,6 +22084,8 @@ int CvCity::getUnhappinessFromGold(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromGoldRaw(iLimit, iPopMod, bForceGlobal);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 	return iContribution;
 }
 
@@ -22175,8 +22182,6 @@ int CvCity::getUnhappinessFromConnection() const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
@@ -22186,6 +22191,8 @@ int CvCity::getUnhappinessFromConnection() const
 	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22236,11 +22243,11 @@ int CvCity::getUnhappinessFromPillaged() const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22293,9 +22300,9 @@ int CvCity::getUnhappinessFromStarving() const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22380,8 +22387,6 @@ int CvCity::getUnhappinessFromReligion() const
 	int iContribution;
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
@@ -22393,6 +22398,8 @@ int CvCity::getUnhappinessFromReligion() const
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromReligionRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -29485,6 +29492,11 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			{
 				ChangeMinorityUnhappiness(pProject->GetHappinessNeedModifier(iYieldLoop));
 			}
+		}
+
+		if (pProject->GetHappiness() != 0)
+		{
+			ChangeUnmoddedHappinessFromBuildings(pProject->GetHappiness());
 		}
 	}
 

@@ -59,8 +59,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
 #endif
-	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100, int iFoodCorpMod); //precompute some expensive values
+	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100); //precompute some expensive values
 	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
+	bool CanCreateSpecialist();
 
 	// Citizen Assignment
 	int GetNumUnassignedCitizens() const;
@@ -68,7 +69,7 @@ public:
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
-	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false);
+	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false, bool bNoSpecialists = false);
 #if defined(MOD_BALANCE_CORE)
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
 #else

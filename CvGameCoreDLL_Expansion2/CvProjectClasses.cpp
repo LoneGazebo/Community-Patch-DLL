@@ -60,6 +60,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bInfluenceAllRequired = kResults.GetBool("InfluenceAllRequired");
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
+	m_iHappiness = kResults.GetInt("Happiness");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -276,6 +277,11 @@ int CvProjectEntry::GetHappinessNeedModifier(int i) const
 	}
 
 	return 0;
+}
+
+int CvProjectEntry::GetHappiness() const
+{
+	return m_iHappiness;
 }
 #endif
 

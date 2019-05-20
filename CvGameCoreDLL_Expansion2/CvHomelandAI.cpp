@@ -1337,6 +1337,11 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 					if (pGarrison)
 					{
 						ExecuteMoveToTarget(pGarrison, pLoopUnit->plot(), 0);
+						if (pGarrison->CanUpgradeRightNow(false))
+						{
+							CvUnit* pNewUnit = pGarrison->DoUpgrade();
+							UnitProcessed(pNewUnit->GetID());
+						}
 						UnitProcessed(pGarrison->GetID());
 						if (GC.getLogging() && GC.getAILogging())
 						{
@@ -2207,7 +2212,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 #endif
 #endif
 
-						unit.SetAuxIntData(iPriority);
+						unit.SetAuxIntData(max(1, iPriority));
 						m_CurrentMoveUnits.push_back(unit);
 					}
 				}
@@ -2229,31 +2234,18 @@ void CvHomelandAI::PlotUpgradeMoves()
 		// Sort results so highest priority is first
 		std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end(), HomelandAIHelpers::CvHomelandUnitAuxIntReverseSort);
 
-		int iFlavorMilitaryTraining = 0;
-		for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && iFlavorMilitaryTraining == 0; iFlavorLoop++)
-		{
-			if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
-			{
-				iFlavorMilitaryTraining = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
-			}
-		}
-		iFlavorMilitaryTraining = max(1 , iFlavorMilitaryTraining);
-		int iBonusUpgrades = max(0,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties (the AI should have more money to spend)
-		iFlavorMilitaryTraining += iBonusUpgrades;
-
-		// Try to find a unit that can upgrade immediately
-		int iNumUpgraded = 0;
 		CvUnit* pFirstNonUpgradedUnit = NULL;
+		// Try to find a unit that can upgrade immediately
 		for(MoveUnitsArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
-			if (pUnit->CanUpgradeRightNow(false))
+			if(pUnit->CanUpgradeRightNow(false))
 			{
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
 				UnitProcessed(pUnit->GetID());
 				UnitProcessed(pNewUnit->GetID());
 
-				if (GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					CvString strTemp1, strTemp2;
@@ -2262,19 +2254,13 @@ void CvHomelandAI::PlotUpgradeMoves()
 					strLogString.Format("Upgrading unit from type %s to type %s, X: %d, Y: %d", strTemp1.GetCString(), strTemp2.GetCString(), pNewUnit->getX(), pNewUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-
-				iNumUpgraded++;
-
-				// Only upgrade iFlavorMilitaryTraining units per turn
-				if (iNumUpgraded >= iFlavorMilitaryTraining)
-					return;
 			}
-			else if (pFirstNonUpgradedUnit==NULL)
+			else if (pFirstNonUpgradedUnit == NULL)
 				pFirstNonUpgradedUnit = pUnit;
 		}
 
 		//return if there is nothing left to do
-		if (iNumUpgraded == m_CurrentMoveUnits.size())
+		if (pFirstNonUpgradedUnit == NULL)
 			return;
 
 		// Couldn't do all upgrades this turn, get ready for highest priority unit to upgrade
@@ -2308,8 +2294,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 			m_pPlayer->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE, iAmountRequired, iGoldPriority);
 		}
 
-		// Already in friendly territory
-		if(GC.getLogging() && GC.getAILogging())
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
 			CvString strTemp;

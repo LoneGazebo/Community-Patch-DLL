@@ -344,6 +344,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAdjacentModifier);
 	Method(GetAttackModifier);
 	Method(GetDefenseModifier);
+	Method(GetRangedDefenseModifier);
 	Method(GetRangedAttackModifier);
 	Method(CityAttackModifier);
 	Method(CityDefenseModifier);
@@ -3599,6 +3600,16 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->getDefenseModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getDefenseModifier();
+int CvLuaUnit::lGetRangedDefenseModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->getExtraRangedDefenseModifier();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

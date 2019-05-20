@@ -339,7 +339,7 @@ SET Text = 'I did not want things to end up like this, but I cannot overlook you
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_WARMONGER_1';
 
 UPDATE Language_en_US
-SET Text = 'Your dealings with city-states in my sphere of influence is unacceptable. Consider our Declaration of Friendship ended.'
+SET Text = 'Your dealings with city-states in my sphere of influence are unacceptable. Consider our Declaration of Friendship ended.'
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_MINORS_1';
 
 UPDATE Language_en_US
@@ -602,7 +602,7 @@ WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY';
 
 
 UPDATE Language_en_US
-SET Text = 'Speak: anything to drown out the whispers'
+SET Text = 'Speak: anything to drown out the whispers.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_LETSHEARIT_1';
 
 UPDATE Language_en_US

@@ -2058,6 +2058,19 @@ local function UpdateCityViewNow()
 		end
 		local strMaintenanceTT = L( "TXT_KEY_BUILDING_MAINTENANCE_TT", city:GetTotalBaseBuildingMaintenance() )
 		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT)
+
+		local freeSpecialists = city:GetRemainingFreeSpecialists();
+		if(freeSpecialists > 0) then
+			Controls.FreeSpecialistLabel:SetText(tostring(freeSpecialists))
+			--Update suffix to use correct plurality.
+			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists )
+		else
+			local defSpecialist = (GameDefines.BALANCE_UNHAPPINESS_PER_SPECIALIST / 100)
+			Controls.FreeSpecialistLabel:SetText(tostring(defSpecialist))
+			--Update suffix to use correct plurality.
+			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT")
+		end
+
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT)
 		Controls.CorpsHeader:SetToolTipString(strMaintenanceTT)
 		Controls.GreatWorkHeader:SetToolTipString(strMaintenanceTT)
