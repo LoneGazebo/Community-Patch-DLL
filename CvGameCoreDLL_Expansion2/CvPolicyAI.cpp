@@ -815,7 +815,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #endif	
 	// Possible enough that we need to look at this in detail?
 #if defined(MOD_BALANCE_CORE)
-	if (bSUnhappy && iPublicOpinionUnhappiness >= (-1 * GC.getSUPER_UNHAPPY_THRESHOLD()))
+	if (bSUnhappy && iPublicOpinionUnhappiness >= (GC.getSUPER_UNHAPPY_THRESHOLD()))
 	{
 		//Sanity check - would a change to this branch simply make us unhappy in another way? If so, don't do it.
 		if(ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
@@ -825,23 +825,24 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			{
 				return;
 			}
-		}
-		//Final sanity check - are we flip-flopping?
-		if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 30)
-		{
-			return;
-		}
 
-		// Cleared all obstacles -- REVOLUTION!
-		pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
-		pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);	
-		Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
-		Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
-		pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+			//Final sanity check - are we flip-flopping?
+			if (GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 30)
+			{
+				return;
+			}
+
+			// Cleared all obstacles -- REVOLUTION!
+			pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+			pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
+			pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	else if (bVUnhappy && iPublicOpinionUnhappiness >= (-1 * GC.getVERY_UNHAPPY_THRESHOLD()))
+	else if (bVUnhappy && iPublicOpinionUnhappiness >= (GC.getVERY_UNHAPPY_THRESHOLD()))
 #else
 	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= 10)
 #endif
