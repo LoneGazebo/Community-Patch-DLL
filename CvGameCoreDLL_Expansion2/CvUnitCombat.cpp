@@ -247,9 +247,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 		int iDefenderStrength = pkDefender->GetMaxDefenseStrength(&plot, &kAttacker, kAttacker.plot());
 		int iAttackerStrength = 0;
-		if(kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
+		if(kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true) > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
 		{
-			iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
+			iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true);
 			if(pkDefender->getDomainType() != DOMAIN_AIR)
 			{
 				iDefenderStrength /= 2;
@@ -2313,7 +2313,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	// Unit vs. Unit
 	CvAssert(pkDefender != NULL);
 
-	int iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(pkDefender, /*pCity*/ NULL, true, false);
+	int iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(pkDefender, /*pCity*/ NULL, true);
 
 	// Mod to air sweep strength
 	iAttackerStrength *= (100 + kAttacker.GetAirSweepCombatModifier());
@@ -2339,7 +2339,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	// Air interceptor
 	else
 	{
-		iDefenderStrength = pkDefender->GetMaxRangedCombatStrength(&kAttacker, /*pCity*/ NULL, false, false);
+		iDefenderStrength = pkDefender->GetMaxRangedCombatStrength(&kAttacker, /*pCity*/ NULL, false);
 #if defined(MOD_UNITS_MAX_HP)
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
 #endif

@@ -14984,10 +14984,9 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	if (!pPlot)
 		return false;
 
-#if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-#endif
+
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
@@ -16753,38 +16752,28 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-				const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
+int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
+				const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
-	if (pFromPlot == NULL)
-	{
-		pFromPlot = plot();
-	}
-	if (pTargetPlot == NULL)
+	if (pMyPlot == NULL)
+		pMyPlot = plot();
+
+	if (pOtherPlot == NULL)
 	{
 		if (pOtherUnit != NULL)
 		{
-			pTargetPlot = pOtherUnit->plot();
+			pOtherPlot = pOtherUnit->plot();
 		}
 		else if (pCity != NULL)
 		{
-			pTargetPlot = pCity->plot();
+			pOtherPlot = pCity->plot();
 		}
 	}
-	const CvPlot* pMyPlot = pFromPlot;
 
-	if (!bAttacking)
-	{
-		pFromPlot = pTargetPlot;
-		pTargetPlot = pMyPlot;
-		pMyPlot = pFromPlot;
-	}
+	const CvPlot* pTargetPlot = bAttacking ? pOtherPlot : pMyPlot;
 	
-	int iModifier;
-	int iTempModifier;
-
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -16807,7 +16796,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Extra combat percent
-	iModifier = getExtraCombatPercent();
+	int iModifier = getExtraCombatPercent();
+	int iTempModifier = 0;
 
 	// Kamikaze attack
 	if(getKamikazePercent() != 0)
@@ -16900,7 +16890,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		////////////////////////
 
 		// ATTACKING
-		if (bForRangedAttack)
+		if (bAttacking)
 		{
 			// Open Ground
 			if (pTargetPlot->isOpenGround())
@@ -17116,7 +17106,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 
 		// ATTACKING
-		if(bForRangedAttack)
+		if(bAttacking)
 		{
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
@@ -17170,24 +17160,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Ranged attack mod
-	if(bForRangedAttack)
+	if(bAttacking)
 	{
 		iModifier += GetRangedAttackModifier();
+		iModifier += getAttackModifier();
 	}
 	else
 	{
 		// Ranged Defense Mod (this was under the known unit bit, which is stupid)
 		iModifier += rangedDefenseModifier();
-	}
 
-	// This unit on offense
-	if(bAttacking)
-	{
-		iModifier += getAttackModifier();
-	}
-	// This Unit on defense
-	else
-	{
 		// No TERRAIN bonuses for this Unit?
 		iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
@@ -17269,8 +17251,8 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		}
 	}
 
-	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, 
-									pTargetPlot, pFromPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, 
+								pFromPlot, pTargetPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 	if (iAttackerStrength==0)
 		return 0;
 
@@ -17311,7 +17293,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 			if ( (!pTargetPlot && pDefender->isEmbarked()) || (pTargetPlot && pTargetPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
 				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
-				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot, false, bQuickAndDirty);
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty);
 		}
 		else
 			//this considers embarkation implicitly
@@ -17419,9 +17401,9 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot) const
 {
-	pAttacker;  pTargetPlot; pFromPlot; //unused
+	pAttacker;  pTargetPlot; //unused
 
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
@@ -17453,19 +17435,20 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 
 //	--------------------------------------------------------------------------------
 /// Amount of damage done by this unit when intercepting pAttacker
-int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot) const
 {
-	if (pFromPlot == NULL && pAttacker)
-		pFromPlot = pAttacker->plot();
 	if (pTargetPlot == NULL)
 		pTargetPlot = plot();
 
-	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, /*bForRangedAttack*/ false, pTargetPlot, pFromPlot);
+	//interception happens at the target plot
+	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, pTargetPlot, pTargetPlot);
+
 	int iInterceptorStrength = 0;
 	switch (getDomainType())
 	{
 		case DOMAIN_AIR:
-			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
+			//interception happens at the target plot
+			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, pTargetPlot, pTargetPlot);
 			break;
 
 		case DOMAIN_SEA:
@@ -17563,7 +17546,7 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 	switch (getDomainType())
 	{
 		case DOMAIN_AIR:
-			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
+			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false);
 			break;
 
 		case DOMAIN_SEA:

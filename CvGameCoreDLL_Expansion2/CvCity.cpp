@@ -10822,7 +10822,7 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 	}
 #endif
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10869,7 +10869,7 @@ int CvCity::getProductionNeeded(ProjectTypes eProject) const
 		iNumProductionNeeded += pProject->CostScalerEra() * GET_PLAYER(getOwner()).GetCurrentEra();
 	}
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10878,7 +10878,7 @@ int CvCity::getProductionNeeded(SpecialistTypes eSpecialist) const
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eSpecialist);
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -32355,7 +32355,7 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 		if ( (!pInPlot && pDefender->isEmbarked()) || (pInPlot && pInPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		else
-			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, NULL, false, false, pInPlot, plot(), false, bQuickAndDirty);
+			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, this, false, pInPlot, plot(), false, bQuickAndDirty);
 	}
 	else
 	{
