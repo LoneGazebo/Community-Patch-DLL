@@ -226,8 +226,8 @@ public:
 	void SetWarFaceWithPlayer(PlayerTypes ePlayer, WarFaceTypes eFace);
 
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
-	bool IsMusteringForAttack(PlayerTypes ePlayer) const;
-	void SetMusteringForAttack(PlayerTypes ePlayer, bool bValue);
+	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
+	void SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue);
 
 	// Set default values when we're attacked and its not our turn
 	void DoSomeoneDeclaredWarOnMe(TeamTypes eTeam);
@@ -467,6 +467,7 @@ public:
 	void SetExpansionAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 	void DoUpdateExpansionAggressivePostures();
 	void DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePlayer);
+	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
 
 	// Plot Buying Aggressive Posture: How aggressively is ePlayer buying land near us?
 	AggressivePostureTypes GetPlotBuyingAggressivePosture(PlayerTypes ePlayer) const;
@@ -885,14 +886,11 @@ public:
 	int GetNumDenouncementsOfPlayer();
 	int GetNumSamePolicies(PlayerTypes ePlayer);
 
-	void SetPromiseNumberOwnedCities(PlayerTypes eOtherPlayer, int iPlotIndex);
-	int GetPromiseNumberOwnedCities(PlayerTypes eOtherPlayer);
+	void SetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer, pair<int,int> value);
+	pair<int,int> GetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer);
 
-	void SetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer, int iPlotIndex);
-	int GetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer);
-
-	void SetLastTurnCenterofMass(PlayerTypes eOtherPlayer, int iPlotIndex);
-	int GetLastTurnCenterofMass(PlayerTypes eOtherPlayer);
+	void SetLastTurnEmpireDistance(PlayerTypes eOtherPlayer, pair<int,int> value);
+	pair<int,int> GetLastTurnEmpireDistance(PlayerTypes eOtherPlayer);
 #endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
@@ -1556,7 +1554,7 @@ private:
 		char m_aePeaceTreatyWillingToOffer[MAX_MAJOR_CIVS];
 		char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
 		short m_aiNumWondersBeatenTo[REALLY_MAX_PLAYERS];
-		bool m_abMusteringForAttack[REALLY_MAX_PLAYERS];
+		bool m_abArmyInPlaceForAttack[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
@@ -1621,9 +1619,8 @@ private:
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
-		short m_aiPromisePlot[MAX_MAJOR_CIVS];
-		short m_aiPromiseNumberOwnedCities[MAX_MAJOR_CIVS];
-		short m_aiLastTurnCoM[MAX_MAJOR_CIVS];
+		pair<int,int> m_paNoExpansionPromise[MAX_MAJOR_CIVS];
+		pair<int,int> m_paLastTurnEmpireDistance[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
@@ -1875,7 +1872,7 @@ private:
 	char* m_paePeaceTreatyWillingToAccept;
 
 	short* m_paiNumWondersBeatenTo;
-	bool* m_pabMusteringForAttack;
+	bool* m_pabArmyInPlaceForAttack;
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -1954,9 +1951,8 @@ private:
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
 	short* m_paiNumTimesCoopWarDenied;
-	short* m_paiPromisePlot;
-	short* m_paiPromiseNumberOwnedCities;
-	short* m_paiLastTurnCoM;
+	pair<int,int>* m_paNoExpansionPromise;
+	pair<int,int>* m_paLastTurnEmpireDistance;
 #endif
 	short* m_paiDoFCounter;
 

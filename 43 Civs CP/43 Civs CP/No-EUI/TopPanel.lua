@@ -1189,7 +1189,7 @@ function CultureTipHandler( control )
 		end
 		
 		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCommunityCulture; -- last part added (COMMUNITY PATCH)
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns;
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries

@@ -309,12 +309,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 	// if we already have a connection, bail out
 	bool bIndustrialRoute = (GC.getGame().GetIndustrialRoute() == eRoute);
-	if(bIndustrialRoute && pTargetCity->IsIndustrialRouteToCapitalConnected())
+	if(bIndustrialRoute)
 	{
-		return;
+		if (pTargetCity->IsIndustrialRouteToCapitalConnected())
+			return;
 	}
-	
-	if(pTargetCity->IsConnectedToCapital())
+	else if(pTargetCity->IsConnectedToCapital())
 	{
 		return;
 	}

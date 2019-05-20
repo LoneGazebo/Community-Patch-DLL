@@ -1202,55 +1202,61 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	int iCurrentValue = 0;
 	int iNumFranchises = GetNumFranchises();
 
-	bool bFoundOne = false;
-
 	BuildingTypes eOffice = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
 	CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
 	if (pkOfficeInfo == NULL)
 		return "";
 
-	// Note: only look for one number, if we find one, don't consider others.
-	if (iNumFranchises > 0)
+	// Great Person Rate bonus?
+	if (pkOfficeInfo->GetGPRateModifierPerXFranchises() > 0)
 	{
-		// Civilized Jewelers
-		if (pkOfficeInfo->GetGPRateModifierPerXFranchises() > 0)
+		iCurrentValue = iNumFranchises * pkOfficeInfo->GetGPRateModifierPerXFranchises();
+
+		if (szOfficeBenefit != "")
 		{
-			iCurrentValue = iNumFranchises * pkOfficeInfo->GetGPRateModifierPerXFranchises();
-			bFoundOne = true;
+			szOfficeBenefit += ", ";
 		}
 
-		if (!bFoundOne)
-		{
-			// Free Resource?
-			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
-			{
-				ResourceTypes eResource = (ResourceTypes)iI;
-				if (pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource) > 0)
-				{
-					iCurrentValue = iNumFranchises / pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource);
-					bFoundOne = true;
-					break;
-				}
-			}
-		}
+		szOfficeBenefit += GetLocalizedText("TXT_KEY_CORPORATION_GREAT_PERSON_RATE_BENEFIT_DETAILS", iCurrentValue);
+	}
 
-		if (!bFoundOne)
+	// Free Resource?
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource) > 0)
 		{
-			// Yield Change?
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			iCurrentValue = iNumFranchises / pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource);
+
+			if (szOfficeBenefit != "")
 			{
-				YieldTypes eYield = (YieldTypes)iI;
-				if (pkOfficeInfo->GetYieldPerFranchise(eYield) > 0)
-				{
-					iCurrentValue = iNumFranchises * pkOfficeInfo->GetYieldPerFranchise(eYield);
-					bFoundOne = true;
-					break;
-				}
+				szOfficeBenefit += ", ";
 			}
+
+			szOfficeBenefit += GetLocalizedText("TXT_KEY_CORPORATION_RESOURCE_BENEFIT_DETAILS", pkResourceInfo->GetDescriptionKey(), pkResourceInfo->GetIconString(), iCurrentValue);
 		}
 	}
 
-	szOfficeBenefit = GetLocalizedText(pkCorporationInfo->GetOfficeBenefitHelper(), iCurrentValue);
+	// Yield Change?
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		CvYieldInfo* pYield = GC.getYieldInfo(eYield);
+		if (pkOfficeInfo->GetYieldPerFranchise(eYield) > 0)
+		{
+			iCurrentValue = iNumFranchises * pkOfficeInfo->GetYieldPerFranchise(eYield);
+
+			if (szOfficeBenefit != "")
+			{
+				szOfficeBenefit += ", ";
+			}
+
+			szOfficeBenefit += GetLocalizedText("TXT_KEY_CORPORATION_YIELD_BENEFIT_DETAILS", pYield->GetDescriptionKey(), pYield->getIconString(), iCurrentValue);
+		}
+	}
+
+	szOfficeBenefit = GetLocalizedText(pkCorporationInfo->GetOfficeBenefitHelper(), szOfficeBenefit);
 
 	return szOfficeBenefit;
 }

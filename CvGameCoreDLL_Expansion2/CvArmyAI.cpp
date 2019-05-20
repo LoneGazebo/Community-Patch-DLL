@@ -704,7 +704,6 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				// Clears unit's army ID and erase from formation entries
 				pThisUnit->setArmyID(-1);
 				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
-				m_FormationEntries[iI].SetUnused();
 
 				// Tell the associate operation that a unit was lost
 				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);

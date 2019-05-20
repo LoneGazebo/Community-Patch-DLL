@@ -259,6 +259,13 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	bool bGoodforHappiness = false;
 
+
+	if (pkProjectInfo->GetHappiness() > 0)
+	{
+		bGoodforHappiness = true;
+		iTempWeight += (50 * pkProjectInfo->GetHappiness());
+	}
+
 	for (int i = 0; i < NUM_YIELD_TYPES; i++)
 	{
 		int iMod = pkProjectInfo->GetHappinessNeedModifier(i) * -1;

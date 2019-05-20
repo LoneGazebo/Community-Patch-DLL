@@ -1613,8 +1613,11 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, const S
 	int iScale = 100;
 	bool bIsValidRoute = pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged();
 
+	//todo: is there a fast way to check whether embarkation / deep water embarkation is allowed?
 	if (bIsValidRoute)
 		iScale = 67;
+	else if (pToPlot->isImpassable())
+		iScale = 400;
 	else if (pToPlot->isRoughGround())
 		iScale = 200;
 	else if (pFromPlot->isWater() != pToPlot->isWater() && !pFromPlot->isCity() && !pToPlot->isCity())

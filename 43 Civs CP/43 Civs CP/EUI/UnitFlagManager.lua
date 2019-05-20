@@ -507,9 +507,10 @@ local function UpdateFlagType( flag )
 end--UpdateFlagType
 
 --==========================================================
-local function UpdateFlagHealth( flag, damage )
+local function UpdateFlagHealth( flag, damage, unit )
 	-- DebugFlag( flag, "UpdateFlagHealth, damage=", damage ) end
 	if damage > 0 then
+		flag.m_MaxHitPoints = unit:GetMaxHitPoints()
 		local healthPercent = 1 - damage / flag.m_MaxHitPoints
 		if healthPercent > 0.66 then
 			flag.HealthBar:SetFGColor( g_colorGreen )
@@ -624,7 +625,7 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		flag.Button:SetDisabled( g_activeTeamID ~= teamID )
 		flag.Button:SetConsumeMouseOver( g_activeTeamID == teamID )
 		UpdateFlagType( flag )
-		UpdateFlagHealth( flag, unit:GetDamage() )
+		UpdateFlagHealth( flag, unit:GetDamage(), unit )
 		SetFlagSelected( flag, isSelected )
 		if not isSelected and g_activeTeam:IsAtWar( teamID ) then
 			flag.FlagHighlight:SetHide( false )
@@ -784,7 +785,11 @@ function( playerID, unitID, damage )--, previousDamage )
 	-- DebugUnit( playerID, unitID, "SerialEventUnitSetDamage, damage=", damage ) end
 	local flag = g_UnitFlags[ playerID ][ unitID ]
 	if flag then
-		UpdateFlagHealth( flag, damage )
+		local player = Players[ playerID ]
+		local unit = player and player:GetUnitByID( unitID )
+		if unit  then
+			UpdateFlagHealth( flag, damage, unit )
+		end
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for SerialEventUnitSetDamage" ) end
 	end

@@ -282,6 +282,9 @@ public:
 	int GetNumNaturalWondersDiscovered() const;
 	void ChangeNumNaturalWondersDiscovered(int iChange);
 
+	int GetNumLandmarksBuilt() const;
+	void ChangeNumLandmarksBuilt(int iChange);
+
 	bool isHasMet(TeamTypes eIndex) const;
 	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages);
 
@@ -591,6 +594,7 @@ protected:
 	int m_iDefensiveEmbarkCount;
 	int m_iEmbarkedAllWaterPassageCount;
 	int m_iNumNaturalWondersDiscovered;
+	int m_iNumLandmarksBuilt;
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
 

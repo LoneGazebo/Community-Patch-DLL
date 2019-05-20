@@ -206,6 +206,7 @@ void CvTeam::uninit()
 	m_iDefensiveEmbarkCount = 0;
 	m_iEmbarkedAllWaterPassageCount = 0;
 	m_iNumNaturalWondersDiscovered = 0;
+	m_iNumLandmarksBuilt = 0;
 	m_iBestPossibleRoute = NO_ROUTE;
 	m_iNumMinorCivsAttacked = 0;
 
@@ -1379,6 +1380,9 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			return;
 		}
 	}
+
+	if (isAtWar(eTeam) || GET_TEAM(eTeam).isAtWar(GetID()))
+		return;
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
@@ -4246,6 +4250,21 @@ void CvTeam::ChangeNumNaturalWondersDiscovered(int iChange)
 	CvAssert(GetNumNaturalWondersDiscovered() >= 0);
 }
 
+//	--------------------------------------------------------------------------------
+int CvTeam::GetNumLandmarksBuilt() const
+{
+	return m_iNumLandmarksBuilt;
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::ChangeNumLandmarksBuilt(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iNumLandmarksBuilt += iChange;
+	}
+	CvAssert(GetNumLandmarksBuilt() >= 0);
+}
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getEmbarkedExtraMoves() const
@@ -9107,6 +9126,7 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_iDefensiveEmbarkCount;
 	kStream >> m_iEmbarkedAllWaterPassageCount;
 	kStream >> m_iNumNaturalWondersDiscovered;
+	kStream >> m_iNumLandmarksBuilt;
 	kStream >> m_iBestPossibleRoute;
 	kStream >> m_iNumMinorCivsAttacked;
 
@@ -9337,6 +9357,7 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_iDefensiveEmbarkCount;
 	kStream << m_iEmbarkedAllWaterPassageCount;
 	kStream << m_iNumNaturalWondersDiscovered;
+	kStream << m_iNumLandmarksBuilt;
 	kStream << m_iBestPossibleRoute;
 	kStream << m_iNumMinorCivsAttacked;
 

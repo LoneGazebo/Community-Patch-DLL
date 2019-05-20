@@ -749,6 +749,21 @@ void CvCityCitizens::DoTurn()
 #endif
 	DoReallocateCitizens(bForceCheck);
 
+	int iHappinessDelta = m_pCity->getHappinessDelta();
+	int iTotalSpecialists = GetTotalSpecialistCount();
+
+	// don't calculate specialist value over and over ...
+	std::map<SpecialistTypes, int> specialistValueCache;
+
+	while (iHappinessDelta < 0 && iTotalSpecialists > 0)
+	{
+		if (!DoRemoveWorstSpecialist(NO_SPECIALIST, NO_BUILDING))
+			break;
+		iHappinessDelta = m_pCity->getHappinessDelta();
+		iTotalSpecialists = GetTotalSpecialistCount();
+		DoAddBestCitizenFromUnassigned(specialistValueCache, true, true);
+	}
+
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 #else
@@ -1101,6 +1116,9 @@ void CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 /// Does the AI want a Specialist?
 bool CvCityCitizens::IsAIWantSpecialistRightNow()
 {
+	if (!CanCreateSpecialist())
+		return false;
+
 	int iWeight = 100;
 
 	// If the City is Size 1 or 2 then we probably don't want Specialists
@@ -1148,6 +1166,7 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 		iWeight *= 150;
 		iWeight /= 100;
 	}
+
 	// Someone told this AI it should be focused on something that is usually gotten from specialists
 	if (eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
@@ -1435,8 +1454,10 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 	if (m_pCity->GetResistanceTurns() > 0)
 		return NO_BUILDING;
 
+	if (!CanCreateSpecialist())
+		return NO_BUILDING;
+
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1459,7 +1480,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 						iValue = specialistValueCache[eSpecialist];
 					else
 					{
-						iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100, iFoodCorpMod);
+						iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100);
 						specialistValueCache[eSpecialist] = iValue;
 					}
 
@@ -1510,7 +1531,6 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 	int iValue;
 
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
 	// Loop through all Buildings
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -1530,7 +1550,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 					iValue = specialistValueCache[eSpecialist];
 				else
 				{
-					iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100, iFoodCorpMod);
+					iValue = GetSpecialistValue(eSpecialist, iExcessFoodTimes100);
 					specialistValueCache[eSpecialist] = iValue;
 				}
 
@@ -1555,7 +1575,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 #endif
 
 /// How valuable is eSpecialist?
-int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100, int iFoodCorpMod)
+int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100)
 {
 
 	CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
@@ -1614,7 +1634,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	CityAIFocusTypes eFocus = GetFocusType();
 	//Calc food first (as it might end the function early)
-	int iPenalty = 0;
+	int iFoodVal = 0;
 	bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
 	if (iExcessFoodTimes100 < 0 && bAvoidGrowth)
 	{
@@ -1626,18 +1646,13 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
-		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * 3, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
-		int iPopulation = m_pCity->getPopulation();
+		int iFoodFactor = iExcessFoodTimes100 / 100;
 
 		//Smaller cities want to grow fast - larger cities can slow down a bit.
-		int iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * (max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) + max(1, iPopulation));
+		iFoodFactor *= 100;
+		iFoodFactor /= max(1, (100 - m_pCity->getPopulation()));
 
-		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-			iPenalty = iFoodEmphasisModifier * 15;
-		else if ((eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
-			iPenalty = iFoodEmphasisModifier * 10;
-		else
-			iPenalty = iFoodEmphasisModifier;
+		iFoodVal = range(iFoodFactor, 0, 100);
 	}
 
 	///////
@@ -2084,12 +2099,13 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		//if we're above unhappy, reduce specialist value by 15% for each point over.
+		//if we're happy, reduce specialist value by 3% per positive delta so we don't eat all our excess happiness with specialists
 		iCityUnhappiness = m_pCity->getHappinessDelta();
-		if (iCityUnhappiness < 0)
-			iCityUnhappiness *= -25;
-		else
-			iCityUnhappiness = 0;
+		if (iCityUnhappiness > 0)
+		{
+			iCityUnhappiness = 10 - iCityUnhappiness;
+			iCityUnhappiness *= 3;
+		}
 	}
 	else
 	{
@@ -2109,8 +2125,18 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	iValue *= max(1, (100 - iCityUnhappiness));
 	iValue /= 100;
 
-	iValue *= 100;
-	iValue /= max(100, 100 + iPenalty);
+	//and lastly increase it based on food val and stance.
+	iValue *= (100 + iFoodVal);
+	iValue /= 100;
+
+	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
+		iValue /= 25;
+	else if (eFocus == NO_CITY_AI_FOCUS_TYPE  && !bAvoidGrowth)
+		iValue /= 6;
+	else if ((eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+		iValue /= 5;
+	else if (eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+		iValue *= 20;
 
 	return iValue;
 }
@@ -2183,6 +2209,23 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	return (iSpecialistYield >= iDefaultSpecialistYield); // Unless default Specialist has strictly more, this Specialist is better
 }
 
+bool CvCityCitizens::CanCreateSpecialist()
+{
+	if (!MOD_BALANCE_CORE_HAPPINESS)
+		return true;
+
+	int iHappinessDelta = m_pCity->getHappinessDelta();
+	if (iHappinessDelta > 0)
+		return true;
+
+	int iCapital = m_pCity->isCapital() ? GET_PLAYER(m_pCity->getOwner()).GetNoUnhappfromXSpecialistsCapital() : 0;
+	int iFreeSpecialistsRemaining = (m_pCity->GetNoUnhappfromXSpecialists() + GET_PLAYER(m_pCity->getOwner()).GetNoUnhappfromXSpecialists() + iCapital) - GetTotalSpecialistCount();
+	if (iFreeSpecialistsRemaining > 0)
+		return true;
+
+	return false;
+}
+
 /// How many Citizens need to be given a job?
 int CvCityCitizens::GetNumUnassignedCitizens() const
 {
@@ -2209,7 +2252,7 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging)
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging, bool bNoSpecialists)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
@@ -2221,7 +2264,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 	bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
 	//FIRST, WE FEED OURSELVES!
 	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	if (!bAvoidGrowth && iPotentialExcessTimes100 < 200 || (bAvoidGrowth && iPotentialExcessTimes100 < 0))
+	if ((!bAvoidGrowth && iPotentialExcessTimes100 <= 300) || (bAvoidGrowth && iPotentialExcessTimes100 <= 0))
 	{
 		int iBestPlotValue = 0;
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
@@ -2237,7 +2280,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 	{
 		int iSpecialistValue = 0;
 		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
-		if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
+		if (!bNoSpecialists && (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists()))
 		{
 			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, specialistValueCache, bLogging);
 		}
@@ -2247,7 +2290,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
 		if (pBestPlot != NULL)
 		{
-			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue && ((iPotentialExcessTimes100 > 0) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0)));
+			bool bSpecialistBetterThanPlot = eBestSpecialistBuilding != NO_BUILDING && ((iSpecialistValue >= iBestPlotValue && (iPotentialExcessTimes100 > 0)) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0));
 			if (bSpecialistBetterThanPlot)
 			{
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
@@ -3543,7 +3586,7 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
 
 #if defined(MOD_BALANCE_CORE)
-	if (m_pCity->IsResistance() || m_pCity->IsRazing())
+	if (m_pCity->IsResistance() || m_pCity->IsRazing() || !CanCreateSpecialist())
 	{
 		return false;
 	}

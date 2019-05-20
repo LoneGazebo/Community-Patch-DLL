@@ -15623,8 +15623,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(pMinorCapital == NULL)
 		return iFailScore;
 
-	int iComparisonRadius = 4;
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pMinorCapital->plot(), iComparisonRadius, GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pMinorCapital->plot(), MINOR_POWER_COMPARISON_RADIUS, GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
 	//don't forget the city itself
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
 	iScore += iLocalPowerRatio;

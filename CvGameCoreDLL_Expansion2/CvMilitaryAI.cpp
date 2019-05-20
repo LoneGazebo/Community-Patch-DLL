@@ -710,30 +710,13 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 /// Send an army to force concessions
 bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 {
-	CvAIOperation* pOperation = 0;
-	int iOperationID;
-	int iNumUnitsWillingBuild = 1;
 	// Let's only allow us to be sneak attacking one opponent at a time, so abort if already have one of these operations active against any opponent
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID))
-	{
+	if (GetShowOfForceOperation(eEnemy) != NULL)
 		return false;
-	}
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_SNEAK_ATTACK, &iOperationID))
-	{
-		return false;
-	}
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID))
-	{
-		return false;
-	}
-	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID))
-	{
-		return false;
-	}
+
 	if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-	{
 		return false;
-	}
+
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -746,6 +729,10 @@ bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 			return false;
 		}
 	}
+
+	CvAIOperation* pOperation = 0;
+	int iNumUnitsWillingBuild = 1;
+
 	CvMilitaryTarget target = FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eEnemy);
 	if (!target.m_pTargetCity || !target.m_pMusterCity)
 	{
@@ -1032,35 +1019,85 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 	return false;
 }
 
-/// Get a pointer to the sneak attack operation against a target
-CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
+bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 {
-	int iOperationID;
-	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_SNEAK_ATTACK, &iOperationID, eEnemy);
+	if (!GET_PLAYER(eEnemy).isMinorCiv())
+		return false;
 
-	if(bHasOperationUnderway)
+	CvCity* pTargetCity = GET_PLAYER(eEnemy).getCapitalCity();
+	if (!pTargetCity)
+		return false;
+
+	CvCity* pMusterCity = m_pPlayer->GetClosestCityByEstimatedTurns(pTargetCity->plot());
+	if (!pMusterCity)
+		return false;
+
+	//taken from CalculateBullyMetric
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pTargetCity->plot(), MINOR_POWER_COMPARISON_RADIUS, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
+	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
+
+	//check if we have a chance ...
+	int iCurrentBullyMetric = GET_PLAYER(eEnemy).GetMinorCivAI()->CalculateBullyMetric(m_pPlayer->GetID(), true);
+	if (iLocalPowerRatio > 100 || iCurrentBullyMetric < -200)
+		return false;
+
+	int iDistanceTurns = m_pPlayer->GetCityDistanceInEstimatedTurns(pTargetCity->plot());
+	if (pMusterCity->getArea() == pTargetCity->getArea() || iDistanceTurns <= 4) //if the target is very close assume we can embark or don't even need to
 	{
-		return m_pPlayer->getAIOperation(iOperationID);
+		if (iDistanceTurns > 12)
+			return false;
+
+		// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
+		if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_BULLY_CITY_STATE))
+			return false;
+
+		//don't try to build additional units, only do this if we have enough at hand
+		int iNumRequiredSlots, iLandReservesUsed;
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CITY_STATE_ATTACK_FORCE, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		if (iFilledSlots >= iNumRequiredSlots)
+		{
+			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
+			if (pOperation != NULL && !pOperation->ShouldAbort())
+			{
+				return true;
+			}
+		}
 	}
 	else
 	{
-		bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID, eEnemy);
+		// Let's only allow us to be bullying one opponent at a time, so abort if already have one of these operations active against any opponent
+		if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_BULLY_CITY_STATE))
+			return false;
 
-		if(bHasOperationOfType)
+		//don't try to build additional units, only do this if we have enough at hand
+		int iNumRequiredSlots, iLandReservesUsed;
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_NAVAL_SQUADRON, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		if (iFilledSlots >= iNumRequiredSlots)
 		{
-			return m_pPlayer->getAIOperation(iOperationID);
-		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		else
-		{
-			bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, eEnemy);
-
-			if(bHasOperationOfType)
+			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
+			if (pOperation != NULL && !pOperation->ShouldAbort())
 			{
-				return m_pPlayer->getAIOperation(iOperationID);
+				return true;
 			}
 		}
-#endif
+	}
+
+	return false;
+}
+
+/// Get a pointer to the sneak attack operation against a target
+CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
+{
+	CvAIOperation* pOp = m_pPlayer->getFirstAIOperation();
+	while (pOp)
+	{
+		if (eEnemy == NO_PLAYER || pOp->GetEnemy() == eEnemy)
+		{
+			if (pOp->IsOffensive() && pOp->IsAllowedDuringPeace())
+				return pOp;
+		}
+
+		pOp = m_pPlayer->getNextAIOperation();
 	}
 
 	return NULL;
@@ -1069,31 +1106,16 @@ CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
 /// Get a pointer to the show of force operation against a target
 CvAIOperation* CvMilitaryAI::GetShowOfForceOperation(PlayerTypes eEnemy)
 {
-	int iOperationID;
-
-	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_SNEAK_ATTACK, &iOperationID, eEnemy);
-
-	if(bHasOperationUnderway)
+	CvAIOperation* pOp = m_pPlayer->getFirstAIOperation();
+	while (pOp)
 	{
-		return m_pPlayer->getAIOperation(iOperationID);
-	}
-	else
-	{
-		bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_SNEAKY, &iOperationID, eEnemy);
-
-		if(bHasOperationOfType)
+		if (eEnemy == NO_PLAYER || pOp->GetEnemy() == eEnemy)
 		{
-			return m_pPlayer->getAIOperation(iOperationID);
+			if (pOp->IsShowOfForce())
+				return pOp;
 		}
-		else
-		{
-			bool bHasOperationOfType = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, eEnemy);
 
-			if(bHasOperationOfType)
-			{
-				return m_pPlayer->getAIOperation(iOperationID);
-			}
-		}
+		pOp = m_pPlayer->getNextAIOperation();
 	}
 
 	return NULL;
@@ -1369,15 +1391,18 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 	//update the cache
 	m_cachedWaterDistances[pCity][pOtherCity] = iDistance;
 
-	if (GC.getLogging() && GC.getAILogging())
+	/*
+	if (GC.getLogging() && GC.getAILogging() && iDistance!=-1)
 	{
-		CvString strOutBuf = CvString::format("%d, %s, updated WATER distance map between cities, %s, Muster: %s, Distance: %d",
+		CvString strOutBuf = CvString::format("%03d, %s, updated WATER distance map between cities, %s, Muster: %s, Distance: %d",
 			GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
 			pCity->getName().c_str(), iDistance);
-		FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 		if (pLog)
 			pLog->Msg(strOutBuf);
 	}
+	*/
 
 	return iDistance;
 }
@@ -1411,15 +1436,18 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 	//update the cache
 	m_cachedLandDistances[pCity][pOtherCity] = iDistance;
 
-	if (GC.getLogging() && GC.getAILogging())
+	/*
+	if (GC.getLogging() && GC.getAILogging() && iDistance!=-1)
 	{
-		CvString strOutBuf = CvString::format("%d, %s, updated LAND distance map between cities, %s, Muster: %s, Distance: %d",
+		CvString strOutBuf = CvString::format("%03d, %s, updated LAND distance map between cities, %s, Muster: %s, Distance: %d",
 			GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
 			pCity->getName().c_str(), iDistance);
-		FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 		if (pLog)
 			pLog->Msg(strOutBuf);
 	}
+	*/
 
 	return iDistance;
 }
@@ -1619,7 +1647,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 						CvString strOutBuf = CvString::format("%d, %s, refreshed our attack target, %s, Muster: %s",
 							GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
 							newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
-						FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+						CvString playerName = GetPlayer()->getCivilizationShortDescription();
+						FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 						if (pLog)
 							pLog->Msg(strOutBuf);
 					}
@@ -1637,10 +1666,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
 				{
-					CvString strOutBuf = CvString::format("%d, %s, keeping cached attack target, %s, Muster: %s",
+					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, Muster: %s",
 						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pCachedTargetCity->getName().c_str(), 
 						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE");
-					FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+					CvString playerName = GetPlayer()->getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 					if (pLog)
 						pLog->Msg(strOutBuf);
 				}
@@ -1671,7 +1701,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s, Muster: %s",
 					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
 					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
-				FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+				CvString playerName = GetPlayer()->getCivilizationShortDescription();
+				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 				if (pLog)
 					pLog->Msg(strOutBuf);
 			}
@@ -2421,6 +2452,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
 
+	/*
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		// Open the right file
@@ -2432,6 +2464,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
 		pLog->Msg( msg.c_str() );
 	}
+	*/
 
 	return iRtnValue;
 }
@@ -2791,23 +2824,11 @@ void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTyp
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
 		CvString strLogName;
 
-		// Find the name of this civ
-		playerName = m_pPlayer->getCivilizationShortDescription();
-
 		// Open the log file
-		FILogFile* pLog;
-		if(GC.getPlayerAndCityAILogSplit())
-		{
-			strLogName = "CustomMods_" + playerName + ".csv";
-		}
-		else
-		{
-			strLogName = "CustomMods.csv";
-		}
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -2869,31 +2890,11 @@ void CvMilitaryAI::LogChosenTarget(AIOperationTypes eAIOperationType, PlayerType
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
 		CvString strLogName;
 
-		// Find the name of this civ and city
-		playerName = m_pPlayer->getCivilizationShortDescription();
-
 		// Open the log file
-		FILogFile* pLog;
-		if(GC.getPlayerAndCityAILogSplit())
-		{
-#if defined(MOD_BALANCE_CORE)
-			strLogName = "CustomMods_" + playerName + ".csv";
-#else
-			strLogName = "OperationalAILog_" + playerName + ".csv";
-#endif
-		}
-		else
-		{
-#if defined(MOD_BALANCE_CORE)
-			strLogName = "CustomMods.csv" + playerName + ".csv";
-#else
-			strLogName = "OperationalAILog.csv";
-#endif
-		}
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -7076,9 +7077,6 @@ MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAtt
 
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
-	std::vector< CvFormationSlotEntry > slotsToFill;
-	std::vector< CvFormationSlotEntry >::iterator it;
-	
 	CvPlayerAI& ownerPlayer = GET_PLAYER(pPlayer->GetID());
 
 	int iWillBeFilled = 0;
@@ -7089,6 +7087,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 	if (piNumberLandReservesUsed) 
 		*piNumberLandReservesUsed = 0;
 
+	std::vector< CvFormationSlotEntry > slotsToFill;
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(formation);
 	for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
 	{
@@ -7198,7 +7197,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			}
 
 			//Do we fit in any slot?
-			for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
+			for(std::vector< CvFormationSlotEntry >::iterator it = slotsToFill.begin(); it != slotsToFill.end(); it++)
 			{
 				CvFormationSlotEntry thisSlotEntry = *it;
 				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
@@ -7206,11 +7205,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 					slotsToFill.erase(it);
 
 					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
-					{
 						iLandReservesUsed++;
-					}
-					iWillBeFilled++;
 
+					iWillBeFilled++;
 					break;
 				}
 			}

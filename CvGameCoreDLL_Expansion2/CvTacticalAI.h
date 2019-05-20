@@ -1011,6 +1011,7 @@ class CvTacticalPlot
 {
 public:
 	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
+	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
 	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
 
@@ -1043,12 +1044,12 @@ public:
 	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment);
 	void enemyUnitKilled();
 
-	eTactPlotType getType() const { return eType; }
-	void setType(eTactPlotType newType) { eType = newType; }
-	void findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
+	eTactPlotType getType(eTactPlotDomain eDomain = TD_BOTH) const { return eType[eDomain]; }
+	void setType(eTactPlotDomain eDomain, eTactPlotType newType) { eType[eDomain] = newType; }
+	void findType(eTactPlotDomain eDomain, const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return pPlot != NULL; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange);
-	bool isRelevant() const { return eType != TP_BLOCKED_FRIENDLY && eType != TP_BLOCKED_NEUTRAL; }
+	bool isRelevant() const { return eType[TD_BOTH] != TP_BLOCKED_FRIENDLY && eType[TD_BOTH] != TP_BLOCKED_NEUTRAL; }
 
 protected:
 	const CvPlot* pPlot;
@@ -1067,7 +1068,7 @@ protected:
 	bool bHasAirCover:1;
 	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
 
-	eTactPlotType eType;
+	eTactPlotType eType[3]; //land, sea, both
 	unsigned char iDamageDealt;
 };
 
@@ -1138,6 +1139,7 @@ public:
 
 	bool isComplete() const;
 	bool isOffensive() const;
+	void updateTacticalPlotTypes(CvTacticalPlot::eTactPlotDomain eDomain, int iStartPlot = -1);
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	void addInitialAssignments();
@@ -1223,6 +1225,7 @@ namespace TacticalAIHelpers
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	CvPlot* GetFirstTargetInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 	pair<int, int> EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
+	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);

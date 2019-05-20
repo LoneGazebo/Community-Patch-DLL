@@ -53,6 +53,7 @@ public:
 	bool IdeologyRequired() const;
 	bool IsRepeatable() const;
 	int GetHappinessNeedModifier(int i) const;
+	int GetHappiness() const;
 #endif
 	const char* GetMovieArtDef() const;
 
@@ -91,6 +92,7 @@ protected:
 	bool m_bInfluenceAllRequired;
 	bool m_bIdeologyRequired;
 	int* m_piHappinessNeedModifier;
+	int m_iHappiness;
 #endif
 
 	CvString m_strCreateSound;

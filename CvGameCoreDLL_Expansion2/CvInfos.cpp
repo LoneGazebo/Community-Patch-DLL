@@ -1543,6 +1543,15 @@ int CvMultiUnitFormationInfo::getNumFormationSlotEntries() const
 	return m_vctSlotEntries.size();
 }
 
+int CvMultiUnitFormationInfo::getNumFormationSlotEntriesRequired() const
+{
+	int iCount = 0;
+	for (size_t i = 0; i < m_vctSlotEntries.size(); i++)
+		if (m_vctSlotEntries[i].m_requiredSlot)
+			iCount++;
+	return iCount;
+}
+
 bool CvMultiUnitFormationInfo::IsRequiresNavalUnitConsistency() const
 {
 	return m_bRequiresNavalUnitConsistency;

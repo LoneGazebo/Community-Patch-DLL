@@ -1404,6 +1404,25 @@ function OnCityViewUpdate()
 		local iBuildingMaintenance = pCity:GetTotalBaseBuildingMaintenance();
 		local strMaintenanceTT = Locale.ConvertTextKey("TXT_KEY_BUILDING_MAINTENANCE_TT", iBuildingMaintenance);
 		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT);
+
+		local freeSpecialists = pCity:GetRemainingFreeSpecialists();
+		if(freeSpecialists > 0) then
+			print("Free specialists!")
+			local freeSpecialtxt = tostring(freeSpecialists);
+			print(freeSpecialtxt);
+			Controls.FreeSpecialistLabel:SetText(freeSpecialtxt);
+			--Update suffix to use correct plurality.
+			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists );
+		else
+			print("No free specialists...")
+			local defSpecialist = tostring((GameDefines.BALANCE_UNHAPPINESS_PER_SPECIALIST / 100));
+			Controls.FreeSpecialistLabel:SetText(defSpecialist);
+			--Update suffix to use correct plurality.
+			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
+			print(defSpecialist);
+			print("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
+		end
+
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT);
 		Controls.GreatWorkHeader:SetToolTipString(strMaintenanceTT);
 		
@@ -1442,6 +1461,8 @@ function OnCityViewUpdate()
 			--if header is not hidden and is open
 			Controls.SpecialBuildingsHeader:SetHide( false );
 			Controls.SpecialistControlBox:SetHide( false );
+			Controls.FreeSpecialistLabel:SetHide( false );
+			Controls.FreeSpecialistLabelSuffix:SetHide( false );
 			sortOrder = sortOrder + 1;
 			otherSortedList[tostring( Controls.SpecialBuildingsHeader )] = sortOrder;
 			sortOrder = sortOrder + 1;
@@ -1458,6 +1479,8 @@ function OnCityViewUpdate()
 		else
 			Controls.SpecialBuildingsHeader:SetHide( true );
 			Controls.SpecialistControlBox:SetHide( true );
+			Controls.FreeSpecialistLabel:SetHide( true );
+			Controls.FreeSpecialistLabelSuffix:SetHide( true );
 		end
 		
 		-- now add the wonders

@@ -157,9 +157,14 @@ public:
 		MOVE_RESULT_NO_TARGET	= 0xFFFFFFFB,		//attack not required
 	};
 
-	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
-	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false);
-	
+#if defined(MOD_BALANCE_CORE)
+	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, CvUnit* pPassUnit = NULL);
+	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false, CvUnit* pPassUnit = NULL);
+#else
+	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
+	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical = true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false);
+#endif
+
 	void uninit();
 
 	void reset(int iID = 0, UnitTypes eUnit = NO_UNIT, PlayerTypes eOwner = NO_PLAYER, bool bConstructorCall = false);
@@ -217,7 +222,6 @@ public:
 	void PlayActionSound();
 
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
-	PlayerTypes GetBullyMinorMove(const CvPlot* pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
 
 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;
@@ -1741,20 +1745,6 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-#if defined(MOD_CORE_DEBUGGING)
-	void PushPrevPlot(int iIdx, int iTurn)
-	{
-		m_iPrevPlotIdx2 = m_iPrevPlotIdx1;
-		m_iPrevPlotIdx1 = (iIdx & 0xFFFF) + (iTurn << 16);
-	}
-
-	bool HaveRepetition(int iIdx, int iTurn)
-	{
-		int iTest =(iIdx & 0xFFFF) + (iTurn << 16);
-		return m_iPrevPlotIdx2 == iTest;
-	}
-#endif
-
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	inline bool IsCivilianUnit() const
 	{
@@ -2367,11 +2357,6 @@ private:
 	int m_iTactMoveSetTurn;
 	int m_iHomelandMoveSetTurn;
 	AIHomelandMove m_eHomelandMove;
-#endif
-
-#if defined(MOD_CORE_DEBUGGING)
-	//to detect endless loops
-	int m_iPrevPlotIdx1, m_iPrevPlotIdx2;
 #endif
 
 	friend class CvLuaUnit;

@@ -278,11 +278,14 @@
 					<Label Anchor="L,C" Offset="40,-2" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_SPECIAL_TEXT" />
 				</Button>
 				<Stack ID="SpecialBuildingsStack" Anchor="L,T" StackGrowth="B">
-					<Box ID="SpecialistControlBox" Anchor="L,C" Color="White.0" Size="254,32">
+					<Box ID="SpecialistControlBox" Anchor="L,C" Color="White.0" Size="254,50">
 						<Label Anchor="R,T" Offset="64,8"/>
 						<CheckBox ID="NoAutoSpecialistCheckbox" Style="SquareCheck" Anchor="L,B" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
 							<Label Anchor="R,C" AnchorSide="O.I" String="TXT_KEY_CITYVIEW_MANUAL_SPEC_CONTROL" Font="TwCenMT16"/>
 						</CheckBox>
+						<Label ID="FreeSpecialistLabel" Color0="Food.255" Anchor="L,T" Offset="5,5" Font="TwCenMT14">
+							<Label ID="FreeSpecialistLabelSuffix" Anchor="R,C" AnchorSide="O.I" Offset="3,0" String="" Font="TwCenMT14"/>
+						</Label>
 						<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 					</Box>
 				</Stack>

@@ -990,7 +990,6 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 }
 OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster)
 {
-	OperationSlot thisSlot;
 	OperationSlot bestSlot;
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
@@ -1021,7 +1020,7 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 					continue;
 			}				
 #endif
-			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
+			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 
 			if (!thisSlot.IsValid())
 				continue;

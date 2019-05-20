@@ -2148,10 +2148,7 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	if (m_pPlayer->isMinorCiv())
 		return;
 
-	int* paiTempWeights;
-	// Create a temporary array of weights
-	paiTempWeights = (int*)_alloca(sizeof(int) * GC.getNumTechInfos());
-
+	/*
 	// Loop through all our techs
 	for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
 	{
@@ -2185,6 +2182,7 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 			}
 		}
 	}
+	*/
 }
 
 /// Build log filename

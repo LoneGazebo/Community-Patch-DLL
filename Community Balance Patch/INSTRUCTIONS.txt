@@ -1,5 +1,0 @@
--- INSTRUCTIONS --
-
-To use the Community Balance Patch with CSD, C4DF, or EUI, you must use ALL THREE of these mods, and install the Community Balance Patch - Compatibility Files Mod (EUI). If not using EUI, use the (non-EUI) version of this mod.
-
-Once these mods are installed, DELETE the LUA folder in the Community Balance Patch and the Community Patch.

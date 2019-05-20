@@ -5568,7 +5568,7 @@
 			<Text>I have sent for our finest offerings, yet this is all I can muster. Do you like it?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_HIAWATHA_TRADE_CANT_MATCH">
-			<Text>Such a grand offer...it is a pity that this is all we can offer you.</Text>
+			<Text>Such a grand offer...it is a pity that this is all we can offer you in return.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_TRADE_CANT_MATCH">
 			<Text>The sacrificial pits seem to be a bit empty today...is this offer good enough for you?</Text>
@@ -5589,7 +5589,7 @@
 			<Text>This is all we can offer you. I would give you my turban as well, but I cannot live without it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_WASHINGTON_TRADE_CANT_MATCH">
-			<Text>I do not wish to set a precendent for unfair deals with other nations, therefore I admit that our offer is less valuable than yours.</Text>
+			<Text>I do not wish to set a precedent for unfair deals with other nations, therefore I admit that our offer is less valuable than yours.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_WUZETIAN_TRADE_CANT_MATCH">
 			<Text>The Heavenly Throne is, shamefully, unable to match your glorious offer. We can, however, offer you this.</Text>
@@ -7101,7 +7101,7 @@
 			<Text>[NEWLINE][ICON_BULLET] Unrest in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_GP_ASSASSINATION">
-			<Text>[NEWLINE][ICON_BULLET] Assasinate a Great Person</Text>
+			<Text>[NEWLINE][ICON_BULLET] Assassinate a Great Person</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_WONDER">
 			<Text>[NEWLINE][ICON_BULLET] Delay World Wonder</Text>

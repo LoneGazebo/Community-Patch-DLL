@@ -30,7 +30,7 @@ enum AIOperationTypes
     AI_OPERATION_PILLAGE_ENEMY,
 
 	AI_OPERATION_CITY_CLOSE_DEFENSE,
-	AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE,
+	AI_OPERATION_BULLY_CITY_STATE,
     AI_OPERATION_RAPID_RESPONSE,
 
 	AI_OPERATION_CITY_BASIC_ATTACK,
@@ -44,6 +44,7 @@ enum AIOperationTypes
 	AI_OPERATION_NAVAL_ONLY_CITY_ATTACK,
     AI_OPERATION_NAVAL_SUPERIORITY,
 	AI_OPERATION_NAVAL_BOMBARDMENT,
+	AI_OPERATION_NAVAL_BULLY_CITY_STATE,
 
 	AI_OPERATION_NUKE_ATTACK,
 	AI_OPERATION_ALLY_DEFENSE,
@@ -105,11 +106,11 @@ typedef CvWeightedVector<int, 128, true> WeightedUnitIdVector;
 
 struct OperationSlot
 {
-	OperationSlot()
+	explicit OperationSlot(int opId=-1, int armyId=-1, int slotId=-1)
 	{
-		m_iOperationID = -1;
-		m_iArmyID = -1;
-		m_iSlotID = -1;
+		m_iOperationID = opId;
+		m_iArmyID = armyId;
+		m_iSlotID = slotId;
 	}
 
 	bool operator==(const OperationSlot& other) const
@@ -176,6 +177,7 @@ public:
 	virtual bool IsOffensive() const { return false; }
 	virtual bool IsAllowedDuringPeace() const { return false; }
 	virtual bool IsDefensive() const { return false; }
+	virtual bool IsShowOfForce() const { return false; }
 	virtual void OnSuccess() const {}
 
 	//accessors
@@ -248,10 +250,10 @@ public:
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
-	void LogOperationStart();
-	void LogOperationStatus(bool bPreTurn);
-	void LogOperationSpecialMessage(const CvString& strMsg);
-	void LogOperationEnd();
+	void LogOperationStart() const;
+	void LogOperationStatus(bool bPreTurn) const;
+	void LogOperationSpecialMessage(const CvString& strMsg) const;
+	void LogOperationEnd() const;
 
 	virtual const char* GetInfoString();
 
@@ -261,7 +263,7 @@ protected:
 	CvPlot* GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTarget, int iStep, bool bForward) const;
 	int GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot* pTarget) const;
 
-	virtual bool SetupWithSingleArmy(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL, CvUnit* pInitialUnit = NULL, bool bOceanMoves = false);
+	virtual bool SetupWithSingleArmy(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL, CvUnit* pInitialUnit = NULL, bool bOceanMoves = false, bool bSkipRecruiting = false);
 	virtual CvArmyAI* AddArmy();
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 
@@ -347,6 +349,7 @@ public:
 	virtual int GetMaximumRecruitTurnsBase() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool IsOffensive() const { return true; }
+	virtual bool IsShowOfForce() const;
 
 protected:
 };
@@ -509,6 +512,7 @@ public:
 	{
 		return true;
 	}
+	virtual void OnSuccess() const;
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
@@ -833,6 +837,7 @@ public:
 	}
 	virtual bool IsDefensive() const { return true; }
 	virtual bool IsOffensive() const { return false; }
+	virtual void OnSuccess() const;
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
@@ -905,28 +910,75 @@ private:
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIOperationDefendCity
-//!  \brief		Defend a specific city
+//  CLASS:      CvAIOperationBullyCityState
+//!  \brief		Move units next to a city state, but don't attack. Allowed during peace.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationDefendCityPeace : public CvAIOperationDefendCity
+class CvAIOperationBullyCityState : public CvAIOperationCityStateAttack
 {
 public:
 
-	CvAIOperationDefendCityPeace();
-	virtual ~CvAIOperationDefendCityPeace();
+	CvAIOperationBullyCityState();
+	virtual ~CvAIOperationBullyCityState();
 
 	virtual int GetOperationType() const
 	{
-		return AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE;
+		return 	AI_OPERATION_BULLY_CITY_STATE;
 	}
 	virtual const char* GetOperationName() const
 	{
-		return "AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE";
+		return "AI_OPERATION_BULLY_CITY_STATE";
+	}
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_CITY_STATE_ATTACK_FORCE;
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{
 		return true;
 	}
+	virtual int GetDeployRange() const
+	{ 
+		return 4;
+	}
+	virtual bool DoTurn();
+	virtual bool IsShowOfForce() const { return true; }
+
+private:
+	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
+};
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvAIOperationNavalBullyCityState
+//!  \brief		Move units next to a city state, but don't attack. Allowed during peace.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvAIOperationNavalBullyCityState : public CvAIOperationNavalOnlyCityAttack
+{
+public:
+
+	CvAIOperationNavalBullyCityState();
+	virtual ~CvAIOperationNavalBullyCityState();
+
+	virtual int GetOperationType() const
+	{
+		return 	AI_OPERATION_NAVAL_BULLY_CITY_STATE;
+	}
+	virtual const char* GetOperationName() const
+	{
+		return "AI_OPERATION_NAVAL_BULLY_CITY_STATE";
+	}
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_NAVAL_SQUADRON;
+	}
+	virtual bool CanTacticalAIInterruptOperation() const
+	{
+		return true;
+	}
+	virtual int GetDeployRange() const
+	{ 
+		return 4;
+	}
+	virtual bool IsShowOfForce() const { return true; }
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
