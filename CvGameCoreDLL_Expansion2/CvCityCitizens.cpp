@@ -749,19 +749,25 @@ void CvCityCitizens::DoTurn()
 #endif
 	DoReallocateCitizens(bForceCheck);
 
-	int iHappinessDelta = m_pCity->getHappinessDelta();
-	int iTotalSpecialists = GetTotalSpecialistCount();
-
-	// don't calculate specialist value over and over ...
-	std::map<SpecialistTypes, int> specialistValueCache;
-
-	while (iHappinessDelta < 0 && iTotalSpecialists > 0)
+	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		if (!DoRemoveWorstSpecialist(NO_SPECIALIST, NO_BUILDING))
-			break;
-		iHappinessDelta = m_pCity->getHappinessDelta();
-		iTotalSpecialists = GetTotalSpecialistCount();
-		DoAddBestCitizenFromUnassigned(specialistValueCache, true, true);
+		int iHappinessDelta = m_pCity->getHappinessDelta();
+		int iTotalSpecialists = GetTotalSpecialistCount();
+		int iUrbanization = m_pCity->GetUnhappinessFromCitySpecialists();
+
+			// don't calculate specialist value over and over ...
+			std::map<SpecialistTypes, int> specialistValueCache;
+
+		while (iHappinessDelta < 0 && iTotalSpecialists > 0 && iUrbanization > 0)
+		{
+			if (!DoRemoveWorstSpecialist(NO_SPECIALIST, NO_BUILDING))
+				break;
+
+			iHappinessDelta = m_pCity->getHappinessDelta();
+			iTotalSpecialists = GetTotalSpecialistCount();
+			iUrbanization = m_pCity->GetUnhappinessFromCitySpecialists();
+			DoAddBestCitizenFromUnassigned(specialistValueCache, true, true);
+		}
 	}
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)

@@ -4130,7 +4130,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			//we like our vassals (unless they're blocking our path to victory)
 			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
 			{
-				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() > 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
