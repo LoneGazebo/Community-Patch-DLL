@@ -2265,34 +2265,25 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 		// Couldn't do all upgrades this turn, get ready for highest priority unit to upgrade
 		int iAmountRequired = pFirstNonUpgradedUnit->upgradePrice(pFirstNonUpgradedUnit->GetUpgradeUnitType());
-		bool bRequiresGold = (iAmountRequired > 0);
-		int iGoldPriority = 0;
 
-		if(bRequiresGold)
+		// Find priority of this financial request
+		int iCurrentFlavorMilitaryTraining = 0;
+		for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && iCurrentFlavorMilitaryTraining == 0; iFlavorLoop++)
 		{
-			// Find priority of this financial request
-			int iCurrentFlavorMilitaryTraining = 0;
-			for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && iCurrentFlavorMilitaryTraining == 0; iFlavorLoop++)
+			if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
 			{
-				if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
-				{
-					iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-				}
-				if(m_pPlayer->IsAtWar())
-				{
-					iCurrentFlavorMilitaryTraining *= 50;
-				}
+				iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
 			}
-			iGoldPriority = GC.getAI_GOLD_PRIORITY_UPGRADE_BASE();
-			iGoldPriority += GC.getAI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT() * iCurrentFlavorMilitaryTraining;
+			if(m_pPlayer->IsAtWar())
+			{
+				iCurrentFlavorMilitaryTraining *= 50;
+			}
 		}
+		int iGoldPriority = GC.getAI_GOLD_PRIORITY_UPGRADE_BASE();
+		iGoldPriority += GC.getAI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT() * iCurrentFlavorMilitaryTraining;
 
-		// Start saving
-		if(bRequiresGold)
-		{
-			m_pPlayer->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE);
-			m_pPlayer->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE, iAmountRequired, iGoldPriority);
-		}
+		m_pPlayer->GetEconomicAI()->CancelSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE);
+		m_pPlayer->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_UNIT_UPGRADE, iAmountRequired, iGoldPriority);
 
 		if (GC.getLogging() && GC.getAILogging())
 		{

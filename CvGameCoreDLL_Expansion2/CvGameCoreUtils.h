@@ -100,6 +100,7 @@ inline int hexDistance(int iDX, int iDY)
 	}
 }
 
+int plotDistance(int iIndexA, int iIndexB);
 int plotDistance(int iX1, int iY1, int iX2, int iY2);
 int plotDistance(const CvPlot& plotA, const CvPlot& plotB);
 CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection);

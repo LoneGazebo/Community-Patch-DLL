@@ -4010,11 +4010,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_CAPTURED, m_eID, "", pCityPlot->getX(), pCityPlot->getY());
 
-	PlayerTypes ePlayer;
 	// Update Proximity between this Player and all others
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		if(ePlayer != m_eID)
 		{
@@ -36577,217 +36576,40 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 
 //	--------------------------------------------------------------------------------
 /// Figure out how "close" we are to another player (useful for diplomacy, war planning, etc.)
-void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer, bool bTileCheck)
+void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-#if !defined(MOD_BALANCE_CORE)
-	int iSmallestDistanceBetweenCities = GC.getMap().numPlots();
-#endif
-	int iAverageDistanceBetweenCities = 0;
-#if !defined(MOD_BALANCE_CORE)
-	int iNumCityConnections = 0;
-#endif
-
-	CvCity* pLoopMyCity;
-	int iMyCityLoop;
-#if !defined(MOD_BALANCE_CORE)
-	
-	CvCity* pLoopTheirCity;
-
-	
-	int iTheirCityLoop;
-
-	int iTempDistance;
-#endif
-	// Loop through all of MY Cities, but only if we're close (or we just bought a tile).
-	if (GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE || bTileCheck)
-	{
-		for (pLoopMyCity = firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = nextCity(&iMyCityLoop))
-		{
-			if (pLoopMyCity->AreOurBordersTouching(ePlayer))
-			{
-				SetProximityToPlayer(ePlayer, PLAYER_PROXIMITY_NEIGHBORS);
-				return;
-			}
-		}
-	}
-	//only checking for connecting tiles.
-	if (bTileCheck)
-		return;
-
-#if defined(MOD_BALANCE_CORE)
-	if(GetCenterOfMassEmpire() != NULL && GET_PLAYER(ePlayer).GetCenterOfMassEmpire() != NULL)
-	{
-		iAverageDistanceBetweenCities = plotDistance(GetCenterOfMassEmpire()->getX(), GetCenterOfMassEmpire()->getY(), GET_PLAYER(ePlayer).GetCenterOfMassEmpire()->getX(), GET_PLAYER(ePlayer).GetCenterOfMassEmpire()->getY());
-	}
-	else
+	//the current pair for comparison
+	pair<int, int> closestCities = GetDiplomacyAI()->GetClosestCityPair(ePlayer);
+	if (closestCities.first < 0 || closestCities.second < 0)
 	{
 		SetProximityToPlayer(ePlayer, NO_PLAYER_PROXIMITY);
 		return;
 	}
 
-	// Seed this value with something reasonable to start.  This will be the value assigned if one player has 0 Cities.
-	PlayerProximityTypes eProximity = NO_PLAYER_PROXIMITY;
+	//default
+	PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
 
-	if(iAverageDistanceBetweenCities != 0)
+	// Closest Cities must be within a certain range
+	int iDistance = plotDistance(closestCities.first,closestCities.second);
+	if(iDistance < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
 	{
-		// Closest Cities must be within a certain range
-		if(iAverageDistanceBetweenCities < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
-		{
-			eProximity = PLAYER_PROXIMITY_NEIGHBORS;
-		}
-		// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
-		else if(iAverageDistanceBetweenCities < /*12*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
-		{
-			eProximity = PLAYER_PROXIMITY_CLOSE;
-		}
-		// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
-		else if(iAverageDistanceBetweenCities < /*18*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
-		{
-			eProximity = PLAYER_PROXIMITY_FAR;
-		}
-		else
-		{
-			eProximity = PLAYER_PROXIMITY_DISTANT;
-		}
+		eProximity = PLAYER_PROXIMITY_NEIGHBORS;
 	}
-
-	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
-
-	// Only two players left, the farthest we can be considered is "Close"
-	if(iNumMajorsLeft == 2)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_CLOSE);
-
-	// Four or fewer players left, the farthest we can be considered is "Far"
-	else if(iNumMajorsLeft <= 4)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_FAR);
+	// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
+	else if(iDistance < /*12*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
+	{
+		eProximity = PLAYER_PROXIMITY_CLOSE;
+	}
+	// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
+	else if(iDistance < /*18*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
+	{
+		eProximity = PLAYER_PROXIMITY_FAR;
+	}
 
 	SetProximityToPlayer(ePlayer, eProximity);
-#else
-	// Loop through all of MY Cities
-	for(pLoopMyCity = firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = nextCity(&iMyCityLoop))
-	{
-		// Loop through all of THEIR Cities
-		for(pLoopTheirCity = GET_PLAYER(ePlayer).firstCity(&iTheirCityLoop); pLoopTheirCity != NULL; pLoopTheirCity = GET_PLAYER(ePlayer).nextCity(&iTheirCityLoop))
-		{
-			iNumCityConnections++;
-
-			// Different area or couldn't find path - get distance the hard way
-			//if (!bPathFinderSuccess)
-			{
-				iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopTheirCity->getX(), pLoopTheirCity->getY());
-			}
-
-			// Smallest distance between any two Cities
-			if(iTempDistance < iSmallestDistanceBetweenCities)
-			{
-				iSmallestDistanceBetweenCities = iTempDistance;
-			}
-
-			iAverageDistanceBetweenCities += iTempDistance;
-		}
-	}
-
-	// Seed this value with something reasonable to start.  This will be the value assigned if one player has 0 Cities.
-	PlayerProximityTypes eProximity = NO_PLAYER_PROXIMITY;
-
-	if(iNumCityConnections > 0)
-	{
-		iAverageDistanceBetweenCities /= iNumCityConnections;
-
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(GC.getMap().GetAIMapHint() & ciMapHint_Naval)
-		{
-			iSmallestDistanceBetweenCities /= 2;
-		}
-#endif
-
-		// Closest Cities must be within a certain range
-		if(iSmallestDistanceBetweenCities <= /*7*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
-		{
-			eProximity = PLAYER_PROXIMITY_NEIGHBORS;
-		}
-		// If our closest Cities are pretty near one another  and our average is less than the max then we can be considered CLOSE (will also look at City average below)
-		else if(iSmallestDistanceBetweenCities <= /*11*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
-		{
-			eProximity = PLAYER_PROXIMITY_CLOSE;
-		}
-
-		// If we've already set ourselves as Neighbors, no need to undo what we just did
-		if(eProximity != PLAYER_PROXIMITY_NEIGHBORS)
-		{
-			int iMapFactor = (GC.getMap().getGridWidth() + GC.getMap().getGridHeight()) / 2;
-
-			// Normally base distance on map size, but cap it at a certain point
-			// Close can't be so big that it sits on Far's turf
-			int iCloseDistance = iMapFactor* /*25*/ GC.getPROXIMITY_CLOSE_DISTANCE_MAP_MULTIPLIER() / 100;
-			if(iCloseDistance > /*20*/ GC.getPROXIMITY_CLOSE_DISTANCE_MAX())
-			{
-				iCloseDistance = /*20*/ GC.getPROXIMITY_CLOSE_DISTANCE_MAX();
-			}
-			// Close also can't be so small that it sits on Neighbor's turf
-			else if(iCloseDistance < /*10*/ GC.getPROXIMITY_CLOSE_DISTANCE_MIN())
-			{
-				iCloseDistance = /*10*/ GC.getPROXIMITY_CLOSE_DISTANCE_MIN();
-			}
-
-			// Far can't be so big that it sits on Distant's turf
-			int iFarDistance = iMapFactor* /*45*/ GC.getPROXIMITY_FAR_DISTANCE_MAP_MULTIPLIER() / 100;
-			if(iFarDistance > /*50*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
-			{
-				iFarDistance = /*50*/ GC.getPROXIMITY_FAR_DISTANCE_MAX();
-			}
-			// Far also can't be so small that it sits on Close's turf
-			else if(iFarDistance < /*20*/ GC.getPROXIMITY_FAR_DISTANCE_MIN())
-			{
-				iFarDistance = /*20*/ GC.getPROXIMITY_FAR_DISTANCE_MIN();
-			}
-
-			// Close
-			if(eProximity == PLAYER_PROXIMITY_CLOSE && iAverageDistanceBetweenCities <= iCloseDistance)
-			{
-				eProximity = PLAYER_PROXIMITY_CLOSE;
-			}
-			// Far
-			else if(iAverageDistanceBetweenCities <= iFarDistance)
-			{
-				eProximity = PLAYER_PROXIMITY_FAR;
-			}
-			// Distant
-			else
-			{
-				eProximity = PLAYER_PROXIMITY_DISTANT;
-			}
-		}
-
-		// Players NOT on the same landmass - bump up PROXIMITY by one level (unless we're already distant or on a water map)
-		if(eProximity != PLAYER_PROXIMITY_DISTANT && !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
-		{
-			// Both players have capitals, so we can check their areas to see if they're separated by water
-			if(getCapitalCity() != NULL && GET_PLAYER(ePlayer).getCapitalCity() != NULL)
-			{
-				if(getCapitalCity()->getArea() != GET_PLAYER(ePlayer).getCapitalCity()->getArea())
-				{
-					eProximity = PlayerProximityTypes(eProximity - 1);
-				}
-			}
-		}
-	}
-
-	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
-
-	// Only two players left, the farthest we can be considered is "Close"
-	if(iNumMajorsLeft == 2)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_CLOSE);
-
-	// Four or fewer players left, the farthest we can be considered is "Far"
-	else if(iNumMajorsLeft <= 4)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_FAR);
-
-	SetProximityToPlayer(ePlayer, eProximity);
-#endif
 }
 
 //	--------------------------------------------------------------------------------

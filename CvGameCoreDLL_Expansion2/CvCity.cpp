@@ -900,10 +900,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #endif
 
 	// Policy changes
-	PolicyTypes ePolicy;
 	for(int iPoliciesLoop = 0; iPoliciesLoop < GC.getNumPolicyInfos(); iPoliciesLoop++)
 	{
-		ePolicy = (PolicyTypes) iPoliciesLoop;
+		PolicyTypes ePolicy = (PolicyTypes) iPoliciesLoop;
 
 		if(owningPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !owningPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 		{
@@ -930,13 +929,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.CheckActivePlayerEvents(this);
 	}
 #endif
-	CvPlot* pLoopPlot;
 
 	// We may need to link Resources to this City if it's constructed within previous borders and the Resources were too far away for another City to link to
-
 	for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
 	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 		if(pLoopPlot != NULL)
 		{
@@ -957,12 +954,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	//Update our CoM for the diplo AI.
 	owningPlayer.SetCenterOfMassEmpire();
 #endif	
-	PlayerTypes ePlayer;
 
 	// Update Proximity between this Player and all others
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		if(ePlayer != getOwner())
 		{
@@ -3568,10 +3564,9 @@ bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 			continue;
 		}
 
-		CvPlot* pAdjacentPlot;
 		for (int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
 		{
-			pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)jJ));
+			CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)jJ));
 			if (pAdjacentPlot != NULL && pAdjacentPlot->getOwner() == ePlayer)
 				return true;
 		}
@@ -28025,15 +28020,6 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	GetCityCitizens()->DoReallocateCitizens();
 
 	DoUpdateCheapestPlotInfluenceDistance();
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
-		{
-			GET_PLAYER(getOwner()).DoUpdateProximityToPlayer(eLoopPlayer, true);
-		}
-	}
 }
 
 //	--------------------------------------------------------------------------------
