@@ -18306,9 +18306,7 @@ CvPlot* CvPlayer::getStartingPlot() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::setStartingPlot(CvPlot* pNewValue)
 {
-	CvPlot* pOldStartingPlot;
-
-	pOldStartingPlot = getStartingPlot();
+	CvPlot* pOldStartingPlot = getStartingPlot();
 
 	if(pOldStartingPlot != pNewValue)
 	{
