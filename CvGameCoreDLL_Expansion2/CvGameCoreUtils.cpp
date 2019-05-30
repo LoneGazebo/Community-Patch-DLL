@@ -335,8 +335,12 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 		return false;
 	}
 
-	CvAssert(GET_TEAM(eTeamA).isAtWar(eTeamB) == GET_TEAM(eTeamB).isAtWar(eTeamA));
-	CvAssert((eTeamA != eTeamB) || !(GET_TEAM(eTeamA).isAtWar(eTeamB)));
+#ifdef VPDEBUG
+	if ((GET_TEAM(eTeamA).isAtWar(eTeamB) != GET_TEAM(eTeamB).isAtWar(eTeamA)))
+		OutputDebugString("asymmetric war state!\n");
+	if (GET_TEAM(eTeamA).isAtWar(eTeamA) || GET_TEAM(eTeamB).isAtWar(eTeamB))
+		OutputDebugString("team is at war with itself!\n");
+#endif
 
 	return GET_TEAM(eTeamA).isAtWar(eTeamB);
 }

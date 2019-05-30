@@ -5630,12 +5630,14 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
 	//for performance reasons, start with a small search range and gradually increase it
+	int iInitialRange = 3;
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 	for (int i = 0; i < 3; i++)
 	{
 		//remember we're calling this because the unit is trapped, so use really permissive flags
-		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 3);
+		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | 
+										CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_IGNORE_DANGER, iInitialRange);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
