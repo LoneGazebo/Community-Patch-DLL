@@ -16194,9 +16194,16 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += iTempModifier;
 
 		// Unit Combat type Modifier
-		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+		UnitCombatTypes combatType = (UnitCombatTypes)pOtherUnit->getUnitCombatType();
+		if(combatType != NO_UNITCOMBAT)
 		{
-			iTempModifier = unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
+			iTempModifier = unitCombatModifier(combatType);
+
+			//hack: mounted units can have secondary combat class
+			UnitCombatTypes mountedCombat = (UnitCombatTypes)2; //hardcoded
+			if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
+				iTempModifier += unitCombatModifier(mountedCombat);
+
 			iModifier += iTempModifier;
 		}
 
@@ -22082,7 +22089,7 @@ void CvUnit::DoAoEDamage(int iValue, const char* chText)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
-		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() > 0 && !pAdjacentPlot->isCity())
 		{
 			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
 			{

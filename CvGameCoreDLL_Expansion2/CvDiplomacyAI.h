@@ -889,8 +889,8 @@ public:
 	void SetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer, pair<int,int> value);
 	pair<int,int> GetNoExpansionPromiseClosestCities(PlayerTypes eOtherPlayer);
 
-	void SetLastTurnEmpireDistance(PlayerTypes eOtherPlayer, pair<int,int> value);
-	pair<int,int> GetLastTurnEmpireDistance(PlayerTypes eOtherPlayer);
+	void SetLastTurnClosestCityPair(PlayerTypes eOtherPlayer, pair<int,int> value);
+	pair<int,int> GetLastTurnClosestCityPair(PlayerTypes eOtherPlayer);
 #endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
