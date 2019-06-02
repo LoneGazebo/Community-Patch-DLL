@@ -25960,6 +25960,9 @@ int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainDoubleMoveCount.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -25992,6 +25995,9 @@ int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureDoubleMoveCount.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26026,6 +26032,9 @@ int CvUnit::getTerrainHalfMoveCount(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainHalfMoveCount.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26059,6 +26068,9 @@ int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureHalfMoveCount.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26101,6 +26113,9 @@ bool CvUnit::isTerrainDoubleHeal(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainDoubleHeal.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26142,6 +26157,9 @@ bool CvUnit::isFeatureDoubleHeal(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureDoubleHeal.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26196,6 +26214,9 @@ bool CvUnit::isTerrainImpassable(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainImpassableCount.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26235,6 +26256,9 @@ bool CvUnit::isFeatureImpassable(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureImpassableCount.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26268,6 +26292,9 @@ int CvUnit::getExtraTerrainAttackPercent(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_extraTerrainAttackPercent.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26301,6 +26328,9 @@ int CvUnit::getExtraTerrainDefensePercent(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_extraTerrainDefensePercent.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26334,6 +26364,9 @@ int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_extraFeatureAttackPercent.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26367,6 +26400,9 @@ int CvUnit::getExtraFeatureDefensePercent(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_extraFeatureDefensePercent.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26400,6 +26436,9 @@ int CvUnit::getUnitClassAttackMod(UnitClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	UnitClassCounter& mVec = m_extraUnitClassAttackMod.dirtyGet();
 	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26433,6 +26472,9 @@ int CvUnit::getUnitClassDefenseMod(UnitClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	UnitClassCounter& mVec = m_extraUnitClassDefenseMod.dirtyGet();
 	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -27344,7 +27386,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 
 			changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
-
 			changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
 			changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
 		}
