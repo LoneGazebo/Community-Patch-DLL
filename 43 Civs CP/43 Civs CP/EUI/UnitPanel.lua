@@ -1,4 +1,4 @@
-------------------------------------------------------
+------------------------------------------------------ 
 -- Unit Panel Screen
 -- modified by bc1 from Civ V 1.0.3.276 code
 -- code is common using gk_mode and bnw_mode switches
