@@ -5475,12 +5475,12 @@ int CvPlayerCulture::ComputeWarWeariness()
 
 		//War damage should influence this.
 		int iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
-		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 
+		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 		iWarValue *= (100 + iTechProgress*2);
 		iWarValue /= 100;
 		
-		iRisingWarWeariness = max(100,(iMostWarTurns * iWarValue) / 100);
+		iRisingWarWeariness = (iMostWarTurns * iWarValue) / 100;
 
 		int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
 		if (iMod > 100)
@@ -5489,7 +5489,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		iRisingWarWeariness *= (100 - iMod);
 		iRisingWarWeariness /= 100;
 
-		//smoothing
+		//simple exponential smoothing
 		float fAlpha = 0.3f;
 		iRisingWarWeariness = int(0.5f + (iRisingWarWeariness * fAlpha) + (iOldWarWeariness * (1 - fAlpha)));
 

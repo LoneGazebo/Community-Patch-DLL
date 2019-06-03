@@ -901,11 +901,7 @@ function HappinessTipHandler( control )
 		end
 	
 --COMMUNITY PATCH CHANGES
-		if(unhappinessFromSpecialists > 0) then
-			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100);
-		end
 		if (iUnhappinessFromStarving > 0) then
-			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving);
 		end
 		if (iUnhappinessFromPillaged > 0) then
@@ -935,6 +931,10 @@ function HappinessTipHandler( control )
 		if (iUnhappinessFromCulture > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture);
+		end
+		if(unhappinessFromSpecialists > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100);
 		end
 
 --END CHANGES	

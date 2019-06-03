@@ -1,0 +1,10 @@
+<Asset>
+	<Mesh file="eki_built.gr2" source="Max" />
+ 
+	<DecisionTree file="StaticLandmarkDecisionTree.ddtxml"/>
+	<BoneUsage>
+		<Bone name="Point01"/>
+		<Bone name="Cylinder05"/>
+	</BoneUsage>
+	<TimedTrigger file="FX_Triggers_Tipis.ftsxml" model="Cylinder05" state="0,1,2,3"/>
+</Asset>

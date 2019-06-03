@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/19/2016 10:53:54 AM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CPO">
+			<Text>Corporations &amp; Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_TAB_CORPORATIONS">
+			<Text>Your Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_TAB_WORLD_CORPORATIONS">
+			<Text>World Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_TAB_MONOPOLIES">
+			<Text>Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_AVAILABLE_CORPORATIONS">
+			<Text>Available Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_ESTABLISHED_CORPORATIONS">
+			<Text>Established Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MONOPOLY_REQUIRED">
+			<Text>Monopoly Required (Any)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FOUNDER">
+			<Text>Founder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FOUNDER_NONE">
+			<Text>None</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_PROGRESS">
+			<Text>Progress</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_HEADQUARTERS">
+			<Text>Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICE">
+			<Text>Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FRANCHISE">
+			<Text>Franchise</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICE_BENEFIT">
+			<Text>Office Benefit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FRANCHISE_BENEFIT">
+			<Text>Franchise Benefit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_RIGHT_CLICK_MORE_INFO">
+			<Text>(Right-click the Corporation Icon for more information)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICES">
+			<Text>Offices Established</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FRANCHISES">
+			<Text>Franchises Established</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FOUND_CORPORATION_AVAILABLE">
+			<Text>Corporations are available to be established.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FOUND_CORPORATION_UNAVAILABLE">
+			<Text>You are unable to establish a Corporation because every Corporation has been already established.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FOUND_CORPORATION_HELP">
+			<Text>To found a Corporation, you must have a Global Monopoly over any of the required Resources and build the Corporation Headquarters in one of your cities. Only one Corporation is available per civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_YOUR_CORPORATION_HQ">
+			<Text>Headquarters: {1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_YOUR_CORPORATION_ESTABLISHED">
+			<Text>Founded: {1_Date} (Turn {2_Turn})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_YOUR_OFFICES">
+			<Text>Your Offices</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_YOUR_FRANCHISES">
+			<Text>Your Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_RIVAL_FRANCHISES">
+			<Text>Rival Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICE_TRADE_ROUTES_SORT_TT">
+			<Text>Number of foreign Trade Routes from this city. After the Trade Route ends, a {1_CorpName} will be built in that city if it does not already contain a {1_CorpName} Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICE_TRADE_ROUTES_TT">
+			<Text>Your city has a Trade Route with the following foreign cities:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICE_TRADE_ROUTES_INSTANCE_TT">
+			<Text>[ICON_BULLET] {1_FromCity} [ICON_ARROW_RIGHT] {2_ToCity} ({3_Franchise})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_NO_FRANCHISE">
+			<Text>No Franchise</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_FRANCHISED">
+			<Text>Franchised</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_NUM_OFFICES">
+			<Text>Offices Opened: {1_Num} of {2_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_NUM_FRANCHISES">
+			<Text>Franchises Established: {1_Num} of {2_Max}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_BUILD_FRANCHISES_HELP">
+			<Text>Spread your Corporation by sending [ICON_INTERNATIONAL_TRADE] Trade Routes from cities with Offices in them to foreign Cities. There is a chance each turn that Franchises will spawn in their Empire and, at the end of the [ICON_INTERNATIONAL_TRADE] Trade Route, you are guaranteed one new Franchise (if one does not already exist in that city).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_CORPORATIONS_NOT_READY">
+			<Text>You cannot create a Corporation until you have researched the Corporations technology.</Text>
+		</Row>
+		
+		<!-- World Corporations -->
+		<Row Tag="TXT_KEY_CPO_WC_NO_FRANCHISES">
+			<Text>No Franchises have been established in the World yet.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NO_CORPORATIONS">
+			<Text>No Corporations have been established in the World yet.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CIVILIZATION">
+			<Text>Corporation Owner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CIVILIZATION_SORT_TT">
+			<Text>Which civilization owns the Corporation.[NEWLINE][NEWLINE]Click to sort by corporation owner.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CORPNAME">
+			<Text>Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CORPNAME_SORT_TT">
+			<Text>Name of the corporation.[NEWLINE][NEWLINE]Click to sort by corporation name.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CIVILIZATION_TO">
+			<Text>Civilization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CIVILIZATION_TO_SORT_TT">
+			<Text>Which civilization owns the franchised city.[NEWLINE][NEWLINE]Click to sort cities by their owner.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CITY_NAME">
+			<Text>Franchise City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WF_CITY_NAME_SORT_TT">
+			<Text>Name of the city the franchise is located.[NEWLINE][NEWLINE]Click to sort franchise cities by their name.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CPO_WC_CORPNAME">
+			<Text>Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_CORPNAME_SORT_TT">
+			<Text>Name of the Corporation.[NEWLINE][NEWLINE]Click to sort Corporations by their name.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_CIVILIZATION">
+			<Text>Civilization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_CIVILIZATION_SORT_TT">
+			<Text>Civilization that founded the Corporation.[NEWLINE][NEWLINE]Click to sort Corporations by their founder.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_HEADQUARTERS">
+			<Text>Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_HEADQUARTERS_SORT_TT">
+			<Text>City where the Corporation headquarters is founded.[NEWLINE][NEWLINE]Click to sort Corporations by their headquarters city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_DATE_FOUNDED">
+			<Text>Date Founded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_DATE_FOUNDED_SORT_TT">
+			<Text>Date the Corporation was founded.[NEWLINE][NEWLINE]Click to sort Corporations by their date of establishment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_OFFICES">
+			<Text># Offices</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_OFFICES_SORT_TT">
+			<Text>Number of Offices this Corporation has established.[NEWLINE][NEWLINE]Click to sort Corporations by number of established Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_FRANCHISES">
+			<Text># Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_FRANCHISES_SORT_TT">
+			<Text>Number of Franchises this Corporation has established.[NEWLINE][NEWLINE]Click to sort Corporations by number of established Franchises.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CPO_WC_PULLDOWN_CORPORATIONS">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_PULLDOWN_FRANCHISES">
+			<Text>Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CPO_MP_RESOURCE">
+			<Text>Resource</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_RESOURCE_SORT_TT">
+			<Text>Name of the resource.[NEWLINE][NEWLINE]Click to sort Monopolies by their resource name.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_CIVILIZATION">
+			<Text>Civilization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_CIVILIZATION_SORT_TT">
+			<Text>Name of the civilization that may have the monopoly.[NEWLINE][NEWLINE]Click to sort Monopolies by civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY">
+			<Text>Monopoly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_SORT_TT">
+			<Text>Percent of a monopoly civilization has over this resource.[NEWLINE][NEWLINE]Click to sort Monopolies by their monopoly percentage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_BONUS">
+			<Text>Monopoly Bonus</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CPO_MP_NO_CIVILIZATION">
+			<Text>No Civilization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_PERCENT">
+			<Text>{1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_PLAYER">
+			<Text>Select Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_TYPE">
+			<Text>Select Monopoly Type</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_GREATEST">
+			<Text>Greatest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_PULLDOWN_TYPE_ALL">
+			<Text>All</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_PULLDOWN_TYPE_GLOBAL">
+			<Text>Global</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_PULLDOWN_TYPE_STRATEGIC">
+			<Text>Strategic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_PULLDOWN_TYPE_POTENTIAL">
+			<Text>Potential</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CPO_YC_PULLDOWN_TYPE_OVERVIEW">
+			<Text>Overview</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_YC_PULLDOWN_TYPE_OFFICES">
+			<Text>Offices and Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CPO_CORPORATION_BONUSES">
+			<Text>Bonuses:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_RESOURCE_BONUS">
+			<Text>Resource</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_OFFICE_BONUS">
+			<Text>Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_TRADE_ROUTE_BONUS">
+			<Text>Trade Route</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -4272,6 +4272,10 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 		return false;
 
 #if defined(MOD_BALANCE_CORE)
+	// prevent exploits - can't sell in damaged cities
+	if (m_pCity->getDamage() > 0)
+		return false;
+
 	//Spawns a permanent resource? Can't sell.
 	if(kBuilding.GrantsRandomResourceTerritory())
 	{

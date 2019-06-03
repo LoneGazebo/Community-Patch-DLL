@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT16" FontStyle="Base" Color="Beige" ColorSet="Beige_Black" >
+
+	<Image Anchor="C,T" Texture="assets\UI\Art\WorldView\TopPanelBar.dds" Size="Full.32" ConsumeMouse="true" />
+
+	<Stack Anchor="L,T" Offset="10,6" Padding="10" StackGrowth="Right" ID="TopPanelInfoStack">
+
+
+	<TextButton Anchor="C,T" Offset="0,0" String="000 Turn"  Color="Science" ID="SciencePerTurn" ToolTipType="TooltipTypeTopPanel" />
+
+		<TextButton Anchor="C,T" Offset="-0,0" String="000,000 Turn: Total 000,000" ColorLayer0="255,235,0,255"  ID="GoldPerTurn" ToolTipType="TooltipTypeTopPanel" />
+
+    <TextButton Anchor="C,T" Offset="-0,0" String="000,000 Turn: Total 000,000" ColorLayer0="255,235,0,255"  ID="InternationalTradeRoutes" ToolTipType="TooltipTypeTopPanel" />
+
+    <TextButton Anchor="C,T" String="HAPPINESS!" ColorLayer0="255,255,200,255"  ID="HappinessString" ToolTipType="TooltipTypeTopPanel"/>
+
+		<TextButton Anchor="C,T" String="GOLDEN AGE!" ColorLayer0="255,255,255,255"  ID="GoldenAgeString" ToolTipType="TooltipTypeTopPanel"/>
+
+		<TextButton Anchor="C,T" String="CULTURE!" ColorLayer0="255,255,200,255"  ID="CultureString" ToolTipType="TooltipTypeTopPanel"/>
+
+    <TextButton Anchor="C,T" String="Tourism!" ColorLayer0="255,255,200,255"  ID="TourismString" ToolTipType="TooltipTypeTopPanel"/>
+
+    <TextButton Anchor="C,T" String="FAITH!" ColorLayer0="255,255,200,255"  ID="FaithString" ToolTipType="TooltipTypeTopPanel"/>
+
+	<TextButton Anchor="C,T" Offset="0,0" String="INSTANT!"  ColorLayer0="255,255,255,255" ID="InstantYields" ToolTipType="TooltipTypeTopPanel" />
+
+	<TextButton Anchor="C,T" String="RESOURCES!" ColorLayer0="255,0,255,255"  ID="ResourceString" ToolTipType="TooltipTypeTopPanel"/>
+
+	<TextButton Anchor="C,T" String="MANPOWER!" ColorLayer0="255,0,255,255"  ID="UnitSupplyString" ToolTipType="TooltipTypeTopPanel"/>
+		
+	</Stack>
+
+  <Image Anchor="R,T" Texture="assets\UI\Art\WorldView\TopPanelBar.dds" Size="295.32" ConsumeMouse="true" />
+	<Stack Anchor="R,T" Offset="10,4" Padding="10" StackGrowth="Left">
+    <TextButton Anchor="C,C"  String="TXT_KEY_MENU_CAPS"   Font="TwCenMT20" NormalState="Beige_Black"  MouseOver="White_Black" ButtonDown="Beige_Black_Alpha" ID="MenuButton" ToolTip="TXT_KEY_MENU_TOOLTIP" />
+    <Image Anchor="C,C" TextureOffset="5,0" Texture="assets\UI\Art\WorldView\Divider.dds" Size="5.16"  />
+    <TextButton Anchor="C,C"  String="TXT_KEY_HELP_CAPS"   Font="TwCenMT20" NormalState="Beige_Black"  MouseOver="White_Black" ButtonDown="Beige_Black_Alpha" ID="CivilopediaButton" ToolTip="TXT_KEY_CIVILOPEDIA_TOOLTIP" />
+    <Image Anchor="C,C" TextureOffset="5,0" Texture="assets\UI\Art\WorldView\Divider.dds" Size="5.16"  />
+		<Label Anchor="C,C" String="Date: 2100 AD"  ID="CurrentDate"/>
+		<Label Anchor="C,C" String="Turn: 1"  ID="CurrentTurn"/>
+	</Stack>
+
+
+	<ToolTipType Name="TooltipTypeTopPanel" >
+		<Grid Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8"  ID="TopPanelMouseover" NoClip="1" >
+			<Label Offset="12,12" Font="TwCenMT16" ID="TooltipLabel" String="Brief description" LeadingOffset="-5" WrapWidth="512" />
+		</Grid>
+	</ToolTipType>
+
+
+
+
+
+</Context>

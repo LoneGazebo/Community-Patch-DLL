@@ -102,6 +102,17 @@ int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
 	return plotDistance(plotA.getX(),plotA.getY(),plotB.getX(),plotB.getY());
 }
 
+int plotDistance(int iIndexA, int iIndexB)
+{
+	CvMap& kMap = GC.getMap();
+	CvPlot* pA = kMap.plotByIndex(iIndexA);
+	CvPlot* pB = kMap.plotByIndex(iIndexB);
+	if (pA && pB)
+		return plotDistance(pA->getX(),pA->getY(),pB->getX(),pB->getY());
+	else
+		return INT_MAX;
+}
+
 CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
 #if defined(MOD_BALANCE_CORE)
@@ -324,8 +335,12 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 		return false;
 	}
 
-	CvAssert(GET_TEAM(eTeamA).isAtWar(eTeamB) == GET_TEAM(eTeamB).isAtWar(eTeamA));
-	CvAssert((eTeamA != eTeamB) || !(GET_TEAM(eTeamA).isAtWar(eTeamB)));
+#ifdef VPDEBUG
+	if ((GET_TEAM(eTeamA).isAtWar(eTeamB) != GET_TEAM(eTeamB).isAtWar(eTeamA)))
+		OutputDebugString("asymmetric war state!\n");
+	if (GET_TEAM(eTeamA).isAtWar(eTeamA) || GET_TEAM(eTeamB).isAtWar(eTeamB))
+		OutputDebugString("team is at war with itself!\n");
+#endif
 
 	return GET_TEAM(eTeamA).isAtWar(eTeamB);
 }

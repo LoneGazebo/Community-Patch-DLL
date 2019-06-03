@@ -1973,6 +1973,7 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		setAtWar(eTeam, false);
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 		//Secondary major declarations
 		for(int iI = 0; iI < MAX_TEAMS; iI++)
@@ -4640,21 +4641,9 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 			}
 		}
 	}
-
-	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
 #endif
 
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
-
-#ifndef FINAL_RELEASE
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iMinorLoop);
-		if(kPlayer.getTeam() == eIndex && kPlayer.isAlive())
-			CvAssertMsg(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID(), "Major civ is now at war with a minor it is allied with! This is dumb and bad. If you didn't do this on purpose, please send Jon this along with your last 5 autosaves and a changelist #.");
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------

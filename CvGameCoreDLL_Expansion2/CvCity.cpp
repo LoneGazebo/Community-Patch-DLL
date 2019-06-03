@@ -900,10 +900,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #endif
 
 	// Policy changes
-	PolicyTypes ePolicy;
 	for(int iPoliciesLoop = 0; iPoliciesLoop < GC.getNumPolicyInfos(); iPoliciesLoop++)
 	{
-		ePolicy = (PolicyTypes) iPoliciesLoop;
+		PolicyTypes ePolicy = (PolicyTypes) iPoliciesLoop;
 
 		if(owningPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !owningPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 		{
@@ -930,13 +929,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.CheckActivePlayerEvents(this);
 	}
 #endif
-	CvPlot* pLoopPlot;
 
 	// We may need to link Resources to this City if it's constructed within previous borders and the Resources were too far away for another City to link to
-
 	for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
 	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 
 		if(pLoopPlot != NULL)
 		{
@@ -957,12 +954,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	//Update our CoM for the diplo AI.
 	owningPlayer.SetCenterOfMassEmpire();
 #endif	
-	PlayerTypes ePlayer;
 
 	// Update Proximity between this Player and all others
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		if(ePlayer != getOwner())
 		{
@@ -3568,10 +3564,9 @@ bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 			continue;
 		}
 
-		CvPlot* pAdjacentPlot;
 		for (int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
 		{
-			pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)jJ));
+			CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)jJ));
 			if (pAdjacentPlot != NULL && pAdjacentPlot->getOwner() == ePlayer)
 				return true;
 		}
@@ -3674,6 +3669,12 @@ void CvCity::UpdateUnhappinessFromEmpire()
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	if (IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+	{
+		m_iUnhappinessFromEmpire = 0;
+		return;
+	}
+
+	if (kPlayer.GetUnhappiness() == 0)
 	{
 		m_iUnhappinessFromEmpire = 0;
 		return;
@@ -4609,7 +4610,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			return false;
 							
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->isEraScaling())
 		{
@@ -5060,7 +5061,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -5458,7 +5459,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			{
 				iPreValue *= iEra;
 			}
-			iPreValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iPreValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iPreValue /= 100;
 			if(iPreValue != 0)
 			{
@@ -5491,7 +5492,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			{
 				iYieldValue *= iEra;
 			}
-			iYieldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iYieldValue /= 100;
 			if(iYieldValue != 0)
 			{
@@ -6266,7 +6267,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -10822,7 +10823,7 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 	}
 #endif
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10869,7 +10870,7 @@ int CvCity::getProductionNeeded(ProjectTypes eProject) const
 		iNumProductionNeeded += pProject->CostScalerEra() * GET_PLAYER(getOwner()).GetCurrentEra();
 	}
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10878,7 +10879,7 @@ int CvCity::getProductionNeeded(SpecialistTypes eSpecialist) const
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eSpecialist);
 
-	return iNumProductionNeeded;
+	return max(1,iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -21759,9 +21760,7 @@ int CvCity::getUnhappinessFromCulture(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromCultureRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	
+
 	return iContribution;
 }
 
@@ -21871,8 +21870,6 @@ int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromReligionRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -21978,8 +21975,6 @@ int CvCity::getUnhappinessFromDefense(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22084,8 +22079,7 @@ int CvCity::getUnhappinessFromGold(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromGoldRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
+
 	return iContribution;
 }
 
@@ -22191,8 +22185,6 @@ int CvCity::getUnhappinessFromConnection() const
 	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22246,8 +22238,6 @@ int CvCity::getUnhappinessFromPillaged() const
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22301,8 +22291,6 @@ int CvCity::getUnhappinessFromStarving() const
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22398,8 +22386,6 @@ int CvCity::getUnhappinessFromReligion() const
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromReligionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -28020,15 +28006,6 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	GetCityCitizens()->DoReallocateCitizens();
 
 	DoUpdateCheapestPlotInfluenceDistance();
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
-		{
-			GET_PLAYER(getOwner()).DoUpdateProximityToPlayer(eLoopPlayer, true);
-		}
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -32362,7 +32339,7 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 		if ( (!pInPlot && pDefender->isEmbarked()) || (pInPlot && pInPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		else
-			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, NULL, false, false, pInPlot, plot(), false, bQuickAndDirty);
+			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, this, false, pInPlot, plot(), false, bQuickAndDirty);
 	}
 	else
 	{

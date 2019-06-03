@@ -617,8 +617,8 @@ public:
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
 
-	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
+	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
+									const CvPlot* pMyPlot = NULL, const CvPlot* pOtherPlot = NULL, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
@@ -631,8 +631,8 @@ public:
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
-	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
+	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
 
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 	int GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;

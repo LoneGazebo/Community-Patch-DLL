@@ -5113,7 +5113,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	iPlunderGoldValue *= 100 + iDomainModifier;
 	iPlunderGoldValue /= 100;
 #if defined(MOD_BALANCE_CORE)
-	iPlunderGoldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iPlunderGoldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	int iEra = m_pPlayer->GetCurrentEra();
 	if (iEra <= 0)
 		iEra = 1;

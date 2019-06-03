@@ -3103,10 +3103,9 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
 {
 	CvTeamTechs* teamTechs = GET_TEAM(m_pUnit->getTeam()).GetTeamTechs();
-	CvAssert(teamTechs);
-	if(!teamTechs) return false;
+	if(!teamTechs) 
+		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	//first check if this feature type is cached
 	if(m_featurePassableCache.size() <= 0)
 	{
@@ -3141,43 +3140,12 @@ bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
 	return false;
 }
 
-#else
-	int iNumPromos = GC.getNumPromotionInfos();
-	for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
-	{
-		PromotionTypes ePromotion = (PromotionTypes) iLoop;
-		if(m_kHasPromotion.GetBit(ePromotion))
-		{
-			CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
-			if(promotion)
-			{
-				TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(eFeatureType);
-				if(eTech != NO_TECH && teamTechs->HasTech(eTech))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#endif
-
 /// determines if the terrain type is passable given the unit's current promotions
 #if defined(MOD_BALANCE_CORE)
 void CvUnitPromotions::UpdateCache()
 {
-	m_unitClassDefenseMod.clear();
-	m_unitClassAttackMod.clear();
 	m_terrainPassableCache.clear();
 	m_featurePassableCache.clear();
-
-	//for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-	//{
-	//	m_unitClassDefenseMod.push_back( GetUnitClassDefenseMod((UnitClassTypes)iI) );
-	//	m_unitClassAttackMod.push_back( GetUnitClassAttackMod((UnitClassTypes)iI) );
-	//}
 
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{
@@ -3225,10 +3193,9 @@ void CvUnitPromotions::UpdateCache()
 bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 {
 	CvTeamTechs* teamTechs = GET_TEAM(m_pUnit->getTeam()).GetTeamTechs();
-	CvAssert(teamTechs);
-	if(!teamTechs) return false;
+	if(!teamTechs) 
+		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	//first check if this terrain type is cached
 	if(m_terrainPassableCache.size() <= 0)
 	{
@@ -3262,31 +3229,6 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 	//have none of the techs?
 	return false;
 }
-
-#else
-
-	int iNumPromos = GC.getNumPromotionInfos();
-	for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
-	{
-		PromotionTypes ePromotion = (PromotionTypes) iLoop;
-		if(m_kHasPromotion.GetBit(ePromotion))
-		{
-			CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
-
-			if(promotion)
-			{
-				TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(eTerrainType);
-				if(eTech != NO_TECH && teamTechs->HasTech(eTech))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-#endif
 
 /// returns the advantage percent when attacking the specified unit class
 int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const

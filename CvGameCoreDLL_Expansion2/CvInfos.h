@@ -1057,6 +1057,7 @@ public:
 #endif
 	int getGrowthPercent() const;
 	int getTrainPercent() const;
+	int getInstantYieldPercent() const;
 	int getConstructPercent() const;
 	int getCreatePercent() const;
 	int getResearchPercent() const;
@@ -1115,6 +1116,7 @@ protected:
 #endif
 	int m_iGrowthPercent;
 	int m_iTrainPercent;
+	int m_iInstantYieldPercent;
 	int m_iConstructPercent;
 	int m_iCreatePercent;
 	int m_iResearchPercent;

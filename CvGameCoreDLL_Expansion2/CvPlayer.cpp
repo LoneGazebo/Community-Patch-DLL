@@ -3466,7 +3466,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->GetCultureBonusModifierConquest() > 0)
 			{
 				int iValue = (pOldCity->getPopulation() / 2);
-				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 				iValue /= 100;
 				if (iValue > 0)
 				{
@@ -3502,7 +3502,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->GetProductionBonusModifierConquest() > 0)
 			{
 				int iValue = (pOldCity->getPopulation() / 2);
-				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 				iValue /= 100;
 				if (iValue > 0)
 				{
@@ -4010,11 +4010,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_CAPTURED, m_eID, "", pCityPlot->getX(), pCityPlot->getY());
 
-	PlayerTypes ePlayer;
 	// Update Proximity between this Player and all others
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		if(ePlayer != m_eID)
 		{
@@ -6477,7 +6476,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			return false;
 							
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->isEraScaling())
 		{
@@ -6984,7 +6983,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -7639,7 +7638,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			{
 				iPreValue *= iEra;
 			}
-			iPreValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iPreValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iPreValue /= 100;
 			if(iPreValue != 0)
 			{
@@ -7672,7 +7671,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			{
 				iYieldValue *= iEra;
 			}
-			iYieldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iYieldValue /= 100;
 			if(iYieldValue != 0)
 			{
@@ -8410,7 +8409,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -13483,7 +13482,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(MOD_BALANCE_CORE && kGoodyInfo.getProduction() > 0)
 	{
 		iProduction = kGoodyInfo.getProduction();
-		iProduction *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iProduction *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iProduction /= 100;
 
 		if (pUnit != NULL && iGoodyModifier != 0)
@@ -16219,19 +16218,16 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
+int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 {
-	int iProductionNeeded;
-
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eTheBuilding);
 	if(pkBuildingInfo == NULL)
 	{
 		//This should never happen.
 		return 1;
 	}
 
-	iProductionNeeded = pkBuildingInfo->GetProductionCost();
-
+	int iProductionNeeded = pkBuildingInfo->GetProductionCost();
 	int iProductionModifier = 0;
 
 	if(pkBuildingInfo->GetNumCityCostMod() > 0 && getNumCities() > 0)
@@ -16241,9 +16237,8 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 #if defined(MOD_BALANCE_CORE_WONDER_COST_INCREASE)
 	if(MOD_BALANCE_CORE_WONDER_COST_INCREASE && isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 	{
-		const CvCity* pLoopCity;
 		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if(pLoopCity->getNumWorldWonders() > 0)
 			{
@@ -18311,9 +18306,7 @@ CvPlot* CvPlayer::getStartingPlot() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::setStartingPlot(CvPlot* pNewValue)
 {
-	CvPlot* pOldStartingPlot;
-
-	pOldStartingPlot = getStartingPlot();
+	CvPlot* pOldStartingPlot = getStartingPlot();
 
 	if(pOldStartingPlot != pNewValue)
 	{
@@ -19470,7 +19463,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 #endif
 			iValue = (iValue * iCombatStrength) / 100;
 #if defined(MOD_BALANCE_CORE)
-			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iValue /= 100;
 #endif
 			if(iValue > 0)
@@ -19707,7 +19700,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		const char* strTargetNameKey = pConqueredCity->getNameKey();
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		int iValue = (pConqueredCity->getPopulation() * 20 * iEra);
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iValue /= 100;
 		if(eCurrentTech == NO_TECH)
 		{
@@ -20495,16 +20488,13 @@ void CvPlayer::SetUnhappiness(int iNewValue)
 	{
 		m_iUnhappiness = iNewValue;
 
-		if (m_iUnhappiness > 0)
+		int iLoop;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			int iLoop;
-			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
-					continue;
+			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+				continue;
 
-				pLoopCity->UpdateUnhappinessFromEmpire();
-			}
+			pLoopCity->UpdateUnhappinessFromEmpire();
 		}
 	}
 }
@@ -26831,7 +26821,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						else
 						{
-							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 							iValue /= 100;
 						}
 					}
@@ -27815,7 +27805,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 		iEra = 1;
 	}
 	int iValue = iPolicyGEorGM * iEra;
-	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	int iRandom = GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE));
 	if (iRandom <= 33)
@@ -28223,7 +28213,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	if(iExpendGold > 0)
 	{
 #if defined(MOD_BALANCE_CORE)
-		iExpendGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iExpendGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iExpendGold /= 100;
 #endif
 		GetTreasury()->ChangeGold(iExpendGold);
@@ -36581,217 +36571,40 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 
 //	--------------------------------------------------------------------------------
 /// Figure out how "close" we are to another player (useful for diplomacy, war planning, etc.)
-void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer, bool bTileCheck)
+void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-#if !defined(MOD_BALANCE_CORE)
-	int iSmallestDistanceBetweenCities = GC.getMap().numPlots();
-#endif
-	int iAverageDistanceBetweenCities = 0;
-#if !defined(MOD_BALANCE_CORE)
-	int iNumCityConnections = 0;
-#endif
-
-	CvCity* pLoopMyCity;
-	int iMyCityLoop;
-#if !defined(MOD_BALANCE_CORE)
-	
-	CvCity* pLoopTheirCity;
-
-	
-	int iTheirCityLoop;
-
-	int iTempDistance;
-#endif
-	// Loop through all of MY Cities, but only if we're close (or we just bought a tile).
-	if (GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE || bTileCheck)
-	{
-		for (pLoopMyCity = firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = nextCity(&iMyCityLoop))
-		{
-			if (pLoopMyCity->AreOurBordersTouching(ePlayer))
-			{
-				SetProximityToPlayer(ePlayer, PLAYER_PROXIMITY_NEIGHBORS);
-				return;
-			}
-		}
-	}
-	//only checking for connecting tiles.
-	if (bTileCheck)
-		return;
-
-#if defined(MOD_BALANCE_CORE)
-	if(GetCenterOfMassEmpire() != NULL && GET_PLAYER(ePlayer).GetCenterOfMassEmpire() != NULL)
-	{
-		iAverageDistanceBetweenCities = plotDistance(GetCenterOfMassEmpire()->getX(), GetCenterOfMassEmpire()->getY(), GET_PLAYER(ePlayer).GetCenterOfMassEmpire()->getX(), GET_PLAYER(ePlayer).GetCenterOfMassEmpire()->getY());
-	}
-	else
+	//the current pair for comparison
+	pair<int, int> closestCities = GetDiplomacyAI()->GetClosestCityPair(ePlayer);
+	if (closestCities.first < 0 || closestCities.second < 0)
 	{
 		SetProximityToPlayer(ePlayer, NO_PLAYER_PROXIMITY);
 		return;
 	}
 
-	// Seed this value with something reasonable to start.  This will be the value assigned if one player has 0 Cities.
-	PlayerProximityTypes eProximity = NO_PLAYER_PROXIMITY;
+	//default
+	PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
 
-	if(iAverageDistanceBetweenCities != 0)
+	// Closest Cities must be within a certain range
+	int iDistance = plotDistance(closestCities.first,closestCities.second);
+	if(iDistance < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
 	{
-		// Closest Cities must be within a certain range
-		if(iAverageDistanceBetweenCities < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
-		{
-			eProximity = PLAYER_PROXIMITY_NEIGHBORS;
-		}
-		// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
-		else if(iAverageDistanceBetweenCities < /*12*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
-		{
-			eProximity = PLAYER_PROXIMITY_CLOSE;
-		}
-		// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
-		else if(iAverageDistanceBetweenCities < /*18*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
-		{
-			eProximity = PLAYER_PROXIMITY_FAR;
-		}
-		else
-		{
-			eProximity = PLAYER_PROXIMITY_DISTANT;
-		}
+		eProximity = PLAYER_PROXIMITY_NEIGHBORS;
 	}
-
-	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
-
-	// Only two players left, the farthest we can be considered is "Close"
-	if(iNumMajorsLeft == 2)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_CLOSE);
-
-	// Four or fewer players left, the farthest we can be considered is "Far"
-	else if(iNumMajorsLeft <= 4)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_FAR);
+	// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
+	else if(iDistance < /*12*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
+	{
+		eProximity = PLAYER_PROXIMITY_CLOSE;
+	}
+	// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
+	else if(iDistance < /*18*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
+	{
+		eProximity = PLAYER_PROXIMITY_FAR;
+	}
 
 	SetProximityToPlayer(ePlayer, eProximity);
-#else
-	// Loop through all of MY Cities
-	for(pLoopMyCity = firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = nextCity(&iMyCityLoop))
-	{
-		// Loop through all of THEIR Cities
-		for(pLoopTheirCity = GET_PLAYER(ePlayer).firstCity(&iTheirCityLoop); pLoopTheirCity != NULL; pLoopTheirCity = GET_PLAYER(ePlayer).nextCity(&iTheirCityLoop))
-		{
-			iNumCityConnections++;
-
-			// Different area or couldn't find path - get distance the hard way
-			//if (!bPathFinderSuccess)
-			{
-				iTempDistance = plotDistance(pLoopMyCity->getX(), pLoopMyCity->getY(), pLoopTheirCity->getX(), pLoopTheirCity->getY());
-			}
-
-			// Smallest distance between any two Cities
-			if(iTempDistance < iSmallestDistanceBetweenCities)
-			{
-				iSmallestDistanceBetweenCities = iTempDistance;
-			}
-
-			iAverageDistanceBetweenCities += iTempDistance;
-		}
-	}
-
-	// Seed this value with something reasonable to start.  This will be the value assigned if one player has 0 Cities.
-	PlayerProximityTypes eProximity = NO_PLAYER_PROXIMITY;
-
-	if(iNumCityConnections > 0)
-	{
-		iAverageDistanceBetweenCities /= iNumCityConnections;
-
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if(GC.getMap().GetAIMapHint() & ciMapHint_Naval)
-		{
-			iSmallestDistanceBetweenCities /= 2;
-		}
-#endif
-
-		// Closest Cities must be within a certain range
-		if(iSmallestDistanceBetweenCities <= /*7*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
-		{
-			eProximity = PLAYER_PROXIMITY_NEIGHBORS;
-		}
-		// If our closest Cities are pretty near one another  and our average is less than the max then we can be considered CLOSE (will also look at City average below)
-		else if(iSmallestDistanceBetweenCities <= /*11*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
-		{
-			eProximity = PLAYER_PROXIMITY_CLOSE;
-		}
-
-		// If we've already set ourselves as Neighbors, no need to undo what we just did
-		if(eProximity != PLAYER_PROXIMITY_NEIGHBORS)
-		{
-			int iMapFactor = (GC.getMap().getGridWidth() + GC.getMap().getGridHeight()) / 2;
-
-			// Normally base distance on map size, but cap it at a certain point
-			// Close can't be so big that it sits on Far's turf
-			int iCloseDistance = iMapFactor* /*25*/ GC.getPROXIMITY_CLOSE_DISTANCE_MAP_MULTIPLIER() / 100;
-			if(iCloseDistance > /*20*/ GC.getPROXIMITY_CLOSE_DISTANCE_MAX())
-			{
-				iCloseDistance = /*20*/ GC.getPROXIMITY_CLOSE_DISTANCE_MAX();
-			}
-			// Close also can't be so small that it sits on Neighbor's turf
-			else if(iCloseDistance < /*10*/ GC.getPROXIMITY_CLOSE_DISTANCE_MIN())
-			{
-				iCloseDistance = /*10*/ GC.getPROXIMITY_CLOSE_DISTANCE_MIN();
-			}
-
-			// Far can't be so big that it sits on Distant's turf
-			int iFarDistance = iMapFactor* /*45*/ GC.getPROXIMITY_FAR_DISTANCE_MAP_MULTIPLIER() / 100;
-			if(iFarDistance > /*50*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
-			{
-				iFarDistance = /*50*/ GC.getPROXIMITY_FAR_DISTANCE_MAX();
-			}
-			// Far also can't be so small that it sits on Close's turf
-			else if(iFarDistance < /*20*/ GC.getPROXIMITY_FAR_DISTANCE_MIN())
-			{
-				iFarDistance = /*20*/ GC.getPROXIMITY_FAR_DISTANCE_MIN();
-			}
-
-			// Close
-			if(eProximity == PLAYER_PROXIMITY_CLOSE && iAverageDistanceBetweenCities <= iCloseDistance)
-			{
-				eProximity = PLAYER_PROXIMITY_CLOSE;
-			}
-			// Far
-			else if(iAverageDistanceBetweenCities <= iFarDistance)
-			{
-				eProximity = PLAYER_PROXIMITY_FAR;
-			}
-			// Distant
-			else
-			{
-				eProximity = PLAYER_PROXIMITY_DISTANT;
-			}
-		}
-
-		// Players NOT on the same landmass - bump up PROXIMITY by one level (unless we're already distant or on a water map)
-		if(eProximity != PLAYER_PROXIMITY_DISTANT && !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
-		{
-			// Both players have capitals, so we can check their areas to see if they're separated by water
-			if(getCapitalCity() != NULL && GET_PLAYER(ePlayer).getCapitalCity() != NULL)
-			{
-				if(getCapitalCity()->getArea() != GET_PLAYER(ePlayer).getCapitalCity()->getArea())
-				{
-					eProximity = PlayerProximityTypes(eProximity - 1);
-				}
-			}
-		}
-	}
-
-	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
-
-	// Only two players left, the farthest we can be considered is "Close"
-	if(iNumMajorsLeft == 2)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_CLOSE);
-
-	// Four or fewer players left, the farthest we can be considered is "Far"
-	else if(iNumMajorsLeft <= 4)
-		eProximity = max(eProximity, PLAYER_PROXIMITY_FAR);
-
-	SetProximityToPlayer(ePlayer, eProximity);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -47010,13 +46823,15 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 	int iNumPuppetCities = GetNumPuppetCities();
 	iNumCities -= iNumPuppetCities;
 
+	bool bVPChange = MOD_BALANCE_CORE_DIPLOMACY_ADVANCED;
+
 	// Don't count cities where the player hasn't decided yet what to do with them or ones that are currently being razed
 	int iNumLimboCities = 0;
 	const CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->IsIgnoreCityForHappiness() || pLoopCity->IsRazing())
+		if (pLoopCity->IsIgnoreCityForHappiness() || (!bVPChange && pLoopCity->IsRazing()))
 		{
 			iNumLimboCities++;
 		}
@@ -47027,7 +46842,10 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 		iNumCities = 1;
 
 	// Update member variable
-	m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
+	if (!bVPChange)
+		m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
+	else
+		m_iMaxEffectiveCities = iNumCities;
 
 	if (bIncludePuppets)
 	{

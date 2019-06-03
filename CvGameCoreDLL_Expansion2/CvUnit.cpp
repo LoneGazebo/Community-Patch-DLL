@@ -2370,17 +2370,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
-
-			//Human killed me?
-			if (MOD_BALANCE_CORE_DIFFICULTY && !kPlayer.isHuman() && GET_PLAYER(ePlayer).isHuman())
-			{
-				int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * (getUnitInfo().GetPower());
-				iHandicap /= 25;
-				if (getOriginCity() != NULL && getOwner() == getOriginCity()->getOwner())
-				{
-					getOriginCity()->changeProduction(iHandicap);
-				}
-			}
 		}
 #endif
 		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
@@ -5630,12 +5619,14 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
 	//for performance reasons, start with a small search range and gradually increase it
+	int iInitialRange = 3;
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 	for (int i = 0; i < 3; i++)
 	{
 		//remember we're calling this because the unit is trapped, so use really permissive flags
-		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 3);
+		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | 
+										CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_IGNORE_DANGER, iInitialRange);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
@@ -6043,7 +6034,7 @@ int CvUnit::GetScrapGold() const
 
 	// slewis - moved this out of the plot check because the game speed should effect all scrap gold calculations, not just the ones that are in the owner's plot
 	// Modify for game speed
-	iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iNumGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	iNumGold /= 100;
 
 #if defined(MOD_CIV6_WORKER)
@@ -10597,7 +10588,7 @@ bool CvUnit::pillage()
 				if(iPillageGold > 0)
 				{
 #if defined(MOD_BALANCE_CORE)
-					iPillageGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iPillageGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 					iPillageGold /= 100;
 #endif
 					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iPillageGold);
@@ -12392,7 +12383,7 @@ bool CvUnit::trade()
 				iCap = GetScaleAmount(iCap);
 			}
 #endif
-			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iCap /= 100;
 			CvCity* pLoopCity;
 			int iCityLoop;
@@ -15005,10 +14996,9 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	if (!pPlot)
 		return false;
 
-#if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-#endif
+
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
@@ -16193,9 +16183,16 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += iTempModifier;
 
 		// Unit Combat type Modifier
-		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
+		UnitCombatTypes combatType = (UnitCombatTypes)pOtherUnit->getUnitCombatType();
+		if(combatType != NO_UNITCOMBAT)
 		{
-			iTempModifier = unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
+			iTempModifier = unitCombatModifier(combatType);
+
+			//hack: mounted units can have secondary combat class
+			UnitCombatTypes mountedCombat = (UnitCombatTypes)2; //hardcoded
+			if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
+				iTempModifier += unitCombatModifier(mountedCombat);
+
 			iModifier += iTempModifier;
 		}
 
@@ -16774,38 +16771,28 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-				const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
+int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
+				const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
-	if (pFromPlot == NULL)
-	{
-		pFromPlot = plot();
-	}
-	if (pTargetPlot == NULL)
+	if (pMyPlot == NULL)
+		pMyPlot = plot();
+
+	if (pOtherPlot == NULL)
 	{
 		if (pOtherUnit != NULL)
 		{
-			pTargetPlot = pOtherUnit->plot();
+			pOtherPlot = pOtherUnit->plot();
 		}
 		else if (pCity != NULL)
 		{
-			pTargetPlot = pCity->plot();
+			pOtherPlot = pCity->plot();
 		}
 	}
-	const CvPlot* pMyPlot = pFromPlot;
 
-	if (!bAttacking)
-	{
-		pFromPlot = pTargetPlot;
-		pTargetPlot = pMyPlot;
-		pMyPlot = pFromPlot;
-	}
+	const CvPlot* pTargetPlot = bAttacking ? pOtherPlot : pMyPlot;
 	
-	int iModifier;
-	int iTempModifier;
-
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -16828,7 +16815,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Extra combat percent
-	iModifier = getExtraCombatPercent();
+	int iModifier = getExtraCombatPercent();
+	int iTempModifier = 0;
 
 	// Kamikaze attack
 	if(getKamikazePercent() != 0)
@@ -16921,7 +16909,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		////////////////////////
 
 		// ATTACKING
-		if (bForRangedAttack)
+		if (bAttacking)
 		{
 			// Open Ground
 			if (pTargetPlot->isOpenGround())
@@ -17137,7 +17125,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 
 		// ATTACKING
-		if(bForRangedAttack)
+		if(bAttacking)
 		{
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
@@ -17191,24 +17179,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Ranged attack mod
-	if(bForRangedAttack)
+	if(bAttacking)
 	{
 		iModifier += GetRangedAttackModifier();
+		iModifier += getAttackModifier();
 	}
 	else
 	{
 		// Ranged Defense Mod (this was under the known unit bit, which is stupid)
 		iModifier += rangedDefenseModifier();
-	}
 
-	// This unit on offense
-	if(bAttacking)
-	{
-		iModifier += getAttackModifier();
-	}
-	// This Unit on defense
-	else
-	{
 		// No TERRAIN bonuses for this Unit?
 		iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
@@ -17290,8 +17270,8 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		}
 	}
 
-	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, 
-									pTargetPlot, pFromPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, 
+								pFromPlot, pTargetPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 	if (iAttackerStrength==0)
 		return 0;
 
@@ -17332,7 +17312,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 			if ( (!pTargetPlot && pDefender->isEmbarked()) || (pTargetPlot && pTargetPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
 				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
-				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot, false, bQuickAndDirty);
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty);
 		}
 		else
 			//this considers embarkation implicitly
@@ -17440,9 +17420,9 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot) const
 {
-	pAttacker;  pTargetPlot; pFromPlot; //unused
+	pAttacker;  pTargetPlot; //unused
 
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
@@ -17474,19 +17454,20 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 
 //	--------------------------------------------------------------------------------
 /// Amount of damage done by this unit when intercepting pAttacker
-int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot) const
 {
-	if (pFromPlot == NULL && pAttacker)
-		pFromPlot = pAttacker->plot();
 	if (pTargetPlot == NULL)
 		pTargetPlot = plot();
 
-	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, /*bForRangedAttack*/ false, pTargetPlot, pFromPlot);
+	//interception happens at the target plot
+	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, pTargetPlot, pTargetPlot);
+
 	int iInterceptorStrength = 0;
 	switch (getDomainType())
 	{
 		case DOMAIN_AIR:
-			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
+			//interception happens at the target plot
+			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, pTargetPlot, pTargetPlot);
 			break;
 
 		case DOMAIN_SEA:
@@ -17584,7 +17565,7 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 	switch (getDomainType())
 	{
 		case DOMAIN_AIR:
-			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
+			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false);
 			break;
 
 		case DOMAIN_SEA:
@@ -20731,7 +20712,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								}
 
 								// Game Speed Mod
-								iCulturePoints *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getTrainPercent();
+								iCulturePoints *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getInstantYieldPercent();
 								iCulturePoints /= 100;
 
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
@@ -22097,7 +22078,7 @@ void CvUnit::DoAoEDamage(int iValue, const char* chText)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
-		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() > 0 && !pAdjacentPlot->isCity())
 		{
 			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
 			{
@@ -25910,7 +25891,7 @@ int CvUnit::getGAPBlast()
 			iValue = GC.getGOLDEN_AGE_BASE_THRESHOLD_HAPPINESS() / 2;
 
 		// Modify based on game speed
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iValue /= 100;
 	}
 	return iValue;
@@ -25975,6 +25956,9 @@ int CvUnit::getTerrainDoubleMoveCount(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainDoubleMoveCount.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26007,6 +25991,9 @@ int CvUnit::getFeatureDoubleMoveCount(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureDoubleMoveCount.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26041,6 +26028,9 @@ int CvUnit::getTerrainHalfMoveCount(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainHalfMoveCount.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26074,6 +26064,9 @@ int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureHalfMoveCount.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26116,6 +26109,9 @@ bool CvUnit::isTerrainDoubleHeal(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainDoubleHeal.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26157,6 +26153,9 @@ bool CvUnit::isFeatureDoubleHeal(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureDoubleHeal.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26211,6 +26210,9 @@ bool CvUnit::isTerrainImpassable(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_terrainImpassableCount.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26250,6 +26252,9 @@ bool CvUnit::isFeatureImpassable(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_featureImpassableCount.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26283,6 +26288,9 @@ int CvUnit::getExtraTerrainAttackPercent(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_extraTerrainAttackPercent.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26316,6 +26324,9 @@ int CvUnit::getExtraTerrainDefensePercent(TerrainTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	TerrainTypeCounter& mVec = m_extraTerrainDefensePercent.dirtyGet();
 	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26349,6 +26360,9 @@ int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_extraFeatureAttackPercent.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26382,6 +26396,9 @@ int CvUnit::getExtraFeatureDefensePercent(FeatureTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	FeatureTypeCounter& mVec = m_extraFeatureDefensePercent.dirtyGet();
 	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26415,6 +26432,9 @@ int CvUnit::getUnitClassAttackMod(UnitClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	UnitClassCounter& mVec = m_extraUnitClassAttackMod.dirtyGet();
 	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -26448,6 +26468,9 @@ int CvUnit::getUnitClassDefenseMod(UnitClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
 {
+	if (iChange == 0)
+		return;
+
 	UnitClassCounter& mVec = m_extraUnitClassDefenseMod.dirtyGet();
 	for (UnitClassCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
 	{
@@ -27359,7 +27382,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 
 			changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
-
 			changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
 			changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
 		}

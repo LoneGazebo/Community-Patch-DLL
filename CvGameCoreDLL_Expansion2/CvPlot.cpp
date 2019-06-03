@@ -8089,6 +8089,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 			{
 				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+				if (getOwner() != NULL && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+				{
+					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+				}
 			}
 #endif
 			// If this improvement can add culture to nearby improvements, update them as well

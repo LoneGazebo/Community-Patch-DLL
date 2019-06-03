@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/25/2013 4:03:12 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_1">
+			<Text>Why do you continue to waste my time with this nonsense? Begone!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_2">
+			<Text>Did you not hear me the first time? Go away!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_3">
+			<Text>I'm sorry, are you hard of hearing? The answer will always be no!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_1">
+			<Text>I will not field such requests at this time. Please stop asking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_2">
+			<Text>We've been over this before. I will not tell you of my affairs.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_3">
+			<Text>The answer remains no. We shall not provide diplomatic details at this time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_1">
+			<Text>We would never share our diplomatic secrets with villains like you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_2">
+			<Text>Do you honestly think I would tell a criminal like you my foreign policy?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_3">
+			<Text>Why would you waste your time asking about my foreign affairs? They are none of your business!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_1">
+			<Text>I'm sorry, but we prefer to keep our diplomatic secrets safe. Try again some other time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_2">
+			<Text>My advisors deem it important to keep our foreign policy private. Maybe some other time?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_3">
+			<Text>We're not comfortable broadcasting our foreign affairs at this time. Perhaps another time?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_1">
+			<Text>{1_PlayerName:textkey} is a true friend and can be trusted. (Friendly)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_2">
+			<Text>I'm quite fond of {1_PlayerName:textkey} and look forward to our continued friendship. (Friendly)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_3">
+			<Text>{1_PlayerName:textkey} and I have been on good terms, and I see no reason why that would change. (Friendly)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_1">
+			<Text>I really don't have an opinion of {1_PlayerName:textkey}. (Neutral)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_2">
+			<Text>{1_PlayerName:textkey} is neither an enemy of mine nor my friend. (Neutral)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_3">
+			<Text>{1_PlayerName:textkey} doesn't bother me at all. (Neutral)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_1">
+			<Text>I'll be honest. I don't trust {1_PlayerName:textkey} one bit. (Guarded)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_2">
+			<Text>{1_PlayerName:textkey} has alarmed my advisors and we are monitoring the situation. (Guarded)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_3">
+			<Text>We're keeping an eye on {1_PlayerName:textkey} due to recent incidents. (Guarded)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_1">
+			<Text>{1_PlayerName:textkey}'s rule taints this earth and I would see no problem with it ending. (Hostile)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_2">
+			<Text>{1_PlayerName:textkey} is a tyrant and a villain that needs to be taken care of. (Hostile)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_3">
+			<Text>Don't remind me that {1_PlayerName:textkey} still walks this earth... (Hostile)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_1">
+			<Text>I look up to {1_PlayerName:textkey} with great envy! (Afraid)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_2">
+			<Text>I marvel at {1_PlayerName:textkey}'s success. (Afraid)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_3">
+			<Text>Hopefully one day I can be as good a leader as {1_PlayerName:textkey}. (Afraid)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_1">
+			<Text>{1_PlayerName:textkey} and I are at war! ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_2">
+			<Text>{1_PlayerName:textkey} and I are locked in combat.  ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_3">
+			<Text>I am currently settling a dispute with {1_PlayerName:textkey}.  ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_1">
+			<Text>I trust you enough to confess that I am planning war against {1_PlayerName:textkey}. (Planning War!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_2">
+			<Text>Don't be fooled by outward appearances. I plan to rid this earth of {1_PlayerName:textkey}. (Planning War!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_3">
+			<Text>I'm sick of {1_PlayerName:textkey}'s presence and I plan on eliminating him soon. (Planning War!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_1">
+			<Text>It may appear that I am friendly with {1_PlayerName:textkey} but that's all show. (Deceptive)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_2">
+			<Text>Think you can keep a secret? I plan on deceiving {1_PlayerName:textkey} at earliest convenience. (Deceptive)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_3">
+			<Text>I tell the world that {1_PlayerName:textkey} is a friend. I tell you in strictest confidence that that is not the case. (Deceptive)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MAPS_EXCHANGE">
+			<Text>We should mutually exchange our world maps and unlock the secrets of this world. What do you think?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MAPS_OFFER">
+			<Text>We'd like to purchase your world map from you. Will you accept?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TECH_OFFER">
+			<Text>We'd like to purchase a technology from you. Is this acceptable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_1">
+			<Text>Friend, please accept this offer as a gesture of gratitude for our friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_2">
+			<Text>In your time of need I offer you a gift.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_3">
+			<Text>To show our support of our friendship, I offer your people this in hopes you will one day return the favor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_1">
+			<Text>I am glad to help.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_2">
+			<Text>May this gift bring prosperity to your people.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_3">
+			<Text>It is my pleasure to assist those in need.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_1">
+			<Text>I'm sorry. My generosity does not extend as far as you'd like, I'm afraid.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_2">
+			<Text>You have asked for simply too much, I'm afraid. I cannot comply.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_3">
+			<Text>Absolutely not. I am a generous person, but that is too much you are asking me to give up.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_1">
+			<Text>I'm sorry, but I've already offered as much assistance as I can at this time. Maybe some other time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_2">
+			<Text>It's been too soon since our last show of generosity. I'm afraid I must decline.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_3">
+			<Text>I cannot service this request at the moment. I'm sorry.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_1">
+			<Text>I'm sorry, but we haven't known you long enough to divulge our diplomatic secrets. Maybe in the future?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_2">
+			<Text>We haven't known each other long enough for me to reveal my foreign policy. The answer is no.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_3">
+			<Text>I only give away my foreign policy to those whom I trust. I cannot trust someone I've just met.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_1">
+			<Text>Your enslavement of my people brings embarrassment to all of us. What do you want?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_2">
+			<Text>Oh, the tyrant shows his face again. How do you wish to exploit us further?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_3">
+			<Text>Oh? What brings the tyrant to my doorstep? Have you come to spit on us and our pride further?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_1">
+			<Text>Welcome, master, to my lands. How may I be of service?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_2">
+			<Text>Greetings! I hope you're pleased to know our workers are hard at work producing resources for your use.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_3">
+			<Text>Ah, welcome master! What assistance do you seek from us?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_1">
+			<Text>We're tired of your pathetic rule over us and are prepared to fight to the death to regain our independence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_2">
+			<Text>Relinquish control over our empire, or suffer the consequences. Which sounds like the smarter plan?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_HOSTILE_3">
+			<Text>My people want independence and there's nothing you can do to stop us. Now, we can do this the easy way, or the hard way. The choice is yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_1">
+			<Text>The time has come for my people to seek their own path in this world. We desire an independent nation. What say you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_2">
+			<Text>Your occupation of our empire is no longer tolerable among my subjects and I am issuing a formal request that you allow my people to live as an individual sovereign state.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_3">
+			<Text>We believe the time has come to terminate our Vassalage agreement. Our people desire independent rule. Will you accept this?</Text>
+		</Row>
+		<!-- AI revokes Human Vassalage -->
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_1">
+			<Text>My people are grateful you have decided to grant us our independence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_2">
+			<Text>Freeing my people is very generous of you. You have my gratitude.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_PEACEFUL_3">
+			<Text>Restoring our independence is very gracious of you. May this day be remembered for centuries to come.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_WAR_1">
+			<Text>Very well. Our people shall fight to the death to ensure our independence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_WAR_2">
+			<Text>You have chosen to pointlessly spill your men's blood over this. Our people shall not shy away from independence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_HUMAN_WAR_3">
+			<Text>Very well, then. We shall fight to the death to ensure our freedom.</Text>
+		</Row>
+		<!-- Human asks AI to revoke his vassalage, what is his response? -->
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_PEACEFUL_1">
+			<Text>Very well. We grant you your independence and recognize your people as an independent state.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_PEACEFUL_2">
+			<Text>I accept. You are free from my empire's control.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_PEACEFUL_3">
+			<Text>Understood. We accept your right to independence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_1">
+			<Text>Who do you think you're talking to? My puppets won't leave me that easily. Now I will bring down your insurrection.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_2">
+			<Text>You honestly thought that I would let you go that easily? Ha! No...now prepare to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKED_FORCEFUL_3">
+			<Text>You're nuts, right? Did you honestly think I would be that pathetic? I will enjoy smashing your armies into pieces.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_ATTACKED_VASSAL_1">
+			<Text>I trusted you to defend us and you attacked us instead. What a shame.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_ATTACKED_VASSAL_2">
+			<Text>How barbaric of you! You promised to protect our people and instead, you attack us! Make no mistake, I will kill you, and when I do, you will suffer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_ATTACKED_VASSAL_3">
+			<Text>You were our protector. It was said you would destroy our attackers, not join them! Bring prosperity to both of us, not leave us in darkness! You are lost, and now, the world shall know.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_1">
+			<Text>Oh look, my little pet state has come to see me. What do you want?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_2">
+			<Text>Your men had better be hard at work creating resources to please me. What do you want?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_3">
+			<Text>You stand in the presence of your superior. Kneel before me, or else.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_MASTER_1">
+			<Text>What's this? A visit from my vassal? Is it tribute you offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_MASTER_2">
+			<Text>Ah, one of my many servants? What do you have to offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_MASTER_3">
+			<Text>I promise that my soldiers shall protect you and your land. What do you want?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_1">
+			<Text>As you wish, I shall move my troops from your border. My apologies for any trouble caused by this incident.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_2">
+			<Text>Very well, I will redirect my armies elsewhere.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_3">
+			<Text>Understood. I will move my troops at once.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_1">
+			<Text>Please understand, my troops are merely passing through! We mean no harm to your empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_2">
+			<Text>Don't be alarmed. We do not wish to harm you. Our troops are merely running drills.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_3">
+			<Text>I apologize for any concern my recent troop movements have caused you. Our troops are merely passing through the area and we have no intention of war.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE_1">
+			<Text>As much as your soulless existence would be worth ending, my men do not wish to attack you at the moment. Consider yourself lucky.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE_2">
+			<Text>Although it would be my pleasure to kill you, now is not the time for that.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE_3">
+			<Text>No, my men aren't going to waste their time with you, yet. Your fear amuses me, however.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST_1">
+			<Text>Maybe you're smarter than I thought. Perhaps you expected my eventual rise to world domination? Or maybe you're just stupid. Either way, time to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST_2">
+			<Text>Honestly, there's no sense lying to you. You are merely a stepping stone to my ascent to greatness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST_3">
+			<Text>Ha! That's not the way I expect you to talk to your future ruler. Now, you must suffer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_DECEPTIVE">
+			<Text>I'll admit, at some point I thought you were a pretty good friend. However, it's time to show my true colors. My troops are aimed directly at your cities. Time to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE">
+			<Text>What's this? Are you just trying to egg me on? Well, consider yourself lucky; you've succeeded. Prepare to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RESPONSE_VASSALAGE_TRADE_REVOKE_1">
+			<Text>Your subject nations cry out for independence. Can you hear it? Come, what will it cost to get you to listen?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RESPONSE_VASSALAGE_TRADE_REVOKE_2">
+			<Text>I beg of you, please release your vassals. Is this offer tempting enough?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RESPONSE_VASSALAGE_TRADE_REVOKE_3">
+			<Text>Independence is a natural right. Come, let us restore balance by coming to an agreement for the sake of your vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN_1">
+			<Text>This gesture of kindness will not soon be forgotten. You have offered my people their freedom. I am forever in your debt.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN_2">
+			<Text>It takes a wise and courageous leader to revoke their claims in the name of decency and freedom. My people will celebrate our Independence Day for centuries to come. You have my gratitude.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN_3">
+			<Text>We thank you for recognizing our people as an independent state. May our people live on together, joined as allies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_LIBERATE_VASSAL_1">
+			<Text>We have decided to revoke our claim to your land. You may live on as a free people. You are no longer our vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_LIBERATE_VASSAL_2">
+			<Text>I believe our time as your master has come to an end. I grant you your independence. May we remain great allies in the future. You are no longer our vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_LIBERATE_VASSAL_3">
+			<Text>After careful consideration, we have decided to end our agreement and give you your freedom. May our empires flourish in the times to come. You are no longer our vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER_1">
+			<Text>I am disappointed you have chosen to raise our taxes. That money belongs to my people. Rest assured, our relations have been hurt.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER_2">
+			<Text>I beg you, have mercy on our merchants. Your taxation disrupts our economy. I am disappointed you have chosen to pursue this path.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER_3">
+			<Text>Your increase in our taxes is unacceptable. Is control over our political affairs not enough to satisfy your greed?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_AI_MASTER_1">
+			<Text>Ruling over another state incurs a large cost on us. We have decided to raise your taxes. I hope you will understand.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_1">
+			<Text>We are pleased to hear you have lowered our taxes. We can only hope this is a sign of good things to come.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_2">
+			<Text>I thank you for some relief on our taxes. We promise the increase to our economy will help both our nations out in the long run.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_3">
+			<Text>We find your decision to lower our taxes to be a move that will bring our people closer together. We thank you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_AI_MASTER_1">
+			<Text>I am pleased to announce that I've lowered your taxes. Our empire can thrive just fine without your help, and I see no need to strain our relations unnecessarily.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

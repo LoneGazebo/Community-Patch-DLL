@@ -3516,6 +3516,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 #endif
 	m_iGrowthPercent(0),
 	m_iTrainPercent(0),
+	m_iInstantYieldPercent(0),
 	m_iConstructPercent(0),
 	m_iCreatePercent(0),
 	m_iResearchPercent(0),
@@ -3584,6 +3585,10 @@ int CvGameSpeedInfo::getGrowthPercent() const
 int CvGameSpeedInfo::getTrainPercent() const
 {
 	return m_iTrainPercent;
+}
+int CvGameSpeedInfo::getInstantYieldPercent() const
+{
+	return m_iInstantYieldPercent;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getConstructPercent() const
@@ -3766,6 +3771,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #endif
 	m_iGrowthPercent				= kResults.GetInt("GrowthPercent");
 	m_iTrainPercent					= kResults.GetInt("TrainPercent");
+	m_iInstantYieldPercent			= kResults.GetInt("InstantYieldPercent");
 	m_iConstructPercent				= kResults.GetInt("ConstructPercent");
 	m_iCreatePercent				= kResults.GetInt("CreatePercent");
 	m_iResearchPercent				= kResults.GetInt("ResearchPercent");

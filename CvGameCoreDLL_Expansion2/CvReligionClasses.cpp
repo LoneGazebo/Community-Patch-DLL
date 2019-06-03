@@ -4323,7 +4323,16 @@ void CvPlayerReligions::SetPlayerReligion(ReligionTypes eReligion)
 				m_pPlayer->GetNotifications()->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 #endif
 			}
-			m_pPlayer->SetFaith(0);
+
+			if (m_pPlayer->GetFaith() > 0)
+			{
+				m_pPlayer->ChangeGoldenAgeProgressMeter(m_pPlayer->GetFaith());
+
+				m_pPlayer->changeInstantYieldValue(YIELD_GOLDEN_AGE_POINTS, m_pPlayer->GetFaith());
+
+				m_pPlayer->SetFaith(0);
+
+			}
 		}
 		m_ePlayerCurrentReligion = eReligion;
 	}
@@ -6411,13 +6420,13 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			if(eResponsibleParty != NO_PLAYER)
 			{
 				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts(eResponsibleParty, pHolyCity);
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 				iGoldBonus /= 100;
 			}
 			else
 			{
 				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 				iGoldBonus /= 100;
 			}
 

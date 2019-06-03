@@ -2022,9 +2022,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 
 					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
 					if(iScore > 0)
-					{
 						vTargets.push_back( pLoopCity,iScore);
-					}
 				}
 			}
 		}
@@ -2148,92 +2146,63 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	//First, the exclusions!
 
 	//Initializations...
-	int iScore = 0;
 	CvPlot* pPlot = pCity->plot();
-	int iFriendship = pUnit->getTradeInfluence(pPlot);
+	int iFriendshipFromUnit = pUnit->getTradeInfluence(pPlot);
 
-	CvMinorCivAI* pMinorCivAI;
+	CvPlayer& kMinor = GET_PLAYER(pCity->getOwner());
+	CvMinorCivAI* pMinorCivAI = kMinor.GetMinorCivAI();
 
-	CvPlayer& eMinor = GET_PLAYER(pCity->getOwner());
-	PlayerTypes pMinor = eMinor.GetID();
-	pMinorCivAI = eMinor.GetMinorCivAI();
-
-	// Skip if not revealed.
-	if (!pCity->plot()->isRevealed(getTeam()))
-	{
+	// Skip if not revealed
+	if (!pPlot->isRevealed(getTeam()))
 		return 0;
-	}
 
+	// Sphere of Influence resolution
 	if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
-	{
 		return 0;
-	}
+
+	// Open Door resolution
 	if (pMinorCivAI->IsNoAlly())
 		return 0;
 
-	if (pMinorCivAI->IsAllies(GetID()) && !pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
+	// If we are at war with target minor, let's not send diplomatic lambs to slaughter.
+	if (kMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
 		return 0;
 
-	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
-	if (eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
-	{
+	// Barbarians expected?
+	if (kMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_HORDE) || kMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_REBELLION))
 		return 0;
-	}
-
-	if (eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_HORDE) || eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_REBELLION))
-	{
-		return 0;
-	}
 
 	// Did we bully you recently?  If so, being friendly now would be very odd.
 	if (pMinorCivAI->IsRecentlyBulliedByMajor(GetID()))
-	{
 		return 0;
-	}
 
-	//Return score if we can't embark and they aren't on our landmass.
-	if (pCity->getArea() != pUnit->plot()->getArea())
-	{
-		if (!GET_TEAM(getTeam()).canEmbark())
-		{
-			return 0;
-		}
-	}
+	//Return if we can't embark and they aren't on our landmass.
+	if (pCity->getArea() != pUnit->plot()->getArea() && !GET_TEAM(getTeam()).canEmbark())
+		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!
-	for (int iNeighborMajorLoop = 0; iNeighborMajorLoop < MAX_MAJOR_CIVS; iNeighborMajorLoop++)
+	vector<PlayerTypes> currentWars = GetPlayersAtWarWith();
+	for (size_t i = 0; i < currentWars.size(); i++)
 	{
-		PlayerTypes eOtherMajor = (PlayerTypes)iNeighborMajorLoop;
-
-		if (GET_PLAYER(eOtherMajor).isAlive() && GET_TEAM(GET_PLAYER(eOtherMajor).getTeam()).isAtWar(getTeam()) && GET_PLAYER(eOtherMajor).GetProximityToPlayer(pMinor) >= PLAYER_PROXIMITY_CLOSE)
-		{
+		CvPlayer& kEnemy = GET_PLAYER(currentWars[i]);
+		if (kEnemy.isMajorCiv() && kEnemy.GetProximityToPlayer(kMinor.GetID()) > PLAYER_PROXIMITY_CLOSE)
 			return 0;
-		}
 	}
-
-	int iOtherMajorLoop;
-	PlayerTypes eOtherMajor;
-	int iFriendshipWithMinor;
-	int iOtherPlayerFriendshipWithMinor;
 
 	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
 	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
 	bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
 	bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
-	MinorCivApproachTypes eApproach;
-
 	// **************************
 	// Approaches
 	// **************************
 
-	iScore = 100;
-	eApproach = GetDiplomacyAI()->GetMinorCivApproach(pMinor);
+	int iScore = 100;
+	MinorCivApproachTypes eApproach = GetDiplomacyAI()->GetMinorCivApproach(kMinor.GetID());
 
 	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
-	{
 		iScore /= 10;
-	}
 
 	// **************************
 	// Benefits to Us!
@@ -2315,7 +2284,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			if (eResourceDemanded != NO_RESOURCE)
 			{
 				//Will we get a WLTKD from this? We want it a bit more, please.
-				if (eMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
+				if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
 				{
 					iScore *= 3;
 					iScore /= 2;
@@ -2329,8 +2298,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	{
 		iScore /= 5;
 	}
+
 	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
-	if (eMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < 0)
+	if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < 0)
 	{
 		iScore /= 5;
 	}
@@ -2339,38 +2309,38 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// Other Relationships!
 	// **************************
 
-	PlayerTypes eAlliedPlayer = NO_PLAYER;
-	iFriendshipWithMinor = pMinorCivAI->GetBaseFriendshipWithMajor(GetID());
-	eAlliedPlayer = pMinorCivAI->GetAlly();
+	int iFriendshipWithMinor = pMinorCivAI->GetBaseFriendshipWithMajor(GetID());
+	PlayerTypes eAlliedPlayer = pMinorCivAI->GetAlly();
 
 	int iHighestInfluence = 0;
 	// Loop through other players to see if we can pass them in influence
-	for (iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
+	for (int iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 	{
-		eOtherMajor = (PlayerTypes)iOtherMajorLoop;
+		PlayerTypes eOtherMajor = (PlayerTypes)iOtherMajorLoop;
 
 		if (eOtherMajor == NO_PLAYER || eOtherMajor == GetID())
 			continue;
 
-		iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetBaseFriendshipWithMajor(eOtherMajor);
+		int iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetBaseFriendshipWithMajor(eOtherMajor);
 		if (iOtherPlayerFriendshipWithMinor > iHighestInfluence)
 		{
 			iHighestInfluence = iOtherPlayerFriendshipWithMinor;
 		}
 	}
+
 	//What would be the difference her after we do a mission?
-	int iDifference = iHighestInfluence - (iFriendshipWithMinor + iFriendship);
+	int iDifference = iHighestInfluence - (iFriendshipWithMinor + iFriendshipFromUnit);
 
 	// Are we allied? Yay! But let's be careful.
 	if (eAlliedPlayer == GetID())
 	{
 		// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
-		if (iDifference < iFriendship * -2)
+		if (iDifference < iFriendshipFromUnit * -2)
 		{
-			return 1;
+			iScore /= 4;
 		}
 		// Are we close to losing our status? If so, obsess away!
-		else if (iDifference < iFriendship * -1 || pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
+		else if (iDifference < iFriendshipFromUnit * -1 || pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
 		{
 			iScore *= 2;
 		}
@@ -2378,16 +2348,16 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	else if (eAlliedPlayer != NO_PLAYER)
 	{
 		//If their influence is way higher than ours, let's tune this down...
-		if (iDifference > iFriendship * 2)
+		if (iDifference > iFriendshipFromUnit * 2)
 		{
-			return 1;
+			iScore /= 4;
 		}
-		else if (iDifference > iFriendship)
+		else if (iDifference > iFriendshipFromUnit)
 		{
-			iScore /= 5;
+			iScore /= 2;
 		}
 		//If we can pass them, ramp it up!
-		else if (iDifference <= (iFriendship * -1))
+		else if (iDifference <= (iFriendshipFromUnit * -1))
 		{
 			iScore *= 4;
 		}
@@ -2427,9 +2397,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	{
 		// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
 #if defined(MOD_CITY_STATE_SCALE)
-		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold(GetID()))
+		if((iFriendshipWithMinor + iFriendshipFromUnit) >= pMinorCivAI->GetAlliesThreshold(GetID()))
 #else
-		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+		if((iFriendshipWithMinor + iFriendshipFromUnit) >= pMinorCivAI->GetAlliesThreshold())
 #endif
 		{
 			iScore *= 10;
@@ -2457,39 +2427,23 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	// **************************
 
 	// Subtract distance (XML value important here!)
-	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
-	max(1, iDistance /= max(1, pUnit->baseMoves()));
+	int iDistance = GetCityDistanceInEstimatedTurns(pPlot) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE();
 
 	//Are there barbarians near the city-state? If so, careful!
-	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
-	{
-		iDistance *= 3;
-	}
-
-	if (eMinor.getCapitalCity() != NULL && eMinor.getCapitalCity()->isUnderSiege())
+	if(kMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
 		iDistance *= 3;
 
-	//Let's downplay minors we can't walk to if we don't have embarkation.
-	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
-	{
+	if (kMinor.getCapitalCity() != NULL && kMinor.getCapitalCity()->isUnderSiege())
 		iDistance *= 3;
-	}
 
 	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
-	{
+	if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 		iDistance *= 3;
-	}
 
 	//If this is way too far away, let's not penalize it too much.
 	iScore -= iDistance;
 
 	//All CSs should theoretically be valuable if we've gotten this far.
-	if(iScore <= 0)
-	{
-		iScore = 1;
-	}
-
 	return iScore;
 }
 
@@ -2577,7 +2531,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
 			continue;
 
-		if(pUnit->GetDanger(pLoopPlot)>0)
+		if(pUnit->GetDanger(pLoopPlot)>20) //allow some fog danger
 			continue;
 
 		// Make sure this is still owned by target and is revealed to us

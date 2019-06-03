@@ -1323,8 +1323,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		}
 		else
 		{
-			//apply this even if it's the explicit target
-			if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+			//apply this part even if it's the explicit target
+			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
 			{
 				// Avoid being in a territory that we are not welcome in
 				PlayerTypes ePlotOwner = pToPlot->getOwner();

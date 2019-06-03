@@ -11911,6 +11911,7 @@ void CvDiplomacyAI::DoUpdateExpansionAggressivePostures()
 }
 
 /// Returns plot indices!
+//returns plot indices!
 pair<int,int> CvDiplomacyAI::GetClosestCityPair(PlayerTypes eOtherPlayer)
 {
 	int iCityLoop = 0;
@@ -11976,7 +11977,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	//if no promise, use the previous closest pair
 	if (!pOurOldClosestCity || !pTheirOldClosestCity)
 	{
-		pair<int, int> lastTurnPair = GetLastTurnEmpireDistance(ePlayer);
+		pair<int, int> lastTurnPair = GetLastTurnClosestCityPair(ePlayer);
 		if (lastTurnPair.first >= 0) //valid?
 		{
 			pOurOldClosestCity = GetPlotCityAndVerifyOwnership(lastTurnPair.first, m_pPlayer->GetID());
@@ -11991,7 +11992,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	CvCity* pTheirNewClosestCity = GetPlotCityAndVerifyOwnership(thisTurnPair.second, ePlayer);
 
 	//In any case save off our new value for next turn, it'll be our new test point ...
-	SetLastTurnEmpireDistance(ePlayer, thisTurnPair);
+	SetLastTurnClosestCityPair(ePlayer, thisTurnPair);
 
 	//Null? Must be first turn or something. Ignore.
 	if (!pOurOldClosestCity || !pTheirOldClosestCity || !pOurNewClosestCity || !pTheirNewClosestCity)
@@ -12007,10 +12008,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 	if (
 		//if we got closer to each other and their city is newer, they are being aggressive (else we are being aggressive)
-		(iNewDistance<iOldDistance && pTheirNewClosestCity->getGameTurnAcquired() > pOurNewClosestCity->getGameTurnAcquired())
+		(iNewDistance < iOldDistance && pTheirNewClosestCity->getGameTurnAcquired() > pOurNewClosestCity->getGameTurnAcquired())
 		||
 		//if one of us lost a city relax the posture, no matter what
-		(iNewDistance>iOldDistance)
+		(iNewDistance > iOldDistance)
 		)
 	{
 		if (iNewDistance <= /*2*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH() + (GetBoldness() / 4)))
@@ -29504,13 +29505,13 @@ pair<int,int> CvDiplomacyAI::GetNoExpansionPromiseClosestCities(PlayerTypes eOth
 	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_paNoExpansionPromise[eOtherPlayer];
 }
-void CvDiplomacyAI::SetLastTurnEmpireDistance(PlayerTypes eOtherPlayer, pair<int,int> value)
+void CvDiplomacyAI::SetLastTurnClosestCityPair(PlayerTypes eOtherPlayer, pair<int,int> value)
 {
 	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paLastTurnEmpireDistance[eOtherPlayer] = value;
 }
-pair<int,int> CvDiplomacyAI::GetLastTurnEmpireDistance(PlayerTypes eOtherPlayer)
+pair<int,int> CvDiplomacyAI::GetLastTurnClosestCityPair(PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
