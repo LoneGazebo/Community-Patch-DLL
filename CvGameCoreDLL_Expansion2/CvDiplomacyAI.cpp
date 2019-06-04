@@ -11075,10 +11075,9 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 				continue;
 			}
 			else if (eProximity == PLAYER_PROXIMITY_CLOSE)
-				iLandDisputeWeight += /*18*/ GC.getLAND_DISPUTE_CLOSE();
+				iLandDisputeWeight += /*10*/ GC.getLAND_DISPUTE_CLOSE();
 			else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
-				iLandDisputeWeight += /*30*/ GC.getLAND_DISPUTE_NEIGHBORS();
-
+				iLandDisputeWeight += /*20*/ GC.getLAND_DISPUTE_NEIGHBORS();
 			
 			// Expansion aggression
 			eAggression = GetExpansionAggressivePosture(ePlayer);
@@ -11088,11 +11087,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			else if(eAggression == AGGRESSIVE_POSTURE_LOW)
 				iLandDisputeWeight += /*10*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_LOW();
 			else if(eAggression == AGGRESSIVE_POSTURE_MEDIUM)
-				iLandDisputeWeight += /*32*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_MEDIUM();
+				iLandDisputeWeight += /*20*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_MEDIUM();
 			else if(eAggression == AGGRESSIVE_POSTURE_HIGH)
-				iLandDisputeWeight += /*50*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_HIGH();
+				iLandDisputeWeight += /*30*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_HIGH();
 			else if(eAggression == AGGRESSIVE_POSTURE_INCREDIBLE)
-				iLandDisputeWeight += /*60*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_INCREDIBLE();
+				iLandDisputeWeight += /*40*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_INCREDIBLE();
 
 			// Plot Buying aggression
 			eAggression = GetPlotBuyingAggressivePosture(ePlayer);
@@ -11848,7 +11847,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 						// Is the player already cramped? If so, multiply our current Weight by 1.5x
 						if(GET_PLAYER(eLoopPlayer).IsCramped())
 						{
-							iLandDisputeWeight *= /*0*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER();
+							iLandDisputeWeight *= 150; //getLAND_DISPUTE_CRAMPED_MULTIPLIER?
 							iLandDisputeWeight /= 100;
 						}
 
