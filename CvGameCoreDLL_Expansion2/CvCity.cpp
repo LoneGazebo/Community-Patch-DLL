@@ -3674,6 +3674,12 @@ void CvCity::UpdateUnhappinessFromEmpire()
 		return;
 	}
 
+	if (kPlayer.GetUnhappiness() == 0)
+	{
+		m_iUnhappinessFromEmpire = 0;
+		return;
+	}
+
 	int iCities = max(1, kPlayer.GetNumRealCities());
 	int iRemainder = kPlayer.GetUnhappiness() % iCities;
 	int iUnappiness = kPlayer.GetUnhappiness() / iCities;
@@ -4604,7 +4610,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			return false;
 							
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->isEraScaling())
 		{
@@ -5055,7 +5061,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -5453,7 +5459,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			{
 				iPreValue *= iEra;
 			}
-			iPreValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iPreValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iPreValue /= 100;
 			if(iPreValue != 0)
 			{
@@ -5486,7 +5492,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			{
 				iYieldValue *= iEra;
 			}
-			iYieldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iYieldValue /= 100;
 			if(iYieldValue != 0)
 			{
@@ -6261,7 +6267,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -21754,9 +21760,7 @@ int CvCity::getUnhappinessFromCulture(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromCultureRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
-	
+
 	return iContribution;
 }
 
@@ -21866,8 +21870,6 @@ int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromReligionRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -21973,8 +21975,6 @@ int CvCity::getUnhappinessFromDefense(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22079,8 +22079,7 @@ int CvCity::getUnhappinessFromGold(int iPopMod, bool bForceGlobal) const
 	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromGoldRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
+
 	return iContribution;
 }
 
@@ -22186,8 +22185,6 @@ int CvCity::getUnhappinessFromConnection() const
 	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22241,8 +22238,6 @@ int CvCity::getUnhappinessFromPillaged() const
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22296,8 +22291,6 @@ int CvCity::getUnhappinessFromStarving() const
 	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }
@@ -22393,8 +22386,6 @@ int CvCity::getUnhappinessFromReligion() const
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromReligionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 
 	return iContribution;
 }

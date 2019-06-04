@@ -698,8 +698,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent() * 7;
-			iBonus /= max(1, GC.getGame().getGameSpeedInfo().getTrainPercent() * 10);
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+			iBonus /= 100;
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
@@ -750,7 +750,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 
 			SetAdmiralPoints(iBonus);
@@ -804,7 +804,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 
 			SetGeneralPoints(iBonus);
@@ -851,7 +851,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 			SetCulture(iBonus);
 		}
@@ -947,7 +947,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 			SetFaith(iBonus);
 		}
@@ -998,10 +998,10 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 
-			iBonus *= (100 + pMinor->getCapitalCity()->getPopulation() * 3);
+			iBonus *= (100 + pMinor->getCapitalCity()->getPopulation() * 2);
 			iBonus /= 100;
 
 			SetFood(iBonus);
@@ -1053,7 +1053,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 60;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 			SetGoldenAgePoints(iBonus);
 		}
@@ -1099,7 +1099,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 			SetGold(iBonus);
 		}
@@ -1243,7 +1243,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 
 			SetTourism(iBonus);	
@@ -1290,7 +1290,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 			SetProduction(iBonus);
 		}
@@ -1341,7 +1341,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 			SetScience(iBonus);
 		}
@@ -5428,16 +5428,16 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (MOD_GLOBAL_CS_GIFTS) {
 						// Give the friendship boost to this team member
 						ChangeFriendshipWithMajor(ePlayer, iFriendshipBoost, /*bFromQuest*/ false);
-						iGoldGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iGoldGift *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 						iGoldGift /= 100;
 
-						iCultureGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iCultureGift *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 						iCultureGift /= 100;
 
-						iFaithGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iFaithGift *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 						iFaithGift /= 100;
 
-						iFoodGift *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iFoodGift *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 						iFoodGift /= 100;
 
 						// Give the gifts to this team member
@@ -16286,7 +16286,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 {
 	int iValue = 65;
-	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	iValue /= 100;
 
 	int iEra = GET_PLAYER(eBully).GetCurrentEra();

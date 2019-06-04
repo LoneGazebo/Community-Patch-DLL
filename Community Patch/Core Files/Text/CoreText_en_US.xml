@@ -5909,7 +5909,7 @@
 			<Text>{1_ReligionName} now your [ICON_RELIGION] primary Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION">
-			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Enhancer Beliefs related to {1_ReligionName}, and any Founder or Enhancer Beliefs related to prior [ICON_RELIGION] Religions are no longer valid.</Text>
+			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Enhancer Beliefs related to {1_ReligionName}, and any Founder or Enhancer Beliefs related to prior [ICON_RELIGION] Religions are no longer valid. All stored [ICON_PEACE] Faith is converted into [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 
 		<!-- Holy City Lost/Gained-->

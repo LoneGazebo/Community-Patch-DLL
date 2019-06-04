@@ -1,0 +1,109 @@
+Changes
+
+UI
+	All happiness-related UI elements given a complete overhaul - check em out!
+
+Religion
+	Holy Law - pop limiter now 250, was 200 
+	Ceremonial Burial - now 14/14, was 8/8
+	Hero Worship - now 25 GA/GG points (dep. on city location), and 100 faith/gap on conquest (was 60/60 faith/gap)
+	Apostolic Tradition: now Food and Culture (was food and GAP)
+	God-King: now +1 per 5 (was 6); Dagda is per 3
+Buildings
+	Removed some extraneous late-game happiness:
+		Removed happiness on SDI building
+		Removed happiness on stadium
+		Removed happiness on Smithsonian
+	Reduced free happiness on Notre Dame by 1 (was 2)
+Happiness
+	Empire Scaler
+		Needs modifiers scale with the number of owned cities (6% for non-puppets, 3% for puppets)
+		Empire needs modifiers can be reduced on a city-by-city basis:
+			Walls, Castles, Arsenals reduce them by 5% in the City
+			Military bases reduce them by 10%
+			Chichen Itza reduces it by 10% globally
+	Local Happiness
+		Now, most happiness is a per-city mechanic. Each city generates happiness as well as unhappiness.
+	Happiness: Can never be greater than your city population. Generated from the following
+		Certain Buildings
+		Luxuries (scales with city population, not 1:1 but gaining new luxuries does increase the potency of the scaling in a linear fashion, so expand!)
+		Policies
+		Handicap (applies per city)
+		Religion (in some instances, such as building bonuses)
+		Unhappiness: Can never be greater than your city population.
+
+	Needs
+		We have the same buckets (distress, poverty, illiteracy, boredom).
+		Needs are calculated by a Global Median. Global Median = Median of (City Yield / Population). Needs are then modified by the following
+			City Capital: +25%
+			Empire: +6% for each city, +3% for each puppet.
+			Tech: ~2% per tech unlocked (more like 1.33%, but eh)
+			Pop: 2% per citizen in the city
+		Buildings: Several buildings, and policies reduce your needs directly
+			The Defense line of buildings reduces your empire modifier (locally)
+			Non-wonder buildings reduce unhappiness from needs directly (they don't affect the modifier, but rather the outcome)
+			Wonders and policies affect the modifiers, since they're global in function
+		Your Need is compared to your yields. If your yields are lower, unhappiness is generated. It is 1:1 (1 deficit in yield per citizen = 1 unhappy from that yield)
+		Specialist (urbanization) and Empire-wide unhappiness are now 'at the top' of the needs hierarchy.
+			Specialists are 1 unhappiness each! They're more expensive for a city to maintain, so they're a bit more of an investment to consider. On the other hand, cities don't double dip on them in addition to needs unhappiness, so it averages out to a similar metric to before.
+				Note that since puppets can run specialists, puppets do generate unhappiness from specialists (event though they don't get GPP, harsh!)
+		Difficulty Handicaps are now applied to each city, and serve as a growth buffer for cities. The handicap starts at 5 for settler, down to 2 for Deity.
+	Effects of City Happiness:
+		City is Happy (more happiness than unhappiness): Growth bonus (currently 5% growth bonus per point of local happy above 0)
+		City is Unhappy (more unhappiness than happiness): For every unhappiness you have above your happy number, you city suffers -10% growth and -10% production towards units
+	Golden Ages
+		Any 'excess' happiness (i.e. happiness above the city's unhappiness value) in a city is converted into GAP.
+		Golden Age threshold and deltas modifier, now 400/2000 (was 750/2250)
+	Global Happiness
+		Global Happiness is the percentage of your empires citizens that are happy.
+	Empire Happiness (sources of happiness not local to a city) - spread across your cities as an average (the remainder goes to the capital, so 6 happiness / 4 cities would leave 2 extra for capital).
+		Sources:
+			Some Religion happiness (peace happiness bonus, foreign followers bonus, num cities following bonus, happiness per pantheon, foreign spies bonus)
+			Natural Wonders
+			Minor Civ Happiness (mercantile)
+			World Congress
+			Vassals
+			Events
+			City Connections
+	Empire Unhappiness (sources of unhappiness not local to a city) - spread across your cities as an average (the remainder goes to the capital, so 6 happiness / 4 cities would leave 2 extra for capital).
+		Sources:
+			War Weariness
+			Public Opinion
+	Unhappy Citizens
+		In a city, Unhappy Citizens = Happiness - Unhappiness (if happiness is greater than unhappiness, this counts as zero for the city).
+	Global Happiness
+		Unhappy Citizens * 100 / Total Population
+	Effects of Global Happiness:
+		100%: No benefit, no penalty. Cities can gain local happiness/unhappiness modifiers normally.
+		75%: No city can benefit from positive happiness for growth, and all cities suffer an additional -25% Growth/Production towards units. -10% combat penalty
+		50%: No city can benefit from positive happiness for growth, and all cities suffer an additional -50% Growth/Production towards units. -20% combat penalty. Rebels can spawn!
+		25%: No city can benefit from positive happiness for growth, and all cities suffer an additional -100% Growth/-75%Production towards units. -20% combat penalty. Rebels can spawn! Cities can secede!
+	Pop Scaler now 200% (was 10%, changed formula slightly, so it's now 2% per 1 citizen)
+	Puppet pop unhappiness scaler now 1:4 (has waffled a lot, but I've setttled on 1:4)
+	Unhappiness per Specialist now 2:1 (2 specialist, 1 unhappy)
+	Capital Modifier is 25% (was 15%)
+	Tech base modifier is 125% (was 75%)
+Projects
+	New repeatable project- Public Works (base cost 300, era scaler cost 100, repeat cost 100)
+		Unlocks at Machinery
+		Reduces needs modifiers for distress, poverty, illiteracy, boredom, and religion by 10% in the city in which it is built
+			This is a panic button - use wisely!
+Buildings
+	All non-wonder buildings that used to give % need modifier reductions now give flat unhappiness reductions
+	Wonders give 10% reduction (was 5%)
+		
+Civs
+	Venice - removed 20% GM bonus from Puppets, gave Venetian puppets the ability to generate happinesss
+Policies
+	Progress - Equality now gives +1 local happiness for every 8 citizens in a city (was +1 per 12 global)
+	Divine Right - 25% of city's produced happiness (not delta!) converts to culture every turn.
+	
+Improvements
+	Landmark: now gives +1 happiness to every city (was +2 to capital alone)
+Promotions
+	Wolfpack
+		Bumped attack bonus by 10% at all levels
+		Level 1: gains 1 sight.
+		Level 2: gains 1 movement.
+		Level 3: gains 40% withdrawal chance
+

@@ -4558,7 +4558,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 		if(iGoldPlundered > 0)
 		{
 #if defined(MOD_BALANCE_CORE)
-			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iGoldPlundered /= 100;
 
 			if(iGoldPlundered > (pkDefender->getStrengthValue()/100) * 10)

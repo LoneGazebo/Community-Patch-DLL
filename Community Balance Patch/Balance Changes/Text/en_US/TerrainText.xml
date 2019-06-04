@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/2/2016 4:34:53 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_IMPROVEMENT_EKI">
+			<Text>Eki</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT">
+			<Text>'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh pastures on which to graze. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practised in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice. [NEWLINE][NEWLINE]An Eki can only be built on flat Grassland or Plains tiles without access to Fresh Water. It provides [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food, as well as additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP">
+			<Text>An Eki can only be built on flat Grassland or Plains tiles without access to Fresh Water. It provides [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food, as well as additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_EKI">
+			<Text>Construct an [LINK=IMPROVEMENT_EKI]Eki[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_EKI_HELP">
+			<Text>Constructs an Eki, which increases [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Must be build on flat Plains or Grasslands without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_EKI_REC">
+			<Text>It will increase [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA">
+			<Text>Kuna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT">
+			<Text>'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder![NEWLINE][NEWLINE]A Kuna can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna. Grants [ICON_PEACE] Faith and [ICON_RESEARCH] Science to the City that works the tile.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP">
+			<Text>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna. Generates [ICON_PEACE] Faith and [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_KUNA">
+			<Text>Construct a [LINK=IMPROVEMENT_KUNA]Kuna[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_KUNA_HELP">
+			<Text>Constructs a Kuna, which increases [ICON_RESEARCH] Science and [ICON_PEACE] Faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_KUNA_REC">
+			<Text>It will increase [ICON_RESEARCH] Science and [ICON_PEACE] Faith.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE">
+			<Text>Encampment</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_TEXT">
+			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.[NEWLINE][NEWLINE]A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_HELP">
+			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE">
+			<Text>Construct an [LINK=IMPROVEMENT_ENCAMPMENT_SHOSHONE]Encampment[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_HELP">
+			<Text>Constructs an Encampment, which increases the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and damages adjacent enemy units for 5 Hit Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_REC">
+			<Text>It will increase the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_HORSE">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_IRON">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_COAL">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_ALUMINUM">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +5 HP when Healing.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_OIL">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +2 XP after combat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_URANIUM">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_GOODY_PRODUCTION">
+			<Text>You find a cache of supplies that boost the [ICON_PRODUCTION] Production of your nearest city by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_GOLDEN_AGE">
+			<Text>You find ancient relics that accelerate your civilization's progress towards a [ICON_GOLDEN_AGE] Golden Age!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_TILES">
+			<Text>You find a nomadic tribe that wishes to join your Civilization, granting you additional land around the nearest City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_PRODUCTION">
+			<Text>Supplies for [ICON_PRODUCTION] Production in your nearest City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_GOLDEN_AGE">
+			<Text>Relics for [ICON_GOLDEN_AGE] Golden Age Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_FREE_TILES">
+			<Text>A tribe that gives you land around your nearest City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_TITLE">
+			<Text>Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_BODY">
+			<Text>The ruin contains relics, that grant Golden Age Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_ADV_QUEST">
+			<Text>Golden Age Points?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_TITLE">
+			<Text>Production</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_BODY">
+			<Text>The ruin contains supplies, that grant Production to your nearest city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_ADV_QUEST">
+			<Text>Production?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_TITLE">
+			<Text>Tiles</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_BODY">
+			<Text>The ruin contains settlers, that grant free Tiles to your nearest city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_ADV_QUEST">
+			<Text>Tiles?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_GLOBAL">
+			<Text>[COLOR_CYAN]Your current Global Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_GLOBAL_AND_STRATEGIC">
+			<Text>[COLOR_CYAN]Your current Global and Strategic Monopoly Bonuses:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_YOU_GAIN_STRATEGIC">
+			<Text>[COLOR_CYAN]Your current Strategic Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_BOTH">
+			<Text>[COLOR_NEGATIVE_TEXT]Their current Strategic and Global Monpoly Bonuses:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_GLOBAL">
+			<Text>[COLOR_NEGATIVE_TEXT]Their current Global Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_THEY_GAIN_STRATEGIC">
+			<Text>[COLOR_NEGATIVE_TEXT]Their current Strategic Monopoly Bonus:[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_POTENTIAL">
+			<Text>Potential Global Monopoly Bonus:[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_POTENTIAL_STRATEGIC">
+			<Text>Potential Strategic and Global Monopoly Bonuses:[NEWLINE][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN">
+			<Text>Out of {2_Total} in World:[NEWLINE]Direct control: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS">
+			<Text>Out of {2_Total} in World:[NEWLINE]Direct control: {1_Num}[NEWLINE]Import: {3_Import}[NEWLINE]From City-States: {4_CS}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HOVER_INFO">
+			<Text>(Hover over Corporation Icon or Name for details.)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_OTHER">
+			<Text>({2_CivName}) {1_Monopoly}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CONTROLLED">
+			<Text>Our Potential Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MONOPOLY_GAINED">
+			<Text>You control over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_MONOPOLY_GAINED">
+			<Text>Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_MONOPOLY_GAINED">
+			<Text>{3_CivName} {3_CivName: plural 1?controls; other?control;} over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_MONOPOLY_GAINED">
+			<Text>{2_CivName} {2_CivName: plural 1?has; other?have;} a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_MONOPOLY_LOST">
+			<Text>You [COLOR_NEGATIVE_TEXT]no longer have[ENDCOLOR] a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]![NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost:[ENDCOLOR][NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_MONOPOLY_LOST">
+			<Text>Lost Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_MONOPOLY_RESOURCE">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Resource Monopoly: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +6 [ICON_HAPPINESS_1] Happiness added to Empire-Wide Luxury value</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length, +2 [ICON_GOLDEN_AGE] Golden Age Points from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_FOOD] Food from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_CULTURE] Culture from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PEACE] Faith from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_PRODUCTION] Production in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_GOLD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_GOLD] Gold in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_FOOD] Food in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_CULTURE] Culture in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+		</Row>
+
+		<!-- Strategic Help-->
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_ALUMINUM">
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 HP when Healing.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD_COAL">
+			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_OIL">
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +2 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_HORSE">
+			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION_IRON">
+			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE_URANIUM">
+			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+		</Row>
+
+		<!-- Tooltip for Strategic Monopolies -->
+		<Row Tag="TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_GAINED">
+			<Text>You control over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_GAINED">
+			<Text>Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
+			<Text>{3_CivName} {3_CivName: plural 1?controls; other?control;} over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
+			<Text>{2_CivName} {2_CivName: plural 1?has; other?have;} a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_LOST">
+			<Text>You [COLOR_NEGATIVE_TEXT]no longer have[ENDCOLOR] a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]![NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost:[ENDCOLOR][NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_LOST">
+			<Text>Lost Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+
+		<!-- Tooltip for Monopolies -->
+		<Row Tag="TXT_KEY_FOODMOD_MONOPOLY_RESOURCE">
+			<Text>[NEWLINE][ICON_BULLET][ICON_TRADE_WHITE] Resource Monopolies Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY">
+			<Text>+{1_Num}% [ICON_CULTURE] for Resource Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY">
+			<Text>+{1_Num}% [ICON_PEACE] from Resource Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLIES_TT">
+			<Text>Global Resource Monopolies are achieved when you control over 50% of a Luxury or Strategic Resource. This value can exceed 100% if you produce more of a Resource than exists on the Map. More than one Civilization can, therefore, have a Global Monopoly (though this is quite rare).</Text>
+		</Row>
+	</Language_en_US>
+	<PostDefines>
+		<Row Name="TIPI_IMPROVEMENT">
+			<Key>IMPROVEMENT_ENCAMPMENT_SHOSHONE</Key>
+			<Table>Improvements</Table>
+		</Row>
+		<Row Name="KUNA_IMPROVEMENT">
+			<Key>IMPROVEMENT_KUNA</Key>
+			<Table>Improvements</Table>
+		</Row>
+		<Row Name="EKI_IMPROVEMENT">
+			<Key>IMPROVEMENT_EKI</Key>
+			<Table>Improvements</Table>
+		</Row>
+	</PostDefines>
+</GameData>

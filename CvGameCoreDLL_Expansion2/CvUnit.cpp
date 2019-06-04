@@ -2370,17 +2370,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
-
-			//Human killed me?
-			if (MOD_BALANCE_CORE_DIFFICULTY && !kPlayer.isHuman() && GET_PLAYER(ePlayer).isHuman())
-			{
-				int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * (getUnitInfo().GetPower());
-				iHandicap /= 25;
-				if (getOriginCity() != NULL && getOwner() == getOriginCity()->getOwner())
-				{
-					getOriginCity()->changeProduction(iHandicap);
-				}
-			}
 		}
 #endif
 		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
@@ -6045,7 +6034,7 @@ int CvUnit::GetScrapGold() const
 
 	// slewis - moved this out of the plot check because the game speed should effect all scrap gold calculations, not just the ones that are in the owner's plot
 	// Modify for game speed
-	iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iNumGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	iNumGold /= 100;
 
 #if defined(MOD_CIV6_WORKER)
@@ -10599,7 +10588,7 @@ bool CvUnit::pillage()
 				if(iPillageGold > 0)
 				{
 #if defined(MOD_BALANCE_CORE)
-					iPillageGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iPillageGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 					iPillageGold /= 100;
 #endif
 					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iPillageGold);
@@ -12394,7 +12383,7 @@ bool CvUnit::trade()
 				iCap = GetScaleAmount(iCap);
 			}
 #endif
-			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iCap /= 100;
 			CvCity* pLoopCity;
 			int iCityLoop;
@@ -20723,7 +20712,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								}
 
 								// Game Speed Mod
-								iCulturePoints *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getTrainPercent();
+								iCulturePoints *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getInstantYieldPercent();
 								iCulturePoints /= 100;
 
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
@@ -25902,7 +25891,7 @@ int CvUnit::getGAPBlast()
 			iValue = GC.getGOLDEN_AGE_BASE_THRESHOLD_HAPPINESS() / 2;
 
 		// Modify based on game speed
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iValue /= 100;
 	}
 	return iValue;

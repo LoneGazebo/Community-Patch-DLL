@@ -3466,7 +3466,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->GetCultureBonusModifierConquest() > 0)
 			{
 				int iValue = (pOldCity->getPopulation() / 2);
-				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 				iValue /= 100;
 				if (iValue > 0)
 				{
@@ -3502,7 +3502,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->GetProductionBonusModifierConquest() > 0)
 			{
 				int iValue = (pOldCity->getPopulation() / 2);
-				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 				iValue /= 100;
 				if (iValue > 0)
 				{
@@ -6476,7 +6476,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			return false;
 							
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->isEraScaling())
 		{
@@ -6983,7 +6983,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -7638,7 +7638,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			{
 				iPreValue *= iEra;
 			}
-			iPreValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iPreValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iPreValue /= 100;
 			if(iPreValue != 0)
 			{
@@ -7671,7 +7671,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			{
 				iYieldValue *= iEra;
 			}
-			iYieldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYieldValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iYieldValue /= 100;
 			if(iYieldValue != 0)
 			{
@@ -8409,7 +8409,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
 			}
 		}
-		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
 		if(pkEventInfo->IsEraScaling())
 		{
@@ -13482,7 +13482,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(MOD_BALANCE_CORE && kGoodyInfo.getProduction() > 0)
 	{
 		iProduction = kGoodyInfo.getProduction();
-		iProduction *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iProduction *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iProduction /= 100;
 
 		if (pUnit != NULL && iGoodyModifier != 0)
@@ -19463,7 +19463,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 #endif
 			iValue = (iValue * iCombatStrength) / 100;
 #if defined(MOD_BALANCE_CORE)
-			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iValue /= 100;
 #endif
 			if(iValue > 0)
@@ -19700,7 +19700,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		const char* strTargetNameKey = pConqueredCity->getNameKey();
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		int iValue = (pConqueredCity->getPopulation() * 20 * iEra);
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iValue /= 100;
 		if(eCurrentTech == NO_TECH)
 		{
@@ -20488,16 +20488,13 @@ void CvPlayer::SetUnhappiness(int iNewValue)
 	{
 		m_iUnhappiness = iNewValue;
 
-		if (m_iUnhappiness > 0)
+		int iLoop;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			int iLoop;
-			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
-					continue;
+			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+				continue;
 
-				pLoopCity->UpdateUnhappinessFromEmpire();
-			}
+			pLoopCity->UpdateUnhappinessFromEmpire();
 		}
 	}
 }
@@ -26824,7 +26821,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						else
 						{
-							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 							iValue /= 100;
 						}
 					}
@@ -27808,7 +27805,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 		iEra = 1;
 	}
 	int iValue = iPolicyGEorGM * iEra;
-	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	int iRandom = GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE));
 	if (iRandom <= 33)
@@ -28216,7 +28213,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	if(iExpendGold > 0)
 	{
 #if defined(MOD_BALANCE_CORE)
-		iExpendGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iExpendGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iExpendGold /= 100;
 #endif
 		GetTreasury()->ChangeGold(iExpendGold);
@@ -46826,13 +46823,15 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 	int iNumPuppetCities = GetNumPuppetCities();
 	iNumCities -= iNumPuppetCities;
 
+	bool bVPChange = MOD_BALANCE_CORE_DIPLOMACY_ADVANCED;
+
 	// Don't count cities where the player hasn't decided yet what to do with them or ones that are currently being razed
 	int iNumLimboCities = 0;
 	const CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->IsIgnoreCityForHappiness() || pLoopCity->IsRazing())
+		if (pLoopCity->IsIgnoreCityForHappiness() || (!bVPChange && pLoopCity->IsRazing()))
 		{
 			iNumLimboCities++;
 		}
@@ -46843,7 +46842,10 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 		iNumCities = 1;
 
 	// Update member variable
-	m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
+	if (!bVPChange)
+		m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
+	else
+		m_iMaxEffectiveCities = iNumCities;
 
 	if (bIncludePuppets)
 	{
