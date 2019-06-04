@@ -588,6 +588,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BUGFIX_EXTRA_MISSIONARY_SPREADS);
 
 		MOD_OPT_CACHE(ISKA_HERITAGE);
+		MOD_OPT_CACHE(ISKA_PANTHEONS);
 
 		m_bInit = true;
 	}
