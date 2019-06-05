@@ -6305,7 +6305,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	int iFollowers = GetNumFollowers(eMajority);
 
 #if defined(MOD_ISKA_PANTHEONS)
-	if (eMajority == RELIGION_PANTHEON)
+	if (MOD_ISKA_PANTHEONS && eMajority == RELIGION_PANTHEON)
 	{
 		CityConvertsPantheon();
 	}
