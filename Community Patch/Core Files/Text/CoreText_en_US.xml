@@ -2440,7 +2440,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CS_OTHER_PEACE_MADE">
-			<Text>The war between {1_Civ} and {2_Civ} was ended, thanks to your the diplomatic actions of {3_Civ}.</Text>
+			<Text>The war between {1_Civ} and {2_Civ} was ended, thanks to the diplomatic actions of {3_Civ}.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE_ATTACKED">
@@ -6264,7 +6264,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_SCORE_EXPLANATION">
-			<Text>This value indiates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
+			<Text>This value indicates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_STRENGTH_PATHETIC">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic!</Text>
