@@ -20,7 +20,7 @@
 #include "CvAStarNode.h"
 #include <queue>
 
-#define PATH_BASE_COST (100) //base cost per plot respectively movement point expended
+#define PATH_BASE_COST (120) //base cost per plot respectively movement point expended
 
 class CvAStar;
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);

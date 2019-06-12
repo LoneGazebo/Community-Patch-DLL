@@ -2983,14 +2983,14 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 	int iRouteFactor = 1;
 
 	// super duper low costs for moving along routes - don't check for pillaging
-	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->getRouteType() == ROUTE_RAILROAD)
-		iRouteFactor = 6;
-	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->getRouteType() == ROUTE_ROAD)
-		iRouteFactor = 4;
+	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->isRoute())
+		iRouteFactor = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 6 : 4;
+	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
+		iRouteFactor = 4; //can't get better than this even if next plot is railroad
 	// low costs for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
+	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
 		iRouteFactor = 2;
-	// Iroquios ability
+	// Iroquois ability
 	else if ((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus())
 		iRouteFactor = 2;
 
