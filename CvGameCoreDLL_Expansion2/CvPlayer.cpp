@@ -34309,8 +34309,7 @@ bool CvPlayer::IsCramped() const
 /// Determines if the player is cramped in his current area.  Not a perfect algorithm, as it will double-count Plots shared by different Cities, but it should be good enough
 void CvPlayer::DoUpdateCramped()
 {
-	CvCity* pLoopCity;
-	CvPlot* pPlot;
+	m_bCramped = false;
 
 	int iTotalPlotsNearby = 0;
 	int iUsablePlotsNearby = 0;
@@ -34318,14 +34317,13 @@ void CvPlayer::DoUpdateCramped()
 	int iRange = GC.getCRAMPED_RANGE_FROM_CITY();
 
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{
 			for(int iY = -iRange; iY <= iRange; iY++)
 			{
-				pPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
-
+				CvPlot* pPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
 				if(pPlot != NULL)
 				{
 					// Plot not owned by me
@@ -34344,17 +34342,8 @@ void CvPlayer::DoUpdateCramped()
 		}
 	}
 
-	if(iTotalPlotsNearby > 0)
-	{
-		if(100 * iUsablePlotsNearby / iTotalPlotsNearby <= GC.getCRAMPED_USABLE_PLOT_PERCENT())	// 20
-		{
-			m_bCramped = true;
-		}
-		else
-		{
-			m_bCramped = false;
-		}
-	}
+	if (iTotalPlotsNearby > 0 && (100 * iUsablePlotsNearby) / iTotalPlotsNearby <= GC.getCRAMPED_USABLE_PLOT_PERCENT()) //20
+		m_bCramped = true;
 }
 
 //	--------------------------------------------------------------------------------

@@ -1040,6 +1040,9 @@ public:
 	void updateEconomicValue();
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 #endif
+
+	int GetNumContestedPlots(PlayerTypes eOtherPlayer) const;
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);
 	int GetRank() const;

@@ -7520,6 +7520,31 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 	return m_aiEconomicValue[ePossibleOwner];
 }
 
+int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
+{
+	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
+
+	int iCounter = 0;
+	int iRange = range(getWorkPlotDistance(), 1, 5);
+
+	for (int i=RING0_PLOTS; i<RING_PLOTS[iRange]; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(plot(), i);
+		if(!pPlot || !pPlot->isOwned())
+			continue;
+		
+		bool bRelevant = false;
+		if (eOtherTeam == NO_TEAM && pPlot->getTeam() != getTeam())
+			bRelevant = true;
+		if (eOtherTeam != NO_TEAM && pPlot->getTeam() != eOtherTeam)
+			bRelevant = true;
+
+		if (bRelevant && pPlot->hasYield())
+			iCounter++;
+	}
+
+	return iCounter;
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE_SPIES)

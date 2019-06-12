@@ -10919,18 +10919,14 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 //	--------------------------------------------------------------------------------
 bool CvPlot::hasYield() const
 {
-	int iI;
-
-	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
 		//Simplification - errata yields not worth considering.
 		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			return false;
 
 		if(getYield((YieldTypes)iI) > 0)
-		{
 			return true;
-		}
 	}
 
 	return false;
