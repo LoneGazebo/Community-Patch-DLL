@@ -414,6 +414,7 @@
 #endif
 
 #define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
+#define MOD_ISKA_PANTHEONS							gCustomMods.isISKA_PANTHEONS()
 
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -1712,6 +1713,7 @@ public:
 	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
+	MOD_OPT_DECL(ISKA_PANTHEONS);
 
 protected:
 	bool m_bInit;

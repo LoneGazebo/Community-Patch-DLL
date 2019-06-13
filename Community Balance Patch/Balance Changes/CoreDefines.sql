@@ -167,6 +167,7 @@ UPDATE Resolutions SET TechPrereqAnyMember = 'TECH_TELECOM' WHERE Type = 'RESOLU
 
 -- Other
 UPDATE Defines SET Value = '0' WHERE Name = 'BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT';
+UPDATE Defines SET Value = '1' WHERE Name = 'BALANCE_CORE_MUSICIAN_BLAST_HAPPINESS';
 
 -- Global Score
 UPDATE Defines SET Value = '10' WHERE Name = 'SCORE_CITY_MULTIPLIER'; -- def. 8

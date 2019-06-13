@@ -148,7 +148,7 @@ function UpdateScreen()
 	-- Happiness
 	-----------------------------------------------
 	
-	local iEmpireHappiness = pPlayer:GetHappiness();
+	local iEmpireHappiness = pPlayer:GetEmpireHappinessForCity();
 
 	Controls.TotalHappinessValue:SetText("[COLOR_POSITIVE_TEXT]" .. iEmpireHappiness .. "[ENDCOLOR]");
 
@@ -161,8 +161,7 @@ function UpdateScreen()
 	local iEvent = 0;
 	iEvent = pPlayer:GetEventHappiness();
 	local iLeagueHappiness = pPlayer:GetHappinessFromLeagues();
-	local handicaphappiness = pPlayer:GetHandicapHappiness();
-	local luxuryHappiness = pPlayer:GetBonusHappinessFromLuxuriesFlat();
+	
 	-- C4DF
 	local iHappinessFromVassal = pPlayer:GetHappinessFromVassals();
 	-- END
@@ -229,13 +228,6 @@ function UpdateScreen()
     Controls.LocalCityStack:CalculateSize();
     Controls.LocalCityStack:ReprocessAnchoring();
 	
-	
-	-- Handicap
-	Controls.HandicapHappinessValue:SetText(handicaphappiness);
-
-	-- Luxuries
-	Controls.LuxuryHappinessValue:SetText(luxuryHappiness);
-
 	-- City-States
 	Controls.MinorCivHappinessValue:SetText(iMinorCivHappiness);
 
@@ -276,7 +268,7 @@ function UpdateScreen()
 	-- Unhappiness
 	-----------------------------------------------
 
-	local iEmpireUnhappiness = pPlayer:GetUnhappiness();
+	local iEmpireUnhappiness = pPlayer:GetEmpireUnhappinessForCity();
 	
 	-- Total Unhappiness
 	Controls.TotalUnhappinessValue:SetText("[COLOR_NEGATIVE_TEXT]" .. iEmpireUnhappiness .. "[ENDCOLOR]");

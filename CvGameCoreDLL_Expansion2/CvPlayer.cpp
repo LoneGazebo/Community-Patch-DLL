@@ -22758,16 +22758,11 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 	int iSpecialistCount;
 
 	bool bCityValid;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	bool bIsResistance;
-#endif
 	int iLoop;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		bCityValid = false;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		bIsResistance = false;
-#endif
+
 		// Assume pLoopCity is Annexed, and counts
 		if(pLoopCity == pAssumeCityAnnexed)
 			bCityValid = true;
@@ -22784,19 +22779,13 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 		if(MOD_BALANCE_CORE_HAPPINESS && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
 		{
 			bCityValid = true;
-			bIsResistance = true;
 		}
 #endif
 
 		if(bCityValid)
 		{
 			iPopulation = pLoopCity->getPopulation();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS && bIsResistance)
-			{
-				iPopulation /= 2;
-			}
-#endif
+
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
 			if(isHalfSpecialistUnhappiness())
 			{
@@ -31383,7 +31372,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	int iPreviousTurnsToCount = iTourism;
 
 	// Calculate boost
-	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount / 2);
 	iTotalBonus += GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 
 	// Mod for City Count

@@ -619,7 +619,7 @@ private:
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvAIOperationCivilianConcertTour
-//!  \brief		Send a merchant to a city state
+//!  \brief		Send a Great Musician to a city state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvAIOperationCivilianConcertTour : public CvAIOperationCivilian
 {
@@ -653,7 +653,7 @@ private:
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvAIOperationCivilianMerchantDelegation
-//!  \brief		Send a merchant to a city state
+//!  \brief		Send a Great Merchant to a city state
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvAIOperationCivilianMerchantDelegation : public CvAIOperationCivilian
 {

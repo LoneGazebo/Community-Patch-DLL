@@ -45,16 +45,6 @@
 								</ShowOnMouseOver>
 							</Button>
 							<Stack Anchor="L,C" ID="TradeRouteStack"/>
-							<!-- Handicap Happiness-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="HandicapHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_AD_SETUP_HANDICAP"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="HandicapHappinessValue"/>
-							</Box>
-							<!-- Luxury Happiness-->
-							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="LuxuryHappiness">
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_LUXURY_HAPPINESS_INFORMATION"/>
-								<Label Offset="25,0" Font="TwCenMT18" Anchor="R,C" ID="LuxuryHappinessValue"/>
-							</Box>
 							<!-- Minor Civ Happiness-->
 							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="MinorCivHappiness">
 								<Label Offset="25,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_TOPIC_CITYSTATE"/>
