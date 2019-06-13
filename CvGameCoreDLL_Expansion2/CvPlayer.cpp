@@ -47077,10 +47077,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	//prefer settling close in the beginning
 	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
-	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 5 + iTimeOffset;
+	//basic search area around existing cities. 
+	int iMaxSettleDistance = 6 + iTimeOffset; //plot value at max distance or greater is scaled to zero
 	if(IsCramped())
-		iEvalDistance += iTimeOffset;
+		iMaxSettleDistance += iTimeOffset;
+	int iMinSettleDistance = min(iMaxSettleDistance,GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER()); //plot value at min distance or below is kept as is
 
 	//if we want to go to other continents, we need a very large search radius
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
@@ -47195,7 +47196,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
 		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot)*2); //times 2 to get the approximate plot distance
-		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
+		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iMinSettleDistance );
 
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
