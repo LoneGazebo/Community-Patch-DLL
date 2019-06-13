@@ -22758,16 +22758,11 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 	int iSpecialistCount;
 
 	bool bCityValid;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	bool bIsResistance;
-#endif
 	int iLoop;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		bCityValid = false;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		bIsResistance = false;
-#endif
+
 		// Assume pLoopCity is Annexed, and counts
 		if(pLoopCity == pAssumeCityAnnexed)
 			bCityValid = true;
@@ -22784,19 +22779,13 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 		if(MOD_BALANCE_CORE_HAPPINESS && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
 		{
 			bCityValid = true;
-			bIsResistance = true;
 		}
 #endif
 
 		if(bCityValid)
 		{
 			iPopulation = pLoopCity->getPopulation();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS && bIsResistance)
-			{
-				iPopulation /= 2;
-			}
-#endif
+
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
 			if(isHalfSpecialistUnhappiness())
 			{
@@ -31383,7 +31372,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	int iPreviousTurnsToCount = iTourism;
 
 	// Calculate boost
-	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount / 2);
 	iTotalBonus += GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 
 	// Mod for City Count
@@ -34309,8 +34298,7 @@ bool CvPlayer::IsCramped() const
 /// Determines if the player is cramped in his current area.  Not a perfect algorithm, as it will double-count Plots shared by different Cities, but it should be good enough
 void CvPlayer::DoUpdateCramped()
 {
-	CvCity* pLoopCity;
-	CvPlot* pPlot;
+	m_bCramped = false;
 
 	int iTotalPlotsNearby = 0;
 	int iUsablePlotsNearby = 0;
@@ -34318,14 +34306,13 @@ void CvPlayer::DoUpdateCramped()
 	int iRange = GC.getCRAMPED_RANGE_FROM_CITY();
 
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{
 			for(int iY = -iRange; iY <= iRange; iY++)
 			{
-				pPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
-
+				CvPlot* pPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
 				if(pPlot != NULL)
 				{
 					// Plot not owned by me
@@ -34344,17 +34331,8 @@ void CvPlayer::DoUpdateCramped()
 		}
 	}
 
-	if(iTotalPlotsNearby > 0)
-	{
-		if(100 * iUsablePlotsNearby / iTotalPlotsNearby <= GC.getCRAMPED_USABLE_PLOT_PERCENT())	// 20
-		{
-			m_bCramped = true;
-		}
-		else
-		{
-			m_bCramped = false;
-		}
-	}
+	if (iTotalPlotsNearby > 0 && (100 * iUsablePlotsNearby) / iTotalPlotsNearby <= GC.getCRAMPED_USABLE_PLOT_PERCENT()) //20
+		m_bCramped = true;
 }
 
 //	--------------------------------------------------------------------------------

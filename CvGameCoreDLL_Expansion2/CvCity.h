@@ -867,6 +867,9 @@ public:
 	CvString GetCityUnhappinessBreakdown(bool bIncludeMedian = false, bool bFlavorText = false);
 	CvString GetCityHappinessBreakdown();
 
+	float GetMinYieldNeededToReduceUnhappiness(int iCreated, int iNeeded, int iFactor) const;
+	float GetMinYieldNeededToIncreaseUnhappiness(int iCreated, int iNeeded, int iFactor) const;
+
 	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
 	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
@@ -1040,6 +1043,9 @@ public:
 	void updateEconomicValue();
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 #endif
+
+	int GetNumContestedPlots(PlayerTypes eOtherPlayer) const;
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);
 	int GetRank() const;

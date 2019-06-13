@@ -4315,6 +4315,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 		{
 			PlayerTypes eCityOwner = pCity->getOwner();
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
 			iBaseYieldRate *= GC.getESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT();
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
 			iBaseYieldRate /= 10000;
@@ -4356,12 +4357,8 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 		if (pCity)
 		{
 			PlayerTypes eCityOwner = pCity->getOwner();
-#if defined(MOD_BALANCE_CORE_SPIES)
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_CULTURE, false);
 			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
-#else
-			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
-#endif	
 			iBaseYieldRate *= GC.getESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT();
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
 			iBaseYieldRate /= 10000;

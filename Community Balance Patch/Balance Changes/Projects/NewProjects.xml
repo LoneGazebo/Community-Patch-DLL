@@ -38,27 +38,27 @@
 		<Row>
 			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>-25</Yield>
+			<Yield>-15</Yield>
 		</Row>
 		<Row>
 			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>-20</Yield>
+			<Yield>-15</Yield>
 		</Row>
 		<Row>
 			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>-20</Yield>
+			<Yield>-15</Yield>
 		</Row>
 		<Row>
 			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>-20</Yield>
+			<Yield>-15</Yield>
 		</Row>
 		<Row>
 			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>-20</Yield>
+			<Yield>-15</Yield>
 		</Row>
 	</Project_NeedsModifierYield>
 	<Project_Flavors>

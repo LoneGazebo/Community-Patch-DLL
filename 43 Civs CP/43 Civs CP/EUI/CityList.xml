@@ -48,7 +48,7 @@
                         </AlphaAnim>
                     </ShowOnMouseOver>
 
-                    <Label Anchor="C,C"  Offset="0,-1" String="[ICON_HAPPINESS_3]"   />
+                    <Label Anchor="C,C"  Offset="0,-1" String="[ICON_HAPPINESS_1]/[ICON_HAPPINESS_3]"   />
                 </Button>
 
                 <Button  ID="SortProduction" Anchor="L,C" Size="45,24"  Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_PRODUCTION" >

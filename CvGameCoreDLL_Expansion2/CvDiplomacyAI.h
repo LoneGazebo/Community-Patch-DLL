@@ -1136,7 +1136,6 @@ public:
 	bool IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer);
 	void SetPlayerIgnoredExpansionPromise(PlayerTypes ePlayer, bool bValue);
 	AggressivePostureTypes GetPlayerExpansionPromiseData(PlayerTypes ePlayer);
-	void SetPlayerExpansionPromiseData(PlayerTypes ePlayer, AggressivePostureTypes eValue);
 	bool EverMadeExpansionPromise(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	void SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);

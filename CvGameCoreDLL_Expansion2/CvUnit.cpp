@@ -28580,6 +28580,9 @@ bool CvUnit::SentryAlert() const
 #endif
 {
 	VALIDATE_OBJECT
+	if (GetActivityType() == ACTIVITY_SLEEP)
+		return false;
+
 	int iRange = visibilityRange();
 #if defined(MOD_BALANCE_CORE)
 	if (getDomainType() == DOMAIN_AIR)

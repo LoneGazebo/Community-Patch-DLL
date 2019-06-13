@@ -8089,7 +8089,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 			{
 				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
-				if (getOwner() != NULL && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+				if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
 				{
 					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
 				}
@@ -10919,18 +10919,14 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 //	--------------------------------------------------------------------------------
 bool CvPlot::hasYield() const
 {
-	int iI;
-
-	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
 		//Simplification - errata yields not worth considering.
 		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			return false;
 
 		if(getYield((YieldTypes)iI) > 0)
-		{
 			return true;
-		}
 	}
 
 	return false;

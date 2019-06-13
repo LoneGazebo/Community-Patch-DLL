@@ -2646,9 +2646,6 @@ void CvDiplomacyAI::DoCounters()
 					SetPlayerMadeExpansionPromise(eLoopPlayer, false);
 					SetPlayerBrokenExpansionPromise(eLoopPlayer, false);
 					SetPlayerIgnoredExpansionPromise(eLoopPlayer, false);
-#if defined(MOD_BALANCE_CORE)
-					SetNoExpansionPromiseClosestCities(eLoopPlayer, make_pair(-1,-1));
-#endif
 				}
 
 				iBrokenPromisePreValue = GetBrokenBorderPromiseValue(eLoopPlayer);
@@ -3066,7 +3063,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 		iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 		{
-			iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer)  * 2);
+			iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer) * 2);
 		}
 	}
 #endif
@@ -3088,31 +3085,42 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetNoSetterRequestScore(ePlayer);
 	iOpinionWeight += GetStopSpyingRequestScore(ePlayer);
 	iOpinionWeight += GetDemandEverMadeScore(ePlayer);
+	
+	//////////////////////////////////////
+	// Player stole from us
+	//////////////////////////////////////
 	iOpinionWeight += GetTimesCultureBombedScore(ePlayer);
 	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
-
-	iOpinionWeight += GetHasAdoptedHisReligionScore(ePlayer);
-	iOpinionWeight += GetHasAdoptedMyReligionScore(ePlayer);
-	
-	iOpinionWeight += GetSameLatePoliciesScore(ePlayer);
-	iOpinionWeight += GetDifferentLatePoliciesScore(ePlayer);
-	
-	//iOpinionWeight += GetTimesNukedScore(ePlayer); DUPLICATE of GetNukedScore below. Removing this from scoring.
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
 
 	//////////////////////////////////////
-	// BROKEN PROMISES ;_;
+	// RELIGION/IDEOLOGY
+	//////////////////////////////////////
+	iOpinionWeight += GetHasAdoptedHisReligionScore(ePlayer);
+	iOpinionWeight += GetHasAdoptedMyReligionScore(ePlayer);
+	
+#if defined(MOD_BALANCE_CORE)
+	iOpinionWeight += GetPolicyScore(ePlayer);
+#endif
+	iOpinionWeight += GetSameLatePoliciesScore(ePlayer);
+	iOpinionWeight += GetDifferentLatePoliciesScore(ePlayer);
+	
+
+	//////////////////////////////////////
+	// BROKEN/IGNORED PROMISES ;_;
 	//////////////////////////////////////
 	iOpinionWeight += GetBrokenMilitaryPromiseScore(ePlayer);
 	iOpinionWeight += GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer);
 	iOpinionWeight += GetIgnoredMilitaryPromiseScore(ePlayer);
+	
 	iOpinionWeight += GetBrokenExpansionPromiseScore(ePlayer);
 	iOpinionWeight += GetIgnoredExpansionPromiseScore(ePlayer);
+	
 	iOpinionWeight += GetBrokenBorderPromiseScore(ePlayer);
 	iOpinionWeight += GetIgnoredBorderPromiseScore(ePlayer);
 
 	iOpinionWeight += GetBrokenAttackCityStatePromiseScore(ePlayer);
-	iOpinionWeight += GetBrokenAttackCityStatePromiseWithAnybodyScore(ePlayer);
+	//iOpinionWeight += GetBrokenAttackCityStatePromiseWithAnybodyScore(ePlayer);
 	iOpinionWeight += GetIgnoredAttackCityStatePromiseScore(ePlayer);
 
 	iOpinionWeight += GetBrokenBullyCityStatePromiseScore(ePlayer);
@@ -3132,6 +3140,9 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	// PROTECTED MINORS
 	//////////////////////////////////////
+#if defined(MOD_BALANCE_CORE)
+	iOpinionWeight += GetPtPSameCSScore(ePlayer);
+#endif
 	iOpinionWeight += GetAngryAboutProtectedMinorKilledScore(ePlayer);
 	iOpinionWeight += GetAngryAboutProtectedMinorAttackedScore(ePlayer);
 	iOpinionWeight += GetAngryAboutProtectedMinorBulliedScore(ePlayer);
@@ -3157,6 +3168,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetDPWithAnyEnemyScore(ePlayer);
 	iOpinionWeight += GetOpenBordersScore(ePlayer);
 #endif
+
 	//////////////////////////////////////
 	// FRIENDS NOT GETTING ALONG
 	//////////////////////////////////////
@@ -3198,11 +3210,10 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE)
 	iOpinionWeight += GetCitiesRazedScore(ePlayer);
 	iOpinionWeight += GetCitiesRazedGlobalScore(ePlayer);
-	iOpinionWeight += GetPolicyScore(ePlayer);
-	iOpinionWeight += GetPtPSameCSScore(ePlayer);
 	iOpinionWeight += GetHolyCityCapturedByScore(ePlayer);
 #endif
 
+	//iOpinionWeight += GetTimesNukedScore(ePlayer); DUPLICATE of GetNukedScore above. Removing this from scoring.
 	//iOpinionWeight += GetGaveAssistanceToScore(ePlayer);
 	//iOpinionWeight += GetPaidTributeToScore(ePlayer);
 
@@ -3217,6 +3228,9 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetSupportedMyHostingScore(ePlayer);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//////////////////////////////////////
+	// VASSALAGE
+	//////////////////////////////////////
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		iOpinionWeight += GetVassalScore(ePlayer);
 		iOpinionWeight += GetVassalTreatedScore(ePlayer);
@@ -3314,7 +3328,27 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 					if(IsPlayerValid(eLoopOtherPlayer, true) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
 					{
 						iOpinionWeight = 0;
-
+						
+						// Declaration of Friendship?
+						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopOtherPlayer))
+							iOpinionWeight += /*-35*/ GC.getOPINION_WEIGHT_DOF();
+				
+						// Defensive Pact?
+						if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopOtherPlayer).getTeam()))
+							iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_DP();
+						
+						// Denounced them?
+						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopOtherPlayer))
+							iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_THEM();
+						
+						// Denounced by them?
+						if(GET_PLAYER(eLoopOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
+							iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_ME();
+						
+						// Global penalty for breaking a military promise?
+						if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsBrokenMilitaryPromise())
+							iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
+						
 						// Estimate Land Dispute
 						switch(GetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer))
 						{
@@ -11044,105 +11078,89 @@ void CvDiplomacyAI::SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes e
 /// Updates what our level of Dispute is with a player over Land
 void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 {
-	PlayerTypes ePlayer;
-
-	DisputeLevelTypes eDisputeLevel;
-
-	int iLandDisputeWeight;
-	int iExpansionFlavor;
-
-	AggressivePostureTypes eAggression;
-	PlayerProximityTypes eProximity;
-
 	// Loop through all (known) Players
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
 		// Update last turn's values
 		m_paePlayerLastTurnLandDisputeLevel[ePlayer] = GetLandDisputeLevel(ePlayer);
 
 		if(IsPlayerValid(ePlayer))
 		{
-			eDisputeLevel = DISPUTE_LEVEL_NONE;
-			iLandDisputeWeight = 0;
-
 			// Look at our Proximity to the other Player
-			eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-			if (eProximity == PLAYER_PROXIMITY_DISTANT || eProximity == PLAYER_PROXIMITY_FAR)
+			PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
+			if (eProximity == PLAYER_PROXIMITY_DISTANT || eProximity == PLAYER_PROXIMITY_FAR || m_pPlayer->getNumCities() == 0)
 			{
-				SetLandDisputeLevel(ePlayer, eDisputeLevel);
+				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
 			}
-			else if (eProximity == PLAYER_PROXIMITY_CLOSE)
-				iLandDisputeWeight += /*18*/ GC.getLAND_DISPUTE_CLOSE();
-			else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
-				iLandDisputeWeight += /*30*/ GC.getLAND_DISPUTE_NEIGHBORS();
-
 			
-			// Expansion aggression
-			eAggression = GetExpansionAggressivePosture(ePlayer);
-
-			if(eAggression == AGGRESSIVE_POSTURE_NONE)
-				iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_NONE();
-			else if(eAggression == AGGRESSIVE_POSTURE_LOW)
-				iLandDisputeWeight += /*10*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_LOW();
-			else if(eAggression == AGGRESSIVE_POSTURE_MEDIUM)
-				iLandDisputeWeight += /*32*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_MEDIUM();
-			else if(eAggression == AGGRESSIVE_POSTURE_HIGH)
-				iLandDisputeWeight += /*50*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_HIGH();
-			else if(eAggression == AGGRESSIVE_POSTURE_INCREDIBLE)
-				iLandDisputeWeight += /*60*/ GC.getLAND_DISPUTE_EXP_AGGRESSIVE_POSTURE_INCREDIBLE();
-
-			// Plot Buying aggression
-			eAggression = GetPlotBuyingAggressivePosture(ePlayer);
-
-			if(eAggression == AGGRESSIVE_POSTURE_NONE)
-				iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_PLOT_BUY_AGGRESSIVE_POSTURE_NONE();
-			else if(eAggression == AGGRESSIVE_POSTURE_LOW)
-				iLandDisputeWeight += /*5*/ GC.getLAND_DISPUTE_PLOT_BUY_AGGRESSIVE_POSTURE_LOW();
-			else if(eAggression == AGGRESSIVE_POSTURE_MEDIUM)
-				iLandDisputeWeight += /*12*/ GC.getLAND_DISPUTE_PLOT_BUY_AGGRESSIVE_POSTURE_MEDIUM();
-			else if(eAggression == AGGRESSIVE_POSTURE_HIGH)
-				iLandDisputeWeight += /*20*/ GC.getLAND_DISPUTE_PLOT_BUY_AGGRESSIVE_POSTURE_HIGH();
-			else if(eAggression == AGGRESSIVE_POSTURE_INCREDIBLE)
-				iLandDisputeWeight += /*30*/ GC.getLAND_DISPUTE_PLOT_BUY_AGGRESSIVE_POSTURE_INCREDIBLE();
-
-			// If the player has deleted the EXPANSION Flavor we have to account for that
-			iExpansionFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
-			int iOtherExpansionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-			if (iOtherExpansionFlavor != 0)
-				iExpansionFlavor = iOtherExpansionFlavor;
+			int iDisputeLevel = 0;
 
 			// Loop through all of this player's Cities
 			int iCityLoop;
-			for (const CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+			for (const CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
-				if (pLoopCity->plot()->IsHomeFrontForPlayer(GetPlayer()->GetID()) || pLoopCity->isEverOwned(GetPlayer()->GetID()))
-				{
-					iExpansionFlavor += /*0*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER();
-				}
+				int iContested = pLoopCity->GetNumContestedPlots(ePlayer);
+				if (iContested > 1)
+					iDisputeLevel += 2;
+				else if (iContested > 0)
+					iDisputeLevel += 1;
 			}
 
-			// Is the player already cramped?
-			if (GetPlayer()->IsCramped())
+			// Is the player already cramped? If so, multiply our current Weight by 1.5x
+			if(m_pPlayer->IsCramped())
 			{
-				iExpansionFlavor += /*0*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER();
+				iDisputeLevel *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
+				iDisputeLevel /= 100;
 			}
-
-			// Add weight for Player's natural EXPANSION preference
-			iLandDisputeWeight *= iExpansionFlavor;
+			iDisputeLevel = (100 * iDisputeLevel) / m_pPlayer->getNumCities();
 
 			// Now see what our new Dispute Level should be
-			if(iLandDisputeWeight >= /*400*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
+			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
+			if(iDisputeLevel >= /*50*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if(iLandDisputeWeight >= /*230*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
+			else if(iDisputeLevel >= /*30*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if(iLandDisputeWeight >= /*100*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
+			else if(iDisputeLevel >= /*10*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			// Actually set the Level
-			SetLandDisputeLevel(ePlayer, eDisputeLevel);
+			if (GetLandDisputeLevel(ePlayer) != eDisputeLevel)
+			{
+				SetLandDisputeLevel(ePlayer, eDisputeLevel);
+
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					// Find the name of this civ and city
+					CvString playerName = GetPlayer()->getCivilizationShortDescription();
+					CvString otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+					// Open the log file
+					CvString strLogName = GC.getPlayerAndCityAILogSplit() ? "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv" : "DiplomacyAI_ExpansionLogic_Log.csv";
+					FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+					// Get the leading info for this line
+					CvString strBaseString;
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", " + otherPlayerName + ", ";
+
+					char *names[] = {
+						"DISPUTE_LEVEL_NONE",
+						"DISPUTE_LEVEL_WEAK",
+						"DISPUTE_LEVEL_STRONG",
+						"DISPUTE_LEVEL_FIERCE" };
+
+					// Actual info
+					CvString strOutBuf(strBaseString);
+					CvString strTmp;
+					strTmp.Format("%s, score %d", names[eDisputeLevel], iDisputeLevel);
+					strOutBuf += strTmp;
+
+					pLog->Msg(strOutBuf);
+				}
+			}
 		}
 	}
 }
@@ -11752,77 +11770,17 @@ void CvDiplomacyAI::ChangeTurnsSinceTheySupportedOurHosting(PlayerTypes ePlayer,
 /// Updates what our guesses are as to the levels of Dispute between other players over Land
 void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 {
-	PlayerTypes eLoopOtherPlayer;
-	int iOtherPlayerLoop;
-
-	PlayerTypes eLoopPlayer;
-	int iPlayerLoop;
-
-	// Cache world average # of Cities to compare each player we know against later
-	int iWorldAverageNumCities = 0;
-	int iNumPlayers = 0;
-	for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if(GET_PLAYER(eLoopPlayer).isAlive())
-		{
-			iWorldAverageNumCities += GET_PLAYER(eLoopPlayer).getNumCities();
-			iNumPlayers++;
-		}
-	}
-
-	iWorldAverageNumCities *= 100;
-	iWorldAverageNumCities /= iNumPlayers;
-
-	int iCityRatio;
-	int iExpansionFlavorGuess;
-
-	int iLandDisputeWeight;
-
-	DisputeLevelTypes eDisputeLevel;
-
-	PlayerProximityTypes eProximity;
-
 	// Loop through all (known) Majors
-	for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		if(IsPlayerValid(eLoopPlayer))
 		{
-			// Before looking at anyone else, try to guess how much this player values Expansion based on how many Cities he has relative to the rest of the world
-
-			iCityRatio = GET_PLAYER(eLoopPlayer).getNumCities() * 10000;
-			iCityRatio /= iWorldAverageNumCities;	// 100 means 1 City, which is why we multiplied by 10000 on the line above... 10000/100 = 100
-
-			if(iCityRatio >= /*200*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_10())
-				iExpansionFlavorGuess = 10;
-			else if(iCityRatio >= /*180*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_9())
-				iExpansionFlavorGuess = 9;
-			else if(iCityRatio >= /*160*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_8())
-				iExpansionFlavorGuess = 8;
-			else if(iCityRatio >= /*130*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_7())
-				iExpansionFlavorGuess = 7;
-			else if(iCityRatio >= /*110*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_6())
-				iExpansionFlavorGuess = 6;
-			else if(iCityRatio >= /*90*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_5())
-				iExpansionFlavorGuess = 5;
-			else if(iCityRatio >= /*80*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_4())
-				iExpansionFlavorGuess = 4;
-			else if(iCityRatio >= /*55*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_3())
-				iExpansionFlavorGuess = 3;
-			else if(iCityRatio >= /*30*/ GC.getLAND_DISPUTE_CITY_RATIO_EXPANSION_GUESS_2())
-				iExpansionFlavorGuess = 2;
-			else
-				iExpansionFlavorGuess = 1;
-
-			LogOtherPlayerExpansionGuess(eLoopPlayer, iExpansionFlavorGuess);
-
 			// Now loop through every player HE knows
-			for(iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
+			for(int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
 			{
-				eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+				PlayerTypes eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
 
 				// Don't compare a player to himself
 				if(eLoopPlayer != eLoopOtherPlayer)
@@ -11830,50 +11788,57 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 					// Do both we and the guy we're looking at know the third guy?
 					if(IsPlayerValid(eLoopOtherPlayer) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopOtherPlayer))
 					{
-						eDisputeLevel = DISPUTE_LEVEL_NONE;
-						iLandDisputeWeight = 0;
-
 						// Look at our Proximity to the other Player
-						eProximity = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eLoopOtherPlayer);
+						PlayerProximityTypes eProximity = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eLoopOtherPlayer);
+						if (eProximity == PLAYER_PROXIMITY_DISTANT || eProximity == PLAYER_PROXIMITY_FAR)
+						{
+							SetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer, DISPUTE_LEVEL_NONE);
+							continue;
+						}
+			
+						int iDisputeLevel = 0;
+						int iNumCities = 0;
 
-						if(eProximity == PLAYER_PROXIMITY_DISTANT)
-							iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_DISTANT();
-						else if(eProximity == PLAYER_PROXIMITY_FAR)
-							iLandDisputeWeight += /*5*/ GC.getLAND_DISPUTE_FAR();
-						else if(eProximity == PLAYER_PROXIMITY_CLOSE)
-							iLandDisputeWeight += /*20*/ GC.getLAND_DISPUTE_CLOSE();
-						else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
-							iLandDisputeWeight += /*40*/ GC.getLAND_DISPUTE_NEIGHBORS();
+						// Loop through all of this player's cities
+						int iCityLoop;
+						for (const CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+						{
+							if (!pLoopCity->isVisible(m_pPlayer->getTeam(),false)) //only if visible
+								continue;
+
+							iNumCities++;
+
+							int iContested = pLoopCity->GetNumContestedPlots(eLoopOtherPlayer); //should really check if the other city is visible as well ...
+							if (iContested > 1)
+								iDisputeLevel += 2;
+							else if (iContested > 0)
+								iDisputeLevel += 1;
+						}
+
+						if (iNumCities==0)
+						{
+							SetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer, DISPUTE_LEVEL_NONE);
+							continue;
+						}
 
 						// Is the player already cramped? If so, multiply our current Weight by 1.5x
 						if(GET_PLAYER(eLoopPlayer).IsCramped())
 						{
-							iLandDisputeWeight *= /*0*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER();
-							iLandDisputeWeight /= 100;
+							iDisputeLevel *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
+							iDisputeLevel /= 100;
 						}
+						iDisputeLevel = (100 * iDisputeLevel) / iNumCities;
 
-						// Add weight for Player's estimated EXPANSION preference
-						iLandDisputeWeight *= iExpansionFlavorGuess;
-
-						// Max Value (Cramped, Neighbors) - 60
-						// EXPANSION 10	: 600
-						// EXPANSION 5		: 300
-						// EXPANSION 1		: 60
-
-						// "Typical" Value (Not Cramped, Close) - 20
-						// EXPANSION 10	: 200
-						// EXPANSION 5		: 100
-						// EXPANSION 1		: 20
-
-						// Now see what our new estimated Dispute Level should be
-						if(iLandDisputeWeight >= /*300*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
+						// Now see what our new Dispute Level should be
+						DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
+						if(iDisputeLevel >= /*50*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-						else if(iLandDisputeWeight >= /*200*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
+						else if(iDisputeLevel >= /*30*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_STRONG;
-						else if(iLandDisputeWeight >= /*100*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
+						else if(iDisputeLevel >= /*10*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
-						// Actually set the estimated Level
+						// Actually set the Level
 						SetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer, eDisputeLevel);
 					}
 				}
@@ -14581,7 +14546,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 #if defined(MOD_BALANCE_CORE)
 					}
-			// Shouldn't clear out positive diplomatic values if WE declared war (except recent trade, since we're no longer trade partners)
+			// Shouldn't clear out positive diplomatic values if WE declared war
 			if (!bDefensivePact)
 			{
 #endif
@@ -14603,11 +14568,12 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					if(GetNumTimesIntrigueSharedBy(ePlayer) > 0)
                         ChangeNumTimesIntrigueSharedBy(ePlayer, -GetNumTimesIntrigueSharedBy(ePlayer));
             }	
-#endif					
-										
-					// Clear out recent trade/DoF values
+#endif															
+					// We're no longer trade partners
 					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentTradeValue(GetPlayer()->GetID(), -GetRecentTradeValue(GetPlayer()->GetID()));
+					
+					// Clear out DoF values appropriately
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
@@ -25653,11 +25619,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		else if(iArg1 == 2)
 		{
 			SetPlayerMadeExpansionPromise(eFromPlayer, true);
-			SetPlayerExpansionPromiseData(eFromPlayer, GetExpansionAggressivePosture(eFromPlayer));
-#if defined(MOD_BALANCE_CORE)
-			SetEverMadeExpansionPromise(eFromPlayer, true);
-			SetNoExpansionPromiseClosestCities(eFromPlayer, GetClosestCityPair(eFromPlayer));
-#endif
 
 			if(bActivePlayer)
 			{
@@ -30864,10 +30825,7 @@ void CvDiplomacyAI::DoTestPromises()
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_S");
 					pNotifications->Add(NOTIFICATION_EXPANSION_PROMISE_EXPIRED, strBuffer, strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);
 				}
-#if defined(MOD_BALANCE_CORE)
 				SetPlayerMadeExpansionPromise(eLoopPlayer, false);
-				SetNoExpansionPromiseClosestCities(eLoopPlayer, make_pair(-1,-1));
-#endif
 			}
 
 			// Border Promise
@@ -31058,11 +31016,20 @@ void CvDiplomacyAI::SetPlayerMadeExpansionPromise(PlayerTypes ePlayer, bool bVal
 	if (bValue)
 	{
 		m_paiPlayerMadeExpansionPromiseTurn[ePlayer] = GC.getGame().getGameTurn();
+		m_paePlayerExpansionPromiseData[ePlayer] = GetExpansionAggressivePosture(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+		SetEverMadeExpansionPromise(ePlayer, true);
+		SetNoExpansionPromiseClosestCities(ePlayer, GetClosestCityPair(ePlayer));
+#endif
+
 	}
 	else
 	{
 		m_paiPlayerMadeExpansionPromiseTurn[ePlayer] = -1;
-		SetPlayerExpansionPromiseData(ePlayer, NO_AGGRESSIVE_POSTURE_TYPE);
+		m_paePlayerExpansionPromiseData[ePlayer] = NO_AGGRESSIVE_POSTURE_TYPE;
+#if defined(MOD_BALANCE_CORE)
+		SetNoExpansionPromiseClosestCities(ePlayer, make_pair(-1,-1));
+#endif
 	}
 }
 
@@ -31110,12 +31077,6 @@ AggressivePostureTypes CvDiplomacyAI::GetPlayerExpansionPromiseData(PlayerTypes 
 	return (AggressivePostureTypes) m_paePlayerExpansionPromiseData[ePlayer];
 }
 
-void CvDiplomacyAI::SetPlayerExpansionPromiseData(PlayerTypes ePlayer, AggressivePostureTypes eValue)
-{
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_paePlayerExpansionPromiseData[ePlayer] = eValue;
-}
 #if defined(MOD_BALANCE_CORE)
 /// Sets if this player ever made an expansion promise to us
 void CvDiplomacyAI::SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue)
@@ -32654,9 +32615,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	// Don't add this if they broke a military promise with US
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise() && !IsPlayerBrokenMilitaryPromise(ePlayer))
-	{
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
-	}
 
 	return iOpinionWeight;
 }
@@ -32666,9 +32625,7 @@ int CvDiplomacyAI::GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	// Don't add this if they broke a military promise with anyone
 	if(IsPlayerIgnoredMilitaryPromise(ePlayer) && !IsPlayerBrokenMilitaryPromise(ePlayer) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise())
-	{
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_IGNORED_MILITARY_PROMISE();
-	}
 	return iOpinionWeight;
 }
 
@@ -32690,10 +32647,9 @@ int CvDiplomacyAI::GetBrokenExpansionPromiseScore (PlayerTypes ePlayer)
 int CvDiplomacyAI::GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if (GetBrokenExpansionPromiseValue(ePlayer) > 0)
-	{
-	}
-	else if (GetIgnoredExpansionPromiseValue(ePlayer) > 0)
+
+	// Don't add this if they BROKE an expansion promise
+	if (GetIgnoredExpansionPromiseValue(ePlayer) > 0 && GetBrokenExpansionPromiseValue(ePlayer) <= 0)
 	{
 		int iWeightChange = GetIgnoredExpansionPromiseValue(ePlayer) / (GC.getIGNORED_EXPANSION_PROMISE_PER_OPINION_WEIGHT() *  GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
 		if(iWeightChange > /*15*/ GC.getOPINION_WEIGHT_EXPANSION_PROMISE_IGNORED_MAX())
@@ -32737,10 +32693,9 @@ int CvDiplomacyAI::GetIgnoredBorderPromiseScore(PlayerTypes ePlayer)
 	//{
 	//	iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_IGNORED_BORDER_PROMISE();
 	//}
-	if (GetBrokenBorderPromiseValue(ePlayer) > 0)
-	{
-	}
-	else if (GetIgnoredBorderPromiseValue(ePlayer) > 0)
+
+	// Don't add this if they BROKE a border promise
+	if (GetIgnoredBorderPromiseValue(ePlayer) > 0 && GetBrokenBorderPromiseValue(ePlayer) <= 0)
 	{
 		int iWeightChange = GetIgnoredBorderPromiseValue(ePlayer) / (GC.getIGNORED_BORDER_PROMISE_PER_OPINION_WEIGHT() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
 		if (iWeightChange > /*15*/ GC.getOPINION_WEIGHT_BORDER_PROMISE_IGNORED_MAX())
@@ -32756,7 +32711,7 @@ int CvDiplomacyAI::GetIgnoredBorderPromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broken CityState attack promise with us?
+	// Broken City-State attack promise with us?
 	if(IsPlayerBrokenAttackCityStatePromise(ePlayer))
 		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE();
 	return iOpinionWeight;
@@ -32765,43 +32720,33 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broken CityState attack promise with us?
-	if(IsPlayerBrokenAttackCityStatePromise(ePlayer))
-	{
-	}
-	// Broken CityState attack promise with someone else?
-	else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenCityStatePromise())
-	{
-		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
-	}
 
+	// Don't add this if they broke a City-State attack promise with US
+	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenCityStatePromise() && !IsPlayerBrokenAttackCityStatePromise(ePlayer))
+		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
 	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetIgnoredAttackCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broken CityState attack promise with us?
-	if(IsPlayerBrokenAttackCityStatePromise(ePlayer))
-	{
-		// Broken CityState attack promise with someone?
-	}
-	else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenCityStatePromise())
-	{
-		// Ignored our request for them to make a CityState attack promise?
-	}
-	else if(IsPlayerIgnoredAttackCityStatePromise(ePlayer))
-	{
+	
+	// Ignored our request for them to make a City-State attack promise?
+	
+	// Don't add this if they broke a City-State attack promise with anyone
+	// if(IsPlayerIgnoredAttackCityStatePromise(ePlayer) && !IsPlayerBrokenAttackCityStatePromise(ePlayer) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenCityStatePromise())
+	//	 iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE(); //antonjs: todo: rename
+	
+	// Correction: The opinion weight for breaking a promise with another civ is 0, so let's still count it if they ignore our promise (but haven't broken one with us)
+	if(IsPlayerIgnoredAttackCityStatePromise(ePlayer) && !IsPlayerBrokenAttackCityStatePromise(ePlayer))
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_IGNORED_CITY_STATE_PROMISE(); //antonjs: todo: rename
-	}
-
 	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetBrokenBullyCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broke a promise to not bully a city-state?
+	// Broke a promise not to bully a city-state?
 	if(IsPlayerBrokenBullyCityStatePromise(ePlayer))
 		iOpinionWeight += 20; //antonjs: todo: xml
 	return iOpinionWeight;
@@ -32810,12 +32755,9 @@ int CvDiplomacyAI::GetBrokenBullyCityStatePromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetIgnoredBullyCityStatePromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broke a promise to not bully a city-state?
-	if(IsPlayerBrokenBullyCityStatePromise(ePlayer))
-	{
-		// Ignored a promise to not bully a city-state?
-	}
-	else if(IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+	// Ignored a promise not to bully a city-state?
+	// Don't add this if they BROKE a promise to not bully a city-state
+	if(IsPlayerIgnoredBullyCityStatePromise(ePlayer) && !IsPlayerBrokenBullyCityStatePromise(ePlayer))
 	{
 		iOpinionWeight += 10; //antonjs: todo: xml
 	}
@@ -32825,7 +32767,7 @@ int CvDiplomacyAI::GetIgnoredBullyCityStatePromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetBrokenNoConvertPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broke a promise to not convert cities again?
+	// Broke a promise not to convert cities again?
 	if(IsPlayerBrokenNoConvertPromise(ePlayer))
 	{
 		iOpinionWeight += /*8*/ GC.getOPINION_WEIGHT_BROKEN_NO_CONVERT_PROMISE() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
@@ -32836,11 +32778,8 @@ int CvDiplomacyAI::GetBrokenNoConvertPromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetIgnoredNoConvertPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broke a promise to not convert cities again?
-	if(IsPlayerBrokenNoConvertPromise(ePlayer))
-	{
-	}
-	else if(IsPlayerIgnoredNoConvertPromise(ePlayer))
+	// Don't add this if they BROKE a promise not to convert cities again
+	if(IsPlayerIgnoredNoConvertPromise(ePlayer) && !IsPlayerBrokenNoConvertPromise(ePlayer))
 	{
 		iOpinionWeight += /*4*/ GC.getOPINION_WEIGHT_IGNORED_NO_CONVERT_PROMISE() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	}
@@ -32850,7 +32789,7 @@ int CvDiplomacyAI::GetIgnoredNoConvertPromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetBrokenNoDiggingPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// Broke a promise to not to dig again?
+	// Broke a promise not to dig again?
 	if (IsPlayerBrokenNoDiggingPromise(ePlayer))
 	{
 		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_BROKEN_NO_DIG_PROMISE();
@@ -32862,11 +32801,8 @@ int CvDiplomacyAI::GetIgnoredNoDiggingPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	// Broke a promise to not to dig again?
-	if (IsPlayerBrokenNoDiggingPromise(ePlayer))
-	{
-	}
-	else if(IsPlayerIgnoredNoDiggingPromise(ePlayer))
+	// Don't add this if they BROKE a promise not to dig again
+	if(IsPlayerIgnoredNoDiggingPromise(ePlayer) && !IsPlayerBrokenNoDiggingPromise(ePlayer))
 	{
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_IGNORED_NO_DIG_PROMISE();
 	}
@@ -32887,11 +32823,9 @@ int CvDiplomacyAI::GetBrokenSpyPromiseScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetIgnoredSpyPromiseScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if (IsPlayerBrokenSpyPromise(ePlayer))
-	{
 
-	}
-	else if (IsPlayerIgnoredSpyPromise(ePlayer))
+	// Don't add this if they BROKE a promise not to spy on us again
+	if (IsPlayerIgnoredSpyPromise(ePlayer) && !IsPlayerBrokenSpyPromise(ePlayer))
 	{
 		iOpinionWeight += GC.getOPINION_WEIGHT_IGNORED_SPY_PROMISE();
 	}
@@ -33184,11 +33118,6 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 					iTraitorOpinion += /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH();
 				}
 
-				// We actually more friendly with the player we're evaluating than denouncer
-				else if(GetMajorCivOpinion(eLoopPlayer) < GetMajorCivOpinion(ePlayer))
-				{
-					iTraitorOpinion += /*-10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE();
-				}
 #if defined(MOD_BALANCE_CORE)
 				iNumPlayers++;
 #endif
@@ -33208,9 +33137,41 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 {
 	int iTraitorOpinion = 0;
+	
+#if defined(MOD_BALANCE_CORE)
+	// If they're an untrustworthy friend, apply the full traitor penalty
+	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+	{	
+	    int iDenouncedFriends = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount();
+	    if(iDenouncedFriends > 0)
+		    iTraitorOpinion = iDenouncedFriends * /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND_EACH();
+	}
+	
+	else
+	{
+		// Otherwise, apply a betrayal penalty if we like the friend(s) they denounced more than we like them
+		PlayerTypes eLoopPlayer;
+
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(eLoopPlayer != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDenouncedUs(ePlayer))
+			{
+				// We're more friendly with the player they've denounced than we are with them
+				if(GetMajorCivOpinion(eLoopPlayer) > GetMajorCivOpinion(ePlayer))
+				{
+					iTraitorOpinion += (/*-10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE() * -1);
+				}
+			}
+		}
+	}   
+
+#else
 	int iDenouncedFriends = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount();
 	if(iDenouncedFriends > 0)
-		iTraitorOpinion = iDenouncedFriends* /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND_EACH();
+		iTraitorOpinion = iDenouncedFriends * /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND_EACH();
+#endif
+
 	return iTraitorOpinion;
 }
 

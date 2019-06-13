@@ -169,6 +169,11 @@ UPDATE Buildings
 SET NoUnhappfromXSpecialists = '1'
 WHERE Type = 'BUILDING_CANDI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_CANDI', 'FEATURE_OASIS', 'YIELD_GOLD', 2);
+
 -- Maria I
 
 UPDATE Builds
