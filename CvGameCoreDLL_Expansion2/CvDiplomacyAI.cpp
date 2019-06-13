@@ -11096,34 +11096,29 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 				continue;
 			}
 			
-			int iDisputeLevel = 0;
+			int iContestedScore = 0;
 
 			// Loop through all of this player's Cities
 			int iCityLoop;
 			for (const CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-			{
-				int iContested = pLoopCity->GetNumContestedPlots(ePlayer);
-				if (iContested > 0)
-					iDisputeLevel++; //one base
-				if (iContested > 1)
-					iDisputeLevel++; //and one more for serious overlap
-			}
+				iContestedScore += pLoopCity->GetContestedPlotScore(ePlayer);
 
-			// Is the player already cramped? If so, multiply our current Weight by 1.5x
+			int iAvgContestedScore = (100 * iContestedScore) / m_pPlayer->getNumCities();
+
+			// Is the player already cramped in on other sides? If so, bump up the score
 			if(m_pPlayer->IsCramped())
 			{
-				iDisputeLevel *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
-				iDisputeLevel /= 100;
+				iAvgContestedScore *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
+				iAvgContestedScore /= 100;
 			}
-			iDisputeLevel = (100 * iDisputeLevel) / m_pPlayer->getNumCities();
 
 			// Now see what our new Dispute Level should be
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
-			if(iDisputeLevel >= /*50*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
+			if(iAvgContestedScore >= /*8*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if(iDisputeLevel >= /*30*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
+			else if(iAvgContestedScore >= /*4*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if(iDisputeLevel >= /*10*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
+			else if(iAvgContestedScore >= /*1*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			// Actually set the Level
@@ -11155,7 +11150,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 					// Actual info
 					CvString strOutBuf(strBaseString);
 					CvString strTmp;
-					strTmp.Format("%s, score %d", names[eDisputeLevel], iDisputeLevel);
+					strTmp.Format("%s, score %d, avg score %d", names[eDisputeLevel], iContestedScore, iAvgContestedScore);
 					strOutBuf += strTmp;
 
 					pLog->Msg(strOutBuf);
@@ -11796,23 +11791,15 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 							continue;
 						}
 			
-						int iDisputeLevel = 0;
 						int iNumCities = 0;
+						int iContestedScore = 0;
 
-						// Loop through all of this player's cities
+						// Loop through all of this player's Cities
 						int iCityLoop;
 						for (const CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 						{
-							if (!pLoopCity->isVisible(m_pPlayer->getTeam(),false)) //only if visible
-								continue;
-
-							iNumCities++;
-
-							int iContested = pLoopCity->GetNumContestedPlots(eLoopOtherPlayer); //should really check if the other city is visible as well ...
-							if (iContested > 1)
-								iDisputeLevel += 2;
-							else if (iContested > 0)
-								iDisputeLevel += 1;
+							if (pLoopCity->isVisible(m_pPlayer->getTeam(), false)) //should really check if the other city is visible as well ...
+								iContestedScore += pLoopCity->GetContestedPlotScore(eLoopOtherPlayer);
 						}
 
 						if (iNumCities==0)
@@ -11821,21 +11808,22 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 							continue;
 						}
 
-						// Is the player already cramped? If so, multiply our current Weight by 1.5x
-						if(GET_PLAYER(eLoopPlayer).IsCramped())
+						int iAvgContestedScore = (100 * iContestedScore) / iNumCities;
+
+						// Is the player already cramped in on other sides? If so, bump up the score
+						if(GET_PLAYER(eLoopPlayer).IsCramped()) //again, there should be a visibility check here ...
 						{
-							iDisputeLevel *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
-							iDisputeLevel /= 100;
+							iAvgContestedScore *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
+							iAvgContestedScore /= 100;
 						}
-						iDisputeLevel = (100 * iDisputeLevel) / iNumCities;
 
 						// Now see what our new Dispute Level should be
 						DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
-						if(iDisputeLevel >= /*50*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
+						if(iAvgContestedScore >= /*8*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-						else if(iDisputeLevel >= /*30*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
+						else if(iAvgContestedScore >= /*4*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_STRONG;
-						else if(iDisputeLevel >= /*10*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
+						else if(iAvgContestedScore >= /*1*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 						// Actually set the Level

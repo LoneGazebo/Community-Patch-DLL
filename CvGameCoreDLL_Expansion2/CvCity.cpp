@@ -7520,7 +7520,7 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 	return m_aiEconomicValue[ePossibleOwner];
 }
 
-int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
+int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) const
 {
 	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
 
@@ -7532,15 +7532,24 @@ int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
 		CvPlot* pPlot = iterateRingPlots(plot(), i);
 		if(!pPlot || !pPlot->isOwned())
 			continue;
+
+		int iWeight = 1;
+		if (!bJustCount)
+		{
+			if (i < RING1_PLOTS)
+				iWeight = 3;
+			else if (i < RING2_PLOTS)
+				iWeight = 2;
+		}
 		
 		bool bRelevant = false;
 		if (eOtherTeam == NO_TEAM && pPlot->getTeam() != getTeam())
 			bRelevant = true;
-		if (eOtherTeam != NO_TEAM && pPlot->getTeam() != eOtherTeam)
+		if (eOtherTeam != NO_TEAM && pPlot->getTeam() == eOtherTeam)
 			bRelevant = true;
 
 		if (bRelevant && pPlot->hasYield())
-			iCounter++;
+			iCounter += iWeight;
 	}
 
 	return iCounter;
