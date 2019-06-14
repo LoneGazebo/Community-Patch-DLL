@@ -588,7 +588,7 @@
 			<Text>Provides benefits geared toward [ICON_GOLD] Gold generation. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two and doubles Land [ICON_INTERNATIONAL_TRADE] Trade Unit maximum distance.[NEWLINE][NEWLINE]Caravansaries and Markets in all Cities produce +3 [ICON_GOLD] Gold. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TRADER_SIDS">
-			<Text>[ICON_RES_CLOVES] Cloves, [ICON_RES_COCOA] Cocoa, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_PEPPER] Pepper, [ICON_RES_SALT] Salt, [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid's Franchise.</Text>
+			<Text>[ICON_RES_CLOVES] Cloves, [ICON_RES_COCOA] Cocoa, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_PEPPER] Pepper, [ICON_RES_SALT] Salt, [ICON_RES_SPICES] Cinnamon, [ICON_RES_SUGAR] Sugar provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid's Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TRADER_SIDS">
 			<Text>+4 [ICON_GOLD] Gold for every Global Franchise, and [ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold.</Text>
