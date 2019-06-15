@@ -12461,6 +12461,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 
+// Hide some modifiers if FRIENDLY (or pretending to be)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY))) 
 #else

@@ -3038,7 +3038,7 @@ void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinion
 
 		int turnsPassed = GC.getGame().getGameTurn() - GetNumTurnsSinceSomethingSent(ePlayer);
 
-		m_pDiploData->m_aTradePriority[ePlayer] = 10.0f * opinion + turnsPassed; // faktor in turns since last contact and the optinion to player.
+		m_pDiploData->m_aTradePriority[ePlayer] = 10.0f * opinion + turnsPassed; // factor in turns since last contact and opinion of player.
 	}
 }
 #endif
@@ -3090,7 +3090,6 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	// Player stole from us
 	//////////////////////////////////////
 	iOpinionWeight += GetTimesCultureBombedScore(ePlayer);
-	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
 
 	//////////////////////////////////////
@@ -3098,6 +3097,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	iOpinionWeight += GetHasAdoptedHisReligionScore(ePlayer);
 	iOpinionWeight += GetHasAdoptedMyReligionScore(ePlayer);
+	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
 	
 #if defined(MOD_BALANCE_CORE)
 	iOpinionWeight += GetPolicyScore(ePlayer);
@@ -3218,7 +3218,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//iOpinionWeight += GetPaidTributeToScore(ePlayer);
 
 	//////////////////////////////////////
-	// XP2
+	// XP2 - WORLD CONGRESS
 	//////////////////////////////////////
 
 	iOpinionWeight += GetLikedTheirProposalScore(ePlayer);
@@ -6179,13 +6179,13 @@ void CvDiplomacyAI::DoUpdateDemands()
 		}
 	}
 
-	// We're not hostile towards any one so cancel any demand work we have underway (if there's anything going on)
+	// We're not hostile towards anyone so cancel any demand work we have underway (if there's anything going on)
 	if(bCancelDemand)
 	{
 		DoCancelHaltDemandProcess();
 	}
 
-	// See If we have a demand ready to make
+	// See if we have a demand ready to make
 	DoTestDemandReady();
 }
 
@@ -6679,7 +6679,7 @@ bool CvDiplomacyAI::IsEmbassyExchangeAcceptable(PlayerTypes ePlayer)
 	return false;
 }
 
-/// Do we want to have an embassy in the player's capital?
+/// Do we want to have an embassy in the player's capital? - this is only used for when to trigger an AI request, not whether or not the AI will accept a deal period
 bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -6842,8 +6842,9 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 		return false;
 	}
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+	{
 		return false;
-
+	}
 	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
 	{
 		return true;
