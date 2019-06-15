@@ -145,7 +145,8 @@ public:
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
-	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) ;
+	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer);
+	MajorCivApproachTypes GetTrueApproachTowardsUsGuess(PlayerTypes ePlayer);
 	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
