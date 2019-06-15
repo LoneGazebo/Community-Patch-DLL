@@ -5793,7 +5793,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 			{
 				eTrueApproachGuess = MAJOR_CIV_APPROACH_WAR;
 				SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-				SetApproachTowardsUsGuessCounter(eLoopPlayer, -1);
+				SetApproachTowardsUsGuessCounter(eLoopPlayer, 0);
 			}
 
 #if defined(MOD_BALANCE_CORE)			
@@ -5816,7 +5816,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					{
 						eTrueApproachGuess = MAJOR_CIV_APPROACH_AFRAID;
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_AFRAID);
-						SetApproachTowardsUsGuessCounter(eLoopPlayer, -1);
+						SetApproachTowardsUsGuessCounter(eLoopPlayer, 0);
 					}
 									
 					// They can't be FRIENDLY or DECEPTIVE if their visible approach isn't FRIENDLY
