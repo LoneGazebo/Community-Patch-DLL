@@ -5812,7 +5812,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 				if (!GET_PLAYER(eLoopPlayer).isHuman())
 				{
 					// Are they now AFRAID of us? Then they're being honest.
-					else if(eVisibleApproach == MAJOR_CIV_APPROACH_AFRAID && eTrueApproachGuess != MAJOR_CIV_APPROACH_AFRAID)
+					if(eVisibleApproach == MAJOR_CIV_APPROACH_AFRAID && eTrueApproachGuess != MAJOR_CIV_APPROACH_AFRAID)
 					{
 						eTrueApproachGuess = MAJOR_CIV_APPROACH_AFRAID;
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_AFRAID);
