@@ -871,10 +871,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 }
 
 /// Retrieve the relative fertility of this plot (alone)
-int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
+int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bIncludeCoast)
 {
 	int rtnValue = 0;
-	if( bAllPlots || (!pPlot->isWater() && pPlot->isValidMovePlot(NO_PLAYER)) )
+	if( (!pPlot->isWater() && pPlot->isValidMovePlot(NO_PLAYER)) || (bIncludeCoast && pPlot->isShallowWater() ) )
 	{
 		rtnValue += ComputeFoodValue(pPlot, NULL);
 		rtnValue += ComputeProductionValue(pPlot, NULL);

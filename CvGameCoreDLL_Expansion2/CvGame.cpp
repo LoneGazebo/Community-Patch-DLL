@@ -1398,8 +1398,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_pStartSiteEvaluator->Init();
 
 		CvAssertMsg(m_pStartPositioner==NULL, "about to leak memory, CvGame::m_pStartPositioner");
-		m_pStartPositioner = FNEW(CvStartPositioner, c_eCiv5GameplayDLL, 0);
-		m_pStartPositioner->Init(m_pStartSiteEvaluator);
+		m_pStartPositioner = new CvStartPositioner(m_pStartSiteEvaluator);
 
 		m_kGameDeals.Init();
 
@@ -1598,18 +1597,7 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 //	--------------------------------------------------------------------------------
 void CvGame::assignStartingPlots()
 {
-	// Set up the start positioner
-	CvStartPositioner* pPositioner = GetStartPositioner();
-
-	// Divide the map into equal fertility plots
-	pPositioner->DivideMapIntoRegions(countMajorCivsAlive());
-
-	// Compute the value of a city in each plot
-	pPositioner->ComputeFoundValues();
-
-	// Position the players
-	pPositioner->RankPlayerStartOrder();
-	pPositioner->AssignStartingLocations();
+	 GetStartPositioner()->Run(countMajorCivsAlive());
 }
 
 #if defined(EXTERNAL_PAUSING)
@@ -4289,12 +4277,9 @@ int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
 //	--------------------------------------------------------------------------------
 int CvGame::countMajorCivsAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
 
-	iCount = 0;
-
-	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		if(GET_PLAYER((PlayerTypes)iI).isAlive())
 		{
@@ -11882,7 +11867,7 @@ CvSiteEvaluatorForStart* CvGame::GetStartSiteEvaluator()
 }
 
 //	--------------------------------------------------------------------------------
-CvStartPositioner* CvGame::GetStartPositioner()
+IStartPositioner* CvGame::GetStartPositioner()
 {
 	return m_pStartPositioner;
 }
