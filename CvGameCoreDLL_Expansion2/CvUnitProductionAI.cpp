@@ -1252,15 +1252,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 
-		if (m_pCity->plot()->getNumDefenders(kPlayer.GetID()) <= 0)
-		{
-			iFlavorExpansion -= 20;
-		}
-		else if (m_pCity->plot()->GetNumFriendlyUnitsAdjacent(kPlayer.getTeam(), DOMAIN_LAND, NULL, false) <= 0)
-		{
-			iFlavorExpansion -= 15;
-		}
-
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
 		bool bRunningEarlyExpand = false;
 		EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
