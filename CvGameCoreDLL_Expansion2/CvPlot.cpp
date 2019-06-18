@@ -9485,15 +9485,7 @@ CvCity* CvPlot::getOwningCity() const
 //	--------------------------------------------------------------------------------
 void CvPlot::updateOwningCity()
 {
-	CvCity* pOldOwningCity;
-	CvCity* pLoopCity;
-	CvCity* pBestCity;
-	CvPlot* pLoopPlot;
-	int iBestPlot;
-	int iI;
-
-	pBestCity = getPlotCity();
-
+	CvCity* pBestCity = getPlotCity();
 	if(pBestCity == NULL)
 	{
 		pBestCity = getOwningCityOverride();
@@ -9502,27 +9494,22 @@ void CvPlot::updateOwningCity()
 
 	if((pBestCity == NULL) && isOwned())
 	{
-		iBestPlot = 0;
-
-
-		for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
+		int iBestPlot = 0;
+		for(int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
 		{
-			pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 			if(pLoopPlot != NULL)
 			{
-				pLoopCity = pLoopPlot->getPlotCity();
-
+				CvCity* pLoopCity = pLoopPlot->getPlotCity();
 				if(pLoopCity != NULL)
 				{
 					if(pLoopCity->getOwner() == getOwner())
 					{
-						// XXX use getGameTurnAcquired() instead???
 						if((pBestCity == NULL) ||
 						        (GC.getCityPlotPriority()[iI] < GC.getCityPlotPriority()[iBestPlot]) ||
 						        ((GC.getCityPlotPriority()[iI] == GC.getCityPlotPriority()[iBestPlot]) &&
-						         ((pLoopCity->getGameTurnFounded() < pBestCity->getGameTurnFounded()) ||
-						          ((pLoopCity->getGameTurnFounded() == pBestCity->getGameTurnFounded()) &&
+						         ((pLoopCity->getGameTurnAcquired() < pBestCity->getGameTurnAcquired()) ||
+						          ((pLoopCity->getGameTurnAcquired() == pBestCity->getGameTurnAcquired()) &&
 						           (pLoopCity->GetID() < pBestCity->GetID())))))
 						{
 							iBestPlot = iI;
@@ -9534,7 +9521,7 @@ void CvPlot::updateOwningCity()
 		}
 	}
 
-	pOldOwningCity = getOwningCity();
+	CvCity* pOldOwningCity = getOwningCity();
 
 	if(pOldOwningCity != pBestCity)
 	{

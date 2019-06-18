@@ -7533,13 +7533,17 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) con
 		if(!pPlot || !pPlot->isOwned())
 			continue;
 
-		int iWeight = 1;
+		//if they already had the plot when we got the city we can't be upset
+		if (GC.getGame().getGameTurn() - pPlot->getOwnershipDuration() < getGameTurnAcquired())
+			continue;
+
+		int iWeight = 10;
 		if (!bJustCount)
 		{
 			if (i < RING1_PLOTS)
-				iWeight = 3;
+				iWeight = 30;
 			else if (i < RING2_PLOTS)
-				iWeight = 2;
+				iWeight = 20;
 		}
 		
 		bool bRelevant = false;
@@ -7552,7 +7556,7 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) con
 			iCounter += iWeight;
 	}
 
-	return iCounter;
+	return iCounter/10;
 }
 #endif
 
