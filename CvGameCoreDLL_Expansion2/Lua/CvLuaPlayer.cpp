@@ -12777,10 +12777,34 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	iValue = pDiploAI->GetEmbassyScore(eWithPlayer);
 	if (iValue != 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).HasEmbassyAtTeam(pkPlayer->getTeam()) && GET_TEAM(pkPlayer->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if(GET_TEAM(pkPlayer->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).HasEmbassyAtTeam(pkPlayer->getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+#else
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
 		aOpinions.push_back(kOpinion);
+#endif
 	}
 
 	iValue = pDiploAI->GetForgaveForSpyingScore(eWithPlayer);

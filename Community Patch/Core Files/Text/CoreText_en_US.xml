@@ -2798,6 +2798,14 @@
 			<Text>[COLOR_NEGATIVE_TEXT]You have made a Defensive Pact with one of their enemies![ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Embassy Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT]We have shared embassies.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT]We have an embassy in their capital.[ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Open Borders Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
 			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to each other.[ENDCOLOR]</Text>

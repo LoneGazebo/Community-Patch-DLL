@@ -3063,7 +3063,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 		iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 		{
-			iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer) * 2);
+			iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer) * 5);
 		}
 	}
 #endif
@@ -32647,8 +32647,21 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetEmbassyScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
 	if(GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).HasEmbassyAtTeam(GET_PLAYER(ePlayer).getTeam()))
+	{
+#if defined(MOD_BALANCE_CORE)
+		iOpinionWeight += (/*-1*/ GC.getOPINION_WEIGHT_EMBASSY() * 2); // -2 if AI has an embassy with them
+#else
 		iOpinionWeight += (/*-1*/ GC.getOPINION_WEIGHT_EMBASSY());
+#endif
+	}
+	
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(ePlayer).getTeam().HasEmbassyAtTeam(GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()))
+		iOpinionWeight += (/*-1*/ GC.getOPINION_WEIGHT_EMBASSY()); // -1 if they have an embassy with AI
+#endif
+	
 	return iOpinionWeight;
 }
 
