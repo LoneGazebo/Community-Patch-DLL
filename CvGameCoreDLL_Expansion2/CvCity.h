@@ -1862,7 +1862,7 @@ protected:
 	FAutoVariable<bool, CvCity> m_bOccupied;
 	FAutoVariable<bool, CvCity> m_bPuppet;
 	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
-	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital;
+	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital; //also set for water connection once railroad is available
 	FAutoVariable<int, CvCity> m_iTerrainImprovementNeed;
 
 	FAutoVariable<PlayerTypes, CvCity> m_ePreviousOwner;

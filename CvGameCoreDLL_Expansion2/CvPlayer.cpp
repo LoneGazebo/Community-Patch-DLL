@@ -28264,7 +28264,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				{
 					CvString strMessage;
 					CvString strSummary;
-					strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), iSupply);
+					strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", pGreatPersonUnit->getName().c_str(), iSupply);
 					strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
 					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, pGreatPersonUnit->getX(), pGreatPersonUnit->getY(), GetID());
 				}
@@ -35422,6 +35422,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				else
 				{
 					pUnit->finishMoves();
+					pUnit->SetTurnProcessed(true);
 					CvNotifications* pNotifications = GetNotifications();
 					if (pUnit && pNotifications)
 					{

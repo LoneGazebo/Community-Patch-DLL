@@ -8328,29 +8328,25 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	}
 	if(pkBuildingInfo->IsRequiresRail())
 	{
+		//this flag is also set for water connection once railroad is available
 		if(!IsIndustrialRouteToCapitalConnected())
-		{
 			return false;
-		}
-		else
+
+		//therefore also check for an actual railroad here
+		bool bRailroad = false;
+		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 		{
-			//Check for an actual railroad here.
-			bool bRailroad = false;
-			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+			if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
 			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
-				if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
-				{
-					bRailroad = true;
-					break;
-				}
-			}
-			if(!bRailroad)
-			{
-				return false;
+				bRailroad = true;
+				break;
 			}
 		}
+		if(!bRailroad)
+			return false;
 	}
+
 	if((pkBuildingInfo->GetCivType() != NO_CIVILIZATION) && (getCivilizationType() != pkBuildingInfo->GetCivType()))
 	{
 		return false;
