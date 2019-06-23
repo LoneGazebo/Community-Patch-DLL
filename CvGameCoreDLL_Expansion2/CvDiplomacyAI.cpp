@@ -32688,7 +32688,12 @@ int CvDiplomacyAI::GetNoSetterRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if(IsPlayerNoSettleRequestEverAsked(ePlayer))
+		// Teammates
+		if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+			return 1;
+		
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_ASKED_NO_SETTLE();
+
 	return iOpinionWeight;
 }
 

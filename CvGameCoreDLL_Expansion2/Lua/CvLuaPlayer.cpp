@@ -12432,6 +12432,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	int iValue;
 
 	int iVisibleApproach = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetApproachTowardsUsGuess(pkPlayer->GetID());
+	
+	if(pkPlayer->getTeam() == GET_PLAYER(eWithPlayer).getTeam())
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = -99999;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE")
+		aOpinions.push_back(kOpinion);
+	}
+	
 	if (GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 	{
 		iVisibleApproach = MAJOR_CIV_APPROACH_WAR;
