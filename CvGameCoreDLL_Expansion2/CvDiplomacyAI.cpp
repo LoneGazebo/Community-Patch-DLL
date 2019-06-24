@@ -3307,6 +3307,10 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 
 	PlayerTypes eLoopOtherPlayer;
 	int iOtherPlayerLoop;
+	
+#if defined(MOD_BALANCE_CORE)
+	int iNumPolicies;
+#endif
 
 	// Loop through all (known) Majors
 	PlayerTypes eLoopPlayer;
@@ -3329,11 +3333,15 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 					{
 						iOpinionWeight = 0;
 						
+						//////////////////////////////////////
+						// MODIFIERS FROM VISIBLE INFORMATION
+						//////////////////////////////////////
+						
 						// Declaration of Friendship?
-						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopOtherPlayer))
+						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopOtherPlayer) || GET_PLAYER(eLoopOtherPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
 							iOpinionWeight += /*-35*/ GC.getOPINION_WEIGHT_DOF();
-				
-						// Defensive Pact?
+					
+					    // Defensive Pact?
 						if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopOtherPlayer).getTeam()))
 							iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_DP();
 						
@@ -3345,9 +3353,54 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 						if(GET_PLAYER(eLoopOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
 							iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_DENOUNCED_ME();
 						
+						// Original capital captured by them?
+						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eLoopOtherPlayer))
+							iOpinionWeight += /*80*/ GC.getOPINION_WEIGHT_CAPTURED_CAPITAL();
+							
+						// Ideologies?
+						iOpinionWeight += GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetSameLatePoliciesScore(eLoopOtherPlayer);
+						iOpinionWeight += GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetDifferentLatePoliciesScore(eLoopOtherPlayer);
+						
+#if defined(MOD_BALANCE_CORE)
+						// Social Policies?
+						int iNumPolicies = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumSamePolicies(eLoopOtherPlayer);
+						
+						// We can't know their neediness so assume the default
+						if(iNumPolicies != 0)
+						{
+							if(iNumPolicies < 0)
+							{
+								iOpinionWeight += max(5, (iNumPolicies * -1));
+							}
+							else if(iNumPolicies > 0)
+							{
+								iOpinionWeight += min(-5, (iNumPolicies * -1));
+							}
+						}			
+#endif
+						
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+						// Master?
+						if (MOD_DIPLOMACY_CIV4_FEATURES) {
+							if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
+							{
+								iOpinionWeight += -1 * /*20*/ GC.getOPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER();
+							}
+						}
+#endif
+						
 						// Global penalty for breaking a military promise?
 						if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsBrokenMilitaryPromise())
 							iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
+						
+						// Global penalty for breaking a City-State attack promise?
+						// if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsBrokenCityStatePromise())
+						//  	iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
+						
+						
+						//////////////////////////////////////
+						// DISPUTE ESTIMATES
+						//////////////////////////////////////						
 						
 						// Estimate Land Dispute
 						switch(GetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer))
@@ -3382,8 +3435,11 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 							iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_VICTORY_NONE();
 							break;
 						}
-
-						// Now do the final assessment
+						
+						//////////////////////////////////////
+						// FINAL ASSESSMENT
+						//////////////////////////////////////
+						
 						if(iOpinionWeight >= /*50*/ GC.getOPINION_THRESHOLD_UNFORGIVABLE())
 							eOpinion = MAJOR_CIV_OPINION_UNFORGIVABLE;
 						else if(iOpinionWeight >= /*30*/ GC.getOPINION_THRESHOLD_ENEMY())
@@ -33429,7 +33485,7 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 				// We're more friendly with the player they've denounced than we are with them
 				if(GetMajorCivOpinion(eLoopPlayer) > GetMajorCivOpinion(ePlayer))
 				{
-					iTraitorOpinion += (/*-10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE() * -1);
+					iTraitorOpinion += (-1 * /*-10*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_DONT_LIKE());
 				}
 			}
 		}
@@ -33623,22 +33679,22 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 	{
 		if(GetNeediness() > 7)
 		{
-			iOpinionWeight += max(10, (iNumPolicies * 2));
+			iOpinionWeight += max(10, (iNumPolicies * -2));
 		}
 		else
 		{
-			iOpinionWeight += max(5, (iNumPolicies));
+			iOpinionWeight += max(5, (iNumPolicies * -1));
 		}
 	}
 	else if(iNumPolicies > 0)
 	{
 		if(GetNeediness() > 7)
 		{
-			iOpinionWeight += min(-10, (iNumPolicies * 2));
+			iOpinionWeight += min(-10, (iNumPolicies * -2));
 		}
 		else
 		{
-			iOpinionWeight += min(-5, (iNumPolicies));
+			iOpinionWeight += min(-5, (iNumPolicies * -1));
 		}
 	}
 
