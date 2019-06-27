@@ -3822,6 +3822,26 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 	return iPassable;
 }
 
+bool CvPlot::IsWorthDefending(PlayerTypes eDefendingPlayer) const
+{
+	//check distance to all major players
+	//if homefront for more than one ...
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer == eDefendingPlayer)
+			continue;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+
+		if (IsHomeFrontForPlayer(eLoopPlayer))
+			return true;
+	}
+
+	return false;
+}
+
 bool CvPlot::IsChokePoint() const
 {
 	//only passable hill plots can be chokepoints
@@ -6819,30 +6839,9 @@ void CvPlot::SetCityPurchaseID(int iAcquiringCityID)
 /// Is this Plot within a certain range of any of a player's Cities?
 bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
 {
-	// Owned?
-	if(isOwned())
-	{
-		if(getOwner() == ePlayer)
-		{
-			return true;
-		}
-	}
-
-	CvCity* pLoopCity;
-	int iCityLoop;
-
 	int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
-
-	// Not owned by this player, so we have to check things the hard way, and see how close the Plot is to any of this Player's Cities
-	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-	{
-		if(::plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY()) < iRange)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(this);
+	return (iDistance < iRange);
 }
 
 //	--------------------------------------------------------------------------------
