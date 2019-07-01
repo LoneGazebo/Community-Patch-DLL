@@ -25,10 +25,9 @@ enum AIHomelandTargetType
 	AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL,
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
-    AI_HOMELAND_TARGET_HOME_ROAD,
-    AI_HOMELAND_TARGET_ANCIENT_RUIN,
+	AI_HOMELAND_TARGET_HOME_ROAD,
+	AI_HOMELAND_TARGET_ANCIENT_RUIN,
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
-	AI_HOMELAND_TARGET_UNASSIGNED,
 };
 
 // Object stored in the list of move priorities (m_MovePriorityList)
@@ -364,7 +363,6 @@ private:
 	void EliminateAdjacentSentryPoints();
 #if defined(MOD_BALANCE_CORE)
 	void EliminateAdjacentNavalSentryPoints();
-	void EliminateAdjacentUnassignedPoints();
 #endif
 	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
@@ -402,14 +400,12 @@ private:
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
 	std::vector<CvHomelandTarget> m_TargetedSentryPoints;
-	std::vector<CvHomelandTarget> m_TargetedForts;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
 	std::vector<CvHomelandTarget> m_TargetedHomelandRoads;
 	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
-	std::vector<CvHomelandTarget> m_TargetedHomeUnassignedPlots;
 #endif
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)

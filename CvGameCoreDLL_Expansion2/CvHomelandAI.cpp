@@ -717,24 +717,17 @@ void CvHomelandAI::EstablishHomelandPriorities()
 /// Make lists of everything we might want to target with the homeland AI this turn
 void CvHomelandAI::FindHomelandTargets()
 {
-	int iI;
-	CvPlot* pLoopPlot;
 	CvHomelandTarget newTarget;
 
 	// Clear out target lists since we rebuild them each turn
 	m_TargetedCities.clear();
 	m_TargetedSentryPoints.clear();
-	m_TargetedForts.clear();
 	m_TargetedNavalResources.clear();
 	m_TargetedHomelandRoads.clear();
 	m_TargetedAncientRuins.clear();
 	m_TargetedAntiquitySites.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_TargetedNavalSentryPoints.clear();
-	m_TargetedHomeUnassignedPlots.clear();
-
-	CvTacticalAnalysisMap* pTactMap = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
-	CvTacticalDominanceZone *pZone;
 #endif
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
@@ -743,9 +736,9 @@ void CvHomelandAI::FindHomelandTargets()
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
 
-	for(iI = 0; iI < iNumPlots; iI++)
+	for(int iI = 0; iI < iNumPlots; iI++)
 	{
-		pLoopPlot = theMap.plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
 		{
@@ -973,23 +966,11 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... empty barb camp?
 			else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
 			{
-				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
-				if(pTargetUnit && !pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
-				else
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
+				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
+				newTarget.SetTargetX(pLoopPlot->getX());
+				newTarget.SetTargetY(pLoopPlot->getY());
+				newTarget.SetAuxData(pLoopPlot);
+				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... road segment in friendly territory?
 			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
@@ -1007,30 +988,6 @@ void CvHomelandAI::FindHomelandTargets()
 					m_TargetedHomelandRoads.push_back(newTarget);
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			//Let's make a list of all other non-border plots
-			else if (pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && 
-						pLoopPlot->getOwningCity() != NULL && !pLoopPlot->IsAdjacentOwnedByOtherTeam(m_pPlayer->getTeam()))
-			{
-				pZone = pTactMap->GetZoneByCity(pLoopPlot->getOwningCity(), false);
-				if (pZone && (pZone->GetBorderScore()>0 || pZone->GetTotalEnemyUnitCount()>0))
-				{
-					int iValue = pZone->GetTotalEnemyUnitCount() + pZone->GetBorderScore() - pZone->GetTotalFriendlyUnitCount();
-					if (pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isPotentiallyInDanger())
-						iValue *= 2;
-
-					if (iValue > 0)
-					{
-						newTarget.SetTargetType(AI_HOMELAND_TARGET_UNASSIGNED);
-						newTarget.SetTargetX(pLoopPlot->getX());
-						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxData(pLoopPlot);
-						newTarget.SetAuxIntData(iValue);
-						m_TargetedHomeUnassignedPlots.push_back(newTarget);
-					}
-				}
-			}
-#endif
 		}
 	}
 
@@ -1038,7 +995,6 @@ void CvHomelandAI::FindHomelandTargets()
 	EliminateAdjacentSentryPoints();
 #if defined(MOD_BALANCE_CORE)
 	EliminateAdjacentNavalSentryPoints();
-	EliminateAdjacentUnassignedPoints();
 #endif
 	EliminateAdjacentHomelandRoads();
 	std::stable_sort(m_TargetedCities.begin(), m_TargetedCities.end());
@@ -1076,14 +1032,17 @@ void CvHomelandAI::AssignHomelandMoves()
 		case AI_HOMELAND_MOVE_SETTLE:
 			PlotFirstTurnSettlerMoves();
 			break;
-		case AI_HOMELAND_MOVE_GARRISON:
-			PlotGarrisonMoves();
-			break;
 		case AI_HOMELAND_MOVE_HEAL:
 			PlotHealMoves();
 			break;
 		case AI_HOMELAND_MOVE_TO_SAFETY:
 			PlotMovesToSafety();
+			break;
+///0------------------------------
+//	move these to tactical AI
+///0------------------------------
+		case AI_HOMELAND_MOVE_GARRISON:
+			PlotGarrisonMoves();
 			break;
 		case AI_HOMELAND_MOVE_MOBILE_RESERVE:
 			PlotMobileReserveMoves();
@@ -1096,6 +1055,11 @@ void CvHomelandAI::AssignHomelandMoves()
 			PlotSentryNavalMoves();
 			break;
 #endif
+		case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
+			PlotGarrisonMoves(true /*bCityStateOnly*/);
+			break;
+///0------------------------------
+
 		case AI_HOMELAND_MOVE_WORKER:
 			PlotWorkerMoves();
 			break;
@@ -1110,9 +1074,6 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 		case AI_HOMELAND_MOVE_ANCIENT_RUINS:
 			PlotAncientRuinMoves();
-			break;
-		case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
-			PlotGarrisonMoves(true /*bCityStateOnly*/);
 			break;
 		case AI_HOMELAND_MOVE_WRITER:
 			PlotWriterMoves();
@@ -3090,10 +3051,8 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 	for (it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if (!pUnit)
-		{
+		if (!pUnit || pUnit->isDelayedDeath())
 			continue;
-		}
 
 		if (pUnit->IsCivilianUnit())
 		{
@@ -3101,28 +3060,11 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 			continue;
 		}
 
-		CvPlot* pTarget = FindUnassignedTarget(pUnit);
-		if (pTarget)
-		{
-			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, pUnit->getDomainType(), 42))
-			{
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("UnitID: %d, Name: %s, moved to unassigned plot, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pUnit->getNameKey(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		}
-		else if (pUnit->isEmbarked())
-		{
-			//no target and embarked? do something ...
-			CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
-			if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
-				ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-		}
+		CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+		if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
+			ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+		else
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 		UnitProcessed(pUnit->GetID());
 	}
@@ -6703,38 +6645,6 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 		}
 	}
 }
-void CvHomelandAI::EliminateAdjacentUnassignedPoints()
-{
-	// First, sort the sentry points by priority
-	std::stable_sort(m_TargetedHomeUnassignedPlots.begin(), m_TargetedHomeUnassignedPlots.end());
-
-	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedHomeUnassignedPlots;
-
-	// Clear out main list
-	m_TargetedHomeUnassignedPlots.clear();
-
-	// Loop through all points in copy
-	std::vector<CvHomelandTarget>::iterator it, it2;
-	for (it = tempPoints.begin(); it != tempPoints.end(); ++it)
-	{
-		bool bFoundAdjacent = false;
-		// Is it adjacent to a point in the main list?
-		for (it2 = m_TargetedHomeUnassignedPlots.begin(); it2 != m_TargetedHomeUnassignedPlots.end(); ++it2)
-		{
-			if (plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
-			{
-				bFoundAdjacent = true;
-				break;
-			}
-		}
-		if (!bFoundAdjacent)
-		{
-			m_TargetedHomeUnassignedPlots.push_back(*it);
-		}
-	}
-}
 #endif
 
 /// Don't allow adjacent tiles to both be mobile reserve muster points
@@ -7194,58 +7104,6 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 
 	return pBestTarget;
 }
-
-#if defined(MOD_BALANCE_CORE)
-/// Find best target for this unassigned unit
-CvPlot* CvHomelandAI::FindUnassignedTarget(CvUnit *pUnit)
-{
-	CvPlot *pBestTarget = NULL;
-	int iMaxDist = 25;
-	int iBestPlot = -INT_MAX;
-
-	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
-	std::vector<CvHomelandTarget>::iterator it;
-	for (it = m_TargetedHomeUnassignedPlots.begin(); it != m_TargetedHomeUnassignedPlots.end(); it++)
-	{
-		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
-
-		if (pTarget->getBestDefender(m_pPlayer->GetID()) != NULL)
-			continue;
-
-		int iDist = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
-		if (iDist > iMaxDist)
-			continue;
-
-		int iAuxData = it->GetAuxIntData() - iDist;
-		if (iAuxData > iBestPlot)
-		{
-			iBestPlot = iAuxData;
-			pBestTarget = pTarget;
-		}
-	}
-
-	// Erase this site from future contention
-	if (pBestTarget)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("%s Found unassigned plot for move, X: %d, Y: %d, from X: %d Y: %d", pUnit->getUnitInfo().GetDescriptionKey(), pBestTarget->getX(), pBestTarget->getY(), pUnit->getX(), pUnit->getY());
-			LogHomelandMessage(strLogString);
-		}
-		for (it = m_TargetedHomeUnassignedPlots.begin(); it != m_TargetedHomeUnassignedPlots.end(); it++)
-		{
-			if (it->GetTargetX() == pBestTarget->getX() && it->GetTargetY() == pBestTarget->getY())
-			{
-				m_TargetedHomeUnassignedPlots.erase(it);
-				break;
-			}
-		}
-	}
-
-	return pBestTarget;
-}
-#endif
 
 void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 {
