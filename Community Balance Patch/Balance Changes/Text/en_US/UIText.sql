@@ -495,7 +495,7 @@ WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMU
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your approval rating is less than 50% - your Empire is is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory, and Cities may abandon your empire and flip to the civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Military Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
+SET Text = 'Your approval rating is less than 50% - your Empire is in open rebellion! Uprisings may occur with rebel (barbarian) units appearing in your territory, and Cities may abandon your empire and flip to the civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow and [ICON_PRODUCTION] Produce Military Units very slowly. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
