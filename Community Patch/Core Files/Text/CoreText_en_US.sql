@@ -473,10 +473,6 @@ UPDATE Language_en_US
 SET Text = 'Head of {1_ReligionName}'
 WHERE Tag = 'TXT_KEY_RO_STATUS_FOUNDER';
 
-UPDATE Language_en_US
-SET Text = 'Can be purchased with [ICON_PEACE] Faith in any city with a majority Religion that has been enhanced. They can remove other religions from your cities (expending the Inquisitor) or be placed inside or adjacent to a city to protect it from Missionaries and Prophets trying to spread other religions into that city.'
-WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
-
 -- Spies
 
 UPDATE Language_en_US
@@ -616,23 +612,3 @@ WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
 UPDATE Language_en_US
 SET Text = 'Happily agreed.'
 WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
-
--- Civilizations Dialog
-
--- Neutral Tribute
-
-UPDATE Language_en_US
-SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
-WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
-
--- Trade Happy
-
-UPDATE Language_en_US
-SET Text = 'Does this trade interest you?'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_HAPPY';
-
--- Trade Angry
-
-UPDATE Language_en_US
-SET Text = 'My husband is deceased, you know: Russia is no longer ruled by an idiot. We decline.'
-WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NO_ANGRY';
