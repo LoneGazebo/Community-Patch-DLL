@@ -268,19 +268,19 @@ WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US
-SET Text = 'Antônio'
+SET Text = 'AntÃ´nio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estêvão'
+SET Text = 'EstÃªvÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernão'
+SET Text = 'FernÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomé'
+SET Text = 'TomÃ©'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 UPDATE Language_en_US
@@ -561,12 +561,12 @@ WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 -- Revolt TT fix.
 UPDATE Language_en_US
-SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
+SET Text = 'Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
 
 -- Rebels!
 UPDATE Language_en_US
-SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, the city of {1_CityName} has revolted and joined {2_CivName}!'
+SET Text = 'Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness, the city of {1_CityName} has revolted and joined {2_CivName}!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 
