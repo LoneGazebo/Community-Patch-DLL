@@ -129,13 +129,13 @@
 			<Text>Travel Ban</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_TOURISM_PENALTY_HELP">
-			<Text>Restricts international travel between Civilizations. Reduces the [ICON_TOURISM] Tourism modifier for all Civilizations by 35%.</Text>
+			<Text>Restricts international travel between Civilizations. Reduces the [ICON_TOURISM] Tourism modifier for all Civilizations by 35%. [NEWLINE][NEWLINE]Available once any Civilization discovers Flight.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_TOURISM_BONUS">
 			<Text>Passport System</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_TOURISM_BONUS_HELP">
-			<Text>Increases international travel between Civilizations. Increases the [ICON_TOURISM] Tourism modifier for all Civilizations by 50%.</Text>
+			<Text>Increases international travel between Civilizations. Increases the [ICON_TOURISM] Tourism modifier for all Civilizations by 50%.[NEWLINE][NEWLINE]Available once any Civilization discovers Flight.</Text>
 		</Row>
 		
 		<!-- Venetian Customs House -->
