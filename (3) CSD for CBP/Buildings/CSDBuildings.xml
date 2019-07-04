@@ -58,6 +58,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -79,6 +80,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<NumCityCostMod>30</NumCityCostMod>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -100,6 +102,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<NumCityCostMod>30</NumCityCostMod>
+			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -119,10 +122,12 @@
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NumCityCostMod>30</NumCityCostMod>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
 			<MinAreaSize>-1</MinAreaSize>
 			<CultureRateModifier>5</CultureRateModifier>
 			<ConquestProb>0</ConquestProb>
+			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<PortraitIndex>28</PortraitIndex>
@@ -141,9 +146,11 @@
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NumCityCostMod>30</NumCityCostMod>
 			<PolicyBranchType>POLICY_BRANCH_FREEDOM</PolicyBranchType>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>0</ConquestProb>
+			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<PortraitIndex>30</PortraitIndex>
@@ -162,9 +169,11 @@
 			<CapitalsToVotes>2</CapitalsToVotes>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NumCityCostMod>30</NumCityCostMod>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>0</ConquestProb>
+			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<PortraitIndex>29</PortraitIndex>
