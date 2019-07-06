@@ -617,6 +617,12 @@ UPDATE Language_en_US
 SET Text = 'Happily agreed.'
 WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
 
+-- Production Queue
+
+UPDATE Language_en_US
+SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.'
+WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
+
 -- Civilizations Dialog
 
 -- Neutral Tribute
