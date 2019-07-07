@@ -913,6 +913,12 @@
 		<Column name="CostModifier" type="integer" default="0"/>
 		<Column name="IsGoldenAgeOnly" type="boolean" default="false"/>
 	</Table>
+
+	<!-- TRAIT: Blocks the building of certain improvements. Trait_BuildsUnitClasses will override this, so for example, you can make a civ which has melee and gun units build farms, but workers cant. -->
+	<Table name="Trait_NoBuilds">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="BuildType" type="text" reference="Builds(Type)"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
