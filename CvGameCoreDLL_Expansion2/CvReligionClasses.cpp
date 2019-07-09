@@ -11060,7 +11060,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit)
 		if (pCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion))
 			iScore *= 2;
 
-		if (pCity->IsBastion())
+		if (pCity->isPotentiallyInDanger())
 			iScore *= 2;
 	}
 
@@ -11381,7 +11381,7 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 					CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
 					if (pBuildingEntry && pBuildingEntry->GetExtraCityHitPoints() > 0 || pBuildingEntry->GetDefenseModifier() > 0)
 					{
-						if (pCity != NULL && pCity->IsBastion() || pCity->isUnderSiege() || pCity->isInDangerOfFalling())
+						if (pCity != NULL && pCity->isPotentiallyInDanger() || pCity->isUnderSiege() || pCity->isInDangerOfFalling())
 						{
 							return choices[iI];
 						}

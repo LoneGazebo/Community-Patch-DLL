@@ -737,7 +737,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	int iDefenseMod = 100;
-	if (m_pCity->IsBastion())
+	if (m_pCity->isPotentiallyInDanger())
 	{
 		if (kPlayer.IsAtWarAnyMajor())
 			iDefenseMod += 50;

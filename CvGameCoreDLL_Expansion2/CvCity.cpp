@@ -391,7 +391,7 @@ CvCity::CvCity() :
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
 	, m_iResourceDiversityModifier("CvCity::m_iResourceDiversityModifier", m_syncArchive)
 	, m_iNoUnhappfromXSpecialists("CvCity::m_iNoUnhappfromXSpecialists", m_syncArchive)
-	, m_bIsBastion("CvCity::m_bIsBastion", m_syncArchive)
+	, m_bDummy("CvCity::m_bDummy", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1674,7 +1674,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iAlwaysHeal = 0;
 	m_iResourceDiversityModifier = 0;
 	m_iNoUnhappfromXSpecialists = 0;
-	m_bIsBastion = false;
+	m_bDummy = false;
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -2949,8 +2949,7 @@ void CvCity::doTurn()
 	{
 		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
 	}
-	//See if we are a defense-necessary city.
-	TestBastion();
+
 	//Do bad barb stuff!
 	DoBarbIncursion();
 	updateEconomicValue();
@@ -7520,7 +7519,7 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 	return m_aiEconomicValue[ePossibleOwner];
 }
 
-int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
+int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) const
 {
 	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
 
@@ -7532,18 +7531,31 @@ int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
 		CvPlot* pPlot = iterateRingPlots(plot(), i);
 		if(!pPlot || !pPlot->isOwned())
 			continue;
+
+		//if they already had the plot when we got the city we can't be upset
+		if (GC.getGame().getGameTurn() - pPlot->getOwnershipDuration() < getGameTurnAcquired())
+			continue;
+
+		int iWeight = 10;
+		if (!bJustCount)
+		{
+			if (i < RING1_PLOTS)
+				iWeight = 30;
+			else if (i < RING2_PLOTS)
+				iWeight = 20;
+		}
 		
 		bool bRelevant = false;
 		if (eOtherTeam == NO_TEAM && pPlot->getTeam() != getTeam())
 			bRelevant = true;
-		if (eOtherTeam != NO_TEAM && pPlot->getTeam() != eOtherTeam)
+		if (eOtherTeam != NO_TEAM && pPlot->getTeam() == eOtherTeam)
 			bRelevant = true;
 
 		if (bRelevant && pPlot->hasYield())
-			iCounter++;
+			iCounter += iWeight;
 	}
 
-	return iCounter;
+	return iCounter/10;
 }
 #endif
 
@@ -8315,29 +8327,25 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	}
 	if(pkBuildingInfo->IsRequiresRail())
 	{
+		//this flag is also set for water connection once railroad is available
 		if(!IsIndustrialRouteToCapitalConnected())
-		{
 			return false;
-		}
-		else
+
+		//therefore also check for an actual railroad here
+		bool bRailroad = false;
+		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 		{
-			//Check for an actual railroad here.
-			bool bRailroad = false;
-			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+			if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
 			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
-				if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
-				{
-					bRailroad = true;
-					break;
-				}
-			}
-			if(!bRailroad)
-			{
-				return false;
+				bRailroad = true;
+				break;
 			}
 		}
+		if(!bRailroad)
+			return false;
 	}
+
 	if((pkBuildingInfo->GetCivType() != NO_CIVILIZATION) && (getCivilizationType() != pkBuildingInfo->GetCivType()))
 	{
 		return false;
@@ -25556,82 +25564,10 @@ int CvCity::GetNoUnhappfromXSpecialists() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBastion() const
+bool CvCity::isPotentiallyInDanger() const
 {
 	VALIDATE_OBJECT
-	return m_bIsBastion;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::TestBastion()
-{
-	//Check to see if this is a city we really need to defend.
-	if(isCapital() && GET_PLAYER(m_eOwner).getNumCities() == 1)
-	{
-		SetBastion(true);
-		return;
-	}
-	if(plot()->IsChokePoint() || plot()->IsLandbridge(12, 54))
-	{
-		SetBastion(true);
-		return;
-	}
-
-	if (isCoastal() && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(true, true) == this)
-	{
-		SetBastion(true);
-		return;
-	}
-	else if (GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(true, false) == this)
-	{
-		SetBastion(true);
-		return;
-	}
-	else
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
-			{
-				if (!plot()->IsHomeFrontForPlayer(eLoopPlayer))
-					continue;
-
-				if (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE)
-				{
-					SetBastion(true);
-					return;
-				}
-				else if (getPreviousOwner() == eLoopPlayer && isUnderSiege() && GET_PLAYER(eLoopPlayer).IsAtWarWith(getOwner()))
-				{
-					SetBastion(true);
-					return;
-				}
-				else if (GetThreatRank() != -1 && GetThreatRank() <= (GET_PLAYER(getOwner()).getNumCities() / 4))
-				{
-					SetBastion(true);
-					return;
-				}
-				else if (GetCoastalThreatRank() != -1 && GetCoastalThreatRank() <= (GET_PLAYER(getOwner()).getNumCities() / 4))
-				{
-					SetBastion(true);
-					return;
-				}
-			}
-		}
-	}
-	//Not a frontier city, and not a chokepoint? Not a bastion.
-	if(IsBastion())
-	{
-		SetBastion(false);
-	}
-	return;
-}
-//	--------------------------------------------------------------------------------
-void CvCity::SetBastion(bool bValue)
-{
-	VALIDATE_OBJECT
-	m_bIsBastion = bValue;
+	return isCoastal() || plot()->IsWorthDefending(m_eOwner);
 }
 
 void CvCity::DoBarbIncursion()

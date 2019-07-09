@@ -36,7 +36,7 @@ public:
 	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
 	virtual bool CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit = NULL) const;
 	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=false, CvString* pDebug=NULL);
-	virtual int PlotFertilityValue(CvPlot* pPlot, bool bAllPlots=false);
+	virtual int PlotFertilityValue(CvPlot* pPlot, bool bIncludeCoast=false);
 
 protected:
 	// Each of these routines computes a number from 0 (no value) to 100 (best possible value)

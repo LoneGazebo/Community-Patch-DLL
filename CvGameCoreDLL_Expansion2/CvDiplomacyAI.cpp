@@ -11090,40 +11090,33 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 		{
 			// Look at our Proximity to the other Player
 			PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-			if (eProximity == PLAYER_PROXIMITY_DISTANT || eProximity == PLAYER_PROXIMITY_FAR || m_pPlayer->getNumCities() == 0)
+			if (eProximity < PLAYER_PROXIMITY_CLOSE)
 			{
 				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				continue;
 			}
 			
-			int iDisputeLevel = 0;
+			int iContestedScore = 0;
 
 			// Loop through all of this player's Cities
 			int iCityLoop;
 			for (const CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-			{
-				int iContested = pLoopCity->GetNumContestedPlots(ePlayer);
-				if (iContested > 1)
-					iDisputeLevel += 2;
-				else if (iContested > 0)
-					iDisputeLevel += 1;
-			}
+				iContestedScore += pLoopCity->GetContestedPlotScore(ePlayer);
 
-			// Is the player already cramped? If so, multiply our current Weight by 1.5x
+			// Is the player already cramped in on other sides? If so, bump up the score
 			if(m_pPlayer->IsCramped())
 			{
-				iDisputeLevel *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
-				iDisputeLevel /= 100;
+				iContestedScore *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
+				iContestedScore /= 100;
 			}
-			iDisputeLevel = (100 * iDisputeLevel) / m_pPlayer->getNumCities();
 
 			// Now see what our new Dispute Level should be
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
-			if(iDisputeLevel >= /*50*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
+			if(iContestedScore >= /*8*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if(iDisputeLevel >= /*30*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
+			else if(iContestedScore >= /*4*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if(iDisputeLevel >= /*10*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
+			else if(iContestedScore >= /*1*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			// Actually set the Level
@@ -11155,7 +11148,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 					// Actual info
 					CvString strOutBuf(strBaseString);
 					CvString strTmp;
-					strTmp.Format("%s, score %d", names[eDisputeLevel], iDisputeLevel);
+					strTmp.Format("%s, score %d", names[eDisputeLevel], iContestedScore);
 					strOutBuf += strTmp;
 
 					pLog->Msg(strOutBuf);
@@ -11796,46 +11789,30 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 							continue;
 						}
 			
-						int iDisputeLevel = 0;
-						int iNumCities = 0;
+						int iContestedScore = 0;
 
-						// Loop through all of this player's cities
+						// Loop through all of this player's Cities
 						int iCityLoop;
 						for (const CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 						{
-							if (!pLoopCity->isVisible(m_pPlayer->getTeam(),false)) //only if visible
-								continue;
-
-							iNumCities++;
-
-							int iContested = pLoopCity->GetNumContestedPlots(eLoopOtherPlayer); //should really check if the other city is visible as well ...
-							if (iContested > 1)
-								iDisputeLevel += 2;
-							else if (iContested > 0)
-								iDisputeLevel += 1;
+							if (pLoopCity->isVisible(m_pPlayer->getTeam(), false)) //should really check if the other city is visible as well ...
+								iContestedScore += pLoopCity->GetContestedPlotScore(eLoopOtherPlayer);
 						}
 
-						if (iNumCities==0)
+						// Is the player already cramped in on other sides? If so, bump up the score
+						if(GET_PLAYER(eLoopPlayer).IsCramped()) //again, there should be a visibility check here ...
 						{
-							SetEstimateOtherPlayerLandDisputeLevel(eLoopPlayer, eLoopOtherPlayer, DISPUTE_LEVEL_NONE);
-							continue;
+							iContestedScore *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
+							iContestedScore /= 100;
 						}
-
-						// Is the player already cramped? If so, multiply our current Weight by 1.5x
-						if(GET_PLAYER(eLoopPlayer).IsCramped())
-						{
-							iDisputeLevel *= GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER(); //150
-							iDisputeLevel /= 100;
-						}
-						iDisputeLevel = (100 * iDisputeLevel) / iNumCities;
 
 						// Now see what our new Dispute Level should be
 						DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
-						if(iDisputeLevel >= /*50*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
+						if(iContestedScore >= /*8*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-						else if(iDisputeLevel >= /*30*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
+						else if(iContestedScore >= /*4*/ GC.getLAND_DISPUTE_STRONG_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_STRONG;
-						else if(iDisputeLevel >= /*10*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
+						else if(iContestedScore >= /*1*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 							eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 						// Actually set the Level

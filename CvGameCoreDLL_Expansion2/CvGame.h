@@ -26,7 +26,7 @@ class CvReplayMessage;
 class CvReplayInfo;
 class CvSiteEvaluatorForSettler;
 class CvSiteEvaluatorForStart;
-class CvStartPositioner;
+class IStartPositioner;
 class CvGameReligions;
 class CvGameCulture;
 class CvGameLeagues;
@@ -559,7 +559,7 @@ public:
 #endif
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
-	CvStartPositioner* GetStartPositioner();
+	IStartPositioner* GetStartPositioner();
 	CvGameDeals& GetGameDeals();
 	CvGameReligions* GetGameReligions();
 	CvGameCulture* GetGameCulture();
@@ -876,7 +876,7 @@ protected:
 
 	CvSiteEvaluatorForSettler* m_pSettlerSiteEvaluator;
 	CvSiteEvaluatorForStart*   m_pStartSiteEvaluator;
-	CvStartPositioner*         m_pStartPositioner;
+	IStartPositioner*          m_pStartPositioner;
 	CvGameReligions*           m_pGameReligions;
 	CvGameCulture*             m_pGameCulture;
 	CvGameLeagues*             m_pGameLeagues;
