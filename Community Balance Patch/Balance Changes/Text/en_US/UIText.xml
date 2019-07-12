@@ -457,15 +457,18 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
 			<Text>Multi-Attack Bonus</Text>
 		</Row>
-
-		
-
+	
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
 			<Text>Enemy Defection</Text>
+		</Row>
+		
+		<!-- Text for Preview Combat Miscellaneous Bonuses -->
+		<Row Tag="TXT_KEY_MISC_BONUS">
+			<Text>Miscellaneous</Text>
 		</Row>
 
 		<!-- Text for HappinessInfo.lua -->
