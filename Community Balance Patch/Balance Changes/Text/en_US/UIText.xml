@@ -424,10 +424,10 @@
 
 		
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
-			<Text>Strategic Resource Monopoly</Text>
+			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
 		</Row>
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
-			<Text>Strategic Resource Monopoly</Text>
+			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
