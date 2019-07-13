@@ -2905,7 +2905,12 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		{
 			const int iBuild = pResults->GetInt(0);
 
-			m_aiNoBuilds.push_back(iBuild);
+			std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), iBuild); // does this build id already exist in our vector?
+
+			if (it == m_aiNoBuilds.end()) // only add an entry if it does not exist
+			{
+				m_aiNoBuilds.push_back(iBuild);
+			}
 		}
 
 		pResults->Reset();
@@ -4605,7 +4610,12 @@ void CvPlayerTraits::InitPlayerTraits()
 
 				if (trait->IsNoBuild(eBuild))
 				{
-					m_aiNoBuilds.push_back(iBuildLoop);
+					std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), iBuildLoop); // try to find if the entry already exists
+
+					if (it == m_aiNoBuilds.end())
+					{
+						m_aiNoBuilds.push_back(iBuildLoop); // only add into container if it does not already exist
+					}
 				}
 			}
 #endif
