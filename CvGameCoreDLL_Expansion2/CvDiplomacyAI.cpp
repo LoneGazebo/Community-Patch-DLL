@@ -26481,6 +26481,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerBrokenCoopWarPromise(eFromPlayer, true);
 #if defined(MOD_BALANCE_CORE)
 			SetPlayerBackstabCounter(eFromPlayer, 0);
+			ChangeRecentAssistValue(eFromPlayer, 300);
+			ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
 #endif
 
 			if(bActivePlayer)
