@@ -33966,7 +33966,8 @@ int CvCity::addDamageReceivedThisTurn(int iDamage)
 
 void CvCity::flipDamageReceivedPerTurn()
 {
-	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	//basic smoothing so we don't overeact if the enemy doesn't do damage in a particular turn
+	m_iDamageTakenLastTurn = (m_iDamageTakenThisTurn * 80 + m_iDamageTakenLastTurn * 20) / 100;
 	m_iDamageTakenThisTurn = 0;
 }
 
@@ -33983,7 +33984,8 @@ bool CvCity::isInDangerOfFalling() const
 
 bool CvCity::isUnderSiege() const
 {
-	return (m_iDamageTakenLastTurn>0);
+	//or maybe count enemy units?
+	return m_iDamageTakenLastTurn > 0;
 }
 #endif
 
