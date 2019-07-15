@@ -21698,26 +21698,38 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			pTargetDeal = pCurrentDeal;
 			break;
 		}
+
 		if (pTargetDeal)
 		{
 			// copy the target deal into the new deal
 			*pDeal = *pTargetDeal;
+
 			//Set as considered for renewal.
 			pTargetDeal->m_bConsideringForRenewal = true;
 			pDeal->m_bConsideringForRenewal = true;
 			pDeal->m_iFinalTurn = -1;
+			
+			bool bAbleToEqualize = false;
 			if(!GET_PLAYER(ePlayer).isHuman())
 			{
-				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);
-				if(!bAbleToEqualize)
-				{
-					pDeal->ClearItems();
-					pTargetDeal->ClearItems();
-					ClearDealToRenew();
-					return;
-				}
+				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);
 			}
-			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
+			else
+			{
+				bool bUselessReferenceVariable;
+				bool bCantMatchOffer;
+				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);
+			}
+
+			if(!bAbleToEqualize)
+			{
+				pDeal->ClearItems();
+				pTargetDeal->ClearItems();
+				ClearDealToRenew();
+				return;
+			}
+			else
+				eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else
 		{

@@ -3835,6 +3835,10 @@ bool CvPlot::IsWorthDefending(PlayerTypes eDefendingPlayer) const
 		if (!GET_PLAYER(eLoopPlayer).isAlive())
 			continue;
 
+		//we trust our friends
+		if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+			continue;
+
 		if (IsHomeFrontForPlayer(eLoopPlayer))
 			return true;
 	}
