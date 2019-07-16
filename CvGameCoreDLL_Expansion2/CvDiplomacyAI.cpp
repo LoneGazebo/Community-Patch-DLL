@@ -28754,7 +28754,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 		return true;
 	
 	// Any flavors that should influence the decision?
-	if(GetLoyalty() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FAVORABLE)
+	if(GetLoyalty() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FRIEND)
 		return true;
 	if(GetDiploBalance() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FAVORABLE)
 		return true;
