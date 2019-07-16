@@ -16885,7 +16885,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if(eAgainstPlayer != NO_PLAYER && ePlayer != NO_PLAYER)
 					{
 						// Should the asked AI warn the target?
-						if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCoopWarRequestUnacceptable(GetPlayer()->GetID(), eAgainstPlayer)
+						if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCoopWarRequestUnacceptable(GetPlayer()->GetID(), eAgainstPlayer))
 						{
 							ChangeRecentAssistValue(ePlayer, 300);
 							ChangeNumTimesCoopWarDenied(ePlayer, 2);
@@ -26384,10 +26384,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			//If player is offended, AI should take note as penalty to assistance.
 			if(iArg1 == 2)
 			{
-				ChangeRecentAssistValue(eFromPlayer, 300);
-				ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
+					ChangeRecentAssistValue(eFromPlayer, 300);
+					ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -200);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
@@ -28754,7 +28754,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 		return true;
 	
 	// Any flavors that should influence the decision?
-	if(GetLoyalty() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FRIEND)
+	if(GetLoyalty() >= 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FRIEND)
 		return true;
 	if(GetDiploBalance() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FAVORABLE)
 		return true;
