@@ -16872,32 +16872,36 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				}
 
 				LogCoopWar(ePlayer, eAgainstPlayer, eAcceptedState);
-
-				// If the other player didn't agree then we don't need to change our state from what it was (NO_STATE)
+				
+				// If the other player didn't agree then we don't need to change our state from what it was (NO_COOP_WAR_STATE)
 				if(eAcceptedState != COOP_WAR_STATE_REJECTED)
-#if defined(MOD_BALANCE_CORE)
+				{
+					SetCoopWarAcceptedState(ePlayer, eAgainstPlayer, eAcceptedState);
+				}
+
+#if defined(MOD_BALANCE_CORE)				
+				if(eAcceptedState == COOP_WAR_STATE_REJECTED)
 				{
 					if(eAgainstPlayer != NO_PLAYER && ePlayer != NO_PLAYER)
 					{
-						if(GetLoyalty() >= 5 && GetMajorCivOpinion(eAgainstPlayer) > MAJOR_CIV_OPINION_FAVORABLE)
+						// Should the asked AI warn the target?
+						if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCoopWarRequestUnacceptable(GetPlayer()->GetID(), eAgainstPlayer)
 						{
+							ChangeRecentAssistValue(ePlayer, 300);
+							ChangeNumTimesCoopWarDenied(ePlayer, 2);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -200);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 						}
-						else if(GetDiploBalance() > 5 && GetMajorCivOpinion(eAgainstPlayer) > MAJOR_CIV_OPINION_NEUTRAL)
+						else
 						{
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -200);
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+							ChangeRecentAssistValue(ePlayer, 200);
+							ChangeNumTimesCoopWarDenied(ePlayer, 1);
 						}
 					}
-					SetCoopWarAcceptedState(ePlayer, eAgainstPlayer, eAcceptedState);
+					
 				}
-#else
-					SetCoopWarAcceptedState(ePlayer, eAgainstPlayer, eAcceptedState);
 #endif
 			}
 		}
@@ -26335,10 +26339,14 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #if defined(MOD_BALANCE_CORE)
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -200);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(eFromPlayer, 0);
+					// Should the asked AI warn the target?
+					if(IsCoopWarRequestUnacceptable(eFromPlayer, eAgainstPlayer))
+					{
+						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -200);
+						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
+						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
+						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(eFromPlayer, 0);
+					}
 				}
 #endif
 				if(bActivePlayer)
@@ -28684,6 +28692,80 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 
 	return 0;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// If we rejected eAskingPlayer's request to go to war with eTargetPlayer, should we warn the target?
+bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer)
+{
+	// Failsafes
+	// Invalid player?
+	if (!IsPlayerValid(eAskingPlayer) || !IsPlayerValid(eTargetPlayer))
+		return false;
+	// At war with the asker?
+	if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eAskingPlayer).getTeam()));
+		return false;	
+	// At war with the target?
+	if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()));
+		return false;
+		
+	// If the target is a human, never warn them for now (no textkey/diplo statement)
+	if(GET_PLAYER(eTargetPlayer).isHuman())
+		return false;
+		
+	MajorCivApproachTypes eApproachTowardsAsker = GetMajorCivApproach(eAskingPlayer, /*bHideTrueFeelings*/ false);
+	MajorCivOpinionTypes  eOpinionOfAsker = GetMajorCivOpinion(eAskingPlayer);
+	MajorCivApproachTypes eApproachTowardsTarget = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
+	MajorCivOpinionTypes  eOpinionOfTarget = GetMajorCivOpinion(eTargetPlayer);
+	
+	// If we want war against the target, never warn them
+	if(eApproachTowardsTarget == MAJOR_CIV_APPROACH_WAR || GetCapitalConqueror() == eTargetPlayer || IsArmyInPlaceForAttack(eTargetPlayer) || IsWantsSneakAttack(eTargetPlayer) || GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
+		return false;
+	
+	// If we want war against the asker, always warn them
+	if(eApproachTowardsAsker == MAJOR_CIV_APPROACH_WAR || GetCapitalConqueror() == eAskingPlayer || IsArmyInPlaceForAttack(eAskingPlayer) || IsWantsSneakAttack(eAskingPlayer) || GetWarGoal(eAskingPlayer) == WAR_GOAL_PREPARE)
+		return true;
+	
+	// DoF, DP, or ally with the target? Always warn them.
+	if(IsDoFAccepted(eTargetPlayer) || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayer).getTeam()))
+		return true;
+	if(eOpinionOfTarget == MAJOR_CIV_OPINION_ALLY)
+		return true;
+	
+	// DoF, DP or ally with the asker? Never warn them.
+	if(IsDoFAccepted(eAskingPlayer) || GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eAskingPlayer).getTeam()))
+		return true;
+	if(eOpinionOfAsker == MAJOR_CIV_OPINION_ALLY)
+		return true;
+	
+	// If we're afraid of the asker or hate the target, never warn them
+	if(eApproachTowardsAsker == MAJOR_CIV_APPROACH_AFRAID || eApproachTowardsTarget == MAJOR_CIV_APPROACH_HOSTILE || eOpinionOfTarget == MAJOR_CIV_OPINION_UNFORGIVABLE)
+		return false;
+	
+	// If we're afraid of the target or hate the asker, always warn them
+	if(eApproachTowardsTarget == MAJOR_CIV_APPROACH_AFRAID || eApproachTowardsAsker == MAJOR_CIV_APPROACH_HOSTILE || eOpinionOfAsker == MAJOR_CIV_OPINION_UNFORGIVABLE)
+		return true;
+	
+	// Target is a major warmonger, or we're fiercely competitive? Never warn them.
+	if(GetWarmongerThreat(eTargetPlayer) >= THREAT_SEVERE || GetBiggestCompetitor() == eTargetPlayer || GetVictoryDisputeLevel(eTargetPlayer) >= DISPUTE_LEVEL_FIERCE || GetVictoryBlockLevel(eTargetPlayer) >= BLOCK_LEVEL_FIERCE)
+		return false;
+	
+	// Asker is a major warmonger, or we're fiercely competitive? Always warn them.
+	if(GetWarmongerThreat(eAskingPlayer) >= THREAT_SEVERE || GetBiggestCompetitor() == eAskingPlayer || GetVictoryDisputeLevel(eAskingPlayer) >= DISPUTE_LEVEL_FIERCE || GetVictoryBlockLevel(eAskingPlayer) >= BLOCK_LEVEL_FIERCE)
+		return true;
+	
+	// Any flavors that should influence the decision?
+	if(GetLoyalty() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FAVORABLE)
+		return true;
+	if(GetDiploBalance() > 5 && eOpinionOfTarget >= MAJOR_CIV_OPINION_FAVORABLE)
+		return true;
+	
+	// Otherwise, warn the target if we like them more than the asker, and our opinion of them is at least NEUTRAL
+	if(eOpinionOfTarget > eOpinionOfAsker && eOpinionOfTarget >= MAJOR_CIV_OPINION_NEUTRAL)
+		return true;
+	
+	return false;
+}
+#endif
 
 /// Has ePlayer asked to start a coop war against eTargetPlayer lately?
 bool CvDiplomacyAI::IsCoopWarMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
