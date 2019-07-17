@@ -5853,7 +5853,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 			{
 				SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
 				SetApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-				return;
+				continue;
 			}
 
 #if defined(MOD_BALANCE_CORE)			
@@ -5875,7 +5875,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 #endif
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
 						SetApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-						return;
+						continue;
 #if defined(MOD_BALANCE_CORE)
 					}
 #endif
@@ -5892,7 +5892,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 #endif
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
 						SetApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-						return;
+						continue;
 #if defined(MOD_BALANCE_CORE)
 					}
 #endif
@@ -5909,7 +5909,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					{
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_AFRAID);
 						SetApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-						return;
+						continue;
 					}
 									
 					// They can't be FRIENDLY or DECEPTIVE if their visible approach isn't FRIENDLY
@@ -5981,7 +5981,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 				if(bAtWar)
 				{
 					SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					return;
+					continue;
 				}
 				
 				// AI player, make a new guess based on visible approach
@@ -26396,8 +26396,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			if(iArg1 == 1)
 			{
-				ChangeRecentAssistValue(eFromPlayer, 200);
-				ChangeNumTimesCoopWarDenied(eFromPlayer, 1);
+				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
+				{
+					ChangeRecentAssistValue(eFromPlayer, 200);
+					ChangeNumTimesCoopWarDenied(eFromPlayer, 1);
+				}
 			}
 #endif
 		}
