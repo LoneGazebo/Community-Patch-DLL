@@ -73,7 +73,7 @@
 		</Row>-->
 		<!--Diplo World Wonder Help-->
 		<Row Tag="TXT_KEY_BUILDING_FORUM_HELP">
-			<Text>Receive 1 free Great Diplomat when completed. +1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Imperial Seal[ENDCOLOR] Promotion.</Text>
+			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_DIPLOMAT] Great Diplomat. +1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of diplomatic units in this City. All diplomatic units receive the [COLOR_POSITIVE_TEXT]Imperial Seal[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
 			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Nobility[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
