@@ -6578,7 +6578,8 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// There are valid quests, so pick one at random
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+	int iRandSeed = GetNumActiveGlobalQuests() + m_pPlayer->getGlobalAverage(YIELD_CULTURE) + m_pPlayer->getGlobalAverage(YIELD_SCIENCE);
+	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
 	eQuest = veValidQuests[iRandIndex];
 
 	// Give out the quest
@@ -6641,7 +6642,8 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+	int iRandSeed = ePlayer + GetNumActiveQuestsForAllPlayers() + m_pPlayer->getGlobalAverage(YIELD_CULTURE) + m_pPlayer->getGlobalAverage(YIELD_SCIENCE);
+	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
 	eQuest = veValidQuests[iRandIndex];
 
 	AddQuestForPlayer(ePlayer, eQuest, GC.getGame().getGameTurn());
@@ -8694,6 +8696,14 @@ int CvMinorCivAI::GetNumActiveGlobalQuests() const
 	}
 
 	return setGlobalQuests.size();
+}
+
+int CvMinorCivAI::GetNumActiveQuestsForAllPlayers() const
+{
+	int iCount = 0;
+	for (QuestListForAllPlayers::const_iterator it = m_QuestsGiven.begin(); it != m_QuestsGiven.end(); ++it)
+		iCount += it->size();
+	return iCount;
 }
 
 int CvMinorCivAI::GetNumActiveQuestsForPlayer(PlayerTypes ePlayer) const
@@ -15991,11 +16001,11 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 		return false;
 #endif
 
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/false);
+	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ false);
 	return CanMajorBullyGold(ePlayer, iScore);
 }
 
-// In case client wants to specify a metric beforehand (ie. they calculated it on their end, for logging purposes etc.)
+// In case client wants to specify a metric beforehand (i.e. they calculated it on their end, for logging purposes etc.)
 bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMetric)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -16064,7 +16074,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 	return CanMajorBullyUnit(ePlayer, iScore);
 }
 
-// In case client wants to specify a metric beforehand (ie. they calculated it on their end, for logging purposes etc.)
+// In case client wants to specify a metric beforehand (i.e. they calculated it on their end, for logging purposes etc.)
 bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMetric)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");

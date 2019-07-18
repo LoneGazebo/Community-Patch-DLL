@@ -145,7 +145,8 @@ public:
 	bool IsHasActiveGoldQuest();
 
 	// Our guess as to another player's approach towards us
-	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) ;
+	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer);
+	MajorCivApproachTypes GetTrueApproachTowardsUsGuess(PlayerTypes ePlayer);
 	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
@@ -784,6 +785,9 @@ public:
 
 	CoopWarStates GetWillingToAgreeToCoopWarState(PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
 	int GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlayer, bool bAskedByPlayer);
+#if defined(MOD_BALANCE_CORE)
+	bool IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
+#endif
 
 	bool IsCoopWarMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
 

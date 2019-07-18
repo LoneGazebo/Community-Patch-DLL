@@ -728,7 +728,7 @@ void CvPlayerAI::AI_considerAnnex()
 			return;
 		}
 
-		if (pCity->IsBastion())
+		if (pCity->isPotentiallyInDanger())
 		{
 			pCity->DoAnnex();
 			return;

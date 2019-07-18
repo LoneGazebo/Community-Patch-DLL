@@ -13,14 +13,20 @@
 // include this after all other headers!
 #include "LintFree.h"
 
+bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iReqSeparation);
+bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement);
+
 //=====================================
 // CvStartPositioner
 //=====================================
 /// Constructor
-CvStartPositioner::CvStartPositioner(void)
+CvStartPositioner::CvStartPositioner(CvSiteEvaluatorForStart * pSiteEvaluator)
 {
 	m_iRequiredSeparation = 0;
 	m_iBestFoundValueOnMap = 0;
+	m_pSiteEvaluator = pSiteEvaluator;
+	if (m_pSiteEvaluator)
+		m_pSiteEvaluator->ComputeFlavorMultipliers(NULL);  // Ignore flavors; this sets them to 1
 }
 
 /// Destructor
@@ -28,22 +34,22 @@ CvStartPositioner::~CvStartPositioner(void)
 {
 }
 
-/// Initialize
-void CvStartPositioner::Init(CvSiteEvaluatorForStart* pSiteEvaluator)
+void CvStartPositioner::Run(int iNumRegions)
 {
-	CvAssert(pSiteEvaluator);
-	if(!pSiteEvaluator)
-		return;
+	// Divide the map into equal fertility plots
+	DivideMapIntoRegions(iNumRegions);
 
-	m_pSiteEvaluator = pSiteEvaluator;
-	m_pSiteEvaluator->ComputeFlavorMultipliers(NULL);  // Ignore flavors; this sets them to 1
+	// Compute the value of a city in each plot
+	ComputeFoundValues();
+
+	// Position the players
+	AssignStartingLocations();
 }
 
 /// Chop map into a number of regions of equal fertility
 void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 {
 	CUSTOMLOG("CvStartPositioner::DivideMapIntoRegions(%i)", iNumRegions);
-	CvArea* pLoopArea(NULL);
 	int iLoop;
 	int iNumRegionsPlaced = 0;
 
@@ -55,7 +61,7 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 	ComputeTileFertilityValues();
 
 	// Loop through each continent adding it to our list
-	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
 	{
 		// Throw out oceans and desert islands
 		if(pLoopArea->getNumTiles() >= GC.getMIN_START_AREA_TILES())
@@ -125,11 +131,9 @@ void CvStartPositioner::ComputeFoundValues()
 }
 
 /// Take into account handicaps to rank the "draft order" for start positions
-void CvStartPositioner::RankPlayerStartOrder()
+vector<CvPlayerStartRank> GetPlayerStartOrder()
 {
-	CUSTOMLOG("CvStartPositioner::RankPlayerStartOrder()");
-	// Clear rankings
-	m_PlayerOrder.clear();
+	vector<CvPlayerStartRank> playerOrder;
 
 	// Add each player
 	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -152,13 +156,15 @@ void CvStartPositioner::RankPlayerStartOrder()
 					playerRank.m_iRank *= 10;
 				}
 				playerRank.m_iRank += GC.getGame().getJonRandNum(10, "starting position");
-				m_PlayerOrder.push_back(playerRank);
+				playerOrder.push_back(playerRank);
 			}
 		}
 	}
 
 	// Sort by rank
-	std::stable_sort(m_PlayerOrder.begin(), m_PlayerOrder.end());
+	std::stable_sort(playerOrder.begin(), playerOrder.end());
+
+	return playerOrder;
 }
 
 /// Pick start positions for all civs
@@ -169,9 +175,11 @@ void CvStartPositioner::AssignStartingLocations()
 	unsigned int iNextRegion = 0;
 	int iPlayersPlaced = 0;
 	int iMajorCivs = 0;
-	for(size_t i = 0; i < m_PlayerOrder.size(); ++i)
+
+	vector<CvPlayerStartRank> playerOrder = GetPlayerStartOrder();
+	for(size_t i = 0; i < playerOrder.size(); ++i)
 	{
-		if(!GET_PLAYER((PlayerTypes)m_PlayerOrder[i].m_iPlayerID).isMinorCiv())
+		if(!GET_PLAYER((PlayerTypes)playerOrder[i].m_iPlayerID).isMinorCiv())
 			iMajorCivs++;
 	}
 
@@ -190,7 +198,7 @@ void CvStartPositioner::AssignStartingLocations()
 		{
 			strString.Format("Trying to place major civ with full separation of %d", m_iRequiredSeparation);
 			LogStartPositionMessage(strString);
-			bool success = AddCivToRegion(m_PlayerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], false);
+			bool success = AddCivToRegion(playerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], false);
 			if(success)
 			{
 				iPlayersPlaced++;
@@ -218,7 +226,7 @@ void CvStartPositioner::AssignStartingLocations()
 			{
 				strString.Format("Trying to place major civ with reduced separation of %d", m_iRequiredSeparation);
 				LogStartPositionMessage(strString);
-				bool success = AddCivToRegion(m_PlayerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], m_iRequiredSeparation < iHalfMinimumDist);
+				bool success = AddCivToRegion(playerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], m_iRequiredSeparation < iHalfMinimumDist);
 				if(success)
 				{
 					iPlayersPlaced++;
@@ -236,11 +244,11 @@ void CvStartPositioner::AssignStartingLocations()
 
 	// Resort by fertility (based on the fact that some of these regions are filling up)
 	std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
-	while(iPlayersPlaced < (int)m_PlayerOrder.size() && iNextRegion < m_StartRegionVector.size())
+	while(iPlayersPlaced < (int)playerOrder.size() && iNextRegion < m_StartRegionVector.size())
 	{
 		strString.Format("Trying to place minor civ with full separation of %d", m_iRequiredSeparation);
 		LogStartPositionMessage(strString);
-		bool success = AddCivToRegion(m_PlayerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], false);
+		bool success = AddCivToRegion(playerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], false);
 		if(success)
 		{
 			iPlayersPlaced++;
@@ -259,7 +267,7 @@ void CvStartPositioner::AssignStartingLocations()
 	}
 
 	// MINOR CIVS AGAIN (those that couldn't be placed normal start distance apart)
-	while(iPlayersPlaced < (int)m_PlayerOrder.size() && m_iRequiredSeparation >= 0)
+	while(iPlayersPlaced < (int)playerOrder.size() && m_iRequiredSeparation >= 0)
 	{
 		// Resort by fertility (based on the fact that some of these regions are filling up)
 		std::stable_sort(m_StartRegionVector.begin(), m_StartRegionVector.end());
@@ -268,11 +276,11 @@ void CvStartPositioner::AssignStartingLocations()
 		m_iRequiredSeparation--;
 		iNextRegion = 0;
 
-		while(iPlayersPlaced < (int)m_PlayerOrder.size() && iNextRegion < m_StartRegionVector.size())
+		while(iPlayersPlaced < (int)playerOrder.size() && iNextRegion < m_StartRegionVector.size())
 		{
 			strString.Format("Trying to place minor civ with reduced separation of %d", m_iRequiredSeparation);
 			LogStartPositionMessage(strString);
-			bool success = AddCivToRegion(m_PlayerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], false);
+			bool success = AddCivToRegion(playerOrder[iPlayersPlaced].m_iPlayerID, m_StartRegionVector[iNextRegion], false);
 			if(success)
 			{
 				iPlayersPlaced++;
@@ -658,9 +666,9 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 			if(pLoopPlot && pLoopPlot->getArea() == region.m_iAreaID)
 			{
 				// Check food requirement
-				if((bRelaxFoodReq && MeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
-				        || (bIsMinorCiv && MeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
-				        || MeetsFoodRequirement(pLoopPlot, ePlayer, iMajorFoodReq))
+				if((bRelaxFoodReq && PlotMeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
+				        || (bIsMinorCiv && PlotMeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
+				        || PlotMeetsFoodRequirement(pLoopPlot, ePlayer, iMajorFoodReq))
 				{
 					// Retrieve found value from player 1's found value slot
 					//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
@@ -691,7 +699,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 					if(bDebugMap || ((int)uiPlotFoundValue > (int)m_iBestFoundValueOnMap * iPercentOfBest / 100))
 					{
 						// Check distance
-						if(!TooCloseToAnotherCiv(pLoopPlot))
+						if(!PlotTooCloseToAnotherCiv(pLoopPlot,m_iRequiredSeparation))
 						{
 							// Best so far?
 							if(bDebugMap || uiPlotFoundValue > uiBestFoundValue)
@@ -721,28 +729,26 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 }
 
 /// Returns true if illegal start position
-bool CvStartPositioner::TooCloseToAnotherCiv(CvPlot* pPlot)
+bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 {
-	int iI;
 	bool rtnValue = false;
-	CvPlot* pStartPlot(NULL);
 
 	CvAssert(pPlot);
 	if(!pPlot)
 		return rtnValue;
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		if(GET_PLAYER((PlayerTypes)iI).isAlive())
 		{
-			pStartPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+			CvPlot* pStartPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
 			if(pStartPlot != NULL)
 			{
 				// If in same area, use full distance
 				if(pStartPlot->getArea() == pPlot->getArea())
 				{
 					if(plotDistance(pPlot->getX(), pPlot->getY(),
-					                pStartPlot->getX(), pStartPlot->getY()) < m_iRequiredSeparation)
+					                pStartPlot->getX(), pStartPlot->getY()) < iRequiredSeparation)
 					{
 						return true;
 					}
@@ -751,7 +757,7 @@ bool CvStartPositioner::TooCloseToAnotherCiv(CvPlot* pPlot)
 				// If in another area, use a fraction of full distance
 				else
 				{
-					int iSeparationIfOnAnotherContinent = m_iRequiredSeparation * GC.getMIN_DISTANCE_OTHER_AREA_PERCENT() / 100;
+					int iSeparationIfOnAnotherContinent = iRequiredSeparation * GC.getMIN_DISTANCE_OTHER_AREA_PERCENT() / 100;
 					if(plotDistance(pPlot->getX(), pPlot->getY(),
 					                pStartPlot->getX(), pStartPlot->getY()) < iSeparationIfOnAnotherContinent)
 					{
@@ -766,9 +772,8 @@ bool CvStartPositioner::TooCloseToAnotherCiv(CvPlot* pPlot)
 }
 
 /// Does it have a good food plot?
-bool CvStartPositioner::MeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement)
+bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement)
 {
-	CvPlot* pLoopPlot(NULL);
 	bool bFoundFoodPlot = false;
 
 	CvAssert(pPlot);
@@ -777,7 +782,7 @@ bool CvStartPositioner::MeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer,
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+		CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 		if(pLoopPlot == NULL)
 		{
 			return false;   // Right at map edge
@@ -835,3 +840,230 @@ void CvStartPositioner::LogStartPositionMessage(CvString strMsg)
 		pLog->Msg(strMsg);
 	}
 }
+
+struct SStartRegion
+{
+	int iID;
+	vector<int> vPlots; //indices of the plots making up this region
+	vector<int> vNeighbors; //indices of neighboring regions (not plots)
+	int iTotalWorth;
+
+	SStartRegion(int iIndex = 0, int iPlotWorth = 0)
+	{  
+		iID = iIndex;
+		vPlots = vector<int>(1, iIndex);
+		iTotalWorth = iPlotWorth;
+	}
+
+	void mergeWith(SStartRegion& other) 
+	{ 
+		iTotalWorth += other.iTotalWorth; 
+		vPlots.insert(vPlots.end(), other.vPlots.begin(), other.vPlots.end()); 
+		vNeighbors.insert(vNeighbors.end(), other.vNeighbors.begin(), other.vNeighbors.end());
+
+		//remove obsolete neighbors
+		sort(vNeighbors.begin(), vNeighbors.end());
+		vNeighbors.erase(remove(vNeighbors.begin(), vNeighbors.end(), iID), vNeighbors.end());
+		vNeighbors.erase(remove(vNeighbors.begin(), vNeighbors.end(), other.iID), vNeighbors.end());
+		vNeighbors.erase(unique(vNeighbors.begin(), vNeighbors.end()), vNeighbors.end());
+	}
+
+	bool operator<(const SStartRegion& rhs) const { return iTotalWorth > rhs.iTotalWorth; }
+};
+
+CvStartPositionerMerge::CvStartPositionerMerge(CvSiteEvaluatorForStart * pSiteEvaluator)
+{
+	m_pSiteEvaluator = pSiteEvaluator;
+}
+
+CvStartPositionerMerge::~CvStartPositionerMerge(void)
+{
+}
+
+int getRegionDistanceMeasure(const SStartRegion& a, const SStartRegion& b)
+{
+	if (a.vPlots.empty() || b.vPlots.empty())
+		return 0;
+
+	int ax = 0;
+	int ay = 0;
+	int bx = 0;
+	int by = 0;
+	//get the center of mass for both regions
+	for (size_t i = 0; i < a.vPlots.size(); i++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(a.vPlots[i]);
+		ax += pPlot->getX();
+		ay += pPlot->getY();
+	}
+	for (size_t i = 0; i < b.vPlots.size(); i++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(b.vPlots[i]);
+		bx += pPlot->getX();
+		by += pPlot->getY();
+	}
+	ax = (ax * 100) / a.vPlots.size();
+	ay = (ay * 100) / a.vPlots.size();
+	bx = (bx * 100) / b.vPlots.size();
+	by = (by * 100) / b.vPlots.size();
+
+	return (int)sqrtf(float(ax - bx)*(ax - bx) + float(ay - by)*(ay - by));
+}
+
+int findNeighborIdToMerge(map<int, SStartRegion>::iterator self, const map<int,SStartRegion>& regions)
+{
+	vector<int> neighbors = self->second.vNeighbors;
+
+	int iWorstNeighborScore = INT_MAX;
+	int iWorstNeighborRegionId = -1;
+	for (size_t i = 0; i < neighbors.size(); i++)
+	{
+		map<int, SStartRegion>::const_iterator neighbor = regions.find(neighbors[i]);
+		if (neighbor == regions.end())
+			continue; //may happen if the neighbor is already very large and has been removed
+
+		//consider distance as well to encourage compact regions
+		int iDist = getRegionDistanceMeasure(self->second, neighbor->second);
+		if (neighbor->second.iTotalWorth*iDist < iWorstNeighborScore)
+		{
+			iWorstNeighborScore = neighbor->second.iTotalWorth * iDist;
+			iWorstNeighborRegionId = neighbor->first;
+		}
+	}
+
+	return iWorstNeighborRegionId;
+}
+
+void CvStartPositionerMerge::Run(int iNumRegionsRequired)
+{
+	map<int,SStartRegion> regions;
+	int iGlobalPlotWorth = 0;
+
+	//set up initial regions
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iPlotWorth = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot,true);
+		
+		//the region id is the plot index of the original plot
+		if (iPlotWorth > 0)
+		{
+			regions[iI] = SStartRegion(iI, iPlotWorth);
+			iGlobalPlotWorth += iPlotWorth;
+		}
+	}
+
+	//set up initial neighborhood relations
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		map<int, SStartRegion>::iterator it = regions.find(pLoopPlot->GetPlotIndex());
+		if (it == regions.end())
+			continue; //can happen for bad plots without corresponding region
+
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopPlot);
+		for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		{
+			if (!aNeighbors[i])
+				continue;
+
+			map<int, SStartRegion>::iterator it = regions.find(aNeighbors[i]->GetPlotIndex());
+			if (it != regions.end())
+				it->second.vNeighbors.push_back( pLoopPlot->GetPlotIndex() );
+		}
+	}
+
+	//start the merge process
+	vector<SStartRegion> regionsWeCantMerge;
+	vector<SStartRegion> regionsLargeEnough;
+
+	while ( regions.size() > (size_t)iNumRegionsRequired )
+	{
+		//find the worst region we can merge
+		map<int, SStartRegion>::iterator worstRegion = regions.end();
+
+		for (map<int, SStartRegion>::iterator it = regions.begin(); it != regions.end(); ++it)
+		{
+			if (it->second.iTotalWorth > iGlobalPlotWorth/iNumRegionsRequired)
+			{
+				regionsLargeEnough.push_back(it->second);
+				it = regions.erase(it);
+				if (it == regions.end())
+					break;
+			}
+
+			if (it->second.vNeighbors.empty())
+			{
+				regionsWeCantMerge.push_back(it->second);
+				it = regions.erase(it);
+				if (it == regions.end())
+					break;
+			}
+
+			if (worstRegion == regions.end() || it->second.iTotalWorth < worstRegion->second.iTotalWorth)
+				worstRegion = it;
+		}
+		if (worstRegion == regions.end())
+			break; //error
+
+		//merge the worst region with a suitable neighbor
+		int neighborId = findNeighborIdToMerge(worstRegion,regions);
+		if (neighborId == -1)
+			break; //error
+		map<int, SStartRegion>::iterator neighbor = regions.find(neighborId);
+
+		//debugging
+		if (true)
+		{
+			CvString msg = CvString::format("merging id %d (size %d, score %d) with id %d (size %d, score %d). nregions %d\n",
+				worstRegion->second.iID, worstRegion->second.vPlots.size(), worstRegion->second.iTotalWorth, 
+				neighbor->second.iID, neighbor->second.vPlots.size(), neighbor->second.iTotalWorth, 
+				regions.size());
+			OutputDebugString(msg.c_str());
+		}
+
+		//do the actual merge
+		neighbor->second.mergeWith( worstRegion->second );
+
+		//clean up neighbor references
+		for (size_t i = 0; i < worstRegion->second.vNeighbors.size(); i++)
+		{
+			map<int, SStartRegion>::iterator it2 = regions.find( worstRegion->second.vNeighbors[i] );
+			if (it2 == regions.end())
+				continue; //should not happen!
+
+			replace(it2->second.vNeighbors.begin(), it2->second.vNeighbors.end(), worstRegion->first, neighbor->first);
+			//there might be a duplicate now, but that's ok and will be fixed after the next merge
+		}
+
+		//we don't need you around here anymore
+		regions.erase(worstRegion);
+	}
+
+	//log the result
+	if (true)
+	{
+		FILogFile* pLog = LOGFILEMGR.GetLog("StartRegions.txt", FILogFile::kDontTimeStamp);
+		if (pLog)
+		{
+			pLog->Msg("#x,y,terrain,region\n");
+			for (map<int, SStartRegion>::iterator it = regions.begin(); it != regions.end(); ++it)
+			{
+				for (size_t j = 0; j < it->second.vPlots.size(); j++)
+				{
+					CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->second.vPlots[j]);
+					CvString dump = CvString::format("%d,%d,%d,%d\n",
+						pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), it->first);
+
+					pLog->Msg(dump.c_str());
+				}
+			}
+		}
+	}
+
+	//now map players to regions
+	//there should be one region per major player
+	//the minors have to squeeze in later
+	//...
+}
+

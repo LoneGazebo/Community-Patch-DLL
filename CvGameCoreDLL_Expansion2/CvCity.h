@@ -1044,7 +1044,7 @@ public:
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 #endif
 
-	int GetNumContestedPlots(PlayerTypes eOtherPlayer) const;
+	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);
@@ -1269,9 +1269,7 @@ public:
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 
-	bool IsBastion() const;
-	void SetBastion(bool bValue);
-	void TestBastion();
+	bool isPotentiallyInDanger() const;
 
 	void DoBarbIncursion();
 #endif
@@ -1862,7 +1860,7 @@ protected:
 	FAutoVariable<bool, CvCity> m_bOccupied;
 	FAutoVariable<bool, CvCity> m_bPuppet;
 	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
-	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital;
+	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital; //also set for water connection once railroad is available
 	FAutoVariable<int, CvCity> m_iTerrainImprovementNeed;
 
 	FAutoVariable<PlayerTypes, CvCity> m_ePreviousOwner;
@@ -1975,7 +1973,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
 	FAutoVariable<int, CvCity> m_iResourceDiversityModifier;
 	FAutoVariable<int, CvCity> m_iNoUnhappfromXSpecialists;
-	FAutoVariable<bool, CvCity> m_bIsBastion;
+	FAutoVariable<bool, CvCity> m_bDummy; //unused
 	FAutoVariable<std::vector<int>, CvCity> m_aiGreatWorkYieldChange;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;

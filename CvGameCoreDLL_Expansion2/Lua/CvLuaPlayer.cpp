@@ -12432,6 +12432,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	int iValue;
 
 	int iVisibleApproach = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetApproachTowardsUsGuess(pkPlayer->GetID());
+	
+	if(pkPlayer->getTeam() == GET_PLAYER(eWithPlayer).getTeam())
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = -99999;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE")
+		aOpinions.push_back(kOpinion);
+	}
+	
 	if (GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 	{
 		iVisibleApproach = MAJOR_CIV_APPROACH_WAR;
@@ -12461,6 +12470,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 
+// Hide some modifiers if FRIENDLY (or pretending to be)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY))) 
 #else
@@ -12776,10 +12786,34 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	iValue = pDiploAI->GetEmbassyScore(eWithPlayer);
 	if (iValue != 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).HasEmbassyAtTeam(pkPlayer->getTeam()) && GET_TEAM(pkPlayer->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if(GET_TEAM(pkPlayer->getTeam()).HasEmbassyAtTeam(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+		else if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).HasEmbassyAtTeam(pkPlayer->getTeam()))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_HAVE_EMBASSY");
+			aOpinions.push_back(kOpinion);
+		}
+#else
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HAS_EMBASSY");
 		aOpinions.push_back(kOpinion);
+#endif
 	}
 
 	iValue = pDiploAI->GetForgaveForSpyingScore(eWithPlayer);

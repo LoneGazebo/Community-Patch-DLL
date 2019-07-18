@@ -2028,6 +2028,19 @@ int CvTraitEntry::GetNonSpecialistFoodChange() const
 {
 	return m_iNonSpecialistFoodChange;
 }
+
+/// Accessor:: Is this build blocked for this civ?
+bool CvTraitEntry::IsNoBuild(BuildTypes eBuild) const
+{
+	std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), (int)eBuild);
+
+	if (it != m_aiNoBuilds.end())
+	{
+		return true;
+	}
+
+	return false;
+}
 #endif
 
 /// Has this trait become obsolete?
@@ -2874,6 +2887,36 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::pair<int, bool>>(m_pibUnitCombatProductionCostModifier).swap(m_pibUnitCombatProductionCostModifier);
+	}
+
+	//Populate m_aiNoBuilds
+	{
+		std::string sqlKey = "Trait_NoBuilds";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Builds.ID from Trait_NoBuilds, Builds where TraitType = ? and BuildType = Builds.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iBuild = pResults->GetInt(0);
+
+			std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), iBuild); // does this build id already exist in our vector?
+
+			if (it == m_aiNoBuilds.end()) // only add an entry if it does not exist
+			{
+				m_aiNoBuilds.push_back(iBuild);
+			}
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::vector<int>(m_aiNoBuilds).swap(m_aiNoBuilds);
 	}
 #endif
 
@@ -4559,6 +4602,23 @@ void CvPlayerTraits::InitPlayerTraits()
 					m_aFreeResourceXCities[iResourceLoop] = temp;
 				}
 			}
+
+#if defined(MOD_BALANCE_CORE)
+			for (int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
+			{
+				BuildTypes eBuild = (BuildTypes)iBuildLoop;
+
+				if (trait->IsNoBuild(eBuild))
+				{
+					std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), iBuildLoop); // try to find if the entry already exists
+
+					if (it == m_aiNoBuilds.end())
+					{
+						m_aiNoBuilds.push_back(iBuildLoop); // only add into container if it does not already exist
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -4614,6 +4674,7 @@ void CvPlayerTraits::Uninit()
 	m_ppaaiSpecialistYieldChange.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_aiDomainFreeExperienceModifier.clear();
+	m_aiNoBuilds.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield.clear();
@@ -5104,6 +5165,7 @@ void CvPlayerTraits::Reset()
 		m_paiMovesChangeUnitClass[iUnitClass] = 0;
 		m_aiFreeUnitClassesDOW[iUnitClass] = 0;
 	}
+	m_aiNoBuilds.clear();
 #endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5599,6 +5661,21 @@ std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCom
 	}
 
 	return std::make_pair(0, false);
+}
+/// Is this build blocked for this civ?
+bool CvPlayerTraits::IsNoBuild(BuildTypes eBuild) const
+{
+	CvAssertMsg(eBuild >= 0, "buildID expected to be >= 0");
+	CvAssertMsg(eBuild < GC.getNumBuildInfos(), "buildID expected to be < GC.getNumBuildInfos()");
+
+	std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), (int)eBuild);
+
+	if (it != m_aiNoBuilds.end())
+	{
+		return true;
+	}
+
+	return false;
 }
 #endif
 
@@ -7160,6 +7237,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiGoldenAgeYieldModifier;
 	kStream >> m_aibUnitCombatProductionCostModifier;
 	kStream >> m_iNonSpecialistFoodChange;
+	kStream >> m_aiNoBuilds;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7605,6 +7683,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiGoldenAgeYieldModifier;
 	kStream << m_aibUnitCombatProductionCostModifier;
 	kStream << m_iNonSpecialistFoodChange;
+	kStream << m_aiNoBuilds;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

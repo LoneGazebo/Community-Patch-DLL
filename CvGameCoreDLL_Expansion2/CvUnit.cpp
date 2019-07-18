@@ -5618,6 +5618,10 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
+	//check for no-op
+	if (plot() && canMoveInto(*plot(), CvUnit::MOVEFLAG_DESTINATION))
+		return true;
+
 	//for performance reasons, start with a small search range and gradually increase it
 	int iInitialRange = 3;
 	int iBestValue = INT_MAX;
@@ -5637,16 +5641,16 @@ bool CvUnit::jumpToNearestValidPlot()
 			//need to check for everything, including invisible units
 			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				int iValue = it->iNormalizedDistance;
+				int iValue = it->iNormalizedDistance * 10;
 
 				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 				if (getDomainType() == DOMAIN_SEA)
 					if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-						iValue += 20;
+						iValue += 200;
 
 				//avoid embarkation
 				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 5;
+					iValue += 40;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
 				{
@@ -13483,7 +13487,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && !m_pUnitInfo->GetBuilds(eBuild))
+	if (!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && (!m_pUnitInfo->GetBuilds(eBuild) || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild)))
 #else
 	if(!(m_pUnitInfo->GetBuilds(eBuild)))
 #endif
@@ -28226,13 +28230,14 @@ int CvUnit::getArmyID() const
 void CvUnit::setArmyID(int iNewArmyID)
 {
 	VALIDATE_OBJECT
-	m_iArmyId = iNewArmyID;
 
-	if (m_iArmyId!=-1 && GET_PLAYER(getOwner()).GetTacticalAI()->IsUnitHealing(GetID()))
+	if (iNewArmyID!=-1 && GET_PLAYER(getOwner()).GetTacticalAI()->IsUnitHealing(GetID()))
 	{
 		//shouldn't happen
 		OutputDebugString("warning: damaged unit recruited into army!\n");
 	}
+		
+	m_iArmyId = iNewArmyID;
 }
 
 CvString CvUnit::getTacticalZoneInfo() const

@@ -972,6 +972,10 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 	int iFilledSlots = 0;
 	if(kTarget.m_pTargetCity && kTarget.m_pMusterCity)
 	{
+		//sanity check
+		if (!GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(kTarget.m_pTargetCity->getOwner()).getTeam()))
+			OutputDebugString("warning: invalid attack target!\n");
+
 		if(kTarget.m_bNoLandPath)
 		{
 			if(!GET_PLAYER(kTarget.m_pTargetCity->getOwner()).isMinorCiv())
@@ -3342,7 +3346,7 @@ void CvMilitaryAI::UpdateBaseData()
 	CvCity *pLoopCity;
 	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBastion()))
+		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->isPotentiallyInDanger()))
 		{
 			fMultiplier += .25f;
 		}
@@ -4100,12 +4104,6 @@ void CvMilitaryAI::DoBarbs()
 
 	if(!m_pPlayer->IsAtWar())
 	{
-		//No wars? Let's stop all of our offensive/defensive operations.
-		m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(NO_PLAYER, false, AI_ABORT_DIPLO_OPINION_CHANGE);
-		m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(NO_PLAYER, AI_ABORT_DIPLO_OPINION_CHANGE);
-		m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(NO_PLAYER, false, AI_ABORT_DIPLO_OPINION_CHANGE);
-		m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(NO_PLAYER, AI_ABORT_DIPLO_OPINION_CHANGE);
-
 		// SEE WHAT OPERATIONS WE SHOULD ADD
 		//
 		// Operation vs. Barbarians
@@ -4603,26 +4601,28 @@ void CvMilitaryAI::UpdateOperations()
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 		{
-			// If we've made peace with this player, abort all operations related to him
-			if(GET_TEAM(m_pPlayer->getTeam()).isForcePeace(GET_PLAYER(eLoopPlayer).getTeam()))
+			// If we cannot declare war on this player, abort all offensive operations related to him
+			if(!GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
-				m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
 				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,true,AI_ABORT_DIPLO_OPINION_CHANGE);
 				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,true,AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
 
-			// if we're not at war with this player
-			if(!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			// If the other player cannot declare on us, abort defensive ops too
+			if(!GET_TEAM(m_pPlayer->getTeam()).isForcePeace(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				continue;
+				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
 
-			int iTargetValue = GetEnemyLandValue(eLoopPlayer, bestTargetLand);
+			// if we're not at war with this player
+			if(!m_pPlayer->IsAtWarWith(eLoopPlayer))
+				continue;
 
-			veLandThreatWeights.push_back(eLoopPlayer, iTargetValue);
+			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand));
 		}
 	}
+
 	if(veLandThreatWeights.size() > 0)
 	{
 		veLandThreatWeights.SortItems();
@@ -6935,7 +6935,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	CvCity *pLoopCity;
 	for (pLoopCity = pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBastion()))
+		if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->isPotentiallyInDanger()))
 		{
 			dMultiplier += .25f;
 		}

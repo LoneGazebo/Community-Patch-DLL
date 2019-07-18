@@ -542,7 +542,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 					
-				if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
+				if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) && !kPlayer.GetPlayerTraits()->IsNoBuild((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
 				{
 					iBuildBonus++;
 				}
@@ -1250,15 +1250,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
-		}
-
-		if (m_pCity->plot()->getNumDefenders(kPlayer.GetID()) <= 0)
-		{
-			iFlavorExpansion -= 20;
-		}
-		else if (m_pCity->plot()->GetNumFriendlyUnitsAdjacent(kPlayer.getTeam(), DOMAIN_LAND, NULL, false) <= 0)
-		{
-			iFlavorExpansion -= 15;
 		}
 
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
