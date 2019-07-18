@@ -3363,16 +3363,17 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 						int iNumPolicies = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumSamePolicies(eLoopOtherPlayer);
 						
 						// We can't know their neediness so assume the default
-						if(iNumPolicies != 0)
+						if(iNumPolicies < 0)
 						{
-							if(iNumPolicies < 0)
-							{
-								iOpinionWeight += max(5, (iNumPolicies * -1));
-							}
-							else if(iNumPolicies > 0)
-							{
-								iOpinionWeight += min(-5, (iNumPolicies * -1));
-							}
+							// Flip it!
+							iNumPolicies *= -1;
+							iOpinionWeight += max(5, (iNumPolicies * 1));
+						}
+						else if(iNumPolicies > 0)
+						{
+							// Flip it!
+							iNumPolicies *= -1;
+							iOpinionWeight += min(-5, (iNumPolicies * 1));
 						}			
 #endif
 						
@@ -5820,9 +5821,6 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 	AggressivePostureTypes eLastTurnMilitaryAggressivePosture;
 	bool bAtWar = false;
 	bool bHuman = false;
-#if defined(MOD_BALANCE_CORE)
-	bool bJustMadePeace = false;
-#endif
 
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5836,14 +5834,6 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 			eLastTurnMilitaryAggressivePosture = GetLastTurnMilitaryAggressivePosture(eLoopPlayer);
 			bAtWar = GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam());
 			bHuman = GET_PLAYER(eLoopPlayer).isHuman();
-
-#if defined(MOD_BALANCE_CORE)			
-			// Check if we just made peace with this player
-			bJustMadePeace = false;
-			
-			if (GetNumWarsFought(eLoopPlayer) > 0 && GetPlayerNumTurnsAtPeace(eLoopPlayer) <= 1)
-				bJustMadePeace = true;
-#endif
 			
 			// If they're at war with us, then their approach is WAR for all practical purposes
 			if(bAtWar && eTrueApproachGuess != MAJOR_CIV_APPROACH_WAR)
@@ -5855,7 +5845,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 
 #if defined(MOD_BALANCE_CORE)			
 			// If we just made peace, reset any guess for the WAR approach
-			else if(bJustMadePeace && eTrueApproachGuess == MAJOR_CIV_APPROACH_WAR)
+			else if(eTrueApproachGuess == MAJOR_CIV_APPROACH_WAR && (GetNumWarsFought(eLoopPlayer) > 0 && GetPlayerNumTurnsAtPeace(eLoopPlayer) <= 1))
 			{
 				SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);	
 			}
@@ -28734,9 +28724,9 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	
 	// DoF, DP or ally with the asker? Never warn them.
 	if(IsDoFAccepted(eAskingPlayer) || GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eAskingPlayer).getTeam()))
-		return true;
+		return false;
 	if(eOpinionOfAsker == MAJOR_CIV_OPINION_ALLY)
-		return true;
+		return false;
 	
 	// If we're afraid of the asker or hate the target, never warn them
 	if(eApproachTowardsAsker == MAJOR_CIV_APPROACH_AFRAID || eApproachTowardsTarget == MAJOR_CIV_APPROACH_HOSTILE || eOpinionOfTarget == MAJOR_CIV_OPINION_UNFORGIVABLE)
@@ -32865,11 +32855,13 @@ int CvDiplomacyAI::GetNoSetterRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if(IsPlayerNoSettleRequestEverAsked(ePlayer))
+	{
 		// Teammates
 		if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
-			return 1;
+			return 0;
 		
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_ASKED_NO_SETTLE();
+	}
 
 	return iOpinionWeight;
 }
@@ -33798,29 +33790,36 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 	int iNumPolicies = GetNumSamePolicies(ePlayer);
 	if(iNumPolicies < 0)
 	{
+		// Flip it!
+		iNumPolicies *= -1;
+		
 		if(GetNeediness() > 7)
 		{
-			iOpinionWeight += max(10, (iNumPolicies * -2));
+			iOpinionWeight += max(10, (iNumPolicies * 2));
 		}
 		else
 		{
-			iOpinionWeight += max(5, (iNumPolicies * -1));
+			iOpinionWeight += max(5, (iNumPolicies * 1));
 		}
 	}
 	else if(iNumPolicies > 0)
 	{
+		// Flip it!
+		iNumPolicies *= -1;
+		
 		if(GetNeediness() > 7)
 		{
-			iOpinionWeight += min(-10, (iNumPolicies * -2));
+			iOpinionWeight += min(-10, (iNumPolicies * 2));
 		}
 		else
 		{
-			iOpinionWeight += min(-5, (iNumPolicies * -1));
+			iOpinionWeight += min(-5, (iNumPolicies * 1));
 		}
 	}
 
 	return iOpinionWeight;
 }
+
 int CvDiplomacyAI::GetPtPSameCSScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;

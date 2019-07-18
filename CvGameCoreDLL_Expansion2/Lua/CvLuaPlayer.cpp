@@ -12825,9 +12825,18 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 	
-	iValue = pDiploAI->GetNoSetterRequestScore(eWithPlayer);
-	if (iValue != 0)
+	// Asking teammates not to settle nearby = no penalty, but should still be visible
+	if (pDiploAI->IsPlayerNoSettleRequestEverAsked(eWithPlayer))
 	{
+		if(pkPlayer->getTeam() == GET_PLAYER(eWithPlayer).getTeam())
+		{
+			iValue = 0;
+		}
+		else
+		{
+			iValue = pDiploAI->GetNoSetterRequestScore(eWithPlayer);
+		}
+		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_SETTLE_ASKED");
