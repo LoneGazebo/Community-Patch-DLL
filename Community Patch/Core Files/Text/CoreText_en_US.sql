@@ -326,9 +326,12 @@ WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
 -- Diplo Text for DoF changed
 
 UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then declared war on them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
-
 
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
@@ -446,14 +449,6 @@ WHERE Tag = 'TXT_KEY_UNITS_NATIONAL_HEADING2_BODY';
 UPDATE Language_en_US
 SET Text = 'If another civ has captured a City-State and you capture it from them, you have the option to "liberate" that city-state. If you do so, you will receive a large amount of [ICON_INFLUENCE] Influence from the City-State, usually enough to make you [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with it.'
 WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY';
-
-
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then declared war on them![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR';
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them!'
-WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
 
 -- Barbarians
 
@@ -575,20 +570,6 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNI
 
 
 UPDATE Language_en_US
-SET Text = 'Very well. Not that it will help either of us in the long run...we will all die soon enough.'
-WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
-
-UPDATE Language_en_US
-SET Text = 'You must be insane to insult me with such an offer. We refuse.'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
-
-
-UPDATE Language_en_US
-SET Text = 'It honors my people, helping those in need.'
-WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_TRIBUTE_YES_NEUTRAL';
-
-
-UPDATE Language_en_US
 SET Text = '[COLOR_WARNING_TEXT]{1_Number} Interceptors![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_EUPANEL_VISIBLE_AA_UNITS';
 
@@ -596,26 +577,6 @@ UPDATE Language_en_US
 SET Text = 'Once you have acquired the Chivalry tech, you may engage in a Defensive Pact. Defensive Pacts are always mutual. If a signatory to a Defensive Pact is attacked, the other partner is automatically at war with the attacker.[NEWLINE][NEWLINE]A Defensive Pact lasts for 30 turns (on standard speed). When that time has elapsed, the pact lapses unless it is renegotiated.'
 WHERE Tag = 'TXT_KEY_DIPLOMACY_DEFENSIVEPACT_HEADING3_BODY';
 
-UPDATE Language_en_US
-SET Text = 'Give me what I want, and I may spare you...for now.'
-WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_DEMANDTRIBUTE_NEUTRAL';
-
-UPDATE Language_en_US
-SET Text = 'Smart move.'
-WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY';
-
-
-UPDATE Language_en_US
-SET Text = 'Speak: anything to drown out the whispers.'
-WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_LETSHEARIT_1';
-
-UPDATE Language_en_US
-SET Text = 'You come to mighty Persia as you are? What do you want?'
-WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
-
-UPDATE Language_en_US
-SET Text = 'Happily agreed.'
-WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
 
 -- Production Queue
 
@@ -625,20 +586,84 @@ WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
 
 -- Civilizations Dialog
 
--- Neutral Tribute
+-- Greeting
 
 UPDATE Language_en_US
-SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
-WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
+SET Text = 'Well? Speak up. I can barely hear you over the blood pounding in my brain.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_GREETING_5'
 
--- Trade Happy
+-- Greeting (Hostile)
+
+UPDATE Language_en_US
+SET Text = 'You come to mighty Persia as you are? What do you want?'
+WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
+
+-- Open Trade Screen
+
+UPDATE Language_en_US
+SET Text = 'Speak: anything to drown out the whispers.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_LETSHEARIT_1';
+
+-- Offer Trade (Happy)
 
 UPDATE Language_en_US
 SET Text = 'Does this trade interest you?'
 WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_HAPPY';
 
--- Trade Angry
+UPDATE Language_en_US
+SET Text = 'It appears that you do have a reason for existing: to make this deal with me.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_HAPPY'
+
+-- Accept Trade (Happy)
+
+UPDATE Language_en_US
+SET Text = 'Very well. Not that it will help either of us in the long run...we will all die soon enough.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
+
+UPDATE Language_en_US
+SET Text = 'Happily agreed.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
+
+-- Accept Trade (Angry)
+
+UPDATE Language_en_US
+SET Text = 'Smart move.'
+WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY';
+
+-- Decline Trade (Neutral)
+
+UPDATE Language_en_US
+SET Text = 'You must be insane to insult me with such an offer. We refuse.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
+
+-- Decline Trade (Angry)
 
 UPDATE Language_en_US
 SET Text = 'My husband is deceased, you know: Russia is no longer ruled by an idiot. We decline.'
 WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NO_ANGRY';
+
+-- Make Demand
+
+UPDATE Language_en_US
+SET Text = 'Give me what I want, and I may spare you...for now.'
+WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_DEMANDTRIBUTE_NEUTRAL';
+
+-- Accept Demand (Neutral)
+
+UPDATE Language_en_US
+SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
+WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
+
+UPDATE Language_en_US
+SET Text = 'It honors my people, helping those in need.'
+WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_TRIBUTE_YES_NEUTRAL';
+
+-- Leader Attacked
+
+UPDATE Language_en_US
+SET Text = 'We shall destroy you, you know. Do you care for some cheese?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_2'
+
+UPDATE Language_en_US
+SET Text = 'Oh well. I presume you know what you''re doing.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_3'
