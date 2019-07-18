@@ -541,7 +541,7 @@ WHERE Tag = 'TXT_KEY_WONDER_ALHAMBRA_HELP' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- University of Sankore
 UPDATE Language_en_US
-SET Text = 'Requires completion of Tradition Branch. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Mosque in the City in which it is built. Receive 50 [ICON_RESEARCH] Science when you expend a [ICON_GREAT_PEOPLE] Great Person, bonus scales with Era.'
+SET Text = 'Requires completion of Tradition Branch. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Mosque in the City in which it is built. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, receive 50 [ICON_RESEARCH] Science, bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_WONDER_MOSQUE_OF_DJENNE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -569,7 +569,7 @@ SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be built in a Holy City. Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_MISSIONARY] Missionaries and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stupa in the City where it is built. All new and existing [ICON_MISSIONARY] Missionaries gain 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] Religous Spread action.'
+SET Text = 'Must be built in a Holy City. Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_MISSIONARY] Missionaries and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stupa in the City in which it is built. All new and existing [ICON_MISSIONARY] Missionaries gain 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] Religous Spread action.'
 WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -663,6 +663,11 @@ WHERE Tag = 'TXT_KEY_WONDER_PRORA_RESORT_HELP' AND EXISTS (SELECT * FROM COMMUNI
 UPDATE Language_en_US
 SET Text = 'Requires Freedom. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy. +1 [ICON_PRODUCTION] Production from Specialists in every City.'
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_OF_LIBERTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+-- added line for International Space Station
+UPDATE Language_en_US
+SET Text = 'May only be built collaboratively through the World Congress. +1 [ICON_PRODUCTION] Production from Scientists, and +1 [ICON_RESEARCH] Science from Engineers. [ICON_GREAT_SCIENTIST] Great Scientists provide 33% more [ICON_RESEARCH] Science when used to discover new Technology.'
+WHERE Tag = 'TXT_KEY_BUILDING_INTERNATIONAL_SPACE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Requires completion of Imperialism Branch. [ICON_GOLD] Gold cost of upgrading Military Units reduced by 33%. Owned [ICON_SPY] Spies are much more likely to disrupt Unit [ICON_PRODUCTION] Production via Advanced Actions. Increases the Military Unit Supply Cap by 1 in every City.'
