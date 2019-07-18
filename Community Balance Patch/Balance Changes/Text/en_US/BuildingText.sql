@@ -691,7 +691,7 @@ SET Text = 'Must be constructed in a coastal City. Receive 1 [COLOR_POSITIVE_TEX
 WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All Research Labs gain +10 [ICON_RESEARCH] Science. 99.9% reduction in effectiveness of enemy [ICON_SPY] Spies in the City in which it is built. All other Cities in the civilization get a 25% reduction in enemy [ICON_SPY] Spy effectiveness. Negates the [ICON_TOURISM] Tourism bonus from the Technologies of other players.'
+SET Text = 'All Research Labs gain +10 [ICON_RESEARCH] Science. 99.9% reduction in effectiveness of enemy [ICON_SPY] Spies in the City in which it is built. All other Cities in your Empire get a 25% reduction in enemy [ICON_SPY] Spy effectiveness. Negates the [ICON_TOURISM] Tourism bonus from the Technologies of other players.'
 WHERE Tag = 'TXT_KEY_BUILDING_GREAT_FIREWALL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
