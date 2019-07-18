@@ -584,7 +584,21 @@ UPDATE Language_en_US
 SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.'
 WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
 
--- Civilizations Dialog
+-- Leader Dialog
+
+-- First Greeting
+
+UPDATE Language_en_US
+SET Text = 'I am Nebuchadnezzar of Babylon. Those fools outside say I''m a god, but that seems unlikely. Who are you?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_FIRSTGREETING_1'
+
+UPDATE Language_en_US
+SET Text = 'I am Nebuchadnezzar. Are you real or just a phantom of my tortured senses?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_FIRSTGREETING_3'
+
+UPDATE Language_en_US
+SET Text = 'Greetings, Stranger. I am Pachacuti, ruler of the peerless Incans. If there is any way that we can assist your inferior civilization, please do not hesitate to ask.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_FIRSTGREETING_3'
 
 -- Greeting
 
@@ -597,6 +611,26 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_GREETING_5'
 UPDATE Language_en_US
 SET Text = 'You come to mighty Persia as you are? What do you want?'
 WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
+
+-- Agree
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_AGREE_SHORT_2'
+
+UPDATE Language_en_US
+SET Text = 'What''s the frequency, Kenneth?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_AGREE_SHORT_1'
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT_2'
+
+-- Disagree
+
+UPDATE Language_en_US
+SET Text = 'Certainly not.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT_1'
 
 -- Open Trade Screen
 
@@ -614,6 +648,16 @@ UPDATE Language_en_US
 SET Text = 'It appears that you do have a reason for existing: to make this deal with me.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_HAPPY'
 
+-- Offer Trade (Angry)
+
+UPDATE Language_en_US
+SET Text = 'You would do well to agree to our very fair and reasonable terms.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_ANGRY'
+
+UPDATE Language_en_US
+SET Text = 'You would allay my all-consuming misery by agreeing to the following.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_ANGRY'
+
 -- Accept Trade (Happy)
 
 UPDATE Language_en_US
@@ -630,11 +674,21 @@ UPDATE Language_en_US
 SET Text = 'Smart move.'
 WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY';
 
+-- Decline Trade (Happy)
+
+UPDATE Language_en_US
+SET Text = 'I am sorry, but the voices tell me that I must decline your offer.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_HAPPY'
+
 -- Decline Trade (Neutral)
 
 UPDATE Language_en_US
 SET Text = 'You must be insane to insult me with such an offer. We refuse.'
 WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
+
+UPDATE Language_en_US
+SET Text = 'Your offer is declined. I would be insulted, if I cared anything about you.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_NEUTRAL'
 
 -- Decline Trade (Angry)
 
@@ -642,11 +696,19 @@ UPDATE Language_en_US
 SET Text = 'My husband is deceased, you know: Russia is no longer ruled by an idiot. We decline.'
 WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NO_ANGRY';
 
+UPDATE Language_en_US
+SET Text = 'I have conceived of a blind, almost overpowering dislike for you. The answer is ''no.'''
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_ANGRY'
+
 -- Make Demand
 
 UPDATE Language_en_US
 SET Text = 'Give me what I want, and I may spare you...for now.'
 WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_DEMANDTRIBUTE_NEUTRAL';
+
+UPDATE Language_en_US
+SET Text = 'The following tribute would improve my black humor, greatly increasing the odds that you would survive another day.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEMANDTRIBUTE_NEUTRAL'
 
 -- Accept Demand (Neutral)
 
@@ -655,10 +717,30 @@ SET Text = 'You may have this bit of material wealth, yes. But such indiscretion
 WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
+SET Text = 'I agree; if only to confound my advisors, who urge me to refuse.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_NEUTRAL'
+
+UPDATE Language_en_US
 SET Text = 'It honors my people, helping those in need.'
 WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_TRIBUTE_YES_NEUTRAL';
 
--- Leader Attacked
+-- War Bluff
+
+UPDATE Language_en_US
+SET Text = 'The drums, the drums! They pound in my brain, drowning out thoughts of vengeance.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_WARBLUFF_1'
+
+-- Declare War
+
+UPDATE Language_en_US
+SET Text = 'It was inevitable that we would come to blows, and now is as good a time as another.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_DECLAREWAR_1'
+
+UPDATE Language_en_US
+SET Text = 'Your people remain backwards and primitive. Clearly a change of regime is in order. Prepare for war!'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DECLAREWAR_1'
+
+-- Declared War On
 
 UPDATE Language_en_US
 SET Text = 'We shall destroy you, you know. Do you care for some cheese?'
@@ -667,3 +749,15 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_2'
 UPDATE Language_en_US
 SET Text = 'Oh well. I presume you know what you''re doing.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_3'
+
+-- Win War
+
+UPDATE Language_en_US
+SET Text = 'That was refreshing. If the demons are sated, perhaps they will give us a little respite now.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_WINWAR_1'
+
+-- Defeated
+
+UPDATE Language_en_US
+SET Text = 'You have done well. I shall put in a good word for you to the demons.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEFEATED_1'
