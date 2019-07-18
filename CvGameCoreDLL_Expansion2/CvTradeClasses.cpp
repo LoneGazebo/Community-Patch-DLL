@@ -4155,6 +4155,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					{
 						iValue *= 2;
 					}
+
+					if (pOriginCity != NULL)
+					{
+						iValue += pOriginCity->GetYieldFromInternalTR(YIELD_FOOD) * 100;
+					}
 #endif
 					int iModifier = 100;
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
@@ -4215,6 +4220,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsConquestOfTheWorld() && GET_PLAYER(kTradeConnection.m_eDestOwner).isGoldenAge())
 					{
 						iValue *= 2;
+					}
+
+					if (pOriginCity != NULL)
+					{
+						iValue += pOriginCity->GetYieldFromInternalTR(YIELD_PRODUCTION) * 100;
 					}
 #endif
 					int iModifier = 100;

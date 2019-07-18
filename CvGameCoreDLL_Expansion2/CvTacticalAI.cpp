@@ -4107,15 +4107,24 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		return;
 
 	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
-	if (!pOperation || pOperation->GetMusterPlot()==NULL)
+	if (!pOperation || pOperation->GetMusterPlot() == NULL)
 		return;
 
 	//where do we want to go
 	CvPlot* pThisTurnTarget = pOperation->ComputeTargetPlotForThisTurn(pThisArmy);
-	if(pThisTurnTarget == NULL)
+	if (pThisTurnTarget == NULL)
 	{
 		pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 		return;
+	}
+
+	if (pOperation->GetEnemy() != NO_PLAYER)
+	{
+		if (GET_TEAM(GET_PLAYER(pOperation->GetEnemy()).getTeam()).IsVassalOfSomeone())
+		{
+			pOperation->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
+			return;
+		}
 	}
 
 	// RECRUITING

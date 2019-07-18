@@ -1106,7 +1106,7 @@ void CvPlayer::init(PlayerTypes eID)
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 					if(pkUnitInfo != NULL && pkUnitInfo->IsFoundLate())
 					{
-						if(iBuildingMid > 0 && pkUnitInfo->IsFoodProduction())
+						if (iBuildingLate > 0 && pkUnitInfo->IsFoodProduction())
 						{
 							setUnitExtraCost(eUnitClass, (40 * iBuildingLate));
 						}

@@ -142,6 +142,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_BALANCE_CORE)
 	m_bFoundMid(false),
 	m_bFoundLate(false),
+	m_iFoundColony(false),
 	m_bIsCityAttackSupport(false),
 	m_iGPExtra(0),
 	m_iGoodyModifier(0),
@@ -354,6 +355,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_BALANCE_CORE)
 	m_bFoundMid = kResults.GetBool("FoundMid");
 	m_bFoundLate = kResults.GetBool("FoundLate");
+	m_iFoundColony = kResults.GetInt("FoundColony");
 	m_bIsCityAttackSupport = kResults.GetBool("CityAttackOnly");
 	m_iGPExtra = kResults.GetInt("GPExtra");
 	m_iGoodyModifier = kResults.GetInt("GoodyModifier");
@@ -1265,6 +1267,11 @@ bool CvUnitEntry::IsFoundMid() const
 bool CvUnitEntry::IsFoundLate() const
 {
 	return m_bFoundLate;
+}
+
+int CvUnitEntry::GetNumColonyFound() const
+{
+	return m_iFoundColony;
 }
 
 /// City Attack Only?

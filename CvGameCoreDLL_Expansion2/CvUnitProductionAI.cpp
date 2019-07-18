@@ -542,7 +542,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 					
-				if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
+				if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) && !kPlayer.GetPlayerTraits()->IsNoBuild((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
 				{
 					iBuildBonus++;
 				}
@@ -1349,6 +1349,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//bonuses for late founding units
 		if (pkUnitEntry->IsFoundMid())
 			iFlavorExpansion += 5;
+		else if (pkUnitEntry->GetNumColonyFound() > 0)
+			iFlavorExpansion += 10;
 		else if (pkUnitEntry->IsFoundLate())
 			iFlavorExpansion += 10;
 		else if (pkUnitEntry->IsFoundAbroad())

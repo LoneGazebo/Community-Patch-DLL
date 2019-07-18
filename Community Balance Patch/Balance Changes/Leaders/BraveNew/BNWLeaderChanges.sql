@@ -135,14 +135,8 @@ UPDATE Traits
 SET ReducePuppetPenalties = '30'
 WHERE Type = 'TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- MoV - Town expands borders around it.
-DELETE FROM Unit_Builds
-WHERE UnitType = 'UNIT_VENETIAN_MERCHANT';
-
-INSERT INTO Unit_Builds
-	(UnitType, BuildType)
-VALUES
-	('UNIT_VENETIAN_MERCHANT', 'BUILD_CUSTOMS_HOUSE_VENICE');
+UPDATE Units SET Found = '1' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
+UPDATE Units SET FoundColony = '3' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
 
 -- Gajah Mada -- Boost Candi, No Isolation Unhappiness
 

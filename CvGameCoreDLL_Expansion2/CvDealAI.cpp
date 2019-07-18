@@ -81,7 +81,7 @@ CvPlayer* CvDealAI::GetPlayer()
 	return m_pPlayer;
 }
 
-// Helper function which returns this player's TeamType
+/// Helper function which returns this player's TeamType
 TeamTypes CvDealAI::GetTeam()
 {
 	return m_pPlayer->getTeam();
@@ -1311,7 +1311,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			// Item is worth 20% less if it's owner is a vassal
+			// Item is worth 20% less if its owner is a vassal
 			if(bFromMe)
 			{
 				// If it's my item and I'm the vassal of the other player, reduce it.
@@ -1431,7 +1431,7 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	// Convert based on the rules above
 	int iReturnValue = iGoldOrValue * iMultiplier;
 
-	// Sometimes we want to round up.  Let's say a the AI offers a deal to the human.  We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
+	// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 	if(bRoundUp)
 	{
 		iReturnValue += 99;
@@ -1476,7 +1476,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 	}
 
-	// Sometimes we want to round up.  Let's say a the AI offers a deal to the human.  We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
+	// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
 	if(bRoundUp)
 	{
 		iValueTimes100 += 99;
@@ -2667,7 +2667,6 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// Item is worth 20% less if it's owner is a vassal
 		if (bFromMe)
 		{
 			// If it's my item and I'm the vassal of the other player, accept it.
@@ -2696,11 +2695,17 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+		case MAJOR_CIV_APPROACH_WAR:
+			iItemValue *= 100;
+			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 250;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 130;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 80;
@@ -2712,14 +2717,14 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Research Agreement valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Embassy valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue *= 100;
 			break;
 		}
 		iItemValue /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(!bFromMe)  // they want to build an embassy with us.
+	if(!bFromMe)  // they want to give us an embassy in their capital
 	{
 		if(GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 			return INT_MAX;
@@ -2727,11 +2732,17 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+		case MAJOR_CIV_APPROACH_WAR:
+			iItemValue *= 100;
+			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 30;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 60;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 120;
@@ -2743,7 +2754,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 			iItemValue *= 100;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Research Agreement valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Embassy valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue *= 100;
 			break;
 		}
@@ -2785,7 +2796,6 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// Item is worth 20% less if it's owner is a vassal
 		if (bFromMe)
 		{
 			// If it's my item and I'm the vassal of the other player, accept it.
@@ -2926,6 +2936,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(eApproach)
 		{
 		//If we don't like him, don't take his borders. It's a trap!
+		case MAJOR_CIV_APPROACH_WAR:
 		case MAJOR_CIV_APPROACH_HOSTILE:
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
 		case MAJOR_CIV_APPROACH_GUARDED:
@@ -3201,10 +3212,16 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+		case MAJOR_CIV_APPROACH_WAR:
+			iItemValue *= 100;
+			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 1000;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
+			iItemValue *= 100;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
@@ -3261,11 +3278,17 @@ int CvDealAI::GetTradeAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, boo
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+		case MAJOR_CIV_APPROACH_WAR:
+			iItemValue *= 100;
+			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 250;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 130;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 80;
@@ -3277,7 +3300,7 @@ int CvDealAI::GetTradeAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, boo
 			iItemValue *= 110;
 			break;
 		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Research Agreement valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Trade Agreement valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 			iItemValue *= 100;
 			break;
 		}
@@ -4649,7 +4672,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	return iValue;
 }
 
-/// See if adding Vote Commitment to their side of the deal helps even out pDeal
+/// See if adding a Vote Commitment to their side of the deal helps even out pDeal
 void CvDealAI::DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeTheirExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountOverWeWillRequest, bool bUseEvenValue)
 {
 	CvAssert(eThem >= 0);
@@ -7535,7 +7558,7 @@ bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
 
-	// Don't ask for Open Borders if we're hostile or planning war
+	// Don't ask for an embassy if we're hostile or planning war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE ||
 	        eApproach == MAJOR_CIV_APPROACH_WAR		||
@@ -7550,7 +7573,7 @@ bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		return false;
 	}
 
-	// Do we actually want OB with eOtherPlayer?
+	// Do we actually want an embassy with eOtherPlayer?
 	if(GetPlayer()->GetDiplomacyAI()->WantsEmbassyAtPlayer(eOtherPlayer))
 	{
 		// Seed the deal with the item we want
@@ -7596,7 +7619,7 @@ bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	//Already allows?
+	// Already allowing Open Borders?
 	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsAllowsOpenBordersToTeam(GetPlayer()->getTeam()))
 	{
 		return false;
@@ -8649,11 +8672,17 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		// Approach will modify the deal
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+			case MAJOR_CIV_APPROACH_WAR:
+				iItemValue *= 100;
+				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				iItemValue *= 250;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				iItemValue *= 130;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 				iItemValue *= 80;
@@ -8679,11 +8708,17 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		// Approach will modify the deal
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+			case MAJOR_CIV_APPROACH_WAR:
+				iItemValue *= 100;
+				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				iItemValue *= 25;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				iItemValue *= 50;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 				iItemValue *= 75;
@@ -8912,10 +8947,15 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 #endif
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+			case MAJOR_CIV_APPROACH_WAR:
+				return INT_MAX;
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				return INT_MAX;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				return INT_MAX;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
+				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 				return INT_MAX;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
@@ -8936,11 +8976,17 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+			case MAJOR_CIV_APPROACH_WAR:
+				iItemValue *= 100;
+				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				iItemValue *= 50;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				iItemValue *= 75;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 				iItemValue *= 100;
@@ -9064,11 +9110,17 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 
 		switch (m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+		case MAJOR_CIV_APPROACH_WAR:
+			iItemValue *= 100;
+			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 250;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 130;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 75;
@@ -9163,11 +9215,17 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 
 		switch (m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+		case MAJOR_CIV_APPROACH_WAR:
+			iItemValue *= 100;
+			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 50;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 60;
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 125;
@@ -9306,11 +9364,17 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 
 		switch(m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
+			case MAJOR_CIV_APPROACH_WAR:
+				return INT_MAX;
+				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				return INT_MAX;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				return INT_MAX;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 				iItemValue *= 60;

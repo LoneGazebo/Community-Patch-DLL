@@ -473,6 +473,10 @@ UPDATE Language_en_US
 SET Text = 'Head of {1_ReligionName}'
 WHERE Tag = 'TXT_KEY_RO_STATUS_FOUNDER';
 
+UPDATE Language_en_US
+SET Text = 'Can be purchased with [ICON_PEACE] Faith in any city with a majority Religion that has been enhanced. They can remove other religions from your cities (expending the Inquisitor) or be placed inside or adjacent to a city to protect it from Missionaries and Prophets trying to spread other religions into that city.'
+WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
+
 -- Spies
 
 UPDATE Language_en_US
@@ -561,12 +565,12 @@ WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 -- Revolt TT fix.
 UPDATE Language_en_US
-SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
+SET Text = 'Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
 
 -- Rebels!
 UPDATE Language_en_US
-SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, the city of {1_CityName} has revolted and joined {2_CivName}!'
+SET Text = 'Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness, the city of {1_CityName} has revolted and joined {2_CivName}!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 
@@ -612,3 +616,29 @@ WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
 UPDATE Language_en_US
 SET Text = 'Happily agreed.'
 WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
+
+-- Production Queue
+
+UPDATE Language_en_US
+SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.'
+WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
+
+-- Civilizations Dialog
+
+-- Neutral Tribute
+
+UPDATE Language_en_US
+SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
+WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
+
+-- Trade Happy
+
+UPDATE Language_en_US
+SET Text = 'Does this trade interest you?'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_HAPPY';
+
+-- Trade Angry
+
+UPDATE Language_en_US
+SET Text = 'My husband is deceased, you know: Russia is no longer ruled by an idiot. We decline.'
+WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NO_ANGRY';

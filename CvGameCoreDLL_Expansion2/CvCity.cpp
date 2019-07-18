@@ -374,6 +374,7 @@ CvCity::CvCity() :
 	, m_aiScienceFromYield("CvCity::m_aiScienceFromYield", m_syncArchive)
 	, m_aiBuildingScienceFromYield("CvCity::m_aiBuildingScienceFromYield", m_syncArchive)
 	, m_aiYieldFromInternalTREnd("CvCity::m_aiYieldFromInternalTREnd", m_syncArchive)
+	, m_aiYieldFromInternalTR("CvCity::m_aiYieldFromInternalTR", m_syncArchive)
 	, m_aiSpecialistRateModifier("CvCity::m_aiSpecialistRateModifier", m_syncArchive)
 	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
 	, m_aiStaticCityYield("CvCity::m_aiStaticCityYield", m_syncArchive)
@@ -1186,6 +1187,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, 0, 1, 1);
 		}
+		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
+		{
+			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), 1);
+			SetPuppet(true);
+		}
+
 		if (pkSettlerUnitEntry->IsFoundMid())
 		{
 			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
@@ -1653,6 +1660,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiBuildingScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
@@ -1751,6 +1759,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiScienceFromYield.setAt(iI, 0);
 		m_aiBuildingScienceFromYield.setAt(iI, 0);
 		m_aiYieldFromInternalTREnd.setAt(iI, 0);
+		m_aiYieldFromInternalTR.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
 		m_aiYieldFromSpyAttack.setAt(iI, 0);
 		m_aiYieldFromSpyDefense.setAt(iI, 0);
@@ -14706,6 +14715,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromInternalTREnd(eYield, (pBuildingInfo->GetYieldFromInternalTREnd(eYield) * iChange));
 			}
+
+			if ((pBuildingInfo->GetYieldFromInternal(eYield) > 0))
+			{
+				ChangeYieldFromInternalTR(eYield, (pBuildingInfo->GetYieldFromInternal(eYield) * iChange));
+			}
 			
 
 			if( (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
@@ -24741,6 +24755,31 @@ void CvCity::ChangeYieldFromInternalTREnd(YieldTypes eIndex1, int iChange)
 	{
 		m_aiYieldFromInternalTREnd.setAt(eIndex1, m_aiYieldFromInternalTREnd[eIndex1] + iChange);
 		CvAssert(GetYieldFromInternalTREnd(eIndex1) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromInternalTR(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromInternalTR[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromInternalTR(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromInternalTR.setAt(eIndex1, m_aiYieldFromInternalTR[eIndex1] + iChange);
+		CvAssert(GetYieldFromInternalTR(eIndex1) >= 0);
 	}
 }
 

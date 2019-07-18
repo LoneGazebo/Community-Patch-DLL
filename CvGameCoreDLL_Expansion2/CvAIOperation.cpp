@@ -2333,7 +2333,7 @@ CvUnit* CvAIOperationCivilian::FindBestCivilian()
 	{
 		if(pLoopUnit != NULL)
 		{
-			if(pLoopUnit->AI_getUnitAIType() == GetCivilianType())
+			if (pLoopUnit->AI_getUnitAIType() == GetCivilianType() || (pLoopUnit->CanFoundColony() && (GetOperationType() == AI_OPERATION_FOUND_CITY || GetOperationType() == AI_OPERATION_FOUND_CITY_QUICK)))
 			{
 				if(pLoopUnit->getArmyID() == -1)
 				{

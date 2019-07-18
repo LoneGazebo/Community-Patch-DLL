@@ -2786,6 +2786,12 @@
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
 			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
 		</Row>
+		
+		<!-- Opinion "Modifier" for Human Teammate -->
+		<Row Tag="TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE">
+			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Defensive Pact Bonuses -->
 		<Row Tag="TXT_KEY_DIPLO_DP">
 			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact![ENDCOLOR]</Text>
@@ -2796,7 +2802,16 @@
 		<Row Tag="TXT_KEY_DIPLO_DP_WITH_ENEMY">
 			<Text>[COLOR_NEGATIVE_TEXT]You have made a Defensive Pact with one of their enemies![ENDCOLOR]</Text>
 		</Row>
-		<!-- Open Borders Diplo Mod-->
+		
+		<!-- Embassy Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_MUTUAL_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT]We have shared embassies.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WE_HAVE_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT]We have an embassy in their capital.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Open Borders Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
 			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to each other.[ENDCOLOR]</Text>
 		</Row>
@@ -2807,12 +2822,15 @@
 			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
 		</Row>
 
+		<!-- Social Policies Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_POLICIES">
 			<Text>[COLOR_POSITIVE_TEXT]We have similar Social Policies.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_POLICIES">
 			<Text>[COLOR_NEGATIVE_TEXT]We have divergent Social Policies.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- PTP Same CS Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
 			<Text>[COLOR_NEGATIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
 		</Row>
@@ -2838,7 +2856,8 @@
 		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_4">
 			<Text>The tyrants of the world would tremble at our feet, if only we were allied. Do you see the value in a Defensive Pact?</Text>
 		</Row>
-		<!-- Cities/3rd Party War and Peace Offers-->
+		
+		<!-- Cities/3rd Party War and Peace Offers -->
 		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_1">
 			<Text>A sale of territory is in order. I think you will find this offer quite suitable, no?</Text>
 		</Row>
@@ -5295,7 +5314,7 @@
 		
 		<!--Revolutions-->
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
-			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will restore the sovereignty of {3_CivName}. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will restore the sovereignty of {3_CivName}. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
 			<Text>Revolutionary Unrest Brewing</Text>
@@ -5308,7 +5327,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
-			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will become an independent City-State. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will become an independent City-State. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
 			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>

@@ -3933,6 +3933,8 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		if(pLoopUnit && pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE && pLoopUnit->getArmyID() == -1)
 			vSettlers.push_back(pLoopUnit);
+		else if (pLoopUnit && pLoopUnit->CanFoundColony() && (pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND))
+			vSettlers.push_back(pLoopUnit);
 	}
 
 	if (vSettlers.empty())

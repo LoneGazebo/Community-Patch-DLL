@@ -1514,10 +1514,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	if(pGreatMerchant->getArmyID() != -1)
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
+	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
 	// buff up customs houses up to your flavor
-	if( GreatMerchantWantsCash() )
+	if (GreatMerchantWantsCash() && eCustomHouse != NO_IMPROVEMENT)
 	{
-		ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
 		int iFlavor = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
@@ -1532,14 +1532,37 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 
 		//don't count colonias here (IMPROVEMENT_CUSTOMS_HOUSE_VENICE), so venice will build any number of them once they run out of city states to buy
 		int iNumImprovement = getImprovementCount(eCustomHouse);
-		if(iNumImprovement <= iFlavor)
+		if (iNumImprovement <= iFlavor)
 			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 	}
 
 	// Attempt to find a target for our special mission
 	CvPlot* pTarget = GreatMerchantWantsCash() ? FindBestMerchantTargetPlotForCash(pGreatMerchant) : FindBestMerchantTargetPlotForPuppet(pGreatMerchant);
-	if(pTarget)
-		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	if (pTarget)
+	{
+		if (!pGreatMerchant->CanFoundColony())
+			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		else
+		{
+			bool bIsSafe;
+			CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, true, bIsSafe);
+			if (pPlot == NULL)
+				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+
+			if ((plotDistance(pGreatMerchant->plot()->getX(), pGreatMerchant->plot()->getY(), pPlot->getX(), pPlot->getY()) * 3) < (plotDistance(pGreatMerchant->plot()->getX(), pGreatMerchant->plot()->getY(), pTarget->getX(), pTarget->getY()) * 2))
+				return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+			else
+				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		}
+
+	}
+	else if (pGreatMerchant->CanFoundColony())
+	{
+		bool bIsSafe;
+		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, true, bIsSafe);
+		if (pPlot != NULL)
+			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
 
 	//failsafe (wait until embarkation for barbarian-besieged venice)
 	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && GET_TEAM(getTeam()).canEmbark())

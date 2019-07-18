@@ -4857,6 +4857,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * kPlayer.GetNumCSFriends());
 	}
+	if (pkBuildingInfo->GetYieldFromInternal(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldFromInternal(eYield);
+	}
 
 	///////////////
 	// Instant Yields

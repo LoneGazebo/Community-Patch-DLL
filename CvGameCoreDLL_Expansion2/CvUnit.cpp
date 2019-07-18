@@ -1108,7 +1108,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	}
-	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate() || getUnitInfo().GetNumColonyFound() > 0))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
 
@@ -10738,6 +10738,9 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities,
 		}
 	}
 
+	if (m_pUnitInfo->GetNumColonyFound() > 0 && !CanFoundColony())
+		return false;
+
 	if (pPlot)
 		return GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, this);
 	else
@@ -13487,7 +13490,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && !m_pUnitInfo->GetBuilds(eBuild))
+	if (!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && (!m_pUnitInfo->GetBuilds(eBuild) || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild)))
 #else
 	if(!(m_pUnitInfo->GetBuilds(eBuild)))
 #endif
@@ -15523,6 +15526,30 @@ bool CvUnit::IsFoundLate() const
 {
 	VALIDATE_OBJECT
 	return m_pUnitInfo->IsFoundLate();
+}
+
+bool CvUnit::CanFoundColony() const
+{
+	VALIDATE_OBJECT
+	if (m_pUnitInfo->GetNumColonyFound() <= 0)
+		return false;
+
+	int iNumFoundedPuppets = 0;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+
+	int iLoop;
+	CvCity *pLoopCity;
+	for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		if (pLoopCity->getOriginalOwner() == kPlayer.GetID() && pLoopCity->IsPuppet())
+			iNumFoundedPuppets++;
+	}
+
+	if (iNumFoundedPuppets >= m_pUnitInfo->GetNumColonyFound())
+		return false;
+
+	return true;
 }
 #endif
 

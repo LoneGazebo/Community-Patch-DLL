@@ -1733,7 +1733,11 @@ void CvHomelandAI::PlotWorkerMoves()
 					{
 						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 					
+#if defined(MOD_BALANCE_CORE)
+						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+#else
 						if (pkBuild && !pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+#endif
 						{
 							bUseSecondaryUnit = true;
 							break;
@@ -1791,7 +1795,11 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 					{
 						CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 					
+#if defined(MOD_BALANCE_CORE)
+						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) && !GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsNoBuild((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+#else
 						if (pkBuild && pkBuild->IsWater() && (pUnit->getUnitInfo().GetBuilds((BuildTypes)i) || m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(i, pUnit->getUnitInfo().GetUnitClassType())))
+#endif
 						{
 							bUseSecondaryUnit = true;
 							break;

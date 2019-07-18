@@ -1357,7 +1357,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
 	//we got here, and we are STILL trying to hit a vassal without hitting the master first? WTF bro.
-	if (GET_TEAM(eTeam).GetMaster() != NO_PLAYER && eTeam != GetID() && GET_TEAM(eTeam).GetMaster() != GetID())
+	if (GET_TEAM(eTeam).GetMaster() != NO_TEAM && eTeam != GetID() && GET_TEAM(eTeam).GetMaster() != GetID())
 	{
 		if (!isAtWar(GET_TEAM(eTeam).GetMaster()))
 		{
@@ -1374,6 +1374,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					{
 						pOurPlayer.GetMilitaryAI()->LogVassalFailure(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
 						DoDeclareWar(eOurPlayer, bAggressor, GET_TEAM(eTeam).GetMaster(), bDefensivePact);
+						break;
 					}
 				}
 			}
@@ -6769,7 +6770,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											continue;
 
 										int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-										iValue *= 25;
+										iValue *= 50;
 										iValue /= 100;
 										pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
 
@@ -6923,7 +6924,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														continue;
 
 													int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-													iValue *= 25;
+													iValue *= 50;
 													iValue /= 100;
 													pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
 

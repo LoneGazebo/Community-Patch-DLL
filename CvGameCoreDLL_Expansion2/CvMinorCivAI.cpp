@@ -16001,11 +16001,11 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 		return false;
 #endif
 
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/false);
+	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ false);
 	return CanMajorBullyGold(ePlayer, iScore);
 }
 
-// In case client wants to specify a metric beforehand (ie. they calculated it on their end, for logging purposes etc.)
+// In case client wants to specify a metric beforehand (i.e. they calculated it on their end, for logging purposes etc.)
 bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMetric)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -16074,7 +16074,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 	return CanMajorBullyUnit(ePlayer, iScore);
 }
 
-// In case client wants to specify a metric beforehand (ie. they calculated it on their end, for logging purposes etc.)
+// In case client wants to specify a metric beforehand (i.e. they calculated it on their end, for logging purposes etc.)
 bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMetric)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
