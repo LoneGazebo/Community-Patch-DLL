@@ -153,6 +153,7 @@ public:
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
+	int GetNumColonyFound() const;
 	bool IsCityAttackSupport() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -381,6 +382,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	bool m_bFoundMid;
 	bool m_bFoundLate;
+	int m_iFoundColony;
 	bool m_bIsCityAttackSupport;
 	int m_iGPExtra;
 	int m_iGoodyModifier;

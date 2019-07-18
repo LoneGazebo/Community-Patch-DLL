@@ -878,7 +878,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 
-		if (eOverallDominance >= TACTICAL_DOMINANCE_ENEMY || (pZone->GetOverallEnemyStrength() > 0 && pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->IsBastion()))
+		if (eOverallDominance >= TACTICAL_DOMINANCE_ENEMY || (pZone->GetOverallEnemyStrength() > 0 && pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isPotentiallyInDanger()))
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}	
@@ -1117,7 +1117,7 @@ void CvTacticalAI::FindTacticalTargets()
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if (pCity != NULL)
 			{
-				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->IsBastion() || pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
+				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->isPotentiallyInDanger() || pCity->isUnderSiege() || pLoopPlot->IsWorthDefending(m_pPlayer->GetID())))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 					newTarget.SetAuxData((void*)pCity);
@@ -1317,12 +1317,12 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... defensive bastion?
-				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 || pLoopPlot->IsChokePoint()) && 
-					pLoopPlot->getBestDefender(m_pPlayer->GetID())==NULL)
+				if (m_pPlayer->GetID() == pLoopPlot->getOwner() && pLoopPlot->IsWorthDefending( m_pPlayer->GetID() ) &&
+					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
+					)
 				{
 					CvCity* pDefenseCity = pLoopPlot->getOwningCity();
-					if ((pDefenseCity && (pDefenseCity->IsBastion() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
+					if ((pDefenseCity && (pDefenseCity->isPotentiallyInDanger() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 						newTarget.SetAuxData((void*)pLoopPlot);
@@ -1362,7 +1362,7 @@ void CvTacticalAI::FindTacticalTargets()
 					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody() &&
 					pLoopPlot->getBestDefender(m_pPlayer->GetID()))
 				{
-					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->IsBastion())
+					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 						newTarget.SetAuxData((void*)pLoopPlot);
@@ -1417,7 +1417,7 @@ void CvTacticalAI::FindTacticalTargets()
 						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
 							iWeight *= 2;
 
-						if (pOwningCity->IsBastion())
+						if (pOwningCity->isPotentiallyInDanger())
 							iWeight *= 2;
 
 						if (pOwningCity->getDamage() > 0)
@@ -1779,35 +1779,35 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE])
 	{
-		//do nothing, this is now handled by eTACTICAL_GARRISON_1_TURN
+		//do nothing, this is now handled by eTACTICAL_GARRISON_TO_ALLOW_BOMBARD (has the highest prio)
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_TO_ALLOW_BOMBARD])
 	{
-		//do nothing, this is now handled by eTACTICAL_GARRISON_1_TURN
+		PlotGarrisonMoves(2);
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_1_TURN])
 	{
-		PlotGarrisonMoves(2);
+		//do nothing, this is now handled by eTACTICAL_GARRISON_TO_ALLOW_BOMBARD (has the highest prio)
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE])
 	{
-		//do nothing, this is now handled by eTACTICAL_BASTION_2_TURN
+		PlotBastionMoves(2);
 	}
 	else if (move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_1_TURN])
 	{
-		//do nothing, this is now handled by eTACTICAL_BASTION_2_TURN
+		//do nothing, this is now handled by eTACTICAL_BASTION_ALREADY_THERE (has the highest prio)
 	}
 	else if (move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_2_TURN])
 	{
-		PlotBastionMoves(2);
+		//do nothing, this is now handled by eTACTICAL_BASTION_ALREADY_THERE (has the highest prio)
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE])
 	{
-		//do nothing, this is now handled by eTACTICAL_GUARD_IMPROVEMENT_1_TURN
+		PlotGuardImprovementMoves(1);
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_1_TURN])
 	{
-		PlotGuardImprovementMoves(1);
+		//do nothing, this is now handled by eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_AIR_INTERCEPT])
 	{
@@ -4107,15 +4107,24 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		return;
 
 	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
-	if (!pOperation || pOperation->GetMusterPlot()==NULL)
+	if (!pOperation || pOperation->GetMusterPlot() == NULL)
 		return;
 
 	//where do we want to go
 	CvPlot* pThisTurnTarget = pOperation->ComputeTargetPlotForThisTurn(pThisArmy);
-	if(pThisTurnTarget == NULL)
+	if (pThisTurnTarget == NULL)
 	{
 		pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 		return;
+	}
+
+	if (pOperation->GetEnemy() != NO_PLAYER)
+	{
+		if (GET_TEAM(GET_PLAYER(pOperation->GetEnemy()).getTeam()).IsVassalOfSomeone())
+		{
+			pOperation->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
+			return;
+		}
 	}
 
 	// RECRUITING

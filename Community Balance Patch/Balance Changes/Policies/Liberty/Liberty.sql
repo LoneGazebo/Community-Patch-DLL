@@ -149,8 +149,7 @@ VALUES
 INSERT INTO Policy_YieldFromConstruction
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_REPUBLIC', 'YIELD_CULTURE', 10),
-	('POLICY_REPUBLIC', 'YIELD_FOOD', 10);
+	('POLICY_REPUBLIC', 'YIELD_CULTURE', 15);
 
 INSERT INTO Policy_YieldChangeTradeRoute
 	(PolicyType, YieldType, Yield)
@@ -167,7 +166,7 @@ VALUES
 INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY_FINISHER', 'YIELD_GOLD', 15);
+	('POLICY_LIBERTY_FINISHER', 'YIELD_GOLD', 25);
 
 INSERT INTO Policy_YieldFromBirthCapitalRetroactive
 	(PolicyType, YieldType, Yield)

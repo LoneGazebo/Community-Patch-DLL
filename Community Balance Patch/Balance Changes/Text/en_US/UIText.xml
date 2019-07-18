@@ -424,10 +424,10 @@
 
 		
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
-			<Text>Strategic Resource Monopoly</Text>
+			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
 		</Row>
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
-			<Text>Strategic Resource Monopoly</Text>
+			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
@@ -457,15 +457,18 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
 			<Text>Multi-Attack Bonus</Text>
 		</Row>
-
-		
-
+	
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
 			<Text>Enemy Defection</Text>
+		</Row>
+		
+		<!-- Text for Preview Combat Miscellaneous Bonuses -->
+		<Row Tag="TXT_KEY_MISC_BONUS">
+			<Text>Miscellaneous</Text>
 		</Row>
 
 		<!-- Text for HappinessInfo.lua -->
@@ -955,7 +958,7 @@
 			<Text>Sources of [ICON_HAPPINESS_3] [COLOR_NEGATIVE_TEXT]Unhappiness[ENDCOLOR]:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
-			<Text>[ICON_HAPPINESS_3] Unhappiness is listed and accrued in order of importance, and cannot exceed the City's [ICON_CITIZEN] Population.[NEWLINE][NEWLINE]Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
+			<Text>Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
@@ -1419,7 +1422,37 @@
 		<Row Tag="TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT">
 			<Text>[ICON_HAPPINESS_3] Urbanization per new Specialist</Text>
 		</Row>
-		
-
+	</Language_en_US>
+	<Civilization_CityNames>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_ERACLEA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_CHIOGGIA</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_CORON</CityName>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<CityName>TXT_KEY_CITY_NAME_MODON</CityName>
+		</Row>
+	</Civilization_CityNames>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CITY_NAME_ERACLEA">
+			<Text>Eraclea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_CHIOGGIA">
+			<Text>Chioggia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_CORON">
+			<Text>Coron</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_NAME_MODON">
+			<Text>Modon</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

@@ -1045,16 +1045,10 @@ void CvCitySpecializationAI::AssignSpecializations()
 
 		// Compute the yield which we can improve the most with a new city
 		int iCurrentDelta;
-#if defined(MOD_BALANCE_CORE)
 		int iBestDelta[YIELD_FAITH + 1];
 		for(iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-		int iBestDelta[YIELD_SCIENCE + 1];
-		for(iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-		{
 			iBestDelta[iI] = MIN_INT;
-		}
+
 		cityIter = citiesWithoutSpecialization.begin();
 		cityIterEnd = citiesWithoutSpecialization.end();
 		for(; cityIter != cityIterEnd; ++cityIter)
@@ -1430,47 +1424,26 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 void CvCitySpecializationAI::FindBestSites()
 {
 	// Clear output
-#if defined(MOD_BALANCE_CORE)
 	for(int iI = 0; iI <= YIELD_FAITH; iI++)
-#else
-	for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
-	{
 		m_iBestValue[iI] = 0;
-	}
 
-	// Found value drops off based on distance, so safe to only look halfway out
-#if defined(MOD_BALANCE_CORE)
-	//prefer settling close in the beginning
-	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
+	//we prefer settling close in the beginning
+	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
-	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = (GC.getSETTLER_EVALUATION_DISTANCE() / 2) + iTimeOffset;
+	//basic search area around existing cities
+	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() + iTimeOffset;
 
-	int iPlotLoop;
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 		if (m_pPlayer->canFound( pPlot->getX(),pPlot->getY() ))
 		{
-#else
-	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() / 2;
-	CvSiteEvaluatorForSettler* pSiteEval = GC.getGame().GetSettlerSiteEvaluator();
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-
-		if(pSiteEval->CanFound(pPlot, m_pPlayer, true))
-		{
-#endif
-
 			// Check if within range of any of our cities
-			CvCity* pNearestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pPlot);
+			CvCity* pNearestCity = m_pPlayer->GetClosestCityByPlots(pPlot);
 			if(pNearestCity != NULL)
 			{
 				if(plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= iEvalDistance)
 				{
-#if defined(MOD_BALANCE_CORE)
 					int iPlotValue = 0;
 					for(int iI = 0; iI <= YIELD_FAITH; iI++)
 					{
@@ -1496,25 +1469,6 @@ void CvCitySpecializationAI::FindBestSites()
 							m_iBestValue[iI] = iPlotValue;
 						}
 					}
-#else
-					for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
-
-					{
-						if(iI != YIELD_SCIENCE)
-						{
-							iPlotValue = PlotValueForSpecificYield(pPlot, (YieldTypes)iI);
-						}
-						else
-						{
-							iPlotValue = PlotValueForScience(pPlot);
-						}
-
-						if(iPlotValue > m_iBestValue[iI])
-						{
-							m_iBestValue[iI] = iPlotValue;
-						}
-					}
-#endif
 				}
 			}
 		}

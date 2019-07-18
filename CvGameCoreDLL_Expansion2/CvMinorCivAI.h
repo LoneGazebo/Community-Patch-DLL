@@ -380,6 +380,7 @@ public:
 	int GetPersonalityQuestBias(MinorCivQuestTypes eQuest);
 
 	int GetNumActiveGlobalQuests() const;
+	int GetNumActiveQuestsForAllPlayers() const;
 	int GetNumActiveQuestsForPlayer(PlayerTypes ePlayer) const;
 	int GetNumActivePersonalQuestsForPlayer(PlayerTypes ePlayer) const;
 	bool IsActiveQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType);

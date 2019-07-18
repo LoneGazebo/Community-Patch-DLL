@@ -749,6 +749,7 @@ void CvCityCitizens::DoTurn()
 #endif
 	DoReallocateCitizens(bForceCheck);
 
+	/*
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iHappinessDelta = m_pCity->getHappinessDelta();
@@ -769,6 +770,7 @@ void CvCityCitizens::DoTurn()
 			DoAddBestCitizenFromUnassigned(specialistValueCache, true, true);
 		}
 	}
+	*/
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
@@ -1738,6 +1740,9 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 				{
 					iYield *= 4;
 				}
+
+				if (pPlayer->GetPlayerTraits()->IsNoAnnexing())
+					iYield *= 10;
 			}
 			else if (eYield == YIELD_SCIENCE)
 			{
@@ -2109,7 +2114,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iCityUnhappiness = m_pCity->getHappinessDelta();
 		if (iCityUnhappiness > 0)
 		{
-			iCityUnhappiness = 10 - iCityUnhappiness;
+			iCityUnhappiness = 15 - iCityUnhappiness;
 			iCityUnhappiness *= 3;
 		}
 	}
@@ -2217,6 +2222,9 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 
 bool CvCityCitizens::CanCreateSpecialist()
 {
+	return true;
+
+	/*
 	if (!MOD_BALANCE_CORE_HAPPINESS)
 		return true;
 
@@ -2230,6 +2238,7 @@ bool CvCityCitizens::CanCreateSpecialist()
 		return true;
 
 	return false;
+	*/
 }
 
 /// How many Citizens need to be given a job?

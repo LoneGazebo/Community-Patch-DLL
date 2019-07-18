@@ -170,6 +170,13 @@ public:
 	int m_iRank;      // Set to "StartingLocationPercent" * 10 + (random number from 0 to 9)
 };
 
+
+class IStartPositioner
+{
+public:
+	virtual void Run(int iNumRegionsRequired) = 0;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvStartPositioner
 //!  \brief		Divides the map into regions of each fertility and places one major civ in each
@@ -179,21 +186,20 @@ public:
 //!  - Works with CvSiteEvaluatorForStart to compute fertility of each plot
 //!  - Also divides minor civs between the regions and places them as well
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvStartPositioner
+class CvStartPositioner : public IStartPositioner
 {
 public:
-	CvStartPositioner(void);
+	CvStartPositioner(CvSiteEvaluatorForStart * pSiteEvaluator);
 	~CvStartPositioner(void);
 
-	virtual void Init(CvSiteEvaluatorForStart* pSiteEvaluator);
+	virtual void Run(int iNumRegions);
 
+private:
 	void DivideMapIntoRegions(int iNumRegions);
 	void ComputeFoundValues();
-	void RankPlayerStartOrder();
 	void AssignStartingLocations();
 	int GetRegion(int iX, int iY);
 
-private:
 	void DivideContinentIntoRegions(CvContinent continent);
 	void ComputeTileFertilityValues();
 	void SubdivideRegion(CvStartRegion region, int numDivisions);
@@ -201,8 +207,6 @@ private:
 	void ChopIntoThreeRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, CvStartRegion* thirdRegion);
 	int ComputeRowFertility(int iAreaID, int xMin, int xMax, int yMin, int yMax);
 	bool AddCivToRegion(int iPlayerIndex, CvStartRegion region, bool bRelaxFoodReq);
-	bool TooCloseToAnotherCiv(CvPlot* pPlot);
-	bool MeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement);
 	int StartingPlotRange() const;
 
 	// Logging
@@ -214,10 +218,21 @@ private:
 	// Internal data
 	vector<CvContinent> m_ContinentVector;
 	vector<CvStartRegion> m_StartRegionVector;
-	vector<CvPlayerStartRank> m_PlayerOrder;
-	vector<CvPlayerStartRank>::iterator m_PlayerOrderIter;
 	int m_iRequiredSeparation;
 	int m_iBestFoundValueOnMap;
+};
+
+
+//in contrast to the subdivision approach, here we start out with the individual plots and merge them into regions of approximately equal fertility
+class CvStartPositionerMerge : public IStartPositioner
+{
+public:
+	CvStartPositionerMerge(CvSiteEvaluatorForStart * pSiteEvaluator);
+	~CvStartPositionerMerge(void);
+
+	virtual void Run(int iNumRegions);
+private:
+	CvSiteEvaluatorForStart* m_pSiteEvaluator;
 };
 
 #endif //CIV5_START_POSITIONER_H

@@ -571,6 +571,7 @@ public:
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
+	bool CanFoundColony() const;
 #endif
 	bool IsWork() const;
 	bool isGoldenAge() const;

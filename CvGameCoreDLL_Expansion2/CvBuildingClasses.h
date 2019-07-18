@@ -465,6 +465,9 @@ public:
 	int GetYieldFromInternalTREnd(int i) const;
 	int* GetYieldFromInternalTREndArray() const;
 
+	int GetYieldFromInternal(int i) const;
+	int* GetYieldFromInternalArray() const;
+
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
 
@@ -933,6 +936,7 @@ private:
 	int* m_piYieldFromFaithPurchase;
 	int* m_piScienceFromYield;
 	int* m_piYieldFromInternalTREnd;
+	int* m_piYieldFromInternal;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

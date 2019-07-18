@@ -159,3 +159,17 @@
 	UPDATE Language_en_US
 	SET Text = '[COLOR_POSITIVE_TEXT]Research[ENDCOLOR] converts 25% of the [ICON_PRODUCTION] Production of this City into [ICON_RESEARCH] Science, and reduces [ICON_RESEARCH] Science Needs by 25%.'
 	WHERE Tag = 'TXT_KEY_PROCESS_RESEARCH_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	
+	-- Resource Stuff
+	
+	UPDATE Language_en_US 
+	SET Text = 'Cinnamon'
+	WHERE Tag = 'TXT_KEY_RESOURCE_SPICES'AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US 
+	SET Text = 'Cinnamon'
+	WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_SPICES'AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US 
+	SET Text = 'Cinnamon is obtained from the inner bark of Cinnamonum trees and is commonly used as an aromatic spice for savory foods. Spices are plant-derived substances used to preserve and enhance the flavor, color, or texture of food. In addition to merely enhancing food, some spices have medicinal benefits, religious significance, or are useful in food preservation. Generally, spices must be dried and ground before being applied to food; this distinguishes them from herbs like sage or oregano, which are green and leafy and may be used fresh or dried.'
+	WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_SPICES_TEXT'AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

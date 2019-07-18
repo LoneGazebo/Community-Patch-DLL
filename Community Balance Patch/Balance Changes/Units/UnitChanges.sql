@@ -77,8 +77,9 @@
 	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_ARCHAEOLOGIST';
 
-	-- cap for archaeologists
-	UPDATE UnitClasses SET MaxPlayerInstances = '3' WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
+-- cap for archaeologists
+UPDATE UnitClasses SET MaxPlayerInstances = '3' WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
+
 --modder please note customs_house_venice still does +2 turns just like custom house, but weird bug i dont ask why.
 INSERT INTO Unit_ScalingFromOwnedImprovements
 	(UnitType, ImprovementType, Amount)
@@ -122,3 +123,25 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_NUCLEAR_M
 --Replace Starting Warrior with a Pathfinder
 UPDATE Eras SET StartingDefenseUnits='0' Where Type='ERA_ANCIENT';
 UPDATE Eras SET StartingExploreUnits='1' Where Type='ERA_ANCIENT';
+
+--Assigns UnitCombatInfos to civilian units -- Can now grant production bonuses and free promotions via buildings, traits and policies
+INSERT INTO UnitCombatInfos  	
+			(Type,					Description)
+VALUES		('UNITCOMBAT_SETTLER',	'Settler Units'),
+	('UNITCOMBAT_WORKER',	'Worker Units'),
+	('UNITCOMBAT_WORKBOAT',	'Workboat Units'),
+	('UNITCOMBAT_CARGO',	'Cargo Ship Units'),
+	('UNITCOMBAT_CARAVAN',	'Caravan Units'),
+	('UNITCOMBAT_INQUISITOR',	'Inquisitor Units'),
+	('UNITCOMBAT_MISSIONARY',	'Missionary Units');
+	
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type = 'UNIT_PIONEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type = 'UNIT_COLONIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKER' WHERE Type = 'UNIT_WORKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKBOAT' WHERE Type = 'UNIT_WORKBOAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_CARGO' WHERE Type = 'UNIT_CARGO_SHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_CARAVAN' WHERE Type = 'UNIT_CARAVAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_INQUISITOR' WHERE Type = 'UNIT_INQUISITOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+UPDATE Units SET CombatClass = 'UNITCOMBAT_MISSIONARY' WHERE Type = 'UNIT_MISSIONARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+

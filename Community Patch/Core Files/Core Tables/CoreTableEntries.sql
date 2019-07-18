@@ -303,6 +303,9 @@ ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT 0;
 -- Adds ability for settlers to get free buildings when a city is founded.
 ALTER TABLE Units ADD COLUMN 'FoundLate' BOOLEAN DEFAULT 0;
 
+-- Adds ability for Venetian merchants to create puppets.
+ALTER TABLE Units ADD COLUMN 'FoundColony' INTEGER DEFAULT 0;
+
 -- Adds marker for city attack only units (for AI)
 ALTER TABLE Units ADD COLUMN 'CityAttackOnly' BOOLEAN DEFAULT 0;
 

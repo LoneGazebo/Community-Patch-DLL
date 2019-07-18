@@ -374,6 +374,7 @@ CvCity::CvCity() :
 	, m_aiScienceFromYield("CvCity::m_aiScienceFromYield", m_syncArchive)
 	, m_aiBuildingScienceFromYield("CvCity::m_aiBuildingScienceFromYield", m_syncArchive)
 	, m_aiYieldFromInternalTREnd("CvCity::m_aiYieldFromInternalTREnd", m_syncArchive)
+	, m_aiYieldFromInternalTR("CvCity::m_aiYieldFromInternalTR", m_syncArchive)
 	, m_aiSpecialistRateModifier("CvCity::m_aiSpecialistRateModifier", m_syncArchive)
 	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
 	, m_aiStaticCityYield("CvCity::m_aiStaticCityYield", m_syncArchive)
@@ -391,7 +392,7 @@ CvCity::CvCity() :
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
 	, m_iResourceDiversityModifier("CvCity::m_iResourceDiversityModifier", m_syncArchive)
 	, m_iNoUnhappfromXSpecialists("CvCity::m_iNoUnhappfromXSpecialists", m_syncArchive)
-	, m_bIsBastion("CvCity::m_bIsBastion", m_syncArchive)
+	, m_bDummy("CvCity::m_bDummy", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1186,6 +1187,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, 0, 1, 1);
 		}
+		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
+		{
+			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), 1);
+			SetPuppet(true);
+		}
+
 		if (pkSettlerUnitEntry->IsFoundMid())
 		{
 			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
@@ -1653,6 +1660,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiBuildingScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
@@ -1674,7 +1682,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iAlwaysHeal = 0;
 	m_iResourceDiversityModifier = 0;
 	m_iNoUnhappfromXSpecialists = 0;
-	m_bIsBastion = false;
+	m_bDummy = false;
 	m_bNoWarmonger = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1751,6 +1759,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiScienceFromYield.setAt(iI, 0);
 		m_aiBuildingScienceFromYield.setAt(iI, 0);
 		m_aiYieldFromInternalTREnd.setAt(iI, 0);
+		m_aiYieldFromInternalTR.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
 		m_aiYieldFromSpyAttack.setAt(iI, 0);
 		m_aiYieldFromSpyDefense.setAt(iI, 0);
@@ -2949,8 +2958,7 @@ void CvCity::doTurn()
 	{
 		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
 	}
-	//See if we are a defense-necessary city.
-	TestBastion();
+
 	//Do bad barb stuff!
 	DoBarbIncursion();
 	updateEconomicValue();
@@ -7520,7 +7528,7 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 	return m_aiEconomicValue[ePossibleOwner];
 }
 
-int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
+int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) const
 {
 	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
 
@@ -7532,18 +7540,31 @@ int CvCity::GetNumContestedPlots(PlayerTypes eOtherPlayer) const
 		CvPlot* pPlot = iterateRingPlots(plot(), i);
 		if(!pPlot || !pPlot->isOwned())
 			continue;
+
+		//if they already had the plot when we got the city we can't be upset
+		if (GC.getGame().getGameTurn() - pPlot->getOwnershipDuration() < getGameTurnAcquired())
+			continue;
+
+		int iWeight = 10;
+		if (!bJustCount)
+		{
+			if (i < RING1_PLOTS)
+				iWeight = 30;
+			else if (i < RING2_PLOTS)
+				iWeight = 20;
+		}
 		
 		bool bRelevant = false;
 		if (eOtherTeam == NO_TEAM && pPlot->getTeam() != getTeam())
 			bRelevant = true;
-		if (eOtherTeam != NO_TEAM && pPlot->getTeam() != eOtherTeam)
+		if (eOtherTeam != NO_TEAM && pPlot->getTeam() == eOtherTeam)
 			bRelevant = true;
 
 		if (bRelevant && pPlot->hasYield())
-			iCounter++;
+			iCounter += iWeight;
 	}
 
-	return iCounter;
+	return iCounter/10;
 }
 #endif
 
@@ -8315,29 +8336,25 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	}
 	if(pkBuildingInfo->IsRequiresRail())
 	{
+		//this flag is also set for water connection once railroad is available
 		if(!IsIndustrialRouteToCapitalConnected())
-		{
 			return false;
-		}
-		else
+
+		//therefore also check for an actual railroad here
+		bool bRailroad = false;
+		for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 		{
-			//Check for an actual railroad here.
-			bool bRailroad = false;
-			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+			if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
 			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
-				if (pAdjacentPlot && pAdjacentPlot->getRouteType() == ROUTE_RAILROAD && pAdjacentPlot->IsCityConnection(getOwner()))
-				{
-					bRailroad = true;
-					break;
-				}
-			}
-			if(!bRailroad)
-			{
-				return false;
+				bRailroad = true;
+				break;
 			}
 		}
+		if(!bRailroad)
+			return false;
 	}
+
 	if((pkBuildingInfo->GetCivType() != NO_CIVILIZATION) && (getCivilizationType() != pkBuildingInfo->GetCivType()))
 	{
 		return false;
@@ -14697,6 +14714,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if ((pBuildingInfo->GetYieldFromInternalTREnd(eYield) > 0))
 			{
 				ChangeYieldFromInternalTREnd(eYield, (pBuildingInfo->GetYieldFromInternalTREnd(eYield) * iChange));
+			}
+
+			if ((pBuildingInfo->GetYieldFromInternal(eYield) > 0))
+			{
+				ChangeYieldFromInternalTR(eYield, (pBuildingInfo->GetYieldFromInternal(eYield) * iChange));
 			}
 			
 
@@ -24736,6 +24758,31 @@ void CvCity::ChangeYieldFromInternalTREnd(YieldTypes eIndex1, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromInternalTR(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldFromInternalTR[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromInternalTR(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiYieldFromInternalTR.setAt(eIndex1, m_aiYieldFromInternalTR[eIndex1] + iChange);
+		CvAssert(GetYieldFromInternalTR(eIndex1) >= 0);
+	}
+}
+
 
 /// Extra yield from building
 int CvCity::GetSpecialistRateModifier(SpecialistTypes eSpecialist) const
@@ -25556,82 +25603,10 @@ int CvCity::GetNoUnhappfromXSpecialists() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBastion() const
+bool CvCity::isPotentiallyInDanger() const
 {
 	VALIDATE_OBJECT
-	return m_bIsBastion;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::TestBastion()
-{
-	//Check to see if this is a city we really need to defend.
-	if(isCapital() && GET_PLAYER(m_eOwner).getNumCities() == 1)
-	{
-		SetBastion(true);
-		return;
-	}
-	if(plot()->IsChokePoint() || plot()->IsLandbridge(12, 54))
-	{
-		SetBastion(true);
-		return;
-	}
-
-	if (isCoastal() && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(true, true) == this)
-	{
-		SetBastion(true);
-		return;
-	}
-	else if (GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(true, false) == this)
-	{
-		SetBastion(true);
-		return;
-	}
-	else
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
-			{
-				if (!plot()->IsHomeFrontForPlayer(eLoopPlayer))
-					continue;
-
-				if (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE)
-				{
-					SetBastion(true);
-					return;
-				}
-				else if (getPreviousOwner() == eLoopPlayer && isUnderSiege() && GET_PLAYER(eLoopPlayer).IsAtWarWith(getOwner()))
-				{
-					SetBastion(true);
-					return;
-				}
-				else if (GetThreatRank() != -1 && GetThreatRank() <= (GET_PLAYER(getOwner()).getNumCities() / 4))
-				{
-					SetBastion(true);
-					return;
-				}
-				else if (GetCoastalThreatRank() != -1 && GetCoastalThreatRank() <= (GET_PLAYER(getOwner()).getNumCities() / 4))
-				{
-					SetBastion(true);
-					return;
-				}
-			}
-		}
-	}
-	//Not a frontier city, and not a chokepoint? Not a bastion.
-	if(IsBastion())
-	{
-		SetBastion(false);
-	}
-	return;
-}
-//	--------------------------------------------------------------------------------
-void CvCity::SetBastion(bool bValue)
-{
-	VALIDATE_OBJECT
-	m_bIsBastion = bValue;
+	return isCoastal() || plot()->IsWorthDefending(m_eOwner);
 }
 
 void CvCity::DoBarbIncursion()
@@ -34030,7 +34005,8 @@ int CvCity::addDamageReceivedThisTurn(int iDamage)
 
 void CvCity::flipDamageReceivedPerTurn()
 {
-	m_iDamageTakenLastTurn = m_iDamageTakenThisTurn;
+	//basic smoothing so we don't overeact if the enemy doesn't do damage in a particular turn
+	m_iDamageTakenLastTurn = (m_iDamageTakenThisTurn * 80 + m_iDamageTakenLastTurn * 20) / 100;
 	m_iDamageTakenThisTurn = 0;
 }
 
@@ -34047,7 +34023,8 @@ bool CvCity::isInDangerOfFalling() const
 
 bool CvCity::isUnderSiege() const
 {
-	return (m_iDamageTakenLastTurn>0);
+	//or maybe count enemy units?
+	return m_iDamageTakenLastTurn > 0;
 }
 #endif
 

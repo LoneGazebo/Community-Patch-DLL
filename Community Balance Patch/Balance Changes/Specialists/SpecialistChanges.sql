@@ -7,7 +7,7 @@ WHERE SpecialistType = 'SPECIALIST_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY
 -- Balance Merchants
 
 UPDATE SpecialistYields
-SET Yield = '3'
+SET Yield = '4'
 WHERE SpecialistType = 'SPECIALIST_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Balance Scientists

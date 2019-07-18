@@ -6,7 +6,7 @@
 			<Text>Public Works</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_HELP">
-			<Text>Increases [ICON_HAPPINESS_1] Happiness in the City by 1, and reduces [ICON_HAPPINESS_3] Unhappiness Need Modifiers for Distress, Poverty, Illiteracy, Boredom, and Religious Strife by 15% in the City.[NEWLINE][NEWLINE]Is a repeatable project, however the [ICON_PRODUCTION] Production cost scales by +100 [ICON_PRODUCTION] Production every Era, and +100 [ICON_PRODUCTION] Production every time you construct this Project in this City.[NEWLINE][NEWLINE]Increases the City's [ICON_GOLD] Gold Maintenance by 2 every time it is constructed.</Text>
+			<Text>Increases [ICON_HAPPINESS_1] Happiness in the City by 1, and reduces [ICON_HAPPINESS_3] Unhappiness Need Modifiers for [ICON_FOOD]/[ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, [ICON_CULTURE] Boredom, and [ICON_PEACE] Religious Strife by 15% in the City.[NEWLINE][NEWLINE]Is a repeatable project, however the [ICON_PRODUCTION] Production cost scales by +100 [ICON_PRODUCTION] Production every Era, and +100 [ICON_PRODUCTION] Production every time you construct this project in this City.[NEWLINE][NEWLINE]Increases the City's [ICON_GOLD] Gold maintenance by 2 every time it is constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_PEDIA">
 			<Text>Public works are a broad category of infrastructure projects, financed and constructed by the government, for recreational, employment, and health and safety uses in the greater community. They include public buildings (municipal buildings, schools, hospitals), transport infrastructure (roads, railroads, bridges, pipelines, canals, ports, airports), public spaces (public squares, parks, beaches), public services (water supply and treatment, sewage treatment, electrical grid, dams), and other, usually long-term, physical assets and facilities. Though often interchangeable with public infrastructure and public capital, public works does not necessarily carry an economic component, thereby being a broader term.</Text>
@@ -48,7 +48,7 @@
 			<Text>Unique Venetian building, only buildable in Venice's Capital. This building boosts Production, increases City Defense, increases Military Supply, and provides all Naval Units with the 'Venetian Craftsmanship' promotion, which increases Combat Strength and Movement. Cannot be constructed if the Rialto District or Murano Glassworks are present in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_VENETIAN_ARSENALE_HELP">
-			<Text>Unique Building for Venice. +15% [ICON_PRODUCTION] Production in City. Increases the Military Unit Supply Cap from Population in this City by 25%.[NEWLINE][NEWLINE]All Naval Units gain the [COLOR_POSITIVE_TEXT]Venetian Craftsmanship[ENDCOLOR] Promotion, boosting [ICON_STRENGTH] Combat Strength by 10% and [ICON_MOVES] Movement by 1.[NEWLINE][NEWLINE]Requires Piazza San Marco in City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own. Cannot be constructed if the Rialto District or Murano Glassworks are present in the City.</Text>
+			<Text>Unique Building for Venice. +15% [ICON_PRODUCTION] Production in City. Increases the Military Unit Supply Cap by 5, and increases the Military Unit Supply Cap from Population in this City by 25%.[NEWLINE][NEWLINE]All Naval Units gain the [COLOR_POSITIVE_TEXT]Venetian Craftsmanship[ENDCOLOR] Promotion, boosting [ICON_STRENGTH] Combat Strength by 10% and [ICON_MOVES] Movement by 1.[NEWLINE][NEWLINE]Requires Piazza San Marco in City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own. Cannot be constructed if the Rialto District or Murano Glassworks are present in the City.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO">
@@ -61,7 +61,7 @@
 			<Text>Unique Venetian building, replacing the National Monument. Eschews most National Monument abilities in favor of providing a small boost to City yields, a boost to the City's Great People rate, and the ability to ignore all Advanced Actions that can be performed by Spies. This means that your Capital is well-defended against the theft of Gold, Science, and other important resources. Unlocks access to Murano Glassworks, Arsenale di Venezia, and Rialto District once Guilds is researched. Only one of these buildings may be constructed per game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>Unique National Monument for Venice. +33% [ICON_GREAT_PEOPLE] Great People rate in City. Enemy Spies in this City cannot perform Advanced Spy Actions.[NEWLINE][NEWLINE]Unlocks access to the Murano Glassworks, Arsenale di Venezia, and Rialto District once Guilds is researched.[NEWLINE][NEWLINE]May only be built in the [ICON_CAPITAL] Capital.</Text>
+			<Text>Unique National Monument for Venice. +33% [ICON_GREAT_PEOPLE] Great People rate in City. Increases the Military Unit Supply Cap by 5. Enemy Spies in this City cannot perform Advanced Spy Actions.[NEWLINE][NEWLINE]Unlocks access to the Murano Glassworks, Arsenale di Venezia, and Rialto District once Guilds is researched.[NEWLINE][NEWLINE]May only be built in the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS">
@@ -333,13 +333,13 @@
 			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to fresh water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
+			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty, and +1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
 			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
-			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes to or from this City generate 50 [ICON_FOOD] Food in their Origin City when completed, scaling with Era.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
+			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>+15% [ICON_PRODUCTION] Production. Produces 3 [ICON_RES_COAL] Coal. Can be built in up to 5 Cities maximum.</Text>
@@ -379,7 +379,7 @@
 			<Text>Slater Mill</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
-			<Text>City must be built next to a River. Grants a free Factory in the city, and a large boost to [ICON_PRODUCTION] Production. Also grants four free [ICON_RES_COAL] Coal.</Text>
+			<Text>City must be built next to a River. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and a large boost to [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT">
 			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>
@@ -391,7 +391,7 @@
 			<Text>The Motherland Calls</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
-			<Text>Requires Order. 1 Free Social Policy. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifiers for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all cities. Receive a free Police Station in the city. Foreign spies cannot incite rebellion or unrest in this City, and your spies are much more likely to disrupt Building [ICON_PRODUCTION] Production, cause [ICON_HAPPINESS_3] Unrest, or incite [ICON_RESISTANCE] Rebellion via Advanced Actions.</Text>
+			<Text>Requires Order. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Police Station in the City in which it is built. Foreign [ICON_SPY] Spies cannot Incite [ICON_RESISTANCE] Rebellion or [ICON_HAPPINESS_3] Unrest in this City, and your [ICON_SPY] Spies are much more likely to Disrupt Building [ICON_PRODUCTION] Production, cause [ICON_HAPPINESS_3] Unrest, or Incite [ICON_RESISTANCE] Rebellion via Advanced Actions. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifiers for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities. </Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
 			<Text>The Motherland Calls, also called Mother Motherland, Mother Motherland Is Calling, simply The Motherland, or The Mamayev Monument, is a statue in Mamayev Kurgan in Volgograd, Russia, commemorating the Battle of Stalingrad. It was designed by sculptor Yevgeny Vuchetich and structural engineer Nikolai Nikitin, and declared the largest statue in the world in 1967. Compared with the later higher statues, The Motherland Calls is significantly more complex from an engineering point of view, due to its characteristic posture with a sword raised high in the right hand and the left hand extended in a calling gesture. The technology behind the statue is based on a combination of prestressed concrete with wire ropes structure, a solution which can be found also in another work of Nikitin's, the super-tall Ostankino Tower in Moscow. It is the tallest statue of a woman in the world.</Text>
@@ -403,7 +403,7 @@
 			<Text>Bletchley Park</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
-			<Text>Requires completion of Rationalism Branch. Receive a free Research Lab in the city, and all Scientist Specialists gain +1 [ICON_RESEARCH] Science. Provides two additional spies, levels up all your existing spies, and reduces enemy spy effectiveness in all Cities by 15%. Your Spies will be immune to the Failure Advanced Action, and will be much more likely to steal [ICON_RESEARCH] Science and disrupt World Wonder [ICON_PRODUCTION] Production via Advanced Actions.</Text>
+			<Text>Requires completion of Rationalism Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all Scientist Specialists gain +1 [ICON_RESEARCH] Science. Provides 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies, levels up all your existing [ICON_SPY] Spies, and reduces enemy spy effectiveness in all Cities by 15%. Your [ICON_SPY] Spies will be immune to the Failure Advanced Action, and will be much more likely to Steal [ICON_RESEARCH] Science and Disrupt World Wonder [ICON_PRODUCTION] Production via Advanced Actions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
 			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Power, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
@@ -415,7 +415,7 @@
 			<Text>Empire State Building</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING_HELP">
-			<Text>Receive a free Stock Exchange in the city, and a free Great Person of your choice. Specialists in all cities produce +1 [ICON_GOLD] Gold.</Text>
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_PEOPLE] Great Person of your choice and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stock Exchange in the City in which it is built. Specialists in all Cities produce +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EMPIRE_STATE_BUILDING_TEXT">
 			<Text>The Empire State Building is a 103-story skyscraper located in Midtown Manhattan, New York City, at the intersection of Fifth Avenue and West 34th Street. It has a roof height of 1,250 feet (380 m), and with its antenna spire included, it stands a total of 1,454 feet (443 m) high.[6] Its name is derived from the nickname for New York, the Empire State. It stood as the world's tallest building for nearly 40 years, from its completion in early 1931 until the topping out of the original World Trade Center's North Tower in late 1970. Following the September 11 attacks in 2001, the Empire State Building was again the tallest building in New York (although it was no longer the tallest in the US or the world), until One World Trade Center reached a greater height on April 30, 2012. The Empire State Building is currently the fourth-tallest completed skyscraper in the United States (after the One World Trade Center, the Willis Tower and Trump International Hotel and Tower, both in Chicago), and the 25th-tallest in the world (the tallest now is Burj Khalifa, located in Dubai). It is also the fifth-tallest freestanding structure in the Americas.</Text>
@@ -427,7 +427,7 @@
 			<Text>CERN</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CERN_HELP">
-			<Text>Receive two free Technologies when completed, and +100 [ICON_INFLUENCE] Influence with all City-States in the world.</Text>
+			<Text>Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technologies and +100 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States in the world.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CERN_TEXT">
 			<Text>The European Organization for Nuclear Research, known as CERN, is a European research organization whose purpose is to operate the world's largest particle physics laboratory. Established in 1954, the organization is based in the northwest suburbs of Geneva on the Franco–Swiss border, and has 21 European member states. Israel is the first (and currently only) non-European country granted full membership. The term CERN is also used to refer to the laboratory, which in 2013 counted 2513 staff members, and hosted some 12,313 fellows, associates, apprentices as well as visiting scientists and engineers representing 608 universities and research facilities and 113 nationalities. CERN's main function is to provide the particle accelerators and other infrastructure needed for high-energy physics research – as a result, numerous experiments have been constructed at CERN following international collaborations. It is also the birthplace of the World Wide Web. The main site at Meyrin has a large computer centre containing powerful data processing facilities, primarily for experimental-data analysis; because of the need to make these facilities available to researchers elsewhere, it has historically been a major wide area networking hub.</Text>
@@ -580,7 +580,7 @@
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production. Grants +1 [ICON_PRODUCTION] Production from Flood Plains and +2 [ICON_FOOD] Food from Lakes, Oases, and Farms.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production. Grants +1 [ICON_PRODUCTION] Production from Flood Plains, and +2 [ICON_PRODUCTION] Production from Lakes and Oases. Farms worked by this City gain +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size and productivity, especially if the city is settled on or near Flood Plainss.</Text>

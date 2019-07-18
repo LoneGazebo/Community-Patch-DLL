@@ -31,7 +31,7 @@ WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS';
 -- Trader Sid's
  
 UPDATE Language_en_US
-SET Text = '[ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, and [ICON_RES_TOBACCO] Tobacco provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid''s Franchise.'
+SET Text = '[ICON_RES_SPICES] Cinnamon, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, and [ICON_RES_TOBACCO] Tobacco provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid''s Franchise.'
 WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_TRADER_SIDS';
   
 -- TwoKay Foods

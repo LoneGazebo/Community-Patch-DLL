@@ -253,6 +253,11 @@ public:
 	{
 		return m_pPlotNeighbors + plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
 	}
+	CvPlot** getNeighborsUnchecked(int iIndex) const
+	{
+		return m_pPlotNeighbors + iIndex*(NUM_DIRECTION_TYPES + 2);
+	}
+
 	CvPlot** getNeighborsShuffled(const CvPlot* pPlot);
 	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const
 	{

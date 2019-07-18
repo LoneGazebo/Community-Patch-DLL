@@ -168,7 +168,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						iModifier -= iThreat;
 					}
 				}
-				if (m_pCity->IsBastion())
+				if (m_pCity->isPotentiallyInDanger())
 				{
 					iModifier -= 100;
 				}

@@ -218,6 +218,7 @@ public:
 	int GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
+	bool IsWorthDefending(PlayerTypes eDefendingPlayer) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif
