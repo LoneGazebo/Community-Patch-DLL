@@ -1356,29 +1356,32 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	//we got here, and we are STILL trying to hit a vassal without hitting the master first? WTF bro.
-	if (GET_TEAM(eTeam).GetMaster() != NO_TEAM && eTeam != GetID() && GET_TEAM(eTeam).GetMaster() != GetID())
+	if (!isMinorCiv())
 	{
-		if (!isAtWar(GET_TEAM(eTeam).GetMaster()))
+		//we got here, and we are STILL trying to hit a vassal without hitting the master first? WTF bro.
+		if (GET_TEAM(eTeam).GetMaster() != NO_TEAM && eTeam != GetID() && GET_TEAM(eTeam).GetMaster() != GetID())
 		{
-			PlayerTypes eOurPlayer;
-			for (int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
+			if (!isAtWar(GET_TEAM(eTeam).GetMaster()))
 			{
-				eOurPlayer = (PlayerTypes)iOurPlayerLoop;
-				CvPlayer& pOurPlayer = GET_PLAYER(eOurPlayer);
-
-				if (pOurPlayer.isAlive())
+				PlayerTypes eOurPlayer;
+				for (int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
 				{
-					// Our Team
-					if (pOurPlayer.getTeam() == GetID())
+					eOurPlayer = (PlayerTypes)iOurPlayerLoop;
+					CvPlayer& pOurPlayer = GET_PLAYER(eOurPlayer);
+
+					if (pOurPlayer.isAlive())
 					{
-						pOurPlayer.GetMilitaryAI()->LogVassalFailure(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
-						DoDeclareWar(eOurPlayer, bAggressor, GET_TEAM(eTeam).GetMaster(), bDefensivePact);
-						break;
+						// Our Team
+						if (pOurPlayer.getTeam() == GetID())
+						{
+							pOurPlayer.GetMilitaryAI()->LogVassalFailure(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
+							DoDeclareWar(eOurPlayer, bAggressor, GET_TEAM(eTeam).GetMaster(), bDefensivePact);
+							break;
+						}
 					}
 				}
+				return;
 			}
-			return;
 		}
 	}
 
@@ -1611,12 +1614,12 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		//These only trigger on the 'first' major declaration - no chain declarations.
 		if (bAggressor && !bDefensivePact)
 		{
-			//Secondary civs may declare war on us!
-			for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			//DPs and Vassal civs - we have to DOW them as well!
+			for (iI = 0; iI < MAX_TEAMS; iI++)
 			{
 				if (!GET_TEAM((TeamTypes)iI).isAlive())
 					continue;
-				if (isMinorCiv())
+				if (GET_TEAM((TeamTypes)iI).isMinorCiv())
 					continue;
 
 				//Defensive pacts and vassals trigger here.
@@ -1632,17 +1635,45 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 
 		//Secondary civs that will declare war along with us
-		for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		for (iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			if (!GET_TEAM((TeamTypes)iI).isAlive())
 				continue;
-			if (isMinorCiv())
+			if (GET_TEAM((TeamTypes)iI).isMinorCiv())
 				continue;
 				
 			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
+#else
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
+#endif
+			}
+		}
+
+		//Secondary check for vassals.
+		for (iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			if (!GET_TEAM((TeamTypes)iI).isAlive())
+				continue;
+
+			if (GET_TEAM((TeamTypes)iI).isMinorCiv())
+				continue;
+
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, GetID(), /*bDefensivePact*/ false);
+#else
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
+#endif
+			}
+
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ false);
 #else
 				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
