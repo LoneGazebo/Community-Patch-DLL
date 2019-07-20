@@ -26304,7 +26304,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 				// Human declaration
 				TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
-				if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
+				if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer))
 				{
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 					GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
@@ -26411,7 +26411,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human agrees
 		else if(iArg1 == 4)
 		{
-			if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
+			if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer))
 			{
 				SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_ACCEPTED);
 
@@ -28459,6 +28459,14 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	{
 		return 0;
 	}
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+		return 0;
+
+	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+		return 0;
+
+	if (GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassalOfSomeone())
+		return 0;
 #else
 	// If player is planning War, always say no
 	if(eApproachTowardsPlayer == MAJOR_CIV_APPROACH_WAR)

@@ -1190,7 +1190,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
 		{
 			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), 1);
-			SetPuppet(true);
+			DoCreatePuppet();
 		}
 
 		if (pkSettlerUnitEntry->IsFoundMid())
