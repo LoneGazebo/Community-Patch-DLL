@@ -14852,20 +14852,20 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 					// Player broke a promise that he wasn't going to attack us
 					if(IsPlayerMadeMilitaryPromise(ePlayer))
-#if defined(MOD_BALANCE_CORE)
 					{
+#if defined(MOD_BALANCE_CORE)
 						SetPlayerBackstabCounter(ePlayer, 0);
 #endif
 						SetPlayerBrokenMilitaryPromise(ePlayer, true);
+						SetPlayerMadeMilitaryPromise(ePlayer, false);
 						SetPlayerMilitaryPromiseCounter(ePlayer, -1);
+					}
 
 #if defined(MOD_BALANCE_CORE)
-					}
 			// Shouldn't clear out positive diplomatic values if WE declared war
 			if (!bDefensivePact)
 			{
 #endif
-
 					// Clear civilians returned and landmarks built so they don't affect relations any more
 					if(GetNumCiviliansReturnedToMe(ePlayer) > 0)
 						ChangeNumCiviliansReturnedToMe(ePlayer, -GetNumCiviliansReturnedToMe(ePlayer));
@@ -31215,7 +31215,7 @@ void CvDiplomacyAI::DoTestPromises()
 				ChangePlayerMilitaryPromiseCounter(eLoopPlayer, 1);
 
 				// Expired?
-				if (GetPlayerMilitaryPromiseCounter(eLoopPlayer) > /*20*/GC.getMOVE_TROOPS_MEMORY_TURN_EXPIRATION())
+				if (GetPlayerMilitaryPromiseCounter(eLoopPlayer) >= /*20*/ GC.getMOVE_TROOPS_MEMORY_TURN_EXPIRATION())
 				{
 					SetPlayerMadeMilitaryPromise(eLoopPlayer, false);
 					SetPlayerMilitaryPromiseCounter(eLoopPlayer, -1);
