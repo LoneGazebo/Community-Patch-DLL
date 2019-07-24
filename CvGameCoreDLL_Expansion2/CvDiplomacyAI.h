@@ -900,6 +900,14 @@ public:
 
 	bool IsPlayerDoFwithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDoFwithAnyEnemy(PlayerTypes ePlayer) const;
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
+	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
+#endif
+
+	// Ideology
+	bool IsPlayerSameIdeology(PlayerTypes ePlayer) const;
+	bool IsPlayerOpposingIdeology(PlayerTypes ePlayer) const;
 
 	// Denounced Player
 	void DoDenouncePlayer(PlayerTypes ePlayer);
@@ -919,12 +927,10 @@ public:
 	bool IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const;
 
 	// Requests of Friends
-
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	// Problems between friends
-
 	bool IsUntrustworthyFriend();
 	int GetNumFriendsDenouncedBy();
 
