@@ -3335,7 +3335,7 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 						//////////////////////////////////////
 						
 						// Declaration of Friendship?
-						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopOtherPlayer) || GET_PLAYER(eLoopOtherPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
+						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopOtherPlayer))
 							iOpinionWeight += /*-35*/ GC.getOPINION_WEIGHT_DOF();
 					
 					    // Defensive Pact?
@@ -3740,6 +3740,24 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 	}
+	
+	// Coop War Denied?
+	if (GetNumTimesCoopWarDenied(ePlayer) > 0)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + GetNumTimesCoopWarDenied(ePlayer));
+	}
+	
+	////////////////////////////////////
+	// RESURRECTED US
+	////////////////////////////////////
+	
+	if (WasResurrectedBy(ePlayer))
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
+	}
 
 	////////////////////////////////////
 	// DENOUNCEMENTS
@@ -3752,26 +3770,24 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 	}
 
-	// We were friends and they betrayed us! (or they've backstabbed too many friends)
-	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
-	}
-
 	// They denounced us
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eMyPlayer))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 	}
-
-	// Coop War Denied?
-	if (GetNumTimesCoopWarDenied(ePlayer) > 0)
+	
+	////////////////////////////////////
+	// TRAITOR OPINION
+	////////////////////////////////////
+	
+	// We were friends and they betrayed us! (or they're not a trustworthy friend)
+	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + GetNumTimesCoopWarDenied(ePlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 	}
 
 	////////////////////////////////////
@@ -3891,6 +3907,31 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		break;
+	}
+	
+	// Weight for City-State friendship dispute
+	if (HasMetValidMinorCiv())
+	{
+		switch (GetMinorCivDisputeLevel(ePlayer))
+		{
+		case DISPUTE_LEVEL_NONE:
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+			break;
+		case DISPUTE_LEVEL_WEAK:
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+			break;
+		case DISPUTE_LEVEL_STRONG:
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+			break;
+		case DISPUTE_LEVEL_FIERCE:
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			break;
+		}
 	}
 
 	// Weight for land dispute
@@ -4214,20 +4255,27 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					}
 				}
 			}
-			//we like our vassals (unless they're blocking our path to victory)
-			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
+		}
+		
+		// We like our vassals (unless they're blocking our path to victory)
+		else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
+		{
+			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0 && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-				}
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 			}
 		}
 
 		// They are our master
 		else if (IsVassal(ePlayer))
 		{
+			// Voluntary vassal
+			if (GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+			}
+			
 			// Change approach based on how we are treated
 			// todo: magic numbers
 			switch(GetVassalTreatmentLevel(ePlayer))
@@ -5946,7 +5994,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 				else
 				{
 					// Reset any guess for the FRIENDLY approach if we have no DoF/DP, and they haven't resurrected us
-					if(eTrueApproachGuess == MAJOR_CIV_APPROACH_FRIENDLY && !IsDoFAccepted(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()) && !WasResurrectedBy(eLoopPlayer))
+					if(eTrueApproachGuess == MAJOR_CIV_APPROACH_FRIENDLY && !IsDoFAccepted(eLoopPlayer) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()) && !WasResurrectedBy(eLoopPlayer))
 					{
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 					}
@@ -6101,7 +6149,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					}
 					
 					// We're friends, assume FRIENDLY
-					else if(IsDoFAccepted(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
+					else if(IsDoFAccepted(eLoopPlayer))
 					{
 						// ...unless they're untrustworthy
 						if(IsFriendDenouncedUs(eLoopPlayer) || IsFriendDeclaredWarOnUs(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
@@ -12859,7 +12907,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += -10;
 			}
 
-			// We were friends and they betrayed us! (or they've backstabbed too many friends)
+			// We were friends and they betrayed us! (or they're not a trustworthy friend)
 			if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
 			{
 				iEnemyWeight += 25;
@@ -16907,6 +16955,23 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+							
+							// Also warn the target player's teammates
+							for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							{
+								eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+								if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+								{
+									if(GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eAgainstPlayer).getTeam())
+									{
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -200);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+									}
+								}
+							}
 						}
 						else
 						{
@@ -26111,8 +26176,17 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam(), false);
 			GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
-
-			SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_GUARDED);
+			
+			DoUpdateOnePlayerOpinion(eFromPlayer);
+			
+			if(GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
+			{
+				SetWarFaceWithPlayer(eFromPlayer, WAR_FACE_GUARDED);
+			}
+			else
+			{
+				SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_GUARDED);
+			}
 
 			// AI message
 			if(bActivePlayer)
@@ -26350,6 +26424,23 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
 						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
 						GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(eFromPlayer, 0);
+						
+						// Also warn the target player's teammates
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+							if(IsPlayerValid(eLoopPlayer))
+							{
+								if(GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eAgainstPlayer).getTeam())
+								{
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -200);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(eFromPlayer, 0);
+								}
+							}
+						}
 					}
 				}
 #endif
@@ -26386,6 +26477,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 			//If player is offended, AI should take note as penalty to assistance.
+			// Human told AI they've gone too far and warned the target
 			if(iArg1 == 2)
 			{
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
@@ -26396,8 +26488,26 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
-				}		
+					
+					// Also warn the target player's teammates
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+						if(GET_PLAYER(eFromPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+						{
+							if(GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eAgainstPlayer).getTeam())
+							{
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -200);
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
+							}
+						}
+					}
+				}	
 			}
+			// Human told AI sorry, but no
 			if(iArg1 == 1)
 			{
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
@@ -28475,10 +28585,11 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	{
 		return 0;
 	}
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+	// No vassals!
+	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 		return 0;
 
-	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return 0;
 
 	if (GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassalOfSomeone())
@@ -28712,8 +28823,8 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 /// If we rejected eAskingPlayer's request to go to war with eTargetPlayer, should we warn the target?
 bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer)
 {
-	// Failsafes
-	// Invalid player?
+	// FAILSAFES
+	// Invalid player/teammate?
 	if (!IsPlayerValid(eAskingPlayer) || !IsPlayerValid(eTargetPlayer))
 		return false;
 	// At war with the asker?
@@ -28721,6 +28832,13 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 		return false;	
 	// At war with the target?
 	if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
+		return false;
+	// No vassals!
+	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+		return false;
+	if (GET_TEAM(GET_PLAYER(eAskingPlayer).getTeam()).IsVassalOfSomeone())
+		return false;
+	if (GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassalOfSomeone())
 		return false;
 		
 	// If the target is a human, never warn them for now (no textkey/diplo statement)
@@ -28733,23 +28851,19 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	MajorCivOpinionTypes  eOpinionOfTarget = GetMajorCivOpinion(eTargetPlayer);
 	
 	// If we want war against the target, never warn them
-	if (eApproachTowardsTarget == MAJOR_CIV_APPROACH_WAR || GetPlayer()->GetCapitalConqueror() == eTargetPlayer || IsArmyInPlaceForAttack(eTargetPlayer) || IsWantsSneakAttack(eTargetPlayer) || GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
+	if (eApproachTowardsTarget == MAJOR_CIV_APPROACH_WAR || GetPlayer()->GetCapitalConqueror() == eTargetPlayer || IsArmyInPlaceForAttack(eTargetPlayer) || IsWantsSneakAttack(eTargetPlayer) || GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE || GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND)
 		return false;
 	
 	// If we want war against the asker, always warn them
-	if (eApproachTowardsAsker == MAJOR_CIV_APPROACH_WAR || GetPlayer()->GetCapitalConqueror() == eAskingPlayer || IsArmyInPlaceForAttack(eAskingPlayer) || IsWantsSneakAttack(eAskingPlayer) || GetWarGoal(eAskingPlayer) == WAR_GOAL_PREPARE)
+	if (eApproachTowardsAsker == MAJOR_CIV_APPROACH_WAR || GetPlayer()->GetCapitalConqueror() == eAskingPlayer || IsArmyInPlaceForAttack(eAskingPlayer) || IsWantsSneakAttack(eAskingPlayer) || GetWarGoal(eAskingPlayer) == WAR_GOAL_PREPARE || GetWarGoal(eAskingPlayer) == WAR_GOAL_DEMAND)
 		return true;
 	
 	// DoF, DP, or ally with the target? Always warn them.
-	if(IsDoFAccepted(eTargetPlayer) || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayer).getTeam()))
-		return true;
-	if(eOpinionOfTarget == MAJOR_CIV_OPINION_ALLY)
+	if(IsDoFAccepted(eTargetPlayer) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayer).getTeam()) || eOpinionOfTarget == MAJOR_CIV_OPINION_ALLY)
 		return true;
 	
 	// DoF, DP or ally with the asker? Never warn them.
-	if(IsDoFAccepted(eAskingPlayer) || GET_PLAYER(eAskingPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eAskingPlayer).getTeam()))
-		return false;
-	if(eOpinionOfAsker == MAJOR_CIV_OPINION_ALLY)
+	if(IsDoFAccepted(eAskingPlayer) || GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eAskingPlayer).getTeam()) || eOpinionOfAsker == MAJOR_CIV_OPINION_ALLY)
 		return false;
 	
 	// If we're afraid of the asker or hate the target, never warn them
@@ -28761,11 +28875,11 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 		return true;
 	
 	// Target is a major warmonger, or we're fiercely competitive? Never warn them.
-	if(GetWarmongerThreat(eTargetPlayer) >= THREAT_SEVERE || GetBiggestCompetitor() == eTargetPlayer || GetVictoryDisputeLevel(eTargetPlayer) >= DISPUTE_LEVEL_FIERCE || GetVictoryBlockLevel(eTargetPlayer) >= BLOCK_LEVEL_FIERCE)
+	if(GetWarmongerThreat(eTargetPlayer) >= THREAT_SEVERE || GetBiggestCompetitor() == eTargetPlayer || GetVictoryDisputeLevel(eTargetPlayer) >= DISPUTE_LEVEL_STRONG || GetVictoryBlockLevel(eTargetPlayer) == BLOCK_LEVEL_FIERCE)
 		return false;
 	
 	// Asker is a major warmonger, or we're fiercely competitive? Always warn them.
-	if(GetWarmongerThreat(eAskingPlayer) >= THREAT_SEVERE || GetBiggestCompetitor() == eAskingPlayer || GetVictoryDisputeLevel(eAskingPlayer) >= DISPUTE_LEVEL_FIERCE || GetVictoryBlockLevel(eAskingPlayer) >= BLOCK_LEVEL_FIERCE)
+	if(GetWarmongerThreat(eAskingPlayer) >= THREAT_SEVERE || GetBiggestCompetitor() == eAskingPlayer || GetVictoryDisputeLevel(eAskingPlayer) >= DISPUTE_LEVEL_STRONG || GetVictoryBlockLevel(eAskingPlayer) == BLOCK_LEVEL_FIERCE)
 		return true;
 	
 	// Any flavors that should influence the decision?
@@ -28821,6 +28935,17 @@ void CvDiplomacyAI::SetCoopWarAcceptedState(PlayerTypes ePlayer, PlayerTypes eTa
 	if(eValue != GetCoopWarAcceptedState(ePlayer, eTargetPlayer))
 	{
 		m_ppaacCoopWarAcceptedState[ePlayer][eTargetPlayer] = eValue;
+		
+#if defined(MOD_BALANCE_CORE)
+		// If accepted, reduce any diplo malus for refusing to go to war previously
+		if(eValue == COOP_WAR_STATE_ACCEPTED)
+		{
+			if(GetNumTimesCoopWarDenied(ePlayer) > 0)
+			{
+				ChangeNumTimesCoopWarDenied(ePlayer, -1);
+			}
+		}
+#endif
 	}
 }
 
@@ -30226,18 +30351,35 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	// close both embassies
 	GET_TEAM(eMyTeam).CloseEmbassyAtTeam(eTheirTeam);
 	GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(eMyTeam);
+	
+	// Third party arrangements
+	PlayerTypes eThirdParty;
+	for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+	{
+		eThirdParty = (PlayerTypes) iThirdPartyLoop;
+
+		// WAS in or planning a coop war with the guy who's now denounced us
+		if(GetCoopWarAcceptedState(ePlayer, eThirdParty) >= COOP_WAR_STATE_SOON)
+		{
+			SetCoopWarAcceptedState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
+			SetCoopWarCounter(ePlayer, eThirdParty, -666);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(eMyPlayer, eThirdParty, NO_COOP_WAR_STATE);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarCounter(eMyPlayer, eThirdParty, -666);
+		}
+	}
 
 	// WAS working with this player
 	if(IsDoFAccepted(ePlayer))
 	{
 		SetDoFAccepted(ePlayer, false);
 		SetDoFCounter(ePlayer, -666);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
+		
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
 #endif
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
 
 		// They now view us as a traitor!
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetFriendDenouncedUs(eMyPlayer, true);
@@ -30248,33 +30390,31 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 
 		GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(ePlayer).getTeam(), false);
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
-
-		SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_GUARDED);
-	}
-
-	// Going to war, if so don't pretend to be friendly
-	if(GetWarFaceWithPlayer(ePlayer) == WAR_FACE_FRIENDLY)
-	{
-		SetWarFaceWithPlayer(ePlayer, WAR_FACE_NEUTRAL);
-	}
-
-	// Third party arrangements
-	PlayerTypes eThirdParty;
-	for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
-	{
-		eThirdParty = (PlayerTypes) iThirdPartyLoop;
-
-		// WAS in or planning a coop war with the guy we're now at war with
-		if(GetCoopWarAcceptedState(ePlayer, eThirdParty) >= COOP_WAR_STATE_SOON)
+		
+		DoUpdateOpinions();
+		DoUpdateMajorCivApproaches();
+		
+		if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 		{
-			SetCoopWarAcceptedState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
-			SetCoopWarCounter(ePlayer, eThirdParty, -666);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(eMyPlayer, eThirdParty, NO_COOP_WAR_STATE);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarCounter(eMyPlayer, eThirdParty, -666);
+			SetWarFaceWithPlayer(ePlayer, WAR_FACE_GUARDED);
+			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_WAR);
+		}
+		else
+		{
+			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_GUARDED);
 		}
 	}
-
-	DoUpdateMajorCivApproaches();
+	else
+	{
+		DoUpdateOpinions();
+		DoUpdateMajorCivApproaches();
+		
+		// Going to war, if so don't pretend to be friendly
+		if(GetWarFaceWithPlayer(ePlayer) == WAR_FACE_FRIENDLY)
+		{
+			SetWarFaceWithPlayer(ePlayer, WAR_FACE_NEUTRAL);
+		}
+	}
 
 	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
 #if defined(MOD_BALANCE_CORE)
@@ -34525,6 +34665,25 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 	}
 
 	return true;
+}
+
+/// Are there any valid minor civs that this player has met?
+bool CvDiplomacyAI::HasMetValidMinorCiv()
+{
+	for (iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		
+		if(IsPlayerValid(eLoopPlayer))
+		{
+			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }
 
 /// Have we approached another civ about attacking their protected minor?
@@ -42428,10 +42587,13 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						SetWonderDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 						SetMinorCivDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 						SetWarmongerThreat(eOtherTeamPlayer, THREAT_NONE);
+						SetOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, 0);
 						
 						SetPlayerNoSettleRequestCounter(eOtherTeamPlayer, -1);
 						SetPlayerStopSpyingRequestCounter(eOtherTeamPlayer, -1);
 #if defined(MOD_BALANCE_CORE)
+						SetPlayerNoSettleRequestEverAsked(eOtherTeamPlayer, false);
+						SetPlayerStopSpyingRequestEverAsked(eOtherTeamPlayer, false);
 						SetNumDemandEverMade(eOtherTeamPlayer, -GetNumDemandEverMade(eOtherTeamPlayer));
 #endif
 						SetDemandCounter(eOtherTeamPlayer, -1);

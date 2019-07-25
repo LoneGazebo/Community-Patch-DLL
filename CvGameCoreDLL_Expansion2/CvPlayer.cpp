@@ -9867,6 +9867,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
 #if defined(MOD_BALANCE_CORE)
+			pDiploAI->SetPlayerNoSettleRequestEverAsked(eMePlayer, false);
+			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
