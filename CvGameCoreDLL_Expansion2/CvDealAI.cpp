@@ -234,7 +234,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 
 	if(bFromIsActivePlayer)
 	{
-		// Modify response if the player's offered a deal lot
+		// Modify response if the player's offered this deal a lot
 		if(eResponse >= DEAL_RESPONSE_UNACCEPTABLE)
 		{
 			int iTimesDealOffered = GC.GetEngineUserInterface()->GetOfferTradeRepeatCount();

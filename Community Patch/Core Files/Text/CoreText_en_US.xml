@@ -2660,13 +2660,19 @@
 
 		<!-- Promises LUA -->
 		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
-			<Text>You promised to keep your military forces away from their borders for {1_Num} more turn(s).</Text>
+			<Text>You promised not to declare war on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
 			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
 			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS">
+			<Text>They promised not to declare war on you for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
+			<Text>They promised not to settle near you for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -6818,40 +6824,40 @@
 			<Text>Enable Events System</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_HELP">
-			<Text>Check to enable Vox Populi's Player and City Events System</Text>
+			<Text>Check to enable Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD">
 			<Text>No Good Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD_HELP">
-			<Text>Check to disable positive outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable positive outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL">
 			<Text>No Neutral Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL_HELP">
-			<Text>Check to disable neutral outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable neutral outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD">
 			<Text>No Bad Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD_HELP">
-			<Text>Check to disable bad outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable bad outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE">
 			<Text>No Trade Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE_HELP">
-			<Text>Check to disable trade (miscellaneous) outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable trade (miscellaneous) outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS">
 			<Text>No Civ-Specific Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS_HELP">
-			<Text>Check to disable Civilization-specific events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable Civilization-specific events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS">

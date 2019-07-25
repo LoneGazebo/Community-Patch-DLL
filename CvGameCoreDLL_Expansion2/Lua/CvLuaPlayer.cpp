@@ -12687,6 +12687,24 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
+		
+		//AI Promises
+		iValue = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetPlayerMadeMilitaryPromise(pkPlayer->GetID());
+		(if iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetPlayerMadeExpansionPromise(pkPlayer->GetID());
+		(if iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
 
 		iValue = pDiploAI->GetDPAcceptedScore(eWithPlayer);
 		if (iValue != 0)

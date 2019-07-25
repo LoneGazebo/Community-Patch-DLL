@@ -231,7 +231,7 @@ function InitMajorCivList()
 							
 							if (g_pUsTeam:IsHasMet(iThirdTeam) or iThirdPlayer == g_iUs) then
 								
-								-- Has a DoF
+								-- Has a DP
 								if (pOtherPlayer:IsHasDefensivePactWithPlayer(iThirdPlayer)) then
 									bHasEntry = true;
 									
