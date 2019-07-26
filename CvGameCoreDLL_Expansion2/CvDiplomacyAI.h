@@ -978,7 +978,7 @@ public:
 	void ChangeShareOpinionCounter(PlayerTypes ePlayer, int iChange);
 
 	// Help Request
-	void DoHelpRequestMade(PlayerTypes ePlayer);
+	void DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
 	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
 	short GetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer) const;
 

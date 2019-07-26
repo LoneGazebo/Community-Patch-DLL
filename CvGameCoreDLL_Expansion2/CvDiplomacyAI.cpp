@@ -27104,7 +27104,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// THIS is the important part of the message - it seeds the help request timer on all players' machines
 			if (eResponse != DEMAND_RESPONSE_REFUSE_WEAK)
 			{
-				DoHelpRequestMade(eFromPlayer);
+				DoHelpRequestMade(eFromPlayer, eResponse);
 
 				if (bActivePlayer)
 				{
@@ -41967,24 +41967,28 @@ void CvDiplomacyAI::ChangeShareOpinionCounter(PlayerTypes ePlayer, int iChange)
 	SetShareOpinionCounter(ePlayer, GetShareOpinionCounter(ePlayer) + iChange);
 }
 
-void CvDiplomacyAI::DoHelpRequestMade(PlayerTypes ePlayer)
+void CvDiplomacyAI::DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Reset counter
-	SetHelpRequestCounter(ePlayer, 0);
 #if defined(MOD_BALANCE_CORE)
 	SetHelpRequestEverMade(ePlayer, true);
 #endif
+	
+	// If gift was agreed to, reset the counter
+	if (eResponse == DEMAND_RESPONSE_GIFT_ACCEPT)
+	{
+		SetHelpRequestCounter(ePlayer, 0);
+		
+		// See how long it'll be before we might agree to another help request
 
-	// See how long it'll be before we might agree to another help request
+		int iNumTurns = /*20*/ GC.getHELP_REQUEST_TURN_LIMIT_MIN();
+		int iRand = GC.getGame().getSmallFakeRandNum(/*10*/ GC.getHELP_REQUEST_TURN_LIMIT_RAND(),  ePlayer);
+		iNumTurns += iRand;
 
-	int iNumTurns = /*20*/ GC.getHELP_REQUEST_TURN_LIMIT_MIN();
-	int iRand = GC.getGame().getSmallFakeRandNum(/*10*/ GC.getHELP_REQUEST_TURN_LIMIT_RAND(),  ePlayer);
-	iNumTurns += iRand;
-
-	m_paiHelpRequestTooSoonNumTurns[ePlayer] = iNumTurns;
+		m_paiHelpRequestTooSoonNumTurns[ePlayer] = iNumTurns;
+	}
 }
 
 bool CvDiplomacyAI::IsHelpRequestTooSoon(PlayerTypes ePlayer) const
