@@ -717,7 +717,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 		}
 	}
 
-	// Have to sent AI response through the network  - it affects AI behavior
+	// Have to send AI response through the network  - it affects AI behavior
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && pDiploAI->IsDoFAccepted(eFromPlayer))
 	{
@@ -8501,6 +8501,13 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 			}
 		}
 
+		// Empty request
+		if (iGoldRequested == 0 && iGPTRequested == 0 && iLuxuriesRequested == 0 && iStrategicsRequested == 0 && iTechsRequested == 0)
+		{
+			// Not a perfect fix but will prevent 0 Gold requests from triggering the help request timer for now
+			eResponse == DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
+		}		
+		
 		// No illegal items in the request
 		if(eResponse == NO_DEMAND_RESPONSE_TYPE)
 		{
