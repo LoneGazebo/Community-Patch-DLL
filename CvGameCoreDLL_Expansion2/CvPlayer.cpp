@@ -9870,6 +9870,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerNoSettleRequestEverAsked(eMePlayer, false);
 			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
+			pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));
