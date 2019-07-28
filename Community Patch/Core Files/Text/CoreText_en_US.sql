@@ -635,7 +635,7 @@ SET Text = 'You come to mighty Persia as you are? What do you want?'
 WHERE Tag = 'TXT_KEY_LEADER_DARIUS_GREETING_HOSTILE_HELLO_1';
 
 UPDATE Language_en_US
-SET Text = 'I make it a habit of speaking to only great leaders, but I shall make an exception for you. Hurry up now.'
+SET Text = 'I make it a habit to speak only to great leaders, but I shall make an exception for you. Hurry up now.'
 WHERE Tag = 'TXT_KEY_LEADER_SULEIMAN_GREETING_HOSTILE_HELLO_1';
 
 -- Greeting (Repeat)
