@@ -3391,8 +3391,8 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								{
 									if (GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 									{
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 600);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
 									}
 								}
 							}

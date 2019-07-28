@@ -8505,7 +8505,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		if (iGoldRequested == 0 && iGPTRequested == 0 && iLuxuriesRequested == 0 && iStrategicsRequested == 0 && iTechsRequested == 0)
 		{
 			// Not a perfect fix but will prevent 0 Gold requests from triggering the help request timer for now
-			eResponse == DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
+			eResponse = DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
 		}		
 		
 		// No illegal items in the request
