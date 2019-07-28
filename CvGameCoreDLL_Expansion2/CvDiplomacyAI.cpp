@@ -3161,6 +3161,11 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 	//////////////////////////////////////
+	// RESEARCH AGREEMENT
+	//////////////////////////////////////
+	iOpinionWeight += GetResearchAgreementScore(ePlayer);
+
+	//////////////////////////////////////
 	// DEFENSIVE PACTS
 	//////////////////////////////////////
 	iOpinionWeight += GetDPAcceptedScore(ePlayer);
@@ -31621,7 +31626,7 @@ void CvDiplomacyAI::DoTestPromises()
 }
 
 #if defined(MOD_BALANCE_CORE)
-/// Return the number of turns since ePlayer has made an expansion promise to us
+/// Return the number of turns since ePlayer has made a military promise to us
 int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 {
 	// Did they make a military promise?
@@ -33684,14 +33689,29 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 	return iOpinionWeight;
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
+int CvDiplomacyAI::GetResearchAgreementScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	
+	// We have made a Research Agreement
+	if (GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(ePlayer).getTeam()))
+	{
+		iOpinionWeight += -5;
+	}
+	
+	return iOpinionWeight;
+}
+
 int CvDiplomacyAI::GetDPAcceptedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	// We are friends
+	
+	// We have made a Defensive Pact
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetPlayer()->getTeam()))
 	{
 		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_DP();
 	}
+	
 	return iOpinionWeight;
 }
 

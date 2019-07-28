@@ -12705,7 +12705,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
-
+		
+		iValue = pDiploAI->GetResearchAgreementScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT");
+			aOpinions.push_back(kOpinion);
+		}
 		iValue = pDiploAI->GetDPAcceptedScore(eWithPlayer);
 		if (iValue != 0)
 		{
