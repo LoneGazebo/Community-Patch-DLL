@@ -18836,22 +18836,36 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		{
 			//DoNowUnforgivableStatement(ePlayer, eStatement);
 			//DoNowEnemyStatement(ePlayer, eStatement);
-
-			DoHostileStatement(ePlayer, eStatement);
 			//DoFriendlyStatement(ePlayer, eStatement);
+
 			DoAfraidStatement(ePlayer, eStatement);
-			DoWarmongerStatement(ePlayer, eStatement);
-			DoMinorCivCompetitionStatement(ePlayer, eStatement, iData1);
+			
+			// Don't say this if they resurrected us, either
+			if(!WasResurrectedBy(ePlayer))
+			{
+				DoHostileStatement(ePlayer, eStatement);
+				DoWarmongerStatement(ePlayer, eStatement);
+				DoMinorCivCompetitionStatement(ePlayer, eStatement, iData1);
+			}
 
 			// Don't bother with this fluff stuff it's just AI on AI stuff
 			if(GET_PLAYER(ePlayer).isHuman())
 			{
-				DoAngryBefriendedEnemy(ePlayer, eStatement, iData1);
-				DoAngryDenouncedFriend(ePlayer, eStatement, iData1);
+				if(!WasResurrectedBy(ePlayer))
+				{
+					DoAngryBefriendedEnemy(ePlayer, eStatement, iData1);
+					DoAngryDenouncedFriend(ePlayer, eStatement, iData1);
+				}
+				
 				DoHappyDenouncedEnemy(ePlayer, eStatement, iData1);
 				DoHappyBefriendedFriend(ePlayer, eStatement, iData1);
-				DoFYIBefriendedHumanEnemy(ePlayer, eStatement, iData1);
-				DoFYIDenouncedHumanFriend(ePlayer, eStatement, iData1);
+				
+				if(!WasResurrectedBy(ePlayer))
+				{				
+					DoFYIBefriendedHumanEnemy(ePlayer, eStatement, iData1);
+					DoFYIDenouncedHumanFriend(ePlayer, eStatement, iData1);
+				}
+				
 				DoFYIDenouncedHumanEnemy(ePlayer, eStatement, iData1);
 				DoFYIBefriendedHumanFriend(ePlayer, eStatement, iData1);
 				DoHappySamePolicyTree(ePlayer, eStatement);
@@ -29320,6 +29334,10 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer) const
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return true;
 	
+	// Always acceptable if they resurrected us
+	if(WasResurrectedBy(ePlayer))
+		return true;
+	
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
 
 	// If player is afraid, always say yes
@@ -29561,7 +29579,11 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer) const
 {
 	// Always acceptable for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
-		return true;	
+		return true;
+	
+	// Always acceptable if they resurrected us
+	if(WasResurrectedBy(ePlayer))
+		return true;
 	
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
 
@@ -32287,7 +32309,11 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 {
 	// Always acceptable for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
-		return true;	
+		return true;
+	
+	// Always acceptable if they resurrected us
+	if(WasResurrectedBy(ePlayer))
+		return true;
 	
 	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION");
 	if (eFlavor == NO_FLAVOR)
@@ -32415,7 +32441,11 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 {
 	// Always acceptable for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
-		return true;	
+		return true;
+	
+	// Always acceptable if they resurrected us
+	if(WasResurrectedBy(ePlayer))
+		return true;
 	
 	FlavorTypes eFlavor = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE");
 	if (eFlavor == NO_FLAVOR)
