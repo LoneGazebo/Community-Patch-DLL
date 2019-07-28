@@ -3341,11 +3341,17 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 						
 						// Declaration of Friendship?
 						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopOtherPlayer))
-							iOpinionWeight += /*-35*/ GC.getOPINION_WEIGHT_DOF();
+							iOpinionWeight += /*-30*/ GC.getOPINION_WEIGHT_DOF();
 					
 					    // Defensive Pact?
 						if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopOtherPlayer).getTeam()))
-							iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_DP();
+							iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_DP();
+						
+						// Research Agreement?
+						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasResearchAgreement(GET_PLAYER(eLoopOtherPlayer).getTeam()))
+						{
+							iOpinionWeight += -5;
+						}
 						
 						// Denounced them?
 						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopOtherPlayer))

@@ -1343,6 +1343,7 @@ public:
 	int GetDOFWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDOFWithAnyEnemyScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE_DEALS)
+	int GetResearchAgreementScore(PlayerTypes ePlayer);
 	int GetDPAcceptedScore(PlayerTypes ePlayer);
 	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
