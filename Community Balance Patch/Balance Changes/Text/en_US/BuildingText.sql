@@ -92,7 +92,7 @@ SET Text = '+20 XP for all Units. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_F
 WHERE Tag = 'TXT_KEY_BUILDING_ARMORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. +25 XP for all Units.[NEWLINE][NEWLINE]City must have an Armory. Increases the Military Unit Supply Cap by 1.'
+SET Text = '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. +15% [ICON_PRODUCTION] towards Land Units, and +25 XP for all Units.[NEWLINE][NEWLINE]City must have an Armory. Increases the Military Unit Supply Cap by 1.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_ACADEMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 UPDATE Language_en_US
