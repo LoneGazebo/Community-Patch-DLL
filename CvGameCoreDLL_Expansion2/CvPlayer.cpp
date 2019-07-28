@@ -9875,8 +9875,18 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));
 			pDiploAI->ChangeNegativeReligiousConversionPoints(eMePlayer, -pDiploAI->GetNegativeReligiousConversionPoints(eMePlayer));
 			pDiploAI->ChangeNegativeArchaeologyPoints(eMePlayer, -pDiploAI->GetNegativeArchaeologyPoints(eMePlayer));
-
 			pDiploAI->ChangeNumTimesRobbedBy(eMePlayer, -pDiploAI->GetNumTimesRobbedBy(eMePlayer));
+			
+			// Reset all promises
+			pDiploAI->SetPlayerMadeMilitaryPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeExpansionPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeBorderPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeAttackCityStatePromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeBullyCityStatePromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeNoConvertPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeNoDiggingPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeSpyPromise(eMePlayer, false);
+			
 			pDiploAI->SetPlayerBrokenMilitaryPromise(eMePlayer, false);
 			pDiploAI->SetPlayerIgnoredMilitaryPromise(eMePlayer, false);
 			pDiploAI->SetBrokenBorderPromiseValue(eMePlayer, 0);

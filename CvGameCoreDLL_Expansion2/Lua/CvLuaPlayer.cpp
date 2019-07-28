@@ -12690,7 +12690,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		
 		//AI Promises
 		iValue = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetPlayerMadeMilitaryPromise(pkPlayer->GetID());
-		(if iValue != 0)
+		(if iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
@@ -12698,7 +12698,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		iValue = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetPlayerMadeExpansionPromise(pkPlayer->GetID());
-		(if iValue != 0)
+		(if iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;

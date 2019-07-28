@@ -2692,10 +2692,11 @@ void CvDiplomacyAI::DoCounters()
 				{
 					ChangePlayerNoSettleRequestCounter(eLoopPlayer, 1);
 
-					if(GetPlayerNoSettleRequestCounter(eLoopPlayer) >= /*50*/ GC.getIC_MEMORY_TURN_EXPIRATION())
+					if(GetPlayerNoSettleRequestCounter(eLoopPlayer) >= 50)
 					{
 						SetPlayerNoSettleRequestAccepted(eLoopPlayer, false);
 						SetPlayerNoSettleRequestCounter(eLoopPlayer, -666);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
 					}
 				}
 
@@ -2708,11 +2709,11 @@ void CvDiplomacyAI::DoCounters()
 					{
 						SetPlayerStopSpyingRequestAccepted(eLoopPlayer, false);
 						SetPlayerStopSpyingRequestCounter(eLoopPlayer, -666);
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(GetPlayer()->GetID(), false);
 					}
 				}
 #if defined(MOD_BALANCE_CORE)
 				//Is this player a backstabber?
-				// Did this player ask us to stop spying on them?
 				if(GetPlayerBackstabCounter(eLoopPlayer) > -1)
 				{
 					if(GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_FRIEND)
@@ -2775,8 +2776,7 @@ void CvDiplomacyAI::DoCounters()
 							SetPlayerBrokenCoopWarPromise(eLoopPlayer, false);
 						}
 					}
-				}
-				
+				}		
 #endif
 
 				// World Congress mood counters
@@ -14778,6 +14778,9 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 		{
 			// In case we had an ongoing operation, kill it
 			SetArmyInPlaceForAttack(ePeacePlayer, false);
+#if defined(MOD_BALANCE_CORE_DEALS)
+			SetWantsSneakAttack(ePeacePlayer, false);
+#endif
 
 			if(!GET_PLAYER(ePeacePlayer).isMinorCiv())
 			{
@@ -14878,12 +14881,17 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 						SetPlayerNoSettleRequestCounter(eThem, -666);
 					}
 
+					GET_PLAYER(eThem).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
+					
+
 					// HAD agreed not to spy on them
 					if(IsPlayerStopSpyingRequestAccepted(eThem))
 					{
 						SetPlayerStopSpyingRequestAccepted(eThem, false);
 						SetPlayerStopSpyingRequestCounter(eThem, -666);
 					}
+					
+					GET_PLAYER(eThem).GetDiplomacyAI()->SetPlayerMadeSpyPromise(GetPlayer()->GetID(), false);
 
 					// Third party arrangements
 					for(iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -16740,10 +16748,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// If we had agreed to not settle near the player, break that off
 		SetPlayerNoSettleRequestAccepted(ePlayer, false);
 		SetPlayerNoSettleRequestCounter(ePlayer, -666);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
 
 		// If we had agreed to not spy on the player, break that off
 		SetPlayerStopSpyingRequestAccepted(ePlayer, false);
 		SetPlayerStopSpyingRequestCounter(ePlayer, -666);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(GetPlayer()->GetID(), false);
 		// Send message to human
 		if(bHuman)
 		{
@@ -25412,6 +25422,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if(bAcceptable)
 				SetPlayerNoSettleRequestAccepted(eFromPlayer, true);
+				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), true);
 
 			if(bActivePlayer)
 			{
@@ -31588,7 +31599,7 @@ void CvDiplomacyAI::DoTestPromises()
 }
 
 #if defined(MOD_BALANCE_CORE)
-/// Check if ePlayer has made a non-expired military promise to us
+/// Return the number of turns since ePlayer has made an expansion promise to us
 int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 {
 	// Did they make a military promise?
@@ -31676,7 +31687,7 @@ void CvDiplomacyAI::ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int 
 	SetPlayerMilitaryPromiseCounter(ePlayer, GetPlayerMilitaryPromiseCounter(ePlayer) + iChange);
 }
 #if defined(MOD_BALANCE_CORE)
-/// Check if ePlayer has made a non-expired expansion promise to us
+/// Return the number of turns since ePlayer has made an expansion promise to us
 int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
 {
 	if(!IsPlayerMadeExpansionPromise(ePlayer))
@@ -31687,7 +31698,7 @@ int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
 	iGameTurn = GC.getGame().getGameTurn();
 
 	int iTurnDifference = iGameTurn - m_paiPlayerMadeExpansionPromiseTurn[ePlayer];
-	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	int iTimeOutTurns = 50;
 	
 	int iValue = (iTimeOutTurns - iTurnDifference);
 	if(iValue > 0)
@@ -31719,7 +31730,7 @@ bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestG
 	}
 
 	int iTurnDifference = iGameTurn - m_paiPlayerMadeExpansionPromiseTurn[ePlayer];
-	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	int iTimeOutTurns = 50;
 	if (iTurnDifference < iTimeOutTurns)
 	{
 		return true;
@@ -31832,7 +31843,7 @@ bool CvDiplomacyAI::EverMadeExpansionPromise(PlayerTypes ePlayer)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
-/// Check if this player has made a non-expired border promise to us
+/// Return the number of turns since ePlayer has made a border promise to us
 int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer)
 {
 	if(!IsPlayerMadeBorderPromise(ePlayer))
@@ -31843,7 +31854,7 @@ int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer)
 	iGameTurn = GC.getGame().getGameTurn();
 
 	int iTurnDifference = iGameTurn - m_paiPlayerMadeBorderPromiseTurn[ePlayer];
-	int iTimeOutTurns = (GC.getEXPANSION_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	int iTimeOutTurns = 50;
 
 	int iValue = (iTimeOutTurns - iTurnDifference);
 	if(iValue > 0)
@@ -31874,7 +31885,7 @@ bool CvDiplomacyAI::IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGame
 	}
 
 	int iTurnDifference = iGameTurn - m_paiPlayerMadeBorderPromiseTurn[ePlayer];
-	int iTimeOutTurns = (GC.getBORDER_PROMISE_TURNS_EFFECTIVE() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+	int iTimeOutTurns = 50;
 	if (iTurnDifference < iTimeOutTurns)
 	{
 		return true;
@@ -42654,8 +42665,18 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						ChangeNumTimesCultureBombed(eOtherTeamPlayer, -GetNumTimesCultureBombed(eOtherTeamPlayer));
 						ChangeNegativeReligiousConversionPoints(eOtherTeamPlayer, -GetNegativeReligiousConversionPoints(eOtherTeamPlayer));
 						ChangeNegativeArchaeologyPoints(eOtherTeamPlayer, -GetNegativeArchaeologyPoints(eOtherTeamPlayer));
-						
 						ChangeNumTimesRobbedBy(eOtherTeamPlayer, -GetNumTimesRobbedBy(eOtherTeamPlayer));
+						
+						// Reset all promises
+						SetPlayerMadeMilitaryPromise(eOtherTeamPlayer, false);
+						SetPlayerMadeExpansionPromise(eOtherTeamPlayer, false);
+						SetPlayerMadeBorderPromise(eOtherTeamPlayer, false);
+						SetPlayerMadeAttackCityStatePromise(eOtherTeamPlayer, false);
+						SetPlayerMadeBullyCityStatePromise(eOtherTeamPlayer, false);
+						SetPlayerMadeNoConvertPromise(eOtherTeamPlayer, false);
+						SetPlayerMadeNoDiggingPromise(eOtherTeamPlayer, false);
+						SetPlayerMadeSpyPromise(eOtherTeamPlayer, false);
+						
 						SetPlayerBrokenMilitaryPromise(eOtherTeamPlayer, false);
 						SetPlayerIgnoredMilitaryPromise(eOtherTeamPlayer, false);
 						SetBrokenBorderPromiseValue(eOtherTeamPlayer, 0);
@@ -42694,6 +42715,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 
 					// In case we had an ongoing operation against our Master, kill it
 					SetArmyInPlaceForAttack(eOtherTeamPlayer, false);
+#if defined(MOD_BALANCE_CORE_DEALS)
+					SetWantsSneakAttack(eOtherTeamPlayer, false);
+#endif
 
 					// Master had agreed to not settle nearby
 					if(GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->IsPlayerNoSettleRequestAccepted(GetPlayer()->GetID()))
