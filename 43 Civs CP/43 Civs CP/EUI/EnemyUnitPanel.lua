@@ -770,7 +770,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 
-			--NearbyPromtoion Unit that Gives a Combat bonus
+			-- NearbyPromotion Unit that gives a combat bonus
 			iModifier = pMyUnit:GetGiveCombatModToUnit();
 			if (pMyUnit:GetGiveCombatModToUnit() ~= 0 and bonusCount < maxBonusDisplay) then
 				
@@ -782,7 +782,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
-			--NearbyPromtoion Unit that gets a bonus near cities?
+			-- NearbyPromotion Unit that gets a bonus near cities?
 			iModifier = pMyUnit:GetNearbyCityBonusCombatMod();
 			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0 and bonusCount < maxBonusDisplay) then				
 				controlTable = g_MyCombatDataIM:GetInstance();
@@ -892,7 +892,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			end
 			
-			-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+			-- Displays miscellaneous bonus here if there are more than 4 bonuses
 			if (bonusCount > maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_MISC_BONUS" );
@@ -1313,7 +1313,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
-			--NearbyPromtoion Unit that gets a bonus near cities?
+			--NearbyPromotion Unit that gets a bonus near cities?
 			iModifier = pMyUnit:GetNearbyCityBonusCombatMod();
 			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0 and bonusCount < maxBonusDisplay) then				
 				controlTable = g_MyCombatDataIM:GetInstance();
@@ -1967,7 +1967,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			end
 			
-			-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+			-- Displays miscellaneous bonus here if there are more than 4 bonuses
 			if (bonusCount > maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_MISC_BONUS" );
@@ -2687,7 +2687,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;							
 				end
 				
-				-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+				-- Displays miscellaneous bonus here if there are more than 4 bonuses
 				if (bonusCount > maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );
@@ -3143,7 +3143,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;		
 		end
 		
-		-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+		-- Displays miscellaneous bonus here if there are more than 4 bonuses
 		if (bonusCount > maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );
@@ -3237,7 +3237,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 		end
 		
-		-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+		-- Displays miscellaneous bonus here if there are more than 4 bonuses
 		if (bonusCount > maxBonusDisplay) then
 			controlTable = g_MyCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );

@@ -149,6 +149,7 @@
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<Happiness>1</Happiness>
 			<Help>TXT_KEY_BUILDING_STUPA_HELP</Help>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<ConversionModifier>-10</ConversionModifier>

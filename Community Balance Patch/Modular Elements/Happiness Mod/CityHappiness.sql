@@ -7,7 +7,11 @@
 	-- Food % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '10';
+	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '2';
+
+	INSERT INTO Defines (
+	Name, Value)
+	SELECT 'BALANCE_UNHAPPINESS_FOOD_MODIFIER', '20';
 
 	-- Production % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
@@ -52,7 +56,7 @@
 
 -- 34 = 0.34 unhappiness per specialist.
 	INSERT INTO Defines (
-	Name, Value)
+	Name, Value)     
 	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '100'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
@@ -71,7 +75,7 @@
 -- Base increase of threshold values based on # of citizens in cities you own (1 citizen = 1%). Modifier increases as cities grow. 50 is default. Is a % modifier, so 25 would be a 25% increase over 1%.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '0'
+	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is modified based on the remaining population

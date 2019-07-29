@@ -4115,5 +4115,46 @@
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVASION_III</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_FIELD_WORKS_1</Type>
+			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_1</Description>
+			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_1_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<RangedDefenseMod>15</RangedDefenseMod>
+			<MaxHitPointsChange>15</MaxHitPointsChange>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>14</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FIELD_WORKS_1</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FIELD_WORKS_2</Type>
+			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_2</Description>
+			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_2_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<RangedDefenseMod>20</RangedDefenseMod>
+			<MaxHitPointsChange>20</MaxHitPointsChange>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>14</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FIELD_WORKS_2</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FIELD_WORKS_3</Type>
+			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_3</Description>
+			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_3_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<RangedDefenseMod>25</RangedDefenseMod>
+			<MaxHitPointsChange>25</MaxHitPointsChange>
+			<PortraitIndex>14</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FIELD_WORKS_3</PediaEntry>
+		</Row>
 	</UnitPromotions>
 </GameData>

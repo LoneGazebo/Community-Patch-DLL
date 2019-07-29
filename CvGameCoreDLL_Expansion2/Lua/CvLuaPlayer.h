@@ -363,6 +363,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCitizenNeeds, int);
 	LUAAPIEXTN(GetHappinessFromCitizenNeeds, int);
 	LUAAPIEXTN(GetBonusHappinessFromLuxuriesFlat, int);
+	LUAAPIEXTN(GetBonusHappinessFromLuxuriesFlatForUI, int);
 	LUAAPIEXTN(GetHandicapHappiness, int);
 #endif
 	static int lGetHappinessFromResourceVariety(lua_State* L);

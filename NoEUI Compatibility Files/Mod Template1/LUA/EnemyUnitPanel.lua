@@ -892,7 +892,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			end
 			
-			-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+			-- Displays miscellaneous bonus if there are more than 4 bonuses
 			if (bonusCount > maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_MISC_BONUS" );
@@ -1967,7 +1967,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			end
 			
-			-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+			-- Displays miscellaneous bonus if there are more than 4 bonuses
 			if (bonusCount > maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_MISC_BONUS" );
@@ -2687,7 +2687,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;							
 				end
 				
-				-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+				-- Displays miscellaneous bonus if there are more than 4 bonuses
 				if (bonusCount > maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );
@@ -3143,7 +3143,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;		
 		end
 		
-		-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+		-- Displays miscellaneous bonus if there are more than 4 bonuses
 		if (bonusCount > maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );
@@ -3237,7 +3237,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 		end
 		
-		-- here is displayed miscellaneous bonus if there are more then 4 bonuses
+		-- Displays miscellaneous bonus if there are more than 4 bonuses
 		if (bonusCount > maxBonusDisplay) then
 			controlTable = g_MyCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );

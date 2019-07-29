@@ -875,8 +875,9 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_STATE_RELIGION", religionHappiness);
 		end
 		if(resourcehappiness ~= 0) then
+			local perresourcehappiness  = pPlayer:GetBonusHappinessFromLuxuriesFlatForUI();
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness, perresourcehappiness);
 		end
 
 		strText = strText .. "[/COLOR]";

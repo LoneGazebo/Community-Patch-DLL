@@ -9867,14 +9867,27 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
 #if defined(MOD_BALANCE_CORE)
+			pDiploAI->SetPlayerNoSettleRequestEverAsked(eMePlayer, false);
+			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
+			pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));
 			pDiploAI->ChangeNegativeReligiousConversionPoints(eMePlayer, -pDiploAI->GetNegativeReligiousConversionPoints(eMePlayer));
 			pDiploAI->ChangeNegativeArchaeologyPoints(eMePlayer, -pDiploAI->GetNegativeArchaeologyPoints(eMePlayer));
-
 			pDiploAI->ChangeNumTimesRobbedBy(eMePlayer, -pDiploAI->GetNumTimesRobbedBy(eMePlayer));
+			
+			// Reset all promises
+			pDiploAI->SetPlayerMadeMilitaryPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeExpansionPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeBorderPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeAttackCityStatePromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeBullyCityStatePromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeNoConvertPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeNoDiggingPromise(eMePlayer, false);
+			pDiploAI->SetPlayerMadeSpyPromise(eMePlayer, false);
+			
 			pDiploAI->SetPlayerBrokenMilitaryPromise(eMePlayer, false);
 			pDiploAI->SetPlayerIgnoredMilitaryPromise(eMePlayer, false);
 			pDiploAI->SetBrokenBorderPromiseValue(eMePlayer, 0);
@@ -20450,7 +20463,7 @@ int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
 	if (getCapitalCity() == NULL)
 		return 0;
 
-	return pCity != NULL ? pCity->GetHappinessFromEmpire() : getCapitalCity()->GetHappinessFromEmpire();
+	return pCity != NULL ? (pCity->GetHappinessFromEmpire() + pCity->GetLuxuryHappinessFromEmpire()) : (getCapitalCity()->GetHappinessFromEmpire() + getCapitalCity()->GetLuxuryHappinessFromEmpire());
 }
 
 int CvPlayer::GetEmpireUnhappinessForCity(CvCity* pCity) const
@@ -22055,6 +22068,10 @@ int CvPlayer::GetBonusHappinessFromLuxuries(int iPop) const
 int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 {
 	int iTotalResourceWeight = 0;
+
+	int iCityScaler = getNumCities() * GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER();
+	iCityScaler /= 100;
+
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
@@ -22063,6 +22080,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 			continue;
 
 		iBaseVal += GetExtraHappinessPerLuxury();
+		iBaseVal += iCityScaler;
 
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
 		if (pInfo && pInfo->isMonopoly())
@@ -22088,6 +22106,52 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 
 	return iTotalResourceWeight;
 
+}
+
+int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
+{
+	int iTotalResourceWeight = 0;
+
+	int iCityScaler = getNumCities() * GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER();
+	iCityScaler /= 100;
+	
+	int iNumResources = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+		int iBaseVal = GetHappinessFromLuxury(eResource);
+		if (iBaseVal <= 0)
+			continue;
+
+		iBaseVal += GetExtraHappinessPerLuxury();
+		iBaseVal += iCityScaler;
+
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
+		if (pInfo && pInfo->isMonopoly())
+		{
+			if (HasGlobalMonopoly(eResource) && pInfo->getMonopolyHappiness() > 0)
+			{
+				iBaseVal += (pInfo->getMonopolyHappiness() + GetMonopolyModFlat());
+			}
+		}
+
+		// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
+		if (IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
+		{
+			iBaseVal *= /*150*/ GC.getMINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER();
+			iBaseVal /= 100;
+		}
+
+		iTotalResourceWeight += iBaseVal;
+
+		iNumResources++;
+	}
+
+	if (iTotalResourceWeight <= 0)
+		return 0;
+
+	return iTotalResourceWeight / max(1, iNumResources);
+	 
 }
 
 

@@ -126,6 +126,7 @@ public:
 	int GetHappinessFromLuxuries() const;
 
 	int GetHappinessFromEmpire() const;
+	int GetLuxuryHappinessFromEmpire() const;
 	void UpdateHappinessFromEmpire();
 
 	int GetUnhappinessFromEmpire() const;
@@ -1889,6 +1890,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iHappinessFromEmpire;
+	FAutoVariable<int, CvCity> m_iHappinessFromLuxuries;
 	FAutoVariable<int, CvCity> m_iUnhappinessFromEmpire;
 	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;

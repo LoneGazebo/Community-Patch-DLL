@@ -732,6 +732,7 @@ public:
 	int GetPlayerHappinessLuxuryCountFactor1000() const;
 	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
 	int GetBonusHappinessFromLuxuriesFlat() const;
+	int GetBonusHappinessFromLuxuriesFlatForUI() const;
 	int GetBonusHappinessFromLuxuriesGradient() const;
 #endif
 #if defined(MOD_BALANCE_CORE)

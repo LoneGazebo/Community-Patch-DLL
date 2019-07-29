@@ -907,5 +907,28 @@
 		<Row Tag="TXT_KEY_PROMOTION_HEAVY_SHIP_HELP">
 			<Text>+25% [ICON_STRENGTH] Strength when Attacking, +25% [ICON_STRENGTH] Strength versus Cities.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_1">
+			<Text>Field Works</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_1_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength against Ranged Attacks, +15 Hit Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_2">
+			<Text>Entrenchments</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_2_HELP">
+			<Text>+20% [ICON_STRENGTH] Strength against Ranged Attacks, +20 Hit Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_3">
+			<Text>DFPs</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_3_HELP">
+			<Text>+25% [ICON_STRENGTH] Strength against Ranged Attacks, +25 Hit Points.</Text>
+		</Row>
+
+		
 	</Language_en_US>
 </GameData>

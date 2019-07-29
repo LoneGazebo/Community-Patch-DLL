@@ -4029,7 +4029,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 	// This quest reward changed our status, so grab that info for the notification
 	if ((!bWasFriends && bNowFriends) || (!bWasAllies && bNowAllies))
 	{
-		pair<CvString, CvString> statusChangeStrings = pMinor->GetMinorCivAI()->GetStatusChangeNotificationStrings(m_eAssignedPlayer, /*bAdd*/true, bNowFriends, bNowAllies, eOldAlly, eNewAlly);
+		pair<CvString, CvString> statusChangeStrings = pMinor->GetMinorCivAI()->GetStatusChangeNotificationStrings(m_eAssignedPlayer, /*bAdd*/ true, bNowFriends, bNowAllies, eOldAlly, eNewAlly);
 		sMessage = sMessage + "[NEWLINE][NEWLINE]" + statusChangeStrings.first;
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -4955,14 +4955,14 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		}
 		if(bCoastal)
 		{
-			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/false, /*bIncludeStartEraUnits*/false, /*bIncludeOldEras*/false, /*bIncludeRanged*/true, /*bCoastal*/true);
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, /*bCoastal*/ true);
 		}
 		else
 		{
-			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/false, /*bIncludeStartEraUnits*/false, /*bIncludeOldEras*/false, /*bIncludeRanged*/true , /*bCoastal*/false);
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true , /*bCoastal*/ false);
 		}
 #else
-		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/false, /*bIncludeStartEraUnits*/false, /*bIncludeOldEras*/false, /*bIncludeRanged*/true);
+		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ false, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true);
 #endif
 	}
 }
@@ -5166,7 +5166,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 		{
 			PlayerTypes e = (PlayerTypes)i;
 			// special workaround to allow status changes despite minor already being dead
-			DoFriendshipChangeEffects(e, GetEffectiveFriendshipWithMajor(e), vNewInfluence.at(i), /*bFromQuest*/false, /*bIgnoreMinorDeath*/true);
+			DoFriendshipChangeEffects(e, GetEffectiveFriendshipWithMajor(e), vNewInfluence.at(i), /*bFromQuest*/ false, /*bIgnoreMinorDeath*/ true);
 			SetFriendshipWithMajor(e, vNewInfluence.at(i));
 		}
 		SetDisableNotifications(false);
@@ -10089,7 +10089,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		}
 
 		// Must be a Great Person for this player's civ
-		if(!GET_PLAYER(ePlayer).canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+		if(!GET_PLAYER(ePlayer).canTrain(eUnit, /*bContinue*/ false, /*bTestVisible*/ false, /*bIgnoreCost*/ true))
 		{
 			continue;
 		}
@@ -11568,7 +11568,7 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 	else
 	{
 		// special workaround to allow status changes despite minor already being dead
-		DoFriendshipChangeEffects(ePlayer, iOldFriendship, iResetFriendship, /*bFromQuest*/false, /*bIgnoreMinorDeath*/true);
+		DoFriendshipChangeEffects(ePlayer, iOldFriendship, iResetFriendship, /*bFromQuest*/ false, /*bIgnoreMinorDeath*/ true);
 		SetFriendshipWithMajor(ePlayer, iResetFriendship);
 	}
 
@@ -15407,8 +15407,8 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 
 #if !defined(NO_ACHIEVEMENTS)
 	//Nigerian Prince Achievement
-	MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", true /*bHideAssert*/);
-	MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", true /*bHideAssert*/);
+	MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", /*bHideAssert*/ true);
+	MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
 	bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
 
 	if (GET_PLAYER(eMajor).isHuman() && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto ))
@@ -16039,7 +16039,7 @@ CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 	
 	CvString sFactors = "";
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/false, &sFactors);
+	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ false, &sFactors);
 	bool bCanBully = CanMajorBullyGold(ePlayer, iScore);
 
 	Localization::String sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_AFRAID");
@@ -16070,7 +16070,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 		return false;
 #endif
 
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/true);
+	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ true);
 	return CanMajorBullyUnit(ePlayer, iScore);
 }
 
@@ -16108,7 +16108,7 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 
 	CvString sFactors = "";
-	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/true, &sFactors);
+	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ true, &sFactors);
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
 #if defined(MOD_BALANCE_CORE)
 	UnitClassTypes eUnitClassType = GetBullyUnit();
@@ -16168,7 +16168,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
 	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
-	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/false);
+	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/ false);
 	bool bSuccess = CanMajorBullyGold(eBully, iBullyMetric);
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -16385,7 +16385,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
 	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
-	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/true);
+	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/ true);
 	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
 
@@ -17571,7 +17571,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		}
 	}
 
-	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, false /*bTestOwner*/);
+	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false);
 
 	// There must be a valid improvement for the player to build
 	if(eImprovement == NO_IMPROVEMENT)
@@ -17618,7 +17618,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 		return;
 	}
 
-	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/false);
+	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false);
 	if(eImprovement == NO_IMPROVEMENT)
 	{
 		return;

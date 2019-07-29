@@ -54,6 +54,7 @@ public:
 	bool IsRepeatable() const;
 	int GetHappinessNeedModifier(int i) const;
 	int GetHappiness() const;
+	int GetEmpireMod() const;
 #endif
 	const char* GetMovieArtDef() const;
 
@@ -93,6 +94,7 @@ protected:
 	bool m_bIdeologyRequired;
 	int* m_piHappinessNeedModifier;
 	int m_iHappiness;
+	int m_iEmpireMod;
 #endif
 
 	CvString m_strCreateSound;

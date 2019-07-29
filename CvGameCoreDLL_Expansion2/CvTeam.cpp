@@ -1764,7 +1764,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			{
 				if (GET_PLAYER((PlayerTypes)iMajorCivLoop).isAlive())
 				{
-					// Alter Grand Strategy stats for all Majors in the game whove met this declaring war Major
+					// Alter Grand Strategy stats for all Majors in the game who've met this Major declaring war
 					for (iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
 					{
 						// I don't care if it's me

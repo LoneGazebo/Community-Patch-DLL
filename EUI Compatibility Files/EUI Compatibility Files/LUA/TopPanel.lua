@@ -1205,6 +1205,7 @@ if civ5_mode then
 			local eventhappiness = g_activePlayer:GetEventHappiness();
 			local tradehappiness = g_activePlayer:GetHappinessFromTradeRoutes();
 			local resourcehappiness = g_activePlayer:GetBonusHappinessFromLuxuriesFlat();
+			local perresourcehappiness  = g_activePlayer:GetBonusHappinessFromLuxuriesFlatForUI();
 			local handicaphappiness = g_activePlayer:GetHandicapHappiness();
 
 			------------
@@ -1224,7 +1225,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", eventhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO", religionhappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness, perresourcehappiness )
 
 			tips:insert( "[ENDCOLOR]" )
 			

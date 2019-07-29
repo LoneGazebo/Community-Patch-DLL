@@ -308,6 +308,7 @@ CvCity::CvCity() :
 	, m_bAllowPuppetPurchase("CvCity::m_bAllowPuppetPurchase", m_syncArchive)
 	, m_iStaticTechDeviation("CvCity::m_iStaticTechDeviation", m_syncArchive)
 	, m_iHappinessFromEmpire("CvCity::m_iHappinessFromEmpire", m_syncArchive)
+	, m_iHappinessFromLuxuries("CvCity::m_iHappinessFromLuxuries", m_syncArchive)
 	, m_iUnhappinessFromEmpire("CvCity::m_iUnhappinessFromEmpire", m_syncArchive)
 #endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -1596,6 +1597,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTotalGreatWorkAid = 0;
 	m_iStaticTechDeviation = 0;
 	m_iHappinessFromEmpire = 0;
+	m_iHappinessFromLuxuries = 0;
 	m_iUnhappinessFromEmpire = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -3639,14 +3641,22 @@ void CvCity::UpdateHappinessFromEmpire()
 	if (IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
 	{
 		m_iHappinessFromEmpire = 0;
+		m_iHappinessFromLuxuries = 0;
 		return;
 	}
 
+	int iLuxHappinessEmpire = kPlayer.GetBonusHappinessFromLuxuriesFlat();
+
 	int iCities = max(1, kPlayer.GetNumRealCities());
-	int iRemainder = kPlayer.GetHappiness() % iCities;
-	int iHappiness = kPlayer.GetHappiness() / iCities;
+	int iRemainder = (kPlayer.GetHappiness() - iLuxHappinessEmpire) % iCities;
+	int iHappiness = (kPlayer.GetHappiness() - iLuxHappinessEmpire) / iCities;
+
+	int iLuxRemainder = (iLuxHappinessEmpire) % iCities;
+	int iLuxHappiness = (iLuxHappinessEmpire) / iCities;
 
 	int iThisCityHappiness = 0;
+	int iThisCityLuxHappiness = 0;
+	
 	const CvCity* pLoopCity;
 	int iLoop;
 	while (iRemainder > 0)
@@ -3657,7 +3667,9 @@ void CvCity::UpdateHappinessFromEmpire()
 				continue;
 
 			if (pLoopCity->GetID() == GetID())
+			{
 				iThisCityHappiness++;
+			}
 
 			iRemainder--;
 			if (iRemainder <= 0)
@@ -3666,11 +3678,37 @@ void CvCity::UpdateHappinessFromEmpire()
 	}
 
 	m_iHappinessFromEmpire = iHappiness + iThisCityHappiness;
+
+	while (iLuxRemainder > 0)
+	{
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			if (pLoopCity->IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+				continue;
+
+			if (pLoopCity->GetID() == GetID())
+			{
+				iThisCityLuxHappiness++;
+			}
+
+			iLuxRemainder--;
+			if (iLuxRemainder <= 0)
+				break;
+		}
+	}
+
+	m_iHappinessFromLuxuries = iLuxHappiness + iThisCityLuxHappiness;
 }
 int CvCity::GetHappinessFromEmpire() const
 {
 	VALIDATE_OBJECT
-		return m_iHappinessFromEmpire;
+	return m_iHappinessFromEmpire;
+}
+
+int CvCity::GetLuxuryHappinessFromEmpire() const
+{
+	VALIDATE_OBJECT
+	return m_iHappinessFromLuxuries;
 }
 
 void CvCity::UpdateUnhappinessFromEmpire()
@@ -13095,7 +13133,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(pBuildingInfo->IsCapital())
 				owningPlayer.setCapitalCity(this);
 #if defined(MOD_BALANCE_CORE)
-			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+			bool bIsWonder = ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo());
+			if (bIsWonder)
+				owningPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_US);
+			if (!bNoBonus && bIsWonder)
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
 				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
@@ -16293,7 +16334,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if (MOD_BALANCE_CORE_HAPPINESS)
 		{
-			int iHappiness = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
+			int iHappiness = getHappinessDelta(true);
+				
+			if(iHappiness > 0)
+				iHappiness *= GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
+			else
+				iHappiness *= GC.getBALANCE_UNHAPPINESS_FOOD_MODIFIER();
+			
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -16312,14 +16359,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			}
 
 			//value
-			if (iHappiness != 0)
-			{
-				if (iHappiness <= -100)
-					iHappiness = -100;
-
-				if (iHappiness > 0)
-					iHappiness /= 2;
-			}
+			if (iHappiness <= -100)
+				iHappiness = -100;
 
 			iTotalMod += iHappiness;
 
@@ -20732,6 +20773,7 @@ int CvCity::GetLocalHappiness(int iPopMod) const
 	iLocalHappiness += GetBaseHappinessFromBuildings();
 
 	iLocalHappiness += GetHappinessFromEmpire();
+	iLocalHappiness += GetLuxuryHappinessFromEmpire();
 
 	iLocalHappiness += GetHappinessFromPolicies(iPopMod);
 	iLocalHappiness += GetHappinessFromReligion();
@@ -21588,7 +21630,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTech);
 
 		if (iPopMod != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
+			if (iPopMod > 0)
+				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS", iPopMod);
+			else
+				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
 
 		if (iEmpireMod != 0)
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
@@ -21734,10 +21779,11 @@ CvString CvCity::GetCityHappinessBreakdown()
 	int iBuildings = GetBaseHappinessFromBuildings() + GetHappinessFromBuildingClasses();
 	int iOther = GetUnmoddedHappinessFromBuildings();
 	int iEmpire = GetHappinessFromEmpire();
+	int iLuxury = GetLuxuryHappinessFromEmpire();
 	int iPolicies = GetHappinessFromPolicies();
 	int iReligion = GetHappinessFromReligion();
 
-	int iTotal = iHandicap + iBuildings + iOther + iEmpire + iPolicies + iReligion;
+	int iTotal = iHandicap + iBuildings + iOther + iEmpire + iLuxury + iPolicies + iReligion;
 
 	if (iTotal > getPopulation())
 		iTotal = getPopulation();
@@ -21747,6 +21793,8 @@ CvString CvCity::GetCityHappinessBreakdown()
 
 	if (iEmpire != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_EMPIRE_CBO", iEmpire);
+	if (iLuxury != 0)
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_LUXURY_CBO", iLuxury);
 	if (iHandicap != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_HANDICAP_CBO", iHandicap);
 	if (iBuildings != 0)
@@ -29492,6 +29540,11 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		if (pProject->GetHappiness() != 0)
 		{
 			ChangeUnmoddedHappinessFromBuildings(pProject->GetHappiness());
+		}
+
+		if (pProject->GetEmpireMod() != 0)
+		{
+			ChangeEmpireNeedsModifier(pProject->GetEmpireMod());
 		}
 	}
 
