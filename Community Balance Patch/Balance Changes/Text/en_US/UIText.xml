@@ -950,7 +950,7 @@
 			<Text>{1_Num} from [ICON_FOOD] Famine.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
-			<Text>{1_Num} from [ICON_RELIGION] Religious Divisions.</Text>
+			<Text>{1_Num} from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
 
 		<!-- Economic Overview -->
@@ -1005,7 +1005,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (Needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions[NEWLINE]         Reduction: {3_Num}, Needs {2_Icon} Followers</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Unrest[NEWLINE]         Reduction: {3_Num}, Needs {2_Icon} Followers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESISTANCE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESISTANCE] Resistance.</Text>
