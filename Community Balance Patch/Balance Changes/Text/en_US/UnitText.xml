@@ -156,19 +156,19 @@
 			<Text>Trailblazer I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP">
-			<Text>Double Movement in Jungles and Forests, +10% [ICON_STRENGTH] Strength outside friendly lands.</Text>
+			<Text>Double Movement in Jungles and Forests, +10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II">
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP">
-			<Text>Double Movement in Desert, and Snow. Ignores Zone of Control, +10% [ICON_STRENGTH] Strength outside friendly lands.</Text>
+			<Text>Double Movement in Desert, and Snow. Ignores Zone of Control, +10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III">
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
-			<Text>Attempts to withdraw when faced with a melee attack (60% chance), +10% [ICON_STRENGTH] Strength outside friendly lands.</Text>
+			<Text>Attempts to withdraw when faced with a melee attack (60% chance), +10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
 			<Text>Bonus vs Gunpowder (25)</Text>
@@ -201,7 +201,7 @@
 			<Text>Charge II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain, +20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain, +20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
@@ -233,7 +233,7 @@
 			<Text>Siege Inaccuracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP">
-			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Land[ENDCOLOR] Units.</Text>
+			<Text>-33% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY">
@@ -413,10 +413,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
-			<Text>+75% [ICON_STRENGTH] Strength versus [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
+			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_II_HELP">
-			<Text>+75% [ICON_STRENGTH] Strength versus [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
+			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE">
@@ -606,13 +606,13 @@
 			<Text>Firing Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4_HELP">
-			<Text>+25% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].</Text>
+			<Text>+25% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50 HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4">
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+15% Ranged [ICON_RANGE_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]outside[ENDCOLOR] Friendly Territory, and +15% Ranged [ICON_RANGE_STRENGTH] Combat Strength versus [COLOR_POSITIVE_TEXT]wounded[ENDCOLOR] Units.</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR], and +15% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Indomitable</Text>
@@ -652,7 +652,7 @@
 			<Text>Encirclement</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT_HELP">
-			<Text>+10% [ICON_STRENGTH] Attack per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR], +10 Hit Points when you [COLOR_POSITIVE_TEXT]defeat an enemy[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR] when attacking, +10 HP when you [COLOR_POSITIVE_TEXT]defeat an enemy[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_I">
@@ -685,7 +685,7 @@
 			<Text>Broadside</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4_HELP">
-			<Text>+40% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+40% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4">
 			<Text>Blockade</Text>
@@ -711,14 +711,14 @@
 			<Text>Vanguard</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_TERROR_HELP">
-			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Damage from Cities reduced by 50%.</Text>
+			<Text>+100% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Damage from Cities reduced by 50%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SIEGE">
 			<Text>Naval Siege</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SIEGE_HELP">
-			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Can heal [COLOR_POSITIVE_TEXT]outside[ENDCOLOR] of friendly territory.</Text>
+			<Text>+75% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Can heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY">
@@ -805,7 +805,7 @@
 			<Text>Coup de Grace</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_POWER_HELP">
-			<Text>+30% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+			<Text>+30% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY">
 			<Text>Parthian Tactics</Text>
@@ -818,38 +818,38 @@
 			<Text>Siege I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I_HELP">
-			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking, +10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II">
 			<Text>Siege II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II_HELP">
-			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking, +10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III">
 			<Text>Siege III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III_HELP">
-			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking, +10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I">
 			<Text>Field I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I_HELP">
-			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking, +10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II">
 			<Text>Field II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II_HELP">
-			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking, +10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III">
 			<Text>Field III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III_HELP">
-			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking, +10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">
