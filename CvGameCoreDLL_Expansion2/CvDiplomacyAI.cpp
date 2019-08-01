@@ -8342,7 +8342,7 @@ void CvDiplomacyAI::DoSomeoneDeclaredWarOnMe(TeamTypes eTeam)
 					// This will be updated on turn cycling, but for now we're "shocked and disappointed!"
 					SetWarGoal(eLoopPlayer, WAR_GOAL_PEACE);
 					SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					ChangeApproachTowardsUsGuessCounter(eLoopPlayer, 0);
+					SetApproachTowardsUsGuessCounter(eLoopPlayer, 0);
 //					SetMajorCivApproach(eLoopPlayer, MAJOR_CIV_APPROACH_DEFENSIVE_WAR);
 				}
 				// Minor Civs
@@ -11649,6 +11649,10 @@ void CvDiplomacyAI::SetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, 
 /// Is ePlayer expanding recklessly?
 bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 {
+	// Teammate? We don't care.
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return false;
+	
 	// If the player is too far away from us, we don't care
 	if(GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
 		return false;
@@ -11668,9 +11672,13 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		pPlayer = &GET_PLAYER(eLoopPlayer);
+		
+		// Dead, haven't met them, etc.
+		if(!IsPlayerValid(eLoopPlayer, true))
+			continue;
 
-		// Not alive
-		if(!pPlayer->isAlive())
+		// Player has no cities, so don't count them for the average
+		if(pPlayer->getNumCities() == 0)
 			continue;
 
 		// Not the guy we're looking at
@@ -26242,9 +26250,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			
 			if(GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 			{
-				SetWarFaceWithPlayer(eFromPlayer, WAR_FACE_GUARDED);
+				if (GetWarFaceWithPlayer(eFromPlayer) != WAR_FACE_HOSTILE)
+				{
+					SetWarFaceWithPlayer(eFromPlayer, WAR_FACE_GUARDED);
+				}
 			}
-			else
+			else if (GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_HOSTILE)
 			{
 				SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_GUARDED);
 			}
@@ -27885,7 +27896,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		{
 			return 12;
 		}
-		// Guy is setting near us and we don't like it
+		// Guy is settling near us and we don't like it
 		else if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
 		{
 			return 13;
@@ -27900,12 +27911,12 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		{
 			return 15;
 		}
-		//Is untrustworthy
+		// Is untrustworthy
 		else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
 		{
 			return 16;
 		}
-		//Previous wars
+		// Previous wars
 		else if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL && GetNumWarsFought(ePlayer) > 0 && GetForgiveness() <= 5)
 		{
 			return 17;
@@ -27915,7 +27926,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		{
 			return 18;
 		}
-		//Artifacts
+		// Artifacts
 		else if(IsPlayerBrokenNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
 		{
 			return 19;
@@ -30459,7 +30470,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
 	SetDenouncedPlayer(ePlayer, true);
-
 	SetDenouncedPlayerCounter(ePlayer, 0);
 
 	// close both embassies
@@ -30510,9 +30520,12 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		
 		if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 		{
-			SetWarFaceWithPlayer(ePlayer, WAR_FACE_GUARDED);
+			if (GetWarFaceWithPlayer(ePlayer) != WAR_FACE_HOSTILE)
+			{
+				SetWarFaceWithPlayer(ePlayer, WAR_FACE_GUARDED);
+			}
 		}
-		else
+		else if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_GUARDED);
 		}
@@ -41855,7 +41868,7 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 
-	// Have to share opinion to vassal
+	// Have to share opinion to master
 	if(IsVassal(ePlayer))
 		return true;
 

@@ -553,6 +553,11 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You are competing for World Wonders.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_WONDER_DISPUTE';
 
+-- Reckless Expansion
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They believe we are expanding our empire too aggressively![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_RECKLESS_EXPANDER';
+
 -- Spying
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You asked them not to spy on you.[ENDCOLOR]'
