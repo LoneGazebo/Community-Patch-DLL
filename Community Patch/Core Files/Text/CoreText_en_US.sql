@@ -403,6 +403,10 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 -- Trade Routes
 UPDATE Language_en_US
+SET Text = 'You must be at war with the trade route owner.'
+WHERE Tag = 'TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP';
+
+UPDATE Language_en_US
 SET Text = 'You have discovered {1_Num} technologies that {2_CivName} does not know.[NEWLINE]They are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED';
 
