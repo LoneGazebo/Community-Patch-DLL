@@ -142,7 +142,7 @@
 			<Text>Conscription</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS_HELP">
-			<Text>+10% [ICON_STRENGTH] Strength</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL">
@@ -678,7 +678,7 @@
 			<Text>Minelayer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER_HELP">
-			<Text>-10% [ICON_STRENGTH] Defense against [COLOR_POSITIVE_TEXT] Ranged Attacks[ENDCOLOR]. -2 [ICON_MOVES] Moves for enemy Naval unit that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this unit (unless immune to ZOC).</Text>
+			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. -2 [ICON_MOVES] Movement points for enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this unit (unless immune to ZOC).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
@@ -691,7 +691,7 @@
 			<Text>Blockade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP">
-			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a City, capping at City's [ICON_STRENGTH] Defense x 10. +25% [ICON_STRENGTH] Defense against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
+			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a City, capping at City's [ICON_STRENGTH] Combat Strength x 10. +25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4">
 			<Text>Pincer</Text>
@@ -704,7 +704,7 @@
 			<Text>Shrapnel Rounds</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BETTER_BOMBARDMENT_HELP">
-			<Text>+50% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Land[ENDCOLOR] Units.</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_TERROR">

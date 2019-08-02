@@ -109,11 +109,11 @@
 
 -- Cover now 25 and 25
 	UPDATE Language_en_US
-	SET Text = '+25% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COVER_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+25% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COVER_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
@@ -375,7 +375,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '-30% Ranged [ICON_RANGE_STRENGTH] Combat Strength. May attack twice.'
+	SET Text = '-30% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking. May attack twice.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -385,7 +385,7 @@
 	-- Indirect Fire, Blitz, Range Combat Strength Reductions
 
 	UPDATE Language_en_US
-	SET Text = '-10% Ranged [ICON_RANGE_STRENGTH] Combat Strength. Ranged attacks may be performed over obstacles (as long as other friendly units can see the target).'
+	SET Text = '-10% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking. Ranged attacks may be performed over obstacles (as long as other friendly units can see the target).'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -393,7 +393,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+1 Range. -20% Ranged [ICON_RANGE_STRENGTH] Combat Strength.'
+	SET Text = '+1 Range. -20% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Changed English UA
@@ -440,7 +440,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_FIGHTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP', '33% [ICON_STRENGTH] Bonus vs Air Fighters.');
+	VALUES ('TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP', '33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Fighters[ENDCOLOR].');
 
 	UPDATE Language_en_US
 	SET Text = 'Evasion'
