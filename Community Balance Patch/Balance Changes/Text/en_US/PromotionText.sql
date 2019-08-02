@@ -1,3 +1,18 @@
+	-- added All tiles cost 1 Movement point
+	UPDATE Language_en_US
+	SET Text = 'All tiles cost 1 Movement point.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Penalty Attacking Cities	
+	UPDATE Language_en_US
+	SET Text = '-33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_PENALTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Bonus vs Mounted	
+	UPDATE Language_en_US
+	SET Text = '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_MOUNTED_I_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
 -- Adjust Sortie
 	
 	UPDATE Language_en_US
