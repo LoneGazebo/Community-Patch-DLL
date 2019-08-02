@@ -32794,13 +32794,12 @@ int CvPlayer::calculateMilitaryMight() const
 #endif
 {
 	int rtnValue = 0;
-	const CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
+
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
 #if defined(MOD_BATTLE_ROYALE)
@@ -32818,17 +32817,11 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	int iNumCities = (getNumCities() * 10) + 100;
-	if(iNumCities > 0)
-	{
-		rtnValue *= 100;
-		rtnValue /= min(300, iNumCities);
-	}
-
-	return rtnValue;
+	//the more cities we have, the more we need to spread out our military
+	//add some bias to be >0 and smooth the transitions between the first cities
+	float fScaler = sqrtf(getNumCities() + 3.f); 
+	return int(rtnValue / fScaler);
 #else
-
 	//Simplistic increase based on player's gold
 	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
 	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);

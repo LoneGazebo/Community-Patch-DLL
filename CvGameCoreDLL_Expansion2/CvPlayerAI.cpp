@@ -1545,11 +1545,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		else
 		{
 			bool bIsSafe;
-			CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, true, bIsSafe);
-			if (pPlot == NULL)
+			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant, -1, false, bIsSafe);
+			if (pSettlePlot == NULL)
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
-			if ((plotDistance(pGreatMerchant->plot()->getX(), pGreatMerchant->plot()->getY(), pPlot->getX(), pPlot->getY()) * 3) < (plotDistance(pGreatMerchant->plot()->getX(), pGreatMerchant->plot()->getY(), pTarget->getX(), pTarget->getY()) * 2))
+			//prefer to claim empty space if we can
+			if ( GetCityDistanceInEstimatedTurns(pSettlePlot) < GetCityDistanceInEstimatedTurns(pTarget)+2 )
 				return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 			else
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1559,7 +1560,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	else if (pGreatMerchant->CanFoundColony())
 	{
 		bool bIsSafe;
-		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, true, bIsSafe);
+		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, false, bIsSafe);
 		if (pPlot != NULL)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
