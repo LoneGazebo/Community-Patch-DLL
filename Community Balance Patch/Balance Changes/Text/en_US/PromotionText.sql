@@ -1,3 +1,25 @@
+ -- added Sneak Attack
+	UPDATE Language_en_US
+	SET Text = 'Flank attack bonus increased by 10%.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+ -- added Recruitment
+	UPDATE Language_en_US
+	SET Text = 'Heals all damage if the unit kills a non-Barbarian Unit.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_RECRUITMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+ -- added Invulnerability
+
+	UPDATE Language_en_US
+	SET Text = '+30% [ICON_STRENGTH] Combat Bonus when defending. +20 HP when healing.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_INVULNERABIILITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+ -- added Heroism
+
+	UPDATE Language_en_US
+	SET Text = 'Unit awards combat bonus to nearby units as if it is a Great General.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HEROISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- added Bonuses in Snow, Tundra, and Hills
 	UPDATE Language_en_US
 	SET Text = 'In Snow, Tundra, Hills: +25% [ICON_STRENGTH] Combat Strength (if Forest or Jungle is not present) and Double Movement.'
@@ -419,7 +441,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'One extra Movement. May attack twice.'
+	SET Text = 'May attack twice. +1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Indirect Fire, Blitz, Range Combat Strength Reductions
