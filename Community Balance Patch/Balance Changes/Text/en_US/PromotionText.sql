@@ -1,6 +1,6 @@
  -- added Sneak Attack
 	UPDATE Language_en_US
-	SET Text = 'Flank attack bonus increased by 10%.'
+	SET Text = 'Flanking bonus increased by 10%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
  
  -- added Recruitment
