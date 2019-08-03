@@ -1,3 +1,28 @@
+	-- added Bonuses in Snow, Tundra, and Hills
+	UPDATE Language_en_US
+	SET Text = 'In Snow, Tundra, Hills: +25% [ICON_STRENGTH] Combat Strength (if Forest or Jungle is not present) and Double Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Homeland Guardian
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in friendly territory.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Near Capital Bonus
+	UPDATE Language_en_US
+	SET Text = '+30% [ICON_STRENGTH] Combat Strength while fighting in the capital; bonus falls off as the unit gets further away.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_DEFEND_NEAR_CAPITAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Lightning Warfare
+	UPDATE Language_en_US
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when attacking. +1 [ICON_MOVES] Movement. Ignore enemy Zones of Control.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_LIGHTNING_WARFARE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Penalty Attacking Cities (25)
+	UPDATE Language_en_US
+	SET Text = '-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_SMALL_PROMOTION_CITY_PENALTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- added All tiles cost 1 Movement point
 	UPDATE Language_en_US
 	SET Text = 'All tiles cost 1 Movement point.'
@@ -199,7 +224,7 @@
 
 -- fixed spear throw
 	UPDATE Language_en_US
-	SET Text = 'Before engaging in melee, this unit has an extra attack. +25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] units. [COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].'
+	SET Text = 'Before engaging in melee, this unit has an extra attack. +25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_GUNPOWDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	

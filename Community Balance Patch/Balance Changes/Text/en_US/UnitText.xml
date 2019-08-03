@@ -220,7 +220,7 @@
 			<Text>Atlatl Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
-			<Text>+50% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units. [COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>+50% Ranged [ICON_RANGE_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Naval Target Penalty</Text>
@@ -274,7 +274,7 @@
 			<Text>Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
-			<Text>Flank attack bonus increased by 150%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Defense x 10. Is able to use enemy roads.</Text>
+			<Text>Flank attack bonus increased by 150%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Combat Strength x 10. Is able to use enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
 			<Text>Withering Fire</Text>
@@ -905,7 +905,7 @@
 			<Text>Heavy Assault</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HEAVY_SHIP_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength when Attacking, +25% [ICON_STRENGTH] Strength versus Cities.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking, +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_1">
