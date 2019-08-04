@@ -709,6 +709,11 @@ UPDATE Language_en_US
 SET Text = 'It appears that you do have a reason for existing: to make this deal with me.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_HAPPY';
 
+-- Offer Trade (Neutral)
+UPDATE Language_en_US
+SET Text = 'This offer will not be open long; think about it.'
+WHERE Tag = 'TXT_KEY_LEADER_ENRICO_DANDOLO_TRADEREQUEST_NEUTRAL';
+
 -- Offer Trade (Hostile)
 UPDATE Language_en_US
 SET Text = 'You would do well to agree to our very fair and reasonable terms.'
