@@ -1,3 +1,13 @@
+ -- added Combat Bonus in forest/jungle (33) Mohawk Warrior
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_MOHAWK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- added Combat Bonus in forest/jungle (33) Jaguar
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
  -- added Sneak Attack
 	UPDATE Language_en_US
 	SET Text = 'Flanking bonus increased by 10%.'
