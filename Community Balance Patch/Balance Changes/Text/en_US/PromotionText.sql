@@ -1,3 +1,8 @@
+ -- added Enhanced Flank Attack
+	UPDATE Language_en_US
+	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
  -- added Combat Bonus in forest/jungle (33) Mohawk Warrior
 	UPDATE Language_en_US
 	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
@@ -37,7 +42,7 @@
 
 	-- added Homeland Guardian
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in Friendly Territory.'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added Near Capital Bonus
@@ -47,7 +52,7 @@
 
 	-- added Lightning Warfare
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength when attacking. +1 [ICON_MOVES] Movement. Ignore enemy Zones of Control.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when attacking. +1 [ICON_MOVES] Movement. Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_LIGHTNING_WARFARE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added Penalty Attacking Cities (25)
