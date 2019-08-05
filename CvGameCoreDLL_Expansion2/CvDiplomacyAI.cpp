@@ -16018,7 +16018,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_AGGRESSIVE_MILITARY_WARNING, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
 #if defined(MOD_BALANCE_CORE)
-		// Offer to an AI player
+		// AI resolution
 		else
 		{
 			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
@@ -16040,6 +16040,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					{
 						SetPlayerMadeMilitaryPromise(ePlayer, true);
 						SetPlayerMilitaryPromiseCounter(ePlayer, 0);
+					}
+					else
+					{
+						SetPlayerIgnoredMilitaryPromise(ePlayer, true);
 					}
 				}
 				else
@@ -18208,7 +18212,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE, szText, LEADERHEAD_ANIM_NEGATIVE);
 		}
-		// Offer to an AI player
+		// AI resolution
 		else
 		{
 			// Do we accept or make war?
@@ -27307,7 +27311,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// AI says yes, they will move their troops, and even better, they will leave the human alone
 			if(iResponse == 0)
 			{
-				// AI makes move troops request
+				// AI accepts move troops request
 				// Make sure all players on this team get this check, so that teammates don't screw each other over.
 				TeamTypes eLoopTeam;
 				for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
@@ -27318,8 +27322,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
 						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestCounter(eFromPlayer, 0);
 
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise(eFromPlayer, true);
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter(eFromPlayer, 0);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise((PlayerTypes)iI, true);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter((PlayerTypes)iI, 0);
 					}
 				}
 
@@ -27341,7 +27345,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// AI says they are just moving their troops through
 			else if(iResponse == 1)
 			{
-				// AI makes move troops request
+				// AI accepts move troops request
 				// Make sure all players on this team get this check, so that teammates don't screw each other over.
 				TeamTypes eLoopTeam;
 				for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
@@ -27352,8 +27356,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
 						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestCounter(eFromPlayer, 0);
 
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise(eFromPlayer, true);
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter(eFromPlayer, 0);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise((PlayerTypes)iI, true);
+						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter((PlayerTypes)iI, 0);
 					}
 				}
 
@@ -27391,7 +27395,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 				else
 				{
-					// AI makes move troops request
+					// AI accepts move troops request
 					// Make sure all players on this team get this check, so that teammates don't screw each other over.
 					TeamTypes eLoopTeam;
 					for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
@@ -27402,8 +27406,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
 							GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestCounter(eFromPlayer, 0);
 
-							GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise(eFromPlayer, true);
-							GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter(eFromPlayer, 0);
+							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise((PlayerTypes)iI, true);
+							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter((PlayerTypes)iI, 0);
 						}
 					}
 
@@ -33442,6 +33446,10 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	// Don't add this if they broke a military promise with US
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenMilitaryPromise() && !IsPlayerBrokenMilitaryPromise(ePlayer))
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_BROKEN_MILITARY_PROMISE_WORLD();
+	
+	// No penalty for teammates
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
 
 	return iOpinionWeight;
 }
@@ -33550,6 +33558,11 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 	// Don't add this if they broke a City-State attack promise with US
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsBrokenCityStatePromise() && !IsPlayerBrokenAttackCityStatePromise(ePlayer))
 		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
+	
+	// No penalty for teammates
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
+	
 	return iOpinionWeight;
 }
 
