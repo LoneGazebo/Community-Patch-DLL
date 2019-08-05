@@ -359,14 +359,14 @@
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
 			<Text>Courage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [COLOR_POSITIVE_TEXT]Attack[ENDCOLOR] bonus.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
@@ -380,7 +380,7 @@
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] Units.[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
@@ -413,17 +413,17 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
-			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
+			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_II_HELP">
-			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
+			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE">
 			<Text>Air Skirmisher</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE_HELP">
-			<Text>-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+			<Text>-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Land[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Naval Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_I_HELP">
@@ -449,7 +449,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_TARGETING_3_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] Units.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ARSENALE">
@@ -811,7 +811,7 @@
 			<Text>Parthian Tactics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP">
-			<Text>+1 [ICON_MOVES] Movement and ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+			<Text>Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">
@@ -905,7 +905,7 @@
 			<Text>Heavy Assault</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HEAVY_SHIP_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking, +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>		
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_1">
 			<Text>Field Works</Text>

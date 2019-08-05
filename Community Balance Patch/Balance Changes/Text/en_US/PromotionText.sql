@@ -1,3 +1,23 @@
+ -- added Damaged Enemy Bonus (33)
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Great General Combat Bonus
+	UPDATE Language_en_US
+	SET Text = '15% [ICON_STRENGTH] Combat Strength with Great General in same tile.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_GENERAL_STACKING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Statue Of Zeus Promotion
+	UPDATE Language_en_US
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_STATUE_ZEUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added 1 Extra Movement
+	UPDATE Language_en_US
+	SET Text = '+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_XTRA_MOVES_I_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
  -- added Mobility
 	UPDATE Language_en_US
 	SET Text = '+1 [ICON_MOVES] Movement.'
@@ -25,7 +45,7 @@
 
  -- added Sneak Attack
 	UPDATE Language_en_US
-	SET Text = 'Flanking bonus increased by 10%.'
+	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
  
  -- added Recruitment
@@ -67,7 +87,7 @@
 
 	-- added Penalty Attacking Cities (25)
 	UPDATE Language_en_US
-	SET Text = '-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_SMALL_PROMOTION_CITY_PENALTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added All tiles cost 1 Movement point
@@ -77,7 +97,7 @@
 
 	-- added Penalty Attacking Cities	
 	UPDATE Language_en_US
-	SET Text = '-33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '-33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_PENALTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added Bonus vs Mounted	
@@ -294,7 +314,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] Units.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -303,7 +323,7 @@
 
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] Units.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Reduce anti-sub power
@@ -582,15 +602,15 @@
 	-- Adjusted Buffalo stuff
 
 	UPDATE Language_en_US
-	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_CHEST_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 
