@@ -15,7 +15,7 @@
  
  -- added Recruitment
 	UPDATE Language_en_US
-	SET Text = 'Heals all damage if the unit kills a non-Barbarian Unit.'
+	SET Text = 'Heals all damage if the unit kills a [COLOR_POSITIVE_TEXT]non-Barbarian Unit[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RECRUITMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
  
  -- added Invulnerability
@@ -37,7 +37,7 @@
 
 	-- added Homeland Guardian
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in friendly territory.'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in Friendly Territory.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added Near Capital Bonus
@@ -57,7 +57,7 @@
 
 	-- added All tiles cost 1 Movement point
 	UPDATE Language_en_US
-	SET Text = 'All tiles cost 1 Movement point.'
+	SET Text = 'All tiles cost 1 [ICON_MOVES] Movement point.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- added Penalty Attacking Cities	
