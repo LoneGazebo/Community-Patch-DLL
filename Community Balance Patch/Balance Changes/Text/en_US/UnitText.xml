@@ -205,7 +205,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]. [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%. Ignores [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR] and Terrain Movement Penalties, and +10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]. [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%. Ignores [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR], all tiles cost 1 [ICON_MOVES] Movement point, and +10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER">
 			<Text>Guerilla Fighter</Text>
