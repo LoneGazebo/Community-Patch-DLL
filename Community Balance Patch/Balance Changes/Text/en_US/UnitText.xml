@@ -162,13 +162,13 @@
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double Movement in Desert, and Snow.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR],</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double Movement in Desert, and Snow.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III">
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Attempts to withdraw when faced with a melee attack (60% chance)</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Attempts to withdraw when faced with a melee attack (60% chance).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
 			<Text>Bonus vs Gunpowder (25)</Text>
@@ -625,7 +625,7 @@
 			<Text>Dauntless</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION_HELP">
-			<Text>Damage from all sources reduced by 5.[NEWLINE][COLOR_POSITIVE_TEXT]Heals 10 Additional HP[ENDCOLOR] per turn</Text>
+			<Text>Damage from all sources reduced by 5.[NEWLINE][COLOR_POSITIVE_TEXT]Heals 10 Additional HP[ENDCOLOR] per turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS">

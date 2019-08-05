@@ -1,3 +1,13 @@
+ -- added Great Himeji Castle
+	UPDATE Language_en_US
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HIMEJI_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Great Lighthouse Promotion
+	UPDATE Language_en_US
+	SET Text = '+1 Sight.[NEWLINE]+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_LIGHTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
  -- added Damaged Enemy Bonus (33)
 	UPDATE Language_en_US
 	SET Text = '+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].'
