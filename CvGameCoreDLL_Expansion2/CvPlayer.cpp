@@ -1006,10 +1006,6 @@ void CvPlayer::init(PlayerTypes eID)
 		{
 			updateExtraYieldThreshold((YieldTypes)iI);
 		}
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-		int iBuildingMid = 0;
-		int iBuildingLate = 0;
-#endif
 #if defined(MOD_BALANCE_CORE)
 		if (GetPlayerTraits()->GetEspionageModifier() != 0)
 		{
@@ -1029,70 +1025,6 @@ void CvPlayer::init(PlayerTypes eID)
 		}
 #endif
 		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-		if(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-		{
-			for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
-			{
-				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-				if(pkUnitClassInfo != NULL)
-				{
-					const UnitTypes eUnit = ((UnitTypes)(playerCivilizationInfo.getCivilizationUnits(iI)));
-					if(NO_UNIT != eUnit)
-					{
-						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-						if(pkUnitInfo->IsFoodProduction() && (pkUnitInfo->IsFoundMid()))
-						{
-							for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
-							{
-								const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
-								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-								if(pkBuildingClassInfo)
-								{
-									const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iJ)));
-									if(NO_BUILDING != eBuilding)
-									{
-										CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-										if(pkBuildingInfo)
-										{
-											if(pkUnitInfo->GetBuildOnFound(iJ))
-											{
-												iBuildingMid++;
-											}
-										}
-									}
-								}
-							}
-						}
-						if(pkUnitInfo->IsFoodProduction() && (pkUnitInfo->IsFoundLate()))
-						{
-							for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
-							{
-								const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
-								CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-								if(pkBuildingClassInfo)
-								{
-									const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iJ)));
-									if(NO_BUILDING != eBuilding)
-									{
-										CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-										if(pkBuildingInfo)
-										{
-											if(pkUnitInfo->GetBuildOnFound(iJ))
-											{
-												iBuildingLate++;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-#endif
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
 		{
 			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
@@ -1104,21 +1036,20 @@ void CvPlayer::init(PlayerTypes eID)
 				{
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-					if(pkUnitInfo != NULL && pkUnitInfo->IsFoundLate())
+					if (pkUnitInfo != NULL && pkUnitInfo->IsFoundLate())
 					{
-						if (iBuildingLate > 0 && pkUnitInfo->IsFoodProduction())
+						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, (40 * iBuildingLate));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
 						}
 					}
-					else if(pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
+					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
-						if(iBuildingMid > 0 && pkUnitInfo->IsFoodProduction())
+						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, (40 * iBuildingMid));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
 						}
 					}
-					else
 #endif
 					if(NULL != pkUnitInfo && pkUnitInfo->IsFound())
 					{
@@ -11139,6 +11070,44 @@ void CvPlayer::doTurn()
 		CalculateNetHappiness();
 		SetBestWonderCities();
 
+		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(GetID()).getCivilizationInfo();
+		for (int iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
+		{
+			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+			if (pkUnitClassInfo != NULL)
+			{
+				const UnitTypes eUnit = ((UnitTypes)(playerCivilizationInfo.getCivilizationUnits(iI)));
+				if (NO_UNIT != eUnit)
+				{
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+					if (pkUnitInfo != NULL && pkUnitInfo->IsFoundLate())
+					{
+						if (pkUnitInfo->IsFoodProduction())
+						{
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
+						}
+					}
+					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
+					{
+						if (pkUnitInfo->IsFoodProduction())
+						{
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
+						}
+					}
+					else
+					{
+#endif
+						if (NULL != pkUnitInfo && pkUnitInfo->IsFound())
+						{
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue());
+						}
+					}
+				}
+			}
+		}
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
@@ -11153,7 +11122,7 @@ void CvPlayer::doTurn()
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
-				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", 
+				strOutBuf.Format("Approval: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", 
 					GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), 
 					getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), GetNumUnitsToSupply());
 				strBaseString += strOutBuf;
@@ -14630,7 +14599,10 @@ void CvPlayer::found(int iX, int iY)
 			this->GetTradeAI()->DoTurn();
 		}
 		pCity->GetCityStrategyAI()->DoTurn();
-		pCity->chooseProduction();
+
+		if (!pCity->IsPuppet())
+			pCity->chooseProduction();
+
 		pCity->doFoundMessage();
 
 		// If this is the first city (or we still aren't getting tech for some other reason notify the player)
@@ -20520,7 +20492,7 @@ int CvPlayer::GetHappinessRatioRawPercent()
 {
 	int iUnhappyCitizens = getUnhappinessFromCitizenNeeds();
 	int iHappyCitizens = getHappinessFromCitizenNeeds();
-	return (iHappyCitizens * 100) / max(1, iUnhappyCitizens);
+	return ((iHappyCitizens * 100) / max(1, iUnhappyCitizens) / 2);
 }
 
 void CvPlayer::CalculateNetHappiness()
@@ -20545,7 +20517,9 @@ void CvPlayer::CalculateNetHappiness()
 		else
 		{
 			int iHappyCitizens = getHappinessFromCitizenNeeds();
-			int iPercent = min(100, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
+			int iPercent = min(200, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
+
+			iPercent /= 2;
 
 			if (iPercent != m_iHappinessTotal)
 			{
@@ -32858,13 +32832,12 @@ int CvPlayer::calculateMilitaryMight() const
 #endif
 {
 	int rtnValue = 0;
-	const CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
+
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
 #if defined(MOD_BATTLE_ROYALE)
@@ -32882,17 +32855,11 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	int iNumCities = (getNumCities() * 10) + 100;
-	if(iNumCities > 0)
-	{
-		rtnValue *= 100;
-		rtnValue /= min(300, iNumCities);
-	}
-
-	return rtnValue;
+	//the more cities we have, the more we need to spread out our military
+	//add some bias to be >0 and smooth the transitions between the first cities
+	float fScaler = sqrtf(getNumCities() + 3.f); 
+	return int(rtnValue / fScaler);
 #else
-
 	//Simplistic increase based on player's gold
 	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
 	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
@@ -46053,6 +46020,12 @@ int CvPlayer::getNewCityProductionValue() const
 	for(int i = 1; i <= iPopulation; ++i)
 	{
 		iValue += (getGrowthThreshold(i) * GC.getADVANCED_START_POPULATION_COST()) / 100;
+	}
+
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		iValue *= (100 + (getNumCities() * GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER()));
+		iValue /= 100;
 	}
 
 	return iValue;

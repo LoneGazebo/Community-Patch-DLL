@@ -973,7 +973,7 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 	if(kTarget.m_pTargetCity && kTarget.m_pMusterCity)
 	{
 		//sanity check
-		if (!GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(kTarget.m_pTargetCity->getOwner()).getTeam()))
+		if (!m_pPlayer->IsAtWarWith(kTarget.m_pTargetCity->getOwner()) && !GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(kTarget.m_pTargetCity->getOwner()).getTeam()))
 			OutputDebugString("warning: invalid attack target!\n");
 
 		if(kTarget.m_bNoLandPath)

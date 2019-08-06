@@ -1,39 +1,156 @@
+ -- added Great Himeji Castle
+	UPDATE Language_en_US
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HIMEJI_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Great Lighthouse Promotion
+	UPDATE Language_en_US
+	SET Text = '+1 Sight.[NEWLINE]+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_LIGHTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Damaged Enemy Bonus (33)
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Great General Combat Bonus
+	UPDATE Language_en_US
+	SET Text = '15% [ICON_STRENGTH] Combat Strength with Great General in same tile.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_GENERAL_STACKING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Statue Of Zeus Promotion
+	UPDATE Language_en_US
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_STATUE_ZEUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added 1 Extra Movement
+	UPDATE Language_en_US
+	SET Text = '+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_XTRA_MOVES_I_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Mobility
+	UPDATE Language_en_US
+	SET Text = '+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_MOBILITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Scouting III
+	UPDATE Language_en_US
+	SET Text = '+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Enhanced Flank Attack
+	UPDATE Language_en_US
+	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Combat Bonus in forest/jungle (33) Mohawk Warrior
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_MOHAWK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- added Combat Bonus in forest/jungle (33) Jaguar
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_JAGUAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+ -- added Sneak Attack
+	UPDATE Language_en_US
+	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+ -- added Recruitment
+	UPDATE Language_en_US
+	SET Text = 'Heals all damage if the unit kills a [COLOR_POSITIVE_TEXT]non-Barbarian Unit[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_RECRUITMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+ -- added Invulnerability
+
+	UPDATE Language_en_US
+	SET Text = '+30% [ICON_STRENGTH] Combat Bonus when defending.[NEWLINE]+20 HP when healing.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_INVULNERABIILITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+ 
+ -- added Heroism
+
+	UPDATE Language_en_US
+	SET Text = 'Unit awards combat bonus to nearby units as if it is a Great General.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HEROISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Bonuses in Snow, Tundra, and Hills
+	UPDATE Language_en_US
+	SET Text = 'In Snow, Tundra, Hills: +25% [ICON_STRENGTH] Combat Strength (if Forest or Jungle is not present) and Double Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Homeland Guardian
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Near Capital Bonus
+	UPDATE Language_en_US
+	SET Text = '+30% [ICON_STRENGTH] Combat Strength while fighting in the capital; bonus falls off as the unit gets further away.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_DEFEND_NEAR_CAPITAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Lightning Warfare
+	UPDATE Language_en_US
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_LIGHTNING_WARFARE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Penalty Attacking Cities (25)
+	UPDATE Language_en_US
+	SET Text = '-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_SMALL_PROMOTION_CITY_PENALTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added All tiles cost 1 Movement point
+	UPDATE Language_en_US
+	SET Text = 'All tiles cost 1 [ICON_MOVES] Movement point.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Penalty Attacking Cities	
+	UPDATE Language_en_US
+	SET Text = '-33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_PENALTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- added Bonus vs Mounted	
+	UPDATE Language_en_US
+	SET Text = '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_MOUNTED_I_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
 -- Adjust Sortie
 	
 	UPDATE Language_en_US
-	SET Text = '+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR], and +1 operational range.'
+	SET Text = '+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].[NEWLINE]+1 operational range.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- March
 	UPDATE Language_en_US
-	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action. -15% [ICON_STRENGTH] Combat Strength while defending.'
+	SET Text = '-15% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MARCH_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Replace Drill
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength, +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength, +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength, +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Replace Shock
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength, [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SHOCK_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength, [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SHOCK_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength, [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SHOCK_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Survivalism
@@ -45,55 +162,55 @@
 -- Replace Accuracy
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Replace Barrage with +5% Ranged Combat Strength and damage versus wounded units.
 
 	UPDATE Language_en_US
-	SET Text = '+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BARRAGE_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BARRAGE_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BARRAGE_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Woodsman, Ambush, Charge and Formation all get buffs in different terrains
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain, +20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CHARGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Double movement rate [COLOR_POSITIVE_TEXT]Through Forest and Jungle[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]ROUGH[ENDCOLOR] Terrain.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]ROUGH[ENDCOLOR] Terrain.[NEWLINE]Double movement rate [COLOR_POSITIVE_TEXT]Through Forest and Jungle[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOODSMAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Armored[ENDCOLOR] Units, +10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain.'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_FORMATION_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Armored[ENDCOLOR] Units, +10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain.'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_FORMATION_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored[ENDCOLOR] Units, +15% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]ROUGH[ENDCOLOR] Terrain.'
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]ROUGH[ENDCOLOR] Terrain.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AMBUSH_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored[ENDCOLOR] Units, +15% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]ROUGH[ENDCOLOR] Terrain.'
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]ROUGH[ENDCOLOR] Terrain.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AMBUSH_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 -- Fix Morale tooltip
@@ -109,64 +226,64 @@
 
 -- Cover now 25 and 25
 	UPDATE Language_en_US
-	SET Text = '+25% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COVER_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+25% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COVER_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
-	SET Text = '+5% [ICON_STRENGTH] Combat Strength, and +5% additional [ICON_STRENGTH] Combat Strength when adjacent to a friendly Unit.'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength when adjacent to a friendly Unit.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR].[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR].[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR], +10% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval and Land Units[ENDCOLOR].[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Bombardment now specifically anti-City.
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +25% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOMBARDMENT_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +25% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOMBARDMENT_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +25% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOMBARDMENT_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength. Inflicts the [COLOR_POSITIVE_TEXT]Boarded (I)[ENDCOLOR] status on enemies during melee combat, reducing their [ICON_MOVES] Movement by 2 for 1 Turn.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Inflicts the [COLOR_POSITIVE_TEXT]Boarded (I)[ENDCOLOR] status on enemies during melee combat, reducing their [ICON_MOVES] Movement by 2 for 1 Turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength. Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] effect from Naval Melee units.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] effect from Naval Melee units.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength. Inflicts the [COLOR_POSITIVE_TEXT]Boarded (II)[ENDCOLOR] status on enemies during melee combat, reducing their [ICON_MOVES] Movement by 4 for 1 Turn.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Inflicts the [COLOR_POSITIVE_TEXT]Boarded (II)[ENDCOLOR] status on enemies during melee combat, reducing their [ICON_MOVES] Movement by 4 for 1 Turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength. +10 Hit Points.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+10 Hit Points.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COASTAL_RAIDER_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength. +15 Hit Points.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+15 Hit Points.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COASTAL_RAIDER_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength. +15 Hit Points.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+15 Hit Points.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COASTAL_RAIDER_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -184,22 +301,22 @@
 
 -- fixed spear throw
 	UPDATE Language_en_US
-	SET Text = 'Before engaging in melee, this unit has an extra attack. +25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] units. [COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]Before engaging in melee, this unit has an extra attack.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_GUNPOWDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	
 -- Wolfpack extremely strong
 
 	UPDATE Language_en_US
-	SET Text = '+30% Combat Bonus when attacking. +1 Sight'
+	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Sight.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+30% Combat Bonus when attacking. +1 [ICON_MOVES] Movement.'
+	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Sight.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
+	
 	UPDATE Language_en_US
-	SET Text = '+30% Combat Bonus when attacking. Attempts to withdraw when faced with a melee attack (40% chance)'
+	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Sight.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -207,7 +324,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] Units.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -216,7 +333,7 @@
 
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] Units.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Reduce anti-sub power
@@ -251,9 +368,27 @@
 	INSERT INTO Language_en_US (Tag, Text) -- vanila uses March for this
 	VALUES ('TXT_KEY_PROMOTION_AIR_AMBUSH_2_HELP', '1 Extra [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR] may be made per turn. +25% [ICON_RANGE_STRENGTH] Strength VS [COLOR_POSITIVE_TEXT]Armored[ENDCOLOR] Units.');
 
+	-- Bomber Siege
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SIEGE_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SIEGE_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+34% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SIEGE_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- City Assault
+	UPDATE Language_en_US
+	SET Text = '+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SIEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- City Siege
 	UPDATE Language_en_US
-	SET Text = '+100% Bonus VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR] (City Siege).'
+	SET Text = '+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR] (City Siege).'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	UPDATE Language_en_US
 	SET Text = 'Bonus vs Cities (100)'
@@ -264,7 +399,7 @@
 
 	-- City Siege II
 	UPDATE Language_en_US
-	SET Text = '+100% Bonus VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR] (City Siege II).'
+	SET Text = '+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR] (City Siege II).'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_II_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	UPDATE Language_en_US
 	SET Text = 'Bonus vs Cities (100)'
@@ -278,7 +413,7 @@
 	SET Text = 'Bonus vs Cities (150)'
 	WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_CITY_ASSUALT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	UPDATE Language_en_US
-	SET Text = '+150% Bonus VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR] (City Assault).'
+	SET Text = '+150% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR] (City Assault).'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_ASSUALT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
  
 	-- Siege
@@ -286,7 +421,35 @@
 	SET Text = 'City Assault (50)'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SIEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Amphibious Change
+	-- Armor Plating
+
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ARMOR_PLATING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ARMOR_PLATING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ARMOR_PLATING_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Volley
+	UPDATE Language_en_US
+	SET Text = '+50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_VOLLEY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Survivalism
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]+5 HP healed per turn [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]+5 HP healed per turn [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Amphibious Change
 
 	UPDATE Language_en_US
 	SET Text = 'Eliminates combat penalties for attacking from the sea or over a river, and grants a movement bonus when moving across rivers.'
@@ -294,15 +457,15 @@
 
 	-- Medic I/II
 	UPDATE Language_en_US
-	SET Text = 'This unit and all units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 5 Additional HP[ENDCOLOR] per turn. -10% [ICON_STRENGTH] Combat Strength while defending.'
+	SET Text = '-10% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]This unit and all units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 5 Additional HP[ENDCOLOR] per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'This unit and all units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 5 Additional HP[ENDCOLOR] per turn. This unit [COLOR_POSITIVE_TEXT]Heals 5 Additional HP[ENDCOLOR] per turn when [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR]. -10% [ICON_STRENGTH] Combat Strength while defending.'
+	SET Text = '-10% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]This unit and all units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 5 Additional HP[ENDCOLOR] per turn.[NEWLINE]This unit [COLOR_POSITIVE_TEXT]Heals 5 Additional HP[ENDCOLOR] per turn when [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_II_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Cannot end turn on an Ocean tile until you have researched [COLOR_POSITIVE_TEXT]Compass[ENDCOLOR]. May move through Ocean tiles if ending on a Coastal tile.'
+	SET Text = 'Cannot end turn on an Ocean tile until you have researched [COLOR_POSITIVE_TEXT]Compass[ENDCOLOR].[NEWLINE]May move through Ocean tiles if ending on a Coastal tile.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
@@ -325,21 +488,21 @@
 
 	-- Second Attack Explanations
 	UPDATE Language_en_US
-	SET Text = '-20% [ICON_STRENGTH] Combat Strength. May attack twice.'
+	SET Text = '-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]May attack twice.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '-30% Ranged [ICON_RANGE_STRENGTH] Combat Strength. May attack twice.'
+	SET Text = '-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]May attack twice.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'One extra Movement. May attack twice.'
+	SET Text = 'May attack twice.[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Indirect Fire, Blitz, Range Combat Strength Reductions
 
 	UPDATE Language_en_US
-	SET Text = '-10% Ranged [ICON_RANGE_STRENGTH] Combat Strength. Ranged attacks may be performed over obstacles (as long as other friendly units can see the target).'
+	SET Text = '-10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]Ranged attacks may be performed over obstacles (as long as other friendly units can see the target).'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -347,7 +510,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+1 Range. -20% Ranged [ICON_RANGE_STRENGTH] Combat Strength.'
+	SET Text = '-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Range.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Changed English UA
@@ -362,7 +525,7 @@
 
 	-- Supply
 	UPDATE Language_en_US
-	SET Text = 'May heal damage [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR]. 5 HP healed per turn.'
+	SET Text = 'May heal damage [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]+5 HP healed per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SUPPLY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	-- Air Repair
@@ -380,21 +543,21 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_HELI_AMBUSH_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP', '25% [ICON_STRENGTH] Bonus vs Armored.');
+	VALUES ('TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP', '+25% [ICON_STRENGTH] Combat Strength VS Armored Units.');
 
 	UPDATE Language_en_US
 	SET Text = 'Tank Hunter II'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HELI_AMBUSH_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP', '25% [ICON_STRENGTH] Bonus vs Armored.');
+	VALUES ('TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP', '+25% [ICON_STRENGTH] Combat Strength VS Armored Units.');
 
 	UPDATE Language_en_US
 	SET Text = 'Eagle Hunter'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_FIGHTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP', '33% [ICON_STRENGTH] Bonus vs Air Fighters.');
+	VALUES ('TXT_KEY_PROMOTION_ANTI_FIGHTER_HELP', '33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Fighters[ENDCOLOR].');
 
 	UPDATE Language_en_US
 	SET Text = 'Evasion'
@@ -424,7 +587,7 @@
 
 	-- Embarkation
 	UPDATE Language_en_US
-	SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] tiles. Embarked units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] tiles and have +2 Sight.'
+	SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] tiles.[NEWLINE]Embarked units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] tiles and have +2 Sight.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	-- Golden Age Points from Kills
@@ -434,7 +597,7 @@
 	
 	-- Naval Leadership
 	UPDATE Language_en_US
-	SET Text = '+1 [ICON_MOVES] Movement. Improves combat effectiveness of nearby naval units. May use the [COLOR_POSITIVE_TEXT]Repair Fleet[ENDCOLOR] Ability twice before being expended.'
+	SET Text = ' May use the [COLOR_POSITIVE_TEXT]Repair Fleet[ENDCOLOR] Ability once before being expended.[NEWLINE]Improves combat effectiveness of nearby naval units.[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_ADMIRAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -449,15 +612,15 @@
 	-- Adjusted Buffalo stuff
 
 	UPDATE Language_en_US
-	SET Text = '+1 Movement. Flank attack bonus increased by 25%. +5% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+5% [ICON_STRENGTH] Combat Strength. Flank attack bonus increased by 25%. +5% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_CHEST_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+5% [ICON_STRENGTH] Combat Strength. Flank attack bonus increased by 25%. +5% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 5%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 

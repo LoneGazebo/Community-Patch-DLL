@@ -11351,28 +11351,17 @@ bool CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
 //	--------------------------------------------------------------------------------
 void CvPlot::updateRevealedOwner(TeamTypes eTeam)
 {
-	CvPlot* pAdjacentPlot;
-	bool bRevealed;
-	int iI;
-
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	bRevealed = false;
+	//we change the revealed owner when the plot or a neighbor is visible (not revealed)
+	bool bRevealed = isVisible(eTeam);
 
 	if(!bRevealed)
 	{
-		if(isVisible(eTeam))
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			bRevealed = true;
-		}
-	}
-
-	if(!bRevealed)
-	{
-		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 			if(pAdjacentPlot != NULL)
 			{
@@ -11385,7 +11374,9 @@ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
 		}
 	}
 
-	setRevealedOwner(eTeam, ((bRevealed) ? getOwner() : NO_PLAYER));
+	//only change the status if we consider the plot ownership revealed
+	if (bRevealed)
+		setRevealedOwner(eTeam, getOwner());
 }
 
 

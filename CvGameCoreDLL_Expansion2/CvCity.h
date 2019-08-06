@@ -523,6 +523,8 @@ public:
 	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
 	int foodDifferenceTimes100(bool bBottom = true, bool bJustCheckingStarve = false, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
+
+	int getGrowthMods() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromCitySpecialists();
 #endif

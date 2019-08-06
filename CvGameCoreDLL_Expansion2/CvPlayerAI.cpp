@@ -1480,7 +1480,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			continue;
 		iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eManufactory, eYield);
 	}
-	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_ENGINEER));
+	iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatEngineersCreated(true));
 	// Build manufactories up to your flavor.
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
@@ -1528,7 +1528,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 				continue;
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, eYield);
 		}
-		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_MERCHANT));
+		iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatMerchantsCreated(true));
 
 		//don't count colonias here (IMPROVEMENT_CUSTOMS_HOUSE_VENICE), so venice will build any number of them once they run out of city states to buy
 		int iNumImprovement = getImprovementCount(eCustomHouse);
@@ -1545,11 +1545,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		else
 		{
 			bool bIsSafe;
-			CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, true, bIsSafe);
-			if (pPlot == NULL)
+			CvPlot* pSettlePlot = GetBestSettlePlot(pGreatMerchant, -1, false, bIsSafe);
+			if (pSettlePlot == NULL)
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
-			if ((plotDistance(pGreatMerchant->plot()->getX(), pGreatMerchant->plot()->getY(), pPlot->getX(), pPlot->getY()) * 3) < (plotDistance(pGreatMerchant->plot()->getX(), pGreatMerchant->plot()->getY(), pTarget->getX(), pTarget->getY()) * 2))
+			//prefer to claim empty space if we can
+			if ( GetCityDistanceInEstimatedTurns(pSettlePlot) < GetCityDistanceInEstimatedTurns(pTarget)+2 )
 				return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 			else
 				return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1559,7 +1560,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	else if (pGreatMerchant->CanFoundColony())
 	{
 		bool bIsSafe;
-		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, true, bIsSafe);
+		CvPlot* pPlot = GetBestSettlePlot(pGreatMerchant, -1, false, bIsSafe);
 		if (pPlot != NULL)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1587,7 +1588,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		}
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		//This is to prevent a buildup of scientists if the AI is having a hard time planting them.
-		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));
+		iFlavor -= (GetCurrentEra() + GetCurrentEra() + getGreatScientistsCreated(true));
 		// Even if not going spaceship right now, build academies up to your flavor.
 		int iNumImprovement = getImprovementCount(eAcademy);
 		if (iNumImprovement <= iFlavor)

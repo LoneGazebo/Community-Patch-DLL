@@ -5622,16 +5622,16 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (plot() && canMoveInto(*plot(), CvUnit::MOVEFLAG_DESTINATION))
 		return true;
 
+	//remember we're calling this because the unit is trapped, so use really permissive flags
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | 
+									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_IGNORE_DANGER, 3);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+
 	//for performance reasons, start with a small search range and gradually increase it
-	int iInitialRange = 3;
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 	for (int i = 0; i < 3; i++)
 	{
-		//remember we're calling this because the unit is trapped, so use really permissive flags
-		SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | 
-										CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_IGNORE_DANGER, iInitialRange);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
 		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -5661,9 +5661,20 @@ bool CvUnit::jumpToNearestValidPlot()
 		}
 
 		if (pBestPlot) //found something?
-			break;
-		else
-			data.iMaxTurns *= 2; //double the search range
+		{
+			// "quick" heuristic check to make sure this is not a dead end
+			// alternatively we could verify against all plots reachable from owner's capital?
+			SPathFinderUserData data2(this, 0, 4);
+			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pBestPlot->getX(), pBestPlot->getY(), data2);
+
+			//seems to be fine
+			if ( plots2.size() > 23 )
+				break;
+		}
+
+		//double the search range for next iteration
+		data.iMaxTurns *= 2; 
 	}
 
 	if(GC.getLogging() && GC.getAILogging())

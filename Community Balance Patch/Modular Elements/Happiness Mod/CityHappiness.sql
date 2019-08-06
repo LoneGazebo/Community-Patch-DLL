@@ -11,7 +11,7 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FOOD_MODIFIER', '20';
+	SELECT 'BALANCE_UNHAPPINESS_FOOD_MODIFIER', '10';
 
 	-- Production % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
@@ -41,7 +41,7 @@
 	-- Per non-puppet city % modifier for unhappiness thresholds (i.e. # cities * value below = % modifier).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '5'
+	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '10'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- Flat unhappiness per founded city.
@@ -69,31 +69,31 @@
 -- 	Base Value of Tech - % of techs researched v. techs known, multiplied by this value. 100 is default (each tech increases % by fraction of techs remaining v. techs researched).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '100'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '150'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own (1 citizen = 1%). Modifier increases as cities grow. 50 is default. Is a % modifier, so 25 would be a 25% increase over 1%.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-50'
+	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-100'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is modified based on the remaining population
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '50'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is modified based on the remaining population
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '50'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '40'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is modified based on the remaining population
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '50'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '60'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is modified based on the remaining population

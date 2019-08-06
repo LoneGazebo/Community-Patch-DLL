@@ -524,7 +524,7 @@
 
 		<!--Old China UA Text-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA">
-			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day.' All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day.' All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
@@ -950,7 +950,7 @@
 			<Text>{1_Num} from [ICON_FOOD] Famine.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
-			<Text>{1_Num} from [ICON_RELIGION] Religious Divisions.</Text>
+			<Text>{1_Num} from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
 
 		<!-- Economic Overview -->
@@ -1005,7 +1005,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (Needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions[NEWLINE]         Reduction: {3_Num}, Needs {2_Icon} Followers</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Unrest[NEWLINE]         Reduction: {3_Num}, Needs {2_Icon} Followers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESISTANCE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESISTANCE] Resistance.</Text>

@@ -2725,7 +2725,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<GreatAdmiral>true</GreatAdmiral>
 			<MovesChange>1</MovesChange>
-			<NumRepairCharges>2</NumRepairCharges>
+			<NumRepairCharges>1</NumRepairCharges>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CIVILIAN</PediaType>

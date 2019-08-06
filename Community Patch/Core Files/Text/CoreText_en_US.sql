@@ -403,6 +403,10 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 -- Trade Routes
 UPDATE Language_en_US
+SET Text = 'You must be at war with the trade route owner.'
+WHERE Tag = 'TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP';
+
+UPDATE Language_en_US
 SET Text = 'You have discovered {1_Num} technologies that {2_CivName} does not know.[NEWLINE]They are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED';
 
@@ -553,6 +557,11 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You are competing for World Wonders.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_WONDER_DISPUTE';
 
+-- Reckless Expansion
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They believe we are expanding our empire too aggressively![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_RECKLESS_EXPANDER';
+
 -- Spying
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You asked them not to spy on you.[ENDCOLOR]'
@@ -699,6 +708,11 @@ WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_HAPPY';
 UPDATE Language_en_US
 SET Text = 'It appears that you do have a reason for existing: to make this deal with me.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_HAPPY';
+
+-- Offer Trade (Neutral)
+UPDATE Language_en_US
+SET Text = 'This offer will not be open long; think about it.'
+WHERE Tag = 'TXT_KEY_LEADER_ENRICO_DANDOLO_TRADEREQUEST_NEUTRAL';
 
 -- Offer Trade (Hostile)
 UPDATE Language_en_US

@@ -9555,14 +9555,17 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			if (currentPlot.isEdgePlot())
 				iDanger = max(pUnit->GetCurrHitPoints()+1,iDanger);
 
-			//try to be more careful with highly promoted units
 			if (iDanger > 0)
 			{
+				//try to be more careful with highly promoted units
 				iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 200;
+
+				//if we're not alone, maybe not everybody will attack us
+				int iSpreadFactor = pUnit->isRanged() ? currentPlot.getNumAdjacentFirstlineFriendlies() + 1 : currentPlot.getNumAdjacentFriendlies() + 1;
 
 				//penalty for high danger plots
 				//todo: take into account self damage from previous attacks
-				iDangerScore = (iDanger * 20) / (pUnit->GetCurrHitPoints() + 1);
+				iDangerScore = (iDanger * 100) / iSpreadFactor / (pUnit->GetCurrHitPoints() + 1);
 			}
 
 			//ranged specialties
@@ -9576,9 +9579,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					result.iScore = iMiscScore; //not impossible but strongly discouraged
 					return result;
 				}
-
-				//ranged units are more sensitive to danger
-				iDangerScore *= 2;
 			}
 			else //melee wants to engage the enemy but not too many at once
 			{
@@ -9712,8 +9712,11 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			//try to be more careful with highly promoted units
 			iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 1000;
 
+			//if we're not alone, maybe not everybody will attack us
+			int iSpreadFactor = pUnit->isRanged() ? currentPlot.getNumAdjacentFirstlineFriendlies() + 1 : currentPlot.getNumAdjacentFriendlies() + 1;
+
 			//use normalized danger for scoring
-			result.iScore -= (iDanger * 20) / (pUnit->GetCurrHitPoints() + 1);
+			result.iScore -= (iDanger * 100) / iSpreadFactor / (pUnit->GetCurrHitPoints() + 1);
 		}
 
 		if (currentPlot.getNumAdjacentFriendlies() > 0)
@@ -9828,7 +9831,9 @@ STacticalAssignment ScorePlotForNonCombatUnit(const SUnitStats unit, const SMove
 		{
 			if (tactPlot.isEdgePlot()) //if we don't expect combat, we can afford to be less careful - embarked units have limited vision!
 				iDanger += (assumedPosition.getAggressionLevel()==AL_NONE) ? 20 : 50;
-			iScore -= iDanger / 10;
+
+			//if we're not alone, maybe not everybody will attack us
+			iScore -= iDanger / (tactPlot.getNumAdjacentFriendlies() + 1);
 		}
 	}
 

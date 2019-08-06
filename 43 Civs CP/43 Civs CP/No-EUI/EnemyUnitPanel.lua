@@ -2428,6 +2428,20 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;				
 				end
 
+				-- HERE CHANGE
+				-- UnitClassDefenceAttackModifier
+				iModifier = pTheirUnit:UnitClassAttackModifier(pMyUnit:GetUnitClassType());
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pMyUnit:GetUnitClassType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS" , unitClassType );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;			
+				end
+
 				---- ClassDefenseModifier
 				--iModifier = pTheirUnit:unitClassDefenseModifier(pMyUnit:getUnitClassType());
 				--if (iModifier ~= 0) then
@@ -2435,6 +2449,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					--strText = "Defense Bonus: " .. iModifier .. "%";
 	----				strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitClassInfo(pMyUnit:getUnitClassType()).GetTextKey()));
 				--end
+
+
 
 				-- UnitCombatModifier
 				if (pMyUnit:GetUnitCombatType() ~= -1) then
@@ -2451,6 +2467,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;					
 					end
 				end
+
+
 
 				---- unitCombatModifier
 				--if (pMyUnit:getUnitCombatType() ~= NO_UNITCOMBAT)

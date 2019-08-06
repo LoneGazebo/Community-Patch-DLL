@@ -2415,6 +2415,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end	
 				end
 
+
+
 				-- UnitClassDefenseModifier
 				iModifier = pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -2426,6 +2428,20 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;				
+				end
+
+				-- HERE CHANGE
+				-- UnitClassDefenceAttackModifier
+				iModifier = pTheirUnit:UnitClassAttackModifier(pMyUnit:GetUnitClassType());
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pMyUnit:GetUnitClassType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS" , unitClassType );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;			
 				end
 
 				---- ClassDefenseModifier

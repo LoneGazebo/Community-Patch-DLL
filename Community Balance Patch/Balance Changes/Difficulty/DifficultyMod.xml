@@ -10,7 +10,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>90</AdvancedStartPointsMod>
 			<HappinessDefault>12</HappinessDefault>
-			<HappinessDefaultCapital>4</HappinessDefaultCapital>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -71,7 +71,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>85</AdvancedStartPointsMod>
 			<HappinessDefault>11</HappinessDefault>
-			<HappinessDefaultCapital>4</HappinessDefaultCapital>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -133,7 +133,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>80</AdvancedStartPointsMod>
 			<HappinessDefault>10</HappinessDefault>
-			<HappinessDefaultCapital>3</HappinessDefaultCapital>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -195,7 +195,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>75</AdvancedStartPointsMod>
 			<HappinessDefault>9</HappinessDefault>
-			<HappinessDefaultCapital>3</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -257,7 +257,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>65</AdvancedStartPointsMod>
 			<HappinessDefault>8</HappinessDefault>
-			<HappinessDefaultCapital>3</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -319,7 +319,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>55</AdvancedStartPointsMod>
 			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -382,7 +382,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>50</AdvancedStartPointsMod>
 			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
@@ -445,7 +445,7 @@
 			<StartingLocPercent>50</StartingLocPercent>
 			<AdvancedStartPointsMod>45</AdvancedStartPointsMod>
 			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
