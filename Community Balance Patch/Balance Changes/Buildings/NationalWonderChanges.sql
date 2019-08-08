@@ -371,7 +371,7 @@ VALUES
 INSERT INTO Building_YieldFromTech
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_OXFORD_UNIVERSITY', 'YIELD_CULTURE', 75);
+	('BUILDING_OXFORD_UNIVERSITY', 'YIELD_CULTURE', 25);
 
 INSERT INTO Building_GoldenAgeYieldMod
 	(BuildingType, YieldType, Yield)

@@ -681,6 +681,9 @@ void CvCityCitizens::DoTurn()
 		int iDiscourage = MOD_BALANCE_CORE_HAPPINESS ? GC.getUNHAPPY_THRESHOLD() : 0;
 		m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= iDiscourage;
 
+		if (!m_bDiscourageGrowth && m_pCity->getGrowthMods() <= -25)
+			m_bDiscourageGrowth = true;
+
 		if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
 		{
 			int iUnhappyAverage = 0;
@@ -1001,6 +1004,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 					}
 					break;
 				case YIELD_PRODUCTION:
+				case YIELD_FOOD:
 					if (m_pCity->getUnhappinessFromDefense() > 0)
 					{
 						iYield *= 2;
@@ -1661,6 +1665,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iFoodFactor /= max(1, (100 - m_pCity->getPopulation()));
 
 		iFoodVal = range(iFoodFactor, 0, 100);
+		int iGrowth = m_pCity->getGrowthMods();
+		if (iGrowth <= 0)
+		iFoodVal += (iGrowth * -1);
+
+		if (m_bDiscourageGrowth)
+			iFoodVal *= 2;
 	}
 
 	///////
@@ -1802,6 +1812,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 					}
 					break;
 				case YIELD_PRODUCTION:
+				case YIELD_FOOD:
 					if (m_pCity->getUnhappinessFromDefense() > 0)
 					{
 						iYield *= 5;
@@ -3380,7 +3391,7 @@ CvPlot* CvCityCitizens::GetCityPlotFromIndex(int iIndex) const
 ///////////////////////////////////////////////////
 int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 {
-	if (m_pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+	if (m_pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
 		return 0;
 
 	int iGPPChange = 0;

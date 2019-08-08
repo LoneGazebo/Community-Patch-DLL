@@ -298,7 +298,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 	}
 
-	if (!bFree && (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling()) && !bCombat)
+	bool bDesperate = m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege();
+
+	if (!bFree && bDesperate && !bCombat)
 	{
 		return 0;
 	}
@@ -1699,13 +1701,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus -= 100;
 		}
 	}
-
-	if (m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege())
+	
+	if (bDesperate)
 	{
 		if (bCombat)
-			iBonus += 250;
+			iBonus += 500;
 		else
-			iBonus -= 250;
+			iBonus -= 500;
 	}
 
 	if (bCombat && pkUnitEntry->GetRangedCombat() <= 0)
@@ -1766,8 +1768,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//prioritize siege cities for purchase
 	if (bForPurchase && bCombat)
 	{
-		if (m_pCity->isUnderSiege())
-			iBonus += 100;
+		if (bDesperate)
+			iBonus += 250;
 	}
 
 	if (!kPlayer.isMinorCiv())

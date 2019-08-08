@@ -91,7 +91,7 @@ WHERE Type = 'POLICY_REPRESENTATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 
 UPDATE Policies
-SET HappinessPerXPopulationGlobal = '8'
+SET HappinessPerXPopulationGlobal = '10'
 WHERE Type = 'POLICY_REPRESENTATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Meritocracy
@@ -149,7 +149,7 @@ VALUES
 INSERT INTO Policy_YieldFromConstruction
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_REPUBLIC', 'YIELD_CULTURE', 15);
+	('POLICY_REPUBLIC', 'YIELD_CULTURE', 10);
 
 INSERT INTO Policy_YieldChangeTradeRoute
 	(PolicyType, YieldType, Yield)

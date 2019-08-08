@@ -158,27 +158,27 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 			if (iNumWar > 0)
 			{
-				iModifier -= (iNumWar * 15);
+				iModifier += (iNumWar * 5);
 				if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 				{
 					//More cities = more threat.
-					int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 25;
+					int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 5;
 					if (iThreat > 0)
 					{
-						iModifier -= iThreat;
+						iModifier += iThreat;
 					}
 				}
 				if (m_pCity->isPotentiallyInDanger())
 				{
-					iModifier -= 100;
+					iModifier += 25;
 				}
 				if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
 				{
-					iModifier -= 100;
+					iModifier += 25;
 				}
 				if (m_pCity->IsBlockadedWaterAndLand())
 				{
-					iModifier -= 100;
+					iModifier += 25;
 				}
 			}
 		}

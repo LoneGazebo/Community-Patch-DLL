@@ -524,7 +524,7 @@
 
 		<!--Old China UA Text-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA">
-			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day.' All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day.' All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
@@ -950,7 +950,7 @@
 			<Text>{1_Num} from [ICON_FOOD] Famine.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
-			<Text>{1_Num} from [ICON_RELIGION] Religious Divisions.</Text>
+			<Text>{1_Num} from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
 
 		<!-- Economic Overview -->
@@ -970,8 +970,11 @@
 		<Row Tag="TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_RESEARCH] Technology: +{1_Num}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_TECH_POP_UNHAPPINESS_MOD">
+		<Row Tag="TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS">
 			<Text>[ICON_BULLET] [ICON_CITIZEN] City Size: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_POP_UNHAPPINESS_MOD">
+			<Text>[ICON_BULLET] [ICON_CITIZEN] City Size: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_CITY_STATE] Empire Size: +{1_Num}%</Text>
@@ -1002,7 +1005,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (Needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions[NEWLINE]         Reduction: {3_Num}, Needs {2_Icon} Followers</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Unrest[NEWLINE]         Reduction: {3_Num}, Needs {2_Icon} Followers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESISTANCE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESISTANCE] Resistance.</Text>
@@ -1161,7 +1164,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN">
-			<Text>[COLOR_POSITIVE_TEXT]Factors that Increase Needs:[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Needs Factors:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_REDUCTION_AVERAGE_MODS_BREAKDOWN">
 			<Text>[COLOR_POSITIVE_TEXT]Factors that Decrease Needs:[ENDCOLOR]</Text>
@@ -1365,6 +1368,10 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Empire Sources</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_HAPPY_LUXURY_CBO">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Luxuries</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_HAPPY_HANDICAP_CBO">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] for being the [ICON_CAPITAL] Capital</Text>
 		</Row>
@@ -1386,7 +1393,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_TP_HAPPINESS_RESOURCE_CITY">
-			<Text>{1_Num} from Imported and Controlled Luxuries</Text>
+			<Text>{1_Num} from Imported and Controlled Luxuries (Avg. {2_Num} per Luxury)</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_NEEDS">

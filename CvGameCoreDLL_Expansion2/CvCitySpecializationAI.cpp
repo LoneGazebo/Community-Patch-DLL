@@ -358,12 +358,6 @@ void CvCitySpecializationAI::DoTurn()
 		return;
 	}
 
-	// No city specialization if we don't have enough cities
-	if(m_pPlayer->getNumCities() < 2)
-	{
-		return;
-	}
-
 	CvCity* pLoopCity = NULL;
 	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
@@ -387,6 +381,13 @@ void CvCitySpecializationAI::DoTurn()
 
 		m_bChooseNewWonder = false;
 	}
+
+	// No city specialization if we don't have enough cities
+	if (m_pPlayer->getNumCities() < 2)
+	{
+		return;
+	}
+
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{
@@ -450,6 +451,12 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 #endif
 			break;
 		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL:
+			m_bChooseNewWonder = true;
+			break;
+		case SPECIALIZATION_UPDATE_CITY_FOUNDED:
+			m_bChooseNewWonder = true;
+			break;
+		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_US:
 			m_bChooseNewWonder = true;
 			break;
 

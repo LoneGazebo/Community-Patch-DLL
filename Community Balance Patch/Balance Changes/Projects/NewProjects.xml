@@ -30,6 +30,7 @@
 			<CostScalerEra>100</CostScalerEra>
 			<CostScalerNumRepeats>100</CostScalerNumRepeats>
 			<Happiness>1</Happiness>
+			<EmpireMod>-5</EmpireMod>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>13</PortraitIndex>
 		</Row>

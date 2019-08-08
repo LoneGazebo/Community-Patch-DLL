@@ -61,6 +61,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bInfluenceAllRequired = kResults.GetBool("InfluenceAllRequired");
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
 	m_iHappiness = kResults.GetInt("Happiness");
+	m_iEmpireMod = kResults.GetInt("EmpireMod");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -282,6 +283,10 @@ int CvProjectEntry::GetHappinessNeedModifier(int i) const
 int CvProjectEntry::GetHappiness() const
 {
 	return m_iHappiness;
+}
+int CvProjectEntry::GetEmpireMod() const
+{
+	return m_iEmpireMod;
 }
 #endif
 

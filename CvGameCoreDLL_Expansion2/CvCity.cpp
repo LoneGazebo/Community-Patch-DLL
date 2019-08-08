@@ -308,6 +308,7 @@ CvCity::CvCity() :
 	, m_bAllowPuppetPurchase("CvCity::m_bAllowPuppetPurchase", m_syncArchive)
 	, m_iStaticTechDeviation("CvCity::m_iStaticTechDeviation", m_syncArchive)
 	, m_iHappinessFromEmpire("CvCity::m_iHappinessFromEmpire", m_syncArchive)
+	, m_iHappinessFromLuxuries("CvCity::m_iHappinessFromLuxuries", m_syncArchive)
 	, m_iUnhappinessFromEmpire("CvCity::m_iUnhappinessFromEmpire", m_syncArchive)
 #endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -1596,6 +1597,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTotalGreatWorkAid = 0;
 	m_iStaticTechDeviation = 0;
 	m_iHappinessFromEmpire = 0;
+	m_iHappinessFromLuxuries = 0;
 	m_iUnhappinessFromEmpire = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -3639,14 +3641,22 @@ void CvCity::UpdateHappinessFromEmpire()
 	if (IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
 	{
 		m_iHappinessFromEmpire = 0;
+		m_iHappinessFromLuxuries = 0;
 		return;
 	}
 
+	int iLuxHappinessEmpire = kPlayer.GetBonusHappinessFromLuxuriesFlat();
+
 	int iCities = max(1, kPlayer.GetNumRealCities());
-	int iRemainder = kPlayer.GetHappiness() % iCities;
-	int iHappiness = kPlayer.GetHappiness() / iCities;
+	int iRemainder = (kPlayer.GetHappiness() - iLuxHappinessEmpire) % iCities;
+	int iHappiness = (kPlayer.GetHappiness() - iLuxHappinessEmpire) / iCities;
+
+	int iLuxRemainder = (iLuxHappinessEmpire) % iCities;
+	int iLuxHappiness = (iLuxHappinessEmpire) / iCities;
 
 	int iThisCityHappiness = 0;
+	int iThisCityLuxHappiness = 0;
+	
 	const CvCity* pLoopCity;
 	int iLoop;
 	while (iRemainder > 0)
@@ -3657,7 +3667,9 @@ void CvCity::UpdateHappinessFromEmpire()
 				continue;
 
 			if (pLoopCity->GetID() == GetID())
+			{
 				iThisCityHappiness++;
+			}
 
 			iRemainder--;
 			if (iRemainder <= 0)
@@ -3666,11 +3678,37 @@ void CvCity::UpdateHappinessFromEmpire()
 	}
 
 	m_iHappinessFromEmpire = iHappiness + iThisCityHappiness;
+
+	while (iLuxRemainder > 0)
+	{
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			if (pLoopCity->IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+				continue;
+
+			if (pLoopCity->GetID() == GetID())
+			{
+				iThisCityLuxHappiness++;
+			}
+
+			iLuxRemainder--;
+			if (iLuxRemainder <= 0)
+				break;
+		}
+	}
+
+	m_iHappinessFromLuxuries = iLuxHappiness + iThisCityLuxHappiness;
 }
 int CvCity::GetHappinessFromEmpire() const
 {
 	VALIDATE_OBJECT
-		return m_iHappinessFromEmpire;
+	return m_iHappinessFromEmpire;
+}
+
+int CvCity::GetLuxuryHappinessFromEmpire() const
+{
+	VALIDATE_OBJECT
+	return m_iHappinessFromLuxuries;
 }
 
 void CvCity::UpdateUnhappinessFromEmpire()
@@ -9584,6 +9622,9 @@ void CvCity::SetResourceDemanded(ResourceTypes eResource)
 /// Picks a Resource for this City to want
 void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 {
+	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
+		return;
+
 	VALIDATE_OBJECT
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoPickResourceDemanded, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Create the list of invalid Luxury Resources
@@ -11251,6 +11292,50 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		}
 	}
 #endif
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (pkUnitInfo->IsFound() || pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
+		{
+			//Mechanic to allow for production malus from happiness/unhappiness.
+			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+
+			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			{
+				if (iTempMod > 0)
+					iTempMod = 0;
+
+				iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+			}
+
+			//malus?
+			if (iTempMod < 0)
+			{
+				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+				{
+					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
+				}
+				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+				{
+					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
+				}
+				//If happiness is less than the main threshold, calculate city penalty mod.
+				if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+				{
+					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+				}
+
+				iTempMod *= -1;
+
+				//Let's do the yield mods.			
+				iCost *= (100 + iTempMod);
+				iCost /= 100;
+			}
+		}
+	}
+#endif
+
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Decrease base cost, then increase based on # of cities in empire.
@@ -11541,6 +11626,50 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	iCost *= (100 + iTraitValue);
 	iCost /= 100;
 #endif
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (pkUnitInfo->IsFound() || pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
+		{
+			//Mechanic to allow for production malus from happiness/unhappiness.
+			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
+
+			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			{
+				if (iTempMod > 0)
+					iTempMod = 0;
+
+				iTempMod += GC.getUNHAPPY_PRODUCTION_PENALTY();
+			}
+
+			//malus?
+			if (iTempMod < 0)
+			{
+				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+				{
+					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY();
+				}
+				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+				{
+					iTempMod += GC.getVERY_UNHAPPY_PRODUCTION_PENALTY() * 2;
+				}
+				//If happiness is less than the main threshold, calculate city penalty mod.
+				if (iTempMod < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+				{
+					iTempMod = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+				}
+
+				iTempMod *= -1;
+
+				//Let's do the yield mods.			
+				iCost *= (100 + iTempMod);
+				iCost /= 100;
+			}
+		}
+	}
+#endif
+
 	// Make the number not be funky
 	int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
 	iCost /= iDivisor;
@@ -12062,10 +12191,10 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			}
 		}
 	}
-	#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness)
 	{
-		if (getProductionUnit() != NO_UNIT && (GC.getUnitInfo(getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(getProductionUnit())->GetRangedCombat() > 0))
+		if (getProductionUnit() != NO_UNIT && (GC.getUnitInfo(getProductionUnit())->IsFound() || GC.getUnitInfo(getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(getProductionUnit())->GetRangedCombat() > 0))
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
 			int iTempMod = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER();
@@ -13095,7 +13224,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(pBuildingInfo->IsCapital())
 				owningPlayer.setCapitalCity(this);
 #if defined(MOD_BALANCE_CORE)
-			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+			bool bIsWonder = ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo());
+			if (bIsWonder)
+				owningPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_US);
+			if (!bNoBonus && bIsWonder)
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
 				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
@@ -14038,7 +14170,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				if(!IsBuildingConstructed(eBuildingClass))
 				{
 					SetBuildingConstructed(eBuildingClass, true);
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
 				}
 			}
 #endif
@@ -16293,7 +16425,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if (MOD_BALANCE_CORE_HAPPINESS)
 		{
-			int iHappiness = getHappinessDelta(true) * GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
+			int iHappiness = getHappinessDelta(true);
+				
+			if(iHappiness > 0)
+				iHappiness *= GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
+			else
+				iHappiness *= GC.getBALANCE_UNHAPPINESS_FOOD_MODIFIER();
+			
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -16312,14 +16450,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			}
 
 			//value
-			if (iHappiness != 0)
-			{
-				if (iHappiness <= -100)
-					iHappiness = -100;
-
-				if (iHappiness > 0)
-					iHappiness /= 2;
-			}
+			if (iHappiness <= -100)
+				iHappiness = -100;
 
 			iTotalMod += iHappiness;
 
@@ -16376,6 +16508,186 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 	return iDifference;
 }
 
+int CvCity::getGrowthMods() const
+{
+	int iTotalMod = 0;
+
+	// Capital Mod for player. Used for Policies and such
+	if (isCapital())
+	{
+		int iCapitalGrowthMod = GET_PLAYER(getOwner()).GetCapitalGrowthMod();
+		if (iCapitalGrowthMod != 0)
+		{
+			iTotalMod += iCapitalGrowthMod;
+		}
+	}
+
+	// City Mod for player. Used for Policies and such
+	int iCityGrowthMod = GET_PLAYER(getOwner()).GetCityGrowthMod();
+	if (iCityGrowthMod != 0)
+	{
+		iTotalMod += iCityGrowthMod;
+	}
+#if defined(MOD_BALANCE_CORE)
+	int iCorpMod = (GetTradeRouteCityMod(YIELD_FOOD));
+
+	if (iCorpMod > 0)
+	{
+		iTotalMod += iCorpMod;
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if (GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
+	{
+		int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
+		iTotalMod += iBuildingMod;
+	}
+	if (GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD) != 0)
+	{
+		int iPolicyMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD);
+		iTotalMod += iPolicyMod;
+	}
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD) != 0)
+	{
+		int iTraitMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD);
+		iTotalMod += iTraitMod;
+	}
+	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+	{
+		int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
+		if (iSupply > 0)
+		{
+			int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
+			iTotalMod += iSupplyMod;
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	{
+		int iGrowthTourism = GetGrowthFromTourism();
+		iTotalMod += iGrowthTourism;
+	}
+#endif
+	if (IsPuppet())
+	{
+		int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+		if (iTempMod > 0)
+			iTempMod = 0;
+		iTotalMod += iTempMod;
+
+	}
+	// Religion growth mod
+	int iReligionGrowthMod = 0;
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if (eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if (pReligion)
+		{
+			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
+			iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+#if defined(MOD_BALANCE_CORE)
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && ((eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities()) || (eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true))))
+			{
+				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+				iReligionGrowthMod += (iFollowers * GC.getMOD_BALANCE_FOLLOWER_GROWTH_BONUS());
+			}
+#endif
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
+			}
+			iTotalMod += iReligionGrowthMod;
+		}
+	}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		// Do we get increased yields from a resource monopoly?
+		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
+		if (iTempMod != 0)
+		{
+			iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+			// this one is applied to the base yield, so showing a tooltip here is very confusing!
+			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		int iHappiness = getHappinessDelta(true);
+
+		if (iHappiness > 0)
+			iHappiness *= GC.getBALANCE_HAPPINESS_FOOD_MODIFIER();
+		else
+			iHappiness *= GC.getBALANCE_UNHAPPINESS_FOOD_MODIFIER();
+
+
+		if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		{
+			if (iHappiness > 0)
+				iHappiness = 0;
+
+			iHappiness += GC.getUNHAPPY_GROWTH_PENALTY();
+		}
+		if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+		{
+			iHappiness += GC.getVERY_UNHAPPY_GROWTH_PENALTY();
+		}
+		if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+		{
+			iHappiness += GC.getVERY_UNHAPPY_GROWTH_PENALTY() * 2;
+		}
+
+		//value
+		if (iHappiness <= -100)
+			iHappiness = -100;
+
+		iTotalMod += iHappiness;
+	}
+	else
+	{
+#endif
+		// Cities stop growing when empire is very unhappy
+		if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+		{
+			int iMod = /*-100*/ GC.getVERY_UNHAPPY_GROWTH_PENALTY();
+
+			iTotalMod += iMod;
+		}
+		// Cities grow slower if the player is over his Happiness Limit
+		else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		{
+			int iMod = /*-75*/ GC.getUNHAPPY_GROWTH_PENALTY();
+			iTotalMod += iMod;
+		}
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
+#endif
+	// WLTKD Growth Bonus
+	if (GetWeLoveTheKingDayCounter() > 0)
+	{
+		int iMod = /*25*/ GC.getWLTKD_GROWTH_MULTIPLIER();
+
+		iTotalMod += iMod;
+	}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	//Resolution League Bonus	
+	if (MOD_DIPLOMACY_CITYSTATES && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
+	{
+		int iMod = GetBaseYieldRateFromLeague(YIELD_FOOD);
+		iTotalMod += iMod;
+	}
+#endif
+	if (iTotalMod <= -100)
+		return 0;
+
+	return iTotalMod;
+}
 
 //	--------------------------------------------------------------------------------
 int CvCity::growthThreshold() const
@@ -20732,6 +21044,7 @@ int CvCity::GetLocalHappiness(int iPopMod) const
 	iLocalHappiness += GetBaseHappinessFromBuildings();
 
 	iLocalHappiness += GetHappinessFromEmpire();
+	iLocalHappiness += GetLuxuryHappinessFromEmpire();
 
 	iLocalHappiness += GetHappinessFromPolicies(iPopMod);
 	iLocalHappiness += GetHappinessFromReligion();
@@ -21326,8 +21639,9 @@ int CvCity::getPopThresholdMod() const
 int CvCity::getEmpireSizeMod() const
 {
 	int iNumPuppets = GET_PLAYER(getOwner()).GetNumPuppetCities();
-	int iBase = (GET_PLAYER(getOwner()).getNumCities() - iNumPuppets) * GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER();
-	iBase += iNumPuppets * (GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER() / 2);
+	//-1 for capital
+	int iBase = (GET_PLAYER(getOwner()).getNumCities() - iNumPuppets - 1) * GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER();
+	//iBase += iNumPuppets * (GC.getBALANCE_HAPPINESS_EMPIRE_MULTIPLIER() / 2);
 
 	iBase *= min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 	iBase /= 100;
@@ -21588,7 +21902,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTech);
 
 		if (iPopMod != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
+			if (iPopMod > 0)
+				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS", iPopMod);
+			else
+				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
 
 		if (iEmpireMod != 0)
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
@@ -21734,10 +22051,11 @@ CvString CvCity::GetCityHappinessBreakdown()
 	int iBuildings = GetBaseHappinessFromBuildings() + GetHappinessFromBuildingClasses();
 	int iOther = GetUnmoddedHappinessFromBuildings();
 	int iEmpire = GetHappinessFromEmpire();
+	int iLuxury = GetLuxuryHappinessFromEmpire();
 	int iPolicies = GetHappinessFromPolicies();
 	int iReligion = GetHappinessFromReligion();
 
-	int iTotal = iHandicap + iBuildings + iOther + iEmpire + iPolicies + iReligion;
+	int iTotal = iHandicap + iBuildings + iOther + iEmpire + iLuxury + iPolicies + iReligion;
 
 	if (iTotal > getPopulation())
 		iTotal = getPopulation();
@@ -21747,6 +22065,8 @@ CvString CvCity::GetCityHappinessBreakdown()
 
 	if (iEmpire != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_EMPIRE_CBO", iEmpire);
+	if (iLuxury != 0)
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_LUXURY_CBO", iLuxury);
 	if (iHandicap != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_HANDICAP_CBO", iHandicap);
 	if (iBuildings != 0)
@@ -29210,6 +29530,11 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationRea
 			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (pUnit->getUnitInfo().IsFoodProduction() && getPopulation() > 1)
+			changePopulation(-1);
+	}
 #endif
 
 	CvPlot* pRallyPlot = getRallyPlot();
@@ -29492,6 +29817,11 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		if (pProject->GetHappiness() != 0)
 		{
 			ChangeUnmoddedHappinessFromBuildings(pProject->GetHappiness());
+		}
+
+		if (pProject->GetEmpireMod() != 0)
+		{
+			ChangeEmpireNeedsModifier(pProject->GetEmpireMod());
 		}
 	}
 

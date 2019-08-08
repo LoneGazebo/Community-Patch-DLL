@@ -359,6 +359,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetEmpireHappinessForCity);
 	Method(GetEmpireUnhappinessForCity);
 	Method(GetBonusHappinessFromLuxuriesFlat);
+	Method(GetBonusHappinessFromLuxuriesFlatForUI);
 	Method(GetHandicapHappiness);
 	Method(GetHappinessForGAP);
 
@@ -3942,6 +3943,10 @@ int CvLuaPlayer::lGetHappinessFromCitizenNeeds(lua_State* L)
 int CvLuaPlayer::lGetBonusHappinessFromLuxuriesFlat(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetBonusHappinessFromLuxuriesFlat);
+}
+int CvLuaPlayer::lGetBonusHappinessFromLuxuriesFlatForUI(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetBonusHappinessFromLuxuriesFlatForUI);
 }
 
 int CvLuaPlayer::lGetHandicapHappiness(lua_State* L)
@@ -12687,7 +12692,33 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
-
+		
+		//AI Promises
+		iValue = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetPlayerMadeMilitaryPromise(pkPlayer->GetID());
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetPlayerMadeExpansionPromise(pkPlayer->GetID());
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+		
+		iValue = pDiploAI->GetResearchAgreementScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT");
+			aOpinions.push_back(kOpinion);
+		}
 		iValue = pDiploAI->GetDPAcceptedScore(eWithPlayer);
 		if (iValue != 0)
 		{
@@ -12704,9 +12735,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP_MUTUAL");
 			aOpinions.push_back(kOpinion);
 		}
-		iValue = pDiploAI->GetDPWithAnyEnemyScore(eWithPlayer);
-		if (iValue != 0)
+		// Making a DP with a teammate's enemy should be visible but with no penalty
+		if (pDiploAI->IsPlayerDPWithAnyEnemy(eWithPlayer))
 		{
+			iValue = pDiploAI->GetDPWithAnyEnemyScore(eWithPlayer);
+			
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP_WITH_ENEMY");
@@ -12825,17 +12858,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 	
-	// Asking teammates not to settle nearby = no penalty, but should still be visible
+	// Asking AI teammates not to settle nearby should be visible but with no penalty
 	if (pDiploAI->IsPlayerNoSettleRequestEverAsked(eWithPlayer))
 	{
-		if(pkPlayer->getTeam() == GET_PLAYER(eWithPlayer).getTeam())
-		{
-			iValue = 0;
-		}
-		else
-		{
-			iValue = pDiploAI->GetNoSetterRequestScore(eWithPlayer);
-		}
+		iValue = pDiploAI->GetNoSetterRequestScore(eWithPlayer);
 		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
@@ -12908,9 +12934,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	iValue = pDiploAI->GetDifferentLatePoliciesScore(eWithPlayer);
-	if (iValue != 0)
+	// Opposing the ideology of a teammate should be visible but with no penalty
+	if (pDiploAI->IsPlayerOpposingIdeology(eWithPlayer))
 	{
+		iValue = pDiploAI->GetDifferentLatePoliciesScore(eWithPlayer);
+		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES");
@@ -13164,9 +13192,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	iValue = pDiploAI->GetDOFWithAnyEnemyScore(eWithPlayer);
-	if (iValue != 0)
+	// Befriending a teammate's enemy should still be visible but with no penalty
+	if (pDiploAI->IsPlayerDoFwithAnyEnemy(eWithPlayer))
 	{
+		iValue = pDiploAI->GetDOFWithAnyEnemyScore(eWithPlayer);
+		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DOF_WITH_ENEMY");
@@ -13364,9 +13394,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	iValue = pDiploAI->GetDenouncedFriendScore(eWithPlayer);
-	if (iValue != 0)
+	// Denouncing a teammate's friend should be visible but with no penalty
+	if (pDiploAI->IsPlayerDenouncedFriend(eWithPlayer))
 	{
+		iValue = pDiploAI->GetDenouncedFriendScore(eWithPlayer);
+		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIEND");

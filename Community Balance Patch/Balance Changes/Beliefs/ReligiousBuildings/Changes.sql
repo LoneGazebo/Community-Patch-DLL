@@ -92,7 +92,7 @@ WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 INSERT INTO Building_WLTKDYieldMod
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_SYNAGOGUE', 'YIELD_SCIENCE', 15);
+	('BUILDING_SYNAGOGUE', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
@@ -129,7 +129,7 @@ VALUES
 INSERT INTO Building_GoldenAgeYieldMod
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_MOSQUE', 'YIELD_CULTURE', 20);
+	('BUILDING_MOSQUE', 'YIELD_CULTURE', 15);
 
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)

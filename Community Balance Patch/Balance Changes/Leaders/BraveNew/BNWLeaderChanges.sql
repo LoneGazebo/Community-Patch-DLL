@@ -137,6 +137,7 @@ WHERE Type = 'TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 UPDATE Units SET Found = '1' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
 UPDATE Units SET FoundColony = '3' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
+UPDATE Units SET Moves = '4' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
 
 -- Gajah Mada -- Boost Candi, No Isolation Unhappiness
 

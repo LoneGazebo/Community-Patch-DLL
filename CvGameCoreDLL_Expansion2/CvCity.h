@@ -126,6 +126,7 @@ public:
 	int GetHappinessFromLuxuries() const;
 
 	int GetHappinessFromEmpire() const;
+	int GetLuxuryHappinessFromEmpire() const;
 	void UpdateHappinessFromEmpire();
 
 	int GetUnhappinessFromEmpire() const;
@@ -522,6 +523,8 @@ public:
 	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
 	int foodDifferenceTimes100(bool bBottom = true, bool bJustCheckingStarve = false, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
+
+	int getGrowthMods() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromCitySpecialists();
 #endif
@@ -1889,6 +1892,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iHappinessFromEmpire;
+	FAutoVariable<int, CvCity> m_iHappinessFromLuxuries;
 	FAutoVariable<int, CvCity> m_iUnhappinessFromEmpire;
 	FAutoVariable<int, CvCity> m_iStaticTechDeviation;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumProjects;

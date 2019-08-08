@@ -900,6 +900,14 @@ public:
 
 	bool IsPlayerDoFwithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDoFwithAnyEnemy(PlayerTypes ePlayer) const;
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
+	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
+#endif
+
+	// Ideology
+	bool IsPlayerSameIdeology(PlayerTypes ePlayer) const;
+	bool IsPlayerOpposingIdeology(PlayerTypes ePlayer) const;
 
 	// Denounced Player
 	void DoDenouncePlayer(PlayerTypes ePlayer);
@@ -919,12 +927,10 @@ public:
 	bool IsPlayerDenouncedEnemy(PlayerTypes ePlayer) const;
 
 	// Requests of Friends
-
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	// Problems between friends
-
 	bool IsUntrustworthyFriend();
 	int GetNumFriendsDenouncedBy();
 
@@ -972,7 +978,7 @@ public:
 	void ChangeShareOpinionCounter(PlayerTypes ePlayer, int iChange);
 
 	// Help Request
-	void DoHelpRequestMade(PlayerTypes ePlayer);
+	void DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
 	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
 	short GetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer) const;
 
@@ -1337,6 +1343,7 @@ public:
 	int GetDOFWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDOFWithAnyEnemyScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE_DEALS)
+	int GetResearchAgreementScore(PlayerTypes ePlayer);
 	int GetDPAcceptedScore(PlayerTypes ePlayer);
 	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
@@ -1401,6 +1408,7 @@ public:
 #endif
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false);
+	bool HasMetValidMinorCiv();
 
 	// Messages sent to other players about protected Minor Civs
 	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor);

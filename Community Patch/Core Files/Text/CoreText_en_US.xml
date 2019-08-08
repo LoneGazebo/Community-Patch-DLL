@@ -2660,13 +2660,19 @@
 
 		<!-- Promises LUA -->
 		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
-			<Text>You promised to keep your military forces away from their borders for {1_Num} more turn(s).</Text>
+			<Text>You promised not to declare war on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
 			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
 			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS">
+			<Text>They promised not to declare war on you for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
+			<Text>They promised not to settle near you for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -2790,6 +2796,11 @@
 		<!-- Opinion "Modifier" for Human Teammate -->
 		<Row Tag="TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE">
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Research Agreement Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
+			<Text>[COLOR_POSITIVE_TEXT]We have made a Research Agreement![ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Defensive Pact Bonuses -->
@@ -5713,10 +5724,10 @@
 
 		<!-- Intrigue sharing (co-op wars)-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
-			<Text>Choosing this option will alert {2_CivName:textkey} to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
+			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
-			<Text>Choosing this option may alert the targeted player to your war preparations if the AI refuses to help and has a positive relationship with the targeted player.</Text>
+			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the AI refuses to help and has a positive relationship with the targeted player. This may have diplomatic repercussions!</Text>
 		</Row>
 
 		<!-- Tourism and League Stuff -->
@@ -6818,40 +6829,40 @@
 			<Text>Enable Events System</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_HELP">
-			<Text>Check to enable Vox Populi's Player and City Events System</Text>
+			<Text>Check to enable Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD">
 			<Text>No Good Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD_HELP">
-			<Text>Check to disable positive outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable positive outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL">
 			<Text>No Neutral Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL_HELP">
-			<Text>Check to disable neutral outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable neutral outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD">
 			<Text>No Bad Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD_HELP">
-			<Text>Check to disable bad outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable bad outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE">
 			<Text>No Trade Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE_HELP">
-			<Text>Check to disable trade (miscellaneous) outcome events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable trade (miscellaneous) outcome events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS">
 			<Text>No Civ-Specific Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS_HELP">
-			<Text>Check to disable Civilization-specific events from Vox Populi's Player and City Events System</Text>
+			<Text>Check to disable Civilization-specific events from Vox Populi's Player and City Events System.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS">

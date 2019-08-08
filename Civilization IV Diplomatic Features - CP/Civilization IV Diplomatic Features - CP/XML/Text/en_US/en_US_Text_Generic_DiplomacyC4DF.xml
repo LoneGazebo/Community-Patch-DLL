@@ -21,7 +21,7 @@
 			<Text>The answer remains no. We shall not provide diplomatic details at this time.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_1">
-			<Text>We would never share our diplomatic secrets with villians like you!</Text>
+			<Text>We would never share our diplomatic secrets with villains like you!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_2">
 			<Text>Do you honestly think I would tell a criminal like you my foreign policy?</Text>
@@ -69,7 +69,7 @@
 			<Text>{1_PlayerName:textkey}'s rule taints this earth and I would see no problem with it ending. (Hostile)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_2">
-			<Text>{1_PlayerName:textkey} is a tyrant and a villian that needs to be taken care of. (Hostile)</Text>
+			<Text>{1_PlayerName:textkey} is a tyrant and a villain that needs to be taken care of. (Hostile)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_3">
 			<Text>Don't remind me that {1_PlayerName:textkey} still walks this earth... (Hostile)</Text>
@@ -165,7 +165,7 @@
 			<Text>I only give away my foreign policy to those whom I trust. I cannot trust someone I've just met.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_1">
-			<Text>Your enslavement of my people brings embarassment to all of us. What do you want?</Text>
+			<Text>Your enslavement of my people brings embarrassment to all of us. What do you want?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_VASSALAGE_VASSAL_HOSTILE_2">
 			<Text>Oh, the tyrant shows his face again. How do you wish to exploit us further?</Text>
@@ -195,7 +195,7 @@
 			<Text>The time has come for my people to seek their own path in this world. We desire an independent nation. What say you?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_2">
-			<Text>Your occupation of our empire is no tolerable among my subjects and I am issuing a formal request that you allow my people to live as an individual sovereign state.</Text>
+			<Text>Your occupation of our empire is no longer tolerable among my subjects and I am issuing a formal request that you allow my people to live as an individual sovereign state.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_VASSALAGE_REVOKE_VASSALAGE_3">
 			<Text>We believe the time has come to terminate our Vassalage agreement. Our people desire independent rule. Will you accept this?</Text>
@@ -248,10 +248,10 @@
 			<Text>You were our protector. It was said you would destroy our attackers, not join them! Bring prosperity to both of us, not leave us in darkness! You are lost, and now, the world shall know.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_1">
-			<Text>Oh look, my little pet state has come to see me. What do we you want?</Text>
+			<Text>Oh look, my little pet state has come to see me. What do you want?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_2">
-			<Text>Your men better be hard at work creating resources to please me. What do you want?</Text>
+			<Text>Your men had better be hard at work creating resources to please me. What do you want?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_VASSALAGE_MASTER_3">
 			<Text>You stand in the presence of your superior. Kneel before me, or else.</Text>
@@ -347,7 +347,7 @@
 			<Text>Ruling over another state incurs a large cost on us. We have decided to raise your taxes. I hope you will understand.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_1">
-			<Text>We are pleased to hear you have lowered our taxes. We can only hope this is a sign of goodthings to come.</Text>
+			<Text>We are pleased to hear you have lowered our taxes. We can only hope this is a sign of good things to come.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_2">
 			<Text>I thank you for some relief on our taxes. We promise the increase to our economy will help both our nations out in the long run.</Text>
