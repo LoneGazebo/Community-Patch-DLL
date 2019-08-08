@@ -682,7 +682,7 @@ WHERE Tag = 'TXT_KEY_DEMOGRAPHICS_TITLE';
 -- Happiness
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide[ICON_HAPPINESS_3] Unhappiness (average per City): {1_Num}[NEWLINE]Unhappiness Totals:'
+SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {2_Num} (average per City: {1_Num})[NEWLINE]Unhappiness Totals:'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
 
 UPDATE Language_en_US

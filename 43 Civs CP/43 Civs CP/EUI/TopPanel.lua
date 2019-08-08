@@ -1183,8 +1183,14 @@ if civ5_mode then
 				unhappinessFromPop = 0
 			end
 --END	
+			-- here modified
 			tips:insert( "[COLOR:255:150:150:255]" )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness )
+			
+			local uhtotal = g_activePlayer:GetUnhappiness();			
+			if(uhtotal ~= 0) then			
+				tips:insert( L("TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness, uhtotal ) )
+			end
+			
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", g_activePlayer:GetUnhappinessFromCityCount() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", g_activePlayer:GetUnhappinessFromCapturedCityCount() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POPULATION", unhappinessFromPop / 100 )
