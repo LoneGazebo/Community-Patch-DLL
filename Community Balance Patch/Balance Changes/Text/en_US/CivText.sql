@@ -542,7 +542,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Friendly and Enemy [ICON_HAPPINESS_3] War Weariness is modified by 50%. Mounted Melee and Armor Units capture defeated Units. Claims adjacent unowned land tiles when Cities earn a tile of the same type.'
+SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Mounted Melee and Armor Units capture defeated Units. Claims adjacent unowned land tiles when Cities earn a tile of the same type.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US 
