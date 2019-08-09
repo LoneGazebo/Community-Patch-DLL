@@ -434,7 +434,7 @@ SET Text = '{1_Num} from [ICON_CITIZEN] Population in [ICON_OCCUPIED] Occupied o
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '{1_Num : number "#.##"} from [ICON_CITIZEN] Urbanization (Specialists).'
+SET Text = '{1_Num : number "#.##"} from [ICON_CITIZEN] Urbanization ([ICON_GREAT_PEOPLE] Specialists).'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_SPECIALISTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Tutorial Text

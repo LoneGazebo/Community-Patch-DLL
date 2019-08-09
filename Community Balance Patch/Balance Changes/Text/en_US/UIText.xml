@@ -1424,10 +1424,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">
-			<Text>{1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_HAPPINESS_3] Urbanization</Text>
+			<Text>{1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_CITIZEN] Urbanization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT">
-			<Text>[ICON_HAPPINESS_3] Urbanization per new Specialist</Text>
+			<Text>[ICON_CITIZEN] Urbanization per new Specialist</Text>
 		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
