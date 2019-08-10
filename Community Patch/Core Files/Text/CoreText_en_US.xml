@@ -5930,7 +5930,7 @@
 
 		<!-- Religion Majority Est. -->
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY_S">
-			<Text>{1_ReligionName} now your [ICON_RELIGION] majority [ICON_RELIGION] Religion!</Text>
+			<Text>{1_ReligionName} is now your majority [ICON_RELIGION] Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY">
 			<Text>{1_ReligionName} has become your new majority [ICON_RELIGION] Religion. This shift in religious status may affect your relationship with other Civilizations, as well as your own population.</Text>
