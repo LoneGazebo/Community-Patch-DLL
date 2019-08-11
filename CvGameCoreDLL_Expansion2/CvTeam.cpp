@@ -1496,11 +1496,8 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 						{
 							kDefendingPlayer.GetMilitaryAI()->SetupDefenses(eAttackingPlayer);
 						}
-						// Forget any of that liberation crud!
-						int iNumCitiesLiberated = kDefendingPlayer.GetDiplomacyAI()->GetNumCitiesLiberated(eAttackingPlayer);
-						kDefendingPlayer.GetDiplomacyAI()->ChangeNumCitiesLiberated(eAttackingPlayer, -iNumCitiesLiberated);
 
-						//Update Diplo.
+						// Update Diplo.
 						kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
 #if defined(MOD_BALANCE_CORE)
 						//Do a golden age on war if we can
@@ -1664,7 +1661,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, GetID(), /*bDefensivePact*/ false);
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, GetID(), /*bDefensivePact*/ true);
 #else
 				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
@@ -1673,7 +1670,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ false);
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
 #else
 				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
@@ -1773,6 +1770,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 							// Have I actually met this player declaring war?
 							if (GET_TEAM(GET_PLAYER((PlayerTypes)iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam()))
 							{
+								// Update Diplo stuff
 #if defined(MOD_BALANCE_CORE)
 								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam, bDefensivePact);
 #else

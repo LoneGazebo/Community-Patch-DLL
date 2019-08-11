@@ -4555,7 +4555,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		////////////////////////////////////
 
 		// Don't declare war if we promised that our troops weren't on their borders for war
-		if(IsPlayerMadeMilitaryPromise(ePlayer))
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
@@ -4738,7 +4738,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 	}
-
 
 	// NO WAR?
 	if (!GC.getGame().isVictoryValid(eDominationVictory))
@@ -7909,6 +7908,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		MajorCivApproachTypes eApproach = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
 		bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR || (eApproach <= MAJOR_CIV_APPROACH_HOSTILE && IsGoingForWorldConquest()));
 		bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor; // let's not get into another war right now
+		
+		if(GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()) && bWantToAttack)
+		{
+			bWantToAttack = false; // don't declare war on a player we promised not to attack, unless we're wily!
+		}
+		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if(MOD_DIPLOMACY_CIV4_FEATURES && bWantToAttack)
 		{
@@ -14839,191 +14844,199 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 	CvAssertMsg(eOtherTeam <= MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	// Disregard barbarians
-	if(GET_TEAM(eOtherTeam).isBarbarian())
+	if(GET_PLAYER(ePlayer).isBarbarian() || GET_TEAM(eOtherTeam).isBarbarian())
 		return;
-
-	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	int iThirdPartyLoop;
-	PlayerTypes eThirdParty;
-	PlayerTypes eThem;
-
-	bool bWasFriends = false;
-
+	
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	PlayerTypes eAttackedPlayer;
+	PlayerTypes eThirdParty;
+
 	for(int iAttackedPlayerLoop = 0; iAttackedPlayerLoop < MAX_CIV_PLAYERS; iAttackedPlayerLoop++)
 	{
 		eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
 
+		// This player was attacked by ePlayer
 		if(GET_PLAYER(eAttackedPlayer).getTeam() == eOtherTeam)
 		{
-			bWasFriends = false;
-
-			// We're involved SOMEHOW
-			if(ePlayer == GetPlayer()->GetID() || eAttackedPlayer == GetPlayer()->GetID())
+			// We're on the defending team
+			if(eAttackedPlayer == eMyPlayer)
 			{
-				eThem = GetPlayer()->GetID() != ePlayer ? ePlayer : eAttackedPlayer;
-
-				ChangeNumWarsFought(eThem, 1);
-
+				ChangeNumWarsFought(ePlayer, 1);
+				
 				// Only stuff for major civs
-				if(!GET_PLAYER(eThem).isMinorCiv())
+				if(!GET_PLAYER(ePlayer).isMinorCiv())
 				{
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumWarsFought(eMyPlayer, 1);
+					
+					// Change our Approach to War so that it's not inappropriate the next time the turn cycles
+					SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_WAR);
+					SetWarFaceWithPlayer(ePlayer, WAR_FACE_NEUTRAL);
+					
 					// WAS working with this player
-					if(IsDoFAccepted(eThem))
+					if(IsDoFAccepted(ePlayer))
 					{
-						bWasFriends = true;
-
-						SetDoFAccepted(eThem, false);
-						SetDoFCounter(eThem, -666);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-						SetDoFType(eThem, DOF_TYPE_UNTRUSTWORTHY);
-						GET_PLAYER(eThem).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
-#endif
-					}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					if (MOD_DIPLOMACY_CIV4_FEATURES) {
-						// HAD agreed not to attack them
-						if(IsPlayerMoveTroopsRequestAccepted(eThem))
+						if(!bDefensivePact)
 						{
-							SetPlayerMoveTroopsRequestAccepted(eThem, false);
-							SetPlayerMoveTroopsRequestCounter(eThem, -666);
+							SetDoFBroken(ePlayer, true);
+							ChangeRecentAssistValue(ePlayer, 300);
+#endif
+							SetFriendDeclaredWarOnUs(ePlayer, true);
+							ChangeDeclaredWarOnFriendValue(ePlayer, GC.getOPINION_WEIGHT_WAR_FRIEND_EACH() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 						}
+#endif
 					}
+					
+					// Reset DoF values
+					SetDoFAccepted(ePlayer, false);
+					SetDoFCounter(ePlayer, -1);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+					SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
 #endif
 
-					// HAD agreed not to settle nearby
-					if(IsPlayerNoSettleRequestAccepted(eThem))
-					{
-						SetPlayerNoSettleRequestAccepted(eThem, false);
-						SetPlayerNoSettleRequestCounter(eThem, -666);
-					}
-
-					GET_PLAYER(eThem).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
-					
-
-					// HAD agreed not to spy on them
-					if(IsPlayerStopSpyingRequestAccepted(eThem))
-					{
-						SetPlayerStopSpyingRequestAccepted(eThem, false);
-						SetPlayerStopSpyingRequestCounter(eThem, -666);
-					}
-					
-					GET_PLAYER(eThem).GetDiplomacyAI()->SetPlayerMadeSpyPromise(GetPlayer()->GetID(), false);
-
-					// Third party arrangements
-					for(iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+					// End all coop war agreements with this player
+					for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 					{
 						eThirdParty = (PlayerTypes) iThirdPartyLoop;
 
 						// WAS working with the guy we're now at war with against someone else
-						//if (IsWorkingAgainstPlayerAccepted(eThem, eThirdParty))
+						//if (IsWorkingAgainstPlayerAccepted(ePlayer, eThirdParty))
 						//{
-						//	SetWorkingAgainstPlayerAccepted(eThem, eThirdParty, false);
-						//	SetWorkingAgainstPlayerCounter(eThem, eThirdParty, -666);
+						//	SetWorkingAgainstPlayerAccepted(ePlayer, eThirdParty, false);
+						//	SetWorkingAgainstPlayerCounter(ePlayer, eThirdParty, -666);
 						//}
-
+						
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+						// If they broke a coop war promise, penalize them for it
+						if(GetCoopWarAcceptedState(ePlayer, eThirdParty) == COOP_WAR_STATE_SOON && !bDefensivePact)
+						{
+							SetPlayerBrokenCoopWarPromise(ePlayer, true);
+							SetPlayerBackstabCounter(ePlayer, 0);
+							ChangeRecentAssistValue(ePlayer, 300);
+							ChangeNumTimesCoopWarDenied(ePlayer, 2);
+						}
+#endif
 						// WAS in or planning a coop war with the guy we're now at war with
-						if(GetCoopWarAcceptedState(eThem, eThirdParty) >= COOP_WAR_STATE_SOON)
+						if(GetCoopWarAcceptedState(ePlayer, eThirdParty) >= COOP_WAR_STATE_SOON)
 						{
-							SetCoopWarAcceptedState(eThem, eThirdParty, NO_COOP_WAR_STATE);
-							SetCoopWarCounter(eThem, eThirdParty, -666);
+							SetCoopWarAcceptedState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
+							SetCoopWarCounter(ePlayer, eThirdParty, -666);
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(eMyPlayer, eThirdParty, NO_COOP_WAR_STATE);
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarCounter(eMyPlayer, eThirdParty, -666);
 						}
 					}
-				}
-
-				// If WE were attacked, change our Approach to War so that it's not inappropriate the next time the turn cycles
-				if(eAttackedPlayer == GetPlayer()->GetID())
-				{
-					// WAS friends with this player
-					if(bWasFriends)
-					{
-#if defined(MOD_BALANCE_CORE)
-						if(!bDefensivePact)
-						{
-						ChangeRecentAssistValue(eThem, 300);
-#endif
-						SetFriendDeclaredWarOnUs(eThem, true);
-						ChangeDeclaredWarOnFriendValue(eThem, GC.getOPINION_WEIGHT_WAR_FRIEND_EACH() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
-#if defined(MOD_BALANCE_CORE)
-						}
-#endif
-					}
-
-					if(!GET_PLAYER(ePlayer).isMinorCiv())
-					{
-						SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_WAR);
-						SetWarFaceWithPlayer(ePlayer, WAR_FACE_NEUTRAL);
-					}
-
+					
+					// Reset expansion, border and spy promises for both of us...all is fair in war!
+					SetPlayerMadeExpansionPromise(ePlayer, false);
+					SetPlayerMadeBorderPromise(ePlayer, false);
+					SetPlayerMadeSpyPromise(ePlayer, false);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(eMyPlayer, false);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeBorderPromise(eMyPlayer, false);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(eMyPlayer, false);
+					
 					// Player broke a promise that he wasn't going to attack us
 					if(IsPlayerMadeMilitaryPromise(ePlayer))
 					{
-#if defined(MOD_BALANCE_CORE)
-						SetPlayerBackstabCounter(ePlayer, 0);
-#endif
-						SetPlayerBrokenMilitaryPromise(ePlayer, true);
 						SetPlayerMadeMilitaryPromise(ePlayer, false);
 						SetPlayerMilitaryPromiseCounter(ePlayer, -1);
-					}
-
-#if defined(MOD_BALANCE_CORE)
-			// Shouldn't clear out positive diplomatic values if WE declared war
-			if (!bDefensivePact)
-			{
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+						if (!bDefensivePact)
+						{
+							SetPlayerBackstabCounter(ePlayer, 0);
 #endif
-					// Clear civilians returned and landmarks built so they don't affect relations any more
-					if(GetNumCiviliansReturnedToMe(ePlayer) > 0)
-						ChangeNumCiviliansReturnedToMe(ePlayer, -GetNumCiviliansReturnedToMe(ePlayer));
-					if(GetNumLandmarksBuiltForMe(ePlayer) > 0)
-						ChangeNumLandmarksBuiltForMe(ePlayer, -GetNumLandmarksBuiltForMe(ePlayer));
-
-					// Clear positive diplomatic values					
-					ChangeCommonFoeValue(ePlayer, -GetCommonFoeValue(ePlayer));
-					if (GetRecentAssistValue(ePlayer) < 0)
-					{
-						ChangeRecentAssistValue(ePlayer, -GetRecentAssistValue(ePlayer));
+							SetPlayerBrokenMilitaryPromise(ePlayer, true);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+						}
+#endif
 					}
-#if defined(MOD_BALANCE_CORE)
-                    // Clear intrigue shared
-					if(GetNumTimesIntrigueSharedBy(ePlayer) > 0)
-                        ChangeNumTimesIntrigueSharedBy(ePlayer, -GetNumTimesIntrigueSharedBy(ePlayer));
-            }	
-#endif															
+					
+					// HAD agreed not to attack each other
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise(eMyPlayer, false);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter(eMyPlayer, -1);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES) {
+						if(IsPlayerMoveTroopsRequestAccepted(ePlayer))
+						{
+							SetPlayerMoveTroopsRequestAccepted(ePlayer, false);
+							SetPlayerMoveTroopsRequestCounter(ePlayer, -666);
+						}
+						if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMoveTroopsRequestAccepted(eMyPlayer))
+						{
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eMyPlayer, false);
+							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMoveTroopsRequestCounter(eMyPlayer, -666);
+						}
+					}
+#endif
+					// HAD agreed not to settle near each other
+					if(IsPlayerNoSettleRequestAccepted(ePlayer))
+					{
+						SetPlayerNoSettleRequestAccepted(ePlayer, false);
+						SetPlayerNoSettleRequestCounter(ePlayer, -666);
+					}
+					if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerNoSettleRequestAccepted(eMyPlayer))
+					{
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerNoSettleRequestAccepted(eMyPlayer, false);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerNoSettleRequestCounter(eMyPlayer, -666);
+					}
+					
+					// HAD agreed not to spy on each other
+					if(IsPlayerStopSpyingRequestAccepted(ePlayer))
+					{
+						SetPlayerStopSpyingRequestAccepted(ePlayer, false);
+						SetPlayerStopSpyingRequestCounter(ePlayer, -666);
+					}
+					if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerStopSpyingRequestAccepted(eMyPlayer))
+					{
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestAccepted(eMyPlayer, false);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestCounter(eMyPlayer, -666);
+					}
+					
 					// We're no longer trade partners
 					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentTradeValue(GetPlayer()->GetID(), -GetRecentTradeValue(GetPlayer()->GetID()));
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eMyPlayer, -GetRecentTradeValue(eMyPlayer));
 					
-					// Clear out DoF values appropriately
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-					SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
+					if (!bDefensivePact)
+					{
+#endif
+						// Forget any of that liberation crud!
+						ChangeNumCitiesLiberated(ePlayer, -GetNumCitiesLiberated(ePlayer));
+						
+						// Forget civilians returned, landmarks built, and intrigue shared so they don't affect relations any more
+						ChangeNumCiviliansReturnedToMe(ePlayer, -GetNumCiviliansReturnedToMe(ePlayer));
+						ChangeNumLandmarksBuiltForMe(ePlayer, -GetNumLandmarksBuiltForMe(ePlayer));
+						ChangeNumTimesIntrigueSharedBy(ePlayer, -GetNumTimesIntrigueSharedBy(ePlayer));
+						
+						// Clear positive diplomatic values					
+						ChangeCommonFoeValue(ePlayer, -GetCommonFoeValue(ePlayer));
+						if (GetRecentAssistValue(ePlayer) < 0)
+							ChangeRecentAssistValue(ePlayer, -GetRecentAssistValue(ePlayer));
+						
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+					}
 #endif
 				}
 			}
-
-			// Did WE attack someone?
-			if(ePlayer == GetPlayer()->GetID())
-			{
-			}
-			// If it was someone else see what it means
+			
+			// If it was someone else, see what it means
 			else if(IsPlayerValid(eAttackedPlayer))
 			{
 				if(GET_PLAYER(eAttackedPlayer).isMinorCiv())
 				{
 					// Did they attack a Minor we're protecting?
-					if(GET_PLAYER(eAttackedPlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
+					if(GET_PLAYER(eAttackedPlayer).GetMinorCivAI()->IsProtectedByMajor(eMyPlayer))
 					{
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 						if(!bDefensivePact)
 						{
 #endif
-						SetOtherPlayerTurnsSinceAttackedProtectedMinor(ePlayer, 0);
-						SetOtherPlayerProtectedMinorAttacked(ePlayer, eAttackedPlayer);
-						ChangeOtherPlayerNumProtectedMinorsAttacked(ePlayer, 1);
+							SetOtherPlayerTurnsSinceAttackedProtectedMinor(ePlayer, 0);
+							SetOtherPlayerProtectedMinorAttacked(ePlayer, eAttackedPlayer);
+							ChangeOtherPlayerNumProtectedMinorsAttacked(ePlayer, 1);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 						}
 #endif
@@ -16759,41 +16772,66 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We no longer want to work with a player
 	else if(eStatement == DIPLO_STATEMENT_END_WORK_WITH_US)
 	{
-#if defined(MOD_BALANCE_CORE)
-		SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
-#endif
+		PlayerTypes eMyPlayer = GetPlayer()->GetID();
+		
 		SetDoFAccepted(ePlayer, false);
 		SetDoFCounter(ePlayer, -666);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
+		
+		// End all coop war agreements with this player
+		PlayerTypes eThirdParty;
+		for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+		{
+			eThirdParty = (PlayerTypes) iThirdPartyLoop;
+			
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			// Did we break a coop war promise?
+			if(GetCoopWarAcceptedState(ePlayer, eThirdParty) == COOP_WAR_STATE_SOON)
+			{
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eMyPlayer, true);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBackstabCounter(eMyPlayer, 0);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesCoopWarDenied(eMyPlayer, 2);
+			}
+#endif
+
+			// WAS in or planning a coop war with the guy we've stopped working with
+			if(GetCoopWarAcceptedState(ePlayer, eThirdParty) >= COOP_WAR_STATE_SOON)
+			{
+				SetCoopWarAcceptedState(ePlayer, eThirdParty, NO_COOP_WAR_STATE);
+				SetCoopWarCounter(ePlayer, eThirdParty, -666);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(eMyPlayer, eThirdParty, NO_COOP_WAR_STATE);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetCoopWarCounter(eMyPlayer, eThirdParty, -666);
+			}
+		}
+		
+		// End any Defensive Pact
+		GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(ePlayer).getTeam(), false);
+		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
 
 		// If we had agreed to not settle near the player, break that off
 		SetPlayerNoSettleRequestAccepted(ePlayer, false);
 		SetPlayerNoSettleRequestCounter(ePlayer, -666);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(eMyPlayer, false);
 
 		// If we had agreed to not spy on the player, break that off
 		SetPlayerStopSpyingRequestAccepted(ePlayer, false);
 		SetPlayerStopSpyingRequestCounter(ePlayer, -666);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(GetPlayer()->GetID(), false);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(eMyPlayer, false);
+		
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)	
+		SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, 300);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(eMyPlayer, true);
+		LogBrokenDoF(ePlayer);
+#endif
+
 		// Send message to human
 		if(bHuman)
 		{
 			szText = GetDiploStringForMessage(DIPLO_MESSAGE_END_WORK_WITH_US, ePlayer);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI, szText, LEADERHEAD_ANIM_NEGATIVE);
-		}
-		else
-		{
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 300);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
-			SetDoFType(ePlayer, DOF_TYPE_UNTRUSTWORTHY);
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetPlayer()->GetID(), DOF_TYPE_UNTRUSTWORTHY);
-			LogBrokenDoF(ePlayer);
-#endif
 		}
 	}
 
@@ -26250,7 +26288,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam(), false);
 			GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
 			
-			DoUpdateOnePlayerOpinion(eFromPlayer);
+			// End all coop war agreements with this player
+			PlayerTypes eThirdParty;
+			for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+			{
+				eThirdParty = (PlayerTypes) iThirdPartyLoop;
+				
+				// Did they break a coop war promise?
+				if(GetCoopWarAcceptedState(eFromPlayer, eThirdParty) == COOP_WAR_STATE_SOON)
+				{
+					SetPlayerBrokenCoopWarPromise(eFromPlayer, true);
+					SetPlayerBackstabCounter(eFromPlayer, 0);
+					ChangeNumTimesCoopWarDenied(eFromPlayer, 2);
+				}
+
+				// WAS in or planning a coop war with the guy we've stopped working with
+				if(GetCoopWarAcceptedState(eFromPlayer, eThirdParty) >= COOP_WAR_STATE_SOON)
+				{
+					SetCoopWarAcceptedState(eFromPlayer, eThirdParty, NO_COOP_WAR_STATE);
+					SetCoopWarCounter(eFromPlayer, eThirdParty, -666);
+					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarAcceptedState(GetPlayer()->GetID(), eThirdParty, NO_COOP_WAR_STATE);
+					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetCoopWarCounter(GetPlayer()->GetID(), eThirdParty, -666);
+				}
+			}
+			
+			DoUpdateOpinions();
+			DoUpdateMajorCivApproaches();
 			
 			if(GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
 			{
@@ -27345,7 +27408,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// AI says they are just moving their troops through
 			else if(iResponse == 1)
 			{
-				// AI accepts move troops request
+				// AI agrees not to attack
 				// Make sure all players on this team get this check, so that teammates don't screw each other over.
 				TeamTypes eLoopTeam;
 				for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)
@@ -27353,9 +27416,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					eLoopTeam = GET_PLAYER((PlayerTypes)iI).getTeam();
 					if(eLoopTeam == GetPlayer()->getTeam())
 					{
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
-						GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->SetPlayerMoveTroopsRequestCounter(eFromPlayer, 0);
-
 						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise((PlayerTypes)iI, true);
 						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseCounter((PlayerTypes)iI, 0);
 					}
@@ -28737,9 +28797,12 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	// Don't work Target people we're working WITH!
 	if(IsDoFAccepted(eTargetPlayer))
 		return 0;
+	
+	// We agreed not to attack, don't be dumb.
+	if(GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()))
+		return 0;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// We agreed not to attack, don't be dumb.
 	if(MOD_DIPLOMACY_CIV4_FEATURES && IsPlayerMoveTroopsRequestAccepted(eTargetPlayer))
 		return 0;
 #endif
@@ -29145,6 +29208,11 @@ bool CvDiplomacyAI::IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eTargetPl
 	if(GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return false;
 #endif
+
+	// If we've made a military promise, we're done
+	if(GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()))
+		return false;
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// If we've made the decision to move troops from borders, we're done
 	if(MOD_DIPLOMACY_CIV4_FEATURES && IsPlayerMoveTroopsRequestAccepted(eTargetPlayer))
@@ -30480,11 +30548,22 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_TEAM(eMyTeam).CloseEmbassyAtTeam(eTheirTeam);
 	GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(eMyTeam);
 	
-	// Third party arrangements
+	// End all coop war agreements with this player
 	PlayerTypes eThirdParty;
 	for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
 		eThirdParty = (PlayerTypes) iThirdPartyLoop;
+		
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		// Did we break a coop war promise?
+		if(GetCoopWarAcceptedState(ePlayer, eThirdParty) == COOP_WAR_STATE_SOON)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(eMyPlayer, true);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerBackstabCounter(eMyPlayer, 0);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, 300);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesCoopWarDenied(eMyPlayer, 2);
+		}
+#endif
 
 		// WAS in or planning a coop war with the guy who's now denounced us
 		if(GetCoopWarAcceptedState(ePlayer, eThirdParty) >= COOP_WAR_STATE_SOON)
@@ -30511,10 +30590,10 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 
 		// They now view us as a traitor!
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetFriendDenouncedUs(eMyPlayer, true);
-
-		ChangeRecentAssistValue(ePlayer, 300);
-
-		SetDoFBroken(ePlayer, true);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, 300);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(eMyPlayer, true);
+#endif
 
 		GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(ePlayer).getTeam(), false);
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
@@ -30529,20 +30608,54 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 				SetWarFaceWithPlayer(ePlayer, WAR_FACE_GUARDED);
 			}
 		}
-		else if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_HOSTILE)
+		else if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_GUARDED);
 		}
+		
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
+		{
+			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) != WAR_FACE_HOSTILE)
+			{
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_GUARDED);
+			}
+		}
+		else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_HOSTILE)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_GUARDED);
+		}	
 	}
 	else
 	{
 		DoUpdateOpinions();
 		DoUpdateMajorCivApproaches();
 		
-		// Going to war, if so don't pretend to be friendly
+		// We shouldn't be too friendly with them
 		if(GetWarFaceWithPlayer(ePlayer) == WAR_FACE_FRIENDLY)
 		{
 			SetWarFaceWithPlayer(ePlayer, WAR_FACE_NEUTRAL);
+		}
+		else if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+		{
+			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+		}
+		else if(GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+		}
+		
+		// They shouldn't be too friendly with us, either
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) == WAR_FACE_FRIENDLY)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_NEUTRAL);
+		}
+		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+		}
+		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 		}
 	}
 
