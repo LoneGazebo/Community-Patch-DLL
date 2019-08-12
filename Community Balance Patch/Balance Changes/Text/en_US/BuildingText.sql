@@ -516,7 +516,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Garden in the City in
 WHERE Tag = 'TXT_KEY_WONDER_HANGING_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Increases the Military Unit Supply Cap by 3 in the City in which it is built. Creates a copy of each type of military Land Unit you control and places the Unit near the City where the Terracotta Army is constructed. +100 [ICON_CULTURE] Culture when completed.'
+SET Text = 'Increases the Military Unit Supply Cap by 3 in the City in which it is built. Creates a copy of each type of Military Land Unit you control and places the Unit near the City where the Terracotta Army is constructed. +100 [ICON_CULTURE] Culture when completed.'
 WHERE Tag = 'TXT_KEY_WONDER_TERRA_COTTA_ARMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
