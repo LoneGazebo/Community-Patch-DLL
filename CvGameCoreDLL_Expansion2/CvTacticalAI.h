@@ -1151,7 +1151,7 @@ public:
 	void addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
-	float getUnitNumberRatio() const;
+	float getAggressionBias() const;
 	void countPlotTypes();
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	bool unitHasAssignmentOfType(int iUnit, eUnitAssignmentType assignmentType) const;

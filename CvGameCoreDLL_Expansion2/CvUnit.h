@@ -146,6 +146,7 @@ public:
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
 		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if about to end turn on a dangerous plot
 		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
+		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //when doing a dangerous move, try to abort as long as there is movement left
 	};
 
 	enum MoveResult

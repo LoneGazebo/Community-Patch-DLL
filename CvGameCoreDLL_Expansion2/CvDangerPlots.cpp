@@ -73,7 +73,11 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
+#ifdef MOD_CORE_TWO_PASS_DANGER
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
+#else
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_ZOC;
+#endif
 	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),iFlags,0,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
 
 	if (pLoopUnit->IsCanAttackRanged())
@@ -126,6 +130,8 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 	if (m_DangerPlots.empty()) //nothing to do and causes an endless recursion
 		return;
 
+	//two pass danger is dangerous ... it might happen that a covering unit moves away, leaving other exposed
+#ifdef MOD_CORE_TWO_PASS_DANGER
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	PlotIndexContainer plotsWithOwnedUnitsLikelyToBeKilled;
 
@@ -137,12 +143,16 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 	for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 	{
 		if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
-			plotsWithOwnedUnitsLikelyToBeKilled.push_back( pLoopUnit->plot()->GetPlotIndex() );
+			plotsWithOwnedUnitsLikelyToBeKilled.push_back(pLoopUnit->plot()->GetPlotIndex());
 	}
 
 	//second pass
 	if (!plotsWithOwnedUnitsLikelyToBeKilled.empty() || !bKeepKnownUnits)
 		UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
+#else
+	PlotIndexContainer dummy;
+	UpdateDangerInternal(bKeepKnownUnits, dummy);
+#endif
 }
 
 void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
