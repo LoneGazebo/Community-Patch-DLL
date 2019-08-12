@@ -1357,7 +1357,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_SPECIALIST_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_CITIZEN] Urbanization ([ICON_GREAT_PEOPLE] Specialists)</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_CITIZEN] Urbanization (Specialists)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EMPIRE_WIDE_UNHAPPINESS">
