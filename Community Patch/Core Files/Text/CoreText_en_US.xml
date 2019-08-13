@@ -6489,13 +6489,13 @@
 			<Text>Additional Policies needed to unlock: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL">
-			<Text>Policies Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+			<Text>Policies Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL">
-			<Text>National Population Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+			<Text>National Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
-			<Text>Local Population Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 
 		<!-- Great Person Progress -->
