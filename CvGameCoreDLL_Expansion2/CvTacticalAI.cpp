@@ -9250,10 +9250,11 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
 	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
-	if (fAggFactor>0 && iDamageReceived<pUnit->GetCurrHitPoints())
+	if (fAggFactor>0 && iDamageReceived < pUnit->GetCurrHitPoints()) //should consider self-damage from previous attacks here ... blitz
 	{
-		result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
+		result.iScore = int(iDamageDealt*sqrtf(fUnitNumberRatio)*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
 		result.iDamage = iDamageDealt;
+		result.iSelfDamage = iDamageReceived;
 	}
 	else
 		result.iScore = -INT_MAX;
@@ -9564,8 +9565,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				int iSpreadFactor = pUnit->isRanged() ? currentPlot.getNumAdjacentFirstlineFriendlies() + 1 : currentPlot.getNumAdjacentFriendlies() + 1;
 
 				//penalty for high danger plots
-				//todo: take into account self damage from previous attacks
-				iDangerScore = (iDanger * 100) / iSpreadFactor / (pUnit->GetCurrHitPoints() + 1);
+				iDangerScore = (iDanger * 100) / iSpreadFactor / (pUnit->GetCurrHitPoints() - unit.iSelfDamage + 1);
 			}
 
 			//ranged specialties
@@ -9715,7 +9715,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			//if we're not alone, maybe not everybody will attack us
 			int iSpreadFactor = pUnit->isRanged() ? currentPlot.getNumAdjacentFirstlineFriendlies() + 1 : currentPlot.getNumAdjacentFriendlies() + 1;
 
-			//use normalized danger for scoring
+			//use normalized danger for scoring (don't need to consider self damage here, we're not attacking)
 			result.iScore -= (iDanger * 100) / iSpreadFactor / (pUnit->GetCurrHitPoints() + 1);
 		}
 
@@ -10922,6 +10922,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
+		itUnit->iSelfDamage += newAssignment.iSelfDamage;
 		newTactPlot.setDamage(newTactPlot.getDamage() + newAssignment.iDamage);
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
@@ -10951,6 +10952,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
+		itUnit->iSelfDamage += newAssignment.iSelfDamage;
 
 		CvPlot* pAttackerPlot = GC.getMap().plotByIndexUnchecked(newAssignment.iFromPlotIndex);
 		if (pAttackerPlot->MeleeAttackerAdvances())
