@@ -19,6 +19,9 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+// set this to 1 in debugger if needed
+int gDebugOutput = 0;
+
 CvMilitaryAIStrategyXMLEntry::CvMilitaryAIStrategyXMLEntry(void):
 	m_piPlayerFlavorValue(NULL),
 	m_piCityFlavorValue(NULL),
@@ -2477,42 +2480,47 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 /// How open an approach do we have to this city if we want to attack it?
 CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea)
 {
-	CvPlot* pLoopPlot;
+	if (!pCity || !pCity->plot()->isRevealed(m_pPlayer->getTeam()))
+		return ATTACK_APPROACH_NONE;
+
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-	int iNumBlocked = 0;
+	int iRefDist = m_pPlayer->GetCityDistanceInEstimatedTurns(pCity->plot());
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;
+	int iNumBlocked = 0;
 	int iNumTough = 0;
-	int iTotal = 0;
-	int iDX = 0;
-	int iDY = 0;
-	int iRange = 3;
-	for(iDX = -(iRange); iDX <= iRange; iDX++)
+	int iMaxRing = 3; //at most 5
+	
+	for (int iRing = 1; iRing <= iMaxRing; iRing++)
 	{
-		for(iDY = -(iRange); iDY <= iRange; iDY++)
+		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
 		{
-			pLoopPlot = plotXYWithRangeCheck(pCity->getX(), pCity->getY(), iDX, iDY, iRange);
-
-			// Blocked if edge of map
+			CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(),i);
 			if(pLoopPlot == NULL)
-			{
 				continue;
-			}
 
-			iNumPlots++;
+			//inner rings count more
+			int iWeight = 1 + iMaxRing - iRing;
 
 			bool bBlocked = false;
-			bool bHarmful = false;
 			bool bTough = false;
 
-			//cannot go here
-			if(!pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) || pLoopPlot->isCity())
+			//cannot go here? important, ignore territory checks (typically we are at peace without open borders)
+			if(!pLoopPlot->isValidMovePlot(m_pPlayer->GetID(),false) || pLoopPlot->isCity())
 				bBlocked = true;
+
+			//ignore plots which are "behind" the city if it's a foreign city (AI always takes the shortest path)
+			if (m_pPlayer->GetID() != pCity->getOwner() && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot) > iRefDist)
+				bBlocked = true;
+
+			//ignore plots owned by third parties
+			if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != m_pPlayer->getTeam() && pLoopPlot->getTeam() != pCity->getTeam())
+				bBlocked = !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam( pLoopPlot->getTeam() );
 
 			//should not go here
 			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID()))
-				bHarmful = true;
+				bTough = true;
 
 			//makes us slow
 			if(	pLoopPlot->isRoughGround() )
@@ -2534,39 +2542,41 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 
 			//Invasion logic slightly different - we need lots of coastal plots.
 			if (bAttackBySea && bAttackByLand)
-			{
-				if (!pLoopPlot->isCoastalLand())
-					iNumTough++;
-
-				if (!pLoopPlot->isShallowWater())
-					iNumTough++;
-			}
+				if (!pLoopPlot->isCoastalLand() && !pLoopPlot->isShallowWater())
+					bTough = true;
 
 			//todo: what about air attack?
+			iNumPlots+=iWeight;
 
 			if (bBlocked)
-				iNumBlocked++;
-			else if (bHarmful)
-				iNumTough++;
+				iNumBlocked+=iWeight;
 			else if (bTough)
-				iNumTough++;
+				iNumTough+=iWeight;
 		}
 	}
-	iNumBlocked = (iNumTough / 20) + iNumBlocked;
-	iTotal = (iNumBlocked * 100) / /*36*/ iNumPlots;
-	//We want a number between 0 and 100
-	if (iTotal<10)
+
+	//with weighting, maximum score for 3 rings is 6*3 + 12*2 + 18 = 60
+	int iFree = iNumPlots - iNumBlocked - iNumTough/2;
+
+	if (iFree > 27)
 		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-	else if (iTotal<35)
+	else if (iFree > 17)
 		eRtnValue = ATTACK_APPROACH_OPEN;
-	else if (iTotal<55)
+	else if (iFree > 11)
 		eRtnValue = ATTACK_APPROACH_NEUTRAL;
-	else if (iTotal<75)
+	else if (iFree > 7)
 		eRtnValue = ATTACK_APPROACH_LIMITED;
-	else if (iTotal<90)
+	else if (iFree > 3)
 		eRtnValue = ATTACK_APPROACH_RESTRICTED;
 	else
 		eRtnValue = ATTACK_APPROACH_NONE;
+
+	if (gDebugOutput)
+	{
+		const char* approachName[] = { "none", "restricted", "limited", "neutral", "open", "unrestricted" };
+		const char* mode = bAttackBySea ? (bAttackByLand ? "combined" : "naval") : (bAttackByLand ? "land" : "invalid");
+		OutputDebugString(CvString::format("%s attack approach on %s is %s for %s (score %d)\n", mode, pCity->getNameKey(), approachName[eRtnValue], m_pPlayer->getNameKey(), iFree).c_str());
+	}
 
 	return eRtnValue;
 }
