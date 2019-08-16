@@ -77,6 +77,9 @@
 /// experimental performance improvement
 #define MOD_CORE_CACHE_REACHABLE_PLOTS
 
+/// ignore ZOC for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
+//#define MOD_CORE_TWO_PASS_DANGER
+
 /// unrevealed plots are impassable instead of passable by default
 #define MOD_CORE_UNREVEALED_IMPASSABLE
 

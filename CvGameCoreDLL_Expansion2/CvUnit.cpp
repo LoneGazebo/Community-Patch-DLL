@@ -29234,8 +29234,24 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 		}
 	}
 
+	vector<CvUnit*> attackersBeforeMove;
+	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
+		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot);
+
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
+
+	vector<CvUnit*> attackersAfterMove;
+	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
+	{
+		attackersAfterMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot);
+
+		if (attackersAfterMove.size() > attackersBeforeMove.size() && GetDanger(pPathPlot) > GetCurrHitPoints())
+		{
+			ClearPathCache();
+			return MOVE_RESULT_CANCEL;
+		}
+	}
 
 	int iETA = 1;
 	if (!m_kLastPath.empty())

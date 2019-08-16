@@ -1266,7 +1266,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//calculate move cost
 	int iMovementCost = 0;
-	if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit || node->m_kCostCacheData.bIsEnemyCity)
+	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && bCheckStacking) || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
 	else
