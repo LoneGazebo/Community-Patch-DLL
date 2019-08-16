@@ -1,39 +1,39 @@
 -- Text for NW Religion
 
 UPDATE Language_en_US
-SET Text = 'Gain [ICON_PEACE] Faith when an owned unit is killed in battle. Bonus scales with Era. [NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = 'Gain [ICON_PEACE] Faith when an owned Unit is killed in battle. Bonus scales with Era. [NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_MAUSOLEUM_HELP';
 
 UPDATE Language_en_US
-SET Text = '+5 [ICON_TOURISM] Tourism from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.[NEWLINE][NEWLINE]Contains 4 slots for Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if Themed.'
+SET Text = '+5 [ICON_TOURISM] Tourism from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.[NEWLINE][NEWLINE]Contains 4 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_RELIQUARY_HELP';
 
 UPDATE Language_en_US
-SET Text = '+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_GREAT_ALTAR_HELP';
 
 UPDATE Language_en_US
-SET Text = '+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+5 [ICON_PEACE] Faith from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP';
 
 UPDATE Language_en_US
-SET Text = '+5 [ICON_GOLD] Gold from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+5 [ICON_GOLD] Gold from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_DIVINE_COURT_HELP';
 
 UPDATE Language_en_US
-SET Text = '+5 [ICON_FOOD] Food from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+5 [ICON_FOOD] Food from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_SACRED_GARDEN_HELP';
 
 UPDATE Language_en_US
-SET Text = '+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+5 [ICON_RESEARCH] Science from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_HOLY_COUNCIL_HELP';
 
 UPDATE Language_en_US
-SET Text = '+4 [ICON_GOLDEN_AGE] Golden Age points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+4 [ICON_GOLDEN_AGE] Golden Age points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP';
 
 UPDATE Language_en_US
-SET Text = '+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+SET Text = '+5 [ICON_CULTURE] Culture from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases City resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP';
 
 UPDATE Language_en_US
@@ -41,7 +41,7 @@ SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Artists
 WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RES_PAPER] Paper, and 1 free Emissary. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.'
+SET Text = '+1 [ICON_RES_PAPER] Paper, and 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Emissary. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every [ICON_CITY_STATE] City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.'
 WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP';
 
 UPDATE Language_en_US
@@ -53,7 +53,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Public Sc
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Order. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. Receive one vote for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have. [NEWLINE][NEWLINE]Must have built a Public School in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the City in which it is built. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have. [NEWLINE][NEWLINE]Must have built a Public School in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP';
 
 UPDATE Language_en_US
@@ -61,7 +61,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Military 
 WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Autocracy. +15 [ICON_TOURISM] Tourism and +10% [ICON_PRODUCTION] Production in the city where it is built. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Requires [COLOR_MAGENTA]Autocracy[ENDCOLOR]. +15 [ICON_TOURISM] Tourism and +10% [ICON_PRODUCTION] Production in the City in which it is built. Receive 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every [COLOR_POSITIVE_TEXT]Enemy[ENDCOLOR] [ICON_CAPITAL] [COLOR_POSITIVE_TEXT]Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_HELP';
 
 UPDATE Language_en_US
@@ -69,7 +69,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Stock Exc
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Freedom. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Requires [COLOR_MAGENTA]Freedom[ENDCOLOR]. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the City in which it is built. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_HELP';
 
 UPDATE Language_en_US
@@ -77,7 +77,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Chancery.
 WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_HELP';
 
 UPDATE Language_en_US
@@ -85,7 +85,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Wire Serv
 WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 
 -- Grand Temple Help Text
