@@ -97,7 +97,7 @@
 			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned Cities. The Empire enters a [ICON_GOLDEN_AGE] Golden Age.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONSULATE_HELP">
-			<Text>Receive an [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress.</Text>
+			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress.</Text>
 		</Row>
 		<!--
 		<Row Tag="TXT_KEY_SECURITY_COUNCIL_HELP">
