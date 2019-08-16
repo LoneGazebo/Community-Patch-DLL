@@ -15934,6 +15934,14 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 			GetPlayer()->SetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop, 0);
 		}
 #endif
+		// temporary bugfix for civs that have warmonger penalties despite not having met a player
+		SetWarmongerThreat(ePlayer, THREAT_NONE);
+		SetOtherPlayerNumMajorsAttacked(ePlayer, 0);
+		SetOtherPlayerNumMajorsConquered(ePlayer, 0);
+		SetOtherPlayerNumMinorsAttacked(ePlayer, 0);
+		SetOtherPlayerNumMinorsConquered(ePlayer, 0);
+		SetOtherPlayerWarmongerAmountTimes100(ePlayer, 0);
+		
 		DoUpdateOnePlayerOpinion(ePlayer);
 
 		/////////////////
