@@ -3212,7 +3212,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<FlankAttackModifier>10</FlankAttackModifier>
+			<FlankAttackModifier>25</FlankAttackModifier>
+			<AOEDamageOnKill>10</AOEDamageOnKill>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>

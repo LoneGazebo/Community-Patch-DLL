@@ -494,7 +494,7 @@
 			<AIAdvancedStartPercent>230</AIAdvancedStartPercent>
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
-			<DifficultyBonusBase>7</DifficultyBonusBase>
+			<DifficultyBonusBase>8</DifficultyBonusBase>
 			<DifficultyBonusA>325</DifficultyBonusA>
 			<DifficultyBonusB>175</DifficultyBonusB>
 			<DifficultyBonusC>100</DifficultyBonusC>

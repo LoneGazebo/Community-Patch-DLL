@@ -1040,14 +1040,14 @@ void CvPlayer::init(PlayerTypes eID)
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * ((GetCurrentEra() / 2) + 2));
 						}
 					}
 					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * ((GetCurrentEra() / 2) + 1));
 						}
 					}
 #endif

@@ -337,7 +337,7 @@ end
 
 function VassalSelected( ePlayer )
 
-	if not Players[Game.GetActivePlayer()]:IsTurnActive() then
+	if not Players[Game.GetActivePlayer()]:IsTurnActive() or Game.IsProcessingMessages() then
 		return;
 	end
 
@@ -604,13 +604,14 @@ function DoVassalStatistics( ePlayer )
 	end
 	Controls.VassalStatsIdeology:LocalizeAndSetText( "TXT_KEY_VO_IDEOLOGY_STAT", ideologyStr );
 	Controls.VassalStatsCulture:SetText( pPlayer:GetTotalJONSCulturePerTurn() );
-	Controls.VassalStatsTourism:SetText( pPlayer:GetTourism());
+	Controls.VassalStatsTourism:SetText( pPlayer:GetTourism() / 100);
 	
 	-- Religion
 	local eMajorityReligion = pPlayer:GetMajorityReligion();
 	local szMajorityReligion = Locale.ConvertTextKey( "TXT_KEY_VO_NO_RELIGION" );
 	if(eMajorityReligion ~= -1) then
-		szMajorityReligion = Game.GetReligionName(eMajorityReligion)
+		local pReligionInfo = GameInfo.Religions[eMajorityReligion];
+		szMajorityReligion = Locale.ConvertTextKey( "TXT_KEY_VO_MAJORITY_RELIGION", pReligionInfo.Description );
 	end
 	Controls.VassalStatsReligion:SetText( szMajorityReligion );
 	Controls.VassalStatsFaith:LocalizeAndSetText( pPlayer:GetTotalFaithPerTurn() );

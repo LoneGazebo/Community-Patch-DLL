@@ -2012,9 +2012,9 @@ function RefreshCultureVictory()
 				
 				local iExcessHappiness = pPlayer:GetExcessHappiness();
 				local strExcessHappiness = tostring(0);
-				if (iExcessHappiness <= 60) then
+				if (iExcessHappiness < 50) then
 					strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iExcessHappiness);
-				elseif (iExcessHappiness > 60) then
+				elseif (iExcessHappiness >= 50) then
 					strExcessHappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_HAPPINESS", iExcessHappiness);				
 				end
 				row.iExcessHappiness = iExcessHappiness;

@@ -296,9 +296,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 200)
+		if (iValue > 500)
 		{
-			iValue = 200;
+			iValue = 500;
 		}
 
 		if (kPlayer.getNumCities() == 1)

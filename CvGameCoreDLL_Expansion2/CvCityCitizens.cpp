@@ -670,69 +670,74 @@ void CvCityCitizens::DoTurn()
 		}
 	}
 
-	if (!thisPlayer.isHuman() && thisPlayer.IsEmpireUnhappy())
+	if (!thisPlayer.isHuman())
 	{
-		int iExcessHappiness = thisPlayer.GetExcessHappiness();
-		int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal()  - m_pCity->getPotentialHappinessWithGrowthVal() * 5;
-		
-		int iLock = MOD_BALANCE_CORE_HAPPINESS ? GC.getVERY_UNHAPPY_THRESHOLD() : -20;
-		bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= iLock;
-
-		int iDiscourage = MOD_BALANCE_CORE_HAPPINESS ? GC.getUNHAPPY_THRESHOLD() : 0;
-		m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= iDiscourage;
-
-		if (!m_bDiscourageGrowth && m_pCity->getGrowthMods() <= -25)
-			m_bDiscourageGrowth = true;
-
-		if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
+		if (thisPlayer.IsEmpireUnhappy())
 		{
-			int iUnhappyAverage = 0;
-			
-			iLoop = 0;
-			int iNumCities = 0;
-			int iThisCityValue = 0;
+			int iExcessHappiness = thisPlayer.GetExcessHappiness();
+			int iPotentialUnhappiness = max(0, m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->getPotentialHappinessWithGrowthVal());
 
-			for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
+			int iLock = MOD_BALANCE_CORE_HAPPINESS ? GC.getVERY_UNHAPPY_THRESHOLD() : -20;
+			bool bLockCity = (iExcessHappiness - iPotentialUnhappiness) <= iLock;
+
+			int iDiscourage = MOD_BALANCE_CORE_HAPPINESS ? GC.getUNHAPPY_THRESHOLD() : 0;
+			m_bDiscourageGrowth = (iExcessHappiness - iPotentialUnhappiness) <= iDiscourage;
+
+			if (!m_bDiscourageGrowth && m_pCity->getGrowthMods() <= -30)
+				m_bDiscourageGrowth = true;
+
+			if (!bLockCity && thisPlayer.IsEmpireVeryUnhappy())
 			{
-				if (pLoopCity != NULL)
-				{
-					//mind the sign change
-					int iUnhappiness = pLoopCity->getHappinessDelta(true) * -1;
-					iNumCities++;
+				int iUnhappyAverage = 0;
 
-					if (iUnhappiness > 0)
+				iLoop = 0;
+				int iNumCities = 0;
+				int iThisCityValue = 0;
+
+				for (pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
 					{
-						iUnhappyAverage += iUnhappiness;
-					}
-					if (pLoopCity == m_pCity)
-					{
-						iThisCityValue = iUnhappiness;
+						//mind the sign change
+						int iUnhappiness = pLoopCity->getHappinessDelta(true) * -1;
+						iNumCities++;
+
+						if (iUnhappiness > 0)
+						{
+							iUnhappyAverage += iUnhappiness;
+						}
+						if (pLoopCity == m_pCity)
+						{
+							iThisCityValue = iUnhappiness;
+						}
 					}
 				}
-			}
-			if (iNumCities > 0 && iUnhappyAverage > 0)
-			{
-				iUnhappyAverage /= iNumCities;
-			}
-			if (iThisCityValue > iUnhappyAverage)
-			{
-				bLockCity = true;
-			}
-		}
-		if (bLockCity)
-		{
-			if (!IsForcedAvoidGrowth())
-			{
-				SetForcedAvoidGrowth(true);
-				if (GetFocusType() == CITY_AI_FOCUS_TYPE_FOOD)
+				if (iNumCities > 0 && iUnhappyAverage > 0)
 				{
-					SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+					iUnhappyAverage /= iNumCities;
 				}
-				bForceCheck = true;
+				if (iThisCityValue > iUnhappyAverage)
+				{
+					bLockCity = true;
+				}
+			}
+			if (bLockCity)
+			{
+				if (!IsForcedAvoidGrowth())
+				{
+					SetForcedAvoidGrowth(true);
+					bForceCheck = true;
+				}
+				if (!IsNoAutoAssignSpecialists())
+				{
+					SetNoAutoAssignSpecialists(true);
+					bForceCheck = true;
+				}
 			}
 		}
 		else
 		{
+			m_bDiscourageGrowth = false;
 			if (IsNoAutoAssignSpecialists())
 			{
 				SetNoAutoAssignSpecialists(false);
@@ -845,6 +850,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 	int iValue = 0;
 
 	YieldTypes eTargetYield = GetFocusTypeYield(GetFocusType());
+	bool bCityFoodProduction = m_pCity->isFoodProduction();
 	// Yield Values
 	///////
 	// Bonuses
@@ -883,7 +889,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 			{
 				int iFoodEmphasisModifier = 0;
 				//Food is unique, so let's separate it out for now.
-				bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
+				bool bAvoidGrowth = IsAvoidGrowth();
 
 				// Food can be worth less if we don't want to grow
 				if (iExcessFoodTimes100 > 0 && bAvoidGrowth)
@@ -894,24 +900,18 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iMultiplier = iExcessFoodTimes100 <= 0 ? 10 : 5;
-					int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft(iFoodCorpMod));
+					int iMultiplier = iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() : GC.getAI_CITIZEN_VALUE_FOOD() / 2;
+					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
-					iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) / max(1, iPopulation);
-				}
-				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
-				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-				{
-					iFoodEmphasisModifier *= 2;
+					iFoodEmphasisModifier = (int)sqrt((float)iMultiplier * iFoodTurnsRemaining * iPopulation);
 				}
 
 				if (m_bDiscourageGrowth)
-					iFoodEmphasisModifier /= 10;
+					iFoodEmphasisModifier /= 100;
 
-				iYield *= max(1, iFoodEmphasisModifier);
-				iYield /= 100;
+				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
 
 				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 				{
@@ -921,11 +921,14 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				{
 					iYield *= 3;
 				}
+
+				iYield *= 100 + iFoodEmphasisModifier;
+				iYield /= 100;
 			}
 			else if (eYield == YIELD_PRODUCTION)
 			{
 				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
-				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
+				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction)
 				{
 					iYield *= 6;
 				}
@@ -1647,7 +1650,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	CityAIFocusTypes eFocus = GetFocusType();
 	//Calc food first (as it might end the function early)
 	int iFoodVal = 0;
-	bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
+	bool bAvoidGrowth = IsAvoidGrowth();
 	if (iExcessFoodTimes100 < 0 && bAvoidGrowth)
 	{
 		return 0;
@@ -1670,7 +1673,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		iFoodVal += (iGrowth * -1);
 
 		if (m_bDiscourageGrowth)
-			iFoodVal *= 2;
+			iFoodVal *= 4;
 	}
 
 	///////
@@ -2287,7 +2290,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 	}
 #if defined(MOD_BALANCE_CORE)
 	//FOUR STAGE SETUP:
-	bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
+	bool bAvoidGrowth = IsAvoidGrowth();
 	//FIRST, WE FEED OURSELVES!
 	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
 	if ((!bAvoidGrowth && iPotentialExcessTimes100 <= 300) || (bAvoidGrowth && iPotentialExcessTimes100 <= 0))

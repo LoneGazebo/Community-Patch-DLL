@@ -968,10 +968,11 @@ struct STacticalAssignment
 	eUnitMovementStrategy eMoveType;
 
 	int iDamage; //just in case of attack, not set in constructor
+	int iSelfDamage; //only relevant for melee ...
 
 	//convenience constructor
 	explicit STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnit = 0, int iRemainingMoves_= 0, eUnitMovementStrategy eMoveType_ = MS_NONE, int iScore_ = 0, eUnitAssignmentType eType_ = A_FINISH) :
-		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnit), iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iScore(iScore_), eAssignmentType(eType_), iDamage(0) {}
+		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnit), iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iScore(iScore_), eAssignmentType(eType_), iDamage(0), iSelfDamage(0) {}
 
 	//sort descending
 	bool operator<(const STacticalAssignment& rhs) { return iScore>rhs.iScore; }
@@ -989,15 +990,16 @@ struct SUnitStats
 	int iAttacksLeft;
 	int iMovesLeft;
 	int iImportanceScore;
+	int iSelfDamage; //melee units take damage when attacking
 	eUnitAssignmentType eLastAssignment;
 	eUnitMovementStrategy eStrategy;
 
 	//convenience constructor
 	SUnitStats(const CvUnit* pUnit, int iImportance, eUnitMovementStrategy eStrategy_) :
 		iUnitID(pUnit->GetID()), iPlotIndex(pUnit->plot()->GetPlotIndex()), iAttacksLeft(pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn()), 
-		iMovesLeft(pUnit->getMoves()), iImportanceScore(iImportance), eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
+		iMovesLeft(pUnit->getMoves()), iImportanceScore(iImportance), iSelfDamage(0), eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
 	SUnitStats(int iUnit, int iPlot, int iAttacks, int iMoves, int iImportance, eUnitMovementStrategy eStrategy_) : 
-		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), 
+		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), iSelfDamage(0),
 		eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
 
 	bool operator<(const SUnitStats& rhs) { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
@@ -1149,7 +1151,7 @@ public:
 	void addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
-	float getUnitNumberRatio() const;
+	float getAggressionBias() const;
 	void countPlotTypes();
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	bool unitHasAssignmentOfType(int iUnit, eUnitAssignmentType assignmentType) const;
