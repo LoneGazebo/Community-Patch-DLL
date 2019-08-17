@@ -27868,10 +27868,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 	if(!pTargetPlot)
 		return false;
 
-	// Plot not visible?
-	if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
-		return false;
-
 	if (pSourcePlot)
 	{
 		// In Range?
@@ -27879,6 +27875,10 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		{
 			return false;
 		}
+
+		// Plot not visible?
+		if(!bIgnoreVisibility && !(pTargetPlot->isVisible(getTeam()) || pSourcePlot->canSeePlot(pTargetPlot,getTeam(),visibilityRange(),NO_DIRECTION)))
+			return false;
 
 #if defined(MOD_BALANCE_CORE)
 		bool bWouldNeedEmbark = pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
@@ -27903,7 +27903,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		// Ignores LoS or can see the plot directly?
 		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
 		{
-			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), visibilityRange(), getFacingDirection(true)))
 			{
 				return false;
 			}
@@ -27918,6 +27918,10 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 	}
 	else //no source plot given, do only the most basic checks
 	{
+		// Plot not visible?
+		if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
+			return false;
+
 		// Can only bombard in domain?
 		if (getUnitInfo().IsRangeAttackOnlyInDomain())
 		{
@@ -28657,8 +28661,6 @@ bool CvUnit::SentryAlert() const
 
 	if(iRange > 0)
 	{
-		CvUnit* pEnemyUnit;
-
 		for(int iX = -iRange; iX <= iRange; ++iX)
 		{
 			for(int iY = -iRange; iY <= iRange; ++iY)
@@ -28671,7 +28673,7 @@ bool CvUnit::SentryAlert() const
 						if(pPlot->isVisibleEnemyUnit(this))
 						{
 							// Blocker for enemies not in our domain
-							pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
+							CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
 							if(pEnemyUnit)
 							{
 #if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)

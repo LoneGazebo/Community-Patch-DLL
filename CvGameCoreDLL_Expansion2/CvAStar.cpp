@@ -2363,7 +2363,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 {
 	//there is no good place to do this but we need to make sure the dangerplots are not dirty
 	//otherwise there will be a recursive pathfinding call with unpredictable results
-	if (config.ePlayer != NO_PLAYER)
+	if (config.ePlayer != NO_PLAYER && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
 	{
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
 		if (pUnit) //force an update before starting the actual pathfinding
