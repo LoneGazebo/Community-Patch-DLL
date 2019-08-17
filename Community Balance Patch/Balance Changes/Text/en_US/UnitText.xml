@@ -594,7 +594,7 @@
 			<Text>Overrun</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%. When you advance after destroying an enemy unit, all newly-adjacent enemy units take 10 Damage.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.[NEWLINE]When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take 10 Damage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DRILL_4">
 			<Text>Stalwart</Text>
@@ -646,7 +646,7 @@
 			<Text>Breacher</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BREACHER_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]Deal 15 Damage to all enemy units [COLOR_POSITIVE_TEXT]adjacent[ENDCOLOR] to a unit killed by this unit.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take 15 Damage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT">
 			<Text>Encirclement</Text>
