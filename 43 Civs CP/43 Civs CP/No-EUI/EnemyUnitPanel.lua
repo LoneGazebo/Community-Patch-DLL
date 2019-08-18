@@ -516,14 +516,14 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 					bonusSum = bonusSum + iModifier;
 				end				
 				bonusCount = bonusCount + 1;
-				-- Ignores Great General penalty
+				-- Ignores Great General penalty (this should be substracted from misc. bonus)
 				if (pMyUnit:IsIgnoreGreatGeneralBenefit() and bonusCount < maxBonusDisplay) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_IGG");
 					controlTable.Value:SetText(GetFormattedText(strText, -iModifier, true, true));
 					bonusCount = bonusCount + 1;
 				elseif (pMyUnit:IsIgnoreGreatGeneralBenefit()) then
-					bonusSum = bonusSum + iModifier;
+					bonusSum = bonusSum - iModifier;
 					bonusCount = bonusCount + 1;
 				end
 			end
@@ -789,7 +789,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				bonusCount = bonusCount + 1;
-			elseif (pMyUnit:GetNearbyCityBonusCombatMod()) then
+			elseif (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
@@ -1204,14 +1204,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 					bonusCount = bonusCount + 1;
 				
-				-- Ignores Great General penalty
+				-- Ignores Great General penalty (this should be substracted from misc. bonus)
 				if (pMyUnit:IsIgnoreGreatGeneralBenefit() and bonusCount < maxBonusDisplay) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_IGG");
 					controlTable.Value:SetText(GetFormattedText(strText, -iModifier, true, true));
 					bonusCount = bonusCount + 1;
 				elseif (pMyUnit:IsIgnoreGreatGeneralBenefit()) then
-					bonusSum = bonusSum + iModifier;
+					bonusSum = bonusSum - iModifier;
 					bonusCount = bonusCount + 1;
 				end
 			end
@@ -2103,14 +2103,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 					bonusCount = bonusCount + 1;
 					
-					-- Ignores Great General penalty
+					-- Ignores Great General penalty (this should be substracted from misc. bonus)
 					if (pTheirUnit:IsIgnoreGreatGeneralBenefit() and bonusCount < maxBonusDisplay) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_IGG");
 						controlTable.Value:SetText(GetFormattedText(strText, -iModifier, false, true));
 						bonusCount = bonusCount + 1;
 					elseif (pTheirUnit:IsIgnoreGreatGeneralBenefit()) then
-						bonusSum = bonusSum + iModifier;
+						bonusSum = bonusSum - iModifier;
 						bonusCount = bonusCount + 1;					
 					end
 				end
@@ -2841,14 +2841,14 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			
 			bonusCount = bonusCount + 1;
 			
-			-- Ignores Great General penalty
+			-- Ignores Great General penalty (this should be substracted from misc. bonus)
 			if (theirUnit:IsIgnoreGreatGeneralBenefit() and bonusCount < maxBonusDisplay) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_IGG");
 				controlTable.Value:SetText(GetFormattedText(strText, -iModifier, false, true));
 				bonusCount = bonusCount + 1;
 			elseif (theirUnit:IsIgnoreGreatGeneralBenefit()) then
-				bonusSum = bonusSum + iModifier;
+				bonusSum = bonusSum - iModifier;
 				bonusCount = bonusCount + 1;			
 			end
 		end
