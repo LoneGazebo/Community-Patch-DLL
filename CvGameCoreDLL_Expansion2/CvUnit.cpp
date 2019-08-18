@@ -27880,9 +27880,12 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		}
 
 		// Plot not visible?
-		bool bCanSeeTarget = pTargetPlot->isVisible(getTeam()) || pSourcePlot->canSeePlot(pTargetPlot, getTeam(), visibilityRange(), getFacingDirection(true));
-		if(!bIgnoreVisibility && !bCanSeeTarget)
-			return false;
+		if (!bIgnoreVisibility)
+		{
+			bool bCanSeeTarget = pTargetPlot->isVisible(getTeam()) || pSourcePlot->canSeePlot(pTargetPlot, getTeam(), visibilityRange(), getFacingDirection(true));
+			if (!bCanSeeTarget)
+				return false;
+		}
 
 #if defined(MOD_BALANCE_CORE)
 		bool bWouldNeedEmbark = pSourcePlot->needsEmbarkation(this) && CanEverEmbark();
@@ -27905,8 +27908,10 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		}
 
 		// Ignores LoS or can see the plot directly?
-		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR && !bCanSeeTarget)
-			return false;
+		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
+			//not a typo, we need attack range here, not sight range
+			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+				return false;
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
 		if (!isNativeDomain(pSourcePlot))
