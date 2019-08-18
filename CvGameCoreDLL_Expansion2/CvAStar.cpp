@@ -2272,7 +2272,8 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 		return (temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit; //never ignore stacking for neutral units
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && (temp->m_kCostCacheData.bIsEnemyCity || temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit))
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && 
+			(temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_STACKING)))
 		return false;
 
 	return true;

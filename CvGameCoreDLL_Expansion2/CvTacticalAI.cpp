@@ -8681,7 +8681,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 			//melee units are there to soak damage ...
 			int iDangerLimit = pSwapUnit ? (pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
 
-			if (!pSwapUnit || pSwapUnit->GetDanger(pUnit->plot()) > iDangerLimit)
+			if (!pSwapUnit || !pSwapUnit->isNativeDomain(pUnit->plot()) || pSwapUnit->GetDanger(pUnit->plot()) > iDangerLimit)
 				continue;
 		}
 
@@ -9218,14 +9218,14 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
-		fAggFactor = 1.1f;
+		fAggFactor = 0.9f;
 		if ( iHPbelowHalf>0 )
 			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
 		//we want to be able to survive a counterattack ...
 		if ( iDamageReceived+23/fAggBias < pUnit->GetCurrHitPoints() )
-			fAggFactor = 2.8f;
+			fAggFactor = 2.3f;
 		break;
 	}
 
@@ -9505,7 +9505,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType(eRelevantDomain)];
 
 			//the danger value reflects any defensive terrain bonuses
-			//but unfortunately danger is not very useful here, because ZOC is unclear during simulation
+			//but unfortunately danger is not very useful here
+			// * ZOC is unclear during simulation
+			// * freshly revealed enemy units are not considered
 			int	iDanger = pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
 
 			//can happen with garrisons, catch this case as is messes up the math
@@ -10725,6 +10727,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				{
 					//for embarked units, every attacker is bad news
 					if (bTargetIsEnemy || !kPlayer.GetPossibleAttackers(*pPlot).empty())
+						continue;
+
+					CvTacticalDominanceZone* pZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 						continue;
 
 					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
