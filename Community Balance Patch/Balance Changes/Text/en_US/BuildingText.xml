@@ -93,8 +93,8 @@
 			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires a direct Railroad connection, with railroad tiles, to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_HELP">
-			<Text>Requires 1 [ICON_RES_COAL] Coal. +25% [ICON_PRODUCTION] Production and +10% [ICON_GOLD] Gold in City. Requires a [ICON_CONNECTED] Connection via Railroad tiles to the [ICON_CAPITAL] Capital, or to a city connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]City cannot have a Seaport in the City.</Text>
-		</Row>	
+			<Text>+25% [ICON_PRODUCTION] Production and +10% [ICON_GOLD] Gold in City. Requires a [ICON_CONNECTED] Connection via Railroad Tiles to the [ICON_CAPITAL] Capital, or to a city connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. City cannot have a Seaport in the City.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL">
 			<Text>KCIV 101.5FM - #1 for Classic Jams</Text>
@@ -119,7 +119,7 @@
 			<Text>Unique Swedish replacement for the Public School. This building is cheaper, more effective, and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen in the City.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city.</Text>
+			<Text>Allows Archaeologists to be built in this City. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_DESC">
 			<Text>Basilica</Text>
@@ -336,16 +336,16 @@
 			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty, and +1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains Tile. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not be built next to a River. City must not contain another energy-producing Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production. Produces 3 [ICON_RES_COAL] Coal. Can be built in up to 5 Cities maximum.</Text>
+			<Text>Produces 3 [ICON_RES_COAL] Coal. +15% [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Requires 1 [ICON_RES_IRON] Iron. Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City. Increases City Defense by 15 and City Hit Points by 300.[NEWLINE][NEWLINE]City must be built on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a Tile worked by this City. Increases City [ICON_STRENGTH] Combat Strength by 15 and City Hit Points by 300.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. City must be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
@@ -446,7 +446,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
@@ -460,7 +460,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom. 15 turns of 'We Love the King Day' in the City when constructed. All [ICON_GREAT_WORK] Great Works in the city generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 40%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>15 turns of 'We Love the King Day' in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%, and increases the City's resistance to conversion by 10%. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 
 
@@ -475,7 +475,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. +10% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or disrupt Unit [ICON_PRODUCTION] Production.</Text>
+			<Text>+10% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or Disrupt Unit [ICON_PRODUCTION] Production. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 
 
@@ -490,7 +490,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. During 'We Love the King Day', City [ICON_RESEARCH] Science increases by +10%.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. During 'We Love the King Day', City [ICON_RESEARCH] Science increases by +10%. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.</Text>
 		</Row>
 
 
@@ -501,7 +501,7 @@
 			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, additional City Hit Points and [ICON_STRENGTH] Strength, +15 XP for all Military units, and the Morale promotion for your land Military units. Also grants +3 [ICON_PEACE] Faith when you kill an enemy Unit, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an enemy Unit in battle, scaling with Era. +15 XP for all Military units produced in the City, and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for land Military units produced in this city. Grants additional City Hit Points and [ICON_STRENGTH] Strength. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle, scaling with Era. +15 XP for all Military Units produced in the City, and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion for Land Military Units produced in this City. Grants additional City Hit Points and [ICON_STRENGTH] Combat Strength. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
@@ -509,13 +509,13 @@
 
 		<!-- Cathedral/Mosque/Pagoda-->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold. Gain +10 [ICON_GOLD] Gold in the City when its borders expand, scaling with Era.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold. Gain +10 [ICON_GOLD] Gold in the City when its borders expand, scaling with Era. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. +15% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. +15% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
-			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_PEACE] Religious Unrest. +1 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
+			<Text>+1 to all City Yields for every World Religion that has at least one Follower in this City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_PEACE] Religious Unrest.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_THRONE_ROOM">
@@ -580,7 +580,7 @@
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production. Grants +1 [ICON_PRODUCTION] Production from Flood Plains, and +2 [ICON_PRODUCTION] Production from Lakes and Oases. Farms worked by this City gain +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production. Grants +1 [ICON_PRODUCTION] Production from Flood Plains, and +2 [ICON_PRODUCTION] Production from Lakes and Oases. Farms worked by this City gain +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size and productivity, especially if the city is settled on or near Flood Plainss.</Text>
@@ -592,7 +592,7 @@
 			<Text>A dojo is a Japanese term which literally means "place of the way". Initially, dōjōs were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts[which?] but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters. The concept of a dōjō only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dōjō because of its close martial arts roots.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress. Does not require a Barracks in the City. Increases the Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]Grants +25 Experience to all military units trained in this city. All Mounted, Melee, Gun, and Armor units trained in this city receive the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion. When Units are promoted, gain [ICON_CULTURE] Culture and [ICON_RESEARCH] Science based on their current Level.</Text>
+			<Text>Unique Japanese replacement for the Armory. Increases the Military Unit Supply Cap by 2. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.[NEWLINE][NEWLINE]Grants +25 Experience to all Military Units trained in this City. All Mounted, Melee, Gun, and Armor Units trained in this City receive the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion. When Units are promoted, gain [ICON_CULTURE] Culture and [ICON_RESEARCH] Science based on their current Level.[NEWLINE][NEWLINE]Does not require a Barracks in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
 			<Text>Build these unique Armories to produce dominant military units. Does not require a Barracks. All Melee, Mounted, Gun, and Armor units trained in this city receive the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat and increases the Unit's power as it takes damage.</Text>
