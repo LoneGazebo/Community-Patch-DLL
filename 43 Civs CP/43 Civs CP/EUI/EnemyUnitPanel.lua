@@ -1,3 +1,4 @@
+
 print("This is the modded EnemyUnitPanel from CBP")
 -------------------------------------------------
 -- Enemy Unit Panel Screen 
@@ -1333,7 +1334,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				bonusCount = bonusCount + 1;
-			elseif (pMyUnit:GetNearbyImprovementModifier(pFromPlot)) then
+			elseif (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;	
 			end
