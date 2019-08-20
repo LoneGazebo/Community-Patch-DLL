@@ -5354,7 +5354,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 					return false;
 				}
 
-				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING))
+				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
 					if (plot.isVisibleEnemyUnit(this) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
 					{

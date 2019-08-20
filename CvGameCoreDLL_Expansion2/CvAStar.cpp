@@ -1266,7 +1266,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//calculate move cost
 	int iMovementCost = 0;
-	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && bCheckStacking) || node->m_kCostCacheData.bIsEnemyCity)
+	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES)) || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
 	else
@@ -2273,7 +2273,7 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
 		return false;
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && 
-			(temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_STACKING)))
+			(temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES)))
 		return false;
 
 	return true;
