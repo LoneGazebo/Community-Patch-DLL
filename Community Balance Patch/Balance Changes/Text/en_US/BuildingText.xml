@@ -119,7 +119,7 @@
 			<Text>Unique Swedish replacement for the Public School. This building is cheaper, more effective, and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>Allows Archaeologists to be built in this City. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>Allows [COLOR_YELLOW]Archaeologists[ENDCOLOR] to be built in this City. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_DESC">
 			<Text>Basilica</Text>
