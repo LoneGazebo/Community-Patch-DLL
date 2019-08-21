@@ -2953,11 +2953,7 @@ protected:
 	};
 
 	void updateMightStatistics();
-#if defined(MOD_BATTLE_ROYALE)
 	int calculateMilitaryMight(DomainTypes eDomain = NO_DOMAIN) const;
-#else
-	int calculateMilitaryMight() const;
-#endif
 	int calculateEconomicMight() const;
 	int calculateProductionMight() const;
 

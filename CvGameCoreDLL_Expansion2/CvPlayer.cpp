@@ -32825,50 +32825,37 @@ int CvPlayer::GetProductionMight() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BATTLE_ROYALE)
 int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
-#else
-int CvPlayer::calculateMilitaryMight() const
-#endif
 {
-	int rtnValue = 0;
+	int iSum = 0, iPower = 0;
 	int iLoop;
 	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
-		// Current combat strength or bombard strength, whichever is higher
-		int iPower =  pLoopUnit->GetPower();
-#if defined(MOD_BATTLE_ROYALE)
-		if (eDomain == NO_DOMAIN)
-		{
-			rtnValue += iPower;
-		}
-		else if (pLoopUnit->getDomainType() == eDomain)
-		{
-			rtnValue += iPower;
-		}
-#else
-		rtnValue += iPower;
-#endif
+		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
+			continue;
+
+		//we are interested in the offensive capabilities of the player
+		if (pLoopUnit->isRanged())
+			iPower = pLoopUnit->GetMaxRangedCombatStrength(NULL, NULL, true, NULL, NULL, true, true) / 100;
+		else
+			iPower = pLoopUnit->GetMaxAttackStrength(NULL, NULL, NULL, true, true) / 100;
+
+		//some promotions already influence the combat strength and so are double-counted
+		//but who cares, this is only an estimation
+		int iPromotionFactor = 100 + pLoopUnit->getLevel() * 10;
+
+		//assume garrisons won't take part in offensive action
+		if (pLoopUnit->IsGarrisoned())
+			iPower /= 2;
+
+		iSum += (iPower*iPromotionFactor)/100;
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	//the more cities we have, the more we need to spread out our military
-	//add some bias to be >0 and smooth the transitions between the first cities
-	float fScaler = sqrtf(getNumCities() + 3.f); 
-	return int(rtnValue / fScaler);
-#else
-	//Simplistic increase based on player's gold
-	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
-	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
-	if(fGoldMultiplier > 2.0f) fGoldMultiplier = 2.0f;
-	rtnValue = (int)(rtnValue * fGoldMultiplier);
-	return rtnValue;
-#endif
+	
+	return iSum;
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateEconomicMight() const

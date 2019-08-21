@@ -7647,8 +7647,11 @@ int CvUnit::GetPower() const
 	//Take promotions into account: unit with 4 promotions worth ~50% more
 	int iPowerMod = getLevel() * 125;
 	iPower = (iPower * (1000 + iPowerMod)) / 1000;
-	iPower *= GetCurrHitPoints();
-	iPower /= GetMaxHitPoints();
+
+	//Reduce power for damaged units
+	int iDamageMod = m_iDamage * GC.getWOUNDED_DAMAGE_MULTIPLIER() / 100;
+	iPower -= (iPower * iDamageMod / GetMaxHitPoints());
+
 	return iPower;
 }
 

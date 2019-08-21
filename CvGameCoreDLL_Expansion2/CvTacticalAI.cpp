@@ -9304,7 +9304,8 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					return result;
 
 				//what happens next?
-				if (AttackEndsTurn(pUnit,iMaxAttacks-1))
+				if (AttackEndsTurn(pUnit, iMaxAttacks - 1))
+					//end turn cost will be checked in time, no need to panic yet
 					result.iRemainingMoves = 0;
 				else
 					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
@@ -11051,7 +11052,17 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		int iEndTurnScore = 0;
 			
 		if (newAssignment.isCombatUnit())
-			iEndTurnScore = (eAggression > AL_NONE) ? ScorePlotForCombatUnitOffensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this, true).iScore : ScorePlotForCombatUnitDefensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
+		{
+			if (eAggression > AL_NONE)
+			{
+				iEndTurnScore = ScorePlotForCombatUnitOffensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this, true).iScore;
+				//negative scores are forbidden for offensive moves (since we always have the option of not going through with the attack)
+				if (iEndTurnScore < 0)
+					return false;
+			}
+			else
+				iEndTurnScore = ScorePlotForCombatUnitDefensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
+		}
 		else
 			iEndTurnScore = ScorePlotForNonCombatUnit(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
 
