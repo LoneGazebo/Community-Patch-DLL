@@ -125,7 +125,7 @@ public:
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // allow movment into neutral territory (for manual moves)
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
 	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (or the target is a city)
-	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
+	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules (with owned units) don't apply (on turn end plots)
 	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
 	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x0080, // deprecated
@@ -147,6 +147,7 @@ public:
 		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if about to end turn on a dangerous plot
 		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
 		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //when doing a dangerous move, try to abort as long as there is movement left
+		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
 	};
 
 	enum MoveResult
@@ -1577,9 +1578,17 @@ public:
 	inline bool isTerrainHalfMove(TerrainTypes eIndex) const { return getTerrainHalfMoveCount(eIndex) > 0; }
 	void changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange);
 
+	int getTerrainExtraMoveCount(TerrainTypes eIndex) const;
+	inline bool isTerrainExtraMove(TerrainTypes eIndex) const { return getTerrainExtraMoveCount(eIndex) > 0; }
+	void changeTerrainExtraMoveCount(TerrainTypes eIndex, int iChange);
+
 	int getFeatureHalfMoveCount(FeatureTypes eIndex) const;
 	inline bool isFeatureHalfMove(FeatureTypes eIndex) const { return getFeatureHalfMoveCount(eIndex) > 0; }
 	void changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange);
+
+	int getFeatureExtraMoveCount(FeatureTypes eIndex) const;
+	inline bool isFeatureExtraMove(FeatureTypes eIndex) const { return getFeatureExtraMoveCount(eIndex) > 0; }
+	void changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int getTerrainDoubleHeal(TerrainTypes eIndex) const;
@@ -2245,6 +2254,9 @@ protected:
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainHalfMoveCount;
 	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureHalfMoveCount;
+
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainExtraMoveCount;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureExtraMoveCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainDoubleHeal;

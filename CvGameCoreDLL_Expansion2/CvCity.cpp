@@ -3635,80 +3635,34 @@ int CvCity::GetStaticTechDeviation() const
 	return m_iStaticTechDeviation;
 }
 
-void CvCity::UpdateHappinessFromEmpire()
-{
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	if (IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
-	{
-		m_iHappinessFromEmpire = 0;
-		m_iHappinessFromLuxuries = 0;
-		return;
-	}
-
-	int iLuxHappinessEmpire = kPlayer.GetBonusHappinessFromLuxuriesFlat();
-
-	int iCities = max(1, kPlayer.GetNumRealCities());
-	int iRemainder = (kPlayer.GetHappiness() - iLuxHappinessEmpire) % iCities;
-	int iHappiness = (kPlayer.GetHappiness() - iLuxHappinessEmpire) / iCities;
-
-	int iLuxRemainder = (iLuxHappinessEmpire) % iCities;
-	int iLuxHappiness = (iLuxHappinessEmpire) / iCities;
-
-	int iThisCityHappiness = 0;
-	int iThisCityLuxHappiness = 0;
-	
-	const CvCity* pLoopCity;
-	int iLoop;
-	while (iRemainder > 0)
-	{
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-		{
-			if (pLoopCity->IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
-				continue;
-
-			if (pLoopCity->GetID() == GetID())
-			{
-				iThisCityHappiness++;
-			}
-
-			iRemainder--;
-			if (iRemainder <= 0)
-				break;
-		}
-	}
-
-	m_iHappinessFromEmpire = iHappiness + iThisCityHappiness;
-
-	while (iLuxRemainder > 0)
-	{
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-		{
-			if (pLoopCity->IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
-				continue;
-
-			if (pLoopCity->GetID() == GetID())
-			{
-				iThisCityLuxHappiness++;
-			}
-
-			iLuxRemainder--;
-			if (iLuxRemainder <= 0)
-				break;
-		}
-	}
-
-	m_iHappinessFromLuxuries = iLuxHappiness + iThisCityLuxHappiness;
-}
 int CvCity::GetHappinessFromEmpire() const
 {
 	VALIDATE_OBJECT
 	return m_iHappinessFromEmpire;
+}
+void CvCity::ChangeHappinessFromEmpire(int iValue)
+{
+	if (iValue != 0)
+		m_iHappinessFromEmpire += iValue;
+}
+void CvCity::ResetHappinessFromEmpire()
+{
+	m_iHappinessFromEmpire = 0;
 }
 
 int CvCity::GetLuxuryHappinessFromEmpire() const
 {
 	VALIDATE_OBJECT
 	return m_iHappinessFromLuxuries;
+}
+void CvCity::ChangeHappinessFromLuxuries(int iValue)
+{
+	if (iValue != 0)
+		m_iHappinessFromLuxuries += iValue;
+}
+void CvCity::ResetHappinessFromLuxuries()
+{
+	m_iHappinessFromLuxuries = 0;
 }
 
 void CvCity::UpdateUnhappinessFromEmpire()

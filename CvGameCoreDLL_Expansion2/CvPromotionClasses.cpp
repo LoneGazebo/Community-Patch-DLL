@@ -296,7 +296,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbFeatureDoubleMove(NULL),
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	m_pbTerrainHalfMove(NULL),
+	m_piTerrainExtraMove(NULL),
 	m_pbFeatureHalfMove(NULL),
+	m_piFeatureExtraMove(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_pbTerrainDoubleHeal(NULL),
@@ -346,7 +348,9 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleMove);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	SAFE_DELETE_ARRAY(m_pbTerrainHalfMove);
+	SAFE_DELETE_ARRAY(m_piTerrainExtraMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureHalfMove);
+	SAFE_DELETE_ARRAY(m_piFeatureExtraMove);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleHeal);
@@ -698,6 +702,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbTerrainDoubleMove, iNumTerrains, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbTerrainHalfMove, iNumTerrains, false);
+		kUtility.InitializeArray(m_piTerrainExtraMove, iNumTerrains, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
 		kUtility.InitializeArray(m_pbTerrainDoubleHeal, iNumTerrains, false);
@@ -734,6 +739,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbTerrainHalfMove[iTerrainID] = bHalfMove;
+
+			const int iExtraMove = pResults->GetInt("ExtraMove");
+			m_piTerrainExtraMove[iTerrainID] = iExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
@@ -756,6 +764,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbFeatureDoubleMove, iNumFeatures, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbFeatureHalfMove, iNumFeatures, false);
+		kUtility.InitializeArray(m_piFeatureExtraMove, iNumFeatures, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
 		kUtility.InitializeArray(m_pbFeatureDoubleHeal, iNumFeatures, false);
@@ -792,6 +801,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbFeatureHalfMove[iFeatureID] = bHalfMove;
+
+			const int iExtraMove = pResults->GetInt("ExtraMove");
+			m_piFeatureExtraMove[iFeatureID] = iExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
@@ -2781,6 +2793,20 @@ bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 	return false;
 }
 
+/// Returns an array that indicates if a unit can move half as fast in a type of terrain
+int CvPromotionEntry::GetTerrainExtraMove(int i) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainExtraMove)
+	{
+		return m_piTerrainExtraMove[i];
+	}
+
+	return false;
+}
+
 /// Returns an array that indicates if a unit can move half as fast in a type of terrain feature
 bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 {
@@ -2794,6 +2820,20 @@ bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 
 	return false;
 }
+
+int CvPromotionEntry::GetFeatureExtraMove(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < GC.getNumFeatureInfos() && m_piFeatureExtraMove)
+	{
+		return m_piFeatureExtraMove[i];
+	}
+
+	return false;
+}
+
 #endif
 #if defined(MOD_BALANCE_CORE)
 /// Returns an array that indicates if a unit can move half as fast in a type of terrain

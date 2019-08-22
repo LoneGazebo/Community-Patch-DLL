@@ -101,6 +101,7 @@ public:
 	int GetCombatLimit() const;
 	int GetRangedCombat() const;
 	int GetRangedCombatLimit() const;
+	bool IsCoastalFireOnly() const;
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool IsNoSupply() const;
 #endif
@@ -330,6 +331,7 @@ private:
 	int m_iCombatLimit;
 	int m_iRangedCombat;
 	int m_iRangedCombatLimit;
+	bool m_bCoastalFire;
 #if defined(MOD_UNITS_NO_SUPPLY)
 	bool m_bNoSupply;
 #endif

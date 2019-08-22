@@ -303,6 +303,7 @@ protected:
 	static int lCanSetUpForRangedAttack(lua_State* L);
 	static int lIsSetUpForRangedAttack(lua_State* L);
 	static int lIsRangeAttackOnlyInDomain(lua_State* L);
+	static int lIsCoastalAttackOnly(lua_State* L);
 	static int lIsCityAttackOnly(lua_State* L);
 
 	static int lImmuneToFirstStrikes(lua_State* L);

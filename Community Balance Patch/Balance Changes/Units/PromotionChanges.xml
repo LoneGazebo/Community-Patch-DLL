@@ -4157,5 +4157,40 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_WORKS_3</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_CAN_MOVE_AFTER_ATTACKING_NAVAL</Type>
+			<Description>TXT_KEY_PROMOTION_CAN_MOVE_AFTER_ATTACKING</Description>
+			<Help>TXT_KEY_PROMOTION_CAN_MOVE_AFTER_ATTACKING</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CanMoveAfterAttacking>true</CanMoveAfterAttacking>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CAN_MOVE_AFTER_ATTACKING</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SIGHT_PENALTY_NAVAL</Type>
+			<Description>TXT_KEY_PROMOTION_SIGHT_PENALTY</Description>
+			<Help>TXT_KEY_PROMOTION_SIGHT_PENALTY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<VisibilityChange>-1</VisibilityChange>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>57</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_SIGHT_PENALTY</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ROUGH_TERRAIN_HALF_TURN</Type>
+			<Description>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN</Description>
+			<Help>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>57</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN</PediaEntry>
+		</Row>		
 	</UnitPromotions>
 </GameData>

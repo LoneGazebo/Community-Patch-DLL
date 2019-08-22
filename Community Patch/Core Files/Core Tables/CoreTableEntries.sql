@@ -1223,30 +1223,37 @@ ALTER TABLE Policies ADD COLUMN 'BestNumberSeaRangedUnitClass' INTEGER DEFAULT 0
 -- Extra Military Supply from Population
 ALTER TABLE Policies ADD COLUMN 'ExtraSupplyPerPopulation' INTEGER DEFAULT 0;
 
+ALTER TABLE Units ADD COLUMN 'NoSupply' INTEGER DEFAULT 0;
+  
+ALTER TABLE UnitPromotions ADD COLUMN 'NoSupply' INTEGER DEFAULT 0;
+
 -- Spawn Best Melee Unit on an Improvement during a DOW
 ALTER TABLE Traits ADD COLUMN 'BestUnitSpawnOnImpDOW' BOOLEAN DEFAULT 0;
 ALTER TABLE Traits ADD BestUnitImprovement TEXT DEFAULT NULL REFERENCES Improvements(Type);
 
 -- Spawn best Melee Type Unit on finishing a Build (accounts for Domain of Build)
-ALTER TABLE Builds ADD IsFreeBestDomainUnit BOOLEAN DEFAULT 0;
+ALTER TABLE Builds ADD COLUMN 'IsFreeBestDomainUnit' BOOLEAN DEFAULT 0;
 
 -- Unit Upgrades for free when reaching it's UnitClass Upgrade Tech
-ALTER TABLE Units ADD FreeUpgrade BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD COLUMN 'FreeUpgrade' BOOLEAN DEFAULT 0;
+
+-- Naval units can only attack coastal tiles regardless of range.
+ALTER TABLE Units ADD COLUMN 'CoastalFireOnly' BOOLEAN DEFAULT 0;
 
 -- Unit gets a new Combat Strength in specific Era, must be set to 'true' or 1, if using Unit_EraCombatStrength, and Unit_EraCombatStrength must be filled in.
-ALTER TABLE Units ADD UnitEraUpgrade BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD COLUMN 'UnitEraUpgrade' BOOLEAN DEFAULT 0;
 
 -- Grants a free building to a city when founded
-ALTER TABLE Policies ADD NewCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
+ALTER TABLE Policies ADD COLUMN 'NewCityFreeBuilding' TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
 
 -- Grants a free building to all existing and future cities
-ALTER TABLE Policies ADD AllCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
+ALTER TABLE Policies ADD COLUMN 'AllCityFreeBuilding' TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
 
 -- Grants a free building to newly founded cities
-ALTER TABLE Policies ADD NewFoundCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
+ALTER TABLE Policies ADD COLUMN 'NewFoundCityFreeBuilding' TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
 
 -- Grants a free unit to newly founded cities
-ALTER TABLE Policies ADD NewFoundCityFreeUnit TEXT DEFAULT NULL REFERENCES UnitClasses(Type);
+ALTER TABLE Policies ADD COLUMN 'NewFoundCityFreeUnit' TEXT DEFAULT NULL REFERENCES UnitClasses(Type);
 
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD COLUMN 'StackedGreatGeneralXP' INTEGER DEFAULT 0;
@@ -1263,22 +1270,22 @@ ALTER TABLE UnitPromotions ADD COLUMN 'DamageReductionCityAssault' INTEGER DEFAU
 -- Note: The below entries are used, e.g. mounting or dismounting a unit, say a Lancer gets below 50 HP "DamageThreshold", and can "dismount" and fortify as an Infantry type unit.
 
 -- Unit will convert to another UnitType. Must define a "DamageThreshold" and the "ConvertDamageOrFullHPUnit" Type
-ALTER TABLE UnitPromotions ADD IsConvertOnDamage BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'IsConvertOnDamage' BOOLEAN DEFAULT 0;
 
 -- Unit will convert to the original UnitType when Max Hit Points are restored. Must define "ConvertDamageOrFullHPUnit" Type to the original Unit.
-ALTER TABLE UnitPromotions ADD IsConvertOnFullHP BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'IsConvertOnFullHP' BOOLEAN DEFAULT 0;
 
 -- Unit will convert to another UnitType if "IsConvertOnDamage" and "DamageThreshold" are defined. If used to convert back to the original unit when full HP is restored, "IsConvertOnFullHp" must be defined.
-ALTER TABLE UnitPromotions ADD ConvertDamageOrFullHPUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+ALTER TABLE UnitPromotions ADD COLUMN 'ConvertDamageOrFullHPUnit' TEXT DEFAULT NULL REFERENCES Units(Type);
 
 -- Unit will convert to another UnitType. Must define a "IsConvertOnDamage" and the "ConvertDamageOrFullHPUnit" Type. Or Can be set with IsConvertEnemyUnitToBarbarian
-ALTER TABLE UnitPromotions ADD DamageThreshold INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'DamageThreshold' INTEGER DEFAULT 0;
 
 -- Can this unit convert an enemy unit into a barbarian? Must set DamageThreshold to a value you want enemy to convert.
-ALTER TABLE UnitPromotions ADD IsConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'IsConvertEnemyUnitToBarbarian' BOOLEAN DEFAULT 0;
 
 -- Special Units that have a different Special rating can be modified here to load on to ships (e.g. Great People).
-ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialUnits(Type);
+ALTER TABLE Units ADD COLUMN 'SpecialUnitCargoLoad' TEXT DEFAULT NULL REFERENCES SpecialUnits(Type);
 
 -- Does this Civ get a GG/GA Rate Modifier bonus from denunciations and wars?
 ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT 0;
@@ -1293,16 +1300,16 @@ ALTER TABLE Traits ADD COLUMN 'EnemyWarWearinessModifier' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'BullyYieldMultiplierAnnex' INTEGER DEFAULT 0;
 
 -- Does this civ get a free Unit.Type on Conquest? Must be able to train it first....
-ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Type);
+ALTER TABLE Traits ADD COLUMN 'FreeUnitOnConquest' TEXT DEFAULT NULL REFERENCES Units(Type);
 
 -- Can this unit only be trained during War?
-ALTER TABLE Units ADD WarOnly BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD COLUMN 'WarOnly' BOOLEAN DEFAULT 0;
 
 -- Civ gets an influence boost and Great Admiral Points when sending a Trade Route to a minor Civ.
 ALTER TABLE Traits ADD COLUMN 'TradeRouteMinorInfluenceAP' BOOLEAN DEFAULT 0;
 
 -- Can this building be built next to any body of water?
-ALTER TABLE Buildings ADD AnyWater BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'AnyWater' BOOLEAN DEFAULT 0;
 
 -- Promotion grants additional combat strength if on a pillaged improvement
 ALTER TABLE UnitPromotions ADD COLUMN 'PillageBonusStrength' INTEGER DEFAULT 0;
@@ -1311,7 +1318,7 @@ ALTER TABLE UnitPromotions ADD COLUMN 'PillageBonusStrength' INTEGER DEFAULT 0;
 ALTER TABLE Improvements ADD COLUMN 'CreatesFeature' INTEGER DEFAULT 0;
 
 -- Start a WLTKD when this unit is born or gained. GP's only.
-ALTER TABLE Units ADD WLTKDFromBirth BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD COLUMN 'WLTKDFromBirth' BOOLEAN DEFAULT 0;
 
 -- Civ cities gets a production modifier (from 1%) for every specialist that they have.
 ALTER TABLE Traits ADD COLUMN 'ProdModFromNumSpecialists' BOOLEAN DEFAULT 0;
@@ -1369,16 +1376,16 @@ ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentEnemySapMovement' INTEGER DEFAULT
 
 -- Enemy Units gain the "EnemyWarSawPactPromotion" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyWarSawPactPromotion" promotion type for this to work (see below).
 ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;
-ALTER TABLE Traits ADD EnemyWarSawPactPromotion TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
+ALTER TABLE Traits ADD COLUMN 'EnemyWarSawPactPromotion' TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 
 -- Build adds an instant yield of culture to Player's culture pool.
-ALTER TABLE Builds ADD CultureBoost BOOLEAN DEFAULT 0;
+ALTER TABLE Builds ADD COLUMN 'CultureBoost' BOOLEAN DEFAULT 0;
 
 -- When a unit (civilian or combat) with this promotion is stationed in a City, City gains X% modifier towards building military units.
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryProductionModifier' INTEGER DEFAULT 0;
 
 -- Unit gets the "HighSeaRaider" Promotion Entry (if defined) when it plunders a Trade Route.
-ALTER TABLE Units ADD HighSeaRaider BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;
 
 -- Units gains this promotion when its Unit Entry is a HighSeaRaider
 ALTER TABLE UnitPromotions ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;

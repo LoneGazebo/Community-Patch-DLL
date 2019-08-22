@@ -481,6 +481,8 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	, m_terrainHalfMoveCount("CvUnit::m_terrainHalfMoveCount", m_syncArchive)
 	, m_featureHalfMoveCount("CvUnit::m_featureHalfMoveCount", m_syncArchive)
+	, m_terrainExtraMoveCount("CvUnit::m_terrainExtraMoveCount", m_syncArchive)
+	, m_featureExtraMoveCount("CvUnit::m_featureExtraMoveCount", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iHurryStrength("CvUnit::m_iHurryStrength", m_syncArchive)
@@ -1788,6 +1790,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_terrainDoubleMoveCount.dirtyGet().clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		m_terrainHalfMoveCount.dirtyGet().clear();
+		m_terrainExtraMoveCount.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
 		m_terrainDoubleHeal.dirtyGet().clear();
@@ -1803,6 +1806,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_featureDoubleMoveCount.dirtyGet().clear();
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		m_featureHalfMoveCount.dirtyGet().clear();
+		m_featureExtraMoveCount.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
 		m_featureDoubleHeal.dirtyGet().clear();
@@ -1954,6 +1958,8 @@ void CvUnit::uninitInfos()
 	m_featureDoubleMoveCount.dirtyGet().clear();
 	m_terrainHalfMoveCount.dirtyGet().clear();
 	m_featureHalfMoveCount.dirtyGet().clear();
+	m_terrainExtraMoveCount.dirtyGet().clear();
+	m_featureExtraMoveCount.dirtyGet().clear();
 #else
 	m_featureDoubleMoveCount.clear();
 #endif
@@ -5354,9 +5360,12 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 					return false;
 				}
 
-				if(plot.isVisibleEnemyUnit(this) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
+				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
-					return false;
+					if (plot.isVisibleEnemyUnit(this) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
+					{
+						return false;
+					}
 				}
 			}
 		}
@@ -7644,8 +7653,11 @@ int CvUnit::GetPower() const
 	//Take promotions into account: unit with 4 promotions worth ~50% more
 	int iPowerMod = getLevel() * 125;
 	iPower = (iPower * (1000 + iPowerMod)) / 1000;
-	iPower *= GetCurrHitPoints();
-	iPower /= GetMaxHitPoints();
+
+	//Reduce power for damaged units
+	int iDamageMod = m_iDamage * GC.getWOUNDED_DAMAGE_MULTIPLIER() / 100;
+	iPower -= (iPower * iDamageMod / GetMaxHitPoints());
+
 	return iPower;
 }
 
@@ -26090,6 +26102,41 @@ void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 	m_terrainHalfMoveCount.push_back(make_pair(eIndex, iChange));
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getTerrainExtraMoveCount(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_terrainExtraMoveCount.begin(); it != m_terrainExtraMoveCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeTerrainExtraMoveCount(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_terrainExtraMoveCount.dirtyGet();
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_terrainExtraMoveCount.push_back(make_pair(eIndex, iChange));
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getFeatureHalfMoveCount(FeatureTypes eIndex) const
@@ -26124,6 +26171,41 @@ void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 	}
 
 	m_featureHalfMoveCount.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getFeatureExtraMoveCount(FeatureTypes eIndex) const
+{
+	for (FeatureTypeCounter::const_iterator it = m_featureExtraMoveCount.begin(); it != m_featureExtraMoveCount.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	FeatureTypeCounter& mVec = m_featureExtraMoveCount.dirtyGet();
+	for (FeatureTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_featureExtraMoveCount.push_back(make_pair(eIndex, iChange));
 }
 #endif
 
@@ -27357,6 +27439,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			changeTerrainHalfMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
+			changeTerrainExtraMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainExtraMove(iI)) ? iChange : 0));
 #endif
 #if defined(MOD_BALANCE_CORE)
 			changeTerrainDoubleHeal(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleHeal(iI)) ? iChange : 0));		
@@ -27371,6 +27454,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			changeFeatureDoubleMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleMove(iI)) ? iChange : 0));
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 			changeFeatureHalfMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureHalfMove(iI)) ? iChange : 0));
+			changeFeatureExtraMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureExtraMove(iI)) ? iChange : 0));
 #endif
 #if defined(MOD_BALANCE_CORE)
 			changeFeatureDoubleHeal(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleHeal(iI)) ? iChange : 0));		
@@ -27868,16 +27952,20 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 	if(!pTargetPlot)
 		return false;
 
-	// Plot not visible?
-	if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
-		return false;
-
 	if (pSourcePlot)
 	{
 		// In Range?
 		if (plotDistance(*pSourcePlot, *pTargetPlot) > GetRange())
 		{
 			return false;
+		}
+
+		// Plot not visible?
+		if (!bIgnoreVisibility)
+		{
+			bool bCanSeeTarget = pTargetPlot->isVisible(getTeam()) || pSourcePlot->canSeePlot(pTargetPlot, getTeam(), visibilityRange(), getFacingDirection(true));
+			if (!bCanSeeTarget)
+				return false;
 		}
 
 #if defined(MOD_BALANCE_CORE)
@@ -27900,24 +27988,29 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 				return false;
 		}
 
+		if (getUnitInfo().IsCoastalFireOnly() && pTargetPlot->getArea() == DOMAIN_LAND)
+		{
+			if (!pTargetPlot->isCoastalLand())
+				return false;
+		}
+
 		// Ignores LoS or can see the plot directly?
 		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
-		{
+			//not a typo, we need attack range here, not sight range
 			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
-			{
 				return false;
-			}
-		}
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
 		if (!isNativeDomain(pSourcePlot))
-		{
 			return false;
-		}
 #endif
 	}
 	else //no source plot given, do only the most basic checks
 	{
+		// Plot not visible?
+		if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
+			return false;
+
 		// Can only bombard in domain?
 		if (getUnitInfo().IsRangeAttackOnlyInDomain())
 		{
@@ -27926,6 +28019,12 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 				bForbidden = false;
 
 			if (bForbidden)
+				return false;
+		}
+
+		if (getUnitInfo().IsCoastalFireOnly() && pTargetPlot->getArea() == DOMAIN_LAND)
+		{
+			if (!pTargetPlot->isCoastalLand())
 				return false;
 		}
 	}
@@ -28657,8 +28756,6 @@ bool CvUnit::SentryAlert() const
 
 	if(iRange > 0)
 	{
-		CvUnit* pEnemyUnit;
-
 		for(int iX = -iRange; iX <= iRange; ++iX)
 		{
 			for(int iY = -iRange; iY <= iRange; ++iY)
@@ -28671,7 +28768,7 @@ bool CvUnit::SentryAlert() const
 						if(pPlot->isVisibleEnemyUnit(this))
 						{
 							// Blocker for enemies not in our domain
-							pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
+							CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
 							if(pEnemyUnit)
 							{
 #if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
@@ -30804,9 +30901,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraCityAttackPercent()/2;
+		iExtra = getExtraCityAttackPercent();
 
-		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD || (AI_getUnitAIType() == UNITAI_ASSAULT_SEA && GetRange() > 1))
 			iValue += iTemp + iExtra + iFlavorOffense;
 		else
 			iValue += iTemp + iExtra/2 + iFlavorOffense/2;
@@ -31497,6 +31594,22 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 					iValue -= 2 * iFlavorMobile;
 				}
 			}
+
+			if (pkPromotionInfo->GetTerrainExtraMove(iI))
+			{
+				if (AI_getUnitAIType() == UNITAI_EXPLORE)
+				{
+					iValue += 2 * (iFlavorRecon + iFlavorMobile) * pkPromotionInfo->GetTerrainExtraMove(iI);
+				}
+				else if ((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+				{
+					iValue += (iFlavorOffense + iFlavorMobile) * pkPromotionInfo->GetTerrainExtraMove(iI);
+				}
+				else
+				{
+					iValue += iFlavorMobile * pkPromotionInfo->GetTerrainExtraMove(iI);
+				}
+			}
 #endif
 		}
 	}
@@ -31575,6 +31688,21 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				else
 				{
 					iValue -= 3 * iFlavorMobile;
+				}
+			}
+			if (pkPromotionInfo->GetFeatureExtraMove(iI))
+			{
+				if (AI_getUnitAIType() == UNITAI_EXPLORE)
+				{
+					iValue += 3 * (iFlavorRecon + iFlavorMobile) * pkPromotionInfo->GetFeatureExtraMove(iI);
+				}
+				else if ((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+				{
+					iValue += 2 * (iFlavorOffense + iFlavorMobile) * pkPromotionInfo->GetFeatureExtraMove(iI);
+				}
+				else
+				{
+					iValue += iFlavorMobile * pkPromotionInfo->GetFeatureExtraMove(iI);
 				}
 			}
 #endif
@@ -31665,14 +31793,23 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 		iTemp += getExtraDomainModifier((DomainTypes)iI);
 
+		if (DomainTypes(iI) == DOMAIN_SEA)
+			iTemp *= iFlavorDefense;
+		else if (DomainTypes(iI) == DOMAIN_AIR)
+			iTemp *= iFlavorAir;
+		else
+			iTemp *= iFlavorOffense;
+
+		iTemp /= 5;
+
 		if ((AI_getUnitAIType() == UNITAI_COUNTER) || (AI_getUnitAIType() == UNITAI_RANGED))
 		{
-			iValue += (iTemp * 3);
+			iValue += (iTemp * 2);
 		}
 		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
 			(AI_getUnitAIType() == UNITAI_DEFENSE))
 		{
-			iValue += (iTemp * 2);
+			iValue += iTemp;
 		}
 		else if ((AI_getUnitAIType() == UNITAI_CITY_BOMBARD))
 		{
@@ -31680,17 +31817,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		}
 		else
 		{
-			iValue += iTemp;
+			iValue += (iTemp / 2);
 		}
-
-		iValue += iTemp;
-
-		if (DomainTypes(iI) == DOMAIN_SEA)
-			iValue += iFlavorNaval;
-		else if (DomainTypes(iI) == DOMAIN_AIR)
-			iValue += iFlavorAir;
-		else
-			iValue += iFlavorOffense;
 	}
 
 	if(iValue > 0)

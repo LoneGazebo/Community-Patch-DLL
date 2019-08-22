@@ -2319,7 +2319,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
 		if (pBestPlot != NULL)
 		{
-			bool bSpecialistBetterThanPlot = eBestSpecialistBuilding != NO_BUILDING && ((iSpecialistValue >= iBestPlotValue && (iPotentialExcessTimes100 > 0)) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0));
+			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING) && ((iSpecialistValue >= iBestPlotValue) && ((iPotentialExcessTimes100 > 0) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0)));
 			if (bSpecialistBetterThanPlot)
 			{
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);

@@ -41,6 +41,7 @@ function RangedStrikeHighlight()
 		thisTeam = pHeadSelectedUnit:GetTeam();
 		thingThatCanActuallyFire = pHeadSelectedUnit;
 		bDomainOnly = pHeadSelectedUnit:IsRangeAttackOnlyInDomain();
+		bCoastalOnly = pHeadSelectedUnit:IsCoastalAttackOnly();
 		--print("bDomainOnly:"..tostring(bDomainOnly))
 	end
 	if thingThatCanActuallyFire ~= nil and thisPlot then
@@ -63,6 +64,12 @@ function RangedStrikeHighlight()
 						if thingThatCanActuallyFire:GetDomainType() == DomainTypes.DOMAIN_LAND and pTargetPlot:IsWater() then
 							bCanRangeStrike = false;
 						elseif thingThatCanActuallyFire:GetDomainType() == DomainTypes.DOMAIN_SEA and not pTargetPlot:IsWater() then
+							bCanRangeStrike = false;
+						end
+					end
+
+					if bCoastalOnly then
+						if thingThatCanActuallyFire:GetDomainType() == DomainTypes.DOMAIN_SEA and not pTargetPlot:IsCoastalLand() then
 							bCanRangeStrike = false;
 						end
 					end

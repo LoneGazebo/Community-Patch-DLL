@@ -123,11 +123,13 @@ public:
 	int GetStaticTechDeviation() const;
 	void UpdateStaticTechDeviation(int iValue);
 
-	int GetHappinessFromLuxuries() const;
+	int GetLuxuryHappinessFromEmpire() const;
+	void ChangeHappinessFromLuxuries(int iValue);
+	void ResetHappinessFromLuxuries();
 
 	int GetHappinessFromEmpire() const;
-	int GetLuxuryHappinessFromEmpire() const;
-	void UpdateHappinessFromEmpire();
+	void ChangeHappinessFromEmpire(int iValue);
+	void ResetHappinessFromEmpire();
 
 	int GetUnhappinessFromEmpire() const;
 	void UpdateUnhappinessFromEmpire();

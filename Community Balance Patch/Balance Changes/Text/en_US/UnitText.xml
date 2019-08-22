@@ -589,6 +589,14 @@
 			<Text>Unique Brazilian Explorer. Generates [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science whenever you reveal tiles with this Unit. Can construct Forts, Quarries, Mines, and Brazilwood Camps in owned territory.</Text>
 		</Row>
 		
+		<!-- Rough Terrain for Ranged Mounted-->
+		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN">
+			<Text>Rough Terrain Extra Move</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
+			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross.</Text>
+		</Row>
+		
 		<!-- New Tier 4 Promotions -->
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4">
 			<Text>Overrun</Text>

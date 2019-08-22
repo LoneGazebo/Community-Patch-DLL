@@ -333,6 +333,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsInvisible);
 	Method(IsNukeImmune);
 	Method(IsRangeAttackOnlyInDomain);
+	Method(IsCoastalAttackOnly);
 	Method(IsCityAttackOnly);
 
 	Method(GetAirInterceptRange);
@@ -1714,6 +1715,24 @@ int CvLuaUnit::lIsRangeAttackOnlyInDomain(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lIsCoastalAttackOnly(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pkUnit->getUnitType());
+
+	if (pkUnitInfo == NULL)
+	{
+		luaL_error(L, "Could not find unit info (%d) for unit.", pkUnit->getUnitType());
+		return 0;
+	}
+
+	const bool bResult = pkUnitInfo->IsCoastalFireOnly();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 int CvLuaUnit::lIsCityAttackOnly(lua_State* L)
 {

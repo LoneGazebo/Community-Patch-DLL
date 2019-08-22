@@ -20349,6 +20349,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Gamespeed Bonus level
 	m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
 
+	int iLuxFlat = 0;
 	if (!MOD_BALANCE_CORE_HAPPINESS)
 	{
 		// Increase from Luxury Resources
@@ -20363,7 +20364,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 	}
 	else
 	{
-		m_iHappiness += GetBonusHappinessFromLuxuriesFlat();
+		iLuxFlat = GetBonusHappinessFromLuxuriesFlat();
 	}
 
 	// Increase from buildings
@@ -20415,16 +20416,80 @@ void CvPlayer::DoUpdateTotalHappiness()
 
 	if (m_iHappiness > 0)
 	{
+
+		DistributeHappinessToCities(m_iHappiness, iLuxFlat);
+
+		m_iHappiness += iLuxFlat;
+	}
+
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+}
+
+void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
+{
+	CvCity* pLoopCity;
+	int iLoop;
+
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			continue;
+
+		pLoopCity->ResetHappinessFromEmpire();
+		pLoopCity->ResetHappinessFromLuxuries();
+	}
+
+	int iTempTotal = iTotal + iLux;
+
+	while(iTempTotal > 0)
+	{
+		bool bAllFull = true;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
 				continue;
 
-			pLoopCity->UpdateHappinessFromEmpire();
-		}
-	}
+			int iTotalHappiness = pLoopCity->GetLocalHappiness();
 
-	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			if (iTotalHappiness < pLoopCity->getPopulation())
+			{
+				bAllFull = false;
+				break;
+			}
+		}
+		if (bAllFull)
+			break;
+
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+				continue;
+
+			int iTotalHappiness = pLoopCity->GetLocalHappiness();
+
+			if (iTotalHappiness >= pLoopCity->getPopulation())
+				continue;
+
+			if (iTotal > 0)
+			{
+				iTotal--;
+				pLoopCity->ChangeHappinessFromEmpire(1);
+				iTempTotal--;
+			}
+			else if (iLux > 0)
+			{
+				iLux--;
+				pLoopCity->ChangeHappinessFromLuxuries(1);
+				iTempTotal--;
+			}
+
+			if (iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
+				break;
+		}
+
+		if (iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
+			break;
+	}
 }
 
 int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
@@ -20686,7 +20751,7 @@ bool CvPlayer::IsEmpireUnhappy() const
 	}
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() <= GC.getUNHAPPY_THRESHOLD())
+		if (GetExcessHappiness() < GC.getUNHAPPY_THRESHOLD())
 			return true;
 	}
 	else
@@ -20705,7 +20770,12 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 	{
 		return false;
 	}
-	if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (GetExcessHappiness() < /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+			return true;
+	}
+	else if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
@@ -20720,7 +20790,12 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 	{
 		return false;
 	}
-	if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (GetExcessHappiness() < /*-10*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+			return true;
+	}
+	else if (GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
@@ -30876,6 +30951,9 @@ void CvPlayer::DoDiversity(DomainTypes eDomain)
 		}
 	}
 
+	if (iUnitAI == NO_UNITAI)
+		return;
+
 	if (iUnitAI != m_aiDomainDiversity[eDomain])
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -32825,50 +32903,37 @@ int CvPlayer::GetProductionMight() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BATTLE_ROYALE)
 int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
-#else
-int CvPlayer::calculateMilitaryMight() const
-#endif
 {
-	int rtnValue = 0;
+	int iSum = 0, iPower = 0;
 	int iLoop;
 	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
-		// Current combat strength or bombard strength, whichever is higher
-		int iPower =  pLoopUnit->GetPower();
-#if defined(MOD_BATTLE_ROYALE)
-		if (eDomain == NO_DOMAIN)
-		{
-			rtnValue += iPower;
-		}
-		else if (pLoopUnit->getDomainType() == eDomain)
-		{
-			rtnValue += iPower;
-		}
-#else
-		rtnValue += iPower;
-#endif
+		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
+			continue;
+
+		//we are interested in the offensive capabilities of the player
+		if (pLoopUnit->isRanged())
+			iPower = pLoopUnit->GetMaxRangedCombatStrength(NULL, NULL, true, NULL, NULL, true, true) / 100;
+		else
+			iPower = pLoopUnit->GetMaxAttackStrength(NULL, NULL, NULL, true, true) / 100;
+
+		//some promotions already influence the combat strength and so are double-counted
+		//but who cares, this is only an estimation
+		int iPromotionFactor = 100 + pLoopUnit->getLevel() * 10;
+
+		//assume garrisons won't take part in offensive action
+		if (pLoopUnit->IsGarrisoned())
+			iPower /= 2;
+
+		iSum += (iPower*iPromotionFactor)/100;
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	//the more cities we have, the more we need to spread out our military
-	//add some bias to be >0 and smooth the transitions between the first cities
-	float fScaler = sqrtf(getNumCities() + 3.f); 
-	return int(rtnValue / fScaler);
-#else
-	//Simplistic increase based on player's gold
-	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
-	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
-	if(fGoldMultiplier > 2.0f) fGoldMultiplier = 2.0f;
-	rtnValue = (int)(rtnValue * fGoldMultiplier);
-	return rtnValue;
-#endif
+	
+	return iSum;
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateEconomicMight() const

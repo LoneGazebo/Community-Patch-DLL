@@ -643,6 +643,7 @@ public:
 	int GetUnhappiness() const;
 	void CalculateNetHappiness();
 	int GetHappinessRatioRawPercent();
+	void DistributeHappinessToCities(int iTotal, int iLux);
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	void ChangeEmpireNeedsModifierGlobal(int iChange);
@@ -2953,11 +2954,7 @@ protected:
 	};
 
 	void updateMightStatistics();
-#if defined(MOD_BATTLE_ROYALE)
 	int calculateMilitaryMight(DomainTypes eDomain = NO_DOMAIN) const;
-#else
-	int calculateMilitaryMight() const;
-#endif
 	int calculateEconomicMight() const;
 	int calculateProductionMight() const;
 

@@ -285,7 +285,7 @@ public:
 #endif
 	int GetRecommendedMilitarySize() const
 	{
-		return m_iRecommendedMilitarySize;
+		return m_iRecommendedMilitarySize + m_iRecNavySize;
 	};
 #if defined(MOD_BALANCE_CORE)
 	int GetLandReservesAvailable() const
@@ -539,7 +539,7 @@ bool IsTestStrategy_NeedAntiAirUnits(CvPlayer* pPlayer, int iNumAA, int iNumMele
 bool IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer);
 
 // Functions that evaluate which operation to launch
-int ComputeRecommendedNavySize(CvPlayer* pPlayer);
+int ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSize);
 int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();

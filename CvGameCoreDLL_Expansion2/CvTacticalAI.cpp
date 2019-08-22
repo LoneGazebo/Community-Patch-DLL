@@ -6889,6 +6889,10 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (!pLoopUnit->IsCanAttackRanged() || pLoopUnit->getUnitInfo().IsRangeAttackOnlyInDomain())
 			if (pLoopUnit->getDomainType() != DOMAIN_AIR && !bIsCityTarget && pTarget->getDomain() != pLoopUnit->getDomainType())
 				continue;
+
+		// some naval units can only fire on coastal land tiles.
+		if (pLoopUnit->getUnitInfo().IsCoastalFireOnly() && pTarget->getDomain() == DOMAIN_LAND && !pTarget->isCoastalLand())
+			continue;
 				
 		// there are no other civilians here
 		if (!bIsCityTarget && (pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatAdmiral()))
@@ -8681,7 +8685,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 			//melee units are there to soak damage ...
 			int iDangerLimit = pSwapUnit ? (pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
 
-			if (!pSwapUnit || pSwapUnit->GetDanger(pUnit->plot()) > iDangerLimit)
+			if (!pSwapUnit || !pSwapUnit->isNativeDomain(pUnit->plot()) || pSwapUnit->GetDanger(pUnit->plot()) > iDangerLimit)
 				continue;
 		}
 
@@ -8719,6 +8723,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 	bool bIgnoreLOS = pUnit->IsRangeAttackIgnoreLOS() || pUnit->getDomainType()==DOMAIN_AIR;
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
+	bool bIsCoastalOnly = pUnit->getUnitInfo().IsCoastalFireOnly();
 
 	std::vector<CvPlot*> vCandidates = GC.getMap().GetPlotsAtRange(pTarget, iRange, false, !bIgnoreLOS);
 
@@ -8751,7 +8756,8 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 		if (pUnit->getDomainType() != vCandidates[i]->getDomain())
 			continue;
 
-		if(bOnlyInDomain)
+		if (bOnlyInDomain)
+		{
 			//subs can only attack within their (water) area or adjacent cities
 			if (pRefPlot->getArea() != vCandidates[i]->getArea())
 			{
@@ -8759,6 +8765,13 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 				if (!pCity || !pCity->isAdjacentToArea(pRefPlot->getArea()))
 					continue;
 			}
+		}
+		if (bIsCoastalOnly)
+		{
+			if (vCandidates[i]->getDomain() == DOMAIN_LAND && pRefPlot->getArea() != vCandidates[i]->getArea())
+				if (!vCandidates[i]->isCoastalLand())
+					continue;
+		}
 
 		vIntermediate.push_back( SPlotWithScore(vCandidates[i],iDistance) );
 	}
@@ -9218,14 +9231,14 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
-		fAggFactor = 1.1f;
+		fAggFactor = 0.9f;
 		if ( iHPbelowHalf>0 )
 			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
 		//we want to be able to survive a counterattack ...
 		if ( iDamageReceived+23/fAggBias < pUnit->GetCurrHitPoints() )
-			fAggFactor = 2.8f;
+			fAggFactor = 2.3f;
 		break;
 	}
 
@@ -9304,7 +9317,8 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					return result;
 
 				//what happens next?
-				if (AttackEndsTurn(pUnit,iMaxAttacks-1))
+				if (AttackEndsTurn(pUnit, iMaxAttacks - 1))
+					//end turn cost will be checked in time, no need to panic yet
 					result.iRemainingMoves = 0;
 				else
 					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
@@ -9505,7 +9519,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType(eRelevantDomain)];
 
 			//the danger value reflects any defensive terrain bonuses
-			//but unfortunately danger is not very useful here, because ZOC is unclear during simulation
+			//but unfortunately danger is not very useful here
+			// * ZOC is unclear during simulation
+			// * freshly revealed enemy units are not considered
 			int	iDanger = pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
 
 			//can happen with garrisons, catch this case as is messes up the math
@@ -10727,6 +10743,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 					if (bTargetIsEnemy || !kPlayer.GetPossibleAttackers(*pPlot).empty())
 						continue;
 
+					CvTacticalDominanceZone* pZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+						continue;
+
 					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
 					if (tactPlot.isOtherEmbarkedUnit())
 						continue;
@@ -11045,7 +11065,17 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		int iEndTurnScore = 0;
 			
 		if (newAssignment.isCombatUnit())
-			iEndTurnScore = (eAggression > AL_NONE) ? ScorePlotForCombatUnitOffensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this, true).iScore : ScorePlotForCombatUnitDefensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
+		{
+			if (eAggression > AL_NONE)
+			{
+				iEndTurnScore = ScorePlotForCombatUnitOffensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this, true).iScore;
+				//negative scores are forbidden for offensive moves (since we always have the option of not going through with the attack)
+				if (iEndTurnScore < 0)
+					return false;
+			}
+			else
+				iEndTurnScore = ScorePlotForCombatUnitDefensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
+		}
 		else
 			iEndTurnScore = ScorePlotForNonCombatUnit(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
 

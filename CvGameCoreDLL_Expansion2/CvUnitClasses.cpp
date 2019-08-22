@@ -93,6 +93,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iCombatLimit(0),
 	m_iRangedCombat(0),
 	m_iRangedCombatLimit(0),
+	m_bCoastalFire(false),
 #if defined(MOD_UNITS_NO_SUPPLY)
 	m_bNoSupply(false),
 #endif
@@ -323,10 +324,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iCombatLimit = kResults.GetInt("CombatLimit");
 	m_iRangedCombat = kResults.GetInt("RangedCombat");
 	m_iRangedCombatLimit = kResults.GetInt("RangedCombatLimit");
+	m_bCoastalFire = kResults.GetBool("CoastalFireOnly");
 #if defined(MOD_UNITS_NO_SUPPLY)
-	if (MOD_UNITS_NO_SUPPLY) {
-		m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
-	}
+	m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
 #endif
 #if defined(MOD_UNITS_MAX_HP)
 	if (MOD_UNITS_MAX_HP) {
@@ -1023,6 +1023,11 @@ int CvUnitEntry::GetRangedCombat() const
 int CvUnitEntry::GetRangedCombatLimit() const
 {
 	return m_iRangedCombatLimit;
+}
+
+bool CvUnitEntry::IsCoastalFireOnly() const
+{
+	return m_bCoastalFire;
 }
 
 #if defined(MOD_UNITS_NO_SUPPLY)

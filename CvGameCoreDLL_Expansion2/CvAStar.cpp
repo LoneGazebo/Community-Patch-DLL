@@ -933,12 +933,21 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
-	kToNodeCacheData.plotMovementCostFactor = GC.getMOVE_DENOMINATOR();
+	int iDenominator = GC.getMOVE_DENOMINATOR();
+	kToNodeCacheData.plotMovementCostFactor = iDenominator;
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 	if (pPlot->isHills() && pUnit->isHillsDoubleMove())
 	{
 		kToNodeCacheData.plotMovementCostFactor /= 2;
+	}
+	else if (pPlot->isHills() && pUnit->isTerrainHalfMove(TERRAIN_HILL))
+	{
+		kToNodeCacheData.plotMovementCostFactor *= 2;
+	}
+	else if (pPlot->isHills() && pUnit->isTerrainExtraMove(TERRAIN_HILL))
+	{
+		kToNodeCacheData.plotMovementCostFactor += (iDenominator * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
 	}
 	else if (pPlot->isMountain() && pUnit->isMountainsDoubleMove())
 	{
@@ -952,6 +961,14 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
 	{
 		kToNodeCacheData.plotMovementCostFactor *= 2;
+	}
+	else if (pUnit->isTerrainExtraMove(eToTerrain))
+	{
+		kToNodeCacheData.plotMovementCostFactor += (iDenominator * pUnit->getTerrainExtraMoveCount(eToTerrain));
+	}
+	else if (pUnit->isFeatureExtraMove(eToFeature))
+	{
+		kToNodeCacheData.plotMovementCostFactor += (iDenominator * pUnit->getFeatureExtraMoveCount(eToFeature));
 	}
 #endif
 
@@ -1266,7 +1283,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//calculate move cost
 	int iMovementCost = 0;
-	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && bCheckStacking) || node->m_kCostCacheData.bIsEnemyCity)
+	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES)) || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
 	else
@@ -2272,7 +2289,8 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 		return (temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit; //never ignore stacking for neutral units
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && (temp->m_kCostCacheData.bIsEnemyCity || temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit))
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && 
+			(temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES)))
 		return false;
 
 	return true;
@@ -2363,7 +2381,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 {
 	//there is no good place to do this but we need to make sure the dangerplots are not dirty
 	//otherwise there will be a recursive pathfinding call with unpredictable results
-	if (config.ePlayer != NO_PLAYER)
+	if (config.ePlayer != NO_PLAYER && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
 	{
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
 		if (pUnit) //force an update before starting the actual pathfinding
