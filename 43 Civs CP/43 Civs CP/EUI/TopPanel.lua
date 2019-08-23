@@ -317,6 +317,8 @@ local function UpdateTopPanelNow()
 	g_requestTopPanelUpdate = false
 
 	Controls.InstantYieldsIcon:SetText( S("[ICON_CAPITAL]") )
+	-- my modification for Luxury Resources
+	Controls.LuxuryResources:SetText( S("[ICON_GREAT_MERCHANT]") )
 	-----------------------------
 	-- Update science stats
 	-----------------------------
@@ -1266,205 +1268,6 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
 			tips:insert( "[ENDCOLOR]" )
 --END CHANGES
-
-			----------------------------
-			-- Local Resources in Cities
-			----------------------------
-			local tip = ""
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
-				if quantity > 0 then
-					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-				end
-			end
-			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
-
-			-- Resources from city terrain
-			for city in g_activePlayer:Cities() do
-				local numConnectedResource = {}
-				local numUnconnectedResource = {}
-				for plot in CityPlots( city ) do
-					local resourceID = plot:GetResourceType( g_activeTeamID )
-					local numResource = plot:GetNumResource()
-					if numResource > 0
-						and Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
-					then
-						if plot:IsCity() or (not plot:IsImprovementPillaged() and plot:IsResourceConnectedByImprovement( plot:GetImprovementType() )) then
-							numConnectedResource[resourceID] = (numConnectedResource[resourceID] or 0) + numResource
-						else
-							numUnconnectedResource[resourceID] = (numUnconnectedResource[resourceID] or 0) + numResource
-						end
-					end
-				end
-				local tip = ""
-				for _, resource in pairs( g_luxuries) do
-					local resourceID = resource.ID
-					if (numConnectedResource[resourceID] or 0) > 0 then
-						tip = tip .. " " .. ColorizeAbs( numConnectedResource[resourceID] ) .. resource.IconString
-					end
-					if (numUnconnectedResource[resourceID] or 0) > 0 then
-						tip = tip .. " " .. ColorizeAbs( -numUnconnectedResource[resourceID] ) .. resource.IconString
-					end
-				end
-				if #tip > 0 then
-					tips:insert( "[ICON_BULLET]" .. city:GetName() .. tip )
-				end
-			end
-
-			----------------------------
-			-- Import & Export Breakdown
-			----------------------------
-			local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
-			local gameTurn = Game.GetGameTurn()-1
-			local Exports = {}
-			local Imports = {}
-			for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
-				Exports[ playerID ] = {}
-				Imports[ playerID ] = {}
-			end
-			PushScratchDeal()
-			for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
-				UI.LoadCurrentDeal( g_activePlayerID, i )
-				local otherPlayerID = g_deal:GetOtherPlayer( g_activePlayerID )
-				g_deal:ResetIterator()
-				repeat
-					if bnw_mode then
-						itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
-					else
-						itemType, duration, finalTurn, data1, data2, fromPlayerID = g_deal:GetNextItem()
-					end
-					-- data1 is resourceID, data2 is quantity
-
-					if data2 and itemType == TradeableItems.TRADE_ITEM_RESOURCES and Game.GetResourceUsageType( data1 ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-						local trade
-						if fromPlayerID == g_activePlayerID then
-							trade = Exports[otherPlayerID]
-						else
-							trade = Imports[fromPlayerID]
-						end
-						local resourceTrade = trade[ data1 ]
-						if not resourceTrade then
-							resourceTrade = {}
-							trade[ data1 ] = resourceTrade
-						end
-						resourceTrade[finalTurn] = (resourceTrade[finalTurn] or 0) + data2
-					end
-				until not itemType
-			end
-			PopScratchDeal()
-
-			----------------------------
-			-- Imports
-			----------------------------
-			local tip = ""
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
-				if quantity > 0 then
-					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-				end
-			end
-			if #tip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_RESOURCES_IMPORTED" .. tip )
-				for playerID, array in pairs( Imports ) do
-					local tip = ""
-					for resourceID, row in pairs( array ) do
-						for turn, quantity in pairs(row) do
-							if quantity > 0 then
-								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
-							end
-						end
-					end
-					if #tip > 0 then
-						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
-					end
-				end
-				for minorID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
-					local minor = Players[ minorID ]
-					if minor and minor:IsAlive() and minor:GetAlly() == g_activePlayerID then
-						local tip = ""
-						for _, resource in pairs( g_luxuries) do
-							local quantity = minor:GetResourceExport(resource.ID)
-							if quantity > 0 then
-								tip = tip .. " " .. quantity .. resource.IconString
-							end
-						end
-						if #tip > 0 then
-							tips:insert( "[ICON_BULLET]" .. minor:GetCivilizationShortDescription() .. tip )
-						end
-					end
-				end
-			end
-
-			----------------------------
-			-- Exports
-			----------------------------
-			local tip = ""
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetResourceExport( resourceID )
-				if quantity > 0 then
-					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-				end
-			end
-			if #tip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_RESOURCES_EXPORTED" .. tip )
-				for playerID, array in pairs( Exports ) do
-					local tip = ""
-					for resourceID, row in pairs( array ) do
-						for turn, quantity in pairs(row) do
-							if quantity > 0 then
-								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
-							end
-						end
-					end
-					if #tip > 0 then
-						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
-					end
-				end
-			end
-			-- show resources available for trade to the active player
-
---			tips:insert( L"TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" )
---			tips:insert( missingResources )
-			tips:insert( "" )
-			tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" )
-
-			----------------------------
-			-- Available for Import
-			----------------------------
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local resources = table()
-				for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
-
-					local player = Players[playerID]
-					local isMinorCiv = player:IsMinorCiv()
-
-					-- Valid player? - Can't be us, has to be alive and met, can't be allied city state
-					if playerID ~= g_activePlayerID
-						and player:IsAlive()
-						and g_activeTeam:IsHasMet( player:GetTeam() )
-						and not (isMinorCiv and player:IsAllies( g_activePlayerID ))
-					then
-
-
-						local numResource = ( isMinorCiv and player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID ) )
-							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) )
-							or 0
-						if numResource > 0 then
-							resources:insert( player:GetCivilizationShortDescription() .. " " .. numResource .. resource.IconString )
-						end
-					end
-				end
-				if #resources > 0 then
-					tips:insert( "[ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") )
-				end
-			end
-
 			return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 		else
 			return setTextToolTip( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
@@ -2016,6 +1819,216 @@ if civ5_mode and gk_mode then
 
 	Controls.InstantYieldsIcon:SetToolTipCallback( requestTextToolTip )
 	Controls.InstantYieldsIcon:SetHide( false )
+end
+
+-- my modification for Luxury Resources
+if civ5_mode and gk_mode then 
+	g_toolTipHandler.LuxuryResources = function()-- control )
+			local tips = table()
+		----------------------------
+			-- Local Resources in Cities
+			----------------------------
+			local tip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
+				end
+			end
+			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
+
+			-- Resources from city terrain
+			for city in g_activePlayer:Cities() do
+				local numConnectedResource = {}
+				local numUnconnectedResource = {}
+				for plot in CityPlots( city ) do
+					local resourceID = plot:GetResourceType( g_activeTeamID )
+					local numResource = plot:GetNumResource()
+					if numResource > 0
+						and Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
+					then
+						if plot:IsCity() or (not plot:IsImprovementPillaged() and plot:IsResourceConnectedByImprovement( plot:GetImprovementType() )) then
+							numConnectedResource[resourceID] = (numConnectedResource[resourceID] or 0) + numResource
+						else
+							numUnconnectedResource[resourceID] = (numUnconnectedResource[resourceID] or 0) + numResource
+						end
+					end
+				end
+				local tip = ""
+				for _, resource in pairs( g_luxuries) do
+					local resourceID = resource.ID
+					if (numConnectedResource[resourceID] or 0) > 0 then
+						tip = tip .. " " .. ColorizeAbs( numConnectedResource[resourceID] ) .. resource.IconString
+					end
+					if (numUnconnectedResource[resourceID] or 0) > 0 then
+						tip = tip .. " " .. ColorizeAbs( -numUnconnectedResource[resourceID] ) .. resource.IconString
+					end
+				end
+				if #tip > 0 then
+					tips:insert( "[ICON_BULLET]" .. city:GetName() .. tip )
+				end
+			end
+
+			----------------------------
+			-- Import & Export Breakdown
+			----------------------------
+			local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
+			local gameTurn = Game.GetGameTurn()-1
+			local Exports = {}
+			local Imports = {}
+			for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
+				Exports[ playerID ] = {}
+				Imports[ playerID ] = {}
+			end
+			PushScratchDeal()
+			for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
+				UI.LoadCurrentDeal( g_activePlayerID, i )
+				local otherPlayerID = g_deal:GetOtherPlayer( g_activePlayerID )
+				g_deal:ResetIterator()
+				repeat
+					if bnw_mode then
+						itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
+					else
+						itemType, duration, finalTurn, data1, data2, fromPlayerID = g_deal:GetNextItem()
+					end
+					-- data1 is resourceID, data2 is quantity
+
+					if data2 and itemType == TradeableItems.TRADE_ITEM_RESOURCES and Game.GetResourceUsageType( data1 ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
+						local trade
+						if fromPlayerID == g_activePlayerID then
+							trade = Exports[otherPlayerID]
+						else
+							trade = Imports[fromPlayerID]
+						end
+						local resourceTrade = trade[ data1 ]
+						if not resourceTrade then
+							resourceTrade = {}
+							trade[ data1 ] = resourceTrade
+						end
+						resourceTrade[finalTurn] = (resourceTrade[finalTurn] or 0) + data2
+					end
+				until not itemType
+			end
+			PopScratchDeal()
+
+			----------------------------
+			-- Imports
+			----------------------------
+			local tip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
+				end
+			end
+			if #tip > 0 then
+				tips:insert( "" )
+				tips:insert( L"TXT_KEY_RESOURCES_IMPORTED" .. tip )
+				for playerID, array in pairs( Imports ) do
+					local tip = ""
+					for resourceID, row in pairs( array ) do
+						for turn, quantity in pairs(row) do
+							if quantity > 0 then
+								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
+							end
+						end
+					end
+					if #tip > 0 then
+						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
+					end
+				end
+				for minorID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
+					local minor = Players[ minorID ]
+					if minor and minor:IsAlive() and minor:GetAlly() == g_activePlayerID then
+						local tip = ""
+						for _, resource in pairs( g_luxuries) do
+							local quantity = minor:GetResourceExport(resource.ID)
+							if quantity > 0 then
+								tip = tip .. " " .. quantity .. resource.IconString
+							end
+						end
+						if #tip > 0 then
+							tips:insert( "[ICON_BULLET]" .. minor:GetCivilizationShortDescription() .. tip )
+						end
+					end
+				end
+			end
+
+			----------------------------
+			-- Exports
+			----------------------------
+			local tip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local quantity = g_activePlayer:GetResourceExport( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
+				end
+			end
+			if #tip > 0 then
+				tips:insert( "" )
+				tips:insert( L"TXT_KEY_RESOURCES_EXPORTED" .. tip )
+				for playerID, array in pairs( Exports ) do
+					local tip = ""
+					for resourceID, row in pairs( array ) do
+						for turn, quantity in pairs(row) do
+							if quantity > 0 then
+								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
+							end
+						end
+					end
+					if #tip > 0 then
+						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
+					end
+				end
+			end
+			-- show resources available for trade to the active player
+
+--			tips:insert( L"TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" )
+--			tips:insert( missingResources )
+			tips:insert( "" )
+			tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" )
+
+			----------------------------
+			-- Available for Import
+			----------------------------
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local resources = table()
+				for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
+
+					local player = Players[playerID]
+					local isMinorCiv = player:IsMinorCiv()
+
+					-- Valid player? - Can't be us, has to be alive and met, can't be allied city state
+					if playerID ~= g_activePlayerID
+						and player:IsAlive()
+						and g_activeTeam:IsHasMet( player:GetTeam() )
+						and not (isMinorCiv and player:IsAllies( g_activePlayerID ))
+					then
+
+
+						local numResource = ( isMinorCiv and player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID ) )
+							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) )
+							or 0
+						if numResource > 0 then
+							resources:insert( player:GetCivilizationShortDescription() .. " " .. numResource .. resource.IconString )
+						end
+					end
+				end
+				if #resources > 0 then
+					tips:insert( "[ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") )
+				end
+			end
+
+	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+		
+	end
+
+	Controls.LuxuryResources:SetToolTipCallback( requestTextToolTip )
+	Controls.LuxuryResources:SetHide( false )
 end
 
 -------------------------------------------------
