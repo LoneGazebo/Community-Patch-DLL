@@ -7039,7 +7039,7 @@ bool CvTacticalAI::FindEmbarkedUnitsAroundTarget(CvPlot* pTarget, int iMaxDistan
 		{
 			CvTacticalUnit unit;
 			unit.SetID(pLoopUnit->GetID());
-			unit.SetAttackStrength(pLoopUnit->GetBaseCombatStrengthConsideringDamage());
+			unit.SetAttackStrength(pLoopUnit->GetBaseCombatStrength());
 			unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
 			m_CurrentMoveUnits.push_back(unit);
 			rtnValue = true;
@@ -9420,6 +9420,18 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
 		}
 
+		//lookup desirability by unit strategy / plot type
+		//even for intermediate plots, so as not to bias against them
+		//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
+		int iPlotTypeScores[5][5] = {
+			{ -1,-1,-1,-1,-1 }, //none (should not occur)
+			{ -1,-1, 10, 5, 1 }, //firstline
+			{ -1,-1, 3, 10, 2 }, //secondline
+			{ -1,-1, 1, 8, 10 }, //thirdline
+			{ -1,-1, 1, 8,  8 }, //support (should not occur)
+		};
+		iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType(eRelevantDomain)];
+
 		//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
 		if (pCurrentPlot->isHills() || pCurrentPlot->isMountain())
 			iMiscScore++;
@@ -9493,17 +9505,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//when in doubt, stay under air cover
 			if (currentPlot.hasAirCover())
 				iMiscScore++;
-
-			//lookup by unit strategy / plot type
-			//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
-			int iPlotTypeScores[5][5] = {
-				{ -1,-1,-1,-1,-1 }, //none (should not occur)
-				{ -1,-1, 10, 5, 1 }, //firstline
-				{ -1,-1, 3, 10, 2 }, //secondline
-				{ -1,-1, 1, 8, 10 }, //thirdline
-				{ -1,-1, 1, 8,  8 }, //support (should not occur)
-			};
-			iMiscScore += iPlotTypeScores[unit.eStrategy][currentPlot.getType(eRelevantDomain)];
 
 			//the danger value reflects any defensive terrain bonuses
 			//but unfortunately danger is not very useful here
@@ -10208,8 +10209,14 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 					continue;
 
 				//what happens next?
-				if (AttackEndsTurn(pUnit,unit.iAttacksLeft-1))
+				if (AttackEndsTurn(pUnit, unit.iAttacksLeft - 1))
+				{
+					//if we have movement to spare, we should be able to disengage before attacking?
+					if (move.iRemainingMoves > GC.getMOVE_DENOMINATOR() && assumedUnitPlot.getType() == CvTacticalPlot::TP_FRONTLINE && unit.eStrategy != MS_FIRSTLINE)
+						move.iScore /= 2;
+
 					move.iRemainingMoves = 0;
+				}
 				else
 					move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
@@ -10373,26 +10380,43 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				vector<STacticalAssignment> blockingUnitChoices = choicePerUnit[itBlock->iUnitID];
 				for (vector<STacticalAssignment>::iterator itMove2 = blockingUnitChoices.begin(); itMove2 != blockingUnitChoices.end(); ++itMove2)
 				{
-					if (itMove2->eAssignmentType == A_MOVE && !isMoveBlockedByOtherUnit(*itMove2) && blockMoveToPlots.find(itMove2->iToPlotIndex)==blockMoveToPlots.end())
+					if (itMove2->eAssignmentType == A_MOVE && blockMoveToPlots.find(itMove2->iToPlotIndex)==blockMoveToPlots.end())
 					{
-						//add the move to make space
-						movesToAdd.push_back(*itMove2);
-						//make sure a second block doesn't try to move into the same plot
-						blockMoveToPlots.insert(itMove2->iToPlotIndex);
-						//mark that this is a forced move so we're allowed to move back later
-						movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
-						break;
+						//block wants to move into the plot currently occupied by this unit. bingo!
+						if ( itMove2->iToPlotIndex == itMove->iFromPlotIndex && blocks.size()==1 ) //limit to one block to simplify the logic
+						{
+							movesToAdd.push_back(*itMove);
+							movesToAdd.back().eAssignmentType = A_MOVE_SWAP; //this one will actually move both units
+							movesToAdd.push_back(*itMove2);
+							movesToAdd.back().eAssignmentType = A_MOVE_SWAP_REVERSE; //this one is just bookkeeping
+							//make sure a second block doesn't try to move into the same plot
+							blockMoveToPlots.insert(itMove2->iToPlotIndex);
+							break;
+						}
+						else if (!isMoveBlockedByOtherUnit(*itMove2)) //free plot
+						{
+							//add the move to make space
+							movesToAdd.push_back(*itMove2);
+							//mark that this is a forced move so we're allowed to move back later
+							movesToAdd.back().eAssignmentType = A_MOVE_FORCED;
+							//make sure a second block doesn't try to move into the same plot
+							blockMoveToPlots.insert(itMove2->iToPlotIndex);
+							//now we can do the original move
+							if (blockMoveToPlots.size() == blocks.size())
+								movesToAdd.push_back(*itMove);
+							break;
+						}
 					}
 				}
 			}
 
 			//did we move all blocks out of the way?
-			if (movesToAdd.size() != blocks.size())
+			if (movesToAdd.size()-1 != blocks.size())
 				continue;
 		}
-
-		//now do the original move
-		movesToAdd.push_back(*itMove);
+		else
+			//just do the original move
+			movesToAdd.push_back(*itMove);
 
 		if (!movesToAdd.empty())
 		{
@@ -10786,6 +10810,8 @@ SAssignmentSummary getSummary(const vector<STacticalAssignment>& assignments)
 		case A_MOVE:
 		case A_CAPTURE:
 		case A_MOVE_FORCED:
+		case A_MOVE_SWAP:
+		case A_MOVE_SWAP_REVERSE:
 			result.unitPlots[assignments[i].iUnitID] = assignments[i].iToPlotIndex;
 			break;
 
@@ -10872,8 +10898,6 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		newTactPlot.friendlyUnitMovingIn(*this, newAssignment);
 		break;
 	case A_MOVE:
-	case A_MOVE_FORCED:
-	case A_CAPTURE:
 #ifdef VPDEBUG
 		{
 			//plausi checks
@@ -10895,7 +10919,11 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 				OutputDebugString("inconsistent moves!\n");
 		}
 #endif
-
+		//fall through!
+	case A_MOVE_FORCED:
+	case A_CAPTURE:
+	case A_MOVE_SWAP:
+	case A_MOVE_SWAP_REVERSE:
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 		bVisibilityChange = true;
@@ -11034,10 +11062,13 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	//finally store it
 	assignedMoves.push_back(newAssignment);
 
-	//intermediate moves don't affect the final score, but only this generation's score
-	iScoreOverParent += newAssignment.iScore;
-	if (newAssignment.eAssignmentType != A_MOVE && newAssignment.eAssignmentType != A_MOVE_FORCED)
+	//intermediate moves affect only this generation's score, not the final score
+	if (newAssignment.eAssignmentType != A_MOVE && newAssignment.eAssignmentType != A_MOVE_FORCED &&
+		newAssignment.eAssignmentType != A_MOVE_SWAP && newAssignment.eAssignmentType != A_MOVE_SWAP_REVERSE)
 		iTotalScore += newAssignment.iScore;
+	//forced moves don't even affect this generation's score
+	if (newAssignment.eAssignmentType != A_MOVE_FORCED && newAssignment.eAssignmentType != A_MOVE_SWAP_REVERSE)
+		iScoreOverParent += newAssignment.iScore;
 
 	//increasing our visibility is good
 	iScoreOverParent += newlyVisiblePlots.size();
@@ -11765,6 +11796,18 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, false, false, MISSIONAI_OPMOVE); 
 			bPostcondition = (pUnit->plot() == pToPlot); //plot changed
+			break;
+		case A_MOVE_SWAP:
+			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
+			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
+			if (bPrecondition)
+				pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, false, false, MISSIONAI_OPMOVE); 
+			bPostcondition = (pUnit->plot() == pToPlot); //plot changed
+			break;
+		case A_MOVE_SWAP_REVERSE:
+			//nothing to do, this is just a dummy which always occurs after MOVE_SWAP for bookkeeping
+			bPrecondition = true;
+			bPostcondition = true;
 			break;
 		case A_RANGEATTACK:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present

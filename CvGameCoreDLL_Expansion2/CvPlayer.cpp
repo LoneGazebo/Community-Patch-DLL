@@ -32827,7 +32827,7 @@ int CvPlayer::GetProductionMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 {
-	int iSum = 0, iPower = 0;
+	int iSum = 0;
 	int iLoop;
 	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -32838,14 +32838,12 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 			continue;
 
 		//we are interested in the offensive capabilities of the player
-		if (pLoopUnit->isRanged())
-			iPower = pLoopUnit->GetMaxRangedCombatStrength(NULL, NULL, true, NULL, NULL, true, true) / 100;
-		else
-			iPower = pLoopUnit->GetMaxAttackStrength(NULL, NULL, NULL, true, true) / 100;
+		int iPower = pLoopUnit->GetBestAttackStrength() / 100;
 
-		//some promotions already influence the combat strength and so are double-counted
-		//but who cares, this is only an estimation
-		int iPromotionFactor = 100 + pLoopUnit->getLevel() * 10;
+		//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
+		int iPromotionFactor = 100;
+		if (pLoopUnit->getLevel()>3)
+			iPromotionFactor += pLoopUnit->getLevel() * 10 - 30;
 
 		//assume garrisons won't take part in offensive action
 		if (pLoopUnit->IsGarrisoned())

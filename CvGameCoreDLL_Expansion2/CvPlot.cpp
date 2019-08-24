@@ -3314,7 +3314,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 			if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
 				continue;
 
-			int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBaseCombatStrengthConsideringDamage();
+			int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBestAttackStrength();
 
 			if (iValue>0 && piNumPossibleInterceptors)
 				(*piNumPossibleInterceptors)++;

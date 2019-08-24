@@ -90,7 +90,7 @@ struct CvUnitCaptureDefinition
 //we calculate a unit's strength modifier very often, so we cache the most recent results
 struct SStrengthModifierInput
 {
-	SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty);
+	SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty, int iOurDamage);
 	const bool operator==(const SStrengthModifierInput& rhs) const;
 
 	int m_iOtherUnitID;
@@ -98,6 +98,8 @@ struct SStrengthModifierInput
 	int m_iFromPlot;
 	bool m_bIgnoreUnitAdjacencyBoni;
 	bool m_bQuickAndDirty;
+	int m_iOurDamage;
+	int m_iTheirDamage;
 };
 
 enum AreaEffectType
@@ -604,9 +606,9 @@ public:
 
 	void SetBaseCombatStrength(int iCombat);
 	int GetBaseCombatStrength() const;
-	int GetBaseCombatStrengthConsideringDamage() const;
+	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 
-	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
+	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
