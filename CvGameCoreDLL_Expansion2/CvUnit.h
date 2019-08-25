@@ -607,6 +607,7 @@ public:
 	void SetBaseCombatStrength(int iCombat);
 	int GetBaseCombatStrength() const;
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
+	int GetDamageCombatModifier() const;
 
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;

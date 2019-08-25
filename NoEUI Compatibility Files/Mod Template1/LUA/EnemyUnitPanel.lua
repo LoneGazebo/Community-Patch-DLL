@@ -486,6 +486,18 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				
 				bonusCount = bonusCount + 1;
 			end
+			
+			-- Damaged unit
+			iModifier = pMyUnit:GetDamageCombatModifier();
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			elseif (iModifier ~= 0) then
+				bonusSum = bonusSum + iModifier;
+				bonusCount = bonusCount + 1;
+			end				
 
 			-- Lack Strategic Resources
 			iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
@@ -654,34 +666,6 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;				
-			end
-
-			-- COMMUNITY (Bushido)
-			if (pMyPlayer:GetWoundedUnitDamageMod() ~= 0) then
-				iModifier = pMyUnit:GetDamage() / 5;
-			    if (iModifier ~= 0  and bonusCount < maxBonusDisplay) then
-				   controlTable = g_MyCombatDataIM:GetInstance();
-				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
-				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				   bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;					
-				end
-			end
-			
-			
-			if (pMyUnit:IsStrongerDamaged()) then
-				iModifier = pMyUnit:GetDamage() / 3;
-			    if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				   controlTable = g_MyCombatDataIM:GetInstance();
-				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
-				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				   bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
-				end
 			end
 
 			-- Civ Trait Bonus
@@ -1174,6 +1158,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			end
 
+			-- Damaged unit
+			iModifier = pMyUnit:GetDamageCombatModifier();
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			elseif (iModifier ~= 0) then
+				bonusSum = bonusSum + iModifier;
+				bonusCount = bonusCount + 1;
+			end				
+			
 			-- Lack Strategic Resources
 			iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1361,32 +1357,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;
-				end
-			end
-
-			-- COMMUNITY (Bushido)
-			if (pMyPlayer:GetWoundedUnitDamageMod() ~= 0) then
-			   iModifier =  pMyUnit:GetDamage() / 5;
-			    if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				   controlTable = g_MyCombatDataIM:GetInstance();
-				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
-				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				   bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;					
-				end
-			end
-			if (pMyUnit:IsStrongerDamaged()) then
-			   iModifier = pMyUnit:GetDamage() / 3;
-			    if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				   controlTable = g_MyCombatDataIM:GetInstance();
-				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
-				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				   bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
 				end
 			end
 
@@ -2072,6 +2042,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 					bonusCount = bonusCount + 1;
 				end
+				
+				-- Damaged unit
+				iModifier = pTheirUnit:GetDamageCombatModifier();
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end					
 
 				-- Lack Strategic Resources
 				iModifier = pTheirUnit:GetStrategicResourceCombatPenalty();
@@ -2149,32 +2131,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				elseif(iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;				
-				end
-
-			-- COMMUNITY (Bushido)
-				if (pTheirPlayer:GetWoundedUnitDamageMod() ~= 0) then
-				   iModifier = pTheirUnit:GetDamage() / 5;
-				   if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					   controlTable = g_TheirCombatDataIM:GetInstance();
-					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
-					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-					   bonusCount = bonusCount + 1;
-					elseif (iModifier ~= 0) then
-						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
-					end
-				end
-				if (pTheirUnit:IsStrongerDamaged()) then
-				   iModifier =  pTheirUnit:GetDamage() / 3;
-					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					   controlTable = g_TheirCombatDataIM:GetInstance();
-					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
-					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-					   bonusCount = bonusCount + 1;
-					elseif (iModifier ~= 0) then
-						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
-					end
 				end
 
 				if (not bRanged) then
