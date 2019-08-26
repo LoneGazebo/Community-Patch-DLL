@@ -136,7 +136,7 @@ SET Text = 'If a city is connected by a road and/or Lighthouse to your capital c
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+100 Hit Points in the City. When a [ICON_INTERNATIONAL_TRADE] Sea Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, and increases Military Units Supplied by this City''s population by 10%.[NEWLINE][NEWLINE]City must be built on the coast.'
+SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Sea Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, and increases Military Units Supplied by this City''s population by 10%.[NEWLINE][NEWLINE]City must be built on the coast.'
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -297,7 +297,7 @@ SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens 
 WHERE Tag = 'TXT_KEY_BUILDING_FACTORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_RESEARCH] Science in the City, +50% [ICON_PRODUCTION] Production when building Spaceship Parts.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum.'
+SET Text = '+50% [ICON_PRODUCTION] Production when building Spaceship Parts.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum.'
 WHERE Tag = 'TXT_KEY_BUILDING_SPACESHIP_FACTORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -309,7 +309,7 @@ SET Text = '25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonder
 WHERE Tag = 'TXT_KEY_BUILDING_HOTEL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Allows airlifts to or from this city. [COLOR_POSITIVE_TEXT]Increases air unit capacity of the city from 6 to 10.[ENDCOLOR] +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
+SET Text = 'Allows airlifts to or from this City. [COLOR_POSITIVE_TEXT]Increases Air Unit Capacity of the City from 2 to 6.[ENDCOLOR] +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
 WHERE Tag = 'TXT_KEY_BUILDING_AIRPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

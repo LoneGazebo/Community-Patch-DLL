@@ -342,10 +342,10 @@
 			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
-			<Text>Produces 3 [ICON_RES_COAL] Coal. +15% [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
+			<Text>Produces 3 [ICON_RES_COAL] Coal.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a Tile worked by this City. Increases City [ICON_STRENGTH] Combat Strength by 15 and City Hit Points by 300.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. City must be built on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. City must be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>

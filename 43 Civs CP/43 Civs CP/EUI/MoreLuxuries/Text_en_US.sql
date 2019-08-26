@@ -16,7 +16,7 @@ SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city. Inc
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]When a unit defeats an enemy unit in battle, receive +5 [ICON_CULTURE_LOCAL] Border Growth in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive 25 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = '+33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]When a Unit defeats an Enemy Unit in battle, receive +5 [ICON_CULTURE_LOCAL] Border Growth in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive 25 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_ODEON_HELP';
 
 UPDATE Language_en_US

@@ -984,7 +984,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY' AND EXISTS (SELECT * FROM COMMU
 -- Russia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR]. Enemy Land Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City.[NEWLINE][NEWLINE]Increases city [ICON_STRENGTH] Strength by 25 and Hit Points by 200. Military Units Supplied by this City''s population increased by 15%.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR]. Military Units Supplied by this City''s population increased by 15%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
