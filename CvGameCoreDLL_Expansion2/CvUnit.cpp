@@ -15691,6 +15691,10 @@ bool CvUnit::IsDead() const
 /// Over strategic resource limit?
 int CvUnit::GetStrategicResourceCombatPenalty() const
 {
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// units cannot heal anymore, but strength is unaffected
+	return 0;
+#else
 	int iPenalty = 0;
 
 	// barbs don't have resources
@@ -15735,6 +15739,7 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 
 	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 	return iPenalty;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -15849,7 +15854,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		pFromPlot = plot();
 
 	// Generic combat bonus
-	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier();
+	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier() + GetStrategicResourceCombatPenalty();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -15873,13 +15878,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pBattlePlot);
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-#else
-	// Over our strategic resource limit?
-	iModifier += GetStrategicResourceCombatPenalty();
-#endif
 
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
@@ -16765,7 +16763,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Extra combat percent
-	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier();
+	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier() + GetStrategicResourceCombatPenalty();
 	int iTempModifier = 0;
 
 	// Kamikaze attack
@@ -16777,13 +16775,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-#else
-	// Over our strategic resource limit?
-	iModifier += GetStrategicResourceCombatPenalty();
-#endif
 
 	if (GetNearbyCityBonusCombatMod(pMyPlot) != 0)
 	{

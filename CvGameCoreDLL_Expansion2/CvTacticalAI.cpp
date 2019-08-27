@@ -5231,14 +5231,15 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 				//check if attack makes sense
 				if (TacticalAIHelpers::IsAttackNetPositive(pUnit,pEvalPlot))
 				{
-					choices.push_back( SAssignment(pUnit,pEvalPlot,101,true) );
+					choices.push_back( SAssignment(pUnit,pEvalPlot,pUnit->GetMaxHitPoints()+1,true) );
 				}
 			}
 			else
 			{
 				//check danger
-				int iScore = 100 - pUnit->GetDanger(pEvalPlot) + iBonus;
-				choices.push_back( SAssignment(pUnit,pEvalPlot,iScore,false) );
+				int iScore = pUnit->GetMaxHitPoints() - pUnit->GetDanger(pEvalPlot) + iBonus;
+				if (iScore>0)
+					choices.push_back( SAssignment(pUnit,pEvalPlot,iScore,false) );
 			}
 		}
 	}
@@ -9105,8 +9106,11 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
 
+		int iRemainingTurnsOnCity = iPrevHitPoints / (iDamageDealt+1) + 1;
+		int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived+1) + 1;
+
 		//should consider self-damage from previous attacks here ... blitz
-		if (pUnit->GetCurrHitPoints() - iDamageReceived <= -1)
+		if (pUnit->GetCurrHitPoints() - iDamageReceived < 0 || (iRemainingTurnsOnAttacker < iRemainingTurnsOnCity && iRemainingTurnsOnCity > 1) )
 		{
 			result.iScore = -INT_MAX;
 			return;
@@ -9389,7 +9393,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 
 						vDamageRatios.push_back(temp.iScore);
 					}
-					else
+					else if ( assumedUnitPlot.getNumAdjacentFriendlies()>0 )
 						//for melee units the attack might be cancelled because of bad damage ratio. 
 						//nevertheless we need to cover our ranged units. so add a token amount.
 						vDamageRatios.push_back(4); //4 so that something remains after the /4 below
@@ -9701,7 +9705,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			int iSpreadFactor = pUnit->isRanged() ? currentPlot.getNumAdjacentFirstlineFriendlies() + 1 : currentPlot.getNumAdjacentFriendlies() + 1;
 
 			//use normalized danger for scoring (don't need to consider self damage here, we're not attacking)
-			result.iScore -= (iDanger * 100) / iSpreadFactor / (pUnit->GetCurrHitPoints() + 1);
+			result.iScore -= (iDanger * 23) / iSpreadFactor / (pUnit->GetCurrHitPoints() + 1);
 		}
 
 		if (currentPlot.getNumAdjacentFriendlies() > 0)

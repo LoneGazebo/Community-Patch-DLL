@@ -602,11 +602,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				if(iMultiplier > 0)
 				{
 					int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true);
-
-					//unit might disembark ... so don't count it for water zone, but for adjacent land
-					if (pLoopUnit->isEmbarked() && !pZone->IsWater())
-						OutputDebugString("checkme\n");
-
 					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) / 100;
 					if(!bVisible || bReducedStrength)
 					{

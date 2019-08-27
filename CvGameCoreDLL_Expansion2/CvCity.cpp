@@ -7566,7 +7566,7 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 	return m_aiEconomicValue[ePossibleOwner];
 }
 
-int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) const
+int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, bool bIncludeConqueredCities) const
 {
 	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
 
@@ -7581,6 +7581,10 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount) con
 
 		//if they already had the plot when we got the city we can't be upset
 		if (GC.getGame().getGameTurn() - pPlot->getOwnershipDuration() < getGameTurnAcquired())
+			continue;
+
+		//if they conquered the city, we might be mad at them but for a different reason
+		if (!bIncludeConqueredCities && pPlot->getOwningCity()->getOriginalOwner() != pPlot->getOwningCity()->getOwner())
 			continue;
 
 		int iWeight = 10;
