@@ -1105,7 +1105,7 @@ protected:
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
 	unsigned char nOurUnits;
-	unsigned char nTheirUnits;
+	unsigned char nTheirUnits; //also counts enemy cities ...
 	CvPlot* pTargetPlot;
 	bool isIsolatedTarget;
 
@@ -1171,6 +1171,7 @@ public:
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
+	const int getNumEnemies() const { return nTheirUnits - killedEnemies.size(); }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }

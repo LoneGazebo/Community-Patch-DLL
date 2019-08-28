@@ -2025,7 +2025,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 					if (GC.getLogging() && GC.getAILogging() && pZone)
 					{
 						CvString strLogString;
-						strLogString.Format("Zone %d, too early for attacking %s, required damage %d, expected damage per turn %d", 
+						strLogString.Format("Zone %d, too early for attacking %s, required damage %d, expected max damage per turn %d", 
 							pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str(), iRequiredDamage, iExpectedDamagePerTurn);
 						LogTacticalMessage(strLogString);
 					}
@@ -2063,7 +2063,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected damage %d",
+					strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected max damage per turn %d",
 						pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str(), iRequiredDamage, iExpectedDamagePerTurn);
 					LogTacticalMessage(strLogString);
 				}
@@ -10389,13 +10389,16 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 						//block wants to move into the plot currently occupied by this unit. bingo!
 						if ( itMove2->iToPlotIndex == itMove->iFromPlotIndex && blocks.size()==1 ) //limit to one block to simplify the logic
 						{
-							movesToAdd.push_back(*itMove);
-							movesToAdd.back().eAssignmentType = A_MOVE_SWAP; //this one will actually move both units
-							movesToAdd.push_back(*itMove2);
-							movesToAdd.back().eAssignmentType = A_MOVE_SWAP_REVERSE; //this one is just bookkeeping
-							//make sure a second block doesn't try to move into the same plot
-							blockMoveToPlots.insert(itMove2->iToPlotIndex);
-							break;
+							if (blocks[0].eAssignmentType != A_MOVE_SWAP) //don't want to swap out a unit which was just swapped in
+							{
+								movesToAdd.push_back(*itMove);
+								movesToAdd.back().eAssignmentType = A_MOVE_SWAP; //this one will actually move both units
+								movesToAdd.push_back(*itMove2);
+								movesToAdd.back().eAssignmentType = A_MOVE_SWAP_REVERSE; //this one is just bookkeeping
+								//make sure a second block doesn't try to move into the same plot
+								blockMoveToPlots.insert(itMove2->iToPlotIndex);
+								break;
+							}
 						}
 						else if (!isMoveBlockedByOtherUnit(*itMove2)) //free plot
 						{
@@ -10424,8 +10427,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		if (!movesToAdd.empty())
 		{
-			iNewBranches++; //count it even if we don't follow up on it
-
 			CvTacticalPosition* pNewChild = addChild(storage);
 			if (!pNewChild)
 				continue;
@@ -10462,6 +10463,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 					}
 				}
 			}
+
+			//count it only if we follow up on it
+			if (pNewChild)
+				iNewBranches++; 
 		}
 	}
 	
@@ -11266,7 +11271,7 @@ void CvTacticalPosition::countPlotTypes()
 		if (tactPlots[i].getType() == CvTacticalPlot::TP_BLOCKED_FRIENDLY)
 			nOurUnits++;
 		if (tactPlots[i].getType() == CvTacticalPlot::TP_ENEMY)
-			nTheirUnits++;
+			nTheirUnits++; //can be a city as well
 	}
 
 	//for offense we need to know this
@@ -11400,8 +11405,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxActiveUnits = GC.getGame().getHandicapType() < 2 ? 8 : 12;
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 12 : 23;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 37;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
 
@@ -11469,6 +11473,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	initialPosition->updateTacticalPlotTypes();
 
 	//if we have a lot of units, ignore the unimportant ones
+	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 6 : 9;
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 
 	vector<CvTacticalPosition*> openPositionsHeap;
@@ -11583,8 +11588,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMaxActiveUnits = GC.getGame().getHandicapType() < 2 ? 8 : 12;
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 12 : 23;
+	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 18 : 37;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 4;
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
 
@@ -11652,6 +11656,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	initialPosition->countPlotTypes();
 
 	//if we have a lot of units, ignore the unimportant ones
+	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 6 : 9;
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 
 	if (gTacticalCombatDebugOutput>10)
