@@ -93,7 +93,7 @@
 			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires a direct Railroad connection, with railroad tiles, to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_HELP">
-			<Text>+25% [ICON_PRODUCTION] Production and +10% [ICON_GOLD] Gold in City. Requires a [ICON_CONNECTED] Connection via Railroad Tiles to the [ICON_CAPITAL] Capital, or to a city connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. City cannot have a [COLOR_NEGATIVE_TEXT]Seaport[ENDCOLOR] in the City.</Text>
+			<Text>Requires a [ICON_CONNECTED] Connection via Railroad Tiles to the [ICON_CAPITAL] Capital, or to a city connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. City cannot have a [COLOR_NEGATIVE_TEXT]Seaport[ENDCOLOR] in the City.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL">
@@ -143,11 +143,11 @@
 			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, and two additional trade routes. All Harbors in your empire also gain +3 Production, and all Lighthouses gain +2 Culture. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
-			<Text>Receive a free copy of all Luxury Resources around the City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +5 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for the [ICON_INTERNATIONAL_TRADE] Trade Route owner. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. Grants 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Routes, all Harbors gain +3 [ICON_PRODUCTION] Production, and all Lighthouses gain +2 [ICON_CULTURE] Culture. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty. [NEWLINE][NEWLINE]Requires a Market in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+			<Text>Receive a free copy of all Luxury Resources around the City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +5 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for the [ICON_INTERNATIONAL_TRADE] Trade Route owner. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. Grants 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Routes, all Harbors gain +3 [ICON_PRODUCTION] Production, and all Lighthouses gain +2 [ICON_CULTURE] Culture. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM_HELP">
-			<Text>Gain [ICON_PEACE] Faith when an owned unit is killed in battle. Bonus scales with Era.[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>Gain [ICON_PEACE] Faith when an owned unit is killed in battle. Bonus scales with Era.[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM">
 			<Text>Mausoleum</Text>
@@ -160,7 +160,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP">
-			<Text>May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE">
 			<Text>Celestial Throne</Text>
@@ -173,7 +173,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR_HELP">
-			<Text>+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all Holy Sites.[NEWLINE][NEWLINE] May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all Holy Sites.[NEWLINE][NEWLINE] May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR">
 			<Text>Great Altar</Text>
@@ -186,7 +186,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_HELP">
-			<Text>+5 [ICON_TOURISM] Tourism from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.[NEWLINE][NEWLINE]Contains 4 slots for Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if Themed.</Text>
+			<Text>+5 [ICON_TOURISM] Tourism from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.[NEWLINE][NEWLINE]Contains 4 slots for Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if Themed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RELIQUARY">
 			<Text>Reliquary</Text>
@@ -205,7 +205,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">
-			<Text>+5 [ICON_GOLD] Gold from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_GOLD] Gold from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT">
 			<Text>Divine Court</Text>
@@ -218,7 +218,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_HELP">
-			<Text>+5 [ICON_FOOD] Food from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_FOOD] Food from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN">
 			<Text>Sacred Garden</Text>
@@ -231,7 +231,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL_HELP">
-			<Text>+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL">
 			<Text>Holy Council</Text>
@@ -244,7 +244,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP">
-			<Text>+4 [ICON_GOLDEN_AGE] Golden Age Points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+4 [ICON_GOLDEN_AGE] Golden Age Points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE">
 			<Text>Apostolic Palace</Text>
@@ -257,7 +257,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_HELP">
-			<Text>+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 50%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 50%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY">
 			<Text>Grand Ossuary</Text>
@@ -324,7 +324,7 @@
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Watermill[ENDCOLOR].</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Watermill[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
 			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations and Camps.</Text>
@@ -342,10 +342,10 @@
 			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
-			<Text>Produces 3 [ICON_RES_COAL] Coal. +15% [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
+			<Text>Produces 3 [ICON_RES_COAL] Coal.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a Tile worked by this City. Increases City [ICON_STRENGTH] Combat Strength by 15 and City Hit Points by 300.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. City must be built on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. City must be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
@@ -522,7 +522,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization. [NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
+			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -628,7 +628,7 @@
 			<Text>The White Tower is the old keep at the Tower of London. It was built by William the Conqueror during the early 1080s, and was later extended. The White Tower was the castle's strongest defensive point, and originally housed the king and his representatives. Throughout its long history, the Tower has been many things to England: A symbol of tyranny, a treasury, a menagerie, a mint, a palace and a prison. Today, the Tower of London is a vast museum which boasts, amongst its many treasures, the Crown Jewels of the English Monarchy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_HELP">
-			<Text>Contains a pre-built [ICON_GREAT_WORK] Great Work of Art. Slows Enemy [ICON_SPY] Spy effectiveness by 15% in all Cities, provides 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spy, and levels up all existing [ICON_SPY] Spies. Owned [ICON_SPY] Spies are much more likely to assassinate [ICON_GREAT_PEOPLE] Great People via Advanced Actions. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities. [NEWLINE][NEWLINE]+40 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you Steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, complete a [ICON_CITY_STATE] City-State Coup or Election Rigging, or kill a foreign [ICON_SPY] Spy in this City (+10 [ICON_GOLD]/[ICON_RESEARCH] for Advanced Actions), all scaling with Era.[NEWLINE][NEWLINE]All Constabularies, Castles, and Armories gain +3 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+			<Text>Contains a pre-built [ICON_GREAT_WORK] Great Work of Art. Slows Enemy [ICON_SPY] Spy effectiveness by 15% in all Cities, provides 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spy, and levels up all existing [ICON_SPY] Spies. Owned [ICON_SPY] Spies are much more likely to assassinate [ICON_GREAT_PEOPLE] Great People via Advanced Actions. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_FOOD]/[ICON_PRODUCTION] Distress by 10% in all Cities.[NEWLINE][NEWLINE]+40 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you Steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, complete a [ICON_CITY_STATE] City-State Coup or Election Rigging, or kill a foreign [ICON_SPY] Spy in this City (+10 [ICON_GOLD]/[ICON_RESEARCH] for Advanced Actions), all scaling with Era.[NEWLINE][NEWLINE]All Constabularies, Castles, and Armories gain +3 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY">
 			<Text>Unique English replacement for the National Intelligence Agency. The White Tower is available significantly earlier than the National Intelligence Agency, however yields from Spy Actions are reduced slightly as a result. In addition to the bonuses from the National Intelligence Agency, the White Tower improves Constabularies and Police Stations, contains a Great Work of Art, and provides yields for enemy Spies killed in the City.</Text>
@@ -664,7 +664,7 @@
 			<Text>The Smithsonian Institution, established in 1846 "for the increase and diffusion of knowledge," is a group of museums and research centers administered by the Government of the United States. Originally organized as the "United States National Museum," that name ceased to exist as an administrative entity in 1967. Termed "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge. Funding comes from the Institution's endowment, private and corporate contributions, membership dues, government support, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_HELP">
-			<Text>Unique American replacement for the Hermitage.[NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works, World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the City. Boosts [ICON_CULTURE] Culture and [ICON_RESEARCH] Science output of Museums and Broadcast Towers in all Cities by +5. Contains 3 Slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom by 10% in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own. [NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science and +5 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+			<Text>Unique American replacement for the Hermitage.[NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works, World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the City. Boosts [ICON_CULTURE] Culture and [ICON_RESEARCH] Science output of Museums and Broadcast Towers in all Cities by +5. Contains 3 Slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_CULTURE] Boredom by 10% in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science and +5 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_STRATEGY">
 			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, the Smithsonian boosts Culture and Tourism in the City greatly. The Smithsonian also boosts the Culture and Science output of all Museums and Broadcast Towers in your Empire. The Smithsonian is available slightly later than the Hermitage, however. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.</Text>
@@ -687,7 +687,7 @@
 			<Text>The history of Spain's missions in the American South and Southwest reveals much about Spain's strategy, contributions, and failures in these regions. The expeditions of Francisco Vázquez de Coronado (1540 42) and Juan de Oñate (1598) convinced Spanish authorities that no wealthy Indian empires like that of the Aztecs were to be found north of Mexico. Consequently the Spanish came to view the northern frontier of their empire as a defensive barrier and as a place where pagan souls might be saved. In what are now the states of Florida, Texas, New Mexico, Arizona, and California, missions were founded to propagate the doctrines of the Roman Catholic church. To protect these missions as well as the mines and ranches of Mexico from attack from the north, the Spanish established presidios fortified garrisons of troops. Franciscan priests founded a series of missions in Florida after 1573, mainly along the Atlantic and Gulf coasts. The first missions in New Mexico were established by friars accompanying Oñate's expedition of 1598; during the next 100 years Franciscan priests founded more than 40 additional missions, most of them along the Rio Grande. Especially influential was Father Alonso de Benavides, who directed the founding of 10 missions between 1625 and 1629 and thereafter promoted them ably in Spain. By 1680 missions had been established among most of the New Mexican Indians.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>Gain 3x the [ICON_PEACE] Faith and [ICON_GOLD] Gold output of the City, respectively, as an [COLOR_POSITIVE_TEXT]Instant Boost[ENDCOLOR] every time a [ICON_CITIZEN] Citizen is born in this City. +1 [ICON_PRODUCTION] Production from Quarries. [NEWLINE][NEWLINE]Boosts [ICON_RELIGION] Religious Pressure and Resistance of this city by 15%. Does not require Walls in order to be built, and can be purchased with [ICON_PEACE] Faith. Military Units Supplied by this City's population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strength by 100%. Contains 1 slot for a Great Work of Art or Artifact.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.</Text>
+			<Text>Gain 3x the [ICON_PEACE] Faith and [ICON_GOLD] Gold output of the City, respectively, as an [COLOR_POSITIVE_TEXT]Instant Boost[ENDCOLOR] every time a [ICON_CITIZEN] Citizen is born in this City. +1 [ICON_PRODUCTION] Production from Quarries.[NEWLINE][NEWLINE]Boosts [ICON_RELIGION] Religious Pressure and Resistance of this city by 15%. Does not require Walls in order to be built, and can be purchased with [ICON_PEACE] Faith. Military Units Supplied by this City's population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strength by 100%. Contains 1 slot for a Great Work of Art or Artifact.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
 			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, does not require Walls in order to be built, and can be purchased with Faith. Grants a bunch of Faith and Gold when Citizens are born in City (based on the current yields of the city when the new citizen is born). Increases Military Units supplied by this City's population by 10%, and Ranged Strike Damage by 25%. Boosts the city's religious pressure by 15% and resistance to foreign conversion by 15%, thus making the city more effective at converting nearby cities. Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion. Also helps with managing the Empire Needs Modifier in this City.</Text>

@@ -306,7 +306,7 @@
 
 -- fixed spear throw
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]Before engaging in melee, this unit has an extra attack.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]Before engaging in melee, this unit has an extra attack.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_GUNPOWDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	
