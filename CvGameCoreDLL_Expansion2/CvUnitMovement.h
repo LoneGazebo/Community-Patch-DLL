@@ -8,12 +8,15 @@ class CvUnitMovement
 {
 public:
 
-	static int MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect);
-	static int MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect, const PlotIndexContainer& plotsToIgnore);
-	static int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iPrecomputedTerrainFeatureEffect);
+	static int MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iTerrainFeatureCostMultiplierFromPromotions = -1, int iTerrainFeatureCostAdderFromPromotions =  -1);
+	static int MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, 
+										int iTerrainFeatureCostMultiplierFromPromotions = -1, int iTerrainFeatureCostAdderFromPromotions = -1, const PlotIndexContainer& plotsToIgnore = PlotIndexContainer());
+	static int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iTerrainFeatureCostMultiplierFromPromotions = -1, int iTerrainFeatureCostAdderFromPromotions = -1);
+	static int GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot);
+	static int GetMovementCostAdderFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot);
 
 protected:
-	static int GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iPrecomputedTerrainFeatureEffect);
+	static int GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iTerrainFeatureCostMultiplierFromPromotions = -1, int iTerrainFeatureCostAdderFromPromotions = -1);
 	static bool IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot);
 	static bool IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const PlotIndexContainer& plotsToIgnore);
 };

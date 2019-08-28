@@ -3480,7 +3480,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
 
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves, 0);
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
 //	---------------------------------------------------------------------------
@@ -3491,7 +3491,7 @@ int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int 
 	if (plotDistance(*this,*pFromPlot)>1)
 		return iMaxMoves;
 
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves, 0);
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
 //	--------------------------------------------------------------------------------
