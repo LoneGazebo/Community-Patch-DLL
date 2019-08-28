@@ -1438,12 +1438,8 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	int iFlavorScience =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 
 	// the later the game the greater the chance
-#if defined(MOD_AI_SMART_GRAND_STRATEGY)
-	int iEraBias = MOD_AI_SMART_GRAND_STRATEGY ? 4 : 0;
-	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 250 / 100;
-#else
-	iPriority += m_pPlayer->GetCurrentEra() * iFlavorScience * 150 / 100;
-#endif
+	iPriority += ((m_pPlayer->GetCurrentEra() * m_pPlayer->GetCurrentEra()) * max(1, iFlavorScience) * 300) / 100;
+
 #if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
 	PlayerTypes eLoopPlayer;
 	int iNumCivsAheadScience = 0;

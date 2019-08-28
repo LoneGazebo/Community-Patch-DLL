@@ -184,13 +184,13 @@ INSERT INTO Trait_YieldFromConquest
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 150),
-	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 75);
+	('TRAIT_SEVEN_CITIES', 'YIELD_GOLD', 75);
 
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 40),
-	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 50);
+	('TRAIT_SEVEN_CITIES', 'YIELD_GOLD', 40);
 
 -- NEW DLC Leader Data and Yields
 

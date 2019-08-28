@@ -84,6 +84,10 @@ UPDATE Policies
 SET MinorityHappinessMod = '-100'
 WHERE Type = 'POLICY_FREE_THOUGHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+UPDATE Policies
+SET AdmiralLuxuryBonus = '2'
+WHERE Type = 'POLICY_FREE_THOUGHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
 -- Finisher
 UPDATE Policies
 SET GreatScientistRateModifier = '33'
@@ -126,6 +130,11 @@ INSERT INTO Policy_YieldModifierFromGreatWorks
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_SECULARISM', 'YIELD_SCIENCE', 3);
+
+INSERT INTO Policy_FeatureYieldChanges
+	(PolicyType, FeatureType, YieldType, Yield)
+VALUES
+	('POLICY_SECULARISM', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 2);
 
 INSERT INTO Policy_WLTKDYieldMod
 	(PolicyType, YieldType, Yield)

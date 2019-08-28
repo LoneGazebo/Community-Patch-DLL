@@ -1581,9 +1581,17 @@ public:
 	inline bool isTerrainHalfMove(TerrainTypes eIndex) const { return getTerrainHalfMoveCount(eIndex) > 0; }
 	void changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange);
 
+	int getTerrainExtraMoveCount(TerrainTypes eIndex) const;
+	inline bool isTerrainExtraMove(TerrainTypes eIndex) const { return getTerrainExtraMoveCount(eIndex) > 0; }
+	void changeTerrainExtraMoveCount(TerrainTypes eIndex, int iChange);
+
 	int getFeatureHalfMoveCount(FeatureTypes eIndex) const;
 	inline bool isFeatureHalfMove(FeatureTypes eIndex) const { return getFeatureHalfMoveCount(eIndex) > 0; }
 	void changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange);
+
+	int getFeatureExtraMoveCount(FeatureTypes eIndex) const;
+	inline bool isFeatureExtraMove(FeatureTypes eIndex) const { return getFeatureExtraMoveCount(eIndex) > 0; }
+	void changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int getTerrainDoubleHeal(TerrainTypes eIndex) const;
@@ -2249,6 +2257,9 @@ protected:
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainHalfMoveCount;
 	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureHalfMoveCount;
+
+	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainExtraMoveCount;
+	FAutoVariable<FeatureTypeCounter, CvUnit> m_featureExtraMoveCount;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<TerrainTypeCounter, CvUnit> m_terrainDoubleHeal;

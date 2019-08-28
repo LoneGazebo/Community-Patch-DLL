@@ -643,6 +643,7 @@ public:
 	int GetUnhappiness() const;
 	void CalculateNetHappiness();
 	int GetHappinessRatioRawPercent();
+	void DistributeHappinessToCities(int iTotal, int iLux);
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	void ChangeEmpireNeedsModifierGlobal(int iChange);

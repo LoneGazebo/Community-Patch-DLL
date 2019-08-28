@@ -243,6 +243,14 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			{
 				iRegularCost /= 2;
 			}
+			else if (pToPlot->isHills() && pUnit->isTerrainHalfMove(TERRAIN_HILL))
+			{
+				iRegularCost *= 2;
+			}
+			else if (pToPlot->isHills() && pUnit->isTerrainExtraMove(TERRAIN_HILL))
+			{
+				iRegularCost += (iMoveDenominator * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
+			}
 			else if (pToPlot->isMountain() && pUnit->isMountainsDoubleMove())
 			{
 				iRegularCost /= 2;
@@ -256,6 +264,14 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			{
 				iRegularCost *= 2;
 			}
+			else if (pUnit->isTerrainExtraMove(eToTerrain))
+			{
+				iRegularCost += (iMoveDenominator * pUnit->getTerrainExtraMoveCount(eToTerrain));
+			}
+			else if (pUnit->isFeatureExtraMove(eToFeature))
+			{
+				iRegularCost += (iMoveDenominator * pUnit->getFeatureExtraMoveCount(eToFeature));
+			}		
 #endif
 		}
 

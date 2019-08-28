@@ -46,7 +46,7 @@
 		</Row>
 		<Replace Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
 			<Text>Vassalage</Text>
-		</Replace>	
+		</Replace>
 		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
 			<Text>Vassalage</Text>
 		</Row>

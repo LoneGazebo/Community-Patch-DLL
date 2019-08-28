@@ -296,9 +296,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 200)
+		if (iValue > 500)
 		{
-			iValue = 200;
+			iValue = 500;
 		}
 
 		if (kPlayer.getNumCities() == 1)
@@ -764,10 +764,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iSupply = 1;
 		}
-		int iDemand = kPlayer.getNumMilitaryUnits();
+		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
 		int iPercent = (iDemand * 100) / iSupply;
 
-		int iGrowth = (m_pCity->getPopulation() * (pkBuildingInfo->GetCitySupplyModifier() + pkBuildingInfo->GetCitySupplyModifierGlobal()) / 10);
+		int iGrowth = pkBuildingInfo->GetCitySupplyModifier() + (pkBuildingInfo->GetCitySupplyModifierGlobal() * kPlayer.getNumCities());
 
 		iPercent *= max (1, iGrowth);
 
@@ -783,10 +783,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iSupply = 1;
 		}
-		int iDemand = kPlayer.getNumMilitaryUnits();
+		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
 		int iPercent = (iDemand * 100) / iSupply;
 
-		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + pkBuildingInfo->GetCitySupplyFlatGlobal()) / 2;
+		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + pkBuildingInfo->GetCitySupplyFlatGlobal());
 
 		iPercent *= max(1, iGrowth);
 

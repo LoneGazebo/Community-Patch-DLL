@@ -2947,7 +2947,7 @@
 		</Row>
 		<!-- Diplo Modifier Texts-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
-			<Text>This action cancels your current Declaration of Friendship and breaks your Defensive Pact (if you have one). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
+			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
@@ -5934,7 +5934,7 @@
 
 		<!-- Religion Majority Est. -->
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY_S">
-			<Text>{1_ReligionName} now your [ICON_RELIGION] majority [ICON_RELIGION] Religion!</Text>
+			<Text>{1_ReligionName} is now your majority [ICON_RELIGION] Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY">
 			<Text>{1_ReligionName} has become your new majority [ICON_RELIGION] Religion. This shift in religious status may affect your relationship with other Civilizations, as well as your own population.</Text>
@@ -6493,13 +6493,13 @@
 			<Text>Additional Policies needed to unlock: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL">
-			<Text>Policies Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+			<Text>Policies Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL">
-			<Text>National Population Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+			<Text>National Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
-			<Text>Local Population Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 
 		<!-- Great Person Progress -->
@@ -7350,7 +7350,7 @@
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_PRODUCTION]/[ICON_FOOD] Distress: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Distress: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS">
@@ -7363,7 +7363,7 @@
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_PRODUCTION]/[ICON_FOOD] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

@@ -933,12 +933,21 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
-	kToNodeCacheData.plotMovementCostFactor = GC.getMOVE_DENOMINATOR();
+	int iDenominator = GC.getMOVE_DENOMINATOR();
+	kToNodeCacheData.plotMovementCostFactor = iDenominator;
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 	if (pPlot->isHills() && pUnit->isHillsDoubleMove())
 	{
 		kToNodeCacheData.plotMovementCostFactor /= 2;
+	}
+	else if (pPlot->isHills() && pUnit->isTerrainHalfMove(TERRAIN_HILL))
+	{
+		kToNodeCacheData.plotMovementCostFactor *= 2;
+	}
+	else if (pPlot->isHills() && pUnit->isTerrainExtraMove(TERRAIN_HILL))
+	{
+		kToNodeCacheData.plotMovementCostFactor += (iDenominator * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
 	}
 	else if (pPlot->isMountain() && pUnit->isMountainsDoubleMove())
 	{
@@ -952,6 +961,14 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
 	{
 		kToNodeCacheData.plotMovementCostFactor *= 2;
+	}
+	else if (pUnit->isTerrainExtraMove(eToTerrain))
+	{
+		kToNodeCacheData.plotMovementCostFactor += (iDenominator * pUnit->getTerrainExtraMoveCount(eToTerrain));
+	}
+	else if (pUnit->isFeatureExtraMove(eToFeature))
+	{
+		kToNodeCacheData.plotMovementCostFactor += (iDenominator * pUnit->getFeatureExtraMoveCount(eToFeature));
 	}
 #endif
 

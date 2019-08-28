@@ -1040,14 +1040,14 @@ void CvPlayer::init(PlayerTypes eID)
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * ((GetCurrentEra() / 2) + 2));
 						}
 					}
 					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * ((GetCurrentEra() / 2) + 1));
 						}
 					}
 #endif
@@ -20349,6 +20349,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Gamespeed Bonus level
 	m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
 
+	int iLuxFlat = 0;
 	if (!MOD_BALANCE_CORE_HAPPINESS)
 	{
 		// Increase from Luxury Resources
@@ -20363,7 +20364,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 	}
 	else
 	{
-		m_iHappiness += GetBonusHappinessFromLuxuriesFlat();
+		iLuxFlat = GetBonusHappinessFromLuxuriesFlat();
 	}
 
 	// Increase from buildings
@@ -20415,16 +20416,80 @@ void CvPlayer::DoUpdateTotalHappiness()
 
 	if (m_iHappiness > 0)
 	{
+
+		DistributeHappinessToCities(m_iHappiness, iLuxFlat);
+
+		m_iHappiness += iLuxFlat;
+	}
+
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+}
+
+void CvPlayer::DistributeHappinessToCities(int iTotal, int iLux)
+{
+	CvCity* pLoopCity;
+	int iLoop;
+
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+			continue;
+
+		pLoopCity->ResetHappinessFromEmpire();
+		pLoopCity->ResetHappinessFromLuxuries();
+	}
+
+	int iTempTotal = iTotal + iLux;
+
+	while(iTempTotal > 0)
+	{
+		bool bAllFull = true;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
 				continue;
 
-			pLoopCity->UpdateHappinessFromEmpire();
-		}
-	}
+			int iTotalHappiness = pLoopCity->GetLocalHappiness();
 
-	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			if (iTotalHappiness < pLoopCity->getPopulation())
+			{
+				bAllFull = false;
+				break;
+			}
+		}
+		if (bAllFull)
+			break;
+
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
+				continue;
+
+			int iTotalHappiness = pLoopCity->GetLocalHappiness();
+
+			if (iTotalHappiness >= pLoopCity->getPopulation())
+				continue;
+
+			if (iTotal > 0)
+			{
+				iTotal--;
+				pLoopCity->ChangeHappinessFromEmpire(1);
+				iTempTotal--;
+			}
+			else if (iLux > 0)
+			{
+				iLux--;
+				pLoopCity->ChangeHappinessFromLuxuries(1);
+				iTempTotal--;
+			}
+
+			if (iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
+				break;
+		}
+
+		if (iTempTotal <= 0 || (iTotal <= 0 && iLux <= 0))
+			break;
+	}
 }
 
 int CvPlayer::GetEmpireHappinessForCity(CvCity* pCity) const
@@ -20686,7 +20751,7 @@ bool CvPlayer::IsEmpireUnhappy() const
 	}
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		if (GetExcessHappiness() <= GC.getUNHAPPY_THRESHOLD())
+		if (GetExcessHappiness() < GC.getUNHAPPY_THRESHOLD())
 			return true;
 	}
 	else
@@ -20705,7 +20770,12 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 	{
 		return false;
 	}
-	if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (GetExcessHappiness() < /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
+			return true;
+	}
+	else if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
@@ -20720,7 +20790,12 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 	{
 		return false;
 	}
-	if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (GetExcessHappiness() < /*-10*/ GC.getSUPER_UNHAPPY_THRESHOLD())
+			return true;
+	}
+	else if (GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
@@ -30875,6 +30950,9 @@ void CvPlayer::DoDiversity(DomainTypes eDomain)
 			iUnitAI = (int)UnitAI;
 		}
 	}
+
+	if (iUnitAI == NO_UNITAI)
+		return;
 
 	if (iUnitAI != m_aiDomainDiversity[eDomain])
 	{

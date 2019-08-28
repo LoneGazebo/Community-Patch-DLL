@@ -13,42 +13,42 @@
 			<Text>Marsh Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
-			<Text>Double movement on Marsh and Flood Plain tiles.[NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
+			<Text>Double movement on Marsh and Flood Plain tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
 			<Text>White Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
-			<Text>Double movement on Snow tiles.[NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
+			<Text>Double movement on Snow tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER">
 			<Text>Woods Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER_HELP">
-			<Text>Double movement on Forest and Jungle tiles.[NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
+			<Text>Double movement on Forest and Jungle tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER">
 			<Text>Desert Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER_HELP">
-			<Text>Double movement on Desert tiles.[NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
+			<Text>Double movement on Desert tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER">
 			<Text>Coast Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER_HELP">
-			<Text>Allows embarkation.[NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
+			<Text>Allows embarkation.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER">
 			<Text>Hill Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER_HELP">
-			<Text>Double movement on Hill tiles.[NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
+			<Text>Double movement on Hill tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST">
@@ -135,7 +135,7 @@
 			<Text>Pilum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP">
-			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent enemy units take 10 Damage at the beginning of every turn.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent enemy units take 10 Damage at the beginning of every turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
@@ -194,14 +194,14 @@
 			<Text>Conscript</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPT_HELP">
-			<Text>Conscripted from Policies, consuming no [ICON_WAR] Unit Supply.[NEWLINE]Lost on upgrade.</Text>
+			<Text>Conscripted from Policies, consuming no [ICON_WAR] Unit Supply.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II">
 			<Text>Charge II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
@@ -220,7 +220,7 @@
 			<Text>Atlatl Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
-			<Text>+50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>+50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Naval Target Penalty</Text>
@@ -256,13 +256,13 @@
 			<Text>Covering Fire I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP">
-			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].</Text>
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II">
 			<Text>Covering Fire II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP">
-			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].</Text>
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT">
 			<Text>Gift of the Pharaoh</Text>
@@ -514,7 +514,7 @@
 			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Barracks. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_HELP">
-			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby enemy units. It is, however, much slower and more expensive than the Horseman. [NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this unit.</Text>
+			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby enemy units. It is, however, much slower and more expensive than the Horseman.[NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT">
 			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
@@ -523,7 +523,7 @@
 			<Text>Steppe Nomads</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
-			<Text>+2 [ICON_MOVES] Movement.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+			<Text>Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+2 [ICON_MOVES] Movement.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY">
@@ -548,7 +548,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_PIONEER">
-			<Text>Founds new Cities with advanced infrastructure and additional population. [NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built.</Text>
+			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities if Empire is very unhappy.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST">
 			<Text>Colonist</Text>
@@ -562,7 +562,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_COLONIST">
-			<Text>Founds new Cities with advanced infrastructure and additional population. [NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built.</Text>
+			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities if Empire is very unhappy.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Bandeirantes -->
@@ -585,12 +585,20 @@
 			<Text>Unique Brazilian Explorer. Generates [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science whenever you reveal tiles with this Unit. Can construct Forts, Quarries, Mines, and Brazilwood Camps in owned territory.</Text>
 		</Row>
 		
+		<!-- Rough Terrain for Ranged Mounted-->
+		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN">
+			<Text>Rough Terrain Extra Move</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
+			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross.</Text>
+		</Row>
+		
 		<!-- New Tier 4 Promotions -->
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4">
 			<Text>Overrun</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.[NEWLINE]When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take 10 Damage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DRILL_4">
 			<Text>Stalwart</Text>

@@ -3429,14 +3429,25 @@ void CvMilitaryAI::UpdateBaseData()
 	}
 
 	m_iRecommendedMilitarySize = m_iMandatoryReserveSize + iNumUnitsWanted;
+
+	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
+	iFlavorNaval += m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
+	iFlavorNaval /= 2;
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(m_iRecommendedMilitarySize > GetPlayer()->GetNumUnitsSupplied())
 	{
 		m_iRecommendedMilitarySize = GetPlayer()->GetNumUnitsSupplied();
 	}
 
+	int iNavalPercent = iFlavorNaval > 7 ? 40 : 25;
+	int iNavalReserve = GetPlayer()->GetNumUnitsSupplied() * iNavalPercent;
+	iNavalReserve /= 100;
+
+	m_iRecommendedMilitarySize -= iNavalReserve;
+
 	//And navy, because we reference this somewhat often.
-	m_iRecNavySize = MilitaryAIHelpers::ComputeRecommendedNavySize(m_pPlayer);
+	m_iRecNavySize = MilitaryAIHelpers::ComputeRecommendedNavySize(m_pPlayer, iNavalReserve);
 #endif
 
 	//build our target cache, we need it elsewhere.
@@ -6884,7 +6895,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 // MORE NON-MEMBER FUNCTIONS
 
 ///	How many military units should we have given current threats?
-int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
+int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSize)
 {
 	int iNumUnitsWanted = 0;
 	int iFlavorNaval = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
@@ -6955,6 +6966,9 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 
 	iNumUnitsWanted = max(1,iNumUnitsWanted);
 
+	//want more as game goes along, for all units.
+	iNumUnitsWanted += pPlayer->GetCurrentEra() * 2;
+
 	EconomicAIStrategyTypes eStrategyNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
 	EconomicAIStrategyTypes eExpandOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNavalMap) || pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOtherContinents))
@@ -6980,11 +6994,14 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	}
 
 	//Navy more than half supply?
-	int iSupply = (pPlayer->GetNumUnitsSupplied() / 2);
+	int iSupply = pPlayer->GetNumUnitsSupplied();
 	if(iNumUnitsWanted > iSupply)
 	{
 		iNumUnitsWanted = iSupply;
 	}
+
+	if (iNumUnitsWanted <= iMinSize)
+		iNumUnitsWanted = iMinSize;
 
 	return iNumUnitsWanted;
 }

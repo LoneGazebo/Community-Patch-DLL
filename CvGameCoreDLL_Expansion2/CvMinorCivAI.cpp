@@ -426,7 +426,6 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	if (GetGoldenAgePoints() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetGoldenAgePoints(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_GOLDEN_AGE_POINTS, NULL, NO_TERRAIN, this);
-		kPlayer.ChangeGoldenAgeProgressMeter(GetGoldenAgePoints());
 	}
 	if (GetGold() > 0)
 	{

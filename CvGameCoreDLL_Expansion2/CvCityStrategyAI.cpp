@@ -6070,11 +6070,15 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 		if (eFreeBuildingThisCity != NO_BUILDING)
 		{
-			if(pCity->GetCityBuildings()->GetNumBuilding(eFreeBuildingThisCity) <= 0)
-				iValue += pCity->getPopulation() * 10;
-			else
-				iValue += pCity->getPopulation() * 5;
-
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuildingThisCity);
+			if (pkBuildingInfo)
+			{
+				int iFreeValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, 10, 10, 10, false, false, true);
+				if (iFreeValue > 0)
+				{
+					iValue += iFreeValue;
+				}
+			}
 		}
 	}
 	if(pkBuildingInfo->GetCultureRateModifier() > 0)

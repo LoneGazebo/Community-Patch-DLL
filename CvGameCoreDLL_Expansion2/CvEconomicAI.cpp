@@ -2385,10 +2385,12 @@ void CvEconomicAI::DoReconState()
 		int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
 
 		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
-		int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
+		int iPlotsPerExplorer = 100 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
 		int iNumExplorersNeededTimes100 = 50 + (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
-		if (bWar)
-			iNumExplorersNeededTimes100 /= 2;
+
+		//always one?
+		if (bWar || iNumExplorersNeededTimes100 < 100)
+			iNumExplorersNeededTimes100 = 100;
 
 		SetNavalExplorersNeeded(iNumExplorersNeededTimes100 / 100);
 

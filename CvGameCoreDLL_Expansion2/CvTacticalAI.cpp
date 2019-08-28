@@ -6890,6 +6890,10 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (!pLoopUnit->IsCanAttackRanged() || pLoopUnit->getUnitInfo().IsRangeAttackOnlyInDomain())
 			if (pLoopUnit->getDomainType() != DOMAIN_AIR && !bIsCityTarget && pTarget->getDomain() != pLoopUnit->getDomainType())
 				continue;
+
+		// some naval units can only fire on coastal land tiles.
+		if (pLoopUnit->getUnitInfo().IsCoastalFireOnly() && pTarget->getDomain() == DOMAIN_LAND && !pTarget->isCoastalLand())
+			continue;
 				
 		// there are no other civilians here
 		if (!bIsCityTarget && (pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatAdmiral()))
@@ -8720,6 +8724,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 	bool bIgnoreLOS = pUnit->IsRangeAttackIgnoreLOS() || pUnit->getDomainType()==DOMAIN_AIR;
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
+	bool bIsCoastalOnly = pUnit->getUnitInfo().IsCoastalFireOnly();
 
 	std::vector<CvPlot*> vCandidates = GC.getMap().GetPlotsAtRange(pTarget, iRange, false, !bIgnoreLOS);
 
@@ -8752,7 +8757,8 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 		if (pUnit->getDomainType() != vCandidates[i]->getDomain())
 			continue;
 
-		if(bOnlyInDomain)
+		if (bOnlyInDomain)
+		{
 			//subs can only attack within their (water) area or adjacent cities
 			if (pRefPlot->getArea() != vCandidates[i]->getArea())
 			{
@@ -8760,6 +8766,13 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 				if (!pCity || !pCity->isAdjacentToArea(pRefPlot->getArea()))
 					continue;
 			}
+		}
+		if (bIsCoastalOnly)
+		{
+			if (vCandidates[i]->getDomain() == DOMAIN_LAND && pRefPlot->getArea() != vCandidates[i]->getArea())
+				if (!vCandidates[i]->isCoastalLand())
+					continue;
+		}
 
 		vIntermediate.push_back( SPlotWithScore(vCandidates[i],iDistance) );
 	}
