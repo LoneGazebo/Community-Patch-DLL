@@ -7538,8 +7538,12 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 			continue;
 
 		//if they conquered the city, we might be mad at them but for a different reason
-		if (!bIncludeConqueredCities && pPlot->getOwningCity()->getOriginalOwner() != pPlot->getOwningCity()->getOwner())
-			continue;
+		if (!bIncludeConqueredCities)
+		{
+			CvCity* pCity = pPlot->getOwningCity(); //apparently a plot can be owned without an owning city?
+			if (pCity && pCity->getOriginalOwner() != pCity->getOwner())
+				continue;
+		}
 
 		int iWeight = 10;
 		if (!bJustCount)
