@@ -2046,6 +2046,12 @@ void CvTacticalAI::PlotCaptureCityMoves()
 						iRangedCount++;
 					else
 						iMeleeCount++;
+
+					//don't use too many melee units
+					//the combat sim can't deal with too many units
+					//make sure there are range units in there as well
+					if (iMeleeCount > 3)
+						m_CurrentMoveUnits[iI].SetAttackStrength(0);
 				}
 
 				if (iMeleeCount == 0 && iRequiredDamage <= 1)
@@ -5103,14 +5109,13 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	//will not necessarily attack only the target plot when other targets are present!
 
 	//todos:
-	//
-	// - embarked units are ignored. too much hassle
 	// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
-	// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker)
+	// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker so will be safe from retaliation)
 
 	vector<CvUnit*> vUnits;
 	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
-		vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
+		if (m_CurrentMoveUnits[i].GetAttackStrength()>0) //sometimes we mark units as not desired
+			vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
 
 	int iCount = 0;
 	bool bSuccess = false;
@@ -10314,6 +10319,9 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	{
 		CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
 		itUnit->iImportanceScore = iPlotTypeScore[ currentPlot.getType() ] + currentPlot.getNumAdjacentEnemies() + itUnit->iMovesLeft/GC.getMOVE_DENOMINATOR() + getRangeAttackPlotsForUnit(itUnit->iUnitID).size();
+
+		if (pTargetPlot->isCity() && eAggression > AL_NONE && itUnit->eStrategy == MS_SECONDLINE)
+			itUnit->iImportanceScore += 11; //we need siege units for attacking cities
 	}
 
 	std::sort(availableUnits.begin(), availableUnits.end());
