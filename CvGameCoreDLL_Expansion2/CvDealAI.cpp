@@ -3867,9 +3867,14 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+		//only accept bribes against our biggest competitors. Otherwise, nah.
+		if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
+		{
+			return INT_MAX;
+		}
 
 		//don't bite if we can't easily attack.
-		if (pDiploAI->GetPlayerTargetValue(eWithPlayer) <= TARGET_VALUE_BAD)
+		if (pDiploAI->GetPlayerTargetValue(eWithPlayer) <= TARGET_VALUE_AVERAGE)
 			return INT_MAX;
 
 		else if(eApproachTowardsAskingPlayer != MAJOR_CIV_APPROACH_FRIENDLY)
@@ -3888,7 +3893,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 200;
 			else if(eWarProjection >= WAR_PROJECTION_STALEMATE)
-				iItemValue += 300;
+				iItemValue += 500;
 			else
 				return INT_MAX;
 		}
@@ -3899,8 +3904,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 2;
 
 		
-		// Add 100 gold per era
-		int iExtraCost = eOurEra * 100;
+		// Add 300 gold per era
+		int iExtraCost = eOurEra * 300;
 		iItemValue += iExtraCost;
 
 		// Minor
@@ -3971,10 +3976,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			iItemValue *= 90;
 			iItemValue /= 100;
-		}
-		else if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
-		{
-			return INT_MAX;
 		}
 
 		if(!bMinor)
@@ -4909,7 +4910,7 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 							int iItemValue = GetTradeItemValue(TRADE_ITEM_THIRD_PARTY_WAR, /*bFromMe*/ false, eThem, eOtherTeam, -1, -1, /*bFlag1*/false, -1, bUseEvenValue);
 
 							// If adding this to the deal doesn't take it over the limit, do it (pick best option below)
-							if(iItemValue==INT_MAX)
+							if (iItemValue == INT_MAX)
 							{
 								continue;
 							}

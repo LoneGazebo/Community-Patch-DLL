@@ -1838,7 +1838,7 @@ int CvLuaPlot::lIsRiverCrossingToPlot(lua_State* L)
 	CvPlot* pkMyPlot = GetInstance(L);
 	CvPlot* pkOtherPlot = GetInstance(L, 2);
 
-	if(pkMyPlot->isRiverCrossing(directionXY(pkMyPlot, pkOtherPlot)))
+	if(pkMyPlot->isAdjacent(pkOtherPlot) && pkMyPlot->isRiverCrossing(directionXY(pkMyPlot, pkOtherPlot)))
 	{
 		bIsCrossingRiver = true;
 	}

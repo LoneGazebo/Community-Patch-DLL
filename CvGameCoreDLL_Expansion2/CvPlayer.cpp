@@ -8822,8 +8822,6 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			{
 				SetEventActive(eEvent, false);
 			}
-			//Lua Hook
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventChoiceActivated, GetID(), eEventChoice);
 
 			if(GC.getLogging())
 			{
@@ -8849,6 +8847,10 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				iEventDuration /= 100;
 				ChangeEventChoiceDuration(eEventChoice, iEventDuration);
 			}
+
+			//Lua Hook
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventChoiceActivated, GetID(), eEventChoice);
+
 			//Do the cost first, as that goes through whether or not the event succeeds!
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
@@ -14719,7 +14721,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY && !isHuman())
+	if(MOD_BALANCE_CORE_MILITARY && !isHuman() && !pUnitInfo.IsNoSupply())
 	{
 		if (((pUnitInfo.GetCombat() > 0) || (pUnitInfo.GetRangedCombat() > 0)) && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
 		{
@@ -14870,7 +14872,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(!bTestVisible)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY && pUnitInfo.GetCombat() > 0 && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
+		if (MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsNoSupply() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0) && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
 		{
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 			if(toolTipSink == NULL)
@@ -22789,6 +22791,8 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 					}
 					//...elsewhere?	
 					iNoHappinessSpecialists += GetNoUnhappfromXSpecialists();
+
+					iNoHappinessSpecialists += pLoopCity->GetNoUnhappfromXSpecialists();
 				}
 				//Can't give more free happiness than specialists.
 				if (iNoHappinessSpecialists > iPopulation)
@@ -32905,7 +32909,7 @@ int CvPlayer::GetProductionMight() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 {
-	int iSum = 0, iPower = 0;
+	int iSum = 0;
 	int iLoop;
 	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -32916,14 +32920,12 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 			continue;
 
 		//we are interested in the offensive capabilities of the player
-		if (pLoopUnit->isRanged())
-			iPower = pLoopUnit->GetMaxRangedCombatStrength(NULL, NULL, true, NULL, NULL, true, true) / 100;
-		else
-			iPower = pLoopUnit->GetMaxAttackStrength(NULL, NULL, NULL, true, true) / 100;
+		int iPower = pLoopUnit->GetBestAttackStrength() / 100;
 
-		//some promotions already influence the combat strength and so are double-counted
-		//but who cares, this is only an estimation
-		int iPromotionFactor = 100 + pLoopUnit->getLevel() * 10;
+		//some promotions already influence the combat strength so to prevent double counting only consider the advanced promotions
+		int iPromotionFactor = 100;
+		if (pLoopUnit->getLevel()>3)
+			iPromotionFactor += pLoopUnit->getLevel() * 10 - 30;
 
 		//assume garrisons won't take part in offensive action
 		if (pLoopUnit->IsGarrisoned())
@@ -38072,7 +38074,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if(pkResourceInfo != NULL)
 	{
-		if(pkResourceInfo->isMonopoly())
+		if (pkResourceInfo->isMonopoly() && (pkResourceInfo->getTechReveal() == NO_TECH || HasTech((TechTypes)pkResourceInfo->getTechReveal())))
 		{
 			bool bGainingBonus = false;
 			bool bGainingStrategicBonus = false;

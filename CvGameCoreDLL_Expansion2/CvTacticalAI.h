@@ -955,7 +955,8 @@ private:
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_ESCORTED_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
-enum eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE };
+enum eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, 
+							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE };
 
 struct STacticalAssignment
 {
@@ -1104,7 +1105,7 @@ protected:
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
 	unsigned char nOurUnits;
-	unsigned char nTheirUnits;
+	unsigned char nTheirUnits; //also counts enemy cities ...
 	CvPlot* pTargetPlot;
 	bool isIsolatedTarget;
 
@@ -1170,6 +1171,7 @@ public:
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
+	const int getNumEnemies() const { return nTheirUnits - killedEnemies.size(); }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }

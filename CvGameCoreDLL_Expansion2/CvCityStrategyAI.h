@@ -223,6 +223,8 @@ public:
 	void LogHurry(HurryTypes iHurryType, int iHurryAmount, int iHurryAmountAvailable, int iTurnsSaved);
 	void LogCityProduction(CvCityBuildable Buildable, bool bRush);
 
+	void LogInvalidItem(CvCityBuildable Buildable, int iVal);
+
 private:
 
 	void ReweightByCost();

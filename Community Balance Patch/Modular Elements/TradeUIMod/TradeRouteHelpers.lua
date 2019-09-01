@@ -20,7 +20,7 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	--local strTheirGPTValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_GPT_YOURS", pTargetCity:GetNameKey(), pPlayer:GetInternationalTradeRouteGPTBonus(pOriginCity, pTargetCity, false) / 100);
 -- COMMUNITY PATCH
 	local iTheirInfluenceGold = pOtherPlayer:GetInfluenceTradeRouteGoldBonus(iPlayer);
-	local strTheirGPTValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_GPT_YOURS", pTargetCity:GetNameKey(), (pPlayer:GetInternationalTradeRouteGPTBonus(pOriginCity, pTargetCity, false) + iTheirInfluenceGold) / 100 );
+	local strTheirGPTValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_GPT_YOURS", pTargetCity:GetNameKey(), pPlayer:GetInternationalTradeRouteGPTBonus(pOriginCity, pTargetCity, false) / 100 );
 	local iInfluenceGold = pPlayer:GetInfluenceTradeRouteGoldBonus(iOtherPlayer);
 --END
 	local iPolicyBonus = pPlayer:GetInternationalTradeRoutePolicyBonus(pOriginCity, pTargetCity, eDomain);

@@ -208,7 +208,7 @@
 			<Text>{TXT_KEY_BUILDING_COURTHOUSE_HELP}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUI_BUILDING_ALLOWSRANGESTRIKE">
-			<Text>{TXT_KEY_PROMOTION_INDIRECT_FIRE}</Text>
+			<Text>Allows ranged strike.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUI_BUILDING_ESPIONAGE">
 			<Text>{TXT_KEY_GAME_CONCEPT_SECTION_22}</Text>

@@ -144,7 +144,7 @@
 /// Divides a city's targetting score for missionaries by this value if passive pressure is enough to eventually convert the city
 #define AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH (10)
 /// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
-#define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (1000.0 / 3.0)
+#define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (100.0 / 3.0)
 /// Fixes the bug where the AI scores inquisitors if it already has enough, not when it needs them
 #define AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
 /// When comparing the final score for beliefs, the score of the lowest scored belief will be subtracted from all beliefs

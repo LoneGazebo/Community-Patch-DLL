@@ -337,12 +337,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iNumOthersConstructing++;
 				}
 			}
-			iBonus -= m_pCity->getPopulation() * (iNumOthersConstructing * 50);
+			iBonus -= iNumOthersConstructing * 100;
 
 			//probably early game, so if we haven't started yet, we're probably not going to win this one.
 			if (kPlayer.getNumCities() == 1 && !bIsVenice)
 			{
-				iBonus -= m_pCity->getPopulation() * (iNumOthersConstructing * 50);
+				iBonus -= iNumOthersConstructing * 100;
 			}
 		}
 	}
@@ -701,15 +701,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += pkBuildingInfo->CityRangedStrikeModifier();
 	}
-#if defined(MOD_BALANCE_CORE)
 	if (pkBuildingInfo->GetBuildingDefenseModifier() > 0)
 	{
 		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 25;
 	}
-#endif
 	if (pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 50);
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 100);
 	}
 	if (m_pCity->isCoastal())
 	{
@@ -769,7 +767,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		int iGrowth = pkBuildingInfo->GetCitySupplyModifier() + (pkBuildingInfo->GetCitySupplyModifierGlobal() * kPlayer.getNumCities());
 
-		iPercent *= max (1, iGrowth);
+		iPercent += max (1, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -786,9 +784,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
 		int iPercent = (iDemand * 100) / iSupply;
 
-		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + pkBuildingInfo->GetCitySupplyFlatGlobal());
+		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + (pkBuildingInfo->GetCitySupplyFlatGlobal() * kPlayer.getNumCities()));
 
-		iPercent *= max(1, iGrowth);
+		iPercent += max(1, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -935,12 +933,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
 					{
-						iBonus += iTempBonus;
+						iBonus += iTempBonus * iTempBonus;
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus += iTempBonus/2;
+						iBonus += (iTempBonus / 2) * (iTempBonus/2);
 					}
 				}
 			}
@@ -969,12 +967,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our production/experience buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(eUnitCombatClass))
 					{
-						iBonus += iTempBonus;
+						iBonus += iTempBonus * iTempBonus;
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus += iTempBonus/2;
+						iBonus += (iTempBonus / 2) * (iTempBonus / 2);
 					}
 				}
 			}
@@ -1254,35 +1252,35 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
 		{
-			WarPenalty += iNumWar * 10;
+			WarPenalty += iNumWar * 5;
 			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 			{
 				//More cities = more threat.
 				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank());
 				if (iThreat > 0)
 				{
-					WarPenalty += iThreat * 10;
+					WarPenalty += iThreat * 5;
 				}
 			}
 			if (bDesperate)
 			{
-				WarPenalty += iNumWar * 20;
+				WarPenalty += iNumWar * 10;
 			}
 			if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
 			{
-				WarPenalty += iNumWar * 20;
+				WarPenalty += iNumWar * 10;
 			}
 
 			int iCityLoop;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
-				if (bDesperate)
+				if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
 				{
-					WarPenalty += iNumWar * 10;
+					WarPenalty += iNumWar * 5;
 				}
 				if ((pLoopCity->isCoastal() && pLoopCity->IsBlockaded(true)) || ((!pLoopCity->isCoastal() && pLoopCity->IsBlockaded(false))))
 				{
-					WarPenalty += iNumWar * 10;
+					WarPenalty += iNumWar * 5;
 				}
 			}
 
@@ -1294,7 +1292,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
 					{
-						WarPenalty += iNumWar * 20;
+						WarPenalty += iNumWar * 10;
 					}
 				}
 			}
@@ -1320,7 +1318,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iEraValue = (kPlayer.GetCurrentEra() - eEra);
 				if (iEraValue > 0)
 				{
-					iBonus += (25 * iEraValue);
+					iBonus += (125 * iEraValue);
 				}
 			}
 			//No Era? Zero!
@@ -1329,7 +1327,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iEraValue = kPlayer.GetCurrentEra(); //was 8
 				if (iEraValue > 0)
 				{
-					iBonus += (25 * iEraValue);
+					iBonus += (125 * iEraValue);
 				}
 			}
 		}
@@ -1339,7 +1337,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iEraValue = kPlayer.GetCurrentEra(); //was 8
 		if (iEraValue > 0)
 		{
-			iBonus += (25 * iEraValue);
+			iBonus += (125 * iEraValue);
 		}
 	}
 

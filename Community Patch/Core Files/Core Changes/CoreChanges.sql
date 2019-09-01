@@ -19,15 +19,15 @@ SELECT 'UNHAPPY_THRESHOLD', '25';
 
 -- food is different because we include consumption.
 UPDATE Defines
-SET Value = '.11'
+SET Value = '0.5'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD';
 
 UPDATE Defines
-SET Value = '1.25'
+SET Value = '1.0'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION';
 
 UPDATE Defines
-SET Value = '1.8'
+SET Value = '1.5'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD';
 
 UPDATE Defines
@@ -285,8 +285,9 @@ UPDATE Defines
 SET Value = '66'
 WHERE Name = 'AI_STRATEGY_AREA_IS_FULL_PERCENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- this is in estimated turns, not plots
 UPDATE Defines
-SET Value = '5'
+SET Value = '4'
 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Defines

@@ -601,14 +601,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				int iMultiplier = m_iTacticalRange + MIN(3 - iDistance, 0);  // 3 because action may still be spread out over the zone
 				if(iMultiplier > 0)
 				{
-					int iUnitStrength = pLoopUnit->GetBaseCombatStrengthConsideringDamage();
-
-					//unit might disembark ... so don't count it for water zone, but for adjacent land
-					if(iUnitStrength == 0 && pLoopUnit->isEmbarked() && !pZone->IsWater())
-						iUnitStrength = pLoopUnit->GetBaseCombatStrength();
-
+					int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true);
 					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) / 100;
-
 					if(!bVisible || bReducedStrength)
 					{
 						iUnitStrength /= 2;

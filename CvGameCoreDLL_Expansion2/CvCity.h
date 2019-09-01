@@ -1049,7 +1049,7 @@ public:
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 #endif
 
-	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false) const;
+	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);

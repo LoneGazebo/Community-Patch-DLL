@@ -947,6 +947,7 @@ public:
 	int getAIDifficultyBonusEarly() const;
 	int getAIDifficultyBonusMid() const;
 	int getAIDifficultyBonusLate() const;
+	int getAIVisionBonus() const;
 #endif
 
 	// Arrays
@@ -1027,6 +1028,7 @@ protected:
 	int m_iDifficultyBonusEarly;
 	int m_iDifficultyBonusMid;
 	int m_iDifficultyBonusLate;
+	int m_iVisionBonus;
 #endif
 
 	CvString m_strHandicapName;

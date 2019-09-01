@@ -5448,76 +5448,22 @@ bool CvUnit::IsAngerFreeUnit() const
 }
 
 //	---------------------------------------------------------------------------
-int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const
+int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int /*iCurrentDamage*/, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const
 {
 	VALIDATE_OBJECT
-	// The roll will vary damage between 40 and 60 (out of 100) for two units of identical strength
-
-	int iDamageRatio;
-
-	int iWoundedDamageMultiplier = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
-
-	if(bAttackerIsCity)
-	{
-#if defined(MOD_UNITS_MAX_HP)
-		// Yeah, given the comment on the line below it looks weird, but the max HP of cities isn't GC.getMAX_HIT_POINTS() but pCity->GetMaxHitPoints(), so this works
-		iDamageRatio = GetMaxHitPoints();		// JON: Cities don't do less damage when wounded
-#else
-		iDamageRatio = GC.getMAX_HIT_POINTS();		// JON: Cities don't do less damage when wounded
-#endif
-	}
-	else
-	{
-		// Mod (Policies, etc.)
-		iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
-#if defined(MOD_BALANCE_CORE)
-		if (IsStrongerDamaged() && iWoundedDamageMultiplier != 0)
-		{
-			iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
-		}
-#endif
-
-#if defined(MOD_UNITS_MAX_HP)
-		iDamageRatio = GetMaxHitPoints() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
-#else
-		iDamageRatio = GC.getMAX_HIT_POINTS() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
-#endif
-	}
-
-	int iDamage = 0;
-
-#if defined(MOD_UNITS_MAX_HP)
-	iDamage = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE() * iDamageRatio / GetMaxHitPoints();
-#else
-	iDamage = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE() * iDamageRatio / GC.getMAX_HIT_POINTS();
-#endif
+	// Base damage for two units of identical strength
+	int iDamage = /*2400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE();
 
 	// Don't use rand when calculating projected combat results
-	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		iRoll = /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
-
-		iRoll *= iDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-		iRoll /= GetMaxHitPoints();
-#else
-		iRoll /= GC.getMAX_HIT_POINTS();
-#endif
+		iDamage += /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), plot()->GetPlotIndex()+GetID()+iStrength+iOpponentStrength);
 	}
 	else
 	{
-		iRoll = /*400*/ GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
-		iRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
-		iRoll *= iDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-		iRoll /= GetMaxHitPoints();
-#else
-		iRoll /= GC.getMAX_HIT_POINTS();
-#endif
-		iRoll /= 2;	// The divide by 2 is to provide the average damage
+		//just use the expected value of the random roll
+		iDamage += /*1200*/ GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 2;
 	}
-	iDamage += iRoll;
 
 	// Calculations performed to dampen amount of damage by units that are close in strength
 	// RATIO = (((((ME / OPP) + 3) / 4) ^ 4) + 1) / 2
@@ -5525,23 +5471,18 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	// 1.301 = (((((9 / 6) + 3) / 4) ^ 4) + 1 / 2
 	// 17.5 = (((((40 / 6) + 3) / 4) ^ 4) + 1 / 2
 
-	double fStrengthRatio = (double(iStrength) / iOpponentStrength);
-
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result (we need a # above 1.0)
-	if(iOpponentStrength > iStrength)
-	{
-		fStrengthRatio = (double(iOpponentStrength) / iStrength);
-	}
+	double fStrengthRatio = (iOpponentStrength > iStrength) ?
+		(double(iOpponentStrength) / iStrength) : (double(iStrength) / iOpponentStrength);
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
 	//avoid overflows later ...
 	fStrengthRatio = MIN(1e3, (fStrengthRatio + 1) / 2);
 
+	//undo the inversion if needed
 	if(iOpponentStrength > iStrength)
-	{
 		fStrengthRatio = 1 / fStrengthRatio;
-	}
 
 	iDamage = int(iDamage * fStrengthRatio);
 
@@ -5569,9 +5510,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	// Bring it back out of hundreds
 	iDamage /= 100;
 
-	iDamage = iDamage > 0 ? iDamage : 1;
-
-	return iDamage;
+	return max(iDamage,1);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15181,17 +15120,17 @@ int CvUnit::visibilityRange() const
 	VALIDATE_OBJECT
 
 	//in general vision range needs to be at least one, otherwise there will be stacking issues
-	int iRtnValue  = 0;
+	int iRtnValue = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
 
 	if(isEmbarked())
 	{
-		iRtnValue = max(1,GC.getEMBARKED_VISIBILITY_RANGE() + m_iEmbarkExtraVisibility);
+		iRtnValue += max(1,GC.getEMBARKED_VISIBILITY_RANGE() + m_iEmbarkExtraVisibility);
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if (isTrade())
 	{
 		//special rules for trade units, default range is zero!
-		iRtnValue = GET_PLAYER(m_eOwner).GetTRVisionBoost();
+		iRtnValue += GET_PLAYER(m_eOwner).GetTRVisionBoost();
 
 		CorporationTypes eCorporation = GET_PLAYER(m_eOwner).GetCorporations()->GetFoundedCorporation();
 		if (eCorporation != NO_CORPORATION)
@@ -15203,7 +15142,7 @@ int CvUnit::visibilityRange() const
 #endif
 	else
 	{
-		iRtnValue = max(1,m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
+		iRtnValue += max(1, m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
 	}
 
 	return iRtnValue;
@@ -15758,6 +15697,10 @@ bool CvUnit::IsDead() const
 /// Over strategic resource limit?
 int CvUnit::GetStrategicResourceCombatPenalty() const
 {
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// units cannot heal anymore, but strength is unaffected
+	return 0;
+#else
 	int iPenalty = 0;
 
 	// barbs don't have resources
@@ -15802,6 +15745,7 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 
 	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 	return iPenalty;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -15841,73 +15785,84 @@ int CvUnit::GetBaseCombatStrength() const
 	return m_iBaseCombat;
 }
 
-//	--------------------------------------------------------------------------------
-int CvUnit::GetBaseCombatStrengthConsideringDamage() const
+int CvUnit::GetBestAttackStrength() const
 {
-	int iWoundedDamageMultiplier = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
+	int iRangedStrength = GetMaxRangedCombatStrength(NULL,NULL,true,NULL,NULL,true,true);
+	int iMeleeStrength = GetMaxAttackStrength(NULL,NULL,NULL,true,true);
 
-	// Mod (Policies, etc.) - lower means Units are less bothered by damage
-	iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
-#if defined(MOD_BALANCE_CORE)
-	if (IsStrongerDamaged() && iWoundedDamageMultiplier != 0)
-	{
-		iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
-	}
-#endif
-
-	int iStrength = GetMaxAttackStrength(NULL,NULL,NULL,true,true) / 100;
-
-	// How much does damage weaken the effectiveness of the Unit?
-	int iDamageMod = m_iDamage * iWoundedDamageMultiplier / 100;
-
-	// Reduce strength points based on damage mod calculated above. Example: 4 damage will normally reduce a 20 strength Unit by 2/10ths, or 1/5, or 4, making it effectively a 16
-#if defined(MOD_UNITS_MAX_HP)
-	iStrength -= (iStrength * iDamageMod / GetMaxHitPoints());
-#else
-	iStrength -= (iStrength * iDamageMod / GC.getMAX_HIT_POINTS());
-#endif
-
-	return iStrength;
+	return max(iRangedStrength,iMeleeStrength);
 }
 
-SStrengthModifierInput::SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty)
+//typically negative
+int CvUnit::GetDamageCombatModifier() const
+{
+	int iRtnValue = 0;
+
+	// How much does damage weaken the effectiveness of the Unit?
+	if (getDamage() > 0)
+	{
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		//If Japan, you should get stronger as you lose health.
+		if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+			iRtnValue += (getDamage() / 5);
+
+		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
+			iRtnValue += (getDamage() / 3);
+#endif
+
+		//default behavior
+		if (iRtnValue == 0)
+		{
+			int iWoundedDamageMultiplier = GC.getWOUNDED_DAMAGE_MULTIPLIER() + GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+			if (IsStrongerDamaged())
+				iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
+
+			iRtnValue = -(getDamage() * iWoundedDamageMultiplier) / 100;
+		}
+	}
+
+	return iRtnValue;
+}
+
+SStrengthModifierInput::SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty, int iOurDamage)
 {
 	m_iOtherUnitID = pOtherUnit ? pOtherUnit->GetID() : 0;
 	m_iBattlePlot = pBattlePlot ? pBattlePlot->GetPlotIndex() : 0;
 	m_iFromPlot = pFromPlot ? pFromPlot->GetPlotIndex() : 0;
 	m_bIgnoreUnitAdjacencyBoni = bIgnoreUnitAdjacencyBoni;
 	m_bQuickAndDirty = bQuickAndDirty;
+	m_iOurDamage = iOurDamage;
+	m_iTheirDamage = pOtherUnit ? pOtherUnit->getDamage() : 0;
 }
 
 const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs) const
 {
 	return (m_iOtherUnitID == rhs.m_iOtherUnitID && m_iBattlePlot == rhs.m_iBattlePlot && m_iFromPlot == rhs.m_iFromPlot && 
-			m_bIgnoreUnitAdjacencyBoni == rhs.m_bIgnoreUnitAdjacencyBoni && m_bQuickAndDirty == rhs.m_bQuickAndDirty);
+			m_bIgnoreUnitAdjacencyBoni == rhs.m_bIgnoreUnitAdjacencyBoni && m_bQuickAndDirty == rhs.m_bQuickAndDirty &&
+			m_iOurDamage == rhs.m_iOurDamage && m_iTheirDamage == rhs.m_iTheirDamage);
 }
 
 #define STRENGTH_MOD_MAX_CACHE_SIZE 5
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
-int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
+int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
 	//simple caching for speedup
-	SStrengthModifierInput input(pOtherUnit, pBattlePlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
+	SStrengthModifierInput input(pOtherUnit, pBattlePlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty, getDamage());
 	for (size_t i = 0; i<m_lastStrengthModifiers.size(); i++)
 	if (input == m_lastStrengthModifiers[i].first)
 		return m_lastStrengthModifiers[i].second;
 
-	int iModifier = 0;
-	int iTempModifier;
+	if (pFromPlot == NULL)
+		pFromPlot = plot();
 
 	// Generic combat bonus
-	iTempModifier = getExtraCombatPercent();
-	iModifier += iTempModifier;
+	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier() + GetStrategicResourceCombatPenalty();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
 	if (eFoundedReligion == NO_RELIGION)
@@ -15925,25 +15880,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if (!MOD_BALANCE_CORE_MILITARY)
-	{
-	// Over our strategic resource limit?
-	iTempModifier = GetStrategicResourceCombatPenalty();
-	if (iTempModifier != 0)
-		iModifier += iTempModifier;
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	}
-#endif
-	if (pFromPlot == NULL)
-	{
-		pFromPlot = plot();
-	}
 	if (GetNearbyCityBonusCombatMod(pBattlePlot) != 0)
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pBattlePlot);
 	}
+
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
@@ -16050,8 +15991,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		// Bonuses for fighting in one's lands
 		if(pBattlePlot->IsFriendlyTerritory(getOwner()))
 		{
-			iTempModifier = getFriendlyLandsModifier();
-			iModifier += iTempModifier;
+			iModifier += getFriendlyLandsModifier();
 
 			// Founder Belief bonus
 			CvCity* pPlotCity = bQuickAndDirty ? NULL : pBattlePlot->getOwningCity();
@@ -16069,8 +16009,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 						{
 							pHolyCity = pHolyCityPlot->getPlotCity();
 						}
-						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner(), pHolyCity);
-						iModifier += iTempModifier;
+						iModifier += pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner(), pHolyCity);
 					}
 				}
 			}
@@ -16078,8 +16017,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		// Bonuses outside one's lands
 		else
 		{
-			iTempModifier = getOutsideFriendlyLandsModifier();
-			iModifier += iTempModifier;
+			iModifier += getOutsideFriendlyLandsModifier();
 
 			// Bonus against city states?
 			if(pBattlePlot->isCity() && pBattlePlot->getOwner()!=NO_PLAYER && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
@@ -16117,8 +16055,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 							{
 								pHolyCity = pHolyCityPlot->getPlotCity();
 							}
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
-							iModifier += iTempModifier;
+							iModifier += pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
 						}
 					}
 				}
@@ -16155,14 +16092,12 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 							if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
 							{
-									iTempModifier = iOtherOwn;
-									iModifier += iTempModifier;
+									iModifier += iOtherOwn;
 							}
 							//Bonus in their land
 							else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
 							{
-								iTempModifier = iOtherTheir;
-								iModifier += iTempModifier;
+								iModifier += iOtherTheir;
 							}
 						}
 						//Same religion (or no religion) - half bonus.
@@ -16174,14 +16109,12 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 							if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
 							{
-									iTempModifier = (iOtherOwn / 2);
-									iModifier += iTempModifier;
+								iModifier += (iOtherOwn / 2);
 							}
 							//Bonus in their land
 							else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
 							{
-								iTempModifier = (iOtherTheir / 2);
-								iModifier += iTempModifier;
+								iModifier += (iOtherTheir / 2);
 							}
 						}
 					}
@@ -16192,14 +16125,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 #endif
 
 		// Capital Defense
-		iTempModifier = GetCapitalDefenseModifier();
-		if (iTempModifier > 0 || GetCapitalDefenseFalloff() > 0)
+		if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
 		{
 			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
 			if(pCapital)
 			{
 				int iDistanceToCapital = plotDistance(pBattlePlot->getX(), pBattlePlot->getY(), pCapital->getX(), pCapital->getY());
-				iTempModifier += (iDistanceToCapital * GetCapitalDefenseFalloff());
+				int iTempModifier = GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff();
 				if (iTempModifier > 0)
 				{
 					iModifier += iTempModifier;
@@ -16208,15 +16140,15 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 
 		// Trait (player level) bonus against higher tech units
-		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
-		if(iTempModifier > 0)
+		// Only applies defending friendly territory
+		if(pBattlePlot->getOwner() == getOwner())
 		{
-			// Only applies defending friendly territory
-			if(pBattlePlot->getOwner() == getOwner())
+			int	iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
+			if (iTempModifier > 0)
 			{
 				// Check tech levels too
 				UnitTypes eMyUnitType = getUnitType();
-				if(pOtherUnit && pOtherUnit->IsHigherTechThan(eMyUnitType))
+				if (pOtherUnit && pOtherUnit->IsHigherTechThan(eMyUnitType))
 				{
 					iModifier += iTempModifier;
 				}
@@ -16233,14 +16165,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		CvAssertMsg(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
 
 		// Generic Unit Class Modifier
-		iTempModifier = getUnitClassModifier(pOtherUnit->getUnitClassType());
-		iModifier += iTempModifier;
+		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
 
 		// Unit Combat type Modifier
 		UnitCombatTypes combatType = (UnitCombatTypes)pOtherUnit->getUnitCombatType();
 		if(combatType != NO_UNITCOMBAT)
 		{
-			iTempModifier = unitCombatModifier(combatType);
+			int iTempModifier = unitCombatModifier(combatType);
 
 			//hack: mounted units can have secondary combat class
 			UnitCombatTypes mountedCombat = (UnitCombatTypes)2; //hardcoded
@@ -16251,8 +16182,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 
 		// Domain Modifier
-		iTempModifier = domainModifier(pOtherUnit->getDomainType());
-		iModifier += iTempModifier;
+		iModifier += domainModifier(pOtherUnit->getDomainType());
 
 		// Bonus against city states?
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
@@ -16267,12 +16197,10 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		if(pOtherUnit->isBarbarian())
 		{
 			// Generic Barb Combat Bonus
-			iTempModifier = kPlayer.GetBarbarianCombatBonus();
-			iModifier += iTempModifier;
+			iModifier += kPlayer.GetBarbarianCombatBonus();
 
 #if defined(MOD_BALANCE_CORE)
-			iTempModifier = GetBarbarianCombatBonus();
-			iModifier += iTempModifier;
+			iModifier += GetBarbarianCombatBonus();
 #endif
 
 			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
@@ -16280,22 +16208,19 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			// Human bonus
 			if(isHuman())
 			{
-				iTempModifier = thisGameHandicap.getBarbarianCombatModifier();
-				iModifier += iTempModifier;
+				iModifier += thisGameHandicap.getBarbarianCombatModifier();
 			}
 #if defined(MOD_BALANCE_CORE)
 			// Minor bonus
 			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
 			{
-				iTempModifier = (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
-				iModifier += iTempModifier;
+				iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
 			}
 #endif
 			// AI bonus
 			else
 			{
-				iTempModifier = thisGameHandicap.getAIBarbarianCombatModifier();
-				iModifier += iTempModifier;
+				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
 			}
 
 			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
@@ -16305,13 +16230,9 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 
 		// Trait (player level) bonus against larger civs
-		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsLargerCiv();
-		if (iTempModifier > 0)
+		if (pOtherUnit->IsLargerCivThan(this))
 		{
-			if (pOtherUnit->IsLargerCivThan(this))
-			{
-				iModifier += iTempModifier;
-			}
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsLargerCiv();
 		}
 	}
 
@@ -16332,7 +16253,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
+	int iModifier = GetGenericMeleeStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
 
 	// Generic Attack bonus
 	int iTempModifier = getAttackModifier();
@@ -16352,17 +16273,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += iTempModifier;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-	//If Japan, you should get stronger as you lose health.
-	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
-	{
-		iModifier += (getDamage() / 5);
-	}
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
-	{
-		iModifier += (getDamage() / 3);
-	}
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
@@ -16378,6 +16288,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		}
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (attack mod only)
 	if (pFromPlot != NULL && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
@@ -16484,7 +16395,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			// Attacking across a river
 			if(!isRiverCrossingNoPenalty())
 			{
-				if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+				if(pFromPlot->isAdjacent(pToPlot) && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 				{
 					iTempModifier = GC.getRIVER_ATTACK_MODIFIER();
 					iModifier += iTempModifier;
@@ -16569,28 +16480,16 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if (iCombat==0)
 		return 0;
 
-	int iTempModifier;
-	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pFromPlot, bQuickAndDirty);
+	int iTempModifier = 0;
+	int iModifier = GetGenericMeleeStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pFromPlot, bQuickAndDirty);
 
 	// Generic Defense Bonus
-	iTempModifier = getDefenseModifier();
-	iModifier += iTempModifier;
+	iModifier += getDefenseModifier();
 
 	// Defense against Ranged
 	if(bFromRangedAttack)
 		iModifier += rangedDefenseModifier();
 
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-	//If Japan, you should get stronger as you lose health.
-	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
-	{
-		iModifier += (getDamage() / 5);
-	}
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
-	{
-		iModifier += (getDamage() / 3);
-	}
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
@@ -16606,6 +16505,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		}
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (defense mod only)
 	if (pInPlot != NULL && !bQuickAndDirty && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
@@ -16869,7 +16769,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Extra combat percent
-	int iModifier = getExtraCombatPercent();
+	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier() + GetStrategicResourceCombatPenalty();
 	int iTempModifier = 0;
 
 	// Kamikaze attack
@@ -16882,14 +16782,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-#else
-	// Over our strategic resource limit?
-	iTempModifier = GetStrategicResourceCombatPenalty();
-	if(iTempModifier != 0)
-		iModifier += iTempModifier;
-#endif
 	if (GetNearbyCityBonusCombatMod(pMyPlot) != 0)
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
@@ -16929,17 +16821,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-	//If Japan, you should get stronger as you lose health.
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
-	{
-		iModifier += (getDamage() / 5);
-	}
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
-	{
-		iModifier += (getDamage() / 3);
-	}
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
@@ -30901,9 +30782,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraCityAttackPercent();
+		iExtra = getExtraCityAttackPercent()/2;
 
-		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD || (AI_getUnitAIType() == UNITAI_ASSAULT_SEA && GetRange() > 1))
+		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
 			iValue += iTemp + iExtra + iFlavorOffense;
 		else
 			iValue += iTemp + iExtra/2 + iFlavorOffense/2;

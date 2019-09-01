@@ -96,7 +96,8 @@ struct CvPathNodeCacheData
 	int iMoveFlags;
 
 	//for performance, precompute the effect of plot type, terrain and feature
-	unsigned short plotMovementCostFactor;
+	unsigned short plotMovementCostMultiplier;
+	unsigned short plotMovementCostAdder;
 
 	//tell us when to update the cache ...
 	unsigned short iGenerationID;
