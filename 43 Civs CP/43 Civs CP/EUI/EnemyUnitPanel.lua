@@ -1,4 +1,3 @@
-
 print("This is the modded EnemyUnitPanel from CBP")
 -------------------------------------------------
 -- Enemy Unit Panel Screen 
@@ -498,8 +497,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
-			end				
-			
+			end
+
 			-- Lack Strategic Resources
 			iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -755,7 +754,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 
-			-- NearbyPromotion Unit that gives a combat bonus
+			--NearbyPromotion Unit that gives a combat bonus
 			iModifier = pMyUnit:GetGiveCombatModToUnit();
 			if (pMyUnit:GetGiveCombatModToUnit() ~= 0 and bonusCount < maxBonusDisplay) then
 				
@@ -767,7 +766,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
-			-- NearbyPromotion Unit that gets a bonus near cities?
+			--NearbyPromotion Unit that gets a bonus near cities?
 			iModifier = pMyUnit:GetNearbyCityBonusCombatMod();
 			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0 and bonusCount < maxBonusDisplay) then				
 				controlTable = g_MyCombatDataIM:GetInstance();
@@ -1158,7 +1157,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				bonusCount = bonusCount + 1;
 			end
-			
+
 			-- Damaged unit
 			iModifier = pMyUnit:GetDamageCombatModifier();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1169,7 +1168,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
-			end				
+			end
 
 			-- Lack Strategic Resources
 			iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
@@ -2054,7 +2053,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;
-				end					
+				end
 				
 				-- Lack Strategic Resources
 				iModifier = pTheirUnit:GetStrategicResourceCombatPenalty();
@@ -2218,7 +2217,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;				
 				end
-				--NearbyPromtoion Unit that gets a bonus near cities?
+				--NearbyPromotion Unit that gets a bonus near cities?
 				iModifier = pTheirUnit:GetNearbyCityBonusCombatMod();
 				if (pTheirUnit:GetNearbyCityBonusCombatMod() ~= 0 and bonusCount < maxBonusDisplay) then					
 					controlTable = g_TheirCombatDataIM:GetInstance();
@@ -2371,6 +2370,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;					
 					end	
 				end
+
+
 
 				-- UnitClassDefenseModifier
 				iModifier = pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
@@ -2762,7 +2763,19 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 			bonusCount = bonusCount + 1;
 		end
-
+		
+		-- Damaged unit
+		iModifier = theirUnit:GetDamageCombatModifier();
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			bonusCount = bonusCount + 1;
+		elseif (iModifier ~= 0) then
+			bonusSum = bonusSum + iModifier;
+			bonusCount = bonusCount + 1;
+		end
+		
 		-- Lack Strategic Resources
 		iModifier = theirUnit:GetStrategicResourceCombatPenalty();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
