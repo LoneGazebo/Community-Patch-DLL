@@ -440,7 +440,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_STRATEGY' AND EXISTS (SELECT * FROM
 -- Help Text
 
 UPDATE Language_en_US
-SET Text = 'A [ICON_GREAT_GENERAL] Great General appears near the City. All Land Units created by this City (past or future) receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, which gives +10% [ICON_STRENGTH] Combat Strength. Increases the Military Unit Supply Cap from Population in the City by 10%. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General in the City in which it is built. All Land Units created by this City (past or future) receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, which gives +10% [ICON_STRENGTH] Combat Strength. Increases the Military Unit Supply Cap from Population in the City by 10%. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Writing.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
