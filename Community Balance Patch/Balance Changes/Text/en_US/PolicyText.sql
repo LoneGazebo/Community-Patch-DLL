@@ -701,7 +701,7 @@ WHERE Tag = 'TXT_KEY_POLICY_PROFESSIONALARMY_TEXT' AND EXISTS (SELECT * FROM COM
 
 -- Foreign Legion Text
 UPDATE Language_en_US
-SET Text = 'Special Infantry Unit of the Modern Era. May only be purchased with [ICON_GOLD] Gold after completing the Authority Policy Branch. This Unit has a combat bonus outside of friendly territory but is otherwise very similar to Riflemen. Receives full XP from the city when purchased.'
+SET Text = 'Special Infantry Unit of the Modern Era. This Unit has a combat bonus outside of friendly territory but is otherwise very similar to Riflemen. Receives full XP from the City when purchased.[NEWLINE][NEWLINE]May only be purchased with [ICON_GOLD] Gold after completing the [COLOR_MAGENTA]Authority[ENDCOLOR] Policy Branch.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_FOREIGN_LEGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
