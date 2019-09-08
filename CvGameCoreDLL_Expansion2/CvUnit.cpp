@@ -5612,8 +5612,8 @@ bool CvUnit::jumpToNearestValidPlot()
 		{
 			// "quick" heuristic check to make sure this is not a dead end
 			// alternatively we could verify against all plots reachable from owner's capital?
-			SPathFinderUserData data2(this, 0, 4);
-			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
 			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pBestPlot->getX(), pBestPlot->getY(), data2);
 
 			//seems to be fine
