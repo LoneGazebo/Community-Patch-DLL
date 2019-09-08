@@ -11445,7 +11445,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					{
 						if (ChooseProphetConversionCity())
 						{
-							iScore += 2000;
+							iScore += 200;
 						}
 
 #ifdef AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
@@ -11459,7 +11459,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -11468,7 +11468,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 						{
 							if (kLoopPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 							{
-								iScore += 1000;
+								iScore += 100;
 							}
 						}
 					}
@@ -11477,48 +11477,40 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					{
-						iScore += 2000;
-					}
-					else
-					{
-						iScore += 1000;
+						iScore += 200;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else if (m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 					{
-						iScore += 2000;
-					}
-					else
-					{
-						iScore += 1000;
+						iScore += 100;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else
 					{
-						iScore += 1000;
+						iScore += 100;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else
 					{
-						iScore += 1000;
+						iScore += 100;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
@@ -11526,12 +11518,12 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
 					if (eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else
 					{
 #ifdef AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS
-						iScore += MAX(1000, int(AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS * (m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() + 0.3)));
+						iScore += MAX(100, int(AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS * (m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() + 0.3)));
 #else
 						iScore += 500;
 #endif // AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS
@@ -11541,29 +11533,29 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST")&& !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else
 					{
-						iScore += 1000;
+						iScore += 100;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") && GC.getMap().GetAIMapHint() & ciMapHint_Naval)
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else
 					{
-						iScore += 1000;
+						iScore += 100;
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MISSIONARY"))
 				{
 					if (HaveNearbyConversionTarget(eReligion, false /*bCanIncludeReligionStarter*/))
 					{
-						iScore += 2000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) * 3);		
+						iScore += 200 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) * 3);		
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_INQUISITOR"))
@@ -11574,7 +11566,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					if (HaveEnoughInquisitors(eReligion))
 #endif // AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
 					{
-						iScore += 2000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_INQUISITOR) + 1);
+						iScore += 200 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_INQUISITOR) + 1);
 					}
 				}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -11583,15 +11575,15 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
 					if (eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_DIPLOMACY"))
 					{
-						iScore += 2000;
+						iScore += 200;
 					}
 					else
 					{
-						iScore += 1000;
+						iScore += 100;
 					}
 				}
 #endif

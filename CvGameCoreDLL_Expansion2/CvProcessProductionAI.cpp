@@ -538,12 +538,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	if(m_pCity->IsPuppet())
 	{
-		iTempWeight *= (75 + iModifier);
+		iTempWeight *= (50 + iModifier);
 		iTempWeight /= 100;
 	}
 	else
 	{
-		iTempWeight *= (100 + iModifier);
+		iTempWeight *= (75 + iModifier);
 		iTempWeight /= 100;
 	}
 

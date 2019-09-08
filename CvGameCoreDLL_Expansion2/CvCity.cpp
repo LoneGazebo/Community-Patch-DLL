@@ -6402,9 +6402,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				SetEventActive(eCityEvent, false);
 			}
 
-			//Lua Hook
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEventChoiceActivated, getOwner(), GetID(), eEventChoice);
-
 			if(GC.getLogging())
 			{
 				CvString playerName;
@@ -6429,6 +6426,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				iEventDuration /= 100;
 				ChangeEventChoiceDuration(eEventChoice, max(1, iEventDuration));
 			}
+
+			//Lua Hook
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEventChoiceActivated, getOwner(), GetID(), eEventChoice);
+
 			//Do the cost first, as that goes through whether or not the event succeeds!
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
@@ -7530,7 +7531,7 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 	for (int i=RING0_PLOTS; i<RING_PLOTS[iRange]; i++)
 	{
 		CvPlot* pPlot = iterateRingPlots(plot(), i);
-		if(!pPlot || !pPlot->isOwned())
+		if (!pPlot || !pPlot->isOwned() || pPlot->getOwningCity() == NULL)
 			continue;
 
 		//if they already had the plot when we got the city we can't be upset
@@ -7544,6 +7545,10 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 			if (pCity && pCity->getOriginalOwner() != pCity->getOwner())
 				continue;
 		}
+
+		//if they conquered the city, we might be mad at them but for a different reason
+		if (!bIncludeConqueredCities && pPlot->getOwningCity()->getOriginalOwner() != pPlot->getOwningCity()->getOwner())
+			continue;
 
 		int iWeight = 10;
 		if (!bJustCount)
@@ -15966,7 +15971,7 @@ void CvCity::CheckForOperationUnits()
 					}
 					else
 					{
-						if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
+						if(getProductionTurnsLeft(eBestUnit, 0) >= 7)
 						{
 							return;
 						}

@@ -3028,6 +3028,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iDifficultyBonusEarly(0),
 	m_iDifficultyBonusMid(0),
 	m_iDifficultyBonusLate(0),
+	m_iVisionBonus(0),
 #endif
 	m_iNumGoodies(0),
 	m_piGoodies(NULL),
@@ -3373,6 +3374,10 @@ int CvHandicapInfo::getAIDifficultyBonusLate() const
 {
 	return m_iDifficultyBonusLate;
 }
+int CvHandicapInfo::getAIVisionBonus() const
+{
+	return m_iVisionBonus;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getGoodies(int i) const
@@ -3469,6 +3474,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
 	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
+	m_iVisionBonus = kResults.GetInt("VisionBonus");
 #endif
 
 	//Arrays

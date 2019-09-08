@@ -15120,17 +15120,17 @@ int CvUnit::visibilityRange() const
 	VALIDATE_OBJECT
 
 	//in general vision range needs to be at least one, otherwise there will be stacking issues
-	int iRtnValue  = 0;
+	int iRtnValue = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
 
 	if(isEmbarked())
 	{
-		iRtnValue = max(1,GC.getEMBARKED_VISIBILITY_RANGE() + m_iEmbarkExtraVisibility);
+		iRtnValue += max(1,GC.getEMBARKED_VISIBILITY_RANGE() + m_iEmbarkExtraVisibility);
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if (isTrade())
 	{
 		//special rules for trade units, default range is zero!
-		iRtnValue = GET_PLAYER(m_eOwner).GetTRVisionBoost();
+		iRtnValue += GET_PLAYER(m_eOwner).GetTRVisionBoost();
 
 		CorporationTypes eCorporation = GET_PLAYER(m_eOwner).GetCorporations()->GetFoundedCorporation();
 		if (eCorporation != NO_CORPORATION)
@@ -15142,7 +15142,7 @@ int CvUnit::visibilityRange() const
 #endif
 	else
 	{
-		iRtnValue = max(1,m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
+		iRtnValue += max(1, m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
 	}
 
 	return iRtnValue;
@@ -30782,9 +30782,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraCityAttackPercent();
+		iExtra = getExtraCityAttackPercent()/2;
 
-		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD || (AI_getUnitAIType() == UNITAI_ASSAULT_SEA && GetRange() > 1))
+		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
 			iValue += iTemp + iExtra + iFlavorOffense;
 		else
 			iValue += iTemp + iExtra/2 + iFlavorOffense/2;

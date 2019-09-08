@@ -6380,7 +6380,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						SetResourceLinkedCity(NULL);
 					}
 
-					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
+					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechReveal()))
 					{
 #if defined(MOD_BALANCE_CORE)
 						if(getImprovementType() != NO_IMPROVEMENT)
@@ -6392,7 +6392,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
 								}
 							}
-							else if(GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+							else if (GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
 							{
 								if(!IsImprovementPillaged())
 								{
@@ -7731,6 +7731,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if (getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
 		{
 			bGiftFromMajor = true;
+			if (GC.getImprovementInfo(eNewValue)->IsCreatedByGreatPerson())
+				bGiftFromMajor = false;
 		}
 	}
 	bool bIgnoreResourceTechPrereq = bGiftFromMajor; // If it is a gift from a major civ, our tech limitations do not apply
@@ -13913,7 +13915,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 				return false;
 			}
 		}
-		else
+		else if (thisUnitDomain == DOMAIN_LAND)
 		{
 			if(area()->getNumTotalResources() > 0)
 			{
@@ -13931,7 +13933,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 				return false;
 			}
 		}
-		else
+		else if (thisUnitDomain == DOMAIN_LAND)
 		{
 			if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 			{

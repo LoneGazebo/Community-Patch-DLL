@@ -31,15 +31,15 @@ SELECT 'COMBAT_AI_DANGERWEIGHT', '50';
 
 -- food is different because we include consumption.
 UPDATE Defines
-SET Value = '.11'
+SET Value = '0.5'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD';
 
 UPDATE Defines
-SET Value = '1.25'
+SET Value = '1.0'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION';
 
 UPDATE Defines
-SET Value = '1.8'
+SET Value = '1.5'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD';
 
 UPDATE Defines

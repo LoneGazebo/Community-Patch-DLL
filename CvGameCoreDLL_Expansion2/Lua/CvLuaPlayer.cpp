@@ -4606,18 +4606,20 @@ int CvLuaPlayer::lGetCityResourceBonus(lua_State* L)
 			if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
 				bTheirMonopoly= true;
 
+			int iTempOurs = 0;
+			int iTempTheirs = 0;
 			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
-				iOurResources += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
-				iTheirResources += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
+				iTempOurs += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
+				iTempTheirs += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
 			}
-			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-			{
-				if (pOriginCity->GetNumResourceLocal(eResource, true) > 0)
-					iOurResources += bOurMonopoly ? 2 : 1;
-				if (pDestCity->GetNumResourceLocal(eResource, true) > 0)
-					iTheirResources += bTheirMonopoly ? 2 : 1;
-			}
+
+			//bonus only applies for resources unique to one or the other city.
+			if (iTempOurs > 0 && iTempTheirs > 0)
+				continue;
+
+			iOurResources += iTempOurs;
+			iTheirResources += iTempTheirs;
 		}
 	}
 

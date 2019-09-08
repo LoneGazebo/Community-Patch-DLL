@@ -234,14 +234,6 @@ VALUES
 
 -- Move Oil to Combustion
 
-	UPDATE Resources
-	SET TechReveal = 'TECH_COMBUSTION'
-	WHERE Type = 'RESOURCE_OIL';
-
-	UPDATE Resources
-	SET TechCityTrade = 'TECH_COMBUSTION'
-	WHERE Type = 'RESOURCE_OIL';
-
 	UPDATE Builds
 	SET PrereqTech = 'TECH_COMBUSTION'
 	WHERE Type = 'BUILD_WELL';

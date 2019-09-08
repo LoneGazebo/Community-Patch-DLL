@@ -10,7 +10,7 @@
 			<Where Type="TECH_ANIMAL_HUSBANDRY" />
 		</Update>
 		<Update>
-			<Set GridX="2" GridY="6" />
+			<Set GridX="2" GridY="7" />
 			<Where Type="TECH_ARCHERY" />
 		</Update>
 		<Update>
@@ -38,7 +38,7 @@
 			<Where Type="TECH_THE_WHEEL" />
 		</Update>
 		<Update>
-			<Set GridY="7" GridX="2" />
+			<Set GridY="6" GridX="2" />
 			<Where Type="TECH_MASONRY" />
 		</Update>
 		<Update>
@@ -62,11 +62,11 @@
 			<Where Type="TECH_DRAMA" />
 		</Update>
 		<Update>
-			<Set GridY="7" />
+			<Set GridY="5" />
 			<Where Type="TECH_CURRENCY" />
 		</Update>
 		<Update>
-			<Set GridY="5" />
+			<Set GridY="7" />
 			<Where Type="TECH_ENGINEERING" />
 		</Update>
 		<Update>

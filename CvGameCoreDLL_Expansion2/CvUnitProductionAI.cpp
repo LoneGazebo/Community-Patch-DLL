@@ -306,7 +306,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	//don't build land/sea units if there's no place to put them
-	if (bCombat && m_pCity->HasGarrison())
+	if (bCombat && m_pCity->HasGarrison() && pkUnitEntry->GetDomainType() != DOMAIN_AIR)
 	{
 		int iFreePlots = 0;
 		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_pCity->plot());
@@ -836,18 +836,50 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Air Units Critically Needed?
 		if (eDomain == DOMAIN_AIR)
 		{
-			int iAircraft = kPlayer.GetMilitaryAI()->GetNumFreeCargo();
-			if(iAircraft <= 0)
+			bool bBomber = pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK_AIR;
+
+			int iNeedAir = 0;
+
+			int iOurAir = bBomber ? kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR) : kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR);
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				return 0;
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && (kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
+				{
+					int iTheirAir = bBomber ? GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR) : GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR);
+
+					//they have no air units? Bombers!
+					if (iTheirAir == 0 && bBomber)
+						iNeedAir += 10;
+
+					//no fighters for city defense versus their bombers? eek?
+					if (iTheirAir > 0 && iOurAir <= kPlayer.getNumCities() && !bBomber)
+						iNeedAir += 5;
+
+					if (iTheirAir >= iOurAir)
+						iNeedAir++;
+				}
 			}
-			else
+
+			iBonus += iNeedAir * 100;
+
+			int iMaxAircraft = m_pCity->GetMaxAirUnits();
+			if (iMaxAircraft > 0)
 			{
-				iBonus += (50 * iAircraft);
-			}
-			if (m_pCity->GetGarrisonedUnit() == NULL)
-			{
-				iBonus -= 20;
+				int iAir = m_pCity->plot()->countNumAirUnits(kPlayer.getTeam(), true);
+				if (iOurAir <= 0)
+				{
+					iBonus += 500 * iMaxAircraft;
+				}
+				else
+				{
+					iBonus += (iMaxAircraft - iAir) * 250;
+				}
+				if (m_pCity->GetGarrisonedUnit() == NULL)
+				{
+					iBonus -= 50;
+				}
 			}
 		}
 
@@ -857,7 +889,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iNumAA = kPlayer.GetMilitaryAI()->GetNumAAUnits();
 			int iNumCities = kPlayer.getNumCities();
 			
-			iBonus += (((iNumCities * 2) - iNumAA) * 5);
+			iBonus += ((iNumCities - iNumAA) * 5);
 		}
 	
 		/////////////
@@ -1555,13 +1587,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//WAR BOOSTERS
 		////////////////////////
 		int iWarBooster = 0;
-		if (pkUnitEntry->GetCombat() > 0)
+		if (bCombat)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND && eDomain == DOMAIN_LAND)
 					{
@@ -1773,7 +1805,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		iBonus = iTempWeight;
 	}
 
-	if (!kPlayer.isMinorCiv())
+	if (!kPlayer.isMinorCiv() && !pkUnitEntry->IsNoSupply())
 	{
 		//Let's check this against supply to keep our military numbers lean.
 		if (bCombat && !bFree)
@@ -1801,18 +1833,22 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
 			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
 
-			if (iGPT < iAverageGoldPerUnit * 2 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 10)
+			if (iGPT < iAverageGoldPerUnit * 3 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 20)
 			{
 				bCloseToDebt = true;
 			}
 		}
 		if (bCloseToDebt && iAverageGoldPerUnit != 0)
 		{
-			iBonus += iAverageGoldPerUnit * -5;
+			iBonus += iAverageGoldPerUnit * -25;
 			//At zero? Even more negative!
 			if (kPlayer.GetTreasury()->GetGold() <= 0)
 			{
 				iBonus += -100;
+			}
+			if (iGPT <= 0)
+			{
+				iBonus += iGPT;
 			}
 		}
 	}

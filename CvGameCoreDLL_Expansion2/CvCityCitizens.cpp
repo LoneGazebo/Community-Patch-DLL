@@ -389,7 +389,7 @@ void CvCityCitizens::DoTurn()
 		}
 #endif
 	}
-	else if (!thisPlayer.isHuman())
+	else if (!thisPlayer.isHuman() && m_pCity->getPopulation() >= 10)
 	{
 		CitySpecializationTypes eWonderSpecializationType = thisPlayer.GetCitySpecializationAI()->GetWonderSpecialization();
 
@@ -506,7 +506,7 @@ void CvCityCitizens::DoTurn()
 				{
 					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-					if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+					if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && thisPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 					{
 						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 						{
@@ -540,65 +540,97 @@ void CvCityCitizens::DoTurn()
 					CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
 					if (eSpecialization != -1)
 					{
-						CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
-						if (pCitySpecializationEntry)
+						if (m_pCity->GetCityStrategyAI()->GetDefaultSpecialization() == eSpecialization)
 						{
-							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
-							if (eYield == YIELD_FOOD)
+							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+							bForceCheck = true;
+						}
+						else
+						{
+							CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
+							if (pCitySpecializationEntry)
 							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD)
+								YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
+								if (eYield == YIELD_FOOD)
 								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_PRODUCTION && bNeedFood)
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_PRODUCTION && !bNeedFood)
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_GOLD && bNeedFood)
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_GOLD && !bNeedFood)
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_SCIENCE)
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_SCIENCE)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_FAITH)
-							{
-								if (bBuildingReligion)
-								{
-									if (GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD)
 									{
-										SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+										SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_PRODUCTION && bNeedFood)
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_PRODUCTION && !bNeedFood)
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_GOLD && bNeedFood)
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_GOLD && !bNeedFood)
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_SCIENCE)
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_SCIENCE)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_FAITH)
+								{
+									if (bBuildingReligion)
+									{
+										if (GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+										{
+											SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+											bForceCheck = true;
+										}
+									}
+									else
+									{
+										if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+										{
+											SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+											bForceCheck = true;
+										}
+									}
+								}
+								else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+										bForceCheck = true;
+									}
+								}
+								else if (eYield == YIELD_CULTURE && bGPCity)
+								{
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
 										bForceCheck = true;
 									}
 								}
@@ -611,22 +643,6 @@ void CvCityCitizens::DoTurn()
 									}
 								}
 							}
-							else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-									bForceCheck = true;
-								}
-							}
-							else if (eYield == YIELD_CULTURE && bGPCity)
-							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
-								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
-									bForceCheck = true;
-								}
-							}
 							else
 							{
 								if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
@@ -634,14 +650,6 @@ void CvCityCitizens::DoTurn()
 									SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 									bForceCheck = true;
 								}
-							}
-						}
-						else
-						{
-							if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-							{
-								SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-								bForceCheck = true;
 							}
 						}
 					}
@@ -900,7 +908,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iMultiplier = iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() : GC.getAI_CITIZEN_VALUE_FOOD() / 2;
+					int iMultiplier = iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() * 2 : GC.getAI_CITIZEN_VALUE_FOOD();
 					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
@@ -908,7 +916,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 					iFoodEmphasisModifier = (int)sqrt((float)iMultiplier * iFoodTurnsRemaining * iPopulation);
 				}
 
-				if (m_bDiscourageGrowth)
+				if (iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
 					iFoodEmphasisModifier /= 100;
 
 				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
@@ -1661,18 +1669,20 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
-		int iFoodFactor = iExcessFoodTimes100 / 100;
-
 		//Smaller cities want to grow fast - larger cities can slow down a bit.
-		iFoodFactor *= 100;
-		iFoodFactor /= max(1, (100 - m_pCity->getPopulation()));
+		iExcessFoodTimes100 *= 100;
+		iExcessFoodTimes100 /= max(1, (100 - m_pCity->getPopulation()));
+
+		int iFoodFactor = iExcessFoodTimes100 / 100;
 
 		iFoodVal = range(iFoodFactor, 0, 100);
 		int iGrowth = m_pCity->getGrowthMods();
 		if (iGrowth <= 0)
-		iFoodVal += (iGrowth * -1);
+			iFoodVal += ((iGrowth/10) * -1);
+		else
+			iFoodVal += (iGrowth/10);
 
-		if (m_bDiscourageGrowth)
+		if (iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
 			iFoodVal *= 4;
 	}
 

@@ -40029,7 +40029,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 			{
 				if (eMajor == eConquered || (GC.getWARMONGER_THREAT_DEF_PACT_ENABLED() != 0 && kAffectedTeam.IsHasDefensivePact(kConqueredPlayer.getTeam())))
 				{
-					iWarmongerApproachModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+					iWarmongerApproachModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE() * 2;
 				}
 				else
 				{	
@@ -40086,7 +40086,8 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 			
 			if (eMajor == eConquered)
 			{
-				iWarmongerStatusModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE() * 4;
+				iWarmongerStatusModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE() * 5;
+				iWarmongerAggrievedModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE() * 5;
 			}
 
 			if(eMajor != eConquered)

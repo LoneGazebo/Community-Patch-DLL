@@ -4914,6 +4914,13 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 
 					//it's a ranged attack but it uses the move mission ... air units are strange
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("AIR ATTACK: %s attacks Target X: %d, Y: %d", pUnit->getName().GetCString(), pBestTarget->getX(), pBestTarget->getY());
+						LogTacticalMessage(strMsg);
+					}
 				}
 				iCount++;
 			}

@@ -2673,7 +2673,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (eYield == YIELD_GOLD)
 			{
 				int iResult = 0;
-				int iBase = GC.getINTERNATIONAL_TRADE_BASE();
+				int iBase = GC.getINTERNATIONAL_TRADE_BASE() * (m_pPlayer->GetCurrentEra()+2);
 				iResult = iBase;
 				return iResult;
 			}
@@ -2859,14 +2859,6 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 					iDivisor = 1;
 				}
 
-#if defined(MOD_BALANCE_CORE)
-				// Cultural influence negation.
-				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eDestOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eOriginOwner);
-				if(iInfluenceBoost > 0)
-				{
-					return (pCity->getYieldRateTimes100(eYield, true) - iInfluenceBoost) / iDivisor;
-				}
-#endif
 				return pCity->getYieldRateTimes100(eYield, true) / iDivisor;
 			}
 		}
@@ -2929,28 +2921,25 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 							if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
 								bTheirMonopoly = true;
 
+							int iTempOurs = 0;
+							int iTempTheirs = 0;
+
 							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 							{
-								iOurResources += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
-								iTheirResources += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
+								iTempOurs += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
+								iTempTheirs += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
 							}
-							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-							{
-								if (pOriginCity->GetNumResourceLocal(eResource, true) > 0)
-									iOurResources += bOurMonopoly ? 2 : 1;
-								if (pDestCity->GetNumResourceLocal(eResource, true) > 0)
-									iTheirResources += bTheirMonopoly ? 2 : 1;
-							}
+
+							//bonus only applies for resources unique to one or the other city.
+							if (iTempOurs > 0 && iTempTheirs > 0)
+								continue;
+
+							iOurResources += iTempOurs;
+							iTheirResources += iTempTheirs;
 						}
 					}
-					int iDelta = iOurResources - iTheirResources;
-					iValue = GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE) * iDelta;
-
-					//Can't go above +100 or below -50
-					if (iValue > 100)
-						iValue = 100;
-					else if (iValue <= -50)
-						iValue = -50;
+					int iBonus = iOurResources + iTheirResources;
+					iValue = GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE) * iBonus;
 				}
 				else
 				{

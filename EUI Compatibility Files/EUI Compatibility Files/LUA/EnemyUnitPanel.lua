@@ -509,7 +509,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
-			end			
+			end
 			
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
@@ -1179,8 +1179,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;
-			end			
+				bonusCount = bonusCount + 1;				
+			end
 			
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
@@ -2059,14 +2059,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				iModifier = pTheirUnit:GetStrategicResourceCombatPenalty();
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_STRATEGIC_RESOURCE" );
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_STRATEGIC_RESOURCE" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
+					bonusCount = bonusCount + 1;				
 				end
-				
+
 				-- Great General bonus
 				if (pTheirUnit:IsNearGreatGeneral()) then
 					iModifier = pTheirPlayer:GetGreatGeneralCombatBonus() + pTheirUnit:GetGreatGeneralAuraBonus();
@@ -2763,9 +2763,9 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 			bonusCount = bonusCount + 1;
 		end
-
+		
 		-- Damaged unit
-		iModifier = pTheirUnit:GetDamageCombatModifier();
+		iModifier = theirUnit:GetDamageCombatModifier();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
@@ -2773,20 +2773,20 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 		
 		-- Lack Strategic Resources
-		iModifier = pTheirUnit:GetStrategicResourceCombatPenalty();
+		iModifier = theirUnit:GetStrategicResourceCombatPenalty();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_STRATEGIC_RESOURCE" );
+			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_STRATEGIC_RESOURCE" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;
-		end		
+			bonusCount = bonusCount + 1;		
+		end
 
 		-- Great General bonus
 		if (theirUnit:IsNearGreatGeneral()) then
