@@ -6979,7 +6979,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		else //melee. enough if we can get adjacent to the target
 		{
 			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING;
-			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 2) < (bImmediateStrike?0:1));
+			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 2) <= (bImmediateStrike?0:1));
 		}
 
 		if (!bCanReach)
@@ -9109,11 +9109,11 @@ int TacticalAIHelpers::CountAdditionallyVisiblePlots(CvUnit * pUnit, CvPlot * pT
 		return 0;
 
 	int iCount = 0;
-	for (int iRange = 2; iRange < pUnit->visibilityRange(); iRange++)
+	for (int iRange = 2; iRange <= pUnit->visibilityRange(); iRange++)
 	{
-		const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRange(pUnit->plot(), iRange, true, true);
+		const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRange(pTestPlot, iRange, true, true);
 		for (size_t i = 0; i < vPlots.size(); i++)
-			if (!vPlots[i]->isVisible(pUnit->getTeam()))
+			if (!vPlots[i]->isVisible(pUnit->getTeam())) //we already know that would have line of sight
 				iCount++;
 	}
 	
