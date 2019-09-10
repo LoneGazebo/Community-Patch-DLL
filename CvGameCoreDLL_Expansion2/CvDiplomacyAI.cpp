@@ -12927,7 +12927,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
 			{
 				iEnemyWeight -= 5;
-				iDPWeight -= -10;
+				iDPWeight -= 10;
 				iDoFWeight += 5;
 			}
 
