@@ -1184,18 +1184,22 @@ if civ5_mode then
 			if(unhappinessFromPop < 0)then
 				unhappinessFromPop = 0
 			end
+
+			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
+			local iUnhappinessFromWar = g_activePlayer:GetUnhappinessFromWarWeariness();
+			local totalunhappiness = iUnhappinessFromWar + iUnhappinessPublicOpinion;
 --END	
 			tips:insert( "[COLOR:255:150:150:255]" )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness,totalunhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", g_activePlayer:GetUnhappinessFromCityCount() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", g_activePlayer:GetUnhappinessFromCapturedCityCount() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POPULATION", unhappinessFromPop / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
 
-			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", g_activePlayer:GetUnhappinessFromWarWeariness())	
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWar)	
 		
+
 			local empireHappiness = g_activePlayer:GetEmpireHappinessForCity();
 
 			local religionHappiness = 0
@@ -1241,7 +1245,7 @@ if civ5_mode then
 			local iUnhappinessFromScience = g_activePlayer:GetUnhappinessFromCityScience();
 			local iUnhappinessFromCulture = g_activePlayer:GetUnhappinessFromCityCulture();
 
-			local total = g_activePlayer:GetUnhappiness();
+			local total = iUnhappinessFromStarving+iUnhappinessFromPillaged+iUnhappinessFromGold+iUnhappinessFromDefense+iUnhappinessFromConnection+iUnhappinessFromMinority+iUnhappinessFromScience+iUnhappinessFromCulture;
 
 			if(total ~= 0)then
 				tips:insert( L"TXT_KEY_TP_UNHAPPINESS_NEEDS" )

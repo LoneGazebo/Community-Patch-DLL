@@ -1140,20 +1140,41 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		iNumCities = 1;
 	}
+	else
+	{
+		if (pPlayerTraits->IsExpansionist())
+			iNumCities++;
+		else if (pPlayerTraits->IsSmaller())
+			iNumCities--;
 
-	int iPopulation = (int)(pPlayer->getAveragePopulation()+0.5f);
-	int iNumWonders = pPlayer->GetNumWonders();
+		//Estimation, because early game we assume we'll expand.
+		iNumCities = (3 + iNumCities) - pPlayer->GetCurrentEra();
+		iNumCities *= 100;
+		iNumCities /= max(75, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+
+		if (iNumCities <= 1)
+			iNumCities = 1;
+	}
+
+	int iPopulation = (int)(pPlayer->getAveragePopulation() + 0.5f) * max(1, (iNumCities / 2));
+	iPopulation *= 100;
+	iPopulation /= max(75, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+
+	if (iPopulation <= 1)
+		iPopulation = 1;
+
+	int iNumWonders = pPlayer->GetNumWonders() + (pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() /2);
 	
 
 	if (PolicyInfo->GetPolicyCostModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetPolicyCostModifier() * -4 * iNumCities;
+			yield[YIELD_CULTURE] += PolicyInfo->GetPolicyCostModifier() * -5 * iNumCities;
 		}
 		else
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetPolicyCostModifier() * -2 * iNumCities;
+			yield[YIELD_CULTURE] += PolicyInfo->GetPolicyCostModifier() * -3 * iNumCities;
 		}
 	}
 	if (PolicyInfo->GetCulturePerCity() != 0)
@@ -4231,7 +4252,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBorderGrowth(eYield) * 3 * iNumCities;
+				yield[eYield] += PolicyInfo->GetYieldFromBorderGrowth(eYield) * 2 * iNumCities;
 			}
 			else
 			{

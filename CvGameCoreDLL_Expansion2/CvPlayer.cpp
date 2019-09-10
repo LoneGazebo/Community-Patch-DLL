@@ -21345,6 +21345,9 @@ void CvPlayer::DoCityRevolt()
 						if (!GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(getTeam()))
 							continue;
 
+						if (!GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(kRecipient.getTeam()))
+							continue;
+
 						CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
 						if (pNotifications)
 						{
@@ -47452,7 +47455,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		{
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider distance to settler here in case of re-targeting an operation
-			if (iDistanceToCity>4 && pTestPlot->getOwner()!=m_eID)
+			if (iDistanceToCity>3 && pTestPlot->getOwner()!=m_eID)
 				bDangerous = true;
 		}
 

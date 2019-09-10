@@ -99,17 +99,17 @@ public:
 	{
 		m_iAreaID = iID;
 	};
-	inline int GetOverallFriendlyStrength() const
+	inline unsigned int GetOverallFriendlyStrength() const
 	{
 		//siege units are very vulnerable to melee units, so give a bonus to melee
 		return (m_iFriendlyMeleeStrength*4)/3 + m_iFriendlyNavalStrength + m_iFriendlyRangedStrength + m_iFriendlyNavalRangedStrength;
 	};
-	inline int GetOverallEnemyStrength() const
+	inline unsigned int GetOverallEnemyStrength() const
 	{
 		//siege units are very vulnerable to melee units, so give a bonus to melee
 		return (m_iEnemyMeleeStrength*4)/3 + m_iEnemyNavalStrength + m_iEnemyRangedStrength + m_iEnemyNavalRangedStrength;
 	};
-	inline int GetFriendlyMeleeStrength() const
+	inline unsigned int GetFriendlyMeleeStrength() const
 	{
 		return m_iFriendlyMeleeStrength;
 	};
@@ -117,7 +117,7 @@ public:
 	{
 		m_iFriendlyMeleeStrength += iStrength;
 	};
-	inline int GetEnemyMeleeStrength() const
+	inline unsigned int GetEnemyMeleeStrength() const
 	{
 		return m_iEnemyMeleeStrength;
 	};
@@ -125,7 +125,7 @@ public:
 	{
 		m_iEnemyMeleeStrength += iStrength;
 	};
-	inline int GetFriendlyRangedStrength() const
+	inline unsigned int GetFriendlyRangedStrength() const
 	{
 		return m_iFriendlyRangedStrength;
 	};
@@ -133,7 +133,7 @@ public:
 	{
 		m_iFriendlyRangedStrength += iRangedStrength;
 	};
-	inline int GetEnemyRangedStrength() const
+	inline unsigned int GetEnemyRangedStrength() const
 	{
 		return m_iEnemyRangedStrength;
 	};
@@ -142,7 +142,7 @@ public:
 		m_iEnemyRangedStrength += iRangedStrength;
 	};
 
-	inline int GetFriendlyNavalStrength() const
+	inline unsigned int GetFriendlyNavalStrength() const
 	{
 		return m_iFriendlyNavalStrength;
 	};
@@ -150,7 +150,7 @@ public:
 	{
 		m_iFriendlyNavalStrength += iStrength;
 	};
-	inline int GetEnemyNavalStrength() const
+	inline unsigned int GetEnemyNavalStrength() const
 	{
 		return m_iEnemyNavalStrength;
 	};
@@ -158,7 +158,7 @@ public:
 	{
 		m_iEnemyNavalStrength += iStrength;
 	};
-	inline int GetFriendlyNavalRangedStrength() const
+	inline unsigned int GetFriendlyNavalRangedStrength() const
 	{
 		return m_iFriendlyNavalRangedStrength;
 	};
@@ -166,7 +166,7 @@ public:
 	{
 		m_iFriendlyNavalRangedStrength += iRangedStrength;
 	};
-	inline int GetEnemyNavalRangedStrength() const
+	inline unsigned int GetEnemyNavalRangedStrength() const
 	{
 		return m_iEnemyNavalRangedStrength;
 	};
@@ -202,7 +202,7 @@ public:
 	{
 		return m_iNeutralUnitCount;
 	};
-	inline int GetNeutralStrength() const
+	inline unsigned int GetNeutralStrength() const
 	{
 		return m_iNeutralUnitStrength;
 	};
@@ -275,18 +275,18 @@ private:
 	PlayerTypes m_eOwner;
 	int m_iCityID;
 	int m_iAreaID;
-	int m_iFriendlyMeleeStrength;
-	int m_iEnemyMeleeStrength;
-	int m_iFriendlyRangedStrength;
-	int m_iEnemyRangedStrength;
-	int m_iFriendlyNavalStrength;
-	int m_iEnemyNavalStrength;
-	int m_iFriendlyNavalRangedStrength;
-	int m_iEnemyNavalRangedStrength;
+	unsigned int m_iFriendlyMeleeStrength;
+	unsigned int m_iEnemyMeleeStrength;
+	unsigned int m_iFriendlyRangedStrength;
+	unsigned int m_iEnemyRangedStrength;
+	unsigned int m_iFriendlyNavalStrength;
+	unsigned int m_iEnemyNavalStrength;
+	unsigned int m_iFriendlyNavalRangedStrength;
+	unsigned int m_iEnemyNavalRangedStrength;
 	int m_iFriendlyUnitCount; //all land units
 	int m_iEnemyUnitCount; //all land units
 	int m_iNeutralUnitCount;
-	int m_iNeutralUnitStrength;
+	unsigned int m_iNeutralUnitStrength;
 	int m_iEnemyNavalUnitCount; //all naval units
 	int m_iFriendlyNavalUnitCount; //all naval units
 	int m_iZoneValue;

@@ -2097,57 +2097,41 @@ local function UpdateCityViewNow()
 		-- Resource Demanded
 		-------------------------------------------
 		local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
-		if city:GetResourceDemanded(true) ~= -1 then
-			local resourceInfo = GameInfo.Resources[ city:GetResourceDemanded() ]		
-			if weLoveTheKingDayCounter > 0 then
-				--- CBP
-				if(cityOwner:IsGPWLTKD()) then
-					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter )
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA" )
-				elseif(cityOwner:IsCarnaval())then
-					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL", weLoveTheKingDayCounter )
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL" )	
-				else
-				-- END
-					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" )
-				--CBP
-				end
-				-- END
+		if weLoveTheKingDayCounter > 0 then
+			--- CBP
+			if(cityOwner:IsGPWLTKD()) then
+				Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter )
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA" )
+			elseif(cityOwner:IsCarnaval())then
+				Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL", weLoveTheKingDayCounter )
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL" )	
 			else
-				--CBP
-				Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resourceInfo.IconString .. " " .. L(resourceInfo.Description) )
-				if(cityOwner:IsGPWLTKD()) then					
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA" )
-				elseif(cityOwner:IsCarnaval())then
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip("TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL" )
-				else
-				-- END
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" )
-				-- CBP
-				end
-				-- END
+			-- END
+				Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" )
+			--CBP
 			end
-
+			-- END
+			Controls.ResourceDemandedBox:SetHide(true)
+		elseif(city:GetResourceDemanded(true) ~= -1) then
+			local resourceInfo = GameInfo.Resources[ city:GetResourceDemanded() ]		
+			--CBP
+			Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resourceInfo.IconString .. " " .. L(resourceInfo.Description) )
+			if(cityOwner:IsGPWLTKD()) then					
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA" )
+			elseif(cityOwner:IsCarnaval())then
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip("TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL" )
+			else
+			-- END
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" )
+			-- CBP
+			end
+			-- END
 			Controls.ResourceDemandedBox:SetSizeX(Controls.ResourceDemandedString:GetSizeX() + 10)
 			Controls.ResourceDemandedBox:SetHide(false)
 		else
-			if weLoveTheKingDayCounter > 0 then
-				--- CBP
-				if(cityOwner:IsGPWLTKD()) then
-					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter )
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA" )
-					Controls.ResourceDemandedBox:SetHide(false)
-				elseif(cityOwner:IsCarnaval())then
-					Controls.ResourceDemandedString:LocalizeAndSetText( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL", weLoveTheKingDayCounter )
-					Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL" )	
-					Controls.ResourceDemandedBox:SetHide(false)
-				end
-			else
-				-- END
-				Controls.ResourceDemandedBox:SetHide(true)
-			end
-
+			-- END
+			Controls.ResourceDemandedBox:SetHide(true)
 		end
 
 		Controls.IconsStack:CalculateSize()

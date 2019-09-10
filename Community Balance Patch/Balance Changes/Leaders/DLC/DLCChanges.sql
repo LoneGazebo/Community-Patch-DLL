@@ -263,6 +263,11 @@ VALUES
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 25);
 
+INSERT INTO Building_InstantYield
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_YURT', 'YIELD_FOOD', 25);
+
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
 VALUES 

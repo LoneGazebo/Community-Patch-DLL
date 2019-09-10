@@ -3708,7 +3708,7 @@ void CvCity::UpdateUnhappinessFromEmpire()
 int CvCity::GetUnhappinessFromEmpire() const
 {
 	VALIDATE_OBJECT
-		return m_iUnhappinessFromEmpire;
+	return m_iUnhappinessFromEmpire;
 }
 
 #endif
@@ -7537,6 +7537,14 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 		//if they already had the plot when we got the city we can't be upset
 		if (GC.getGame().getGameTurn() - pPlot->getOwnershipDuration() < getGameTurnAcquired())
 			continue;
+
+		//if they conquered the city, we might be mad at them but for a different reason
+		if (!bIncludeConqueredCities)
+		{
+			CvCity* pCity = pPlot->getOwningCity(); //apparently a plot can be owned without an owning city?
+			if (pCity && pCity->getOriginalOwner() != pCity->getOwner())
+				continue;
+		}
 
 		//if they conquered the city, we might be mad at them but for a different reason
 		if (!bIncludeConqueredCities && pPlot->getOwningCity()->getOriginalOwner() != pPlot->getOwningCity()->getOwner())

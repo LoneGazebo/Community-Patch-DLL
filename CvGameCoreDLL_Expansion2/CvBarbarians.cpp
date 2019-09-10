@@ -1068,7 +1068,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					{
 						if(!pLoopPlot->isCity())
 						{
-							if(!pLoopPlot->isLake())
+							if(!pLoopPlot->isLake() && !pLoopPlot->isIce())
 							{
 								// Water Tiles are only valid when the Barbs have the proper Tech
 								if(!pLoopPlot->isWater() || bCanSpawnBoats)
