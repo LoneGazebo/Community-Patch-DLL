@@ -12344,7 +12344,7 @@ bool CvUnit::trade()
 	{
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
-			int iCap = 10;
+			int iCap = 5;
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			//Let's make the GM a little more flexible.
 			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
@@ -15120,7 +15120,7 @@ int CvUnit::visibilityRange() const
 	VALIDATE_OBJECT
 
 	//in general vision range needs to be at least one, otherwise there will be stacking issues
-	int iRtnValue = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
+	int iRtnValue = (isHuman() || IsGainsXPFromScouting()) ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
 
 	if(isEmbarked())
 	{

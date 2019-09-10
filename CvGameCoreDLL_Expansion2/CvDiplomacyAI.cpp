@@ -12923,6 +12923,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				break;
 			}
 
+			//On a different continent? Friends good, war bad.
+			if (GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
+			{
+				iEnemyWeight -= 5;
+				iDPWeight -= -10;
+				iDoFWeight += 5;
+			}
+
 			// We denounced them
 			if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 			{

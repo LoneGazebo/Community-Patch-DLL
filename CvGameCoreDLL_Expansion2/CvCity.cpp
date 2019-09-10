@@ -3708,7 +3708,7 @@ void CvCity::UpdateUnhappinessFromEmpire()
 int CvCity::GetUnhappinessFromEmpire() const
 {
 	VALIDATE_OBJECT
-		return m_iUnhappinessFromEmpire;
+	return m_iUnhappinessFromEmpire;
 }
 
 #endif

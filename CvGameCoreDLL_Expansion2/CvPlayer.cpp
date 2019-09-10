@@ -21345,6 +21345,9 @@ void CvPlayer::DoCityRevolt()
 						if (!GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(getTeam()))
 							continue;
 
+						if (!GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(kRecipient.getTeam()))
+							continue;
+
 						CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
 						if (pNotifications)
 						{

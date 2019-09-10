@@ -5086,6 +5086,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
 	{
+		//we want these as early as possible!
+		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+
 		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
 		{

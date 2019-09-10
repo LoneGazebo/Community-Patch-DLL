@@ -344,7 +344,7 @@ end
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function GetApprovalValue( iPlayer )
-    local value = 60 + (Players[iPlayer]:GetExcessHappiness() * 3);
+    local value = Players[iPlayer]:GetExcessHappiness();
     if( value < 0 ) then
         return 0;
     elseif( value > 100 ) then

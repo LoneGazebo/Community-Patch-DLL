@@ -133,12 +133,14 @@ function UpdateDisplay()
         instance.CityName:SetText( sortEntry.CityName );
    
 -- COMMUNITY PATCH
-		local iTotalUnhappiness = pCity:getUnhappinessAggregated();
+		local iTotalUnhappiness = pCity:getHappinessDelta();
 
 		sortEntry.Strength = math.floor(iTotalUnhappiness);
         instance.Defense:SetText( sortEntry.Strength );
 
-		instance.CityName:SetToolTipString(pCity:GetCityUnhappinessBreakdown(false));
+		local TT = pCity:GetCityHappinessBreakdown();
+		TT = TT + pCity:GetCityUnhappinessBreakdown(false);
+		instance.CityName:SetToolTipString(TT);
 -- END   
         
         -- Support for Expansions.

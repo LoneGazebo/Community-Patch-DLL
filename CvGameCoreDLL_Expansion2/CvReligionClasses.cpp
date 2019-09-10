@@ -4321,7 +4321,7 @@ void CvPlayerReligions::SetPlayerReligion(ReligionTypes eReligion)
 #endif
 			}
 
-			if (m_pPlayer->GetFaith() > 0)
+			if (m_pPlayer->GetFaith() > 0 && !m_pPlayer->GetPlayerTraits()->IsAlwaysReligion())
 			{
 				m_pPlayer->ChangeGoldenAgeProgressMeter(m_pPlayer->GetFaith());
 
@@ -7704,8 +7704,10 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
 
 	//Not enhanced, but getting there slowly?
-	if(!pMyReligion->m_bEnhanced && IsProphetGainRateAcceptable())
+	if ((eReligion > RELIGION_PANTHEON || pReligions->GetNumReligionsStillToFound() > 0) && !pMyReligion->m_bEnhanced && IsProphetGainRateAcceptable())
+	{
 		return;
+	}
 
 	BuildingClassTypes eFaithBuilding = FaithBuildingAvailable(eReligion, pCity);
 	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();

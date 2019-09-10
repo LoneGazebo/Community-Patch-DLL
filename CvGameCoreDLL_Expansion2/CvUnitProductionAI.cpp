@@ -1537,11 +1537,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.isMinorCiv())
 				{
-					iBonus += 500;
+					iBonus += 500 * (kPlayer.GetCurrentEra() + 1);
 				}
 				else
 				{
-					iBonus += 250;
+					iBonus += 250 * (kPlayer.GetCurrentEra() + 1);
 				}
 			}
 		}
@@ -1574,9 +1574,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += (500 * iCurrentNumCities);
 			}
 
-			if (m_pCity->getUnhappinessFromPillaged() > 0)
+			if (!kPlayer.IsAtWar())
 			{
-				iBonus += (100 * m_pCity->getUnhappinessFromPillaged());
+				int iNumPillaged = m_pCity->GetNumPillagedPlots();
+				if (iNumPillaged > 0)
+				{
+					iBonus += (150 * iNumPillaged);
+				}
 			}
 		}
 	}
