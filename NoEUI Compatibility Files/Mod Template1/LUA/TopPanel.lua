@@ -768,7 +768,7 @@ function HappinessTipHandler( control )
 
 
 		local empireUnhappiness = pPlayer:GetEmpireUnhappinessForCity();
-	
+
 		-- Unhappiness
 		local iUnhappinessFromPupetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation() * 100;
 		local unhappinessFromSpecialists = pPlayer:GetUnhappinessFromCitySpecialists();
@@ -782,7 +782,9 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 		local iUnhappinessFromWarWeariness = pPlayer:GetUnhappinessFromWarWeariness();
 
--- COMMUNITY PATCH CHANGES BELO
+		local totalunhappiness = iUnhappinessFromPublicOpinion + iUnhappinessFromWarWeariness;
+
+-- COMMUNITY PATCH CHANGES BELOW
 		local iUnhappinessFromStarving = pPlayer:GetUnhappinessFromCityStarving();
 		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
 		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
@@ -799,7 +801,7 @@ function HappinessTipHandler( control )
 
 			strText = strText .. "[NEWLINE][NEWLINE]";
 			strText = strText .. "[COLOR:255:150:150:255]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness, totalunhappiness);
 
 -- COMMUNITY PATCH CHANGES BELOW
 			if (iUnhappinessFromPop > "0") then

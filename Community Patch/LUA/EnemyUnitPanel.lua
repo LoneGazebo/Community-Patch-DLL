@@ -486,7 +486,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				
 				bonusCount = bonusCount + 1;
 			end
-			
+
 			-- Damaged unit
 			iModifier = pMyUnit:GetDamageCombatModifier();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -498,7 +498,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
-			
+
 			-- Lack Strategic Resources
 			iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1157,7 +1157,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				bonusCount = bonusCount + 1;
 			end
-			
+
 			-- Damaged unit
 			iModifier = pMyUnit:GetDamageCombatModifier();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1168,7 +1168,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
-			end			
+			end
 
 			-- Lack Strategic Resources
 			iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
@@ -2053,7 +2053,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;
-				end						
+				end
 				
 				-- Lack Strategic Resources
 				iModifier = pTheirUnit:GetStrategicResourceCombatPenalty();
@@ -2371,6 +2371,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end	
 				end
 
+
+
 				-- UnitClassDefenseModifier
 				iModifier = pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -2383,6 +2385,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;				
 				end
+
 				-- HERE CHANGE
 				-- UnitClassDefenceAttackModifier
 				iModifier = pTheirUnit:UnitClassAttackModifier(pMyUnit:GetUnitClassType());
@@ -2396,6 +2399,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;			
 				end
+
 				---- ClassDefenseModifier
 				--iModifier = pTheirUnit:unitClassDefenseModifier(pMyUnit:getUnitClassType());
 				--if (iModifier ~= 0) then
@@ -2759,7 +2763,19 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 			bonusCount = bonusCount + 1;
 		end
-
+		
+		-- Damaged unit
+		iModifier = theirUnit:GetDamageCombatModifier();
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			bonusCount = bonusCount + 1;
+		elseif (iModifier ~= 0) then
+			bonusSum = bonusSum + iModifier;
+			bonusCount = bonusCount + 1;
+		end
+		
 		-- Lack Strategic Resources
 		iModifier = theirUnit:GetStrategicResourceCombatPenalty();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then

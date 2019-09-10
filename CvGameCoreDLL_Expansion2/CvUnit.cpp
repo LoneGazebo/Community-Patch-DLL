@@ -5612,8 +5612,8 @@ bool CvUnit::jumpToNearestValidPlot()
 		{
 			// "quick" heuristic check to make sure this is not a dead end
 			// alternatively we could verify against all plots reachable from owner's capital?
-			SPathFinderUserData data2(this, 0, 4);
-			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
 			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pBestPlot->getX(), pBestPlot->getY(), data2);
 
 			//seems to be fine
@@ -12344,7 +12344,7 @@ bool CvUnit::trade()
 	{
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
-			int iCap = 10;
+			int iCap = 5;
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			//Let's make the GM a little more flexible.
 			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
@@ -15120,7 +15120,7 @@ int CvUnit::visibilityRange() const
 	VALIDATE_OBJECT
 
 	//in general vision range needs to be at least one, otherwise there will be stacking issues
-	int iRtnValue = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
+	int iRtnValue = (isHuman() || IsGainsXPFromScouting()) ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
 
 	if(isEmbarked())
 	{

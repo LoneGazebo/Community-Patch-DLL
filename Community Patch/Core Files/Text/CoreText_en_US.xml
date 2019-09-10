@@ -5939,7 +5939,7 @@
 			<Text>{1_ReligionName} now your [ICON_RELIGION] primary Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION">
-			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Enhancer Beliefs related to {1_ReligionName}, and any Founder or Enhancer Beliefs related to prior [ICON_RELIGION] Religions are no longer valid. All stored [ICON_PEACE] Faith is converted into [ICON_GOLDEN_AGE] Golden Age Points.</Text>
+			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Enhancer Beliefs related to {1_ReligionName}, and any Founder or Enhancer Beliefs related to prior [ICON_RELIGION] Religions are no longer valid. All stored [ICON_PEACE] Faith is converted into [ICON_GOLDEN_AGE] Golden Age Points (except for Civilizations guaranteed a Religion).</Text>
 		</Row>
 
 		<!-- Holy City Lost/Gained-->
@@ -6230,7 +6230,7 @@
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET]Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must be in the top 60% of the world in terms of Military Power. Yours is ranked at {1_Num}% of world Military Power.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must be above 60% of the world in terms of Military Power. Your military is ranked at {1_Num}% of world Military Power.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">

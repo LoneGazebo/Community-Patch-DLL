@@ -1165,7 +1165,7 @@ public:
 	eAggressionLevel getAggressionLevel() const { return eAggression; }
 	PlayerTypes getPlayer() const { return ePlayer; }
 	int getScore() const { return iTotalScore; }
-	int getHeapScore() const { return iScoreOverParent + iTotalScore/100; } //use total score only as tiebreaker
+	int getHeapScore() const { return iScoreOverParent + iTotalScore/12; } //use total score mainly as tiebreaker
 
 	const CvTacticalPosition* getParent() const { return parentPosition; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }

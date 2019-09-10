@@ -15,6 +15,18 @@ SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.0';
 INSERT INTO Defines (Name, Value)
 SELECT 'UNHAPPY_THRESHOLD', '25';
 
+-- AI combat tuning knobs
+
+-- this controls how much damage an attack needs to inflict to be considered worthwhile
+-- default value 100. higher -> more aggressive
+INSERT INTO Defines (Name, Value)
+SELECT 'COMBAT_AI_DAMAGEWEIGHT', '100';
+
+-- this controls whether ending the turn on a certain plot is acceptable
+-- default value 50. higher -> more timid
+INSERT INTO Defines (Name, Value)
+SELECT 'COMBAT_AI_DANGERWEIGHT', '50';
+
 -- AI Citystrategy
 
 -- food is different because we include consumption.
@@ -36,7 +48,6 @@ WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCE';
 
 INSERT INTO Defines (Name, Value)
 SELECT 'AI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE', '2.5';
-
 
 UPDATE Defines
 SET Value = '150'
@@ -1480,8 +1491,7 @@ SET Scale= '0.8'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
 
 
-	--Anti Air AI fix.
-
+--Anti Air AI fix.
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
 
