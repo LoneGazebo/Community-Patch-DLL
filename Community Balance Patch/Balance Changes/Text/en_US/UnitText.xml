@@ -107,7 +107,7 @@
 			<Text>Use Mercenaries as a cheap, if slightly less effective means of defending your land from invaders, or as the flanks of a precision attack. Mercenaries receive a large bonus for flanking, so deploy them wisely! Only available if you have unlocked the Finisher policy of the Authority Branch. Can only be obtained via a [ICON_GOLD] Gold purchase.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_GUERILLA">
-			<Text>Flank attack bonus increased, and receives bonuses when embarked or attacking over rivers.</Text>
+			<Text>Flank attack bonus increased, and receives bonuses when embarked or attacking over rivers.[NEWLINE][NEWLINE]May only be purchased with [ICON_GOLD] Gold after completing the [COLOR_MAGENTA]Authority[ENDCOLOR] Policy Branch.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DESC_FIELD_GUN">
