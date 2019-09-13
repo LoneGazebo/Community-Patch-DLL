@@ -7546,10 +7546,6 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 				continue;
 		}
 
-		//if they conquered the city, we might be mad at them but for a different reason
-		if (!bIncludeConqueredCities && pPlot->getOwningCity()->getOriginalOwner() != pPlot->getOwningCity()->getOwner())
-			continue;
-
 		int iWeight = 10;
 		if (!bJustCount)
 		{
@@ -27216,7 +27212,6 @@ int CvCity::getSpecialistFreeExperience() const
 	return m_iSpecialistFreeExperience;
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvCity::changeSpecialistFreeExperience(int iChange)
 {
@@ -27224,7 +27219,6 @@ void CvCity::changeSpecialistFreeExperience(int iChange)
 	m_iSpecialistFreeExperience += iChange;
 	CvAssert(m_iSpecialistFreeExperience >= 0);
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvCity::updateStrengthValue()
@@ -27265,41 +27259,19 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += iBuildingDefense;
 
 	// Garrisoned Unit
-	int iStrengthFromUnits = 0;
+	int iMinCombatStrength = 0;
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		iStrengthFromUnits = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
-		iStrengthFromUnits = (iStrengthFromUnits * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
+		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
-		//special check for naval garrison in city
-		if (pGarrisonedUnit->getDomainType() == DOMAIN_SEA)
-			iStrengthFromUnits /= 2;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(MOD_BALANCE_CORE_MILITARY)
-		{
-			CvPlot* pTarget = plot();
-			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
-			{
-				//iamblichos - updated to allow units(or combat generals/admirals) that have the general promotion to boost city strength 
-				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral() || pTarget->getUnitByIndex(iUnitLoop)->GetGreatGeneralCount() > 0 || pTarget->getUnitByIndex(iUnitLoop)->GetGreatAdmiralCount() > 0)
-				{
-					iStrengthFromUnits *= 2;
-					break;
-				}
-			}
-		}
-#endif
+		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
+		iStrengthValue += iStrengthFromGarrison;
 	}
 
-	iStrengthValue += iStrengthFromUnits;
-
 	// Tech Progress increases City Strength
-	int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
-
-	// Want progress to be a value between 0 and 5
-	double fTechProgress = iTechProgress / 100.0 * /*5*/ GC.getCITY_STRENGTH_TECH_BASE();
+	double fTechProgress = float( GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) / GC.getNumTechInfos() * /*5*/ GC.getCITY_STRENGTH_TECH_BASE();
 	double fTechExponent = /*2.0f*/ GC.getCITY_STRENGTH_TECH_EXPONENT();
 	int iTechMultiplier = /*2*/ GC.getCITY_STRENGTH_TECH_MULTIPLIER();
 
@@ -27309,11 +27281,8 @@ void CvCity::updateStrengthValue()
 	// 75% of the way through the game provides an extra 28.12
 	// 100% of the way through the game provides an extra 50.00
 
-	double fTechMod = pow(fTechProgress, fTechExponent);
-	fTechMod *= iTechMultiplier;
-
-	fTechMod *= 100;	// Bring it back into hundreds
-	iStrengthValue += (int)(fTechMod + 0.005f);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
+	double fTechMod = pow(fTechProgress, fTechExponent) * iTechMultiplier * 100;
+	iStrengthValue += (int)(fTechMod + 0.005f);	//is this really the way to get rid of fp inaccuracy?
 
 #if defined(MOD_BALANCE_CORE)
 	if (getProductionProcess() != NO_PROCESS)
@@ -27321,9 +27290,7 @@ void CvCity::updateStrengthValue()
 		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 		if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 		{
-			int iPile = (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
-
-			iStrengthValue += iPile;
+			iStrengthValue += (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
 		}
 	}
 
@@ -27333,16 +27300,12 @@ void CvCity::updateStrengthValue()
 	}
 #endif
 
-	iStrengthValue += GetYieldModifierFromDevelopment(YIELD_JFD_CRIME);
-
-	int iStrengthMod = 0;
-
 	// Player-wide strength mod (Policies, etc.)
-	iStrengthMod += GET_PLAYER(getOwner()).GetCityStrengthMod();
+	int iStrengthMod = GET_PLAYER(getOwner()).GetCityStrengthMod();
 
-	int iCrime = GetYieldModifierFromCrime(YIELD_JFD_CRIME);
-
-	iStrengthMod += iCrime;
+	// Crime
+	iStrengthValue += GetYieldModifierFromDevelopment(YIELD_JFD_CRIME);
+	iStrengthMod += GetYieldModifierFromCrime(YIELD_JFD_CRIME);
 
 	// Apply Mod
 	iStrengthValue *= (100 + iStrengthMod);
@@ -27386,22 +27349,20 @@ void CvCity::updateStrengthValue()
 	}
 #endif
 
-	m_iStrengthValue = iStrengthValue;
-
 	// Terrain mod
 	if(plot()->isHills())
 	{
-		m_iStrengthValue += /*3*/ GC.getCITY_STRENGTH_HILL_CHANGE();
+		iStrengthValue += /*3*/ GC.getCITY_STRENGTH_HILL_CHANGE();
 	}
-#if defined(MOD_BALANCE_CORE)
 	if(plot()->isMountain())
 	{
-		m_iStrengthValue += (/*3*/ GC.getCITY_STRENGTH_HILL_CHANGE() * 2);
+		iStrengthValue += (/*3*/ GC.getCITY_STRENGTH_HILL_CHANGE() * 2);
 	}
-#endif
 
-	m_iStrengthValue += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST);
+	iStrengthValue += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST);
 
+	//finally
+	m_iStrengthValue = max(iMinCombatStrength, iStrengthValue);
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 }
 

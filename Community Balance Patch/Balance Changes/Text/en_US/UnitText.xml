@@ -506,7 +506,7 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT">
 			<Text>Bonus from Adjacent Units</Text>
 		</Row>
-
+	
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER">
 			<Text>War Elephant</Text>
 		</Row>
@@ -534,10 +534,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED">
 			<Text>Unit must be in owned territory to use this ability.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_EUPANEL_BUSHIDO">
-			<Text>Tenacity</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_PIONEER">

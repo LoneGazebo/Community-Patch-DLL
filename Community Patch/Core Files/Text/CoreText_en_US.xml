@@ -35,6 +35,10 @@
 		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
 			<Text>Border Growth Points</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
+			<Text>Unit Health</Text>
+		</Row>
+		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
 			<Text>Snowden</Text>

@@ -1,4 +1,4 @@
--- Adjusted for Religion Spread Rework
+﻿-- Adjusted for Religion Spread Rework
 UPDATE Defines
 SET Value = '9'
 WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
