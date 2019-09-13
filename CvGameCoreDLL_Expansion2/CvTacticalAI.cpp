@@ -6505,7 +6505,6 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 				int iTurns = pUnit->TurnsToReachTarget(pTargetPlot, 0, iMaxTurns);
 				if ( iTurns<iMaxTurns )
 				{
-
 					CvTacticalUnit unit;
 					unit.SetID(pUnit->GetID());
 					unit.SetMovesToTarget(iTurns);
@@ -9778,6 +9777,9 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	//in that case we want to prefer the one which has more movement points left
 	result.iScore += result.iRemainingMoves / GC.getMOVE_DENOMINATOR();
 
+	//introduce some bias so that all valid scores are > 0
+	result.iScore += 200;
+
 	return result;
 }
 
@@ -10223,10 +10225,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 			if (move.iScore == -INT_MAX)
 				continue;
 
-			//for attacking, we want a good move. if we're defending, we don't have much choice ...
+			//score functions are biased so that only scores > 0 are interesting moves
 			if (move.iScore > 0)
-				possibleMoves.push_back(move);
-			else if (eAggression == AL_NONE && move.iScore > -100)
 				possibleMoves.push_back(move);
 
 			if (gTacticalCombatDebugOutput > 0)

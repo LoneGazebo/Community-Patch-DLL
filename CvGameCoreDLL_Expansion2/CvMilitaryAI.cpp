@@ -1100,7 +1100,7 @@ CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
 	{
 		if (eEnemy == NO_PLAYER || pOp->GetEnemy() == eEnemy)
 		{
-			if (pOp->IsOffensive() && pOp->IsAllowedDuringPeace())
+			if (pOp->IsOffensive() && pOp->IsAllowedDuringPeace() && !pOp->IsShowOfForce())
 				return pOp;
 		}
 
