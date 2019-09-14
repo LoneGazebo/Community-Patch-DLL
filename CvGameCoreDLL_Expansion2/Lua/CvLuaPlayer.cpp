@@ -13341,7 +13341,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		iTempValue = pDiploAI->GetFriendDenouncedUsScore(eWithPlayer);
-		iFriendDenouncedUsScore = iTempValue;
+		iFriendDenouncedScore = iTempValue;
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
