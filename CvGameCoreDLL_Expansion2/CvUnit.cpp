@@ -10407,7 +10407,6 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 	if (bConservative)
 		return getDamage() > GC.getPILLAGE_HEAL_AMOUNT();
 
-
 	return getDamage() > 0;
 }
 //	--------------------------------------------------------------------------------
