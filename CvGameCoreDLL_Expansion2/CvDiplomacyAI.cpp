@@ -14041,7 +14041,7 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 #endif
 			}
 
-			// Now Ssee what our new Dispute Level should be
+			// Now see what our new Dispute Level should be
 			if(iMinorCivDisputeWeight >= /*700*/ GC.getMINOR_CIV_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
 			else if(iMinorCivDisputeWeight >= /*400*/ GC.getMINOR_CIV_DISPUTE_STRONG_THRESHOLD())
@@ -15422,6 +15422,13 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iVa
 /// Changes how many Minors we have seen this Player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange)
 {
+	// We don't care if it's us or a teammate
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return;
+	
+	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
+	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+		return;
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
@@ -15502,6 +15509,10 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer, int iV
 /// Changes how many Minors we have seen this Player conquer
 void CvDiplomacyAI::ChangeOtherPlayerNumMinorsConquered(PlayerTypes ePlayer, int iChange)
 {
+	// We don't care if it's us or a teammate
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return;
+	
 	SetOtherPlayerNumMinorsConquered(ePlayer, GetOtherPlayerNumMinorsConquered(ePlayer) + iChange);
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000*/ GC.getWARMONGER_THREAT_MINOR_CONQUERED_WEIGHT());
 }
@@ -15526,6 +15537,14 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iVa
 /// Changes how many Majors we have seen this Player attack
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
+	// We don't care if it's us or a teammate
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return;
+	
+	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
+	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+		return;
+	
 	if(iChange > 0)
 	{
 		PlayerTypes eAttackedPlayer;
@@ -15630,6 +15649,10 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iV
 /// Changes how many Majors we have seen this Player conquer
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iChange)
 {
+	// We don't care if it's us or a teammate
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return;
+	
 	SetOtherPlayerNumMajorsConquered(ePlayer, GetOtherPlayerNumMajorsConquered(ePlayer) + iChange);
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000 */ GC.getWARMONGER_THREAT_MAJOR_CONQUERED_WEIGHT());
 }
@@ -15942,14 +15965,6 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 			GetPlayer()->SetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop, 0);
 		}
 #endif
-		// temporary bugfix for civs that have warmonger penalties despite not having met a player
-		SetWarmongerThreat(ePlayer, THREAT_NONE);
-		SetOtherPlayerNumMajorsAttacked(ePlayer, 0);
-		SetOtherPlayerNumMajorsConquered(ePlayer, 0);
-		SetOtherPlayerNumMinorsAttacked(ePlayer, 0);
-		SetOtherPlayerNumMinorsConquered(ePlayer, 0);
-		SetOtherPlayerWarmongerAmountTimes100(ePlayer, 0);
-		
 		DoUpdateOnePlayerOpinion(ePlayer);
 
 		/////////////////
@@ -33866,6 +33881,11 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 	{
 		iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_SIDED_WITH_THEIR_MINOR();
 	}
+	
+	// No penalty for teammates
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
+	
 	return iOpinionWeight;
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -39894,7 +39914,7 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, Playe
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-		if (eConqueror != eMajor && GET_PLAYER(eMajor).isAlive() && !GET_PLAYER(eMajor).isMinorCiv())
+		if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && !GET_PLAYER(eMajor).isMinorCiv())
 		{
 			int iWarmonger = GetPlayerCaresValue(eConqueror, eConquered, bIsCapital, pCity, eMajor);
 			if (iWarmonger != 0)
@@ -39914,13 +39934,17 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 {
 	CvPlayer &kConqueringPlayer = GET_PLAYER(eConqueror);
 	CvPlayer &kConqueredPlayer = GET_PLAYER(eConquered);
-
-	//Don't consider ourselves or dead dudes.
-	if ((eConqueror != eMajor) && GET_PLAYER(eMajor).isAlive())
+	
+	//Don't consider ourselves, teammates or dead dudes.
+	if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && !GET_PLAYER(eMajor).isMinorCiv())
 	{
-		// Have I met the player who conquered the city?
 		CvTeam &kAffectedTeam = GET_TEAM(GET_PLAYER(eMajor).getTeam());
-		// ... or the owner of the conquered city?
+		
+		// Don't apply warmongering if we haven't met the conqueror (otherwise that's cheating)
+		if(!kAffectedTeam.isHasMet(kConqueringPlayer.getTeam()))
+			return 0;
+		
+		// Have I met the player who conquered the city, or the owner of the conquered city?
 		if (kAffectedTeam.isHasMet(kConqueringPlayer.getTeam()) || kAffectedTeam.isHasMet(kConqueredPlayer.getTeam()))
 		{
 			int iWarmongerModifier = 0;
@@ -42579,8 +42603,8 @@ int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
-	// Vassals and friends aren't too concerned
-	if(IsVassal(ePlayer) || IsDoFAccepted(ePlayer))
+	// Vassals, friends and teammates aren't too concerned
+	if(IsVassal(ePlayer) || IsDoFAccepted(ePlayer) || GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 	{
 		return 0;
 	}
