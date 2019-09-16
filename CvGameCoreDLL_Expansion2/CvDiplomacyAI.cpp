@@ -4585,8 +4585,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			if (MOD_DIPLOMACY_CIV4_FEATURES)
 			{
-				// If a vassal reduce but do not remove the value.
-				if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+				// If a vassal of someone else, reduce but do not remove the value.
+				if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != GetPlayer()->GetID())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 				}
