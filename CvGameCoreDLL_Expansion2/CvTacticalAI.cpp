@@ -4769,7 +4769,7 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 /// Pillage an undefended improvement
 bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 {
-	for (size_t i = 0; m_CurrentMoveUnits.size(); i++)
+	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID());
 		if (pUnit && pUnit->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_DESTINATION))
