@@ -390,6 +390,7 @@ public:
 	std::pair<int, bool> GetUnitCombatProductionCostModifier(const int unitCombatID) const;
 	int GetNonSpecialistFoodChange() const;
 	bool IsNoBuild(BuildTypes eBuild) const;
+	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
@@ -738,6 +739,7 @@ protected:
 	std::map<int, std::pair<int, bool>> m_pibUnitCombatProductionCostModifier;
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
+	std::map<int, int> m_piDomainProductionModifiersPerSpecialist;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1861,6 +1863,7 @@ public:
 		return m_iNonSpecialistFoodChange;
 	}
 	bool IsNoBuild(const BuildTypes eBuild) const;
+	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 #endif
 
 	// Public functions to make trait-based game state changes
@@ -2228,6 +2231,7 @@ private:
 	std::map<int, std::pair<int, bool>> m_aibUnitCombatProductionCostModifier;
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
+	std::map<int, int> m_aiDomainProductionModifiersPerSpecialist;
 	int m_iVotePerXCSAlliance;
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
