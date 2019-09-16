@@ -7728,7 +7728,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 	if (eBuilder != NO_PLAYER)
 	{
-		if (getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
+		if (eNewValue != NO_IMPROVEMENT && getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
 		{
 			bGiftFromMajor = true;
 			if (GC.getImprovementInfo(eNewValue)->IsCreatedByGreatPerson())
