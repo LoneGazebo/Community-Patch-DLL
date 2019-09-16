@@ -35,6 +35,10 @@
 		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
 			<Text>Border Growth Points</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
+			<Text>Unit Health</Text>
+		</Row>
+		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
 			<Text>Snowden</Text>
@@ -2852,6 +2856,23 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
 			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is extremely threatening.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- World Congress >>> United Nations -->
+		<Row Tag="TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN">
+			<Text>[COLOR_POSITIVE_TEXT]They liked our proposal to the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL_UN">
+			<Text>[COLOR_NEGATIVE_TEXT]They disliked our proposal to the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN">
+			<Text>[COLOR_POSITIVE_TEXT]We helped them pass their proposal in the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN">
+			<Text>[COLOR_NEGATIVE_TEXT]We helped their proposal fail in the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
+			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Defense Pact Offer -->

@@ -470,11 +470,6 @@
 		<Row Tag="TXT_KEY_MISC_BONUS">
 			<Text>Miscellaneous</Text>
 		</Row>
-		
-		<!-- Text for Damaged Unit -->
-		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
-			<Text>Damaged Unit Modifier</Text>
-		</Row>
 
 		<!-- Text for HappinessInfo.lua -->
 		<Row Tag ="TXT_KEY_HAPPINESS_FROM_MONOPOLY">

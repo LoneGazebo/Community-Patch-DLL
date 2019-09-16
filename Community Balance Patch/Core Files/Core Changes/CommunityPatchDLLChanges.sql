@@ -278,6 +278,10 @@ UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_TOURISM_HUNDREDS';
 
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_RANGED_ATTACK_PENALTY';
+
 UPDATE GameOptions SET "Default" = 1 WHERE Type = 'GAMEOPTION_EVENTS';
 
 UPDATE CustomModOptions SET Value=1 WHERE Name='UNITS_MAX_HP';  

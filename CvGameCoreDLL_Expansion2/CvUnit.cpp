@@ -5576,9 +5576,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//for performance reasons, start with a small search range and gradually increase it
-	int iBestValue = INT_MAX;
+	vector<SPlotWithScore> candidates;
 	CvPlot* pBestPlot = NULL;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 3 && pBestPlot == NULL; i++)
 	{
 		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 
@@ -5600,25 +5600,29 @@ bool CvUnit::jumpToNearestValidPlot()
 				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
 					iValue += 40;
 
-				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
-				{
-					iBestValue = iValue;
-					pBestPlot = pLoopPlot;
-				}
+				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 			}
 		}
 
-		if (pBestPlot) //found something?
+		//we want lowest scores first
+		std::sort(candidates.begin(), candidates.end());
+		std::reverse(candidates.begin(), candidates.end());
+		for (size_t i=0; i<candidates.size(); i++)
 		{
+			CvPlot* pTestPlot = candidates[i].pPlot;
+
 			// "quick" heuristic check to make sure this is not a dead end
 			// alternatively we could verify against all plots reachable from owner's capital?
 			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pBestPlot->getX(), pBestPlot->getY(), data2);
+			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
 			//seems to be fine
-			if ( plots2.size() > 23 )
+			if (plots2.size() > 23)
+			{
+				pBestPlot = pTestPlot;
 				break;
+			}
 		}
 
 		//double the search range for next iteration
@@ -10402,7 +10406,6 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOv
 
 	if (bConservative)
 		return getDamage() > GC.getPILLAGE_HEAL_AMOUNT();
-
 
 	return getDamage() > 0;
 }
@@ -15794,9 +15797,12 @@ int CvUnit::GetBestAttackStrength() const
 }
 
 //typically negative
-int CvUnit::GetDamageCombatModifier() const
+int CvUnit::GetDamageCombatModifier(bool bRanged) const
 {
 	int iRtnValue = 0;
+
+	if (bRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+		return iRtnValue;
 
 	// How much does damage weaken the effectiveness of the Unit?
 	if (getDamage() > 0)
@@ -15860,7 +15866,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		pFromPlot = plot();
 
 	// Generic combat bonus
-	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier() + GetStrategicResourceCombatPenalty();
+	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -16037,26 +16043,22 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 				}
 			}
 #endif
-			// Founder Belief bonus (this must be a city controlled by an enemy)
+			// Founder Belief bonus
 			CvCity* pPlotCity = bQuickAndDirty ? NULL : pBattlePlot->getOwningCity();
 			if(pPlotCity)
 			{
-				if(atWar(getTeam(), pPlotCity->getTeam()))
+				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+				if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
 				{
-					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-					if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+					const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
+					if(pCityReligion)
 					{
-						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
-						if(pCityReligion)
-						{
-							CvCity* pHolyCity = NULL;
-							CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
-							if (pHolyCityPlot)
-							{
-								pHolyCity = pHolyCityPlot->getPlotCity();
-							}
-							iModifier += pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
-						}
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+							pHolyCity = pHolyCityPlot->getPlotCity();
+
+						iModifier += pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
 					}
 				}
 			}
@@ -16070,9 +16072,8 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(kPlayer.GetID());
 				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherUnit->getOwner());
 				if(eTheirReligion == NO_RELIGION)
-				{
 					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
-				} 
+
 				if (eFoundedReligion != NO_RELIGION)
 				{
 					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
@@ -16081,47 +16082,23 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 						CvCity* pHolyCity = NULL;
 						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 						if (pHolyCityPlot)
-						{
 							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
-						//Other religion! Full bonus.
-						if(eTheirReligion != eFoundedReligion)
-						{			
-							// Bonus in own land
-							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
-							if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
-							{
-									iModifier += iOtherOwn;
-							}
-							//Bonus in their land
-							else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							{
-								iModifier += iOtherTheir;
-							}
-						}
-						//Same religion (or no religion) - half bonus.
-						else
-						{
-							// Bonus in own land
-							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
-							if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
-							{
-								iModifier += (iOtherOwn / 2);
-							}
-							//Bonus in their land
-							else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							{
-								iModifier += (iOtherTheir / 2);
-							}
-						}
+						//Full bonus against different religion
+						int iScaler = (eTheirReligion != eFoundedReligion) ? 1 : 2;
+						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+
+						// Bonus in own land
+						if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
+							iModifier += iOtherOwn/iScaler;
+						//Bonus in their land
+						if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+							iModifier += iOtherTheir/iScaler;
 					}
 				}
 			}
 		}
-	
 #endif
 
 		// Capital Defense
@@ -16256,22 +16233,17 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	int iModifier = GetGenericMeleeStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
 
 	// Generic Attack bonus
-	int iTempModifier = getAttackModifier();
-	iModifier += iTempModifier;
+	iModifier += getAttackModifier();
+
+	// Damage modifier always applies for melee attack
+	iModifier += GetDamageCombatModifier();
 
 	// Kamikaze attack
-	if(getKamikazePercent() != 0)
-	{
-		iTempModifier = getKamikazePercent();
-		iModifier += iTempModifier;
-	}
+	iModifier += getKamikazePercent();
 
 	// Temporary attack bonus (Policies, etc.)
 	if(GET_PLAYER(getOwner()).GetAttackBonusTurns() > 0)
-	{
-		iTempModifier = /*20*/ GC.getPOLICY_ATTACK_BONUS_MOD();
-		iModifier += iTempModifier;
-	}
+		iModifier += /*20*/ GC.getPOLICY_ATTACK_BONUS_MOD();
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -16317,16 +16289,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		// Attacking a City
 		if(pToPlot->isCity())
 		{
-			iTempModifier = cityAttackModifier();
-			iModifier += iTempModifier;
+			iModifier += cityAttackModifier();
 
 			// Nearby unit sapping this city
-			iTempModifier = GetAreaEffectBonus(AE_SAPPER, pFromPlot, pToPlot->getPlotCity());
-			iModifier += iTempModifier;
+			iModifier += GetAreaEffectBonus(AE_SAPPER, pFromPlot, pToPlot->getPlotCity());
 
 #if defined(MOD_BALANCE_CORE)
 			//bonus for attacking same unit over and over in a turn?
-			iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+			int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
 			{
 				iTempModifier *= pToPlot->getPlotCity()->GetNumTimesAttackedThisTurn(getOwner());
@@ -16336,53 +16306,34 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 			// City Defending against a Barbarian
 			if(isBarbarian())
-			{
-				iTempModifier = GC.getBARBARIAN_CITY_ATTACK_MODIFIER();
-				iModifier += iTempModifier;
-			}
+				iModifier += GC.getBARBARIAN_CITY_ATTACK_MODIFIER();
 		}
 		// Some bonuses only apply when NOT attacking a city
 		else
 		{
 			// Attacking into Hills
 			if(pToPlot->isHills())
-			{
-				iTempModifier = hillsAttackModifier();
-				iModifier += iTempModifier;
-			}
+				iModifier += hillsAttackModifier();
 
 			// Attacking into Open Ground
 			if(pToPlot->isOpenGround())
-			{
-				iTempModifier = openAttackModifier();
-				iModifier += iTempModifier;
-			}
+				iModifier += openAttackModifier();
 
 			// Attacking into Rough Ground
 			if(pToPlot->isRoughGround())
-			{
-				iTempModifier = roughAttackModifier();
-				iModifier += iTempModifier;
-			}
+				iModifier += roughAttackModifier();
 
 			// Attacking into a Feature
 			if(pToPlot->getFeatureType() != NO_FEATURE)
-			{
-				iTempModifier = featureAttackModifier(pToPlot->getFeatureType());
-				iModifier += iTempModifier;
-			}
+				iModifier += featureAttackModifier(pToPlot->getFeatureType());
 			// No Feature - Use Terrain Attack Mod
 			else
 			{
-				iTempModifier = terrainAttackModifier(pToPlot->getTerrainType());
-				iModifier += iTempModifier;
+				iModifier += terrainAttackModifier(pToPlot->getTerrainType());
 
 				// Tack on Hills Attack Mod
 				if(pToPlot->isHills())
-				{
-					iTempModifier = terrainAttackModifier(TERRAIN_HILL);
-					iModifier += iTempModifier;
-				}
+					iModifier += terrainAttackModifier(TERRAIN_HILL);
 			}
 		}
 
@@ -16396,20 +16347,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			if(!isRiverCrossingNoPenalty())
 			{
 				if(pFromPlot->isAdjacent(pToPlot) && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
-				{
-					iTempModifier = GC.getRIVER_ATTACK_MODIFIER();
-					iModifier += iTempModifier;
-				}
+					iModifier += GC.getRIVER_ATTACK_MODIFIER();
 			}
 
 			// Amphibious attack
 			if(!isAmphib())
 			{
 				if(pFromPlot->needsEmbarkation(this))
-				{
-					iTempModifier = GC.getAMPHIB_ATTACK_MODIFIER();
-					iModifier += iTempModifier;
-				}
+					iModifier += GC.getAMPHIB_ATTACK_MODIFIER();
 			}
 
 			// Flanking
@@ -16429,8 +16374,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		CvAssertMsg(pDefender != this, "Compared attack strength against one's own pointer. This is weird and probably wrong.");
 
 		// Unit Class Attack Modifier
-		iTempModifier = unitClassAttackModifier(pDefender->getUnitClassType());
-		iModifier += iTempModifier;
+		iModifier += unitClassAttackModifier(pDefender->getUnitClassType());
 
 		// Bonus VS fortified
 		if(pDefender->IsFortified())
@@ -16449,7 +16393,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackBelow50HealthModifier();
 
 		//bonus for attacking same unit over and over in a turn?
-		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
 		{
 			iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
@@ -16480,15 +16424,21 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if (iCombat==0)
 		return 0;
 
-	int iTempModifier = 0;
 	int iModifier = GetGenericMeleeStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pFromPlot, bQuickAndDirty);
 
 	// Generic Defense Bonus
 	iModifier += getDefenseModifier();
 
 	// Defense against Ranged
-	if(bFromRangedAttack)
+	if (bFromRangedAttack)
+	{
 		iModifier += rangedDefenseModifier();
+		if (!MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+			iModifier += GetDamageCombatModifier();
+	}
+	else
+		// Damage modifier does not apply to ranged attack (fewer targets -> harder to hit)
+		iModifier += GetDamageCombatModifier();
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -16532,85 +16482,56 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(pInPlot != NULL)
 	{
 		// No TERRAIN bonuses for this Unit?
-		iTempModifier = pInPlot->defenseModifier(getTeam(), false, false);
-
+		int iTempModifier = pInPlot->defenseModifier(getTeam(), false, false);
 		if (noDefensiveBonus() && iTempModifier>0)
 			//only forts & citadels have an effect
 			iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);
-
 		iModifier += iTempModifier;
 
 		// Fortification
-		iTempModifier = fortifyModifier();
-		iModifier += iTempModifier;
+		iModifier += fortifyModifier();
 
 		// City Defense
 		if(pInPlot->isCity())
-		{
-			iTempModifier = cityDefenseModifier();
-			iModifier += iTempModifier;
-		}
+			iModifier += cityDefenseModifier();
 
 		// Hill Defense
 		if(pInPlot->isHills())
-		{
-			iTempModifier = hillsDefenseModifier();
-			iModifier += iTempModifier;
-		}
+			iModifier += hillsDefenseModifier();
 
 		// Open Ground Defense
 		if(pInPlot->isOpenGround())
-		{
-			iTempModifier = openDefenseModifier();
-			iModifier += iTempModifier;
-		}
+			iModifier += openDefenseModifier();
 
 		// Rough Ground Defense
 		if(pInPlot->isRoughGround())
-		{
-			iTempModifier = roughDefenseModifier();
-			iModifier += iTempModifier;
-		}
+			iModifier += roughDefenseModifier();
 
 		// Feature Defense
 		if(pInPlot->getFeatureType() != NO_FEATURE)
-		{
-			iTempModifier = featureDefenseModifier(pInPlot->getFeatureType());
-			iModifier += iTempModifier;
-		}
+			iModifier += featureDefenseModifier(pInPlot->getFeatureType());
 		// No Feature - use Terrain Defense Mod
 		else
 		{
-			iTempModifier = terrainDefenseModifier(pInPlot->getTerrainType());
-			iModifier += iTempModifier;
+			iModifier += terrainDefenseModifier(pInPlot->getTerrainType());
 
 			// Tack on Hills Defense Mod
 			if(pInPlot->isHills())
-			{
-				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
-				iModifier += iTempModifier;
-			}
+				iModifier += terrainDefenseModifier(TERRAIN_HILL);
 		}
 
 		// Flanking
 		if (pFromPlot && !bFromRangedAttack && !bQuickAndDirty)
-		{
 			iModifier += pInPlot->GetEffectiveFlankingBonus(this, pAttacker, pFromPlot);
-		}
 	}
 
 	////////////////////////
 	// KNOWN ATTACKER
 	////////////////////////
 
+	// Unit Class Defense Modifier
 	if(pAttacker != NULL)
-	{
-		CvAssertMsg(pAttacker != this, "Compared defense strength against one's own pointer. This is weird and probably wrong.");
-
-		// Unit Class Defense Modifier
-		iTempModifier = unitClassDefenseModifier(pAttacker->getUnitClassType());
-		iModifier += iTempModifier;
-	}
+		iModifier += unitClassDefenseModifier(pAttacker->getUnitClassType());
 
 	// Unit can't drop below 10% strength
 	if(iModifier < -90)
@@ -16769,8 +16690,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	// Extra combat percent
-	int iModifier = getExtraCombatPercent() + GetDamageCombatModifier() + GetStrategicResourceCombatPenalty();
-	int iTempModifier = 0;
+	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
 
 	// Kamikaze attack
 	if(getKamikazePercent() != 0)
@@ -16858,8 +16778,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Bonus for fighting in one's lands
 		if (pMyPlot->IsFriendlyTerritory(getOwner()))
 		{
-			iTempModifier = getFriendlyLandsModifier();
-			iModifier += iTempModifier;
+			iModifier += getFriendlyLandsModifier();
 
 			// Founder Belief bonus
 			CvCity* pPlotCity = bQuickAndDirty ? NULL : pTargetPlot->getOwningCity();
@@ -16874,11 +16793,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						CvCity* pHolyCity = NULL;
 						CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
 						if (pHolyCityPlot)
-						{
 							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
-						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner(), pHolyCity);
-						iModifier += iTempModifier;
+
+						iModifier += pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner(), pHolyCity);
 					}
 				}
 			}
@@ -16887,8 +16804,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Bonus for fighting outside one's lands
 		else
 		{
-			iTempModifier = getOutsideFriendlyLandsModifier();
-			iModifier += iTempModifier;
+			iModifier += getOutsideFriendlyLandsModifier();
 
 			// Founder Belief bonus (this must be a city controlled by an enemy)
 			CvCity* pPlotCity = bQuickAndDirty ? NULL : pTargetPlot->getOwningCity();
@@ -16905,16 +16821,15 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 							CvCity* pHolyCity = NULL;
 							CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
 							if (pHolyCityPlot)
-							{
 								pHolyCity = pHolyCityPlot->getPlotCity();
-							}
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
-							iModifier += iTempModifier;
+
+							iModifier += pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
 						}
 					}
 				}
 			}
 		}
+
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
 		{
@@ -16934,46 +16849,19 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						CvCity* pHolyCity = NULL;
 						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 						if (pHolyCityPlot)
-						{
 							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
-						//Other religion! Full bonus.
-						if(eTheirReligion != eFoundedReligion)
-						{			
-							// Bonus in own land
-							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
-							if((iOtherOwn > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
-							{
-									iTempModifier = iOtherOwn;
-									iModifier += iTempModifier;
-							}
-							//Bonus in their land
-							else if((iOtherTheir > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							{
-								iTempModifier = iOtherTheir;
-								iModifier += iTempModifier;
-							}
-						}
-						//Same religion (or no religion) - half bonus.
-						else
-						{
-							// Bonus in own land
-							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
-							if((iOtherOwn > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
-							{
-									iTempModifier = (iOtherOwn / 2);
-									iModifier += iTempModifier;
-							}
-							//Bonus in their land
-							else if((iOtherTheir > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							{
-								iTempModifier = (iOtherTheir / 2);
-								iModifier += iTempModifier;
-							}
-						}
+						//Full bonus against different religion
+						int iScaler = (eTheirReligion != eFoundedReligion) ? 1 : 2;
+						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+
+						// Bonus in own land
+						if((iOtherOwn > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
+							iModifier += iOtherOwn/iScaler;
+						//Bonus in their land
+						if((iOtherTheir > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+							iModifier += iOtherTheir/iScaler;
 					}
 				}
 			}
@@ -17024,7 +16912,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 
 		//bonus for attacking same unit over and over in a turn?
-		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
 		{
 			iTempModifier *= pOtherUnit->GetNumTimesAttackedThisTurn(getOwner());
@@ -17035,28 +16923,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if(pOtherUnit->isBarbarian())
 		{
 			// Generic Barb Combat Bonus
-			iTempModifier = kPlayer.GetBarbarianCombatBonus();
-			iModifier += iTempModifier;
+			iModifier += kPlayer.GetBarbarianCombatBonus();
 
 			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 			// Human bonus
 			if(isHuman())
-			{
-				iTempModifier = thisGameHandicap.getBarbarianCombatModifier();
-				iModifier += iTempModifier;
-			}
+				iModifier += thisGameHandicap.getBarbarianCombatModifier();
 			// AI bonus
 			else
-			{
-				iTempModifier = thisGameHandicap.getAIBarbarianCombatModifier();
-				iModifier += iTempModifier;
-			}
-
-			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
-			{
-				iModifier += 25;
-			}
+				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
 		}
 
 		// ATTACKING
@@ -17087,7 +16963,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetAreaEffectBonus(AE_SAPPER, pMyPlot, pCity);
 
 		//bonus for attacking same unit over and over in a turn?
-		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
 		{
 			iTempModifier *= pCity->GetNumTimesAttackedThisTurn(getOwner());
@@ -17118,21 +16994,26 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
+
+		//this only applies when attacking (on defense -> fewer targets, harder to hit)
+		iModifier += GetDamageCombatModifier();
 	}
 	else
 	{
-		// Ranged Defense Mod (this was under the known unit bit, which is stupid)
+		// Regular defense modifier
+		iModifier += getDefenseModifier();
+
+		// Ranged Defense Mod
 		iModifier += rangedDefenseModifier();
 
 		// No TERRAIN bonuses for this Unit?
-		iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
+		int iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
 		if (noDefensiveBonus() && iTempModifier>0)
 			//only forts & citadels have an effect
 			iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);
 
 		iModifier += iTempModifier;
-		iModifier += getDefenseModifier();
 	}
 
 	// Unit can't drop below 10% strength

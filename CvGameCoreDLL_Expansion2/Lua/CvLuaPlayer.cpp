@@ -12460,7 +12460,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		if (GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetNumWarsFought(pkPlayer->GetID()) > 0)
 		{
-			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL)
+			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL || iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -12475,9 +12475,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 		}
+		if (iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
-// Hide some modifiers if FRIENDLY (or pretending to be)
+// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY))) 
 #else
@@ -12774,14 +12781,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 #endif
-	if (iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = 0;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
-		aOpinions.push_back(kOpinion);
-	}
-
 	iValue = pDiploAI->GetCiviliansReturnedToMeScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13322,7 +13321,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		iValue = 0;
 		Localization::String str;
-		int iTempValue;
+		int iTempValue = 0;
+		int iFriendDenouncedScore = 0;
+		int iDOWFriendScore = 0;
+		int iFriendDeclaredWarScore = 0;
 
 		iTempValue = pDiploAI->GetFriendDenouncementScore(eWithPlayer);
 		if (iTempValue > iValue)
@@ -13339,6 +13341,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		iTempValue = pDiploAI->GetFriendDenouncedUsScore(eWithPlayer);
+		iFriendDenouncedScore = iTempValue;
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
@@ -13346,6 +13349,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		iTempValue = pDiploAI->GetWeDeclaredWarOnFriendScore(eWithPlayer);
+		iDOWFriendScore = iTempValue;
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
@@ -13353,10 +13357,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		iTempValue = pDiploAI->GetFriendDeclaredWarOnUsScore(eWithPlayer);
+		iFriendDeclaredWarScore = iTempValue;
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
 			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR");
+		}
+		
+		// If there was a personal betrayal, that matters more to the AI
+		if(iFriendDeclaredWarScore != 0)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR");
+		}
+		else if(iFriendDenouncedScore != 0 && iDOWFriendScore <= iFriendDenouncedScore)
+		{
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED");
 		}
 
 		if (iValue != 0)
@@ -13545,49 +13560,100 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
-	if (iValue != 0)
+	// World Congress >>> United Nations
+	if(GC.getGame().IsUnitedNationsActive())
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL");
-		aOpinions.push_back(kOpinion);
-	}
-	
-	iValue = pDiploAI->GetDislikedTheirProposalScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL");
-		aOpinions.push_back(kOpinion);
-	}
+		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN");
+			aOpinions.push_back(kOpinion);
+		}
+		
+		iValue = pDiploAI->GetDislikedTheirProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL_UN");
+			aOpinions.push_back(kOpinion);
+		}
 
-	iValue = pDiploAI->GetSupportedMyProposalScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL");
-		aOpinions.push_back(kOpinion);
-	}
+		iValue = pDiploAI->GetSupportedMyProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN");
+			aOpinions.push_back(kOpinion);
+		}
 
-	iValue = pDiploAI->GetFoiledMyProposalScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL");
-		aOpinions.push_back(kOpinion);
-	}
+		iValue = pDiploAI->GetFoiledMyProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN");
+			aOpinions.push_back(kOpinion);
+		}
 
-	iValue = pDiploAI->GetSupportedMyHostingScore(eWithPlayer);
-	if (iValue != 0)
+		iValue = pDiploAI->GetSupportedMyHostingScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN");
+			aOpinions.push_back(kOpinion);
+		}
+	}
+	else
 	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
-		aOpinions.push_back(kOpinion);
+		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL");
+			aOpinions.push_back(kOpinion);
+		}
+		
+		iValue = pDiploAI->GetDislikedTheirProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiploAI->GetSupportedMyProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiploAI->GetFoiledMyProposalScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL");
+			aOpinions.push_back(kOpinion);
+		}
+
+		iValue = pDiploAI->GetSupportedMyHostingScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
+			aOpinions.push_back(kOpinion);
+		}
 	}
 
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)

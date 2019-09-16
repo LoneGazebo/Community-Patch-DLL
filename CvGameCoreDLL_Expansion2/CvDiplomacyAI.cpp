@@ -12927,11 +12927,11 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
 			{
 				iEnemyWeight -= 5;
-				iDPWeight -= -10;
+				iDPWeight -= 10;
 				iDoFWeight += 5;
 			}
 
-			// We denounced them
+			// We denounced them and/or they denounced us
 			if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 			{
 				iEnemyWeight += 10;
@@ -13381,7 +13381,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 		if (GetMostValuableDoF(false) != NO_PLAYER)
 		{
-			strTemp.Format("\n     - ** Our best FRIENSHIP: %s", GET_PLAYER(GetMostValuableDoF(false)).getCivilizationShortDescription());
+			strTemp.Format("\n     - ** Our best FRIENDSHIP: %s", GET_PLAYER(GetMostValuableDoF(false)).getCivilizationShortDescription());
 			strOutBuf2 += strTemp;
 		}
 		pLog->Msg(strOutBuf1);
@@ -13480,7 +13480,7 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDoF(bool bIgnoreDoFs)
 	return NO_PLAYER;
 }
 
-/// Returns how much we value ePlayer as being a competitor of ours
+/// Returns how much we numerically consider ePlayer a competitor/enemy
 int CvDiplomacyAI::GetCompetitorValue(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
