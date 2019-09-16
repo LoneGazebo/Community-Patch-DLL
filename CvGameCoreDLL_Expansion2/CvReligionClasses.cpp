@@ -4488,37 +4488,22 @@ bool CvPlayerReligions::HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) 
 bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 {
 	if (eReligion <= RELIGION_PANTHEON)
-	{
 		return false;
-	}
 
 	int iNumFollowingCities = 0;
 	int iLoop = 0;
-	CvCity* pCity = NULL;
-	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pCity)
-		{
-			if(pCity->GetCityReligions()->GetReligiousMajority() == eReligion)
-			{
-				iNumFollowingCities++;
-			}
-		}
+		if(pCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+			iNumFollowingCities++;
 	}
 
-	// Over half?
-#if defined(MOD_BALANCE_CORE)
+	// Need at least one
 	if (iNumFollowingCities <= 0)
 		return false;
 
-	if (m_pPlayer->getNumCities() == iNumFollowingCities)
-		return true;
-
-	// Equal to make OCC/Venice possible.
+	// Over half? Equal to make OCC/Venice possible.
 	return (iNumFollowingCities * 2 >= m_pPlayer->getNumCities());
-#else
-	return (iNumFollowingCities * 2 > m_pPlayer->getNumCities());
-#endif
 }
 
 #if defined(MOD_BALANCE_CORE)

@@ -104,17 +104,6 @@
 /// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
 #define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
 
-/// When calculating the expected damage on a target from a melee unit, the AI will now use pTargetPlot and pDefender parameters when appropriate (instead of having them as NULL)
-#define AUI_TACTICAL_FIX_FIND_PARATROOPER_WITHIN_STRIKING_DISTANCE_MELEE_STRENGTH
-/// When calculating the expected damage on a target from a melee unit, the AI will now use pFromPlot and pDefender parameters when appropriate (instead of having them as NULL)
-#define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_MELEE
-/// Air units will now properly factor in possible interceptions made at the tile
-#define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_AIR_UNITS
-/// Units that cannot caputre cities will not attempt to do so
-#define AUI_TACTICAL_FIX_NO_CAPTURE
-/// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
-#define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
-
 /// If the international trade route would be to a minor, the gold and tech received by the minor do not count
 #define AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 /// Score for a trade route from religious pressure is now relative to how much pressure there already is at the city
