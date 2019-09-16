@@ -5589,7 +5589,7 @@ bool CvUnit::jumpToNearestValidPlot()
 			//need to check for everything, including invisible units
 			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				int iValue = it->iNormalizedDistance * 10;
+				int iValue = it->iNormalizedDistance * 10 - GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
 				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 				if (getDomainType() == DOMAIN_SEA)
@@ -5606,7 +5606,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 		//we want lowest scores first
 		std::sort(candidates.begin(), candidates.end());
-		std::reverse(candidates.begin(), candidates.end());
+
 		for (size_t i=0; i<candidates.size(); i++)
 		{
 			CvPlot* pTestPlot = candidates[i].pPlot;
@@ -29079,7 +29079,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 		int iOldDanger = GetDanger();
 		int iNewDanger = GetDanger(pPathPlot);
 		//don't knowingly move into danger. mostly relevant for civilians
-		if (iNewDanger > GetCurrHitPoints()/2 && (iNewDanger > iOldDanger || iNewDanger==INT_MAX))
+		if (iNewDanger > GetCurrHitPoints() && (iNewDanger > iOldDanger || iNewDanger==INT_MAX))
 		{
 			ClearPathCache();
 			return MOVE_RESULT_CANCEL;

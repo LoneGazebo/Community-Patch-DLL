@@ -2909,9 +2909,16 @@ void CvTacticalAI::PlotCampDefenseMoves()
 				currentDefender->DoUpgrade(true);
 				UnitProcessed(currentDefender->GetID());
 			}
+			else if (currentDefender->isRanged())
+			{
+				//don't leave camp
+				TacticalAIHelpers::PerformOpportunityAttack(currentDefender);
+				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
+				UnitProcessed(currentDefender->GetID());
+			}
 			else
 			{
-				//check how many enemies are around
+				//melee may leave camp depending on how many enemies are around
 				int iStrongEnemyCount = 0;
 				int iWeakEnemyCount = 0;
 				for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
