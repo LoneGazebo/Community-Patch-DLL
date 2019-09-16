@@ -13322,9 +13322,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		iValue = 0;
 		Localization::String str;
 		int iTempValue = 0;
-		int iFriendDenouncedScore = 0;
+		int iFriendDenouncedUsScore = 0;
 		int iDOWFriendScore = 0;
-		int iFriendDeclaredWarScore = 0;
+		int iFriendDeclaredWarOnUsScore = 0;
 
 		iTempValue = pDiploAI->GetFriendDenouncementScore(eWithPlayer);
 		if (iTempValue > iValue)
@@ -13341,7 +13341,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		iTempValue = pDiploAI->GetFriendDenouncedUsScore(eWithPlayer);
-		iFriendDenouncedScore = iTempValue;
+		iFriendDenouncedUsScore = iTempValue;
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
@@ -13357,7 +13357,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		iTempValue = pDiploAI->GetFriendDeclaredWarOnUsScore(eWithPlayer);
-		iFriendDeclaredWarScore = iTempValue;
+		iFriendDeclaredWarOnUsScore = iTempValue;
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
@@ -13365,11 +13365,11 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		
 		// If there was a personal betrayal, that matters more to the AI
-		if(iFriendDeclaredWarScore != 0)
+		if(iFriendDeclaredWarOnUsScore != 0)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DECLARED_WAR");
 		}
-		else if(iFriendDenouncedScore != 0 && iDOWFriendScore <= iFriendDenouncedScore)
+		else if(iFriendDenouncedUsScore != 0 && iDOWFriendScore <= 0)
 		{
 			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED");
 		}
