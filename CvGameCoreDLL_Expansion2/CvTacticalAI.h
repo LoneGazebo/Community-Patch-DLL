@@ -314,16 +314,10 @@ public:
 	void Clear()
 	{
 		m_eTargetType = AI_TACTICAL_TARGET_NONE;
-#if defined(MOD_BALANCE_CORE)
 		m_iTargetX = INVALID_PLOT_COORD;
 		m_iTargetY = INVALID_PLOT_COORD;
-#else
-		m_iTargetX = -1;
-		m_iTargetY = -1;
-#endif
-		m_eTargetPlayer = NO_PLAYER;
 		m_iZoneID = -1;
-		m_pAuxData = NULL;
+		m_pUnit = NULL;
 		m_iAuxData = 0;
 		m_eAggLvl = AL_NONE;
 	};
@@ -355,14 +349,7 @@ public:
 	{
 		m_iTargetY = iValue;
 	}
-	inline PlayerTypes GetTargetPlayer() const
-	{
-		return m_eTargetPlayer;
-	}
-	inline void SetTargetPlayer(PlayerTypes eValue)
-	{
-		m_eTargetPlayer = eValue;
-	}
+
 	inline int GetDominanceZone() const
 	{
 		return m_iZoneID;
@@ -379,15 +366,13 @@ public:
 	void SetLastAggLvl(eAggressionLevel lvl) { m_eAggLvl = lvl; }
 	eAggressionLevel GetLastAggLvl() const { return m_eAggLvl; }
 
-	// AuxData is used for a pointer to the actual target object (CvUnit, CvCity, etc.)
-	//    (for improvements & barbarian camps this is set to the plot).
-	inline void* GetAuxData()
+	inline CvUnit* GetUnitPtr()
 	{
-		return m_pAuxData;
+		return m_pUnit;
 	}
-	inline void SetAuxData(void* pAuxData)
+	inline void SetUnitPtr(CvUnit* pUnit)
 	{
-		m_pAuxData = pAuxData;
+		m_pUnit = pUnit;
 	}
 
 	// Stores required damage for offensive targets
@@ -407,8 +392,7 @@ private:
 	AITacticalTargetType m_eTargetType;
 	int m_iTargetX;
 	int m_iTargetY;
-	PlayerTypes m_eTargetPlayer;
-	void* m_pAuxData;
+	CvUnit* m_pUnit;
 	int m_iAuxData;
 	int m_iZoneID;
 	eAggressionLevel m_eAggLvl;

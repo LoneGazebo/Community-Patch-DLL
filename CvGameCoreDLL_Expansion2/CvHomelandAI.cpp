@@ -752,7 +752,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData((void*)pCity);
 					newTarget.SetAuxIntData(pCity->getThreatValue());
 					m_TargetedCities.push_back(newTarget);
 				}
@@ -786,7 +785,6 @@ void CvHomelandAI::FindHomelandTargets()
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
 								newTarget.SetTargetY(pLoopPlot->getY());
-								newTarget.SetAuxData(pLoopPlot);
 								newTarget.SetAuxIntData(eBuild);
 								m_TargetedNavalResources.push_back(newTarget);								
 							}
@@ -800,7 +798,6 @@ void CvHomelandAI::FindHomelandTargets()
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
-				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... antiquity site?
@@ -813,7 +810,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
 					m_TargetedAntiquitySites.push_back(newTarget);
 				}
 			}
@@ -831,7 +827,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_FORT);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
 					newTarget.SetAuxIntData(iWeight);
 					m_TargetedSentryPoints.push_back(newTarget);
 				}
@@ -878,7 +873,6 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
 						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxData(pLoopPlot);
 						newTarget.SetAuxIntData(iWeight);
 						m_TargetedSentryPoints.push_back(newTarget);
 					}
@@ -956,7 +950,6 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
 						newTarget.SetTargetX(pLoopPlot->getX());
 						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxData(pLoopPlot);
 						newTarget.SetAuxIntData(iWeight);
 						m_TargetedNavalSentryPoints.push_back(newTarget);
 					}
@@ -969,7 +962,6 @@ void CvHomelandAI::FindHomelandTargets()
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
-				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... road segment in friendly territory?
@@ -983,7 +975,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
 					newTarget.SetAuxIntData(iWeight);
 					m_TargetedHomelandRoads.push_back(newTarget);
 				}

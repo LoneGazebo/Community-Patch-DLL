@@ -5589,7 +5589,7 @@ bool CvUnit::jumpToNearestValidPlot()
 			//need to check for everything, including invisible units
 			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				int iValue = it->iNormalizedDistance * 10 - GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+				int iValue = it->iNormalizedDistance * 10 + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
 				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 				if (getDomainType() == DOMAIN_SEA)

@@ -174,7 +174,7 @@ bool CvTacticalTarget::IsTargetStillAlive(PlayerTypes eAttackingPlayer)
 	{
 		CvPlot *pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
 		CvCity *pCity = pPlot->getPlotCity();
-		if(pCity != NULL && pCity->getOwner() == GetTargetPlayer())
+		if(pCity != NULL && pCity->getOwner() != eAttackingPlayer && GET_PLAYER(eAttackingPlayer).IsAtWarWith(pCity->getOwner()))
 		{
 			bRtnValue = true;
 		}
@@ -1120,7 +1120,6 @@ void CvTacticalAI::FindTacticalTargets()
 				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->isPotentiallyInDanger() || pCity->isUnderSiege() || pLoopPlot->IsWorthDefending(m_pPlayer->GetID())))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-					newTarget.SetAuxData((void*)pCity);
 					newTarget.SetAuxIntData(pCity->getThreatValue());
 					m_AllTargets.push_back(newTarget);
 				}
@@ -1129,8 +1128,6 @@ void CvTacticalAI::FindTacticalTargets()
 				else if (atWar(m_pPlayer->getTeam(), pCity->getTeam()))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY);
-					newTarget.SetTargetPlayer(pCity->getOwner());
-					newTarget.SetAuxData((void*)pCity);
 					//barbarians don't care about cities much compared to normal players
 					newTarget.SetAuxIntData( m_pPlayer->isBarbarian() ? 20 : 100);
 					m_AllTargets.push_back(newTarget);
@@ -1149,8 +1146,7 @@ void CvTacticalAI::FindTacticalTargets()
 						//note that the HIGH/MEDIUM/LOW classification is changed later in IdentifyPriorityTargets
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
 
-					newTarget.SetTargetPlayer(pUnit->getOwner());
-					newTarget.SetAuxData((void*)pUnit);
+					newTarget.SetUnitPtr(pUnit);
 					newTarget.SetAuxIntData(50);
 					m_AllTargets.push_back(newTarget);
 				}
@@ -1164,8 +1160,7 @@ void CvTacticalAI::FindTacticalTargets()
 						if (pUnit && pUnit->IsCivilianUnit() && m_pPlayer->IsAtWarWith(pUnit->getOwner()))
 						{
 							newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
-							newTarget.SetTargetPlayer(pUnit->getOwner());
-							newTarget.SetAuxData((void*)pUnit);
+							newTarget.SetUnitPtr(pUnit);
 							newTarget.SetAuxIntData(25);
 
 							if (IsVeryHighPriorityCivilianTarget(&newTarget))
@@ -1193,8 +1188,6 @@ void CvTacticalAI::FindTacticalTargets()
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
 
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-					newTarget.SetTargetPlayer(BARBARIAN_PLAYER);
-					newTarget.SetAuxData((void*)pLoopPlot);
 					newTarget.SetAuxIntData(iBaseScore);
 					m_AllTargets.push_back(newTarget);
 				}
@@ -1203,43 +1196,24 @@ void CvTacticalAI::FindTacticalTargets()
 				if (m_pPlayer->isMajorCiv() && pLoopPlot->isRevealedGoody(m_pPlayer->getTeam()))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_ANCIENT_RUINS);
-					newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
 					newTarget.SetAuxIntData(150);
-#endif
 					m_AllTargets.push_back(newTarget);
 				}
 
 				// Or citadels!
-#if defined(MOD_BALANCE_CORE_MILITARY)
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
 					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > 0)
-#else
-				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
-					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
-					GC.getImprovementInfo(pLoopPlot->getImprovementType())->GetNearbyEnemyDamage() > 0)
-#endif
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITADEL);
-					newTarget.SetTargetPlayer(pLoopPlot->getOwner());
-					newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
 					newTarget.SetAuxIntData(80);
-#endif
 					m_AllTargets.push_back(newTarget);
 				}
 
 				// ... enemy improvement?
-#if defined(MOD_BALANCE_CORE_MILITARY)
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
 					!pLoopPlot->IsImprovementPillaged())
-#else
-				else if(atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
-					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
-					!pLoopPlot->IsImprovementPillaged())
-#endif
 				{
 					ResourceUsageTypes eRUT = (ResourceUsageTypes)-1;
 					ResourceTypes eResource = pLoopPlot->getResourceType();
@@ -1260,22 +1234,14 @@ void CvTacticalAI::FindTacticalTargets()
 						else
 						{
 							newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE);
-							newTarget.SetTargetPlayer(pLoopPlot->getOwner());
-							newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
 							newTarget.SetAuxIntData(40);
-#endif
 							m_AllTargets.push_back(newTarget);
 						}
 					}
 					else
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
-						newTarget.SetTargetPlayer(pLoopPlot->getOwner());
-						newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
 						newTarget.SetAuxIntData(5);
-#endif
 						m_AllTargets.push_back(newTarget);
 					}
 				}
@@ -1287,32 +1253,22 @@ void CvTacticalAI::FindTacticalTargets()
 					!pLoopPlot->IsRoutePillaged() && pLoopPlot->IsCityConnection())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
-					newTarget.SetTargetPlayer(pLoopPlot->getOwner());
-					newTarget.SetAuxData((void*)pLoopPlot);
 					newTarget.SetAuxIntData(10 - bEnemyDominatedPlot ? 2 : 0 );
 					m_AllTargets.push_back(newTarget);
 				}
 
 				// ... trade unit
-#if defined(MOD_BALANCE_CORE_MILITARY)
 				if (pLoopPlot->isVisible(m_pPlayer->getTeam()) && pPlayerTrade->ContainsEnemyTradeUnit(pLoopPlot))
-#else
-				else if (pPlayerTrade->ContainsEnemyTradeUnit(pLoopPlot))
-#endif
 				{
-					if (pLoopPlot->isWater())
-					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_TRADE_UNIT_SEA);
-					}
-					else
-					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_TRADE_UNIT_LAND);
-					}
-
-					newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
+					newTarget.SetTargetType( pLoopPlot->isWater() ? AI_TACTICAL_TARGET_TRADE_UNIT_SEA : AI_TACTICAL_TARGET_TRADE_UNIT_LAND);
 					newTarget.SetAuxIntData(35);
-#endif
+					m_AllTargets.push_back(newTarget);
+				}
+				// ... trade plot (for getting units to park on trade routes to try to get them to plunder enemy trade routes)
+				if (pLoopPlot->isVisible(m_pPlayer->getTeam()) && pPlayerTrade->ContainsEnemyTradePlot(pLoopPlot))
+				{
+					newTarget.SetTargetType( pLoopPlot->isWater() ? AI_TACTICAL_TARGET_TRADE_UNIT_SEA_PLOT : AI_TACTICAL_TARGET_TRADE_UNIT_LAND_PLOT);
+					newTarget.SetAuxIntData(15);
 					m_AllTargets.push_back(newTarget);
 				}
 
@@ -1325,8 +1281,6 @@ void CvTacticalAI::FindTacticalTargets()
 					if ((pDefenseCity && (pDefenseCity->isPotentiallyInDanger() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
-						newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE_MILITARY)
 						if (pDefenseCity)
 						{
 							int iValue = pDefenseCity->getThreatValue() + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
@@ -1349,9 +1303,6 @@ void CvTacticalAI::FindTacticalTargets()
 							}
 							newTarget.SetAuxIntData(iValue);
 						}
-#else
-						newTarget.SetAuxIntData(pDefenseCity->getThreatValue() + m_pPlayer->GetPlotDanger(*pLoopPlot));
-#endif
 						m_AllTargets.push_back(newTarget);
 					}
 				}
@@ -1365,33 +1316,11 @@ void CvTacticalAI::FindTacticalTargets()
 					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
-						newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
 						newTarget.SetAuxIntData(1);
-#endif
 						m_AllTargets.push_back(newTarget);
 					}
 				}
 
-				// ... trade plot (for getting units to park on trade routes to try to get them to plunder enemy trade routes)
-				if (pLoopPlot->isVisible(m_pPlayer->getTeam()) &&
-					pPlayerTrade->ContainsEnemyTradePlot(pLoopPlot))
-				{
-					if (pLoopPlot->isWater())
-					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_TRADE_UNIT_SEA_PLOT);
-					}
-					else
-					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_TRADE_UNIT_LAND_PLOT);
-					}
-
-					newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
-					newTarget.SetAuxIntData(15);
-#endif
-					m_AllTargets.push_back(newTarget);
-				}
 #if defined(MOD_BALANCE_CORE)
 				//Enemy water plots?
 				if (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && pLoopPlot->isWater() && atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()))
@@ -1426,8 +1355,6 @@ void CvTacticalAI::FindTacticalTargets()
 						if (iWeight > 0)
 						{
 							newTarget.SetTargetType(AI_TACTICAL_TARGET_BLOCKADE_POINT);
-
-							newTarget.SetAuxData((void*)pLoopPlot);
 							newTarget.SetAuxIntData(iWeight/10);
 							m_NavalTargets.push_back(newTarget);
 						}
@@ -1476,7 +1403,6 @@ void CvTacticalAI::PrioritizeNavalTargetsAndAddToMainList()
 				newTarget.SetTargetX(pPlot->getX());
 				newTarget.SetTargetY(pPlot->getY());
 				newTarget.SetDominanceZone(GetTacticalAnalysisMap()->GetDominanceZoneID(pPlot->GetPlotIndex()));
-				newTarget.SetAuxData((void*)pPlot);
 				newTarget.SetAuxIntData(m_NavalTargets[iI].GetAuxIntData());
 				m_AllTargets.push_back(newTarget);
 			}
@@ -1487,7 +1413,6 @@ void CvTacticalAI::PrioritizeNavalTargetsAndAddToMainList()
 				newTarget.SetTargetX(pPlot->getX());
 				newTarget.SetTargetY(pPlot->getY());
 				newTarget.SetDominanceZone(GetTacticalAnalysisMap()->GetDominanceZoneID(pPlot->GetPlotIndex()));
-				newTarget.SetAuxData((void*)pPlot);
 				newTarget.SetAuxIntData(m_NavalTargets[iI].GetAuxIntData());
 				m_AllTargets.push_back(newTarget);
 			}
@@ -3516,8 +3441,7 @@ void CvTacticalAI::PlotHedgehogMoves()
 	if(pZone->GetZoneCity() != NULL)
 	{
 		CvTacticalTarget target;
-		target.SetTargetType(AI_TACTICAL_TARGET_CITY);
-		target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
+		target.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 		target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 		target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
 		target.SetDominanceZone(pZone->GetZoneID());
@@ -3636,7 +3560,6 @@ void CvTacticalAI::PlotCloseOnTarget()
 	if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
 	{
 		target.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-		target.SetTargetPlayer(BARBARIAN_PLAYER);
 		target.SetTargetX(pZone->GetCenterX());
 		target.SetTargetY(pZone->GetCenterY());
 		target.SetDominanceZone(pZone->GetZoneID());
@@ -3652,7 +3575,6 @@ void CvTacticalAI::PlotCloseOnTarget()
 		if(IsTemporaryZoneCity(pZone->GetZoneCity()) || bCanSeeCity || pZone->GetOverallFriendlyStrength()*3 > pZone->GetOverallEnemyStrength()*2)
 		{
 			target.SetTargetType(AI_TACTICAL_TARGET_CITY);
-			target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
 			target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 			target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
 			target.SetDominanceZone(pZone->GetZoneID());
@@ -4469,7 +4391,7 @@ void CvTacticalAI::DumpTacticalTargets(const char* hint)
 			continue;
 		}
 
-		CvUnit* pUnit = (CvUnit*)(pTarget->GetAuxData());
+		CvUnit* pUnit = pTarget->GetUnitPtr();
 		CvString strMsg;
 		strMsg.Format("Enemy unit (%s) at (%d,%d) with prio %s, score %d (%s with %d hp)", hint, pTarget->GetTargetX(), pTarget->GetTargetY(), 
 			prio, pTarget->GetAuxIntData(), pUnit->getName().c_str(), pUnit->GetCurrHitPoints());
@@ -4485,12 +4407,15 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 	// Look through all the enemies we can see
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
 	{
+		CvUnit* pUnit = m_AllTargets[iI].GetUnitPtr();
+		if (!pUnit)
+			continue;
+
 		// Don't consider units that are already medium priority
 		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 		{
 			// Ranged units will always be medium priority targets
-			CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
 			if(pUnit->IsCanAttackRanged())
 			{
 				m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
@@ -4502,7 +4427,6 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 		{
 			// Units defending citadels will always be high priority targets
-			CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
 			ImprovementTypes eImprovement = pUnit->plot()->getImprovementType();
 			if(pUnit->plot()->getOwner() == pUnit->getOwner() &&
 			        eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() > 0)
@@ -4517,7 +4441,6 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 			{
 				//units which are in the front line should be medium at least
-				CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
 				if (pUnit->plot()->GetNumSpecificPlayerUnitsAdjacent(m_pPlayer->GetID())>0)
 					m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 			}
@@ -4527,8 +4450,6 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 					m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 			{
 				// Units defending forts will always be high priority targets
-				CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
-
 				ImprovementTypes eImprovement = pUnit->plot()->getImprovementType();
 				if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetDefenseModifier() >= 25)
 				{
@@ -7928,17 +7849,11 @@ bool CvTacticalAI::UseThisDominanceZone(CvTacticalDominanceZone* pZone)
 bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 {
 	bool bRtnValue = false;
-	CvUnit* pUnit = (CvUnit*)pTarget->GetAuxData();
+	CvUnit* pUnit = pTarget->GetUnitPtr();
 	if(pUnit)
 	{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-#else
-		if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL || pUnit->AI_getUnitAIType() == UNITAI_ADMIRAL)
-#endif
-		{
 			bRtnValue = true;
-		}
 	}
 	return bRtnValue;
 }
@@ -7947,7 +7862,7 @@ bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 bool CvTacticalAI::IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 {
 	bool bRtnValue = false;
-	CvUnit* pUnit = (CvUnit*)pTarget->GetAuxData();
+	CvUnit* pUnit = pTarget->GetUnitPtr();
 	if (pUnit && pUnit->IsCivilianUnit())
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -8026,7 +7941,7 @@ bool CvTacticalAI::IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 bool CvTacticalAI::IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget)
 {
 	bool bRtnValue = false;
-	CvUnit* pUnit = (CvUnit*)pTarget->GetAuxData();
+	CvUnit* pUnit = pTarget->GetUnitPtr();
 	if(pUnit)
 	{
 		int iEstimatedEndTurn = GC.getGame().getEstimateEndTurn();

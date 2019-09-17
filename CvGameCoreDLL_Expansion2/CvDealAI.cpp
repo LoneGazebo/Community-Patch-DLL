@@ -8536,77 +8536,45 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Map with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 500;
-	int iPlotValue = 0;
+	CvPlayer* pSeller = bFromMe ? GetPlayer() : &GET_PLAYER(eOtherPlayer);	// Who is selling this map?
+	CvPlayer* pBuyer = bFromMe ? &GET_PLAYER(eOtherPlayer) : GetPlayer();	// Who is buying this map?
 
-	CvPlayer* pSeller;		// Who is selling this map?
-	CvPlayer* pBuyer;		// Who is buying this map?
-
-	if(bFromMe)
-	{
-		pSeller = GetPlayer();
-		pBuyer = &GET_PLAYER(eOtherPlayer);
-	}
-	else
-	{
-		pSeller = &GET_PLAYER(eOtherPlayer);
-		pBuyer = GetPlayer();
-	}
-
-	int iNumTeams = GC.getGame().countCivTeamsAlive();
-
-	CvPlot* pPlot;
 	// Look at every tile on map
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		iPlotValue = 0;
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iPlotValue = 0;
 
 		if(pPlot == NULL)
-		{
 			continue;
-		}
 
 		// Seller must have plot revealed
 		if(!pPlot->isRevealed(pSeller->getTeam()))
-		{
 			continue;
-		}
 
 		// Buyer can't have plot revealed
 		if(pPlot->isRevealed(pBuyer->getTeam()))
-		{
 			continue;
-		}
 
-		// Pick only plots that have been revealed by us and not revealed by them
+		// ignore ice plots
+		if (pPlot->getFeatureType() == FEATURE_ICE)
+			continue;
 
 		// Handle terrain features
 		switch(pPlot->getTerrainType())
 		{
 			case TERRAIN_GRASS:
-				iPlotValue = 60;
-				break;
 			case TERRAIN_PLAINS:
+			case TERRAIN_HILL:
+			case TERRAIN_COAST:
 				iPlotValue = 60;
 				break;
 			case TERRAIN_DESERT:
-				iPlotValue = 60;
-				break;
-			case TERRAIN_HILL:
-				iPlotValue = 60;
-				break;
-			case TERRAIN_COAST:
-				iPlotValue = 45;
-				break;
 			case TERRAIN_TUNDRA:
-				iPlotValue = 35;
+				iPlotValue = 30;
 				break;
 			case TERRAIN_MOUNTAIN:
-				iPlotValue = 35;
-				break;
 			case TERRAIN_SNOW:
-				iPlotValue = 5;
-				break;
 			case TERRAIN_OCEAN:
 				iPlotValue = 5;
 				break;
@@ -8614,18 +8582,6 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iPlotValue = 20;
 				break;
 		}
-
-		// Modifier based on feature type
-		switch(pPlot->getFeatureType())
-		{
-			case FEATURE_ICE:
-				iPlotValue *= 0;
-				break;
-			default:
-				iPlotValue *= 100;
-				break;
-		}
-		iPlotValue /= 100;
 
 		// Is there a Natural Wonder here? 500% of plot.
 		if(pPlot->IsNaturalWonder())
@@ -8661,12 +8617,10 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		// Modifier based on uniqueness
 		CvAssertMsg(GC.getGame().countCivTeamsAlive() != 0, "CvDealAI: Civ Team count equals zero...");
 
+		int iNumTeams = GC.getGame().countCivTeamsAlive();
 		int iModifier = (iNumTeams - iNumRevealed) * 100 / iNumTeams;
 
-		if(iModifier < 50)
-			iModifier = 50;
-
-		iPlotValue *= iModifier;
+		iPlotValue *= max(50,iModifier);
 		iPlotValue /= 100;
 
 		iItemValue += iPlotValue;
@@ -8681,7 +8635,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
 			case MAJOR_CIV_APPROACH_WAR:
-				iItemValue *= 100;
+				iItemValue *= 300;
 				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
 				iItemValue *= 250;
@@ -8706,7 +8660,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iItemValue *= 100;
 			break;
 		}
-		iItemValue /= 300;
+		iItemValue /= 500;
 	}
 	else
 	{
@@ -8742,7 +8696,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iItemValue *= 100;
 			break;
 		}
-		iItemValue /= 300;
+		iItemValue /= 500;
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
