@@ -5606,7 +5606,6 @@ bool CvUnit::jumpToNearestValidPlot()
 
 		//we want lowest scores first
 		std::sort(candidates.begin(), candidates.end());
-
 		for (size_t i=0; i<candidates.size(); i++)
 		{
 			CvPlot* pTestPlot = candidates[i].pPlot;
@@ -15797,9 +15796,12 @@ int CvUnit::GetBestAttackStrength() const
 }
 
 //typically negative
-int CvUnit::GetDamageCombatModifier() const
+int CvUnit::GetDamageCombatModifier(bool bRanged) const
 {
 	int iRtnValue = 0;
+
+	if (bRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+		return iRtnValue;
 
 	// How much does damage weaken the effectiveness of the Unit?
 	if (getDamage() > 0)
@@ -16427,8 +16429,12 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	iModifier += getDefenseModifier();
 
 	// Defense against Ranged
-	if(bFromRangedAttack)
+	if (bFromRangedAttack)
+	{
 		iModifier += rangedDefenseModifier();
+		if (!MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+			iModifier += GetDamageCombatModifier();
+	}
 	else
 		// Damage modifier does not apply to ranged attack (fewer targets -> harder to hit)
 		iModifier += GetDamageCombatModifier();

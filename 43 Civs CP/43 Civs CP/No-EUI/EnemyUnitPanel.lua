@@ -1159,7 +1159,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 
 			-- Damaged unit
-			iModifier = pMyUnit:GetDamageCombatModifier();
+			iModifier = pMyUnit:GetDamageCombatModifier(bRanged);
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
@@ -2044,7 +2044,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 
 				-- Damaged unit
-				iModifier = pTheirUnit:GetDamageCombatModifier();
+				iModifier = pTheirUnit:GetDamageCombatModifier(bRanged);
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
@@ -2765,7 +2765,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		end
 		
 		-- Damaged unit
-		iModifier = theirUnit:GetDamageCombatModifier();
+		iModifier = theirUnit:GetDamageCombatModifier(true);
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
