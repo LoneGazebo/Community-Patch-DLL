@@ -29517,6 +29517,13 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		return;
 	}
 
+	//plausi check
+	if (eMission == CvTypes::getMISSION_RANGE_ATTACK() && !canRangeStrikeAt(iData1, iData2))
+	{
+		OutputDebugString("illegal range strike target!\n");
+		return;
+	}
+
 	//any mission resets the cache
  	ClearReachablePlots();
 	m_lastStrengthModifiers.clear();

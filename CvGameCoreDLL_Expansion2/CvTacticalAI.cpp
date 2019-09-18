@@ -8819,17 +8819,19 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 				pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getY());
 				return true;
 			}
-			
-			//need to move and shoot
-			bool bIgnoreLOS = pAttacker->IsRangeAttackIgnoreLOS();
-			std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pDefender->plot(),pAttacker->GetRange(), false, !bIgnoreLOS);
-			for (std::vector<CvPlot*>::iterator it=vAttackPlots.begin(); it!=vAttackPlots.end(); ++it)
+			else if (pAttacker->canRangeStrike())
 			{
-				if (pAttacker->TurnsToReachTarget(*it,false,false,1)==0)
+				//need to move and shoot
+				bool bIgnoreLOS = pAttacker->IsRangeAttackIgnoreLOS();
+				std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pDefender->plot(), pAttacker->GetRange(), false, !bIgnoreLOS);
+				for (std::vector<CvPlot*>::iterator it = vAttackPlots.begin(); it != vAttackPlots.end(); ++it)
 				{
-					pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),(*it)->getX(),(*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-					pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pDefender->getX(),pDefender->getY());
-					return true;
+					if (pAttacker->TurnsToReachTarget(*it, false, false, 1) == 0 && pAttacker->canEverRangeStrikeAt(pDefender->getX(), pDefender->getY(), *it, false))
+					{
+						pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+						pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
+						return true;
+					}
 				}
 			}
 		}
