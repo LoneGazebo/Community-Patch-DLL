@@ -1472,15 +1472,17 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 		iLevel += GC.getHILLS_SEE_FROM_CHANGE();
 	}
 
-	if(isWater())
+	if (isWater())
 	{
 		iLevel += GC.getSEAWATER_SEE_FROM_CHANGE();
 
-		if(eTeam!=NO_TEAM && GET_TEAM(eTeam).isExtraWaterSeeFrom())
+		if (eTeam != NO_TEAM && GET_TEAM(eTeam).isExtraWaterSeeFrom())
 		{
 			iLevel++;
 		}
 	}
+	else
+		iLevel++; //land plots are "higher" than water plots, limiting visibility and range attacks from water onto land
 
 	return iLevel;
 }
@@ -1518,6 +1520,8 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 	{
 		iLevel += GC.getSEAWATER_SEE_THROUGH_CHANGE();
 	}
+	else
+		iLevel++; //land plots are "higher" than water plots, limiting visibility and range attacks from water onto land
 
 	return iLevel;
 }
@@ -7728,7 +7732,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 	if (eBuilder != NO_PLAYER)
 	{
-		if (getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
+		if (eNewValue != NO_IMPROVEMENT && getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
 		{
 			bGiftFromMajor = true;
 			if (GC.getImprovementInfo(eNewValue)->IsCreatedByGreatPerson())

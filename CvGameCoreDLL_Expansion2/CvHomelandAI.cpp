@@ -752,7 +752,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData((void*)pCity);
 					newTarget.SetAuxIntData(pCity->getThreatValue());
 					m_TargetedCities.push_back(newTarget);
 				}
@@ -786,7 +785,6 @@ void CvHomelandAI::FindHomelandTargets()
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
 								newTarget.SetTargetY(pLoopPlot->getY());
-								newTarget.SetAuxData(pLoopPlot);
 								newTarget.SetAuxIntData(eBuild);
 								m_TargetedNavalResources.push_back(newTarget);								
 							}
@@ -800,7 +798,6 @@ void CvHomelandAI::FindHomelandTargets()
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
-				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... antiquity site?
@@ -813,7 +810,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
 					m_TargetedAntiquitySites.push_back(newTarget);
 				}
 			}
@@ -831,7 +827,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_FORT);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
 					newTarget.SetAuxIntData(iWeight);
 					m_TargetedSentryPoints.push_back(newTarget);
 				}
@@ -878,7 +873,6 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
 						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxData(pLoopPlot);
 						newTarget.SetAuxIntData(iWeight);
 						m_TargetedSentryPoints.push_back(newTarget);
 					}
@@ -956,7 +950,6 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
 						newTarget.SetTargetX(pLoopPlot->getX());
 						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxData(pLoopPlot);
 						newTarget.SetAuxIntData(iWeight);
 						m_TargetedNavalSentryPoints.push_back(newTarget);
 					}
@@ -969,7 +962,6 @@ void CvHomelandAI::FindHomelandTargets()
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
-				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... road segment in friendly territory?
@@ -983,7 +975,6 @@ void CvHomelandAI::FindHomelandTargets()
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
 					newTarget.SetAuxIntData(iWeight);
 					m_TargetedHomelandRoads.push_back(newTarget);
 				}
@@ -1186,7 +1177,7 @@ void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-			if (pUnit)
+			if (pUnit && pUnit->GetDanger()==0) //don't freeze in danger in case pathfinding failed ...
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				UnitProcessed(pUnit->GetID());
@@ -3233,6 +3224,8 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
+	//should be the same everywhere so we can reuse paths
+	int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
 
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -3253,8 +3246,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), 
-					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,
-					false, false, MISSIONAI_EXPLORE, pDestPlot);
+					iMoveFlags, false, false, MISSIONAI_EXPLORE, pDestPlot);
 
 				if (!pUnit->canMove())
 				{
@@ -3448,7 +3440,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		}
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
-		int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
 		if (!pBestPlot && pUnit->movesLeft() > 0)
 		{
 			//check at least 5 candidates

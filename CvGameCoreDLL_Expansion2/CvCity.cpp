@@ -840,7 +840,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					{
 						SetBaseYieldRateFromCSAlliance(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
 					}
-					if(owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+					if(owningPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
 					{
 						SetBaseYieldRateFromCSFriendship(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
 					}

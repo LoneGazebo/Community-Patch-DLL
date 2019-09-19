@@ -548,7 +548,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_PIONEER">
-			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities if Empire is very unhappy.[ENDCOLOR]</Text>
+			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities if the Empire is very unhappy.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST">
 			<Text>Colonist</Text>
@@ -562,7 +562,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_COLONIST">
-			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities if Empire is very unhappy.[ENDCOLOR]</Text>
+			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities if the Empire is very unhappy.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Bandeirantes -->

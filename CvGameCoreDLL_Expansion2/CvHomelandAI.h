@@ -148,14 +148,8 @@ public:
 
 	CvHomelandTarget()
 		: m_eTargetType(AI_HOMELAND_TARGET_CITY)
-#if defined(MOD_BALANCE_CORE)
 		, m_iTargetX(INVALID_PLOT_COORD)
 		, m_iTargetY(INVALID_PLOT_COORD)
-#else
-		, m_iTargetX(-1)
-		, m_iTargetY(-1)
-#endif
-		, m_pAuxData(NULL)
 		, m_iAuxData(0)
 	{
 	};
@@ -189,17 +183,6 @@ public:
 		m_iTargetY = iValue;
 	}
 
-	// AuxData is used for a pointer to the actual target object (CvUnit, CvCity, etc.)
-	//    (for naval improvements this is set to target plot).
-	inline void* GetAuxData()
-	{
-		return m_pAuxData;
-	}
-	inline void SetAuxData(void* pAuxData)
-	{
-		m_pAuxData = pAuxData;
-	}
-
 	// Used to SORT homeland targets in priority order
 	//    Set to the BuildType for improvement targets
 	//    Set to the weight for sentry points
@@ -217,7 +200,6 @@ private:
 	AIHomelandTargetType m_eTargetType;
 	int m_iTargetX;
 	int m_iTargetY;
-	void* m_pAuxData;
 	int m_iAuxData;
 };
 
