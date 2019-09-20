@@ -652,12 +652,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//No slots at all? Let's make one.
 			else if (iSlots == 0)
 			{
-				iBonus += 100;
+				iBonus += 1000;
 			}
 			//If we have more planes than slots (negative), we need this!
 			else
 			{
-				iBonus += (-3 * iSlots);
+				iBonus += (-10 * iSlots);
 			}
 		}
 		//Need Explorers?

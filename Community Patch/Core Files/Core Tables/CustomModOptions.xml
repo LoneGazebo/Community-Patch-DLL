@@ -1069,6 +1069,8 @@
     <Row Class="6" Name="BALANCE_CORE_BOMBARD_RANGE_BUILDINGS" Value="0"/>
 	<!-- UI is setup to give you a hundreds for tourism (disabled in CP only) -->
 	<Row Class="6" Name="BALANCE_CORE_TOURISM_HUNDREDS" Value="0"/>
+	<!-- Ranged attacks on injured units no longer get a bonus for the unit being injured -->
+	<Row Class="6" Name="BALANCE_CORE_RANGED_ATTACK_PENALTY" Value="0"/>
 	<!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->

@@ -29,7 +29,7 @@
 			<Value>85</Value>
 		</Row>
 
-		<!-- Multiplicative modifier for capturing a city from someone who delared war on you -->
+		<!-- Multiplicative modifier for capturing a city from someone who declared war on you -->
 		<Row Name="WARMONGER_THREAT_AGGRIEVED_PERCENT">
 			<!-- Default 100 -->
 			<Value>90</Value>

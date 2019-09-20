@@ -2896,7 +2896,8 @@ int CvLuaUnit::lSetBaseRangedCombatStrength(lua_State* L)
 int CvLuaUnit::lGetDamageCombatModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const int iResult = pkUnit->GetDamageCombatModifier();
+	const bool bRanged = luaL_optbool(L, 2, false);
+	const int iResult = pkUnit->GetDamageCombatModifier(bRanged);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

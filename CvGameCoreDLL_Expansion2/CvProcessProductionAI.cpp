@@ -233,14 +233,14 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		//Tiny army? Eek!
 		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
 		{
-			iModifier -= 1000;
+			iModifier -= 100;
 		}
 
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		// scale based on flavor and world size
 		if (eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			iModifier -= 1000;
+			iModifier -= 100;
 		}
 
 		if (m_pCity->getUnhappinessFromDefense() > 0)
