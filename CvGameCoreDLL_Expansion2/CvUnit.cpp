@@ -15797,11 +15797,12 @@ int CvUnit::GetBestAttackStrength() const
 }
 
 //typically negative
-int CvUnit::GetDamageCombatModifier(bool bRanged) const
+int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged) const
 {
 	int iRtnValue = 0;
 
-	if (bRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
+	if (bForDefenseAgainstRanged && !MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
 		return iRtnValue;
 
 	// How much does damage weaken the effectiveness of the Unit?
@@ -16431,14 +16432,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 
 	// Defense against Ranged
 	if (bFromRangedAttack)
-	{
 		iModifier += rangedDefenseModifier();
-		if (!MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
-			iModifier += GetDamageCombatModifier();
-	}
-	else
-		// Damage modifier does not apply to ranged attack (fewer targets -> harder to hit)
-		iModifier += GetDamageCombatModifier();
+	// this may be always zero for defense against ranged
+	iModifier += GetDamageCombatModifier(bFromRangedAttack);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -16994,9 +16990,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
-
-		//this only applies when attacking (on defense -> fewer targets, harder to hit)
-		iModifier += GetDamageCombatModifier();
 	}
 	else
 	{
@@ -17016,6 +17009,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += iTempModifier;
 	}
 
+	//this may be always zero when defending (on defense -> fewer targets, harder to hit)
+	iModifier += GetDamageCombatModifier(!bAttacking);
+	
 	// Unit can't drop below 10% strength
 	if(iModifier < -90)
 		iModifier = -90;

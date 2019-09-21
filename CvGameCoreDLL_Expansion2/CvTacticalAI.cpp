@@ -9470,7 +9470,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				int iSpreadFactor = pUnit->isRanged() ? currentPlot.getNumAdjacentFirstlineFriendlies() + 1 : currentPlot.getNumAdjacentFriendlies() + 1;
 
 				//penalty for high danger plots
-				iDangerScore = (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / iSpreadFactor / (pUnit->GetCurrHitPoints() - unit.iSelfDamage + 1);
+				iDangerScore = (iDanger * GC.getCOMBAT_AI_OFFENSE_DANGERWEIGHT()) / iSpreadFactor / max(1,pUnit->GetCurrHitPoints() - unit.iSelfDamage);
 			}
 
 			//ranged specialties
