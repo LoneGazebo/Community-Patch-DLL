@@ -738,6 +738,18 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	if (MOD_ISKA_HERITAGE && ePlayerReligion > RELIGION_PANTHEON)
 	{
 		eChosenBranch = eHeritageBranch;
+		if (iAutocracyPriority >= (iFreedomPriority + iOrderPriority) * 2)
+		{
+			eChosenBranch = eAutocracyBranch;
+		}
+		else if (iOrderPriority >= (iFreedomPriority + iAutocracyPriority) * 2)
+		{
+			eChosenBranch = eOrderBranch;
+		}
+		else if (iFreedomPriority >= (iOrderPriority + iAutocracyPriority) * 2)
+		{
+			eChosenBranch = eFreedomBranch;
+		}
 	}
 #endif
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
