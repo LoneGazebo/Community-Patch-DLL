@@ -5359,7 +5359,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
-			<Text>Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will become an independent City-State. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in {1_Turns} turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will become an independent City-State. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
 			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
