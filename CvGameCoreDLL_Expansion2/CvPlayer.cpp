@@ -17590,7 +17590,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (cached)
+/// How much Production is being eaten up by Units? (cached)
 int CvPlayer::GetUnitProductionMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17598,7 +17598,7 @@ int CvPlayer::GetUnitProductionMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (update cache)
+/// How much Production is being eaten up by Units? (update cache)
 void CvPlayer::UpdateUnitProductionMaintenanceMod()
 {
 	m_iUnitProductionMaintenanceMod = calculateUnitProductionMaintenanceMod();
@@ -17611,7 +17611,7 @@ void CvPlayer::UpdateUnitProductionMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units?
+/// How much Production is being eaten up by Units?
 int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
@@ -17631,7 +17631,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (cached)
+/// How much Growth is being eaten up by Units? (cached)
 int CvPlayer::GetUnitGrowthMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17639,7 +17639,7 @@ int CvPlayer::GetUnitGrowthMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (update cache)
+/// How much Growth is being eaten up by Units? (update cache)
 void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 {
 	m_iUnitGrowthMaintenanceMod = calculateUnitGrowthMaintenanceMod();
@@ -17652,7 +17652,7 @@ void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units?
+/// How much Growth is being eaten up by Units?
 int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
@@ -17665,7 +17665,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How many Units can we support for free without paying Production?
+/// How many Units can we support for free without losing Production and Growth?
 int CvPlayer::GetNumUnitsSupplied() const
 {
 	if (m_iNumUnitsSuppliedCached == -1)

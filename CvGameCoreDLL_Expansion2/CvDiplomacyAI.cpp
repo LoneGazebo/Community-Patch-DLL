@@ -3307,12 +3307,10 @@ int CvDiplomacyAI::GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const
 void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 {
 	MajorCivOpinionTypes eOpinion;
-
 	int iOpinionWeight;
 
 	PlayerTypes eLoopOtherPlayer;
 	int iOtherPlayerLoop;
-
 
 	// Loop through all (known) Majors
 	PlayerTypes eLoopPlayer;
@@ -3372,20 +3370,19 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 #if defined(MOD_BALANCE_CORE)
 						// Social Policies?
 						int iNumPolicies = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumSamePolicies(eLoopOtherPlayer);
+			
+						// Flip it!
+						iNumPolicies *= -1;
 						
 						// We can't know their neediness so assume the default
-						if(iNumPolicies < 0)
+						if(iNumPolicies > 0)
 						{
-							// Flip it!
-							iNumPolicies *= -1;
 							iOpinionWeight += max(5, (iNumPolicies * 1));
 						}
-						else if(iNumPolicies > 0)
+						else if(iNumPolicies < 0)
 						{
-							// Flip it!
-							iNumPolicies *= -1;
 							iOpinionWeight += min(-5, (iNumPolicies * 1));
-						}			
+						}
 #endif
 						
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -29050,11 +29047,11 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 		return false;
 	// No vassals!
 	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-		return true;
+		return false;
 	if (GET_TEAM(GET_PLAYER(eAskingPlayer).getTeam()).IsVassalOfSomeone())
-		return true;
+		return false;
 	if (GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassalOfSomeone())
-		return true;
+		return false;
 		
 	// If the target is a human, never warn them for now (no textkey/diplo statement)
 	if(GET_PLAYER(eTargetPlayer).isHuman())
@@ -34378,11 +34375,12 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 
 	int iOpinionWeight = 0;
 	int iNumPolicies = GetNumSamePolicies(ePlayer);
-	if(iNumPolicies < 0)
+	
+	// Flip it!
+	iNumPolicies *= -1;
+	
+	if(iNumPolicies > 0)
 	{
-		// Flip it!
-		iNumPolicies *= -1;
-		
 		if(GetNeediness() > 7)
 		{
 			iOpinionWeight += max(10, (iNumPolicies * 2));
@@ -34392,11 +34390,8 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 			iOpinionWeight += max(5, (iNumPolicies * 1));
 		}
 	}
-	else if(iNumPolicies > 0)
+	else if(iNumPolicies < 0)
 	{
-		// Flip it!
-		iNumPolicies *= -1;
-		
 		if(GetNeediness() > 7)
 		{
 			iOpinionWeight += min(-10, (iNumPolicies * 2));
