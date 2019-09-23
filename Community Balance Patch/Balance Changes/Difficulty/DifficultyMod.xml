@@ -26,9 +26,9 @@
 			<RouteCostPercent>75</RouteCostPercent>
 			<UnitCostPercent>90</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>90</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
@@ -110,9 +110,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
@@ -194,9 +194,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
@@ -278,9 +278,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
@@ -362,9 +362,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
@@ -446,9 +446,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
@@ -530,9 +530,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
@@ -614,9 +614,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>3</StartingMinorDefenseUnits>
@@ -698,9 +698,9 @@
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
