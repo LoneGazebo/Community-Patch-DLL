@@ -17720,7 +17720,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Units supplied from Difficulty Level
+/// Units supplied by Cities
 int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 {
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
@@ -17739,6 +17739,9 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			if(iTechProgress >= 100)
+				iTechProgress = 100;
+			
 			iTechProgress *= 5;
 			iTechProgress /= 6;
 
@@ -17759,7 +17762,7 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Units supplied from Difficulty Level
+/// Units supplied by Population
 int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 {
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
@@ -17790,6 +17793,9 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			if(iTechProgress >= 100)
+				iTechProgress = 100;
+			
 			iTechProgress *= 7;
 				
 			iValue *= 100;
