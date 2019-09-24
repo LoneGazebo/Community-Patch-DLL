@@ -2041,6 +2041,21 @@ bool CvTraitEntry::IsNoBuild(BuildTypes eBuild) const
 
 	return false;
 }
+
+/// Accessor:: Does the civ have a production modifier for domain type per worked specialist?
+int CvTraitEntry::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const
+{
+	CvAssertMsg(eDomain >= 0, "domainID expected to be >= 0");
+	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "domainID expected to be < NUM_DOMAIN_TYPES");
+
+	std::map<int, int>::const_iterator it = m_piDomainProductionModifiersPerSpecialist.find(eDomain);
+	if (it != m_piDomainProductionModifiersPerSpecialist.end()) // find returns the iterator to map::end if the key eDomain is not present
+	{
+		return it->second;
+	}
+
+	return 0;
+}
 #endif
 
 /// Has this trait become obsolete?
@@ -2918,6 +2933,32 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::vector<int>(m_aiNoBuilds).swap(m_aiNoBuilds);
 	}
+
+	//Populate m_piDomainProductionModifiersPerSpecialist
+	{
+		std::string sqlKey = "Trait_DomainProductionModifiersPerSpecialist";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Domains.ID as DomainID, Modifier from Trait_DomainProductionModifiersPerSpecialist inner join Domains on Domains.Type = DomainType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iDomain = pResults->GetInt(0);
+			const int iModifier = pResults->GetInt(1);
+
+			m_piDomainProductionModifiersPerSpecialist.insert(std::pair<int, int>(iDomain, iModifier));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piDomainProductionModifiersPerSpecialist).swap(m_piDomainProductionModifiersPerSpecialist);
+	}
 #endif
 
 	//Populate m_MaintenanceModifierUnitCombats
@@ -3540,7 +3581,8 @@ void CvPlayerTraits::SetIsWarmonger()
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
 		DomainTypes eDomain = (DomainTypes)iDomain;
-		if (GetDomainFreeExperienceModifier(eDomain) > 0)
+		if (GetDomainFreeExperienceModifier(eDomain) > 0 ||
+			GetDomainProductionModifiersPerSpecialist(eDomain) > 0)
 		{
 			m_bIsWarmonger = true;
 			return;
@@ -3591,6 +3633,16 @@ void CvPlayerTraits::SetIsNerd()
 	{
 		m_bIsNerd = true;
 		return;
+	}
+
+	for (int iSpecialist = 0; iSpecialist < GC.getNumSpecialistInfos(); iSpecialist++)
+	{
+		SpecialistTypes eSpecialist = (SpecialistTypes)iSpecialist;
+		if (GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE) > 0)
+		{
+			m_bIsNerd = true;
+			return;
+		}
 	}
 }
 void CvPlayerTraits::SetIsTourism()
@@ -3704,6 +3756,16 @@ void CvPlayerTraits::SetIsSmaller()
 		return;
 	}
 
+	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
+	{
+		DomainTypes eDomain = (DomainTypes)iDomain;
+		if (GetDomainProductionModifiersPerSpecialist(eDomain) > 0)
+		{
+			m_bIsSmaller = true;
+			return;
+		}
+	}
+
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
@@ -3714,6 +3776,16 @@ void CvPlayerTraits::SetIsSmaller()
 		{
 			m_bIsSmaller = true;
 			return;
+		}
+
+		for (int iSpecialist = 0; iSpecialist < GC.getNumSpecialistInfos(); iSpecialist++)
+		{
+			SpecialistTypes eSpecialist = (SpecialistTypes)iSpecialist;
+			if (GetSpecialistYieldChange(eSpecialist, eYield) > 0)
+			{
+				m_bIsSmaller = true;
+				return;
+			}
 		}
 	}
 
@@ -4554,6 +4626,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_aiNumPledgesDomainProdMod[iDomain] = trait->GetNumPledgeDomainProductionModifier((DomainTypes)iDomain);
 				m_aiDomainFreeExperienceModifier[iDomain] = trait->GetDomainFreeExperienceModifier((DomainTypes)iDomain);
+				if (trait->GetDomainProductionModifiersPerSpecialist((DomainTypes)iDomain) > 0)
+				{
+					m_aiDomainProductionModifiersPerSpecialist.insert(std::make_pair(iDomain, trait->GetDomainProductionModifiersPerSpecialist((DomainTypes)iDomain)));
+				}
 			}
 #endif
 
@@ -5166,6 +5242,7 @@ void CvPlayerTraits::Reset()
 		m_aiFreeUnitClassesDOW[iUnitClass] = 0;
 	}
 	m_aiNoBuilds.clear();
+	m_aiDomainProductionModifiersPerSpecialist.clear();
 #endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5676,6 +5753,20 @@ bool CvPlayerTraits::IsNoBuild(BuildTypes eBuild) const
 	}
 
 	return false;
+}
+/// What is the production modifier for the domain type for each worked specialist?
+int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const
+{
+	CvAssertMsg(eDomain >= 0, "domainID expected to be >= 0");
+	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "domainID expected to be < NUM_DOMAIN_TYPES");
+
+	std::map<int, int>::const_iterator it = m_aiDomainProductionModifiersPerSpecialist.find((int)eDomain);
+	if (it != m_aiDomainProductionModifiersPerSpecialist.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	return 0;
 }
 #endif
 
@@ -7238,6 +7329,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aibUnitCombatProductionCostModifier;
 	kStream >> m_iNonSpecialistFoodChange;
 	kStream >> m_aiNoBuilds;
+	kStream >> m_aiDomainProductionModifiersPerSpecialist;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -7684,6 +7776,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aibUnitCombatProductionCostModifier;
 	kStream << m_iNonSpecialistFoodChange;
 	kStream << m_aiNoBuilds;
+	kStream << m_aiDomainProductionModifiersPerSpecialist;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

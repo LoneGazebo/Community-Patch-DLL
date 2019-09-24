@@ -926,6 +926,13 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="BuildType" type="text" reference="Builds(Type)"/>
 	</Table>
+
+	<!-- TRAIT: Increases the production modifier of units of the stated domain type for each worked specialist; modifier is an integer, eg 50 for +50% -->
+	<Table name="Trait_DomainProductionModifiersPerSpecialist">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Modifier" type="integer" default="0"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
