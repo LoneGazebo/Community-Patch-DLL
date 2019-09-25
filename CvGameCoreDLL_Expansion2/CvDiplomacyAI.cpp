@@ -29455,7 +29455,9 @@ void CvDiplomacyAI::ChangeDemandCounter(PlayerTypes ePlayer, int iChange)
 	
 	if (m_paiDemandCounter[ePlayer] > -1 && m_paiDemandCounter[ePlayer] > GetDemandTooSoonNumTurns(ePlayer) * 3)
 	{
-		SetNumDemandEverMade(ePlayer, -1);
+#if defined(MOD_BALANCE_CORE)
+		SetNumDemandEverMade(ePlayer, -GetNumDemandEverMade(ePlayer));
+#endif
 		SetDemandCounter(ePlayer, -1);
 	}
 }
