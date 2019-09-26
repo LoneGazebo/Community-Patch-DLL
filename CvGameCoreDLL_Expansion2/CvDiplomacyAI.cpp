@@ -2695,9 +2695,16 @@ void CvDiplomacyAI::DoCounters()
 					if(GetPlayerNoSettleRequestCounter(eLoopPlayer) >= 50)
 					{
 						SetPlayerNoSettleRequestAccepted(eLoopPlayer, false);
-						SetPlayerNoSettleRequestCounter(eLoopPlayer, -666);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
 					}
+#if defined(MOD_BALANCE_CORE)			
+					if(GetPlayerNoSettleRequestCounter(eLoopPlayer) >= 100)
+					{
+						SetPlayerNoSettleRequestCounter(eLoopPlayer, -1);
+						SetPlayerNoSettleRequestEverAsked(eLoopPlayer, false);
+					}
+#endif
+					
 				}
 
 				// Did this player ask us to stop spying on them?
@@ -2705,12 +2712,18 @@ void CvDiplomacyAI::DoCounters()
 				{
 					ChangePlayerStopSpyingRequestCounter(eLoopPlayer, 1);
 
-					if(GetPlayerStopSpyingRequestCounter(eLoopPlayer) >= /*50*/ GC.getSTOP_SPYING_MEMORY_TURN_EXPIRATION())
+					if(GetPlayerStopSpyingRequestCounter(eLoopPlayer) >= 50)
 					{
 						SetPlayerStopSpyingRequestAccepted(eLoopPlayer, false);
-						SetPlayerStopSpyingRequestCounter(eLoopPlayer, -666);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(GetPlayer()->GetID(), false);
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(GetPlayerStopSpyingRequestCounter(eLoopPlayer) >= 100)
+					{
+						SetPlayerStopSpyingRequestCounter(eLoopPlayer, -1);
+						SetPlayerStopSpyingRequestEverAsked(eLoopPlayer, false);
+					}
+#endif
 				}
 #if defined(MOD_BALANCE_CORE)
 				//Is this player a backstabber?
@@ -14980,24 +14993,20 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					if(IsPlayerNoSettleRequestAccepted(ePlayer))
 					{
 						SetPlayerNoSettleRequestAccepted(ePlayer, false);
-						SetPlayerNoSettleRequestCounter(ePlayer, -666);
 					}
 					if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerNoSettleRequestAccepted(eMyPlayer))
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerNoSettleRequestAccepted(eMyPlayer, false);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerNoSettleRequestCounter(eMyPlayer, -666);
 					}
 					
 					// HAD agreed not to spy on each other
 					if(IsPlayerStopSpyingRequestAccepted(ePlayer))
 					{
 						SetPlayerStopSpyingRequestAccepted(ePlayer, false);
-						SetPlayerStopSpyingRequestCounter(ePlayer, -666);
 					}
 					if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerStopSpyingRequestAccepted(eMyPlayer))
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestAccepted(eMyPlayer, false);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestCounter(eMyPlayer, -666);
 					}
 					
 					// We're no longer trade partners
@@ -16839,12 +16848,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 		// If we had agreed to not settle near the player, break that off
 		SetPlayerNoSettleRequestAccepted(ePlayer, false);
-		SetPlayerNoSettleRequestCounter(ePlayer, -666);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(eMyPlayer, false);
 
 		// If we had agreed to not spy on the player, break that off
 		SetPlayerStopSpyingRequestAccepted(ePlayer, false);
-		SetPlayerStopSpyingRequestCounter(ePlayer, -666);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerMadeSpyPromise(eMyPlayer, false);
 		
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)	
@@ -33396,13 +33403,18 @@ int CvDiplomacyAI::GetForgaveForSpyingScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetNoSetterRequestScore(PlayerTypes ePlayer)
 {
+	// No penalty for teammates
+	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
+	
 	int iOpinionWeight = 0;
 	if(IsPlayerNoSettleRequestEverAsked(ePlayer))
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_ASKED_NO_SETTLE();
 	
-	// No penalty for teammates
-	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
-		return 0;
+#if defined(MOD_BALANCE_CORE)
+	if(GetPlayerNoSettleRequestCounter(ePlayer) >= 50)
+		iOpinionWeight /= 2;
+#endif
 
 	return iOpinionWeight;
 }
@@ -33412,6 +33424,12 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(IsPlayerStopSpyingRequestEverAsked(ePlayer))
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_ASKED_STOP_SPYING();
+	
+#if defined(MOD_BALANCE_CORE)
+	if(GetPlayerStopSpyingRequestCounter(ePlayer) >= 50)
+		iOpinionWeight /= 2;
+#endif
+	
 	return iOpinionWeight;
 }
 
@@ -42976,14 +42994,12 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 					if(GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->IsPlayerNoSettleRequestAccepted(GetPlayer()->GetID()))
 					{
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerNoSettleRequestAccepted(GetPlayer()->GetID(), false);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerNoSettleRequestCounter(GetPlayer()->GetID(), -666);
 					}
 
 					// Master had agreed not to spy on them
 					if(GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->IsPlayerStopSpyingRequestAccepted(GetPlayer()->GetID()))
 					{
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestAccepted(GetPlayer()->GetID(), false);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetPlayerStopSpyingRequestCounter(GetPlayer()->GetID(), -666);
 					}
 
 					// Vassal thought they were a liberator, but Master had other plans...
