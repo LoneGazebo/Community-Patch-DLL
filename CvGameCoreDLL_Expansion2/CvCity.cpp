@@ -8898,12 +8898,49 @@ void CvCity::UpdateTerrainImprovementNeed()
 		{
 			if (!pLoopPlot->isCity())
 			{
-				//assume that there is an improvement for every type of unimproved plot. no need to check them individually
-				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT || pLoopPlot->IsImprovementPillaged())
+				//ignore plots which have a working improvement ...
+				if (pLoopPlot->IsImprovementPillaged())
 					iImprovablePlots++;
-				//alternatively if there is a route, see if we have better ones
+				//if there is a route, see if we have better ones
 				else if (pLoopPlot->getRouteType() != NO_ROUTE && (GET_TEAM(getTeam()).GetBestPossibleRoute() != pLoopPlot->getRouteType() || pLoopPlot->IsRoutePillaged()))
 					iImprovablePlots++;
+				//the most interesting case, empty plots
+				else if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+				{
+					//can't assume that there is an improvement for every type of unimproved plot (especially in the beginning). need to check individually
+					for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+					{
+						BuildTypes eBuild = (BuildTypes)iBuildIndex;
+						if (!pLoopPlot->canBuild(eBuild, getOwner(), false, true))
+							continue;
+
+						if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild))
+							continue;
+
+						if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq()))
+							continue;
+
+						if (GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete()))
+							continue;
+
+						// Is this an improvement that is only useable by a specific civ?
+						ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+						if (eImprovement != NO_IMPROVEMENT)
+						{
+							CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+							if (pkEntry->IsSpecificCivRequired())
+							{
+								CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+								if (eCiv != getCivilizationType())
+									continue;
+							}
+						}
+
+						//if we get here it seems to be applicable
+						iImprovablePlots++;
+						break;
+					}
+				}
 			}
 
 			for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)

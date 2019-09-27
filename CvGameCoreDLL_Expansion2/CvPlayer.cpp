@@ -2683,7 +2683,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 	}
 
-//#if defined(MOD_VENETIAN_SETTLERS)
 	// Venice can receive settlers but not build any ...
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -2718,7 +2717,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 		}	
 	}
-//#endif
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -11652,7 +11650,7 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// then damage it again
-		int iCitadelDamage = pLoopUnit->plot()->GetDangerPlotDamage(pLoopUnit->getOwner());
+		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
 		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
 			
@@ -44046,9 +44044,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							for(int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 							{
-//#if defined(MOD_VENETIAN_SETTLERS)
-//								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
-//#else
 								CvUnit* pNewUnit = NULL;
 								// for venice
 								if (pUnitEntry->IsFound() && GetPlayerTraits()->IsNoAnnexing())
@@ -44078,9 +44073,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
 								}
-//#endif
 
-								CvAssert(pNewUnit);
 								if (pNewUnit)
 								{
 #if defined(MOD_BALANCE_CORE)

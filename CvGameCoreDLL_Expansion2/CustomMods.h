@@ -146,9 +146,6 @@
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 
-// allow venice to receive settlers from wonders, policies etc (but not to build them)
-#define MOD_VENETIAN_SETTLERS
-
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)

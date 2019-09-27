@@ -2569,15 +2569,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	ImprovementTypes eImprovement;
 	ImprovementTypes eFinalImprovementType;
 	RouteTypes eRoute;
-	bool bValid;
+	bool bValid = false;
 
 	// Can't build nothing!
 	if(eBuild == NO_BUILD)
 	{
 		return false;
 	}
-
-	bValid = false;
 
 	// Repairing an Improvement that's been pillaged
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
@@ -14329,65 +14327,41 @@ bool CvPlot::HasWrittenArtifact() const
 bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-	if (GetDangerPlotDamage(ePlayer) > 0)
-		return true;
-	else
-		return false;
+	return (GetDamageFromAdjacentPlots(ePlayer) > 0);
 }
 //	--------------------------------------------------------------------------------
 // Citadel
-int CvPlot::GetDangerPlotDamage(PlayerTypes ePlayer) const
+int CvPlot::GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-
-	int iCitadelRange = 1;
-	CvPlot* pLoopPlot;
-
-	ImprovementTypes eImprovement;
 	int iDamage = 0;
-	int iTemp;
-	int iTemp2;
-	// Look around this Unit to see if there's an adjacent Citadel
-	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
+
+	// Look around this unit to see if there's an adjacent citadel
+	// But exclude this plot!
+	for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 	{
-		for(int iY = -iCitadelRange; iY <= iCitadelRange; iY++)
+		CvPlot* pLoopPlot = iterateRingPlots(this,i);
+		if(pLoopPlot != NULL)
 		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iCitadelRange);
+			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 
-			if(pLoopPlot != NULL)
+			// Citadel here?
+			if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
 			{
-				eImprovement = pLoopPlot->getImprovementType();
+				if (pLoopPlot->getOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
+					iDamage = max(iDamage, GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage());
+			}
 
-				// Citadel here?
-				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
-				{
-					iTemp = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-					if(pLoopPlot->getOwner() != NO_PLAYER)
-					{
-						if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
-						{
-							if (iTemp > iDamage)
-								iDamage = iTemp;
-						}
-					}
-				}
-				// Unit here that acts like a citadel?
-				if (pLoopPlot->getNumUnits() != 0)
-				{
-					for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
-					{
-						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
-						if (pLoopUnit != NULL && pLoopUnit->getNearbyEnemyDamage() != 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
-						{
-							iTemp2 = pLoopUnit->getNearbyEnemyDamage();
-							if (iTemp2 > iDamage)
-								iDamage = iTemp2;
-						}
-					}
-				}
+			// Unit here that acts like a citadel?
+			for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
+			{
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
+				if (pLoopUnit && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
+					iDamage = max(iDamage, pLoopUnit->getNearbyEnemyDamage());
 			}
 		}
 	}
+
 	return iDamage;
 }
 

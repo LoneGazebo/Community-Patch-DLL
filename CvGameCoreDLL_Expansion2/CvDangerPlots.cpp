@@ -309,7 +309,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
 				if(iDamage>0 && !ShouldIgnoreCitadel(pPlot, false))
 				{
-					m_DangerPlots[iPlotLoop].m_iImprovementDamage += iDamage;
+					//citadel only affects adjacent plots, not this plot
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));

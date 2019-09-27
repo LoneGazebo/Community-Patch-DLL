@@ -5760,7 +5760,7 @@ void CvHomelandAI::ExecuteSSPartAdds()
 				UnitProcessed(pUnit->GetID());
 			}
 
-			else if (pUnit->TurnsToReachTarget(pCapitalCity->plot()) == 0)
+			else if (pUnit->TurnsToReachTarget(pCapitalCity->plot(),CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN,1) == 0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pCapitalCity->getX(), pCapitalCity->getY());
 				pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
@@ -6875,7 +6875,8 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 			if (iDistance == MAX_INT)
 				continue;
 			
-			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iMinTurns);
+			//pretent turns are "moves" here
+			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iMinTurns);
 			it->SetMovesToTarget(iMoves);
 			// Did we make it at all?
 			if (iMoves != MAX_INT)
@@ -7079,7 +7080,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				}
 			}
 
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iBestTurns);
+			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns);
 			if (iTurns < iBestTurns)
 			{
 				pBestTarget = pTarget;
