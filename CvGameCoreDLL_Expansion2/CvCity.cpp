@@ -15267,6 +15267,20 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
 	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
 #if defined(MOD_BALANCE_CORE)
+	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	{
+		DomainTypes eDomain = (DomainTypes)iI;
+		if (eDomain == NO_DOMAIN)
+			continue;
+
+		int iModifierPerSpecialist = GET_PLAYER(getOwner()).GetPlayerTraits()->GetDomainProductionModifiersPerSpecialist(eDomain);
+
+		if (iModifierPerSpecialist != 0)
+		{
+			changeDomainProductionModifier(eDomain, iModifierPerSpecialist * iChange);
+		}
+	}
+
 	if(!bSkip)
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
