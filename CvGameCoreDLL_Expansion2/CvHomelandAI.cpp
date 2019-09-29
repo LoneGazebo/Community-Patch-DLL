@@ -3626,9 +3626,17 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
+	//may need this later
+	map<CvCity*, int> mapCityNeed;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
+
+	//see if we have work to do
 	for(std::map<CvUnit*,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
 	{
 		CvUnit* pUnit = it->first;
+		//this checks for work in the immediate neighborhood of the workers
 		CvPlot* pTarget = ExecuteWorkerMove(pUnit, &allWorkersReachablePlots);
 		if (pTarget)
 		{
@@ -3649,20 +3657,25 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			}
 			else
 			{
-				int iMaxNeed = 0;
+				//find the city which is most in need of workers
+				int iMaxNeed = -100;
 				CvCity* pBestCity = NULL;
-				int iLoop = 0;
-				for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-				{
-					if (pLoopCity->GetTerrainImprovementNeed() > iMaxNeed)
+				for (map<CvCity*, int>::iterator it = mapCityNeed.begin(); it != mapCityNeed.end(); ++it)
+					if (it->second > iMaxNeed)
 					{
-						iMaxNeed = pLoopCity->GetTerrainImprovementNeed();
-						pBestCity = pLoopCity;
+						iMaxNeed = it->second;
+						pBestCity = it->first;
 					}
-				}
 
 				if (pBestCity)
-					ExecuteMoveToTarget(pUnit, pBestCity->plot(),0);
+				{
+					ExecuteMoveToTarget(pUnit, pBestCity->plot(), 0);
+					int iCurrentNeed = mapCityNeed[pBestCity];
+					if (iCurrentNeed > 0)
+						mapCityNeed[pBestCity] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
+					else
+						mapCityNeed[pBestCity]--; //in case all cities have all tiles improved, try spread the workers over all our cities
+				}
 			}
 
 			//simply ignore this unit for further building tasks 

@@ -136,7 +136,7 @@ public:
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
 		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
-		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
+		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
