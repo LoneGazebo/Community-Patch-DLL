@@ -2696,7 +2696,24 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
 		case MAJOR_CIV_APPROACH_WAR:
-			iItemValue *= 100;
+			switch(GetPlayer()->GetDiplomacyAI()->GetWarFaceWithPlayer(eOtherPlayer))
+			{
+				case WAR_FACE_HOSTILE:
+					iItemValue *= 250;
+					break;
+				case WAR_FACE_GUARDED:
+					iItemValue *= 130;
+					break;
+				case WAR_FACE_NEUTRAL:
+					iItemValue *= 100;
+					break;
+				case WAR_FACE_FRIENDLY:
+					iItemValue *= 100;
+					break;
+				default:
+					iItemValue *= 100;
+					break;
+			}
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 250;
@@ -2733,7 +2750,24 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
 		case MAJOR_CIV_APPROACH_WAR:
-			iItemValue *= 100;
+			switch(GetPlayer()->GetDiplomacyAI()->GetWarFaceWithPlayer(eOtherPlayer))
+			{
+				case WAR_FACE_HOSTILE:
+					iItemValue *= 30;
+					break;
+				case WAR_FACE_GUARDED:
+					iItemValue *= 60;
+					break;
+				case WAR_FACE_NEUTRAL:
+					iItemValue *= 100;
+					break;
+				case WAR_FACE_FRIENDLY:  // embassies are worth so little that it's not worth revealing deception over
+					iItemValue *= 150;
+					break;
+				default:
+					iItemValue *= 100;
+					break;
+			}
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 30;
@@ -2741,8 +2775,8 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 60;
 			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue *= 100;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:  // embassies are worth so little that it's not worth revealing deception over
+			iItemValue *= 150;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 120;
@@ -2762,8 +2796,8 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 	}
 #endif
 
-	if (iItemValue <= 25)
-		iItemValue = 25;
+	if (iItemValue <= 15)
+		iItemValue = 15;
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
