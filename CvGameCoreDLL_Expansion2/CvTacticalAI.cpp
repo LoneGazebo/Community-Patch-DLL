@@ -4354,7 +4354,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 								}
 							}
 						}
-						else if(pEnemyUnit->TurnsToReachTarget(pLoopPlot,false,false,1)<=1)
+						else if(pEnemyUnit->TurnsToReachTarget(pLoopPlot,CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN,1)<1)
 						{
 							bPriorityTarget = true;
 						}
@@ -4965,48 +4965,65 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 {
-	if (!pTargetPlot->isVisible(m_pPlayer->getTeam()))
+	if (pTargetPlot->isVisible(m_pPlayer->getTeam()))
+		return true; //nothing to do
+
+	//else find a suitable unit
+	vector<CvUnit*> vCandidates;
+	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 	{
-		//first pass: try to find a suitable unit
-		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
+		CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
+
+		// we want fast units or tanks
+		// (unitai defense includes ranged units ... don't use it here)
+		switch (pUnit->AI_getUnitAIType())
 		{
-			CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
-			int iFlag = CvUnit::MOVEFLAG_NO_EMBARK;
-
-			//move into ring 2 unless we are already there and still can't see the target
-			iFlag |= plotDistance(*pTargetPlot,*pUnit->plot())>2 ? CvUnit::MOVEFLAG_APPROX_TARGET_RING2 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
-			//fast units - we want to have some spare movement points to be able to retreat
-			if ( (pUnit->AI_getUnitAIType()==UNITAI_FAST_ATTACK || pUnit->AI_getUnitAIType()==UNITAI_ATTACK_SEA) && 
-				 pUnit->TurnsToReachTarget(pTargetPlot,iFlag,1)==0 )
-			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlag);
-				return pTargetPlot->isVisible(m_pPlayer->getTeam());
-			}
+		case UNITAI_FAST_ATTACK:
+		case UNITAI_ATTACK_SEA:
+		case UNITAI_ATTACK:
+		case UNITAI_COUNTER:
+			vCandidates.push_back(pUnit);
+			break;
 		}
-
-		//second pass: try to find a suitable unit
-		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
-		{
-			CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
-			int iFlag = CvUnit::MOVEFLAG_NO_EMBARK;
-
-			//move into ring 2 unless we are already there and still can't see the target
-			iFlag |= plotDistance(*pTargetPlot,*pUnit->plot())>2 ? CvUnit::MOVEFLAG_APPROX_TARGET_RING2 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
-			// tank - soak it up (unitai defense includes ranged units ... don't use it here)
-			if ((pUnit->AI_getUnitAIType() == UNITAI_ATTACK || pUnit->AI_getUnitAIType() == UNITAI_COUNTER) &&
-				pUnit->TurnsToReachTarget(pTargetPlot, iFlag, 1) < 2)
-			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlag);
-				return pTargetPlot->isVisible(m_pPlayer->getTeam());
-			}
-		}
-
-		return false;
 	}
 
-	return true;
+	//first pass, try to go close and retreat
+	for (size_t i=0; i<vCandidates.size();i++)
+	{
+		CvUnit* pUnit = vCandidates[i];
+
+		int iFlags = CvUnit::MOVEFLAG_NO_EMBARK;
+
+		//move into ring 2 unless we are already there and still can't see the target
+		iFlags |= plotDistance(*pTargetPlot,*pUnit->plot())>2 ? CvUnit::MOVEFLAG_APPROX_TARGET_RING2 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
+		// do we have some spare movement points to be able to retreat?
+		// (retreat would be handled elsewhere)
+		if (pUnit->TurnsToReachTarget(pTargetPlot,iFlags|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN,1)==0)
+		{
+			ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlags);
+			return pTargetPlot->isVisible(m_pPlayer->getTeam());
+		}
+	}
+
+	//second pass, try to go close and stay (hoping that danger isn't too high)
+	for (size_t i=0; i<vCandidates.size();i++)
+	{
+		CvUnit* pUnit = vCandidates[i];
+
+		int iFlags = CvUnit::MOVEFLAG_NO_EMBARK;
+
+		//move into ring 2 unless we are already there and still can't see the target
+		iFlags |= plotDistance(*pTargetPlot,*pUnit->plot())>2 ? CvUnit::MOVEFLAG_APPROX_TARGET_RING2 : CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
+		if (pUnit->GetDanger(pTargetPlot)<pUnit->GetCurrHitPoints()/2 && pUnit->TurnsToReachTarget(pTargetPlot,iFlags,1)==0)
+		{
+			ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlags);
+			return pTargetPlot->isVisible(m_pPlayer->getTeam());
+		}
+	}
+
+	return false;
 }
 
 bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
@@ -5930,7 +5947,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 						else if (pCivilianMove)
 						{
 							// See if escort can move to the same location in one turn
-							if(pEscort->TurnsToReachTarget(pCivilianMove) <= 1)
+							if(pEscort->TurnsToReachTarget(pCivilianMove) < 1)
 							{
 								ExecuteMoveToPlot(pEscort, pCivilianMove);
 								ExecuteMoveToPlot(pCivilian, pCivilianMove);
@@ -5969,7 +5986,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 										pEscortMove = pCivilian->GetPathEndFirstTurnPlot();
 
 										// See if civilian can move to the same location in one turn
-										if(pCivilian->TurnsToReachTarget(pEscortMove) <= 1)
+										if(pCivilian->TurnsToReachTarget(pEscortMove) < 1)
 										{
 											ExecuteMoveToPlot(pEscort, pEscortMove);
 											ExecuteMoveToPlot(pCivilian, pEscortMove);
@@ -6193,7 +6210,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 				if (pUnit->canMove())
 				{
 					//not too far away
-					if (pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 3) <= 2)
+					if (pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 2) < 2)
 					{
 						//safety check
 						if (pUnit->GetDanger(pTarget) <= pUnit->GetCurrHitPoints())
@@ -6403,8 +6420,8 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 					continue;
 
 				//finally detailed pathfinding
-				int iTurns = pUnit->TurnsToReachTarget(pTargetPlot, 0, iMaxTurns);
-				if ( iTurns<iMaxTurns )
+				int iTurns = 0;
+				if (pUnit->GeneratePath(pTargetPlot, 0, iMaxTurns, &iTurns, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())
@@ -7060,16 +7077,17 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (plotDistance(*pTarget, *pLoopUnit->plot())>(iNumTurnsAway + 1) * 3)
 				continue;
 
-			int iTurnsCalculated = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_EMBARK, iNumTurnsAway);
+			int iFlags = CvUnit::MOVEFLAG_NO_EMBARK;
+			if (bMustHaveMovesLeft)
+				iFlags |= CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN;
+
+			int iTurnsCalculated = pLoopUnit->TurnsToReachTarget(pTarget, iFlags, iNumTurnsAway);
 			if (iTurnsCalculated <= iNumTurnsAway)
 			{
-				if (!bMustHaveMovesLeft || pLoopUnit->GetMovementPointsAtCachedTarget() > 0)
-				{
-					CvTacticalUnit unit;
-					unit.SetID(pLoopUnit->GetID());
-					unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated);
-					m_CurrentMoveUnits.push_back(unit);
-				}
+				CvTacticalUnit unit;
+				unit.SetID(pLoopUnit->GetID());
+				unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated);
+				m_CurrentMoveUnits.push_back(unit);
 			}
 		}
 	}
@@ -8826,7 +8844,7 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 				std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pDefender->plot(), pAttacker->GetRange(), false, !bIgnoreLOS);
 				for (std::vector<CvPlot*>::iterator it = vAttackPlots.begin(); it != vAttackPlots.end(); ++it)
 				{
-					if (pAttacker->TurnsToReachTarget(*it, false, false, 1) == 0 && pAttacker->canEverRangeStrikeAt(pDefender->getX(), pDefender->getY(), *it, false))
+					if (pAttacker->TurnsToReachTarget(*it, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) == 0 && pAttacker->canEverRangeStrikeAt(pDefender->getX(), pDefender->getY(), *it, false))
 					{
 						pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 						pAttacker->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
@@ -8837,7 +8855,7 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 		}
 		else //melee
 		{
-			if (pAttacker->TurnsToReachTarget(pDefender->plot(),false,false,1)<=1)
+			if (pAttacker->TurnsToReachTarget(pDefender->plot(),0,1)==0)
 			{
 				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY());
 				return true;

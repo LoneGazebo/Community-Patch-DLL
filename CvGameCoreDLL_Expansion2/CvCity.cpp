@@ -8885,38 +8885,79 @@ int CvCity::GetTerrainImprovementNeed() const
 void CvCity::UpdateTerrainImprovementNeed()
 {
 	int iImprovablePlots = 0;
-	int iWorkerCount = 0;
 
-	for (int iI = 0; iI < RING3_PLOTS; iI++)
+	//start at one, ignore the city plot itself
+	for (int iI = 1; iI < GetNumWorkablePlots(); iI++)
 	{
-		//test if reachable?
-		const CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-		if (pLoopPlot && 
-			pLoopPlot->getDomain() == DOMAIN_LAND && 
-			pLoopPlot->getOwner() == getOwner() &&
-			!pLoopPlot->IsTeamImpassable(getTeam()))
-		{
-			if (!pLoopPlot->isCity())
-			{
-				//assume that there is an improvement for every type of unimproved plot. no need to check them individually
-				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT || pLoopPlot->IsImprovementPillaged())
-					iImprovablePlots++;
-				//alternatively if there is a route, see if we have better ones
-				else if (pLoopPlot->getRouteType() != NO_ROUTE && (GET_TEAM(getTeam()).GetBestPossibleRoute() != pLoopPlot->getRouteType() || pLoopPlot->IsRoutePillaged()))
-					iImprovablePlots++;
-			}
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-			for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
+		if (!pLoopPlot)
+			continue;
+
+		if (pLoopPlot->getDomain() != DOMAIN_LAND)
+			continue;
+
+		if (pLoopPlot->getOwner() != getOwner())
+			continue;
+
+		if (pLoopPlot->IsTeamImpassable(getTeam()))
+			continue;
+
+		if (pLoopPlot->isCity())
+			continue;
+
+		//the most interesting case, empty plots
+		if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+		{
+			//can't assume that there is an improvement for every type of unimproved plot (especially in the beginning). need to check individually
+			for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 			{
-				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
-				if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
-					iWorkerCount++;
+				BuildTypes eBuild = (BuildTypes)iBuildIndex;
+				if (!pLoopPlot->canBuild(eBuild, getOwner(), false, true))
+					continue;
+
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild))
+					continue;
+
+				if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq()))
+					continue;
+
+				if (GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete()))
+					continue;
+
+				// Is this an improvement that is only useable by a specific civ?
+				ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+				if (eImprovement != NO_IMPROVEMENT)
+				{
+					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+					if (pkEntry->IsSpecificCivRequired())
+					{
+						CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+						if (eCiv != getCivilizationType())
+							continue;
+					}
+				}
+
+				//if we get here it seems to be applicable
+				iImprovablePlots++;
+
+				//todo: should we add more of the improvement is very valuable?
+				//for now give extra weight to resource plots
+				if (pLoopPlot->getResourceType() != NO_RESOURCE)
+					iImprovablePlots++;
+
+				break;
 			}
 		}
+		//ignore plots which have a working improvement ...
+		else if (pLoopPlot->IsImprovementPillaged())
+			iImprovablePlots++;
+		//if there is a route, see if we have better ones
+		else if (pLoopPlot->getRouteType() != NO_ROUTE && (GET_TEAM(getTeam()).GetBestPossibleRoute() != pLoopPlot->getRouteType() || pLoopPlot->IsRoutePillaged()))
+			iImprovablePlots++;
 	}
 
-	//score > 0 means real need
-	m_iTerrainImprovementNeed = (iImprovablePlots*100)/(iWorkerCount+1)-100;
+	m_iTerrainImprovementNeed = iImprovablePlots;
 }
 
 //	--------------------------------------------------------------------------------

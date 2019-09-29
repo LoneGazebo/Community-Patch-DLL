@@ -3224,17 +3224,18 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
-	//should be the same everywhere so we can reuse paths
-	int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
 
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove())
-		{
 			continue;
-		}
+
+		//should be the same everywhere so we can reuse paths
+		int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+		if (!pUnit->isEmbarked())
+			iMoveFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
 		//performance: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 		if ( pUnit->GetMissionAIType()==MISSIONAI_EXPLORE && pUnit->GetMissionAIPlot() && plotDistance(*pUnit->plot(),*pUnit->GetMissionAIPlot())>10 )
@@ -3323,7 +3324,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		//if the scout is already embarked, we need to allow it so we don't get stuck!
-		ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, pUnit->isEmbarked());
+		ReachablePlots eligiblePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), iMoveFlags);
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -3625,9 +3626,17 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
+	//may need this later
+	map<CvCity*, int> mapCityNeed;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
+
+	//see if we have work to do
 	for(std::map<CvUnit*,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
 	{
 		CvUnit* pUnit = it->first;
+		//this checks for work in the immediate neighborhood of the workers
 		CvPlot* pTarget = ExecuteWorkerMove(pUnit, &allWorkersReachablePlots);
 		if (pTarget)
 		{
@@ -3648,20 +3657,25 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			}
 			else
 			{
-				int iMaxNeed = 0;
+				//find the city which is most in need of workers
+				int iMaxNeed = -100;
 				CvCity* pBestCity = NULL;
-				int iLoop = 0;
-				for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-				{
-					if (pLoopCity->GetTerrainImprovementNeed() > iMaxNeed)
+				for (map<CvCity*, int>::iterator it = mapCityNeed.begin(); it != mapCityNeed.end(); ++it)
+					if (it->second > iMaxNeed)
 					{
-						iMaxNeed = pLoopCity->GetTerrainImprovementNeed();
-						pBestCity = pLoopCity;
+						iMaxNeed = it->second;
+						pBestCity = it->first;
 					}
-				}
 
 				if (pBestCity)
-					ExecuteMoveToTarget(pUnit, pBestCity->plot(),0);
+				{
+					ExecuteMoveToTarget(pUnit, pBestCity->plot(), 0);
+					int iCurrentNeed = mapCityNeed[pBestCity];
+					if (iCurrentNeed > 0)
+						mapCityNeed[pBestCity] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
+					else
+						mapCityNeed[pBestCity]--; //in case all cities have all tiles improved, try spread the workers over all our cities
+				}
 			}
 
 			//simply ignore this unit for further building tasks 
@@ -5760,7 +5774,7 @@ void CvHomelandAI::ExecuteSSPartAdds()
 				UnitProcessed(pUnit->GetID());
 			}
 
-			else if (pUnit->TurnsToReachTarget(pCapitalCity->plot()) == 0)
+			else if (pUnit->TurnsToReachTarget(pCapitalCity->plot(),CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN,1) == 0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pCapitalCity->getX(), pCapitalCity->getY());
 				pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
@@ -6875,7 +6889,8 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 			if (iDistance == MAX_INT)
 				continue;
 			
-			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iMinTurns);
+			//pretent turns are "moves" here
+			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iMinTurns);
 			it->SetMovesToTarget(iMoves);
 			// Did we make it at all?
 			if (iMoves != MAX_INT)
@@ -7079,7 +7094,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				}
 			}
 
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iBestTurns);
+			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns);
 			if (iTurns < iBestTurns)
 			{
 				pBestTarget = pTarget;

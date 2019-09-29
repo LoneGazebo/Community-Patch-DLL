@@ -2180,7 +2180,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 
 	CvPlot* pMusterPlot = pOurCivilian->plot();
 	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
-	bool bCloseTarget = (pOurCivilian->TurnsToReachTarget(pTargetSite, 0, 1) < 1);
+	bool bCloseTarget = (pOurCivilian->TurnsToReachTarget(pTargetSite, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) < 1);
 
 	//don't wait for the escort in the wild (happens with settlers a lot)
 	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || 

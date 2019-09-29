@@ -210,6 +210,7 @@ public:
 	bool isAdjacentOwned() const;
 	bool isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly = false) const;
 	bool IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const;
+	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentCity() const;
@@ -896,7 +897,7 @@ public:
 	bool HasWrittenArtifact() const;
 
 	bool IsNearEnemyCitadel(PlayerTypes ePlayer) const;
-	int GetDangerPlotDamage(PlayerTypes ePlayer) const;
+	int GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const;
 
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;

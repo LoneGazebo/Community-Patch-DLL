@@ -28743,7 +28743,15 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
 	}
 
-	return !newPath ? -1 : newPath.vPlots.back().turns;
+	if (!newPath)
+		return -1;
+	else
+	{
+		if ( (iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && newPath.vPlots.back().moves == 0 )
+			return newPath.vPlots.back().turns + 1;
+		else
+			return newPath.vPlots.back().turns;
+	}
 }
 
 //	---------------------------------------------------------------------------
@@ -29989,28 +29997,29 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 				//we're already there (at least approximately)!
 				*piPathTurns = 0;
 			else
+			{
 				*piPathTurns = m_kLastPath.back().m_iTurns;
+				if ((iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && m_kLastPath.back().m_iMoves == 0)
+					*piPathTurns++;
+			}
 
 			return true;
 		}
 	}
 	else
 	{
-		if (piPathTurns == NULL)
-			return ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult) >= 0;
+		int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult);
+		if (iTurns < 0)
+		{
+			if (piPathTurns)
+				*piPathTurns = INT_MAX;
+			return false;
+		}
 		else
 		{
-			int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult);
-			if (iTurns < 0)
-			{
-				*piPathTurns = INT_MAX;
-				return false;
-			}
-			else
-			{
+			if (piPathTurns)
 				*piPathTurns = iTurns;
-				return true;
-			}
+			return true;
 		}
 	}
 }
@@ -31910,7 +31919,7 @@ bool CvUnit::CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns)
 /// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
 int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
 {
-	int iFlags = 0;
+	int iFlags = CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN;
 
 	if(bIgnoreUnits)
 	{

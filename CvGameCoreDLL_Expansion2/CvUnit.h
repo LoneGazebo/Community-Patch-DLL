@@ -136,7 +136,7 @@ public:
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
 		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
-		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
+		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
@@ -150,6 +150,7 @@ public:
 		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
 		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //abort if additional enemies become visible, irrespective of danger level
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
+		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
 	};
 
 	enum MoveResult
@@ -2342,6 +2343,8 @@ protected:
 	mutable uint m_lastReachablePlotsStart;
 	mutable uint m_lastReachablePlotsMoves;
 
+	//this is always stored with the zero-counting convention
+	//ie every plot we can reach this turn has turn count 0, even if there are no moves left
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheOrigin;
 	mutable uint m_uiLastPathCacheDestination;
