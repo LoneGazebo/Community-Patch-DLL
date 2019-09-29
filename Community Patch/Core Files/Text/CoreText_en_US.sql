@@ -328,11 +328,11 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_TECHS';
 
 -- City Revolt
 UPDATE Language_en_US
-SET Text = 'Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
+SET Text = 'Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness (or because our Public Opinion is not Content), a City will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the City most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your Empire''s Happiness level out of this range as soon as possible!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
 
 UPDATE Language_en_US
-SET Text = 'Because the empire has at least 50% [ICON_HAPPINESS_4] Unhappiness, the city of {1_CityName} has revolted and joined {2_CivName}!'
+SET Text = 'Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, the City of {1_CityName} has revolted and joined {2_CivName}!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 
