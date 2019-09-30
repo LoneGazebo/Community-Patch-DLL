@@ -767,6 +767,10 @@ SET Text = 'Very well. Not that it will help either of us in the long run...we w
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
 
 UPDATE Language_en_US
+SET Text = 'Your offer pleases me. Well done.'
+WHERE Tag ='TXT_KEY_LEADER_RAMESSES_TRADE_YES_HAPPY';
+
+UPDATE Language_en_US
 SET Text = 'Happily agreed.'
 WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
 
