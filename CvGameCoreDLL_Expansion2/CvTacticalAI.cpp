@@ -1937,7 +1937,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 			}
 
 			// Always recruit both naval and land based forces if available!
-			if(FindUnitsWithinStrikingDistance(pPlot, false, false))
+			if(FindUnitsWithinStrikingDistance(pPlot))
 			{
 				int iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 				int iExpectedDamagePerTurn = ComputeTotalExpectedDamage(pTarget, pPlot);
@@ -4220,7 +4220,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 
 				if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->canRangeStrikeAt(pLoopCity->getX(), pLoopCity->getY()))
 				{
-					//maybe take into account that ranged units can move? but should be okay
+					//maybe take into account that ranged units can move? but should be okay, siege units are slow
 					iExpectedDamage = pEnemyUnit->GetRangeCombatDamage(NULL, pLoopCity, false, 0, NULL, NULL, true, true);
 				}
 				else
@@ -4238,15 +4238,13 @@ void CvTacticalAI::IdentifyPriorityTargets()
 					ReachablePlots::iterator plot = plots.find( pLoopCity->plot()->GetPlotIndex() );
 					if ( plot != plots.end() )
 					{
+						if (pEnemyUnit->isRangedSupportFire()) //plot is likely incorrect but this is just an estimation
+							iExpectedDamage += pEnemyUnit->GetRangeCombatDamage(NULL, pLoopCity, false, 0, 
+													pLoopCity->plot(), pEnemyUnit->plot(), true);
+
 						int iAttackerStrength = pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL, true, true);
 						int iDefenderStrength = pLoopCity->getStrengthValue(false,pEnemyUnit->ignoreBuildingDefense());
-
-						int iDefenderFireSupportCombatDamage = 0;
-						CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pLoopCity->getOwner(), pLoopCity->getX(), pLoopCity->getY(), pEnemyUnit->getX(), pEnemyUnit->getY());
-						if(pFireSupportUnit != NULL)
-							iDefenderFireSupportCombatDamage = pFireSupportUnit->GetRangeCombatDamage(pEnemyUnit, NULL, false, 0, NULL, NULL, true, true);
-
-						iExpectedDamage = pEnemyUnit->getCombatDamage(iAttackerStrength, iDefenderStrength, pEnemyUnit->getDamage() + iDefenderFireSupportCombatDamage, /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
+						iExpectedDamage += pEnemyUnit->getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
 					}
 				}
 
@@ -6811,7 +6809,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTa
 }
 
 /// Fills m_CurrentMoveUnits with all units within X turns of a target (returns TRUE if 1 or more found)
-bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRangedUnits, bool bImmediateStrike)
+bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 {
 	bool rtnValue = false;
 	m_CurrentMoveUnits.clear();
@@ -6830,10 +6828,6 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 
 		//Don't grab civilians for this!
 		if (pLoopUnit->IsCivilianUnit() && !pLoopUnit->IsGreatGeneral())
-			continue;
-
-		// To effectively skip all ranged units...
-		if (bNoRangedUnits && pLoopUnit->IsCanAttackRanged())
 			continue;
 
 		//ignore most embarked units for attacking, that usually makes no sense
@@ -6862,8 +6856,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if(pLoopUnit->isBarbarian() && (pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 			continue;
 
-		// Only time ranged units aren't selected for city attack is when it needs to be captured
-		if (pLoopUnit->isNoCapture() && bIsCityTarget && bNoRangedUnits)
+		// Some units can't enter cities
+		if (pLoopUnit->isNoCapture() && bIsCityTarget)
 			continue;
 
 		// Don't bother with pathfinding if we're very far away
@@ -6884,7 +6878,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 			{
 				//note that we also take units which can reach an attack plot but can only attack next turn. that's ok.
 				ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit, pLoopUnit->plot(),
-					CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK, bImmediateStrike?0:1);
+					CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK, 0);
 
 				//start from the outside
 				for (int i=pLoopUnit->GetRange(); i>0 && !bCanReach; i--)
@@ -6900,7 +6894,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		else //melee. enough if we can get adjacent to the target
 		{
 			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING;
-			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 2) <= (bImmediateStrike?0:1));
+			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 0) <= 0);
 		}
 
 		if (!bCanReach)
@@ -7117,8 +7111,6 @@ int CvTacticalAI::GetRecruitRange() const
 int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* pTargetPlot)
 {
 	int rtnValue = 0;
-	int iExpectedDamage;
-	int iExpectedSelfDamage;
 
 	// Loop through all units who can reach the target
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -7135,44 +7127,15 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 			CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 			if(pDefender)
 			{
-				if (pAttacker->getDomainType() == DOMAIN_AIR)
+				int iSelfDamage = 0;
+				//attacker plot will likely change but this is just an estimation anyway
+				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker, pTargetPlot, pAttacker->plot(), iSelfDamage, true, 0, true);
+				if (iDamage > iSelfDamage) //exclude suicidal melee attacks
 				{
-					iExpectedDamage = pAttacker->GetAirCombatDamage(pDefender, NULL, false, 0, NULL, NULL, true);
-					iExpectedSelfDamage = pDefender->GetAirStrikeDefenseDamage(pAttacker, false);
+					m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iDamage);
+					m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iSelfDamage);
+					rtnValue += iDamage;
 				}
-				else if(pAttacker->IsCanAttackRanged())
-				{
-					iExpectedDamage = pAttacker->GetRangeCombatDamage(pDefender, NULL, false, 0, NULL, NULL, true, true);
-					iExpectedSelfDamage = 0;
-				}
-				else //melee
-				{
-					int iAttackerStrength;
-					if (plotDistance(pAttacker->getX(), pAttacker->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > 1)
-					{
-						iAttackerStrength = pAttacker->GetMaxAttackStrength(NULL, pTargetPlot, pDefender, true, true);
-					}
-					else
-					{
-						iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttacker->plot(), pTargetPlot, pDefender, true, true);
-					}
-
-					//this is wrong, the attacker plot will change in most situations!
-					int iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, pAttacker, pAttacker ? pAttacker->plot() : NULL, false, true);
-					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pDefender->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), pAttacker->getX(), pAttacker->getY());
-					int iDefenderFireSupportCombatDamage = 0;
-					if(pFireSupportUnit)
-						iDefenderFireSupportCombatDamage = pFireSupportUnit->GetRangeCombatDamage(pAttacker, NULL, false, 0, NULL, NULL, true, true);
-
-					iExpectedDamage = pAttacker->getCombatDamage(iAttackerStrength, iDefenderStrength, pAttacker->getDamage() + iDefenderFireSupportCombatDamage, 
-						/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-					iExpectedSelfDamage = pDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pDefender->getDamage(), 
-						/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-				}
-
-				m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iExpectedDamage);
-				m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iExpectedSelfDamage);
-				rtnValue += iExpectedDamage;
 			}
 		}
 		break;
@@ -7182,51 +7145,27 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 			CvCity* pCity = pTargetPlot->getPlotCity();
 			if(pCity != NULL)
 			{
-				if (pAttacker->getDomainType() == DOMAIN_AIR)
+				int iSelfDamage = 0;
+				//attacker plot will likely change but this is just an estimation anyway
+				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pAttacker, pAttacker->plot(), iSelfDamage, true, 0, true);
+				if (iDamage > iSelfDamage) //exclude suicidal melee attacks
 				{
-					iExpectedDamage = pAttacker->GetAirCombatDamage(NULL, pCity, false, 0, NULL, NULL, true);
-					iExpectedSelfDamage = 0; //ignore interceptions
-				}
-				else if (pAttacker->IsCanAttackRanged())
-				{
-					iExpectedDamage = pAttacker->GetRangeCombatDamage(NULL, pCity, false, 0, NULL, NULL, true, true);
-					iExpectedSelfDamage = 0;
-				}
-				else //melee
-				{
-					int iAttackerStrength;
-					if (plotDistance(pAttacker->getX(), pAttacker->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > 1)
+					//if the city has a garrison, it will absorb part of the damage
+					//let's pretend it doesn't die, this is just an estimation after all
+					if (pCity->HasGarrison())
 					{
-						iAttackerStrength = pAttacker->GetMaxAttackStrength(NULL, pTargetPlot, NULL, true, true);
-					}
-					else
-					{
-						iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttacker->plot(), pTargetPlot, NULL, true, true);
+						CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+						if (pGarrison)
+						{
+							int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+							iDamage -= iGarrisonShare;
+						}
 					}
 
-					int iDefenderStrength = pCity->getStrengthValue(false,pAttacker->ignoreBuildingDefense());
-					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pCity->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), pAttacker->getX(), pAttacker->getY());
-					int iDefenderFireSupportCombatDamage = 0;
-					if(pFireSupportUnit != NULL)
-					{
-						iDefenderFireSupportCombatDamage = pFireSupportUnit->GetRangeCombatDamage(pAttacker, NULL, false, 0, NULL, NULL, true, true);
-					}
-
-					iExpectedDamage = pAttacker->getCombatDamage(iAttackerStrength, iDefenderStrength, pAttacker->getDamage() + iDefenderFireSupportCombatDamage, 
-						/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
-
-					//some units cannot capture
-					int iMaxRangedCityDamage = pCity->GetMaxHitPoints() - pCity->getDamage() - 1;
-					if (pAttacker->isNoCapture() && iExpectedDamage > iMaxRangedCityDamage)
-						iExpectedDamage = iMaxRangedCityDamage;
-
-					iExpectedSelfDamage = pAttacker->getCombatDamage(iDefenderStrength, iAttackerStrength, pCity->getDamage(), 
-						/*bIncludeRand*/ false, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
+					m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iDamage);
+					m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iSelfDamage);
+					rtnValue += iDamage;
 				}
-
-				m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iExpectedDamage);
-				m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iExpectedSelfDamage);
-				rtnValue += iExpectedDamage;
 			}
 		}
 		break;
@@ -8731,16 +8670,17 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const C
 		if (pAttacker->isRangedSupportFire())
 			iDamage += pAttacker->GetRangeCombatDamage(NULL, pCity, false, iExtraDefenderDamage, NULL, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 
-		//just assume the unit can attack from it's current location - modifiers might be different, but thats acceptable
+		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 		iDamage += pAttacker->getCombatDamage(
 			pAttacker->GetMaxAttackStrength(pAttackerPlot, pCity->plot(), NULL, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
-			pCity->getStrengthValue(), 
-			pAttacker->getDamage(), false, false, true);
+			pCity->getStrengthValue(), //not affected by assumed extra damage
+			false, false, true);
 
+		//counterattack for self damage
 		iAttackerDamage = pAttacker->getCombatDamage(
-			pCity->getStrengthValue(),
+			pCity->getStrengthValue(), //not affected by assumed extra damage
 			pAttacker->GetMaxAttackStrength(pAttackerPlot, pCity->plot(), NULL, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
-			pCity->getDamage() + iExtraDefenderDamage, false, true, false);
+			false, true, false);
 
 		//if both would die, the attacking unit survives!
 		if (pCity->getDamage() + iExtraDefenderDamage + iDamage >= pCity->GetMaxHitPoints() && pAttacker->getDamage() + iAttackerDamage >= pAttacker->GetMaxHitPoints())
@@ -8775,7 +8715,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 		}
 		else
 		{
-			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, 0, 
+			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, iExtraDefenderDamage, 
 							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 			iAttackerDamage = 0;
 		}
@@ -8788,25 +8728,26 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 			return 0;
 
 		if (pAttacker->isRangedSupportFire())
-			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, 0, 
+			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, iExtraDefenderDamage, 
 							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 
 		int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 		//do not override defender flanking/general bonus (it is known during combat simulation)
 		int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty); 
 
+		//hack. we modify defender strength again by the modifier for assumed extra damage
+		iDefenderStrength += (pDefender->GetDamageCombatModifier(true, iExtraDefenderDamage) * iDefenderStrength) / 100;
+
 		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 		iDamage += pAttacker->getCombatDamage(
 			iAttackerStrength,
 			iDefenderStrength,
-			pAttacker->getDamage(), 
 			false, false, false);
 
 		//note: this is just the self-damage of the attacker! if the defender strikes back, we typically get other strength values because the plots are switched!
 		iAttackerDamage = pDefender->getCombatDamage(
 			iDefenderStrength,
 			iAttackerStrength,
-			pDefender->getDamage() + iExtraDefenderDamage, 
 			false, false, false);
 	}
 
@@ -11912,11 +11853,13 @@ const char* assignmentTypeNames[] =
 	"MELEEKILL", 
 	"RANGEATTACK", 
 	"RANGEKILL", 
-	"ENDTURN",
+	"FINISH",
 	"BLOCKED",
 	"PILLAGE",
 	"CAPTURE",
 	"FORCEDMOVE",
 	"RESTART",
-	"MELEEKILL_NOADVANCE"
+	"MELEEKILL_NOADVANCE",
+	"SWAP",
+	"SWAPREVERSE"
 };

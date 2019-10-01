@@ -236,7 +236,7 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
-	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
+	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
@@ -608,7 +608,7 @@ public:
 	void SetBaseCombatStrength(int iCombat);
 	int GetBaseCombatStrength() const;
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
-	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false) const;
+	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
 
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
@@ -639,11 +639,8 @@ public:
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
-	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
+	int GetInterceptionDamage(const CvUnit* pInterceptedAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
 
-#if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
-	int GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
-#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetResistancePower(const CvUnit* pOtherUnit) const;
 #endif

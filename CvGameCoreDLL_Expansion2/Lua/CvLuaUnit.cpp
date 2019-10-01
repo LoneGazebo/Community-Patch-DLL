@@ -966,12 +966,13 @@ int CvLuaUnit::lGetCombatDamage(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const int iStrength = lua_tointeger(L, 2);
 	const int iOpponentStrength = lua_tointeger(L, 3);
-	const int iCurrentDamage = lua_tointeger(L, 4);
+	//damage is factored into the strength values now
+	//const int iCurrentDamage = lua_tointeger(L, 4); 
 	const bool bIncludeRand = lua_toboolean(L, 5);
 	const bool bAttackerIsCity = lua_toboolean(L, 6);
 	const bool bDefenderIsCity = lua_toboolean(L, 7);
 
-	int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
+	int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
 
 #if defined(MOD_BALANCE_CORE)
 	//for visual feedback, take care that we show the precise value
