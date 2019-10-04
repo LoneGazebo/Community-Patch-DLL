@@ -123,8 +123,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderStrength = pkCity->getStrengthValue();
 
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
-		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
-		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, pkCity->getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
+		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
+		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
 
 #if defined(MOD_BALANCE_CORE)
 		if(kAttacker.getForcedDamageValue() != 0)
@@ -267,8 +267,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
-		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 		if(kAttacker.getDomainType() == DOMAIN_AIR && pkDefender->getDomainType() != DOMAIN_AIR)
 		{
@@ -350,8 +350,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_DEFENDER, iDefenderDamageInflicted);
 
 		// Fear Damage
-		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), bIncludeRand, false, true));
-		//	pkCombatInfo->setFearDamageInflicted( BATTLE_UNIT_DEFENDER, getCombatDamage(iDefenderStrength, iAttackerStrength, pDefender->getDamage(), bIncludeRand, false, true) );
+		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, bIncludeRand, false, true));
 
 #if defined(MOD_UNITS_MAX_HP)
 		int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
@@ -2346,8 +2345,8 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 
-		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -3246,7 +3245,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 		// Is the interception successful?
 		if(GC.getGame().getSmallFakeRandNum(10, dropPlot.GetPlotIndex()+pInterceptor->GetID()) * 10 < pInterceptor->interceptionProbability())
 		{
-			iInterceptionDamage = pInterceptor->GetParadropInterceptionDamage(&paraUnit);
+			iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit);
 		}
 	
 		if (iInterceptionDamage > 0) {
@@ -3318,6 +3317,53 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 	return paraUnit.IsDead();
 }
 #endif
+
+//result is times 100
+int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMinDamage100, int iMaxRandomDamage100, int iRandomSeed, int iModifierPercent)
+{
+	// Base damage for two units of identical strength
+	int iDamage = iDefaultDamage100;
+
+	// Don't use rand when calculating projected combat results
+	if(iRandomSeed>0)
+	{
+		iDamage += GC.getGame().getSmallFakeRandNum(iMaxRandomDamage100, iRandomSeed);
+	}
+	else
+	{
+		//just use the expected value of the random roll
+		iDamage += iMaxRandomDamage100 / 2;
+	}
+
+	// Calculations performed to dampen amount of damage by units that are close in strength
+	// RATIO = (((((ME / OPP) + 3) / 4) ^ 4) + 1) / 2
+	// Examples:
+	// 1.301 = (((((9 / 6) + 3) / 4) ^ 4) + 1 / 2
+	// 17.5 = (((((40 / 6) + 3) / 4) ^ 4) + 1 / 2
+
+	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result (we need a # above 1.0)
+	double fStrengthRatio = (iDefenderStrength100 > iAttackerStrength100) ?
+		(double(iDefenderStrength100) / max(1,iAttackerStrength100)) : (double(iAttackerStrength100) / max(1,iDefenderStrength100));
+
+	fStrengthRatio = (fStrengthRatio + 3) / 4;
+	fStrengthRatio = pow(fStrengthRatio, 4.0);
+	//avoid overflows later ...
+	fStrengthRatio = MIN(1e3, (fStrengthRatio + 1) / 2);
+
+	//undo the inversion if needed
+	if(iDefenderStrength100 > iAttackerStrength100)
+		fStrengthRatio = 1 / fStrengthRatio;
+
+	//this is it
+	iDamage = int(iDamage * fStrengthRatio);
+	if(iModifierPercent!=0)
+	{
+		iDamage *= (100+iModifierPercent);
+		iDamage /= 100;
+	}
+
+	return max(iDamage,iMinDamage100);
+}
 
 //	---------------------------------------------------------------------------
 void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID /* = 0 */)

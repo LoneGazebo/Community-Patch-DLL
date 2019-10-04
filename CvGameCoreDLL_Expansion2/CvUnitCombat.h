@@ -42,6 +42,8 @@ public:
 	static bool ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot);
 #endif
 
+	//returns damage times 100
+	static int DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMinDamage100, int iMaxRandomDamage100, int iRandomSeed, int iModifierPercent);
 	static void ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID = 0);
 
 	static ATTACK_RESULT Attack(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION eOption);
