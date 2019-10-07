@@ -3355,8 +3355,6 @@ void CvTacticalAI::PlotAttritFromRangeMoves()
 /// Defeat enemy units by using our advantage in numbers
 void CvTacticalAI::PlotExploitFlanksMoves()
 {
-	m_TempTargets.clear();
-
 	// Loop through unit targets finding attack for this turn
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
@@ -3372,8 +3370,6 @@ void CvTacticalAI::PlotExploitFlanksMoves()
 /// We have more overall strength than enemy, defeat his army first
 void CvTacticalAI::PlotSteamrollMoves()
 {
-	m_TempTargets.clear();
-
 	// See if there are any kill attacks we can make.
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true, true);
@@ -3571,8 +3567,8 @@ void CvTacticalAI::PlotCloseOnTarget()
 		bool bCanSeeCity = pZone->GetZoneCity()->plot()->isVisible(m_pPlayer->getTeam());
 
 		// If we can't see the city, be careful advancing on it.  We want to be sure we're not heavily outnumbered
-		//Exception for temporary targets - we need to press the offensive here.
-		if(IsTemporaryZoneCity(pZone->GetZoneCity()) || bCanSeeCity || pZone->GetOverallFriendlyStrength()*3 > pZone->GetOverallEnemyStrength()*2)
+		// Exception for temporary targets - we need to press the offensive here.
+		if(bCanSeeCity || IsTemporaryZoneCity(pZone->GetZoneCity()))
 		{
 			target.SetTargetType(AI_TACTICAL_TARGET_CITY);
 			target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
@@ -3580,6 +3576,19 @@ void CvTacticalAI::PlotCloseOnTarget()
 			target.SetDominanceZone(pZone->GetZoneID());
 
 			ExecuteCloseOnTarget(target, pZone);
+		}
+	}
+	else if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+	{
+		//engage enemies inside our territory (in case we couldn't find an aggressive move earlier)
+		for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
+		{
+			if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
+					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+					m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
+			{
+				ExecuteCloseOnTarget(m_ZoneTargets[iI],pZone);
+			}
 		}
 	}
 }
@@ -6796,6 +6805,8 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTa
 			if(iMoves != MAX_INT)
 			{
 				int iBaseScore = 100 - 10 * iMoves;
+				//debugging
+				pLoopUnit->setTacticalMove( eMove );
 				possibleUnits.push_back(SUnitWithScore(pLoopUnit, iBaseScore+iExtraScore));
 			}
 		}

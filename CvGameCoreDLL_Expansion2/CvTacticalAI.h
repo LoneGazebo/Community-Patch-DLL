@@ -925,13 +925,6 @@ private:
 
 	int m_iCurrentTempZoneIndex;
 	std::vector<CvTemporaryZone> m_TempZones;
-	std::vector<CvTacticalTarget> m_TempTargets;
-
-	// Blocking (and flanking) position data
-	std::vector<CvBlockingUnit> m_PotentialBlocks;
-	std::vector<CvBlockingUnit> m_TemporaryBlocks;
-	std::vector<CvBlockingUnit> m_ChosenBlocks;
-	std::vector<CvBlockingUnit> m_NewlyChosen;
 
 	// Operational AI support data
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
