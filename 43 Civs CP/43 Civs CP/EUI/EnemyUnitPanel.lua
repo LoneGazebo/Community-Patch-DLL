@@ -1360,18 +1360,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
-			if (not bRanged) then
-				iModifier = pMyUnit:GetExtraWithdrawal();
-			    if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				   controlTable = g_MyCombatDataIM:GetInstance();
-				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
-				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				   bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
-				end		
-			end
+			-- if (not bRanged) then
+			-- 	iModifier = pMyUnit:GetExtraWithdrawal();
+			--     if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			-- 	   controlTable = g_MyCombatDataIM:GetInstance();
+			-- 	   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
+			-- 	   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			-- 	   bonusCount = bonusCount + 1;
+			-- 	elseif (iModifier ~= 0) then
+			-- 		bonusSum = bonusSum + iModifier;
+			-- 		bonusCount = bonusCount + 1;				
+			-- 	end		
+			-- end
 
 			-- COMMUNITY (Resistance)
 			iModifier = pMyUnit:GetResistancePower(pTheirUnit);
@@ -2022,7 +2022,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 			
-			
+			-- Withdraw Chance
+			if (not bRanged) then
+				iModifier = pTheirUnit:GetExtraWithdrawal();
+				if (iModifier ~= 0) then
+				   controlTable = g_TheirCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE", iModifier );
+				   controlTable.Value:SetText("");
+				   bonusCount = bonusCount + 1;
+				end		
+			end			
+
 			if (pTheirUnit:IsCombatUnit()) then
 
 				-- Empire Unhappy
@@ -2131,19 +2141,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				elseif(iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
 					bonusCount = bonusCount + 1;				
-				end
-
-				if (not bRanged) then
-					iModifier = pTheirUnit:GetExtraWithdrawal();
-					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					   controlTable = g_TheirCombatDataIM:GetInstance();
-					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
-					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-					   bonusCount = bonusCount + 1;
-					elseif (iModifier ~= 0) then
-						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;
-					end		
 				end
 
 			-- COMMUNITY (Resistance)
@@ -2500,6 +2497,20 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 				end
 				
+				-- Logistics Combat Penalty 
+				if(bRanged) then
+					iModifier = pTheirUnit:GetRangedAttackModifier();
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_ATTACK_MODIFIER" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						bonusCount = bonusCount + 1;
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;				
+					end
+				end
+
 				-- RoughDefenseModifier
 				if (pToPlot:IsRoughGround()) then
 					iModifier = pTheirUnit:RoughDefenseModifier();
