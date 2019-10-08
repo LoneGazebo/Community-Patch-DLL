@@ -11,6 +11,8 @@
 #include "CvMilitaryAI.h"
 #include "cvStopWatch.h"
 #include "CvDiplomacyAI.h"
+#include <sstream>
+#include <iomanip>
 
 #include "LintFree.h"
 
@@ -41,7 +43,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyNavalUnitCount = 0;
 	m_iFriendlyNavalUnitCount = 0;
 	m_iZoneValue = 0;
-	m_iRangeClosestEnemyUnit = -1;
+	m_iDistanceOfClosestEnemyUnit = -1;
 	m_bIsWater = false;
 	m_bIsNavalInvasion = false;
 	m_bIsPillageZone = false;
@@ -214,15 +216,15 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 #endif
 
 /// Retrieve distance in hexes of closest enemy to center of this zone
-int CvTacticalDominanceZone::GetRangeClosestEnemyUnit() const
+int CvTacticalDominanceZone::GetDistanceOfClosestEnemyUnit() const
 {
-	return m_iRangeClosestEnemyUnit;
+	return m_iDistanceOfClosestEnemyUnit;
 }
 
 /// Set distance in hexes of closest enemy to center of this zone
-void CvTacticalDominanceZone::SetRangeClosestEnemyUnit(int iRange)
+void CvTacticalDominanceZone::SetDistanceOfClosestEnemyUnit(int iRange)
 {
-	m_iRangeClosestEnemyUnit = iRange;
+	m_iDistanceOfClosestEnemyUnit = iRange;
 }
 
 //=====================================
@@ -231,8 +233,8 @@ void CvTacticalDominanceZone::SetRangeClosestEnemyUnit(int iRange)
 /// Constructor
 CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 	m_iDominancePercentage(25),
-	m_iUnitStrengthMultiplier(5),
-	m_iTacticalRange(6),
+	m_iUnitStrengthMultiplier(1),
+	m_iTacticalRangeTurns(6),
 	m_ePlayer(NO_PLAYER),
 	m_iTurnSliceBuilt(-1)
 {
@@ -255,8 +257,8 @@ void CvTacticalAnalysisMap::Init(PlayerTypes ePlayer)
 	m_iDominancePercentage = GC.getAI_TACTICAL_MAP_DOMINANCE_PERCENTAGE();
 
 	m_iTurnSliceBuilt = -1;
-	m_iTacticalRange = 6;
-	m_iUnitStrengthMultiplier = 5;
+	m_iTacticalRangeTurns = 6;
+	m_iUnitStrengthMultiplier = 1;
 
 }
 
@@ -358,8 +360,8 @@ void CvTacticalAnalysisMap::Refresh(bool force)
 			Init(m_ePlayer);
 
 		m_iTurnSliceBuilt = GC.getGame().getTurnSlice();
-		m_iTacticalRange = ((GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) * 3) / 5;  // Have this increase as game goes on
-		m_iUnitStrengthMultiplier = GC.getAI_TACTICAL_MAP_UNIT_STRENGTH_MULTIPLIER() * m_iTacticalRange;
+		m_iTacticalRangeTurns = (GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) / 2;
+		m_iUnitStrengthMultiplier = 1; //relative to cities
 
 		AI_PERF_FORMAT("AI-perf.csv", ("Tactical Analysis Map, Turn %d, %s", GC.getGame().getGameTurn(), GET_PLAYER(m_ePlayer).getCivilizationShortDescription()) );
 
@@ -516,27 +518,34 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
-		CvCity *pClosestCity = pZone->GetZoneCity();
-		if(pClosestCity)
+		ReachablePlots turnsFromCity;
+		int iMaxTurns = GetTacticalRangeTurns();
+		if(pZone->GetZoneCity())
 		{
+			CvCity *pZoneCity = pZone->GetZoneCity();
+
 			// Start with strength of the city itself
-			int iCityHitPoints = pClosestCity->GetMaxHitPoints() - pClosestCity->getDamage();
-			int iStrength = pClosestCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
+			int iCityHitPoints = pZoneCity->GetMaxHitPoints() - pZoneCity->getDamage();
+			int iStrength = pZoneCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
 
 			if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
 			{
 				pZone->AddFriendlyMeleeStrength(iStrength);
-				pZone->AddFriendlyRangedStrength(pClosestCity->getStrengthValue(true));
+				pZone->AddFriendlyRangedStrength(pZoneCity->getStrengthValue(true));
 			}
 			else if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
 			{
 				pZone->AddEnemyMeleeStrength(iStrength);
-				pZone->AddEnemyRangedStrength(pClosestCity->getStrengthValue(true));
+				pZone->AddEnemyRangedStrength(pZoneCity->getStrengthValue(true));
 			}
 			else
 			{ 
 				pZone->AddNeutralStrength(iStrength);
 			}
+
+			//do not set a player - that way we can traverse unrevealed plots and foreign territory
+			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
+			turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pZoneCity->plot(), data);
 		}
 
 		// check all units in the world
@@ -552,13 +561,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				if(!pLoopUnit->IsCombatUnit())
 					continue;
 
-				bool bUnitMayBeRelevant = (pLoopUnit->getDomainType() == DOMAIN_AIR ||
-						pLoopUnit->isRanged() || //ranged power is cross-domain!
-						(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
-						((pLoopUnit->getDomainType() == DOMAIN_SEA || (pLoopUnit->isEmbarked() && pClosestCity) && pZone->IsWater())));
-						//embarked melee still count in water zone if there's a city to attack/defend
+				bool bZoneTypeMatch = 
+							(pLoopUnit->getDomainType() == DOMAIN_AIR) ||
+							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
+							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
 
-				if (!bUnitMayBeRelevant)
+				if (!bZoneTypeMatch)
 					continue;
 
 				CvPlot* pPlot = pLoopUnit->plot();
@@ -567,31 +575,18 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 				//a little cheating for AI - invisible units still count with reduced strength
 				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
-				bool bZoneTypeMismatch = (pLoopUnit->getDomainType() == DOMAIN_LAND && pZone->IsWater()) || (pLoopUnit->getDomainType() == DOMAIN_SEA && !pZone->IsWater());
+				bool bReducedStrength = pLoopUnit->isEmbarked() || !bVisible;
 
-				//embarked units and crossdomain count only partially
-				bool bReducedStrength = pLoopUnit->isEmbarked() || bZoneTypeMismatch;
-
+				int iTurnDistance = 0;
 				//if there is a city, units in adjacent zones can also count
-				int iDistance = 0;
-				if (pClosestCity)
+				if (!turnsFromCity.empty())
 				{
-					iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pClosestCity->getX(), pClosestCity->getY());
-					if (iDistance > m_iTacticalRange)
-						continue;
-					else if (iDistance > (m_iTacticalRange / 2))
-					{
-						if (bZoneTypeMismatch)
-							continue;
-						else
-							bReducedStrength = true;
-					}
+					ReachablePlots::iterator it = turnsFromCity.find(pPlot->GetPlotIndex());
+					if (it != turnsFromCity.end())
+						//unit is in range
+						iTurnDistance = it->iTurns;
 					else
-					{
-						//if on another continent, they can't easily take part in the fight
-						if (!pClosestCity->isMatchingArea(pLoopUnit->plot()))
-							bReducedStrength = true;
-					}
+						continue; //unit is too far away
 				}
 				else
 				{
@@ -600,12 +595,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						continue;
 				}
 
-				int iMultiplier = m_iTacticalRange + MIN(3 - iDistance, 0);  // 3 because action may still be spread out over the zone
+				int iMultiplier = iMaxTurns - MAX(iTurnDistance-2, 0);  // bias of 2 because action may still be spread out over the zone
 				if(iMultiplier > 0)
 				{
 					int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true);
-					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) / 100;
-					if(!bVisible || bReducedStrength)
+					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true);
+					if(bReducedStrength)
 					{
 						iUnitStrength /= 2;
 						iRangedStrength /= 2;
@@ -635,8 +630,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						}
 
 						//again only for enemies
-						if(pZone->GetRangeClosestEnemyUnit()<0 || iDistance<pZone->GetRangeClosestEnemyUnit())
-							pZone->SetRangeClosestEnemyUnit(iDistance);
+						if(pZone->GetDistanceOfClosestEnemyUnit()<0 || iTurnDistance<pZone->GetDistanceOfClosestEnemyUnit())
+							pZone->SetDistanceOfClosestEnemyUnit(iTurnDistance);
 					}
 					else if (bFriendly)
 					{
@@ -790,11 +785,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 				{
 					if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
 					{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 						iMultiplier *= 4;
-#else
-						iMultiplier *= 2;
-#endif
 					}
 				}
 				else if (GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -821,6 +812,26 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 /// Log dominance zone data
 void CvTacticalAnalysisMap::LogZones()
 {
+	// -- only for special cases
+
+	//if (GC.getLogging() && GC.getAILogging() && GET_PLAYER(m_ePlayer).isMajorCiv())
+	//{
+	//	std::stringstream ss;
+	//	ss << "DominanceZones_" << GET_PLAYER(m_ePlayer).getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
+	//	FILogFile* pLog = LOGFILEMGR.GetLog(ss.str().c_str(), FILogFile::kDontTimeStamp);
+	//	if (pLog)
+	//	{
+	//		pLog->Msg("#x,y,terrain,owner,zoneid\n");
+	//		for (size_t i = 0; i < m_vPlotZoneID.size(); i++)
+	//		{
+	//			CvPlot* pPlot = GC.getMap().plotByIndex(i);
+	//			CvString dump = CvString::format("%d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotZoneID[i]);
+	//			pLog->Msg(dump.c_str());
+	//		}
+	//		pLog->Close();
+	//	}
+	//}
+
 	// -- don't do this it makes the log YUGE and nobody ever looks at it
 
 	//if(GC.getLogging() && GC.getAILogging())
@@ -839,7 +850,7 @@ void CvTacticalAnalysisMap::LogZones()
 	//		szLogMsg.Format("Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
 	//		                pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
 	//		                pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
-	//		                pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetRangeClosestEnemyUnit());
+	//		                pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetDistanceOfClosestEnemyUnit());
 	//		if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 	//		{
 	//			szLogMsg += ", Friendly";
@@ -897,7 +908,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTactical
 		// If this is a temporary zone, matches if unowned and close enough
 		if((pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE) &&
 		        (pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER || pNewZone->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL) &&
-		        (plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY()) <= m_iTacticalRange))
+		        (plotDistance(pNewZone->GetCenterX(), pNewZone->GetCenterY(), pZone->GetCenterX(), pZone->GetCenterY()) <= GetTacticalRangeTurns()))
 		{
 			return pZone;
 		}
@@ -1061,7 +1072,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFr
 {
 	saveTo << readFrom.m_iDominancePercentage;
 	saveTo << readFrom.m_iUnitStrengthMultiplier;
-	saveTo << readFrom.m_iTacticalRange;
+	saveTo << readFrom.m_iTacticalRangeTurns;
 	saveTo << readFrom.m_ePlayer;
 	saveTo << readFrom.m_iTurnSliceBuilt;
 
@@ -1074,7 +1085,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 {
 	loadFrom >> writeTo.m_iDominancePercentage;
 	loadFrom >> writeTo.m_iUnitStrengthMultiplier;
-	loadFrom >> writeTo.m_iTacticalRange;
+	loadFrom >> writeTo.m_iTacticalRangeTurns;
 	loadFrom >> writeTo.m_ePlayer;
 	loadFrom >> writeTo.m_iTurnSliceBuilt;
 
@@ -1107,7 +1118,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iEnemyNavalUnitCount;
 	saveTo << readFrom.m_iFriendlyNavalUnitCount;
 	saveTo << readFrom.m_iZoneValue;
-	saveTo << readFrom.m_iRangeClosestEnemyUnit;
+	saveTo << readFrom.m_iDistanceOfClosestEnemyUnit;
 	saveTo << readFrom.m_bIsWater;
 	saveTo << readFrom.m_bIsNavalInvasion;
 	saveTo << readFrom.m_bIsPillageZone;
@@ -1144,7 +1155,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iEnemyNavalUnitCount;
 	loadFrom >> writeTo.m_iFriendlyNavalUnitCount;
 	loadFrom >> writeTo.m_iZoneValue;
-	loadFrom >> writeTo.m_iRangeClosestEnemyUnit;
+	loadFrom >> writeTo.m_iDistanceOfClosestEnemyUnit;
 	loadFrom >> writeTo.m_bIsWater;
 	loadFrom >> writeTo.m_bIsNavalInvasion;
 	loadFrom >> writeTo.m_bIsPillageZone;

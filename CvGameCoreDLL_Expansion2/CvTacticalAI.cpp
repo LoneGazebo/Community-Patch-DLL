@@ -6416,7 +6416,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 				(pZone && pZone->IsNavalInvasion()) ) //might be temporary zone, so check separately!
 			{	
 				// we want units which are somewhat close (so we don't deplete other combat zones) 
-				int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRange();
+				int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRangeTurns();
 
 				// rough distance check first
 				if (plotDistance(*pUnit->plot(), *pTargetPlot) > iMaxTurns * 2)
@@ -7797,20 +7797,15 @@ void CvTacticalAI::UnitProcessed(int iID)
 /// Do we want to process moves for this dominance zone?
 bool CvTacticalAI::UseThisDominanceZone(CvTacticalDominanceZone* pZone)
 {
-	bool bIsOurCapital = false;
 	bool bTempZone = false;
-	int iCityID = -1;
 	if(pZone->GetZoneCity() != NULL)
-	{
-		iCityID = pZone->GetZoneCity()->GetID();
-		bIsOurCapital = (pZone->GetZoneCity() == m_pPlayer->getCapitalCity());
 		bTempZone = IsTemporaryZoneCity(pZone->GetZoneCity());
-	}
+
 	bool bWeHaveUnitsNearEnemy = pZone->GetTotalFriendlyUnitCount() > 0 && pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY;
-	bool bTheyHaveUnitsNearUs = pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_NO_UNITS_VISIBLE && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY;
+	bool bTheyHaveUnitsNearUs = pZone->GetTotalEnemyUnitCount() > 0 && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY;
 	bool bBothHaveUnits = pZone->GetTotalFriendlyUnitCount() > 0 && pZone->GetTotalEnemyUnitCount() > 0;
 
-	return (bTempZone || bIsOurCapital || bWeHaveUnitsNearEnemy || bTheyHaveUnitsNearUs || bBothHaveUnits);
+	return (bTempZone || bWeHaveUnitsNearEnemy || bTheyHaveUnitsNearUs || bBothHaveUnits);
 }
 
 /// Is this civilian target of the highest priority?
@@ -8818,7 +8813,7 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 	return false;
 }
 
-CvPlot* TacticalAIHelpers::GetFirstTargetInRange(CvUnit * pUnit, bool bMustBeAbleToKill, bool bIncludeCivilians)
+CvPlot* TacticalAIHelpers::GetFirstTargetInRange(const CvUnit * pUnit, bool bMustBeAbleToKill, bool bIncludeCivilians)
 {
 	if (!pUnit)
 		return NULL;

@@ -11649,6 +11649,10 @@ void CvPlayer::DoUnitReset()
 		// First heal the unit
 		pLoopUnit->doHeal();
 
+		// Sanity check
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX)
+			OutputDebugString("ouch, general about to be captured\n");
+
 		// then damage it again
 		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
 		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))

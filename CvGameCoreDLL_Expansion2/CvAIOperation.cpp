@@ -3957,21 +3957,13 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
 														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
 {
+	//cannot use most types of civilian
 	if (pLoopUnit->IsCivilianUnit() && pLoopUnit->AI_getUnitAIType() != UNITAI_GENERAL && pLoopUnit->AI_getUnitAIType() != UNITAI_ADMIRAL && pLoopUnit->AI_getUnitAIType() != UNITAI_CITY_SPECIAL)
 		return false;
 
+	//otherwise engaged?
 	if (!pLoopUnit->canRecruitFromTacticalAI())
-	{
-		//Is it a garrison we can spare?
-		if (pLoopUnit->IsGarrisoned())
-		{
-			CvTacticalDominanceZone* pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopUnit->plot()->getPlotCity(),false);
-			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>2)
-				return false;
-		}
-		else
-			return false;
-	}
+		return false;
 
 	//In an army?
 	if (pLoopUnit->getArmyID() != -1)

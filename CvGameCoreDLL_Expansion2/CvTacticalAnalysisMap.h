@@ -89,8 +89,8 @@ public:
 	};
 	CvCity* GetZoneCity() const;
 	void SetZoneCity(CvCity* pCity);
-	int GetRangeClosestEnemyUnit() const;
-	void SetRangeClosestEnemyUnit(int iRange);
+	int GetDistanceOfClosestEnemyUnit() const;
+	void SetDistanceOfClosestEnemyUnit(int iRange);
 	inline int GetAreaID() const
 	{
 		return m_iAreaID;
@@ -290,7 +290,7 @@ private:
 	int m_iEnemyNavalUnitCount; //all naval units
 	int m_iFriendlyNavalUnitCount; //all naval units
 	int m_iZoneValue;
-	int m_iRangeClosestEnemyUnit;
+	int m_iDistanceOfClosestEnemyUnit;
 	bool m_bIsWater;
 	bool m_bIsNavalInvasion;
 	bool m_bIsPillageZone;
@@ -327,7 +327,7 @@ public:
 	int GetNumZones();
 
 	// quasi-const members
-	int GetTacticalRange() const {return m_iTacticalRange;}
+	int GetTacticalRangeTurns() const { return m_iTacticalRangeTurns; }
 	int GetDominancePercentage() const { return m_iDominancePercentage; }
 
 protected:
@@ -344,7 +344,7 @@ protected:
 	// Cached global define values
 	int m_iDominancePercentage;
 	int m_iUnitStrengthMultiplier;
-	int m_iTacticalRange;
+	int m_iTacticalRangeTurns;
 
 	PlayerTypes m_ePlayer;
 	std::vector<int> m_vPlotZoneID;
