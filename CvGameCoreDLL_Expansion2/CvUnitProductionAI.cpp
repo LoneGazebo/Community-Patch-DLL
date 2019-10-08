@@ -687,12 +687,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
 				int iValue = iDesired - iCurrent;
 
-				if (pkUnitEntry->GetRange() > 0)
-				{
-					iValue *= 3;
-					iValue /= 2;
-				}
-
 				iValue *= 5 + kPlayer.GetCurrentEra();
 
 				int iNumCoastal = 0;
@@ -1458,7 +1452,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					int iNumArch = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true, false);
 					if (iNumArch <= 0)
 					{
-						iBonus += 1000;
+						iBonus += 5000;
 					}
 
 					AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -1466,12 +1460,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				
 					if(bSeekingCultureVictory)
 					{
-						iBonus += 1000;
+						iBonus += 5000;
 					}
 
 					if(kPlayer.GetArchaeologicalDigTourism() > 0)
 					{
-						iBonus += 1000;
+						iBonus += 2500;
 					}
 					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 					{
@@ -1666,30 +1660,30 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (pkUnitEntry->GetFreePromotions(iI))
 				{
-					if (!pkPromotionInfo->IsLostWithUpgrade() && !pkPromotionInfo->IsCannotBeChosen())
-					{
-						iPromotionBonus += 5;
+					if (!pkPromotionInfo->IsLostWithUpgrade())
+					{ 
+						iPromotionBonus += 25;
 					}
 				}
 				if(kPlayer.IsFreePromotion(ePromotion))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iPromotionBonus += 5;
+						iPromotionBonus += 25;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iPromotionBonus += 5;
+						iPromotionBonus += 25;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iPromotionBonus += 5;
+						iPromotionBonus += 25;
 					}
 				}
 			}

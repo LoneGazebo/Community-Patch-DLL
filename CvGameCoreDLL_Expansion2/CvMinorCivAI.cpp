@@ -1000,7 +1000,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
 
-			iBonus *= (100 + pMinor->getCapitalCity()->getPopulation() * 2);
+			iBonus *= (100 + kPlayer.getCapitalCity()->getPopulation());
 			iBonus /= 100;
 
 			SetFood(iBonus);
@@ -12106,6 +12106,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bFriends = true;
 #if defined(MOD_CITY_STATE_SCALE)
 		SetFriends(ePlayer, true);
+		RecalculateRewards(ePlayer);
 #endif
 
 #if defined(MOD_EVENTS_MINORS)
@@ -12141,6 +12142,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bFriends = true;
 #if defined(MOD_CITY_STATE_SCALE)
 		SetFriends(ePlayer, false);
+		RecalculateRewards(ePlayer);
 #endif
 
 #if defined(MOD_EVENTS_MINORS)
@@ -13284,6 +13286,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	{
 		pCity->updateStrengthValue();
 	}
+	RecalculateRewards(eMajor);
 #endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);

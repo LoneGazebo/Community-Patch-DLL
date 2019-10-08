@@ -136,7 +136,7 @@ public:
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
 		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
-		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
+		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
@@ -150,6 +150,7 @@ public:
 		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
 		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //abort if additional enemies become visible, irrespective of danger level
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
+		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
 	};
 
 	enum MoveResult
@@ -235,7 +236,7 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
-	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
+	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
@@ -607,7 +608,7 @@ public:
 	void SetBaseCombatStrength(int iCombat);
 	int GetBaseCombatStrength() const;
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
-	int GetDamageCombatModifier(bool bRanged = false) const;
+	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
 
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
@@ -625,7 +626,7 @@ public:
 
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
 									const CvPlot* pMyPlot = NULL, const CvPlot* pOtherPlot = NULL, 
-									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false, bool bForRangedAttack = false) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
@@ -638,11 +639,8 @@ public:
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
-	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
+	int GetInterceptionDamage(const CvUnit* pInterceptedAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
 
-#if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
-	int GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
-#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetResistancePower(const CvUnit* pOtherUnit) const;
 #endif
@@ -2342,6 +2340,8 @@ protected:
 	mutable uint m_lastReachablePlotsStart;
 	mutable uint m_lastReachablePlotsMoves;
 
+	//this is always stored with the zero-counting convention
+	//ie every plot we can reach this turn has turn count 0, even if there are no moves left
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheOrigin;
 	mutable uint m_uiLastPathCacheDestination;

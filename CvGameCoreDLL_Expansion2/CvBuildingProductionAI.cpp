@@ -301,9 +301,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iValue = 500;
 		}
 
-		if (kPlayer.getNumCities() == 1)
-			iValue /= 2;
-
 		// we want this? ramp it up!
 		if (kPlayer.GetCitySpecializationAI()->GetNextWonderDesired() == eBuilding)
 		{
@@ -337,7 +334,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iNumOthersConstructing++;
 				}
 			}
-			iBonus -= iNumOthersConstructing * 100;
+			iBonus -= iNumOthersConstructing * 150;
 
 			//probably early game, so if we haven't started yet, we're probably not going to win this one.
 			if (kPlayer.getNumCities() == 1 && !bIsVenice)
@@ -738,17 +735,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (m_pCity->isPotentiallyInDanger())
 	{
 		if (kPlayer.IsAtWarAnyMajor())
-			iDefenseMod += 50;
+			iDefenseMod += 1000;
 		else
-			iDefenseMod += 25;
+			iDefenseMod += 500;
 	}
 	else if (kPlayer.IsAtWarAnyMajor())
-		iDefenseMod += 25;
+		iDefenseMod += 150;
 
 	bool bDesperate = m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege();
 
 	if (bDesperate || m_pCity->IsPuppet())
-		iDefenseMod += 100;
+		iDefenseMod += 1000;
 
 	iDefense *= iDefenseMod;
 	iDefense /= 100;

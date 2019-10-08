@@ -994,19 +994,20 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 			end
 			
-			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
+			local maxMyUnitHitPoints = pMyUnit:GetMaxHitPoints();
+			local maxTheirUnitHitPoints = pTheirUnit:GetMaxHitPoints();
 
 			-- Don't give numbers greater than a Unit's max HP
-			if (iMyDamageInflicted > maxUnitHitPoints) then
-				iMyDamageInflicted = maxUnitHitPoints;
+			if (iMyDamageInflicted > maxTheirUnitHitPoints) then
+				iMyDamageInflicted = maxTheirUnitHitPoints;
 			end
-			if (iTheirDamageInflicted > maxUnitHitPoints) then
-				iTheirDamageInflicted = maxUnitHitPoints;
+			if (iTheirDamageInflicted > maxMyUnitHitPoints) then
+				iTheirDamageInflicted = maxMyUnitHitPoints;
 			end
 			
 			-- now do the health bars
 			
-			DoUpdateHealthBars(maxUnitHitPoints, maxUnitHitPoints, pMyUnit:GetDamage(), pTheirUnit:GetDamage(), iMyDamageInflicted, iTheirDamageInflicted)
+			DoUpdateHealthBars(maxMyUnitHitPoints, maxTheirUnitHitPoints, pMyUnit:GetDamage(), pTheirUnit:GetDamage(), iMyDamageInflicted, iTheirDamageInflicted)
 
 			-- Now do text stuff
 			
@@ -2347,19 +2348,10 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 --END
 				
 				-- Defense Modifier
-				local iModifier = pTheirUnit:GetDefenseModifier();
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
-				end
+				
 
 				if(bRanged) then
-					local iModifier = pTheirUnit:GetRangedDefenseModifier();
+					iModifier = pTheirUnit:GetRangedDefenseModifier();
 					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
@@ -2369,6 +2361,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusSum = bonusSum + iModifier;
 						bonusCount = bonusCount + 1;					
 					end	
+				else
+					iModifier = pTheirUnit:GetDefenseModifier();
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						bonusCount = bonusCount + 1;
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;				
+					end
 				end
 
 
@@ -2830,6 +2833,18 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusSum = bonusSum + iModifier;
 			bonusCount = bonusCount + 1;		
 		end
+
+		-- Reverse Great General bonus
+		iModifier = theirUnit:GetReverseGreatGeneralModifier();
+		if (theirUnit:GetReverseGreatGeneralModifier() ~= 0 and bonusCount < maxBonusDisplay) then					
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_REVERSE_GG_NEAR" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			bonusCount = bonusCount + 1;
+		elseif (theirUnit:GetReverseGreatGeneralModifier() ~= 0) then
+			bonusSum = bonusSum + iModifier;
+			bonusCount = bonusCount + 1;				
+		end
 		
 		-- Adjacent Modifier
 		iModifier = theirUnit:GetAdjacentModifier();
@@ -2957,17 +2972,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;		
 		end
 --END
-		-- Defense Modifier
-		local iModifier = theirUnit:GetDefenseModifier();
-		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-			controlTable = g_TheirCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
-			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-			bonusCount = bonusCount + 1;
-		elseif (iModifier ~= 0 ) then
-			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
-		end
 
 		local iModifier = theirUnit:GetRangedDefenseModifier();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then

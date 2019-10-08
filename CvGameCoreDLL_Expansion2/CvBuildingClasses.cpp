@@ -127,6 +127,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCityCountUnhappinessMod(0),
 	m_bNoOccupiedUnhappiness(false),
 	m_iGlobalPopulationChange(0),
+	m_iPopulationChange(0),
 	m_iTechShare(0),
 	m_iFreeTechs(0),
 	m_iFreePolicies(0),
@@ -708,6 +709,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalCityWorkingChange = kResults.GetInt("GlobalCityWorkingChange");
 #endif
 	m_iGlobalPopulationChange = kResults.GetInt("GlobalPopulationChange");
+	m_iPopulationChange = kResults.GetInt("PopulationChange");
 	m_iTechShare = kResults.GetInt("TechShare");
 	m_iFreeTechs = kResults.GetInt("FreeTechs");
 	m_iFreePolicies = kResults.GetInt("FreePolicies");
@@ -1979,6 +1981,11 @@ bool CvBuildingEntry::IsNoOccupiedUnhappiness() const
 int CvBuildingEntry::GetGlobalPopulationChange() const
 {
 	return m_iGlobalPopulationChange;
+}
+
+int CvBuildingEntry::GetPopulationChange() const
+{
+	return m_iPopulationChange;
 }
 
 /// If this # of players have a Tech then the owner of this Building gets that Tech as well

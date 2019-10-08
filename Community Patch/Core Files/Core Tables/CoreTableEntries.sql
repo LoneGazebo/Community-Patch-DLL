@@ -322,6 +322,9 @@ ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
 -- Adds minimum local population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'LocalPopRequired' INTEGER DEFAULT 0;
 
+-- Adds population instantly to city.
+ALTER TABLE Buildings ADD COLUMN 'PopulationChange' INTEGER DEFAULT 0;
+
 -- Movement speed penalty (like Great Wall) for land plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 

@@ -8885,38 +8885,79 @@ int CvCity::GetTerrainImprovementNeed() const
 void CvCity::UpdateTerrainImprovementNeed()
 {
 	int iImprovablePlots = 0;
-	int iWorkerCount = 0;
 
-	for (int iI = 0; iI < RING3_PLOTS; iI++)
+	//start at one, ignore the city plot itself
+	for (int iI = 1; iI < GetNumWorkablePlots(); iI++)
 	{
-		//test if reachable?
-		const CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-		if (pLoopPlot && 
-			pLoopPlot->getDomain() == DOMAIN_LAND && 
-			pLoopPlot->getOwner() == getOwner() &&
-			!pLoopPlot->IsTeamImpassable(getTeam()))
-		{
-			if (!pLoopPlot->isCity())
-			{
-				//assume that there is an improvement for every type of unimproved plot. no need to check them individually
-				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT || pLoopPlot->IsImprovementPillaged())
-					iImprovablePlots++;
-				//alternatively if there is a route, see if we have better ones
-				else if (pLoopPlot->getRouteType() != NO_ROUTE && (GET_TEAM(getTeam()).GetBestPossibleRoute() != pLoopPlot->getRouteType() || pLoopPlot->IsRoutePillaged()))
-					iImprovablePlots++;
-			}
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-			for (int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
+		if (!pLoopPlot)
+			continue;
+
+		if (pLoopPlot->getDomain() != DOMAIN_LAND)
+			continue;
+
+		if (pLoopPlot->getOwner() != getOwner())
+			continue;
+
+		if (pLoopPlot->IsTeamImpassable(getTeam()))
+			continue;
+
+		if (pLoopPlot->isCity())
+			continue;
+
+		//the most interesting case, empty plots
+		if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+		{
+			//can't assume that there is an improvement for every type of unimproved plot (especially in the beginning). need to check individually
+			for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 			{
-				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
-				if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
-					iWorkerCount++;
+				BuildTypes eBuild = (BuildTypes)iBuildIndex;
+				if (!pLoopPlot->canBuild(eBuild, getOwner(), false, true))
+					continue;
+
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoBuild(eBuild))
+					continue;
+
+				if (GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq()))
+					continue;
+
+				if (GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete()))
+					continue;
+
+				// Is this an improvement that is only useable by a specific civ?
+				ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+				if (eImprovement != NO_IMPROVEMENT)
+				{
+					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+					if (pkEntry->IsSpecificCivRequired())
+					{
+						CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+						if (eCiv != getCivilizationType())
+							continue;
+					}
+				}
+
+				//if we get here it seems to be applicable
+				iImprovablePlots++;
+
+				//todo: should we add more of the improvement is very valuable?
+				//for now give extra weight to resource plots
+				if (pLoopPlot->getResourceType() != NO_RESOURCE)
+					iImprovablePlots++;
+
+				break;
 			}
 		}
+		//ignore plots which have a working improvement ...
+		else if (pLoopPlot->IsImprovementPillaged())
+			iImprovablePlots++;
+		//if there is a route, see if we have better ones
+		else if (pLoopPlot->getRouteType() != NO_ROUTE && (GET_TEAM(getTeam()).GetBestPossibleRoute() != pLoopPlot->getRouteType() || pLoopPlot->IsRoutePillaged()))
+			iImprovablePlots++;
 	}
 
-	//score > 0 means real need
-	m_iTerrainImprovementNeed = (iImprovablePlots*100)/(iWorkerCount+1)-100;
+	m_iTerrainImprovementNeed = iImprovablePlots;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13183,6 +13224,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		// One-shot items
 		if(bFirst && iChange > 0)
 		{
+			// Global Pop change
+			if (pBuildingInfo->GetPopulationChange() != 0)
+			{
+				setPopulation(std::max(1, (getPopulation() + iChange * GC.getBuildingInfo(eBuilding)->GetPopulationChange())));
+			}
+
 			// Capital
 			if(pBuildingInfo->IsCapital())
 				owningPlayer.setCapitalCity(this);
@@ -15226,6 +15273,20 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
 	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
 #if defined(MOD_BALANCE_CORE)
+	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	{
+		DomainTypes eDomain = (DomainTypes)iI;
+		if (eDomain == NO_DOMAIN)
+			continue;
+
+		int iModifierPerSpecialist = GET_PLAYER(getOwner()).GetPlayerTraits()->GetDomainProductionModifiersPerSpecialist(eDomain);
+
+		if (iModifierPerSpecialist != 0)
+		{
+			changeDomainProductionModifier(eDomain, iModifierPerSpecialist * iChange);
+		}
+	}
+
 	if(!bSkip)
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -27387,14 +27448,27 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const 
 			}
 		}
 
-
 		int iModifier = /*-40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
-
 		if(HasGarrison())
 		{
 			iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 		}
 
+		//bonus for attacking same unit over and over in a turn?
+		//cannot apply this here because we don't know the defender and cannot change the interface. stupid lua.
+		/*
+		if (pDefender != NULL)
+		{
+			int iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+			if (iTempModifier != 0)
+			{
+				iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
+				iModifier += iTempModifier;
+			}
+		}
+		*/
+
+		// buildings
 		iModifier += getCityBuildingRangeStrikeModifier();
 
 		// Religion city strike mod
@@ -32648,32 +32722,16 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	}
 
 	int iAttackerStrength = getStrengthValue(true);
-
-#if defined(MOD_BALANCE_CORE)
-	//Cities should deal less raw damage to boats - helps naval siege units greatly.
-	if(pDefender != NULL)
-	{
-		if(pDefender->getDomainType() == DOMAIN_SEA)
-		{
-			iAttackerStrength *= /* 75 */ GC.getBALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER();
-			iAttackerStrength /= 100;
-		}
-
-		//we take even less damage from cities when attacking them.
-		if (pDefender->GetDamageReductionCityAssault() != 0)
-		{
-			iAttackerStrength *= (100 - pDefender->GetDamageReductionCityAssault());
-			iAttackerStrength /= 100;
-		}
-	}
-#endif
+	int iModifier = 0;
+	int iRandomSeed = 0;
 
 	int iDefenderStrength = 1;
-	if (pCity != NULL)
+	if (pCity != NULL) //attacking a city
 	{
 		iDefenderStrength = pCity->getStrengthValue();
+		iRandomSeed = bIncludeRand ? (pCity->plot()->GetPlotIndex() + iAttackerStrength + iDefenderStrength) : 0;
 	}
-	else if (pDefender != NULL)
+	else if (pDefender != NULL) //attacking a unit
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
 		if (!pDefender->IsCanDefend(pInPlot))
@@ -32682,66 +32740,18 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		}
 
 		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot, bQuickAndDirty);
+		iModifier -= pDefender->GetDamageReductionCityAssault();
+		iRandomSeed = bIncludeRand ? (pDefender->plot()->GetPlotIndex() + iAttackerStrength + iDefenderStrength) : 0;
 	}
 
-	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
-
-	int iAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
-
-	int iAttackerRoll = 0;
-	if(bIncludeRand)
-	{
-		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
-	}
-	else
-	{
-		iAttackerRoll = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
-		iAttackerRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
-		iAttackerRoll /= 2;	// The divide by 2 is to provide the average damage
-	}
-	iAttackerDamage += iAttackerRoll;
-
-
-	double fStrengthRatio = (double(iAttackerStrength) / iDefenderStrength);
-
-	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
-	if(iDefenderStrength > iAttackerStrength)
-	{
-		fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
-	}
-
-	fStrengthRatio = (fStrengthRatio + 3) / 4;
-	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
-
-	if(iDefenderStrength > iAttackerStrength)
-	{
-		fStrengthRatio = 1 / fStrengthRatio;
-	}
-
-	iAttackerDamage = int(iAttackerDamage * fStrengthRatio);
-
-	// Bring it back out of hundreds
-	iAttackerDamage /= 100;
-
-	//bonus for attacking same unit over and over in a turn?
-	if (pDefender != NULL)
-	{
-		int iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
-		if (iTempModifier != 0)
-		{
-			iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
-			iAttackerDamage *= (iTempModifier + 100);
-			iAttackerDamage /= 100;
-		}
-	}
-
-	// Always do at least 1 damage
-	int iMinDamage = /*1*/ GC.getMIN_CITY_STRIKE_DAMAGE();
-	if(iAttackerDamage < iMinDamage)
-		iAttackerDamage = iMinDamage;
-
-	return iAttackerDamage;
+	return CvUnitCombat::DoDamageMath(
+		iAttackerStrength,
+		iDefenderStrength,
+		GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE(), //ignore the min part, it's misleading
+		GC.getMIN_CITY_STRIKE_DAMAGE(),
+		GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
+		iRandomSeed,
+		iModifier ) / 100;
 }
 
 //	--------------------------------------------------------------------------------

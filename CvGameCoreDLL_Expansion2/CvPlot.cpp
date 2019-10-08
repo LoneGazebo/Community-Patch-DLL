@@ -2569,15 +2569,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	ImprovementTypes eImprovement;
 	ImprovementTypes eFinalImprovementType;
 	RouteTypes eRoute;
-	bool bValid;
+	bool bValid = false;
 
 	// Can't build nothing!
 	if(eBuild == NO_BUILD)
 	{
 		return false;
 	}
-
-	bValid = false;
 
 	// Repairing an Improvement that's been pillaged
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
@@ -3553,19 +3551,10 @@ void CvPlot::changeExtraMovePathCost(int iChange)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentOwned() const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getOwner() != NO_PLAYER)
@@ -3582,19 +3571,10 @@ bool CvPlot::isAdjacentOwned() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getOwner() == ePlayer)
@@ -3613,19 +3593,10 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getTeam() != NO_TEAM && pAdjacentPlot->getTeam() != eTeam)
@@ -3636,26 +3607,35 @@ bool CvPlot::IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const
 	}
 
 	return false;
-
 }
 
 
 //	--------------------------------------------------------------------------------
+bool CvPlot::IsAdjacentOwnedByEnemy(TeamTypes eTeam) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if(pAdjacentPlot != NULL)
+		{
+			if(pAdjacentPlot->getTeam() != NO_TEAM && GET_TEAM(eTeam).isAtWar(pAdjacentPlot->getTeam()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getTeam() == eTeam)
@@ -3674,12 +3654,9 @@ bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -3706,12 +3683,9 @@ CvCity* CvPlot::GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly) const
 //	--------------------------------------------------------------------------------
 CvCity* CvPlot::GetAdjacentCity() const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -3733,13 +3707,11 @@ CvCity* CvPlot::GetAdjacentCity() const
 /// Number of adjacent tiles owned by another team (or unowned)
 int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
 	int iRtnValue = 0;
 
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -3760,13 +3732,11 @@ int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) cons
 
 int CvPlot::GetNumAdjacentMountains() const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
 	int iNumMountains = 0;
 
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -3808,11 +3778,10 @@ int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes
 int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighbors) const
 {
 	int iPassable = 0;
-	CvPlot* pAdjacentPlot;
 
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
 			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
@@ -14329,65 +14298,41 @@ bool CvPlot::HasWrittenArtifact() const
 bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-	if (GetDangerPlotDamage(ePlayer) > 0)
-		return true;
-	else
-		return false;
+	return (GetDamageFromAdjacentPlots(ePlayer) > 0);
 }
 //	--------------------------------------------------------------------------------
 // Citadel
-int CvPlot::GetDangerPlotDamage(PlayerTypes ePlayer) const
+int CvPlot::GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-
-	int iCitadelRange = 1;
-	CvPlot* pLoopPlot;
-
-	ImprovementTypes eImprovement;
 	int iDamage = 0;
-	int iTemp;
-	int iTemp2;
-	// Look around this Unit to see if there's an adjacent Citadel
-	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
+
+	// Look around this unit to see if there's an adjacent citadel
+	// But exclude this plot!
+	for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 	{
-		for(int iY = -iCitadelRange; iY <= iCitadelRange; iY++)
+		CvPlot* pLoopPlot = iterateRingPlots(this,i);
+		if(pLoopPlot != NULL)
 		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iCitadelRange);
+			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 
-			if(pLoopPlot != NULL)
+			// Citadel here?
+			if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
 			{
-				eImprovement = pLoopPlot->getImprovementType();
+				if (pLoopPlot->getOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
+					iDamage = max(iDamage, GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage());
+			}
 
-				// Citadel here?
-				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
-				{
-					iTemp = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-					if(pLoopPlot->getOwner() != NO_PLAYER)
-					{
-						if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
-						{
-							if (iTemp > iDamage)
-								iDamage = iTemp;
-						}
-					}
-				}
-				// Unit here that acts like a citadel?
-				if (pLoopPlot->getNumUnits() != 0)
-				{
-					for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
-					{
-						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
-						if (pLoopUnit != NULL && pLoopUnit->getNearbyEnemyDamage() != 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
-						{
-							iTemp2 = pLoopUnit->getNearbyEnemyDamage();
-							if (iTemp2 > iDamage)
-								iDamage = iTemp2;
-						}
-					}
-				}
+			// Unit here that acts like a citadel?
+			for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
+			{
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
+				if (pLoopUnit && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
+					iDamage = max(iDamage, pLoopUnit->getNearbyEnemyDamage());
 			}
 		}
 	}
+
 	return iDamage;
 }
 

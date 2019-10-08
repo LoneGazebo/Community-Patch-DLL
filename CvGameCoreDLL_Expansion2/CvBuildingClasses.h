@@ -255,6 +255,7 @@ public:
 	int GetCityCountUnhappinessMod() const;
 	bool IsNoOccupiedUnhappiness() const;
 	int GetGlobalPopulationChange() const;
+	int GetPopulationChange() const;
 	int GetTechShare() const;
 	int GetFreeTechs() const;
 	int GetFreePolicies() const;
@@ -710,6 +711,7 @@ private:
 	int m_iCityCountUnhappinessMod;
 	bool m_bNoOccupiedUnhappiness;
 	int m_iGlobalPopulationChange;
+	int m_iPopulationChange;
 	int m_iTechShare;
 	int m_iFreeTechs;
 	int m_iFreePolicies;

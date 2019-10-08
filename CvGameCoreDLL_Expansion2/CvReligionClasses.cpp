@@ -6287,7 +6287,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	int iFollowers = GetNumFollowers(eMajority);
 
 #if defined(MOD_ISKA_PANTHEONS)
-	if (MOD_ISKA_PANTHEONS && eMajority == RELIGION_PANTHEON)
+	if (MOD_ISKA_PANTHEONS && eMajority == RELIGION_PANTHEON && eOldMajorityReligion == NO_RELIGION)
 	{
 		CityConvertsPantheon();
 	}
@@ -6651,9 +6651,9 @@ void CvCityReligions::CityConvertsPantheon()
 	{
 		Localization::String strMessage;
 		Localization::String strSummary;
-		strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER", m_pCity->getName());
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_SPREAD_ACTIVE_PLAYER_S");
-		kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), -1);
+		strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PANTHEON_SPREAD_TITLE", m_pCity->getName());
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_SPREAD_DESC");
+		kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), -1);
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();

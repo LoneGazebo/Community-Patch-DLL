@@ -1040,14 +1040,14 @@ void CvPlayer::init(PlayerTypes eID)
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * ((GetCurrentEra() / 2) + 2));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue());
 						}
 					}
 					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * ((GetCurrentEra() / 2) + 1));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue());
 						}
 					}
 #endif
@@ -2683,7 +2683,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 	}
 
-//#if defined(MOD_VENETIAN_SETTLERS)
 	// Venice can receive settlers but not build any ...
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -2718,7 +2717,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 		}	
 	}
-//#endif
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -6068,7 +6066,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
 		return false;
 
-	if(pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
+	if (pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
 		return false;
 
 	if(pkEventInfo->isSuperUnhappy() && !IsEmpireSuperUnhappy())
@@ -10698,6 +10696,46 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 }
 
 //	-----------------------------------------------------------------------------------------------
+int CvPlayer::GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained)
+{
+	int iNumUnits = 0;
+
+	CvUnit* pLoopUnit;
+	int iLoop;
+
+	// Current Units
+	for (pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->getUnitType() == eUnit)
+		{
+			iNumUnits++;
+		}
+	}
+
+	// Units being trained now
+	if (bIncludeBeingTrained)
+	{
+		CvCity* pLoopCity;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->isProductionUnit())
+			{
+				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopCity->getProductionUnit());
+				if (pkUnitEntry)
+				{
+					if (pLoopCity->getProductionUnit() == eUnit)
+					{
+						iNumUnits++;
+					}
+				}
+			}
+		}
+	}
+
+	return iNumUnits;
+}
+
+//	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
 {
 	m_pDangerPlots->UpdateDanger(bKeepKnownUnits);
@@ -11652,7 +11690,7 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// then damage it again
-		int iCitadelDamage = pLoopUnit->plot()->GetDangerPlotDamage(pLoopUnit->getOwner());
+		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());
 		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
 			
@@ -17590,7 +17628,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (cached)
+/// How much Production is being eaten up by Units? (cached)
 int CvPlayer::GetUnitProductionMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17598,7 +17636,7 @@ int CvPlayer::GetUnitProductionMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (update cache)
+/// How much Production is being eaten up by Units? (update cache)
 void CvPlayer::UpdateUnitProductionMaintenanceMod()
 {
 	m_iUnitProductionMaintenanceMod = calculateUnitProductionMaintenanceMod();
@@ -17611,7 +17649,7 @@ void CvPlayer::UpdateUnitProductionMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units?
+/// How much Production is being eaten up by Units?
 int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
@@ -17631,7 +17669,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (cached)
+/// How much Growth is being eaten up by Units? (cached)
 int CvPlayer::GetUnitGrowthMaintenanceMod() const
 {
 	// Kind of a cop-out, but it fixes some bugs for now
@@ -17639,7 +17677,7 @@ int CvPlayer::GetUnitGrowthMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units? (update cache)
+/// How much Growth is being eaten up by Units? (update cache)
 void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 {
 	m_iUnitGrowthMaintenanceMod = calculateUnitGrowthMaintenanceMod();
@@ -17652,7 +17690,7 @@ void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 }
 
 //	--------------------------------------------------------------------------------
-/// How much does Production is being eaten up by Units?
+/// How much Growth is being eaten up by Units?
 int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
@@ -17665,7 +17703,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 }
 
 //	--------------------------------------------------------------------------------
-/// How many Units can we support for free without paying Production?
+/// How many Units can we support for free without losing Production and Growth?
 int CvPlayer::GetNumUnitsSupplied() const
 {
 	if (m_iNumUnitsSuppliedCached == -1)
@@ -17720,7 +17758,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Units supplied from Difficulty Level
+/// Units supplied by Cities
 int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 {
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
@@ -17739,6 +17777,9 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			if(iTechProgress >= 100)
+				iTechProgress = 100;
+			
 			iTechProgress *= 5;
 			iTechProgress /= 6;
 
@@ -17759,7 +17800,7 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Units supplied from Difficulty Level
+/// Units supplied by Population
 int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 {
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
@@ -17790,6 +17831,9 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			if(iTechProgress >= 100)
+				iTechProgress = 100;
+			
 			iTechProgress *= 7;
 				
 			iValue *= 100;
@@ -30923,7 +30967,12 @@ void CvPlayer::DoDiversity(DomainTypes eDomain)
 	int iLowest = MAX_INT;
 	int iUnitAI = -1;
 
-	CvWeightedVector<UnitAITypes, NUM_UNITAI_TYPES, true> veAITypeTotals;
+	FStaticVector<int, NUM_UNITAI_TYPES, true, c_eCiv5GameplayDLL> veAITypeTotals;
+	for (int i = 0; i < NUM_UNITAI_TYPES; i++)
+	{
+		veAITypeTotals.push_back(-1);
+	}
+
 
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
@@ -30931,26 +30980,31 @@ void CvPlayer::DoDiversity(DomainTypes eDomain)
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
 		if (pkUnitInfo)
 		{
-			if (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0)
+			if (pkUnitInfo->GetDomainType() != eDomain)
 				continue;
 
-			if (pkUnitInfo->GetDomainType() != eDomain)
+			if (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0)
 				continue;
 
 			if (!canTrain(eLoopUnit))
 				continue;
 
-			int iNumUnits = GetNumUnitsWithUnitAI(pkUnitInfo->GetDefaultUnitAIType(), true, eDomain == DOMAIN_SEA);
+			int iNumUnits = GetNumUnitsOfType(eLoopUnit, true);
 
-			veAITypeTotals.push_back(pkUnitInfo->GetDefaultUnitAIType(), iNumUnits);
+			if (veAITypeTotals[pkUnitInfo->GetDefaultUnitAIType()] == -1)
+				veAITypeTotals[pkUnitInfo->GetDefaultUnitAIType()] = 0;
+
+			veAITypeTotals[pkUnitInfo->GetDefaultUnitAIType()] += iNumUnits;
 		}
 	}
 
-	veAITypeTotals.SortItems();
-	for (int i = 0; i < veAITypeTotals.size(); i++)
+	for (int i = 0; i < NUM_UNITAI_TYPES; i++)
 	{
-		UnitAITypes UnitAI = (UnitAITypes)veAITypeTotals.GetElement(i);
-		int iNumUnits = veAITypeTotals.GetWeight(i);
+		if (veAITypeTotals[i] == -1)
+			continue;
+
+		UnitAITypes UnitAI = (UnitAITypes)i;
+		int iNumUnits = veAITypeTotals[i];
 		if (iNumUnits < iLowest)
 		{
 			iLowest = iNumUnits;
@@ -36250,12 +36304,6 @@ int CvPlayer::GetScienceTimes100() const
 
 			iValue += iFreeScience;
 		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(!isHuman())
-	{
-		return max(iValue, 300);
 	}
 #endif
 	return max(iValue, 0);
@@ -44046,9 +44094,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							for(int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 							{
-//#if defined(MOD_VENETIAN_SETTLERS)
-//								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
-//#else
 								CvUnit* pNewUnit = NULL;
 								// for venice
 								if (pUnitEntry->IsFound() && GetPlayerTraits()->IsNoAnnexing())
@@ -44078,9 +44123,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
 								}
-//#endif
 
-								CvAssert(pNewUnit);
 								if (pNewUnit)
 								{
 #if defined(MOD_BALANCE_CORE)

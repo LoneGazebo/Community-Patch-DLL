@@ -23,7 +23,8 @@
 
 REMARK_GROUP("CvDangerPlots");
 
-#define FOG_DEFAULT_DANGER (8)
+//this adds up quickly if there multiple invisible tiles around ...
+#define FOG_DEFAULT_DANGER (2)
 
 /// Constructor
 CvDangerPlots::CvDangerPlots(void)
@@ -155,29 +156,34 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 #endif
 }
 
-void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
+void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRange, bool bCheckOwnership)
 {
 	if (m_DangerPlots.empty()) //nothing to do
 		return;
 
+	iRange = range(iRange, 1, 5);
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
 
-	//if there are invisible plots next to this unit, other enemies might be hiding there
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pOrigin);
-	for (int i = 0; i < 6; i++)
+	//if there are invisible plots next to this unit/city, other enemies might be hiding there
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
-		CvPlot* pNeighbor = aNeighbors[i];
-		if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
+		CvPlot* pPotentialHiddedUnitPlot = iterateRingPlots(pOrigin, i);
+		if (pPotentialHiddedUnitPlot && 
+			!pPotentialHiddedUnitPlot->isVisible(thisTeam) && 
+			!pPotentialHiddedUnitPlot->isImpassable(eEnemyTeam))
 		{
-			//only ring 1 for now
-			for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
+			if (bCheckOwnership && pPotentialHiddedUnitPlot->getTeam() != eEnemyTeam)
+				continue;
+
+			//for simplicity assume each hidden unit can hit a target within range 2
+			for (int j = 0; j < RING_PLOTS[2]; j++)
 			{
-				CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
-				if (pPlot)
+				CvPlot* pAttackPlot = iterateRingPlots(pPotentialHiddedUnitPlot, j);
+				if (pAttackPlot)
 					//note: we accept duplicate indices in m_fogDanger by design
 					//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
-					m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
+					m_DangerPlots[pAttackPlot->GetPlotIndex()].m_fogDanger.push_back(pPotentialHiddedUnitPlot->GetPlotIndex());
 			}
 		}
 	}
@@ -211,12 +217,12 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iPlayer;
 		CvPlayer& loopPlayer = GET_PLAYER(ePlayer);
-		TeamTypes eTeam = loopPlayer.getTeam();
+		TeamTypes eLoopTeam = loopPlayer.getTeam();
 
 		if(!loopPlayer.isAlive())
 			continue;
 
-		if(eTeam == thisTeam)
+		if(eLoopTeam == thisTeam)
 			continue;
 
 		if(ShouldIgnorePlayer(ePlayer))
@@ -232,7 +238,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				if (!GET_PLAYER(m_ePlayer).isHuman())
 					m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 
-				AddFogDanger(pLoopUnit->plot(), eTeam);
+				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 1, false);
 			}
 		}
 
@@ -266,7 +272,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 			}
 
-			AddFogDanger(pLoopCity->plot(), eTeam);
+			AddFogDanger(pLoopCity->plot(), eLoopTeam, 2, true);
 		}
 	}
 
@@ -309,7 +315,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
 				if(iDamage>0 && !ShouldIgnoreCitadel(pPlot, false))
 				{
-					m_DangerPlots[iPlotLoop].m_iImprovementDamage += iDamage;
+					//citadel only affects adjacent plots, not this plot
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
@@ -318,6 +324,11 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 							m_DangerPlots[pAdjacentPlot->GetPlotIndex()].m_iImprovementDamage += iDamage;
 					}
 				}
+
+				//if we know there's a camp there but we can't see it, assume some danger
+				ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+				if (eImprovement == eCamp && !pPlot->isVisible(thisTeam))
+					AddFogDanger(pPlot, BARBARIAN_TEAM, 1, false);
 			}
 		}
 	}
@@ -649,7 +660,7 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			iPlotDamage += pUnit->getCombatDamage(
 				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL, true, true),
 				pUnit->GetBaseCombatStrength()*100, 
-				pUnit->getDamage(), false, false, false);
+				false, false, false);
 
 			if (pUnit->isRangedSupportFire())
 			{
@@ -697,13 +708,13 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 
 			int iDefenderStrength = pUnit->GetMaxRangedCombatStrength(pUnit, /*pCity*/ NULL, false);
 			iCurrentAirSweepDamage = pUnit->getCombatDamage(iDefenderStrength, iAttackerStrength,
-				pUnit->getDamage(), /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+				/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 			// It's a slower to have this in the unit loop instead of after the best damage has been calculated, but it's also more accurate
 			if (iCurrentAirSweepDamage >= pAttacker->GetCurrHitPoints())
 			{
 				int iReceiverDamage = pAttacker->getCombatDamage(iAttackerStrength, iDefenderStrength,
-					pAttacker->getDamage(), /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+					/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 				if (iReceiverDamage >= pUnit->GetCurrHitPoints())
 				{
 					if (iReceiverDamage + pUnit->getDamage() > iCurrentAirSweepDamage + pAttacker->getDamage())
@@ -738,11 +749,11 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 					iAttackerStrength /= 100;
 					int iDefenderStrength = pInterceptor->GetMaxRangedCombatStrength(pUnit, /*pCity*/ NULL, false);
 					int iReceiveDamage = pInterceptor->getCombatDamage(iDefenderStrength, iAttackerStrength,
-						pInterceptor->getDamage(), /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+						/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 					if (iReceiveDamage >= pUnit->GetCurrHitPoints())
 					{
 						int iDamageDealt = pUnit->getCombatDamage(iAttackerStrength, iDefenderStrength,
-							pUnit->getDamage(), /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+							/*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 						if (iDamageDealt >= pInterceptor->GetCurrHitPoints())
 						{
 							if (iDamageDealt + pInterceptor->getDamage() > iReceiveDamage + pUnit->getDamage())
@@ -841,6 +852,11 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		// Static damage
 		iPlotDamage += m_iImprovementDamage;
 		iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
+
+		// Damage from fog (check visibility again, might have changed ...)
+		for (size_t i=0; i<m_fogDanger.size(); i++)
+			if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(pUnit->getTeam()))
+				iPlotDamage += FOG_DEFAULT_DANGER;
 
 		// Damage from cities
 		for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
@@ -996,7 +1012,7 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 				pAttackerPlot = pUnit->plot();
 			}
 			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL),
-				pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
+				pCity->getStrengthValue(), false, false, true);
 			
 			if (pUnit->isRangedSupportFire())
 			{
@@ -1036,7 +1052,7 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 			}
 
 			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL, true, true),
-				pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
+				pCity->getStrengthValue(), false, false, true);
 
 			if (pUnit->isRangedSupportFire())
 			{

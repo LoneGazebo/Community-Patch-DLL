@@ -146,9 +146,6 @@
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE
 
-// allow venice to receive settlers from wonders, policies etc (but not to build them)
-#define MOD_VENETIAN_SETTLERS
-
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)
@@ -1522,7 +1519,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES);
 	MOD_OPT_DECL(BALANCE_CORE_BOMBARD_RANGE_BUILDINGS);
 	MOD_OPT_DECL(BALANCE_CORE_TOURISM_HUNDREDS);
-	MOD_OPT_DECL(BALANCE_CORE_RANGED_ATTACK_PENALTY);
+	MOD_OPT_DECL(BALANCE_CORE_RANGED_ATTACK_PENALTY); //this controls whether defense against ranged attacks is weaker when the defender is damaged
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

@@ -6048,6 +6048,17 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += (pkBuildingInfo->GetBuildingProductionModifier() + pCity->getPopulation()) * 5;
 	}
+
+	if (pkBuildingInfo->GetPopulationChange() > 0)
+	{
+		iValue += (pkBuildingInfo->GetPopulationChange() + pCity->getPopulation()) * 10;
+	}
+
+	if (pkBuildingInfo->GetGlobalPopulationChange() > 0)
+	{
+		iValue += (pkBuildingInfo->GetPopulationChange() + kPlayer.getTotalPopulation()) * 5;
+	}
+
 	if (pkBuildingInfo->IsReformation() || pkBuildingInfo->GetReformationFollowerReduction() != 0)
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
