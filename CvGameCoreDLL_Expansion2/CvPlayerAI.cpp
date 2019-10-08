@@ -289,7 +289,8 @@ void CvPlayerAI::AI_unitUpdate()
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);
-		//no tactical AI for human
+		//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
+		GetTacticalAI()->UpdatePostures();
 		GetHomelandAI()->Update();
 		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);

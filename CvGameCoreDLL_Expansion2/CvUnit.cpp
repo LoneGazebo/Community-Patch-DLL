@@ -7351,9 +7351,21 @@ bool CvUnit::canRecruitFromTacticalAI() const
 {
 	VALIDATE_OBJECT
 	if(m_eTacticalMove != NO_TACTICAL_MOVE)
+		if (!GC.GetGameTacticalMoves()->GetEntry(m_eTacticalMove)->CanRecruitForOperations())
+			return false;
+
+	//Is it a garrison we can spare?
+	if (IsGarrisoned())
 	{
-		return GC.GetGameTacticalMoves()->GetEntry(m_eTacticalMove)->CanRecruitForOperations();
+		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
+		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>2)
+			return false;
 	}
+
+	//Other targets around?
+	if (TacticalAIHelpers::GetFirstTargetInRange(this, false, true) != NULL)
+		return false;
+
 	return true;
 }
 
@@ -29337,31 +29349,6 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//any mission resets the cache
  	ClearReachablePlots();
 	m_lastStrengthModifiers.clear();
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO() && GC.getLogging() && GC.getAILogging())
-	{
-		CvPlot* pFromPlot = plot();
-		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
-
-		if (!pFromPlot || !pToPlot)
-			OutputDebugString(CvString::format("Invalid target %d,%d for movement of %s %d",pToPlot->getX(),pToPlot->getY(),getName().c_str(),GetID()).c_str());
-
-		//if the target is not revealed, the pathfinder assumes it's passable although in fact it may be not
-		//it's acceptable to have such an "unknown invalid" target. otherwise take not of this.
-		if(!canMoveInto(*pToPlot,CvUnit::MOVEFLAG_DESTINATION) && pToPlot->isRevealed(getTeam()))
-			OutputDebugString(CvString::format("Invalid target %d,%d for movement of %s %d",pToPlot->getX(),pToPlot->getY(),getName().c_str(),GetID()).c_str());
-	}
-
-	//if (GC.getLogging() && GC.getAILogging())
-	//{
-	//	CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
-	//		GC.getGame().getElapsedGameTurns(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
-	//		plot() ? plot()->getX() : -1, plot() ? plot()->getY() : -1 );
-	//	FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
-	//	pLog->Msg( info.c_str() );
-	//}
-#endif
 
 	//safety check - air units should not use ranged attack missions (for unknown reasons)
 	if ( getDomainType()==DOMAIN_AIR && eMission==CvTypes::getMISSION_RANGE_ATTACK() )
