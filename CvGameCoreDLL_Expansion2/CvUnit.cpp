@@ -16963,7 +16963,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		if(bForRangedAttack)
 			iModifier += GetRangedAttackModifier();
-
 		iModifier += getAttackModifier();
 	}
 	else

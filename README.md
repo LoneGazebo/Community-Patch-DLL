@@ -25,3 +25,12 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 * You need the Visual C++ 2008 compiler to actually link the resulting game core DLL
 * It is possible to use a recent IDE like Visual Studio 2017 Community though, just make sure to use the correct toolset
 * Significant portions of the mods are Lua / SQL files. Those can be modified without rebuilding the game core
+
+## How do I debug this
+
+* Use Visual Studio to build the DEBUG configuration of the project (as opposed to the RELEASE config)
+* Place the generated dll and pdb file (from the BuildOutput folder) in the mods folder (Community Patch Core), replacing the dll there.
+* Start CiV and load the mod
+* In the Visual Studio debugger menu select "Attach to process" and pick Civilization5.exe
+* Start the game. In case it crashes the debugger will show you where and why. It may be you only see an address, no code. In that case the crash is outside of the game core dll and we're out of luck.
+* You can also set (conditional) breakpoints in the code to inspect the value of interesting variables.
