@@ -336,7 +336,7 @@
 			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty, and +1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains Tile.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not be built next to a River. City must not contain another energy-producing Plant.</Text>
+			<Text>+4 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains Tile.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not be built next to a River. City must not contain another energy-producing Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+3 [ICON_FOOD] Food from Farms and Pastures worked by the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>

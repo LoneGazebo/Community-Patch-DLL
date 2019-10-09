@@ -519,8 +519,7 @@ INSERT INTO Improvement_AdjacentImprovementYieldChanges
 	(ImprovementType, OtherImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_POLDER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE_VENICE', 'YIELD_GOLD', 1);
+	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
 
 INSERT INTO Civilization_Start_Along_River
 	(CivilizationType, StartAlongRiver)

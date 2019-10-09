@@ -136,11 +136,10 @@ INSERT INTO Policy_FeatureYieldChanges
 VALUES
 	('POLICY_SECULARISM', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 2);
 
-INSERT INTO Policy_WLTKDYieldMod
+INSERT INTO Policy_GoldenAgeYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_HUMANISM', 'YIELD_CULTURE', 15),
-	('POLICY_HUMANISM', 'YIELD_FOOD', 15);
+	('POLICY_HUMANISM', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Policy_ResourceYieldChanges
 	(PolicyType, ResourceType, YieldType, Yield)

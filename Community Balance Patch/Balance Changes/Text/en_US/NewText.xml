@@ -138,17 +138,6 @@
 			<Text>Increases international travel between Civilizations. Increases the [ICON_TOURISM] Tourism modifier for all Civilizations by 50%.[NEWLINE][NEWLINE]Available once any Civilization discovers Flight.</Text>
 		</Row>
 		
-		<!-- Venetian Customs House -->
-		<Row Tag="TXT_KEY_IMPROVEMENT_CUSTOMS_HOUSE_VENICE">
-			<Text>Colonia</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENT_CUSTOMS_HOUSE_VENICE_TEXT">
-			<Text>Colonia are upgraded versions of the Great Merchant's Towns. In addition to higher yields, Colonia acquire all tiles adjacent to itself when constructed (like the Citadel), and can be constructed on unowned tiles adjacent to owned territory. These abilities allow Venice to claim additional territory in spite of Venice's inability to settle new cities. Colonia also gain additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production if built on a Road or Railroad that connects two owned Cities[NEWLINE][NEWLINE]Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+1 pre-Industrial Era, +2 Industrial Era or later) if a Trade Route, either internal or international, passes over this Colonia.[NEWLINE][NEWLINE]The Stato da Mar or Domini da Mar ("State/Domains of the Sea") was the name given to the Republic of Venice's maritime and overseas colonies (colonia), including Istria, Dalmatia, Albania, Negroponte, the Morea (the "Kingdom of the Morea"), the Aegean islands of the Duchy of the Archipelago, and the islands of Crete (the "Kingdom of Candia") and Cyprus. It was one of the three subdivisions of the Republic of Venice's possessions, the other two being the Dogado, i.e. Venice proper, and the Domini di Terraferma in northern Italy.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_CUSTOMS_HOUSE_VENICE">
-			<Text>Construct a Colonia</Text>
-		</Row>
-		
 		<!-- Sweden Grenadiers -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
 			<Text>Area Damage</Text>

@@ -544,7 +544,7 @@
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
+			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
 			<AIUnhappinessPercent>-5</AIUnhappinessPercent>
@@ -564,10 +564,10 @@
 			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIPerEraModifier>-9</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>6</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
+			<DifficultyBonusBase>7</DifficultyBonusBase>
+			<DifficultyBonusA>350</DifficultyBonusA>
+			<DifficultyBonusB>200</DifficultyBonusB>
+			<DifficultyBonusC>125</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
@@ -628,7 +628,7 @@
 			<AIDeclareWarProb>225</AIDeclareWarProb>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
+			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIUnhappinessPercent>-10</AIUnhappinessPercent>
@@ -648,10 +648,10 @@
 			<AIUnitSupplyPercent>35</AIUnitSupplyPercent>
 			<AIPerEraModifier>-10</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<DifficultyBonusBase>8</DifficultyBonusBase>
-			<DifficultyBonusA>350</DifficultyBonusA>
-			<DifficultyBonusB>200</DifficultyBonusB>
-			<DifficultyBonusC>125</DifficultyBonusC>
+			<DifficultyBonusBase>9</DifficultyBonusBase>
+			<DifficultyBonusA>400</DifficultyBonusA>
+			<DifficultyBonusB>250</DifficultyBonusB>
+			<DifficultyBonusC>150</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>

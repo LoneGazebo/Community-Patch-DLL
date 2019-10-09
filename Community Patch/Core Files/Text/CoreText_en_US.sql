@@ -1,4 +1,4 @@
-ï»¿-- Game Options
+-- Game Options
 
 INSERT INTO Language_en_US
 			(Tag,											Text)
@@ -383,19 +383,19 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 -- Fixed diacritics for spy names.
 UPDATE Language_en_US
-SET Text = 'Antï¿½nio'
+SET Text = 'Antônio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estï¿½vï¿½o'
+SET Text = 'Estêvão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernï¿½o'
+SET Text = 'Fernão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomï¿½'
+SET Text = 'Tomé'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 
