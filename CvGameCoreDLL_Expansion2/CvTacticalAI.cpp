@@ -7136,7 +7136,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
 		{
 			CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-			if(pDefender)
+			if (pDefender)
 			{
 				int iSelfDamage = 0;
 				//attacker plot will likely change but this is just an estimation anyway
@@ -7159,7 +7159,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 				int iSelfDamage = 0;
 				//attacker plot will likely change but this is just an estimation anyway
 				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pAttacker, pAttacker->plot(), iSelfDamage, true, 0, true);
-				if (iDamage > iSelfDamage) //exclude suicidal melee attacks
+				if (iDamage > iSelfDamage || (iDamage*2 > iSelfDamage && pAttacker->GetCurrHitPoints()-iSelfDamage > pAttacker->GetMaxHitPoints()/2)) //exclude suicidal melee attacks
 				{
 					//if the city has a garrison, it will absorb part of the damage
 					//let's pretend it doesn't die, this is just an estimation after all
@@ -8818,22 +8818,22 @@ CvPlot* TacticalAIHelpers::GetFirstTargetInRange(const CvUnit * pUnit, bool bMus
 	if (!pUnit)
 		return NULL;
 
-	ReachablePlots plots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
-	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//this can only ever be true for melee units - ranged attacks are checked below
-		if (pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
+		if (!pUnit->IsCanAttackRanged() && pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
 		{
 			if (bMustBeAbleToKill)
 			{
 				//see how the attack would go
 				CvUnit* pDefender = pPlot->getVisibleEnemyDefender(pUnit->getOwner());
 				int iDamageDealt = 0, iDamageReceived = 0;
-				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0 , true);
+				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0, true);
 
-				if (iDamageDealt > iDamageReceived && iDamageDealt > pDefender->GetCurrHitPoints() && pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints() / 2)
+				if (iDamageDealt > iDamageReceived && iDamageDealt >= pDefender->GetCurrHitPoints() && pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints() / 2)
 					return pPlot;
 			}
 			else
@@ -8856,33 +8856,30 @@ CvPlot* TacticalAIHelpers::GetFirstTargetInRange(const CvUnit * pUnit, bool bMus
 					return pPlot;
 			}
 		}
+	}
 
-		//special check for ranged units (which can't enter enemy occupied plots)
-		//quite inefficient so only check the first ring
-		if (it->iMovesLeft > 0 && pUnit->isRanged())
+	if (pUnit->IsCanAttackRanged())
+	{
+		//for ranged every tile we can enter with movement left is a base for attack
+		std::set<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,reachablePlots,true,false);
+		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
-			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			CvPlot* pAttackTile = GC.getMap().plotByIndexUnchecked(*attackTile);
+			if (bMustBeAbleToKill && !pAttackTile->isCity())
 			{
-				CvPlot* pPlot2 = iterateRingPlots(pPlot, i);
-				if (!pPlot2)
-					continue;
+				//see how the attack would go
+				CvUnit* pDefender = pAttackTile->getVisibleEnemyDefender(pUnit->getOwner());
+				if (!pDefender)
+					continue; //shouldn't happen
 
-				if (pPlot2->isEnemyUnit(pUnit->getOwner(), true, true))
-				{
-					if (bMustBeAbleToKill)
-					{
-						//see how the attack would go
-						CvUnit* pDefender = pPlot2->getVisibleEnemyDefender(pUnit->getOwner());
-						int iDamageDealt = 0, iDamageReceived = 0;
-						iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0, true);
+				int iDamageDealt = 0, iDamageReceived = 0;
+				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0, true);
 
-						if (iDamageDealt > pDefender->GetCurrHitPoints())
-							return pPlot2;
-					}
-					else
-						return pPlot2;
-				}
+				if (iDamageDealt >= pDefender->GetCurrHitPoints())
+					return pAttackTile;
 			}
+			else
+				return pAttackTile;
 		}
 	}
 
@@ -11557,9 +11554,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 6 : 9;
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 
-	if (gTacticalCombatDebugOutput>10)
-		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
-
 	vector<CvTacticalPosition*> openPositionsHeap;
 	vector<CvTacticalPosition*> completedPositions;
 	int iDiscardedPositions = 0;
@@ -11653,8 +11647,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	timer.EndPerfTest();
 	//if (timer.GetDeltaInSeconds()>0.1)
 	//	OutputDebugString(CvString::format("--> tested %d possible positions for %d units in %.2fms\n", initialPosition->countChildren(), ourUnits.size(), timer.GetDeltaInSeconds()*1000).c_str());
-	if (gTacticalCombatDebugOutput>10) //if needed we can set the instruction pointer here
+	if (gTacticalCombatDebugOutput > 10) //if needed we can set the instruction pointer here
+	{
 		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
+		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
+	}
 
 	//stringstream buffer;
 	//for(size_t i=0; i<result.size(); i++)
