@@ -329,7 +329,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		
 		-- Ranged Unit
 		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
-			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(nil, pCity, true, true);
+			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(nil, pCity, true);
 			bRanged = true;
 			
 		-- Melee Unit
@@ -936,7 +936,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		
 		-- Ranged Unit
 		if (pMyUnit:IsRangedSupportFire() == false and pMyUnit:GetBaseRangedCombatStrength() > 0) then
-			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true, true);
+			iMyStrength = pMyUnit:GetMaxRangedCombatStrength(pTheirUnit, nil, true);
 			bRanged = true;
 				
 		-- Melee Unit
@@ -959,7 +959,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (pTheirUnit:IsEmbarked()) then
 					iTheirStrength = pTheirUnit:GetEmbarkedUnitDefense();
 				else
-					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false, true);
+					iTheirStrength = pTheirUnit:GetMaxRangedCombatStrength(pMyUnit, nil, false);
 				end
 				
 				if (iTheirStrength == 0 or pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pTheirUnit:IsRangedSupportFire()) then

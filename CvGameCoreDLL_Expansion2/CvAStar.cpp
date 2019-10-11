@@ -960,6 +960,10 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 2)
 			return false;
 
+		//need to make sure there are no mountains/ice plots in between
+		if (!CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY())))
+			return false;
+
 		//now make sure it's the right area ...
 		return GC.getMap().plotUnchecked(iToX, iToY)->isAdjacentToArea( GC.getMap().plotUnchecked(GetDestX(), GetDestY())->getArea() );
 	}
@@ -2260,6 +2264,23 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 	return true;
 }
 
+bool CvTwoLayerPathFinder::CommonNeighborIsPassable(const CvAStarNode * a, const CvAStarNode * b) const
+{
+	//assume a and b are not direct neighbors ... don't check it because it's usually redundant
+	if (!a || !b)
+		return false;
+
+	for (int i = 0; i < 6; i++)
+	{
+		CvAStarNode* check = a->m_apNeighbors[i];
+		if (check && plotDistance(check->m_iX, check->m_iY, b->m_iX, b->m_iY) == 1)
+			if (check->m_kCostCacheData.bCanEnterTerrainIntermediate)
+				return true;
+	}
+
+	return false;
+}
+
 // check if it makes sense to stop on the current node voluntarily (because the next one is not suitable for stopping)
 bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next)
 {
@@ -2390,7 +2411,12 @@ void CvTwoLayerPathFinder::SanitizeFlags()
 //default version for step paths - m_kCostCacheData is not valid
 bool CvStepFinder::CanEndTurnAtNode(const CvAStarNode*) const
 {
-	return true;
+	return true; //can't check this without knowing the unit
+}
+
+bool CvStepFinder::CommonNeighborIsPassable(const CvAStarNode * a, const CvAStarNode * b) const
+{
+	return true; //can't check this without knowing the unit
 }
 
 //nothing to do in the stepfinder

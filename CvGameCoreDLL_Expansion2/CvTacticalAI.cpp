@@ -9096,17 +9096,17 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	switch (eAggLvl)
 	{
 	case AL_LOW:
-		fAggFactor *= 0.5f;
+		fAggFactor *= 0.4f+fAggBias/10; //bias is at least 0.9
 		if ( iHPbelowHalf>0 )
 			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
-		fAggFactor *= 0.9f;
+		fAggFactor *= 0.8f+fAggBias/10; //bias is at least 0.9
 		if ( iHPbelowHalf>0 )
 			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
-		//we want to be able to survive a counterattack ...
+		//don't care how much damage we do but we want to be able to survive a counterattack ...
 		if ( iDamageReceived+23/fAggBias < pUnit->GetCurrHitPoints() )
 			fAggFactor *= 2.3f;
 		break;

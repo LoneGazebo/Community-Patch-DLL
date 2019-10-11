@@ -16624,7 +16624,7 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
-	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, bool bForRangedAttack) const
+	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
@@ -16973,8 +16973,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Ranged attack mod
 	if(bAttacking)
 	{
-		if(bForRangedAttack)
-			iModifier += GetRangedAttackModifier();
+		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
 	}
 	else
@@ -16996,7 +16995,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	//this may be always zero when defending (on defense -> fewer targets, harder to hit)
-	iModifier += GetDamageCombatModifier(!bAttacking && bForRangedAttack);
+	iModifier += GetDamageCombatModifier(!bAttacking);
 	
 	// Unit can't drop below 10% strength
 	if(iModifier < -90)
