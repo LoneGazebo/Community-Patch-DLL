@@ -4632,6 +4632,10 @@ void CvMilitaryAI::UpdateOperations()
 			if(!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
+			// sometimes we were forced into a war and don't even want to attack the enemy
+			if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eLoopPlayer))
+				continue;
+
 			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand));
 		}
 	}
@@ -4653,6 +4657,7 @@ void CvMilitaryAI::UpdateOperations()
 					CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
 					CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
 				}
+
 				DoNuke(eLoopPlayer);
 				if(veLandThreatWeights.GetWeight(iThreatCivs) > 0)
 				{
@@ -4677,13 +4682,14 @@ void CvMilitaryAI::UpdateOperations()
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 		{
 			// if we're not at war with this player
-			if(!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
+			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
-			}
+
+			// sometimes we were forced into a war and don't even want to attack the enemy
+			if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eLoopPlayer))
+				continue;
 
 			int iTargetValue = GetEnemySeaValue(eLoopPlayer, bestTargetSea);
-
 			veSeaThreatWeights.push_back(eLoopPlayer, iTargetValue);
 		}
 	}
