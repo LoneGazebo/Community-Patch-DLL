@@ -10978,7 +10978,9 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			{
 				iEndTurnScore = ScorePlotForCombatUnitOffensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this, true).iScore;
 				//negative scores are forbidden for offensive moves (since we always have the option of not going through with the attack)
-				if (iEndTurnScore < 0)
+				//except if capturing a city, in that case the danger value is not correct and anyway it's probably worth it
+				bool bCapturingCity = (newAssignment.eAssignmentType == A_MELEEKILL) && oldTactPlot.isEnemyCity();
+				if (iEndTurnScore < 0 && !bCapturingCity)
 					return false;
 			}
 			else
