@@ -1181,22 +1181,17 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
 			else if (iPlotDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger > 0 )
-			{
-				if (kToNodeCacheData.bIsNonNativeDomain) //embarked paths are often shorter, so add a penalty ...
-					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-				else
-					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
-			}
+			else if (iPlotDanger > pUnit->GetCurrHitPoints()/3)
+				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian
 		{
 			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2)
 				return -1; //don't ever do this
 			else if (iPlotDanger > pUnit->GetCurrHitPoints())
-				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
-			else if (iPlotDanger > 0)
-				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
+				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*4*iFutureFactor;
+			else if (iPlotDanger > 0) //note that fog will cause some danger on adjacent plots
+				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 
 		//sometimes we need to abort if there are only bad options around
@@ -1461,9 +1456,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() )
-					if ( GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) || pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
-						return FALSE;
+				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
+					return FALSE;
 			}
 
 			//disembark required and possible?
@@ -2414,7 +2408,7 @@ bool CvStepFinder::CanEndTurnAtNode(const CvAStarNode*) const
 	return true; //can't check this without knowing the unit
 }
 
-bool CvStepFinder::CommonNeighborIsPassable(const CvAStarNode * a, const CvAStarNode * b) const
+bool CvStepFinder::CommonNeighborIsPassable(const CvAStarNode *, const CvAStarNode *) const
 {
 	return true; //can't check this without knowing the unit
 }

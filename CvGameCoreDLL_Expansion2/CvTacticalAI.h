@@ -998,8 +998,8 @@ public:
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
 	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
 	int getNumAdjacentEnemies() const { return nEnemyCombatUnitsAdjacent; }
-	int getNumAdjacentFriendlies() const { return nFriendlyCombatUnitsAdjacent; }
-	int getNumAdjacentFirstlineFriendlies() const { return nFriendlyFirstlineUnitsAdjacent; }
+	int getNumAdjacentFriendlies(int iIgnoreUnitPlot) const;
+	int getNumAdjacentFirstlineFriendlies(int iIgnoreUnitPlot) const;
 	const vector<STacticalAssignment>& getUnitsAtPlot() const { return vUnits; }
 
 	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
@@ -1013,7 +1013,7 @@ public:
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
-	bool hasSupportBonus() const;
+	bool hasSupportBonus(int iIgnoreUnitPlot) const;
 
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
@@ -1028,7 +1028,7 @@ public:
 	void setType(eTactPlotDomain eDomain, eTactPlotType newType) { eType[eDomain] = newType; }
 	void findType(eTactPlotDomain eDomain, const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return pPlot != NULL; }
-	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange);
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
 	bool isRelevant() const { return eType[TD_BOTH] != TP_BLOCKED_FRIENDLY && eType[TD_BOTH] != TP_BLOCKED_NEUTRAL; }
 
 protected:
@@ -1136,7 +1136,7 @@ public:
 	bool isEquivalent(const CvTacticalPosition& rhs) const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
-	CvTacticalPlot& getTactPlot(int plotindex);
+	CvTacticalPlot& getTactPlotMutable(int plotindex);
 
 	CvPlot* getTarget() const { return pTargetPlot; }
 	eAggressionLevel getAggressionLevel() const { return eAggression; }

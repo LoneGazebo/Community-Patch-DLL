@@ -859,9 +859,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	UnitTypes eUnitForOperation;
 	UnitTypes eUnitForArmy;
 
-	
-	iTempWeight = 0;
-
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset vector holding items we can currently build

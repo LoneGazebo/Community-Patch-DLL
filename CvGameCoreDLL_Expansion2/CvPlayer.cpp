@@ -11690,7 +11690,7 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// Sanity check
-		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX)
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)
 			OutputDebugString("ouch, general about to be captured\n");
 
 		// then damage it again

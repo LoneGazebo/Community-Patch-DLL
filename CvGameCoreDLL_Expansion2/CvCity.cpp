@@ -15980,7 +15980,7 @@ void CvCity::CheckForOperationUnits()
 			if(thisFormation)
 			{
 				const CvFormationSlotEntry& slotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
-
+				int iTempWeight = 100;
 				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
 				if(eBestUnit == NO_UNIT)
@@ -15990,7 +15990,6 @@ void CvCity::CheckForOperationUnits()
 				}
 				if(eBestUnit != NO_UNIT)
 				{
-					int iTempWeight = 100;
 					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1, true);
 					if(iTempWeight > 0)
 					{
@@ -16032,7 +16031,7 @@ void CvCity::CheckForOperationUnits()
 						{
 							return;
 						}
-						iTempWeight = 100;
+
 						iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1);
 						if (iTempWeight > 0)
 						{
@@ -16041,7 +16040,6 @@ void CvCity::CheckForOperationUnits()
 							{
 								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(this);
 								m_unitBeingBuiltForOperation = thisOperationSlot2;
-
 								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 							}
 							//Log it
@@ -27577,50 +27575,40 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	VALIDATE_OBJECT
 
 	if(GC.getBUY_PLOTS_DISABLED())
-	{
 		return false;
-	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(getOwner() == NO_PLAYER)
-	{
 		return false;
-	}
-#endif
 
 	CvPlot* pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if(!pTargetPlot)
-	{
-		// no plot to buy
 		return false;
-	}
 
 	// if this plot belongs to someone, bail!
 	if(pTargetPlot->getOwner() != NO_PLAYER)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 		{
 			if(pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
-			{
 				return false;
-			}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			//can't buy the master's plots if you're a vassal
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
+				return false;
+#endif
 		}
 		else
 		{
-#endif
-		return false;
-#if defined(MOD_BALANCE_CORE)
+			return false;
 		}
-#endif
 	}
 
 	// Must be adjacent to a plot owned by this city
-	CvPlot* pAdjacentPlot;
 	bool bFoundAdjacent = false;
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = plotDirection(pTargetPlot->getX(), pTargetPlot->getY(), ((DirectionTypes)iI));
-
+		CvPlot* pAdjacentPlot = plotDirection(pTargetPlot->getX(), pTargetPlot->getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getOwner() == getOwner())

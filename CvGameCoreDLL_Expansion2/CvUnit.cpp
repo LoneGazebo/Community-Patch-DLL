@@ -7358,7 +7358,7 @@ bool CvUnit::canRecruitFromTacticalAI() const
 	if (IsGarrisoned())
 	{
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
-		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>2)
+		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>5)
 			return false;
 	}
 
@@ -29701,8 +29701,8 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 
 	m_lastReachablePlots = result;
 	m_lastReachablePlotsFlags = iFlags;
-	m_lastReachablePlotsFlags = plot()->GetPlotIndex();
-	m_lastReachablePlotsFlags = getMoves();
+	m_lastReachablePlotsStart = plot()->GetPlotIndex();
+	m_lastReachablePlotsMoves = getMoves();
 	return result;
 #else
 	return TacticalAIHelpers::GetAllPlotsInReachThisTurn(this, plot(), iFlags, iMinMovesLeft);

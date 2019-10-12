@@ -9754,7 +9754,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	if(!IsPlayerValid(ePlayer))
 		return;
 
-	int iTargetValue;
+	int iTargetValue = 0;
 	TargetValueTypes eTargetValue;
 
 	int iWarCount;
@@ -9766,14 +9766,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	int iCityStrengthMod;
 	int iMilitaryRatio;
 
-	int iMyMilitaryStrength = GetPlayer()->getPower();
-	// Prevent divide by 0
-	if(iMyMilitaryStrength == 0)
-	{
-		iMyMilitaryStrength = 1;
-	}
-	int iCityDamage;
-	int iNumCities;
+	int iMyMilitaryStrength = max(1, GetPlayer()->getPower());
+
+	int iCityDamage = 0;
+	int iNumCities = 0;
 #if !defined(MOD_BALANCE_CORE)
 	int iThirdPartyLoop;
 	PlayerTypes eThirdPartyPlayer;
@@ -9781,10 +9777,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	int iThirdPartyValue;
 	StrengthTypes eThirdPartyStrength;
 	PlayerProximityTypes eThirdPartyProximity;
-	iTargetValue = 0;
 
-	iCityDamage = 0;
-	iNumCities = 0;
 #if defined(MOD_BALANCE_CORE)
 	////
 	//MAIN PLAYER
@@ -11329,7 +11322,7 @@ void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabWantsSneakAttack[ePlayer] = bValue;
-}d
+}
 
 // Does the AI even want to conquer another player if the are at war?
 // Since there is no "defensive war" flag, this seems to be the best way to differentiate
@@ -12954,7 +12947,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			//On a different continent? Friends good, war bad.
-			if (GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
+			if (GET_PLAYER(ePlayer).getCapitalCity() && 
+				GetPlayer()->getCapitalCity() &&
+				GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
 			{
 				iEnemyWeight -= 5;
 				iDPWeight -= 10;

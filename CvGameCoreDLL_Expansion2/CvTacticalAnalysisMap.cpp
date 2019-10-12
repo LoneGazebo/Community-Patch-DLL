@@ -272,7 +272,7 @@ int CvTacticalDominanceZone::GetBorderScore() const
 			continue;
 		
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
-			iCount+=3;
+			iCount+=8;
 
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL)
 			iCount+=2;
