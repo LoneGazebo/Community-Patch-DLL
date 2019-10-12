@@ -139,7 +139,7 @@ CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 
 DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
-#if defined(MOD_BALANCE_CORE)
+#if 0
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pFromPlot);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
@@ -148,14 +148,59 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 			return (DirectionTypes)iI;
 		}
 	}
-	//if the direct lookup fails, use the real method
+	//if the direct neighbor lookup fails, use the real method
 	return estimateDirection(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY());
 #else
-	return directionXY(pFromPlot->getX(), pFromPlot->getY(),
-	                   pToPlot->getX(), pToPlot->getY());
+	int iSourceX = pFromPlot->getX();
+	int iSourceY = pFromPlot->getY();
+	int iDestX = pToPlot->getX();
+	int iDestY = pToPlot->getY();
+
+	int iSourceHexX = xToHexspaceX(iSourceX, iSourceY);
+	int iDestHexX = xToHexspaceX(iDestX, iDestY);
+
+	int iWrappedXOffset = dxWrap(iDestHexX - iSourceHexX);
+	int iWrappedYOffset = dyWrap(iDestY - iSourceY);
+
+	if(iWrappedYOffset > 0)
+	{
+		if(iWrappedXOffset >= 0)
+		{
+			return DIRECTION_NORTHEAST;
+		}
+		else
+		{
+			return DIRECTION_NORTHWEST;
+		}
+	}
+	else if(iWrappedYOffset == 0)
+	{
+		if(iWrappedXOffset > 0)
+		{
+			return DIRECTION_EAST;
+		}
+		else if(iWrappedXOffset == 0)
+		{
+			return NO_DIRECTION;
+		}
+		else
+		{
+			return DIRECTION_WEST;
+		}
+	}
+	else// if (iWrappedYOffset < 0)
+	{
+		if(iWrappedXOffset > 0)
+		{
+			return DIRECTION_SOUTHEAST;
+		}
+		else
+		{
+			return DIRECTION_SOUTHWEST;
+		}
+	}
 #endif
 }
-
 
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
 CvPlot* iterateRingPlots(const CvPlot* pCenter, int iIndex)

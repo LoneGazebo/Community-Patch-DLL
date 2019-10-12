@@ -9159,9 +9159,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 
 	//note: assumed unit plot may be invalid if the unit is initially far away from the target
 	CvPlot* pAssumedUnitPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
-	CvTacticalPlot assumedUnitPlot = assumedPosition.getTactPlot(unit.iPlotIndex);
+	const CvTacticalPlot& assumedUnitPlot = assumedPosition.getTactPlot(unit.iPlotIndex);
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
-		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<CvUnit*>());
+		OutputDebugString("bad plot\n");
+//		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<CvUnit*>());
 
 	//this is only for melee attacks - ranged attacks are handled separately
 	if (currentPlot.isEnemy() && !pUnit->isRanged())
@@ -9850,7 +9851,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 	}
 }
 
-void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange)
+void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const
 {
 	//we don't count embarked units
 	if (!pPlot || move.isEmbarkedUnit())
@@ -10177,7 +10178,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	//try to find out who is most relevant
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
-		CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
+		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
 		itUnit->iImportanceScore = iPlotTypeScore[ currentPlot.getType() ] + currentPlot.getNumAdjacentEnemies() + itUnit->iMovesLeft/GC.getMOVE_DENOMINATOR() + getRangeAttackPlotsForUnit(itUnit->iUnitID).size();
 
 		if (pTargetPlot->isCity() && eAggression > AL_NONE && itUnit->eStrategy == MS_SECONDLINE)
@@ -10223,7 +10224,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		vector<STacticalAssignment> thisUnitChoices;
-		CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
+		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
 
 		//remove / restore aura for unbiased placement
 		STacticalAssignment dummy(0,0,0,0,itUnit->eStrategy);
@@ -10537,14 +10538,14 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 
 	//childPositions stays empty!
 	childPositions.clear();
-	//reachablePlotLookup stays empty for now
+
+	//these are cached locally if necessary, otherwise looked up at the parent
 	reachablePlotLookup.clear();
-	//rangeAttackPlotLookup stays empty for now
 	rangeAttackPlotLookup.clear();
+	tacticalPlotLookup.clear();
+	tactPlots.clear();
 
 	//copied from parent, modified when addAssignment is called
-	tacticalPlotLookup = parent.tacticalPlotLookup;
-	tactPlots = parent.tactPlots;
 	availableUnits = parent.availableUnits;
 	assignedMoves = parent.assignedMoves;
 	freedPlots = parent.freedPlots;
@@ -10622,7 +10623,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				continue; 
 
 			//embarked units can't stack with non-simulated embarked units
-			CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+			const CvTacticalPlot& tactPlot = getTactPlot(pPlot->GetPlotIndex());
 			if (tactPlot.isOtherEmbarkedUnit())
 				continue;
 		}
@@ -10648,7 +10649,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 						continue;
 
-					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+					const CvTacticalPlot& tactPlot = getTactPlot(pPlot->GetPlotIndex());
 					if (tactPlot.isOtherEmbarkedUnit())
 						continue;
 				}
@@ -11243,6 +11244,16 @@ CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex)
 	if (it!=tacticalPlotLookup.end())
 		return tactPlots[it->second];
 
+	if (parentPosition)
+	{
+		const CvTacticalPlot& parentResult = parentPosition->getTactPlot(plotindex);
+
+		//now cache it locally so that we can modify it
+		tacticalPlotLookup[plotindex] = (int)tactPlots.size();
+		tactPlots.push_back( parentResult );
+		return tactPlots.back();
+	}
+
 	return dummyPlot;
 }
 
@@ -11252,6 +11263,10 @@ const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 	if (it!=tacticalPlotLookup.end())
 		return tactPlots[it->second];
 
+	if (parentPosition)
+		return parentPosition->getTactPlot(plotindex);
+
+	//no caching? unclear what's better
 	return dummyPlot;
 }
 

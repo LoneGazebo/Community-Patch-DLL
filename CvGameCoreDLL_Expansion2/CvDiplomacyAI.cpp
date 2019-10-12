@@ -11329,7 +11329,7 @@ void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabWantsSneakAttack[ePlayer] = bValue;
-}d
+}
 
 // Does the AI even want to conquer another player if the are at war?
 // Since there is no "defensive war" flag, this seems to be the best way to differentiate

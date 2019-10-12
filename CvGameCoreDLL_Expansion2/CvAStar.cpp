@@ -2414,7 +2414,7 @@ bool CvStepFinder::CanEndTurnAtNode(const CvAStarNode*) const
 	return true; //can't check this without knowing the unit
 }
 
-bool CvStepFinder::CommonNeighborIsPassable(const CvAStarNode * a, const CvAStarNode * b) const
+bool CvStepFinder::CommonNeighborIsPassable(const CvAStarNode *, const CvAStarNode *) const
 {
 	return true; //can't check this without knowing the unit
 }
