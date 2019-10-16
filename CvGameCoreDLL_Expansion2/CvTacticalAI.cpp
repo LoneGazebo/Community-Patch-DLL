@@ -7136,7 +7136,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
 		{
 			CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-			if(pDefender)
+			if (pDefender)
 			{
 				int iSelfDamage = 0;
 				//attacker plot will likely change but this is just an estimation anyway
@@ -7159,7 +7159,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 				int iSelfDamage = 0;
 				//attacker plot will likely change but this is just an estimation anyway
 				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pAttacker, pAttacker->plot(), iSelfDamage, true, 0, true);
-				if (iDamage > iSelfDamage) //exclude suicidal melee attacks
+				if (iDamage > iSelfDamage || (iDamage*2 > iSelfDamage && pAttacker->GetCurrHitPoints()-iSelfDamage > pAttacker->GetMaxHitPoints()/2)) //exclude suicidal melee attacks
 				{
 					//if the city has a garrison, it will absorb part of the damage
 					//let's pretend it doesn't die, this is just an estimation after all
@@ -8818,22 +8818,22 @@ CvPlot* TacticalAIHelpers::GetFirstTargetInRange(const CvUnit * pUnit, bool bMus
 	if (!pUnit)
 		return NULL;
 
-	ReachablePlots plots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
-	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//this can only ever be true for melee units - ranged attacks are checked below
-		if (pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
+		if (!pUnit->IsCanAttackRanged() && pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
 		{
 			if (bMustBeAbleToKill)
 			{
 				//see how the attack would go
 				CvUnit* pDefender = pPlot->getVisibleEnemyDefender(pUnit->getOwner());
 				int iDamageDealt = 0, iDamageReceived = 0;
-				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0 , true);
+				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0, true);
 
-				if (iDamageDealt > iDamageReceived && iDamageDealt > pDefender->GetCurrHitPoints() && pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints() / 2)
+				if (iDamageDealt > iDamageReceived && iDamageDealt >= pDefender->GetCurrHitPoints() && pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints() / 2)
 					return pPlot;
 			}
 			else
@@ -8856,33 +8856,30 @@ CvPlot* TacticalAIHelpers::GetFirstTargetInRange(const CvUnit * pUnit, bool bMus
 					return pPlot;
 			}
 		}
+	}
 
-		//special check for ranged units (which can't enter enemy occupied plots)
-		//quite inefficient so only check the first ring
-		if (it->iMovesLeft > 0 && pUnit->isRanged())
+	if (pUnit->IsCanAttackRanged())
+	{
+		//for ranged every tile we can enter with movement left is a base for attack
+		std::set<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,reachablePlots,true,false);
+		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
-			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			CvPlot* pAttackTile = GC.getMap().plotByIndexUnchecked(*attackTile);
+			if (bMustBeAbleToKill && !pAttackTile->isCity())
 			{
-				CvPlot* pPlot2 = iterateRingPlots(pPlot, i);
-				if (!pPlot2)
-					continue;
+				//see how the attack would go
+				CvUnit* pDefender = pAttackTile->getVisibleEnemyDefender(pUnit->getOwner());
+				if (!pDefender)
+					continue; //shouldn't happen
 
-				if (pPlot2->isEnemyUnit(pUnit->getOwner(), true, true))
-				{
-					if (bMustBeAbleToKill)
-					{
-						//see how the attack would go
-						CvUnit* pDefender = pPlot2->getVisibleEnemyDefender(pUnit->getOwner());
-						int iDamageDealt = 0, iDamageReceived = 0;
-						iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0, true);
+				int iDamageDealt = 0, iDamageReceived = 0;
+				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived, true, 0, true);
 
-						if (iDamageDealt > pDefender->GetCurrHitPoints())
-							return pPlot2;
-					}
-					else
-						return pPlot2;
-				}
+				if (iDamageDealt >= pDefender->GetCurrHitPoints())
+					return pAttackTile;
 			}
+			else
+				return pAttackTile;
 		}
 	}
 
@@ -9099,17 +9096,17 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	switch (eAggLvl)
 	{
 	case AL_LOW:
-		fAggFactor *= 0.5f;
+		fAggFactor *= 0.4f+fAggBias/10; //bias is at least 0.9
 		if ( iHPbelowHalf>0 )
 			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
-		fAggFactor *= 0.9f;
+		fAggFactor *= 0.8f+fAggBias/10; //bias is at least 0.9
 		if ( iHPbelowHalf>0 )
 			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
-		//we want to be able to survive a counterattack ...
+		//don't care how much damage we do but we want to be able to survive a counterattack ...
 		if ( iDamageReceived+23/fAggBias < pUnit->GetCurrHitPoints() )
 			fAggFactor *= 2.3f;
 		break;
@@ -9162,9 +9159,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 
 	//note: assumed unit plot may be invalid if the unit is initially far away from the target
 	CvPlot* pAssumedUnitPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
-	CvTacticalPlot assumedUnitPlot = assumedPosition.getTactPlot(unit.iPlotIndex);
+	const CvTacticalPlot& assumedUnitPlot = assumedPosition.getTactPlot(unit.iPlotIndex);
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
-		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<CvUnit*>());
+		OutputDebugString("bad plot\n");
+//		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer(),set<CvUnit*>());
 
 	//this is only for melee attacks - ranged attacks are handled separately
 	if (currentPlot.isEnemy() && !pUnit->isRanged())
@@ -9853,7 +9851,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 	}
 }
 
-void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange)
+void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const
 {
 	//we don't count embarked units
 	if (!pPlot || move.isEmbarkedUnit())
@@ -10180,7 +10178,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	//try to find out who is most relevant
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
-		CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
+		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
 		itUnit->iImportanceScore = iPlotTypeScore[ currentPlot.getType() ] + currentPlot.getNumAdjacentEnemies() + itUnit->iMovesLeft/GC.getMOVE_DENOMINATOR() + getRangeAttackPlotsForUnit(itUnit->iUnitID).size();
 
 		if (pTargetPlot->isCity() && eAggression > AL_NONE && itUnit->eStrategy == MS_SECONDLINE)
@@ -10226,7 +10224,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		vector<STacticalAssignment> thisUnitChoices;
-		CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
+		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
 
 		//remove / restore aura for unbiased placement
 		STacticalAssignment dummy(0,0,0,0,itUnit->eStrategy);
@@ -10540,14 +10538,14 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 
 	//childPositions stays empty!
 	childPositions.clear();
-	//reachablePlotLookup stays empty for now
+
+	//these are cached locally if necessary, otherwise looked up at the parent
 	reachablePlotLookup.clear();
-	//rangeAttackPlotLookup stays empty for now
 	rangeAttackPlotLookup.clear();
+	tacticalPlotLookup.clear();
+	tactPlots.clear();
 
 	//copied from parent, modified when addAssignment is called
-	tacticalPlotLookup = parent.tacticalPlotLookup;
-	tactPlots = parent.tactPlots;
 	availableUnits = parent.availableUnits;
 	assignedMoves = parent.assignedMoves;
 	freedPlots = parent.freedPlots;
@@ -10625,7 +10623,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				continue; 
 
 			//embarked units can't stack with non-simulated embarked units
-			CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+			const CvTacticalPlot& tactPlot = getTactPlot(pPlot->GetPlotIndex());
 			if (tactPlot.isOtherEmbarkedUnit())
 				continue;
 		}
@@ -10651,7 +10649,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 					if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 						continue;
 
-					CvTacticalPlot tactPlot = getTactPlot(pPlot->GetPlotIndex());
+					const CvTacticalPlot& tactPlot = getTactPlot(pPlot->GetPlotIndex());
 					if (tactPlot.isOtherEmbarkedUnit())
 						continue;
 				}
@@ -10981,7 +10979,9 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			{
 				iEndTurnScore = ScorePlotForCombatUnitOffensive(*itUnit, SMovePlot(iUnitEndTurnPlot), *this, true).iScore;
 				//negative scores are forbidden for offensive moves (since we always have the option of not going through with the attack)
-				if (iEndTurnScore < 0)
+				//except if capturing a city, in that case the danger value is not correct and anyway it's probably worth it
+				bool bCapturingCity = (newAssignment.eAssignmentType == A_MELEEKILL) && oldTactPlot.isEnemyCity();
+				if (iEndTurnScore < 0 && !bCapturingCity)
 					return false;
 			}
 			else
@@ -11244,6 +11244,16 @@ CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex)
 	if (it!=tacticalPlotLookup.end())
 		return tactPlots[it->second];
 
+	if (parentPosition)
+	{
+		const CvTacticalPlot& parentResult = parentPosition->getTactPlot(plotindex);
+
+		//now cache it locally so that we can modify it
+		tacticalPlotLookup[plotindex] = (int)tactPlots.size();
+		tactPlots.push_back( parentResult );
+		return tactPlots.back();
+	}
+
 	return dummyPlot;
 }
 
@@ -11253,6 +11263,10 @@ const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 	if (it!=tacticalPlotLookup.end())
 		return tactPlots[it->second];
 
+	if (parentPosition)
+		return parentPosition->getTactPlot(plotindex);
+
+	//no caching? unclear what's better
 	return dummyPlot;
 }
 
@@ -11557,9 +11571,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 6 : 9;
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 
-	if (gTacticalCombatDebugOutput>10)
-		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
-
 	vector<CvTacticalPosition*> openPositionsHeap;
 	vector<CvTacticalPosition*> completedPositions;
 	int iDiscardedPositions = 0;
@@ -11653,8 +11664,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	timer.EndPerfTest();
 	//if (timer.GetDeltaInSeconds()>0.1)
 	//	OutputDebugString(CvString::format("--> tested %d possible positions for %d units in %.2fms\n", initialPosition->countChildren(), ourUnits.size(), timer.GetDeltaInSeconds()*1000).c_str());
-	if (gTacticalCombatDebugOutput>10) //if needed we can set the instruction pointer here
+	if (gTacticalCombatDebugOutput > 10) //if needed we can set the instruction pointer here
+	{
 		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
+		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
+	}
 
 	//stringstream buffer;
 	//for(size_t i=0; i<result.size(); i++)

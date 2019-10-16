@@ -1208,7 +1208,7 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 }
 
 /// Value of plot for providing strategic value
-int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, int iPlotsFromCity)
+int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pPlayer, int iPlotsFromCity)
 {
 	int rtnValue = 0;
 
@@ -1256,9 +1256,29 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, i
 		}
 	}
 
-	rtnValue *= m_iFlavorMultiplier[SITE_EVALUATION_STRATEGIC];
+	if (iPlotsFromCity == 0 && pPlayer)
+	{
+		int iDistToAll = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
+		int iDistToUs = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
 
-	return rtnValue;
+		//is the plot exposed to a potential enemy
+		if (iDistToAll < iDistToUs && iDistToAll < 6)
+		{
+			// from how many plots can this city be bombarded?
+			// might change if forests are chopped but just as an indication
+			vector<CvPlot*> potentialAttackPlots = GC.getMap().GetPlotsAtRange(pPlot, 2, true, true);
+			for (size_t i = 0; i < potentialAttackPlots.size(); i++)
+			{
+				int iDistToAll = GC.getGame().GetClosestCityDistanceInTurns(potentialAttackPlots[i]);
+				int iDistToUs = pPlayer->GetCityDistanceInEstimatedTurns(potentialAttackPlots[i]);
+				//check if the plot is facing our potential enemies
+				if (iDistToAll < iDistToUs)
+					rtnValue -= GC.getHILL_STRATEGIC_VALUE() * 6;
+			}
+		}
+	}
+
+	return rtnValue * m_iFlavorMultiplier[SITE_EVALUATION_STRATEGIC];
 }
 
 //=====================================

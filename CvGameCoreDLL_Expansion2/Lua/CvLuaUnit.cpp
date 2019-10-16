@@ -2911,9 +2911,8 @@ int CvLuaUnit::lGetMaxRangedCombatStrength(lua_State* L)
 	CvUnit* pkOther = GetInstance(L, 2, false);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	const bool bAttacking = lua_toboolean(L, 4);
-	const bool bForRangedAttack = lua_toboolean(L, 5);
 
-	const int iResult = pkUnit->GetMaxRangedCombatStrength(pkOther, pkCity, bAttacking, NULL, NULL, false, false, bForRangedAttack);
+	const int iResult = pkUnit->GetMaxRangedCombatStrength(pkOther, pkCity, bAttacking, NULL, NULL, false, false);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

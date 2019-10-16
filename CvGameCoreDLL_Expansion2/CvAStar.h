@@ -173,6 +173,7 @@ public:
 	}
 
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const = 0;
+	virtual bool CommonNeighborIsPassable(const CvAStarNode* a, const CvAStarNode* b) const = 0;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next) = 0;
 	virtual bool DestinationReached(int iToX, int iToY) const = 0;
 	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation) = 0;
@@ -370,6 +371,7 @@ public:
 class CvStepFinder : public CvPathFinder
 {
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
+	virtual bool CommonNeighborIsPassable(const CvAStarNode* a, const CvAStarNode* b) const;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
 	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation);
 
@@ -394,6 +396,7 @@ public:
 	//has to be public for the free functions to access it
 	CvAStarNode* GetPartialMoveNode(int iCol, int iRow);
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
+	virtual bool CommonNeighborIsPassable(const CvAStarNode* a, const CvAStarNode* b) const;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
 	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation);
 

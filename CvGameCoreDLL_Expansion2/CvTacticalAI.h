@@ -1028,7 +1028,7 @@ public:
 	void setType(eTactPlotDomain eDomain, eTactPlotType newType) { eType[eDomain] = newType; }
 	void findType(eTactPlotDomain eDomain, const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return pPlot != NULL; }
-	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange);
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
 	bool isRelevant() const { return eType[TD_BOTH] != TP_BLOCKED_FRIENDLY && eType[TD_BOTH] != TP_BLOCKED_NEUTRAL; }
 
 protected:
