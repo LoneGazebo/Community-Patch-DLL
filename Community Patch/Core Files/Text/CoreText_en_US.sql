@@ -768,7 +768,7 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
 
 UPDATE Language_en_US
 SET Text = 'Your offer pleases me. Well done.'
-WHERE Tag ='TXT_KEY_LEADER_RAMESSES_TRADE_YES_HAPPY';
+WHERE Tag = 'TXT_KEY_LEADER_RAMESSES_TRADE_YES_HAPPY';
 
 UPDATE Language_en_US
 SET Text = 'Happily agreed.'
