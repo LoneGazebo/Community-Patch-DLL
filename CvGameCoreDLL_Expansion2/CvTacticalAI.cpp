@@ -29,6 +29,7 @@
 int gCurrentUnitToTrack = 0;
 int gTacticalCombatDebugOutput = 0;
 int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
+#define TACTDEBUG
 #endif
 
 CvTactPosStorage gTactPosStorage(10000);
@@ -10103,6 +10104,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	if (!pUnit)
 		return vector<STacticalAssignment>();
 
+	//for melee units moving is attacking, so we have to check again ...
 	bool bCantMoveAgainRightNow = (pUnit->isRanged() && unit.eLastAssignment == A_MOVE);
 	if (!bCantMoveAgainRightNow)
 	{
@@ -10993,7 +10995,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		}
 
 		//in case this was a move which revealed new plots, pretend it was a forced move so we can move again
-		if (itUnit->eLastAssignment == A_MOVE)
+		if (!newlyVisiblePlots.empty() && itUnit->eLastAssignment == A_MOVE)
 			itUnit->eLastAssignment = A_MOVE_FORCED;
 	}
 
@@ -11085,9 +11087,15 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 bool CvTacticalPosition::haveTacticalPlot(const CvPlot* pPlot) const
 {
 	if (!pPlot)
+		return true; //this is a matter of definition ...
+
+	if (tacticalPlotLookup.find(pPlot->GetPlotIndex()) != tacticalPlotLookup.end())
 		return true;
 
-	return tacticalPlotLookup.find(pPlot->GetPlotIndex()) != tacticalPlotLookup.end();
+	if (parentPosition && parentPosition->haveTacticalPlot(pPlot))
+		return true;
+
+	return false;
 }
 
 void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
@@ -11096,11 +11104,15 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 		return;
 
 	map<int, int>::iterator it = tacticalPlotLookup.find(pPlot->GetPlotIndex());
-	if (it == tacticalPlotLookup.end())
-	{
-		tacticalPlotLookup[pPlot->GetPlotIndex()] = (int)tactPlots.size();
-		tactPlots.push_back( CvTacticalPlot(pPlot,ePlayer,allOurUnits) );
-	}
+	if (it != tacticalPlotLookup.end())
+		return; //nothing to do
+
+	if (parentPosition && parentPosition->haveTacticalPlot(pPlot))
+		return; //nothing to do
+
+	//we have to create a new tactical plot
+	tacticalPlotLookup[pPlot->GetPlotIndex()] = (int)tactPlots.size();
+	tactPlots.push_back( CvTacticalPlot(pPlot,ePlayer,allOurUnits) );
 }
 
 bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
