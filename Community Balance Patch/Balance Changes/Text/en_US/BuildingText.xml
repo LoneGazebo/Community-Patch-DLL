@@ -460,7 +460,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>15 turns of 'We Love the King Day' in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
+			<Text>15 turns of "We Love the King Day" in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 
 
@@ -490,7 +490,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_HELP">
-			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. During 'We Love the King Day', City [ICON_RESEARCH] Science increases by +10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. During "We Love the King Day", City [ICON_RESEARCH] Science increases by +10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.</Text>
 		</Row>
 
 
