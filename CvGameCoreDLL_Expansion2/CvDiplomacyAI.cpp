@@ -4223,20 +4223,28 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// Are we getting money from trade with them?
+	// Are we getting yields from trade with them?
 	////////////////////////////////////
-	int iCurrentTradeValueIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) + 
-				GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
-				GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
-	int iCurrentTradeValueOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID()) + 
-				GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID()) + 
-				GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
-
+	int iCurrentGoldIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer);
+	int iCurrentGoldOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID());
+	
+	int iCurrentScienceIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
+	int iCurrentScienceOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
+	
+	int iCurrentCultureIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer);
+	int iCurrentCultureOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID());
+	
+	int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100();
+	int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100();
+	int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100() + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
+	
 	// Scale factor is hard to guess ...
-	int iGdpEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100();
-	int iTradeDelta = (5 * (iCurrentTradeValueIn - iCurrentTradeValueOut)) / max(iGdpEstimate,1);
-
-	if(iTradeDelta > 0)
+	int iGoldDelta = (5 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
+	int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
+	int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
+	
+	int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta;
+	if (iTradeDelta > 0)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iTradeDelta;
 	}
@@ -5494,7 +5502,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		}
 	}
 
-	// Are we getting money from trade with them?
+	// Are we getting yields from trade with them?
 	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) +
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);

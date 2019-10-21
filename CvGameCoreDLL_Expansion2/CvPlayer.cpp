@@ -18557,6 +18557,23 @@ int CvPlayer::GetJONSCulturePerTurnFromCities() const
 }
 
 //	--------------------------------------------------------------------------------
+/// Culture per turn from Cities times 100
+int CvPlayer::GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const
+{
+	int iCulture = 0;
+
+	const CvCity* pLoopCity;
+
+	int iLoop;
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iCulture += pLoopCity->getYieldRateTimes100(YIELD_CULTURE, bIgnoreTrade);
+	}
+
+	return iCulture;
+}
+
+//	--------------------------------------------------------------------------------
 /// Special bonus which adds excess Happiness to Culture?
 int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 {

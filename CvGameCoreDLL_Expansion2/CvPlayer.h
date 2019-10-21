@@ -492,6 +492,7 @@ public:
 
 
 	int GetJONSCulturePerTurnFromCities() const;
+	int GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const;
 
 	int GetJONSCulturePerTurnFromExcessHappiness() const;
 	int GetJONSCulturePerTurnFromTraits() const;
