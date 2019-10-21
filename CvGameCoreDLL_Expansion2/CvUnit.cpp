@@ -4796,9 +4796,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	}
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
-	if (enterPlot.needsEmbarkation(this))
+	if (!CanEverEmbark() || (iMoveFlags & MOVEFLAG_NO_EMBARK))
 	{
-		if (!CanEverEmbark() || (iMoveFlags & MOVEFLAG_NO_EMBARK))
+		if (enterPlot.needsEmbarkation(this)) //this takes a while, check it last
 			return false;
 	}
 

@@ -18327,6 +18327,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
 			if (iYieldChangePerImprovementBuilt == 0 || (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly() && !isCapital()))
 				continue;
+
 			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
 			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
 			{
@@ -18365,11 +18366,9 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		if (MOD_BALANCE_YIELD_SCALE_ERA)
 		{
 			int iEra = GET_PLAYER(m_eOwner).GetCurrentEra();
-			if (iEra < 1)
-			{
-				iEra = 1;
-			}
-			iYield += (iEra * GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GET_PLAYER(m_eOwner).GetTrade()->GetNumDifferentTradingPartners());
+			int iChange = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield);
+			if (iChange>0)
+				iYield += (max(1,iEra) * GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GET_PLAYER(m_eOwner).GetTrade()->GetNumDifferentTradingPartners());
 		}
 	}
 #endif
