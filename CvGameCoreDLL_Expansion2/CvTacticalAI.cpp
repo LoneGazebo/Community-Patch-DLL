@@ -2034,7 +2034,7 @@ void CvTacticalAI::PlotBarbarianCampMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (FindUnitsForHarassing(pPlot,4,0,GC.getMAX_HIT_POINTS(),DOMAIN_LAND,false))
+		if (FindUnitsForHarassing(pPlot,4,-1,-1,DOMAIN_LAND,false))
 		{
 			ExecuteBarbarianCampMove(pPlot);
 			if(bLog)
@@ -2475,7 +2475,7 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		if (FindUnitsForHarassing(pPlot,1,23,GC.getMAX_HIT_POINTS(),eDomain,false))
+		if (FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,eDomain,false))
 		{
 			// Queue best one up to capture it
 			ExecutePlunderTradeUnit(pPlot);
@@ -2625,7 +2625,7 @@ void CvTacticalAI::PlotPlunderTradePlotMoves (DomainTypes eDomain)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if(FindUnitsForHarassing(pPlot,1,10,GC.getMAX_HIT_POINTS(),eDomain,false))
+		if(FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,eDomain,false))
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 			if(pUnit)
@@ -2669,7 +2669,7 @@ void CvTacticalAI::PlotBlockadeMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (FindUnitsForHarassing(pPlot, 4, 10, GC.getMAX_HIT_POINTS(), DOMAIN_SEA, false))
+		if (FindUnitsForHarassing(pPlot, 4, GC.getMAX_HIT_POINTS()/2, -1, DOMAIN_SEA, false))
 		{
 			// Queue best one up to capture it
 			ExecuteNavalBlockadeMove(pPlot);
@@ -2693,7 +2693,7 @@ void CvTacticalAI::PlotCivilianAttackMoves(AITacticalTargetType eTargetType)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if(FindUnitsForHarassing(pPlot,1,10,GC.getMAX_HIT_POINTS(),DOMAIN_LAND,false))
+		if(FindUnitsForHarassing(pPlot,1,GC.getMAX_HIT_POINTS()/2,-1,DOMAIN_LAND,false))
 		{
 			for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 			{
@@ -2867,7 +2867,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			//that's a hack but that's the way it is
 			currentDefender->setTacticalMove( (TacticalAIMoveTypes)AI_TACTICAL_BARBARIAN_CAMP_DEFENSE );
 		}
-		else if(FindUnitsForHarassing(pPlot,5,1,GC.getMAX_HIT_POINTS(),DOMAIN_LAND,false))
+		else if(FindUnitsForHarassing(pPlot,5,-1,-1,DOMAIN_LAND,false))
 		{
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 			ExecuteMoveToPlot(pUnit,pPlot);
@@ -8543,6 +8543,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		}
 		else
 		{
+			//naval units usually must pillage to heal ...
 			if (!bPillage && !pUnit->canHeal(pPlot, false, true))
 				continue;
 		}
@@ -8559,12 +8560,15 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 				continue;
 		}
 
-		int iDanger = pUnit->GetDanger(pPlot) - (bPillage ? GC.getPILLAGE_HEAL_AMOUNT() : 0);
-		if (iDanger <= pUnit->healRate(pPlot) || (bPillage && pUnit->getDomainType() == DOMAIN_SEA))
+		int iDanger = pUnit->GetDanger(pPlot);
+		if (iDanger <= pUnit->healRate(pPlot)) //ignore pillage health here, it's a one-time effect and may lead into dead ends
 		{
 			int iScore = pUnit->healRate(pPlot) - iDanger / 5;
 			//friendly combat unit nearby = good
 			iScore += pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit);
+			//can pillage = good
+			if (bPillage)
+				iScore += GC.getPILLAGE_HEAL_AMOUNT();
 			//higher distance = bad
 			iScore -= GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
 			//todo: check distance to enemy cities as well?
