@@ -33309,8 +33309,8 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 			}
 		}
 	}
-	return iOpinionWeight;
 #endif
+	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
