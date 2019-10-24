@@ -33240,6 +33240,7 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 
 	return iOpinionWeight;
 }
+
 int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
@@ -33266,6 +33267,7 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 #endif
+
 int CvDiplomacyAI::GetWarmongerThreatScore(PlayerTypes ePlayer)
 {
 	// EFB: Removed the divided by 2 in the next line (09/15/2013); all scaling now done and explained in GetOtherPlayerWarmongerScore()
@@ -33280,7 +33282,6 @@ int CvDiplomacyAI::GetWarmongerThreatScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 {
-#if defined(MOD_BALANCE_CORE)
 	int iOpinionWeight = 0;
 	int iNumCivs = GetNumCiviliansReturnedToMe(ePlayer);
 	if (iNumCivs > 0)
@@ -33294,13 +33295,9 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 			iOpinionWeight += ((GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() / 4) * (iNumCivs - 1));
 		}
 	}
-#else
-	int iOpinionWeight = 0;
-	if(GetNumCiviliansReturnedToMe(ePlayer) > 0)
-		iOpinionWeight += (/*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() * GetNumCiviliansReturnedToMe(ePlayer));
-#endif
+
 #if defined(MOD_BALANCE_CORE)
-	if(iOpinionWeight != 0)
+	if(iOpinionWeight > 0)
 	{
 		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
 		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > iTurn)
@@ -33312,8 +33309,8 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 			}
 		}
 	}
-#endif
 	return iOpinionWeight;
+#endif
 }
 
 int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
@@ -33395,17 +33392,13 @@ int CvDiplomacyAI::GetEmbassyScore(PlayerTypes ePlayer)
 
 	if(GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).HasEmbassyAtTeam(GET_PLAYER(ePlayer).getTeam()))
 	{
-#if defined(MOD_BALANCE_CORE)
 		iOpinionWeight += (/*-1*/ GC.getOPINION_WEIGHT_EMBASSY() * 2); // -2 if AI has an embassy with them
-#else
-		iOpinionWeight += (/*-1*/ GC.getOPINION_WEIGHT_EMBASSY());
-#endif
 	}
 	
-#if defined(MOD_BALANCE_CORE)
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).HasEmbassyAtTeam(GET_PLAYER(GetPlayer()->GetID()).getTeam()))
+	{
 		iOpinionWeight += (/*-1*/ GC.getOPINION_WEIGHT_EMBASSY()); // -1 if they have an embassy with AI
-#endif
+	}
 	
 	return iOpinionWeight;
 }
@@ -33436,13 +33429,12 @@ int CvDiplomacyAI::GetNoSetterRequestScore(PlayerTypes ePlayer)
 		return 0;
 	
 	int iOpinionWeight = 0;
+	
 	if(IsPlayerNoSettleRequestEverAsked(ePlayer))
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_ASKED_NO_SETTLE();
 	
-#if defined(MOD_BALANCE_CORE)
 	if(GetPlayerNoSettleRequestCounter(ePlayer) >= 50)
 		iOpinionWeight /= 2;
-#endif
 
 	return iOpinionWeight;
 }
@@ -33450,13 +33442,12 @@ int CvDiplomacyAI::GetNoSetterRequestScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	
 	if(IsPlayerStopSpyingRequestEverAsked(ePlayer))
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_ASKED_STOP_SPYING();
 	
-#if defined(MOD_BALANCE_CORE)
 	if(GetPlayerStopSpyingRequestCounter(ePlayer) >= 50)
 		iOpinionWeight /= 2;
-#endif
 	
 	return iOpinionWeight;
 }
@@ -33464,16 +33455,20 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	
 	if(GetNumDemandEverMade(ePlayer) > 0)
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() / 2 * GetNumDemandEverMade(ePlayer);
+	
 	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	
 	if(GetNumTimesCultureBombed(ePlayer) > 0)
 		iOpinionWeight += (GetNumTimesCultureBombed(ePlayer) * /*30*/ GC.getOPINION_WEIGHT_CULTURE_BOMBED());
+	
 	return iOpinionWeight;
 }
 
@@ -33584,10 +33579,10 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 {
-#if defined(MOD_BALANCE_CORE)
 	int iOpinionWeight = 0;
 	int iNumIntrigue = GetNumTimesIntrigueSharedBy(ePlayer);
 
+#if defined(MOD_BALANCE_CORE)
 	if(iNumIntrigue > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
@@ -33597,6 +33592,7 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 			SetIntrigueSharedTurn(ePlayer, GC.getGame().getGameTurn());
 		}
 	}
+#endif
 
 	if (iNumIntrigue > 0)
 	{
@@ -33612,11 +33608,7 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 3) * (iNumIntrigue - 1));
 		}
 	}
-#else
-	int iOpinionWeight = 0;
-	if(GetNumTimesIntrigueSharedBy(ePlayer) > 0)
-		iOpinionWeight += (GetNumTimesIntrigueSharedBy(ePlayer) * /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY());
-#endif
+
 	return iOpinionWeight;
 }
 
@@ -34112,6 +34104,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 	return false;
 }
 #endif
+
 int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
@@ -34150,9 +34143,7 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 	
 	// How many of their (trustworthy) friends have denounced them?
 	PlayerTypes eLoopPlayer;
-#if defined(MOD_BALANCE_CORE)
-	int iNumPlayers = 0;
-#endif
+
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -34166,23 +34157,16 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 				{
 					iTraitorOpinion += /*20*/ GC.getOPINION_WEIGHT_DENOUNCED_BY_FRIEND_EACH();
 				}
-
-#if defined(MOD_BALANCE_CORE)
-				iNumPlayers++;
-#endif
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(iTraitorOpinion > 0 && iNumPlayers > 0)
-	{
-		iTraitorOpinion = (iTraitorOpinion / iNumPlayers);
-	}
-#endif
 
 	// No penalty for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return 0;
+	
+	if(iTraitorOpinion > 20)
+		iTraitorOpinion = 20;
 
 	return iTraitorOpinion;
 }
@@ -34191,7 +34175,6 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 {
 	int iTraitorOpinion = 0;
 	
-#if defined(MOD_BALANCE_CORE)
 	// If they're an untrustworthy friend, apply the full traitor penalty
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
 	{	
@@ -34218,12 +34201,6 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 			}
 		}
 	}   
-
-#else
-	int iDenouncedFriends = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount();
-	if(iDenouncedFriends > 0)
-		iTraitorOpinion = iDenouncedFriends * /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND_EACH();
-#endif
 
 	// No penalty for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())

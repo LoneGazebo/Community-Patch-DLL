@@ -13040,6 +13040,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
+	/*
 	iValue = pDiploAI->GetBrokenAttackCityStatePromiseWithAnybodyScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13048,6 +13049,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CITY_STATE_PROMISE_BROKEN_WITH_OTHERS");
 		aOpinions.push_back(kOpinion);
 	}
+	*/
 
 	iValue = pDiploAI->GetIgnoredAttackCityStatePromiseScore(eWithPlayer);
 	if (iValue != 0)
@@ -13384,14 +13386,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 	// TRAITOR END
 
-	//iValue = pDiploAI->GetRequestsRefusedScore(eWithPlayer);
-	//if (iValue != 0)
-	//{
-	//	Opinion kOpinion;
-	//	kOpinion.m_iValue = iValue;
-	//	kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_REFUSED_REQUESTS");
-	//	aOpinions.push_back(kOpinion);
-	//}
+	/*
+	iValue = pDiploAI->GetRequestsRefusedScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_REFUSED_REQUESTS");
+		aOpinions.push_back(kOpinion);
+	}
+	*/
 
 	iValue = pDiploAI->GetDenouncedUsScore(eWithPlayer);
 	if (iValue != 0)
@@ -13542,6 +13546,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
+	/*
 	iValue = pDiploAI->GetGaveAssistanceToScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13559,101 +13564,98 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE");
 		aOpinions.push_back(kOpinion);
 	}
+	*/
 
-	// World Congress >>> United Nations
-	if(GC.getGame().IsUnitedNationsActive())
+	bool bUNActive = GC.getGame().IsUnitedNationsActive();
+	
+	iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
+	if (iValue != 0)
 	{
-		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
-		if (iValue != 0)
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		
+		if(bUNActive)
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL_UN");
-			aOpinions.push_back(kOpinion);
 		}
-		
-		iValue = pDiploAI->GetDislikedTheirProposalScore(eWithPlayer);
-		if (iValue != 0)
+		else
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL_UN");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiploAI->GetSupportedMyProposalScore(eWithPlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiploAI->GetFoiledMyProposalScore(eWithPlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN");
-			aOpinions.push_back(kOpinion);
-		}
-
-		iValue = pDiploAI->GetSupportedMyHostingScore(eWithPlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN");
-			aOpinions.push_back(kOpinion);
-		}
-	}
-	else
-	{
-		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
-		if (iValue != 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIKED_OUR_PROPOSAL");
-			aOpinions.push_back(kOpinion);
 		}
 		
-		iValue = pDiploAI->GetDislikedTheirProposalScore(eWithPlayer);
-		if (iValue != 0)
+		aOpinions.push_back(kOpinion);
+	}
+	
+	iValue = pDiploAI->GetDislikedTheirProposalScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		
+		if(bUNActive)
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL_UN");
+		}
+		else
+		{
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DISLIKED_OUR_PROPOSAL");
-			aOpinions.push_back(kOpinion);
 		}
+		
+		aOpinions.push_back(kOpinion);
+	}
 
-		iValue = pDiploAI->GetSupportedMyProposalScore(eWithPlayer);
-		if (iValue != 0)
+	iValue = pDiploAI->GetSupportedMyProposalScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		
+		if(bUNActive)
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL_UN");
+		}
+		else
+		{
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_PROPOSAL");
-			aOpinions.push_back(kOpinion);
 		}
+		
+		aOpinions.push_back(kOpinion);
+	}
 
-		iValue = pDiploAI->GetFoiledMyProposalScore(eWithPlayer);
-		if (iValue != 0)
+	iValue = pDiploAI->GetFoiledMyProposalScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		
+		if(bUNActive)
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL_UN");
+		}
+		else
+		{
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FOILED_THEIR_PROPOSAL");
-			aOpinions.push_back(kOpinion);
 		}
+		
+		aOpinions.push_back(kOpinion);
+	}
 
-		iValue = pDiploAI->GetSupportedMyHostingScore(eWithPlayer);
-		if (iValue != 0)
+	iValue = pDiploAI->GetSupportedMyHostingScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		
+		if(bUNActive)
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
-			aOpinions.push_back(kOpinion);
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN");
 		}
+		else
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING");
+		}
+		
+		aOpinions.push_back(kOpinion);
 	}
 
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
