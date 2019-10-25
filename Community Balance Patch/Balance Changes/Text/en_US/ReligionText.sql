@@ -268,7 +268,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Reliquary (Now Tithes)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in all owned Cities following this [ICON_RELIGION] Religion. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_FOOD] Food and [ICON_PRODUCTION] Production, scaling with Era.'
+SET Text = '+2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in all owned Cities following this [ICON_RELIGION] Religion. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_FOOD] Food or [ICON_PRODUCTION] Production, respective of their type and scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

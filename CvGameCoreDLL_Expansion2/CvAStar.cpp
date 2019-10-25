@@ -960,6 +960,10 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) > 2)
 			return false;
 
+		//need to make sure there are no mountains/ice plots in between
+		if (!CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY())))
+			return false;
+
 		//now make sure it's the right area ...
 		return GC.getMap().plotUnchecked(iToX, iToY)->isAdjacentToArea( GC.getMap().plotUnchecked(GetDestX(), GetDestY())->getArea() );
 	}
@@ -1177,22 +1181,17 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
 			else if (iPlotDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger > 0 )
-			{
-				if (kToNodeCacheData.bIsNonNativeDomain) //embarked paths are often shorter, so add a penalty ...
-					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-				else
-					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
-			}
+			else if (iPlotDanger > pUnit->GetCurrHitPoints()/3)
+				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian
 		{
 			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2)
 				return -1; //don't ever do this
 			else if (iPlotDanger > pUnit->GetCurrHitPoints())
-				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
-			else if (iPlotDanger > 0)
-				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
+				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*4*iFutureFactor;
+			else if (iPlotDanger > 0) //note that fog will cause some danger on adjacent plots
+				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 
 		//sometimes we need to abort if there are only bad options around
@@ -1457,9 +1456,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() )
-					if ( GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) || pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
-						return FALSE;
+				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
+					return FALSE;
 			}
 
 			//disembark required and possible?
@@ -2260,6 +2258,23 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 	return true;
 }
 
+bool CvTwoLayerPathFinder::CommonNeighborIsPassable(const CvAStarNode * a, const CvAStarNode * b) const
+{
+	//assume a and b are not direct neighbors ... don't check it because it's usually redundant
+	if (!a || !b)
+		return false;
+
+	for (int i = 0; i < 6; i++)
+	{
+		CvAStarNode* check = a->m_apNeighbors[i];
+		if (check && plotDistance(check->m_iX, check->m_iY, b->m_iX, b->m_iY) == 1)
+			if (check->m_kCostCacheData.bCanEnterTerrainIntermediate)
+				return true;
+	}
+
+	return false;
+}
+
 // check if it makes sense to stop on the current node voluntarily (because the next one is not suitable for stopping)
 bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next)
 {
@@ -2390,7 +2405,12 @@ void CvTwoLayerPathFinder::SanitizeFlags()
 //default version for step paths - m_kCostCacheData is not valid
 bool CvStepFinder::CanEndTurnAtNode(const CvAStarNode*) const
 {
-	return true;
+	return true; //can't check this without knowing the unit
+}
+
+bool CvStepFinder::CommonNeighborIsPassable(const CvAStarNode *, const CvAStarNode *) const
+{
+	return true; //can't check this without knowing the unit
 }
 
 //nothing to do in the stepfinder

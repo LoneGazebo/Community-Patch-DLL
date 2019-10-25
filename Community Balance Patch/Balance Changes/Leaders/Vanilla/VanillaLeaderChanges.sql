@@ -798,6 +798,11 @@ VALUES
 	('BUILDING_SIEGE_WORKSHOP', 'FLAVOR_HAPPINESS', 25),
 	('BUILDING_MOMA', 'FLAVOR_CULTURE', 100);
 
+INSERT INTO Building_YieldChangesPerPop
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_MOMA', 'YIELD_CULTURE', 25);
+
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES

@@ -180,6 +180,7 @@ public:
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
 	bool IsMountainsDoubleMove() const;
+	bool IsMountedOnly() const;
 	int GetAOEDamageOnKill() const;
 	int GetAoEDamageOnMove() const;
 	int GetSplashDamage() const;
@@ -527,6 +528,7 @@ protected:
 	int m_iLandAirDefenseValue;
 	int m_iDamageReductionCityAssault;
 	bool m_bMountainsDoubleMove;
+	bool m_bMountedOnly;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool m_bCanCrossMountains;

@@ -277,6 +277,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			{
 				iModifier += 150;
 			}
+			iModifier += m_pCity->GetYieldFromProcessModifier(eYield);
+
 			switch(eYield)
 			{
 				case YIELD_GOLD:

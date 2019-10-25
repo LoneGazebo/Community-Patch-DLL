@@ -6289,7 +6289,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 #if defined(MOD_ISKA_PANTHEONS)
 	if (MOD_ISKA_PANTHEONS && eMajority == RELIGION_PANTHEON && eOldMajorityReligion == NO_RELIGION)
 	{
-		CityConvertsPantheon(eMajority, eOldMajorityReligion, eResponsibleParty);
+		CityConvertsPantheon();
 	}
 #endif
 
@@ -6641,7 +6641,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 }
 
 #if defined(MOD_ISKA_PANTHEONS)
-void CvCityReligions::CityConvertsPantheon(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty)
+void CvCityReligions::CityConvertsPantheon()
 {
 	// Notification if the player's city was converted to a pantheon
 	PlayerTypes eOwnerPlayer = m_pCity->getOwner();

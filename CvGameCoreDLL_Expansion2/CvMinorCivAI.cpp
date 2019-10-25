@@ -17126,7 +17126,7 @@ void CvMinorCivAI::DoElection()
 				}
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 				{
-					iValue *= iEra;
+					iValue *= (iEra * iEra);
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
@@ -17147,6 +17147,14 @@ void CvMinorCivAI::DoElection()
 				}
 #endif
 				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+
+				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCapital->plot());
+				int iValueNeeded = 60;
+
+				if (iNewResult > iValueNeeded)
+				{
+					GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID);
+				}
 
 			}
 			else

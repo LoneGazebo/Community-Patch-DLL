@@ -1176,6 +1176,9 @@ public:
 	int GetYieldFromInternalTR(YieldTypes eIndex1) const;
 	void ChangeYieldFromInternalTR(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromProcessModifier(YieldTypes eIndex1) const;
+	void ChangeYieldFromProcessModifier(YieldTypes eIndex, int iChange);
+
 	int GetScienceFromYield(YieldTypes eIndex1) const;
 	void SetScienceFromYield(YieldTypes eIndex1, int iChange);
 
@@ -1924,6 +1927,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTREnd;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTR;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromProcessModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyAttack;

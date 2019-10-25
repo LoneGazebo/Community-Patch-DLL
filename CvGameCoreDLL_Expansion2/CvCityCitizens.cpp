@@ -1835,7 +1835,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			}
 
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
-				iYield /= 2;
+				iYield /= 5;
 
 			iValue += iYield;
 		}
@@ -1937,21 +1937,22 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	iMod += m_pCity->GetSpecialistRateModifier(eSpecialist);
 
 	bool bWantArt = false;
-	if (GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
-	{
-		bWantArt = true;
-	}
-
 	bool bWantScience = false;
-	if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToSSVictory())
-	{
-		bWantScience = true;
-	}
-
 	bool bWantDiplo = false;
-	if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
+	if (!GetPlayer()->isHuman())
 	{
-		bWantDiplo = true;
+		if (GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
+		{
+			bWantArt = true;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToSSVictory())
+		{
+			bWantScience = true;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
+		{
+			bWantDiplo = true;
+		}
 	}
 
 	// Player and Golden Age mods to this specific class

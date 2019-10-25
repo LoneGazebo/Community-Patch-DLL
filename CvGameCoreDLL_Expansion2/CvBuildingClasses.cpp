@@ -335,6 +335,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piScienceFromYield(NULL),
 	m_piYieldFromInternalTREnd(NULL),
 	m_piYieldFromInternal(NULL),
+	m_piYieldFromProcessModifier(NULL),
 
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromUnitProduction(NULL),
@@ -462,6 +463,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piScienceFromYield);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternalTREnd);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternal);
+	SAFE_DELETE_ARRAY(m_piYieldFromProcessModifier);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
@@ -934,6 +936,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternal, "Building_YieldFromInternalTR", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromProcessModifier, "Building_YieldFromProcessModifier", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
@@ -3016,6 +3019,7 @@ int* CvBuildingEntry::GetYieldFromInternalTREndArray() const
 	return m_piYieldFromInternalTREnd;
 }
 
+
 /// Does this Policy grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromInternal(int i) const
 {
@@ -3030,6 +3034,18 @@ int* CvBuildingEntry::GetYieldFromInternalArray() const
 }
 
 
+/// Does this Policy grant yields from constructing buildings?
+int CvBuildingEntry::GetYieldFromProcessModifier(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromProcessModifier[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromProcessModifierArray() const
+{
+	return m_piYieldFromProcessModifier;
+}
 
 /// Array of yield changes
 int CvBuildingEntry::GetThemingYieldBonus(int i) const

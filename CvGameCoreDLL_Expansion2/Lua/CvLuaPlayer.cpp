@@ -1369,6 +1369,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorCivOpinion);
 	Method(GetMajorityReligion);
 	//JFD
+	Method(GetWLTKDResourceTT);
 	Method(GetNumNationalWonders);
 	Method(GetNumInternationalTradeRoutes);
 	Method(GetNumInternalTradeRoutes);
@@ -14935,6 +14936,34 @@ int CvLuaPlayer::lDoForceDefPact(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
+{
+	CvString WLTKDTT = "";
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	if (eResource != NO_RESOURCE)
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+		{
+			if (pLoopCity == NULL)
+				continue;
+
+			if (pLoopCity->GetResourceDemanded() == eResource)
+			{
+				if (WLTKDTT == "")
+					WLTKDTT = Localization::Lookup("TXT_KEY_TRADE_WLTKD_RESOURCE_CITIES").toUTF8();
+
+				WLTKDTT += "[NEWLINE][ICON_BULLET] ";
+				WLTKDTT += pLoopCity->getName();
+			}
+		}
+	}
+
+	lua_pushstring(L, WLTKDTT.c_str());
+	return 1;
+}
 int CvLuaPlayer::lGetNumNationalWonders(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);

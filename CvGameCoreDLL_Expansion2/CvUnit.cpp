@@ -4796,9 +4796,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	}
 
 	// Land units and hover units may go anywhere in principle (with embarkation)
-	if (enterPlot.needsEmbarkation(this))
+	if (!CanEverEmbark() || (iMoveFlags & MOVEFLAG_NO_EMBARK))
 	{
-		if (!CanEverEmbark() || (iMoveFlags & MOVEFLAG_NO_EMBARK))
+		if (enterPlot.needsEmbarkation(this)) //this takes a while, check it last
 			return false;
 	}
 
@@ -7358,7 +7358,7 @@ bool CvUnit::canRecruitFromTacticalAI() const
 	if (IsGarrisoned())
 	{
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
-		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>2)
+		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>5)
 			return false;
 	}
 
@@ -16624,7 +16624,7 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
-	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, bool bForRangedAttack) const
+	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
@@ -16973,8 +16973,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Ranged attack mod
 	if(bAttacking)
 	{
-		if(bForRangedAttack)
-			iModifier += GetRangedAttackModifier();
+		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
 	}
 	else
@@ -16996,7 +16995,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	//this may be always zero when defending (on defense -> fewer targets, harder to hit)
-	iModifier += GetDamageCombatModifier(!bAttacking && bForRangedAttack);
+	iModifier += GetDamageCombatModifier(!bAttacking);
 	
 	// Unit can't drop below 10% strength
 	if(iModifier < -90)
@@ -26374,6 +26373,9 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
+
+	if (pkPromotionInfo->IsMountedOnly() && !getUnitInfo().IsMounted())
+		return false;
 #endif
 	//Out-ranged?
 	if (pkPromotionInfo->GetMinRange() != 0 && pkPromotionInfo->GetMinRange() > GetRange())
@@ -29702,8 +29704,8 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 
 	m_lastReachablePlots = result;
 	m_lastReachablePlotsFlags = iFlags;
-	m_lastReachablePlotsFlags = plot()->GetPlotIndex();
-	m_lastReachablePlotsFlags = getMoves();
+	m_lastReachablePlotsStart = plot()->GetPlotIndex();
+	m_lastReachablePlotsMoves = getMoves();
 	return result;
 #else
 	return TacticalAIHelpers::GetAllPlotsInReachThisTurn(this, plot(), iFlags, iMinMovesLeft);

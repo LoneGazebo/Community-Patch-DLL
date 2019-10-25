@@ -11690,7 +11690,7 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// Sanity check
-		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX)
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)
 			OutputDebugString("ouch, general about to be captured\n");
 
 		// then damage it again
@@ -16174,6 +16174,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	if(pkUnitClassInfo == NULL)
 		return 0;
 
+	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
+
 	int iProductionNeeded = pkUnitEntry->GetProductionCost();
 	iProductionNeeded *= 100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier();
 	iProductionNeeded /= 100;
@@ -16213,7 +16215,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 		}
 	}
 #if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
+	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && bCombat)
 	{
 		int iWarWeariness = GetCulture()->GetWarWeariness();
 		iMod += min(75, iWarWeariness);
@@ -16223,7 +16225,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	iProductionNeeded /= 100;
 #endif
 
-	if(!isHuman() && !IsAITeammateOfHuman() && !isBarbarian())
+	if (!isHuman() && !IsAITeammateOfHuman() && !isBarbarian() && bCombat)
 	{
 		if(isWorldUnitClass(eUnitClass))
 		{
@@ -16393,7 +16395,13 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			iProductionModifier += GC.getGame().getHandicapInfo().getAIConstructPercent() - 100;
 		}
 
-		iProductionModifier += std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100)) - 100;
+		if (MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			if (!isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				iProductionModifier += std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100)) - 100;
+		}
+		else
+			iProductionModifier += std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100)) - 100;
 	}
 
 	iProductionNeeded *= (100 + iProductionModifier);
@@ -16438,8 +16446,11 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 			iProductionNeeded /= 100;
 		}
 
-		iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
-		iProductionNeeded /= 100;
+		if (!MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
+			iProductionNeeded /= 100;
+		}
 	}
 
 	return std::max(1, iProductionNeeded);
@@ -18554,6 +18565,23 @@ int CvPlayer::GetJONSCulturePerTurnFromCities() const
 	}
 
 	return iCulturePerTurn;
+}
+
+//	--------------------------------------------------------------------------------
+/// Culture per turn from Cities times 100
+int CvPlayer::GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const
+{
+	int iCulture = 0;
+
+	const CvCity* pLoopCity;
+
+	int iLoop;
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iCulture += pLoopCity->getYieldRateTimes100(YIELD_CULTURE, bIgnoreTrade);
+	}
+
+	return iCulture;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20785,7 +20813,7 @@ int CvPlayer::GetExcessHappiness() const
 {
 	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0))
 	{
-		return 100;
+		return 50;
 	}
 
 	return m_iHappinessTotal;
@@ -28597,28 +28625,12 @@ void CvPlayer::ChangeGreatPersonExpendGold(int ichange)
 //	Calculate score-scaled ArtsyGreatPersonRateModifier
 int CvPlayer::getArtsyGreatPersonRateModifier()
 {
-	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
-	if(iArtsyMod == 0) return 0;
-	// scale GPP the same way as yields; tricky part is for negatives!
-	if(iArtsyMod > 0)
-		iArtsyMod *= ScoreDifferencePercent(1);
-	else
-		iArtsyMod *= (100-ScoreDifferencePercent(1));
-	iArtsyMod /= 100;
-	return iArtsyMod;
+	return GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
 }
 //	Calculate score-scaled ScienceyGreatPersonRateModifier
 int CvPlayer::getScienceyGreatPersonRateModifier()
 {
-	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
-	if(iScienceyMod == 0) return 0;
-	// scale GPP the same way as yields; tricky part is for negatives!
-	if(iScienceyMod > 0)
-		iScienceyMod *= ScoreDifferencePercent(2);
-	else
-		iScienceyMod *= (100-ScoreDifferencePercent(2));
-	iScienceyMod /= 100;
-	return iScienceyMod;
+	return GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
 }
 #endif
 
@@ -28679,13 +28691,8 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatPeopleRateModifier += GetGreatPeopleRateModFromFriendships();
 
 	// And effects from Leagues
-#if defined(MOD_BALANCE_CORE)
-	int iArtsyMod = getArtsyGreatPersonRateModifier();
-	int iScienceyMod = getScienceyGreatPersonRateModifier();
-#else
 	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
 	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
-#endif
 	if (iArtsyMod != 0)
 	{
 		m_iGreatWriterRateModifier += iArtsyMod;

@@ -529,7 +529,7 @@ private:
 	void CopyToSimulatedStatus();
 	void CityConvertsReligion(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty);
 #if defined(MOD_ISKA_PANTHEONS)
-	void CityConvertsPantheon(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty);
+	void CityConvertsPantheon();
 #endif
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
 

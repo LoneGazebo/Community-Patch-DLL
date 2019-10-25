@@ -917,7 +917,7 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 		return;
 
 	// If we've passed all the checks above, we are ready to go!
-	pDestCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 1);
+	pDestCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 1, true);
 
 	RecalculateNumFranchises();
 
@@ -1082,7 +1082,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);
 			if (pBuildingInfo)
 			{
-				pBestCity->GetCityBuildings()->SetNumRealBuilding(eFranchiseBuilding, 1);
+				pBestCity->GetCityBuildings()->SetNumRealBuilding(eFranchiseBuilding, 1, true);
 
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
@@ -1488,8 +1488,8 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 					strSummary << pCity->getNameKey();
 					strSummary << m_pPlayer->getCivilizationShortDescriptionKey();
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY");
-					strMessage << pCity->getNameKey();
 					strMessage << pkBuilding->GetTextKey();
+					strMessage << pCity->getNameKey();
 					strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
 				}
@@ -1527,8 +1527,8 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 						strSummary << pCity->getNameKey();
 						strSummary << m_pPlayer->getCivilizationShortDescriptionKey();
 						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY");
-						strMessage << pCity->getNameKey();
 						strMessage << pkBuilding->GetTextKey();
+						strMessage << pCity->getNameKey();
 						strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
 					}
@@ -1543,8 +1543,8 @@ void CvPlayerCorporations::ClearCorporationFromCity(CvCity* pCity, CorporationTy
 						strSummary << pCity->getNameKey();
 						strSummary << m_pPlayer->getCivilizationShortDescriptionKey();
 						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY");
-						strMessage << pCity->getNameKey();
 						strMessage << pkBuilding->GetTextKey();
+						strMessage << pCity->getNameKey();
 						strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
 					}
@@ -1612,8 +1612,8 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly)
 					strSummary << pCity->getNameKey();
 					strSummary << m_pPlayer->getCivilizationShortDescriptionKey();
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY");
-					strMessage << pCity->getNameKey();
 					strMessage << pkBuilding->GetTextKey();
+					strMessage << pCity->getNameKey();
 					strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
 				}
@@ -1629,8 +1629,8 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly)
 					strSummary << pCity->getNameKey();
 					strSummary << m_pPlayer->getCivilizationShortDescriptionKey();
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY");
-					strMessage << pCity->getNameKey();
 					strMessage << pkBuilding->GetTextKey();
+					strMessage << pCity->getNameKey();
 					strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1, -1);
 				}

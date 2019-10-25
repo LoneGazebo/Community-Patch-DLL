@@ -834,6 +834,9 @@ ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'MinimumRangeRequired' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'MaximumRangeRequired' INTEGER DEFAULT 0;
 
+-- Disallows units w/o 'mounted' flag at unit type level from taking a promotion.
+ALTER TABLE UnitPromotions ADD 'MountedOnly' BOOLEAN DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AttackAbove50HealthMod' INTEGER DEFAULT 0;

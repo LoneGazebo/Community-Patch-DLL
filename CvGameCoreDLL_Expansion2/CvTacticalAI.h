@@ -661,10 +661,6 @@ enum TacticalAIInfoTypes
 	eTACTICAL_PILLAGE_CITADEL_NEXT_TURN,
 	eTACTICAL_PILLAGE_RESOURCE_NEXT_TURN,
 	eTACTICAL_PILLAGE_NEXT_TURN,
-	eMUPOSITION_CIVILIAN_SUPPORT,
-	eMUPOSITION_NAVAL_ESCORT,
-	eMUPOSITION_BOMBARD,
-	eMUPOSITION_FRONT_LINE,
 	eNUM_TACTICAL_INFOTYPES
 };
 
@@ -997,9 +993,10 @@ public:
 
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
 	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
-	int getNumAdjacentEnemies() const { return nEnemyCombatUnitsAdjacent; }
-	int getNumAdjacentFriendlies() const { return nFriendlyCombatUnitsAdjacent; }
-	int getNumAdjacentFirstlineFriendlies() const { return nFriendlyFirstlineUnitsAdjacent; }
+	bool isAdjacent(const CvTacticalPlot& other) const { return pPlot ? pPlot->isAdjacent(other.pPlot) : false; }
+	int getNumAdjacentEnemies(eTactPlotDomain eDomain) const { return nEnemyCombatUnitsAdjacent[eDomain]; }
+	int getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
+	int getNumAdjacentFirstlineFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
 	const vector<STacticalAssignment>& getUnitsAtPlot() const { return vUnits; }
 
 	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
@@ -1013,9 +1010,9 @@ public:
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
-	bool hasSupportBonus() const;
+	bool hasSupportBonus(int iIgnoreUnitPlot) const;
 
-	void setDamage(int iDamage) { iDamageDealt = iDamage; }
+	void changeDamage(int iDamage) { iDamageDealt += iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
 	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits); //set initial state depending on current plot status
@@ -1028,16 +1025,16 @@ public:
 	void setType(eTactPlotDomain eDomain, eTactPlotType newType) { eType[eDomain] = newType; }
 	void findType(eTactPlotDomain eDomain, const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return pPlot != NULL; }
-	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange);
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
 	bool isRelevant() const { return eType[TD_BOTH] != TP_BLOCKED_FRIENDLY && eType[TD_BOTH] != TP_BLOCKED_NEUTRAL; }
 
 protected:
-	const CvPlot* pPlot;
+	const CvPlot* pPlot; //null if invalid
 	vector<STacticalAssignment> vUnits; //which (simulated) units are in this plot?
-	unsigned char nEnemyCombatUnitsAdjacent; //for figuring out the frontline
-	unsigned char nFriendlyCombatUnitsAdjacent; //for flanking
-	unsigned char nFriendlyFirstlineUnitsAdjacent; //ranged units need cover
-	unsigned char nSupportUnitsAdjacent; //for general bonus
+	unsigned char nEnemyCombatUnitsAdjacent[3]; //for figuring out the frontline
+	unsigned char nFriendlyCombatUnitsAdjacent[3]; //for flanking
+	unsigned char nFriendlyFirstlineUnitsAdjacent[3]; //ranged units need cover
+	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
 
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
 	bool bBlockedByEnemyCity:1;
@@ -1136,7 +1133,7 @@ public:
 	bool isEquivalent(const CvTacticalPosition& rhs) const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
-	CvTacticalPlot& getTactPlot(int plotindex);
+	CvTacticalPlot& getTactPlotMutable(int plotindex); //this is dangerous! the reference returned by one call may become invalid when calling this a second time
 
 	CvPlot* getTarget() const { return pTargetPlot; }
 	eAggressionLevel getAggressionLevel() const { return eAggression; }

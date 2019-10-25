@@ -907,13 +907,12 @@ void CvPlot::nukeExplosion(int iDamageLevel, CvUnit*)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentToArea(int iAreaID) const
 {
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_iPlotIndex);
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
+		if(aNeighbors[iI] != NULL)
 		{
-			if(pAdjacentPlot->getArea() == iAreaID)
+			if(aNeighbors[iI]->getArea() == iAreaID)
 			{
 				return true;
 			}

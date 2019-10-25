@@ -4050,10 +4050,6 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		}
 	}
 
-	//check if the unit is engaged with the enemy
-	if (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
-		return false;
-
 	//don't pull out units from zones we need to defend
 	CvTacticalDominanceZone *pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopUnit->plot());
 	if (pZone && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)

@@ -967,6 +967,12 @@
 			<PortraitIndex>3</PortraitIndex>
 		</Row>
 	</Buildings>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<GreatWorks>
 		<Row>
 			<Type>GREAT_WORK_FLOOD_TABLET</Type>

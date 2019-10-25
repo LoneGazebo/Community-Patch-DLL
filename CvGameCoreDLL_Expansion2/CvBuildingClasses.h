@@ -469,6 +469,9 @@ public:
 	int GetYieldFromInternal(int i) const;
 	int* GetYieldFromInternalArray() const;
 
+	int GetYieldFromProcessModifier(int i) const;
+	int* GetYieldFromProcessModifierArray() const;
+
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
 
@@ -939,6 +942,7 @@ private:
 	int* m_piScienceFromYield;
 	int* m_piYieldFromInternalTREnd;
 	int* m_piYieldFromInternal;
+	int* m_piYieldFromProcessModifier;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

@@ -4367,7 +4367,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 /// What is the value of trading a vote commitment?
 int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue)
 {
-	int iValue = 300;
+	int iValue = 100;
 
 	if(iNumVotes == 0)
 		return INT_MAX;
@@ -4438,17 +4438,20 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			{
 				case CvLeagueAI::DESIRE_NEVER:
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-				case CvLeagueAI::DESIRE_DISLIKE:
 					return INT_MAX;
+					break;
+				case CvLeagueAI::DESIRE_DISLIKE:
+					iValue += 500 * iNumVotes;
+					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					iValue += 400 * iNumVotes;
+					iValue += 300 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
-					iValue += 250 * iNumVotes;
+					iValue += 200 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
 				case CvLeagueAI::DESIRE_LIKE:
-					iValue += 125 * iNumVotes;
+					iValue += 100 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
 					iValue += 50 * iNumVotes;
@@ -4484,6 +4487,8 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iValue += 200;
 					break;
 				case CvLeagueAI::ALIGNMENT_RIVAL:
+					iValue += 500;
+					break;
 				case CvLeagueAI::ALIGNMENT_HATRED:
 				case CvLeagueAI::ALIGNMENT_ENEMY:
 				case CvLeagueAI::ALIGNMENT_WAR:
@@ -4497,8 +4502,8 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iValue += 500;
 				}
 			}
-			//If the total is more than a third of the total votes on the board...that probably means it'll pass.
-			if((iNumVotes + iTheirVotes) > (iVotesNeeded / 3))
+			//If the total is more than half of the total votes on the board...that probably means it'll pass.
+			if((iNumVotes + iTheirVotes) > (iVotesNeeded / 2))
 			{
 				iValue /= 2;
 			}
@@ -4509,15 +4514,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				// More than half their votes...they probably aren't going to screw us
 				iValue /= 2;
 			}
-			else if (fVotesRatio > 0.25f)
-			{
-				// They have a lot of remaining votes
-				iValue *= 2;
-			}
 			else
 			{
 				// They have a hoard of votes
-				iValue *= 4;
+				iValue *= 2;
 			}
 		}
 #endif
@@ -4602,21 +4602,28 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			{
 				case CvLeagueAI::DESIRE_NEVER:
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-				case CvLeagueAI::DESIRE_DISLIKE:
-				case CvLeagueAI::DESIRE_WEAK_DISLIKE:	
-				case CvLeagueAI::DESIRE_NEUTRAL:
 					return INT_MAX;
+					break;
+				case CvLeagueAI::DESIRE_DISLIKE:
+					iValue += 1 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:	
+					iValue += 10 * iNumVotes;
+					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+					iValue += 20 * iNumVotes;
+					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
-					iValue += 25 * iNumVotes;
+					iValue += 40 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_LIKE:
-					iValue += 75 * iNumVotes;
+					iValue += 100 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					iValue += 150 * iNumVotes;
+					iValue += 200 * iNumVotes;
 					break;
 				case CvLeagueAI::DESIRE_ALWAYS:
-					iValue += 250 * iNumVotes;
+					iValue += 500 * iNumVotes;
 					break;
 				default:
 					iValue += 100 * iNumVotes;
@@ -4663,10 +4670,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					iValue += -500;
 				}
 			}
-			//If the total is more than a third of the total votes on the board...that probably means it'll pass.
-			if((iNumVotes + iOurVotes) > (iVotesNeeded / 3))
+			//If the total is more than half of the total votes on the board...that probably means it'll pass.
+			if((iNumVotes + iOurVotes) > (iVotesNeeded / 2))
 			{
-				iValue *= 2;
+				iValue /= 2;
 			}
 			// Adjust based on their vote total - Having lots of votes left means they could counter these ones and exploit us
 			float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
@@ -4675,15 +4682,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				// More than half their votes...they probably aren't going to screw us
 				iValue *= 2;
 			}
-			else if (fVotesRatio > 0.25f)
-			{
-				// They have a lot of remaining votes
-				iValue /= 2;
-			}
 			else
 			{
 				// They have a hoard of votes
-				iValue /= 4;
+				iValue /= 2;
 			}
 		}
 #endif

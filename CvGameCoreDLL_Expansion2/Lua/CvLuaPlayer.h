@@ -432,6 +432,7 @@ protected:
 	LUAAPIEXTN(GetMajorCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
 	//JFD
+	LUAAPIEXTN(GetWLTKDResourceTT, int);
 	LUAAPIEXTN(GetNumNationalWonders, int);
 	LUAAPIEXTN(GetNumInternationalTradeRoutes, int);
 	LUAAPIEXTN(GetNumInternalTradeRoutes, int);

@@ -1809,6 +1809,11 @@ function ResetDisplay()
 				end
 				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 				instance.Button:SetText( strString );
+
+				local WLTKDTT = g_pUs:GetWLTKDResourceTT(resType);
+				if(WLTKD ~= "") then
+					instance.Button:SetToolTipString( WLTKDTT );
+				end
 			else
 				instance.Button:SetHide( true );
 			end

@@ -1544,7 +1544,15 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 {
 	int ciAgeLimit = 8; //don't switch targets too often but update our cached targets from time and time
 
-	if (eEnemy >= MAX_PLAYERS) //barb cities are valid targets
+	if (eEnemy >= MAX_PLAYERS) //barb cities are valid targets!
+	{
+		if (piWinningScore)
+			*piWinningScore = 0;
+		return CvMilitaryTarget();
+	}
+
+	//if this is a player we're not about to launch attacks against, save the effort ...
+	if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eEnemy))
 	{
 		if (piWinningScore)
 			*piWinningScore = 0;
@@ -1779,8 +1787,6 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 {
 	int iFriendlyLoop;
 	int iEnemyLoop;
-	CvCity* pFriendlyCity;
-	CvCity* pEnemyCity;
 
 	bool bNavalOp = false;
 	if (eAIOperationType == AI_OPERATION_NAVAL_INVASION ||
@@ -1798,7 +1804,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 
 	// Estimate the relative strength of our strongest city (this is purely beneficial from figuring out which of their cities is weakest, as this shouldn't really affect muster)
 	int iBestPower = 0;
-	for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
+	for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 	{
 		int iPower = 0;
 		bool bGeneralInTheVicinity = false;
@@ -1839,14 +1845,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	//Now set our scratch value for all cities. We only want highest because we're just trying to figure out which of their cities is the weakest.
 	if(iBestPower > 0)
 	{
-		for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
+		for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 		{
 			pFriendlyCity->iScratch = iBestPower;
 		}
 	}
 
 	//Now check enemy cities
-	for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+	for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 	{
 		//need to have explored around the city
 		CvPlot* pPlot = pEnemyCity->plot();
@@ -1892,14 +1898,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 
 	// Build a list of all the possible start city/target city pairs
 	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> prelimWeightedTargetList;
-	for(pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
+	for(CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 	{
 		//If there aren't at least 8 non-occupied plots around this city, abort.
 		CvPlot* pPlot = pFriendlyCity->plot();
 		if (pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
 			continue;
 
-		for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+		for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 		{
 			if(pFriendlyCity != NULL && pEnemyCity != NULL)
 			{
@@ -4518,11 +4524,7 @@ int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globa
 			iValue += iWinningScore;
 			if (thistarget == globaltarget)
 			{
-				iValue *= 10;
-			}
-			else
-			{
-				iValue /= 5;
+				iValue *= 5;
 			}
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
 			{
@@ -4561,11 +4563,7 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 			//Best global?
 			if (globaltarget == thistarget)
 			{
-				iValue *= 10;
-			}
-			else
-			{
-				iValue /= 5;
+				iValue *= 5;
 			}
 
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
@@ -4640,6 +4638,10 @@ void CvMilitaryAI::UpdateOperations()
 			if(!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
+			// sometimes we were forced into a war and don't even want to attack the enemy
+			if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eLoopPlayer))
+				continue;
+
 			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand));
 		}
 	}
@@ -4661,6 +4663,7 @@ void CvMilitaryAI::UpdateOperations()
 					CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
 					CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
 				}
+
 				DoNuke(eLoopPlayer);
 				if(veLandThreatWeights.GetWeight(iThreatCivs) > 0)
 				{
@@ -4685,13 +4688,14 @@ void CvMilitaryAI::UpdateOperations()
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 		{
 			// if we're not at war with this player
-			if(!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
+			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
-			}
+
+			// sometimes we were forced into a war and don't even want to attack the enemy
+			if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eLoopPlayer))
+				continue;
 
 			int iTargetValue = GetEnemySeaValue(eLoopPlayer, bestTargetSea);
-
 			veSeaThreatWeights.push_back(eLoopPlayer, iTargetValue);
 		}
 	}

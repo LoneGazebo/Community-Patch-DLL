@@ -4223,20 +4223,37 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// Are we getting money from trade with them?
+	// Are we getting yields from trade with them?
 	////////////////////////////////////
-	int iCurrentTradeValueIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) + 
-				GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
-				GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
-	int iCurrentTradeValueOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID()) + 
-				GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID()) + 
-				GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
+	int iCurrentGoldIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer);
+	int iCurrentGoldOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID());
+	
+	int iCurrentScienceIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
+	int iCurrentScienceOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
+	
+	int iCurrentCultureIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer);
+	int iCurrentCultureOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID());
+	
+	int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100();
+	int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100(false);
+	int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100(false) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
 
+	int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), ePlayer);
+
+	//scale based on personality- how much do we care about trade loyalty?
+	iTradeDealValue *= GetLoyalty() + GetDiploBalance();
+	iTradeDealValue /= 20;
+
+	//20% of that passes on...
+	iTradeDealValue /= 5;
+	
 	// Scale factor is hard to guess ...
-	int iGdpEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100();
-	int iTradeDelta = (5 * (iCurrentTradeValueIn - iCurrentTradeValueOut)) / max(iGdpEstimate,1);
-
-	if(iTradeDelta > 0)
+	int iGoldDelta = (5 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
+	int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
+	int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
+	
+	int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
+	if (iTradeDelta > 0)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iTradeDelta;
 	}
@@ -5494,7 +5511,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		}
 	}
 
-	// Are we getting money from trade with them?
+	// Are we getting yields from trade with them?
 	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) +
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
@@ -9754,7 +9771,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	if(!IsPlayerValid(ePlayer))
 		return;
 
-	int iTargetValue;
+	int iTargetValue = 0;
 	TargetValueTypes eTargetValue;
 
 	int iWarCount;
@@ -9766,14 +9783,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	int iCityStrengthMod;
 	int iMilitaryRatio;
 
-	int iMyMilitaryStrength = GetPlayer()->getPower();
-	// Prevent divide by 0
-	if(iMyMilitaryStrength == 0)
-	{
-		iMyMilitaryStrength = 1;
-	}
-	int iCityDamage;
-	int iNumCities;
+	int iMyMilitaryStrength = max(1, GetPlayer()->getPower());
+
+	int iCityDamage = 0;
+	int iNumCities = 0;
 #if !defined(MOD_BALANCE_CORE)
 	int iThirdPartyLoop;
 	PlayerTypes eThirdPartyPlayer;
@@ -9781,10 +9794,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	int iThirdPartyValue;
 	StrengthTypes eThirdPartyStrength;
 	PlayerProximityTypes eThirdPartyProximity;
-	iTargetValue = 0;
 
-	iCityDamage = 0;
-	iNumCities = 0;
 #if defined(MOD_BALANCE_CORE)
 	////
 	//MAIN PLAYER
@@ -11329,6 +11339,26 @@ void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabWantsSneakAttack[ePlayer] = bValue;
+}
+
+// Does the AI even want to conquer another player if the are at war?
+// Since there is no "defensive war" flag, this seems to be the best way to differentiate
+bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
+{
+	if (GetBoldness() > 6)
+	{
+		//bold players
+		if (GetPlayerTargetValue(ePlayer) < TARGET_VALUE_AVERAGE)
+			return false;
+	}
+	else
+	{
+		//less bold players
+		if (GetPlayerTargetValue(ePlayer) < TARGET_VALUE_FAVORABLE)
+			return false;
+	}
+
+	return true; //be default we conquer everything
 }
 
 /// Does this AI want to make a Defensive Pact with ePlayer?
@@ -12934,7 +12964,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			//On a different continent? Friends good, war bad.
-			if (GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
+			if (GET_PLAYER(ePlayer).getCapitalCity() && 
+				GetPlayer()->getCapitalCity() &&
+				GET_PLAYER(ePlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
 			{
 				iEnemyWeight -= 5;
 				iDPWeight -= 10;

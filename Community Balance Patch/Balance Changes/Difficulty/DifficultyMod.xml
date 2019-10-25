@@ -460,7 +460,7 @@
 			<AIDeclareWarProb>175</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
+			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
 			<AIUnhappinessPercent>0</AIUnhappinessPercent>
@@ -481,9 +481,9 @@
 			<AIPerEraModifier>-8</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
 			<DifficultyBonusBase>5</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
+			<DifficultyBonusA>350</DifficultyBonusA>
+			<DifficultyBonusB>200</DifficultyBonusB>
+			<DifficultyBonusC>125</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>15</EarliestBarbarianReleaseTurn>
@@ -565,9 +565,9 @@
 			<AIPerEraModifier>-9</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
 			<DifficultyBonusBase>7</DifficultyBonusBase>
-			<DifficultyBonusA>350</DifficultyBonusA>
-			<DifficultyBonusB>200</DifficultyBonusB>
-			<DifficultyBonusC>125</DifficultyBonusC>
+			<DifficultyBonusA>375</DifficultyBonusA>
+			<DifficultyBonusB>225</DifficultyBonusB>
+			<DifficultyBonusC>150</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>

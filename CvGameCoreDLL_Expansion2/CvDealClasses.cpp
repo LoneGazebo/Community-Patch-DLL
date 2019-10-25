@@ -2191,6 +2191,22 @@ bool CvDeal::IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource)
 	return false;
 }
 
+int CvDeal::GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource)
+{
+	int iNum = 0;
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_RESOURCES &&
+			it->m_eFromPlayer == eFrom &&
+			(ResourceTypes)it->m_iData1 == eResource)
+		{
+			iNum += it->m_iData2;
+		}
+	}
+	return iNum;
+}
+
 bool CvDeal::ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration)
 {
 	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -5622,6 +5638,47 @@ uint CvGameDeals::GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes 
 	}
 
 	return iCount;
+}
+
+int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	int iVal = 0;
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			//GPT - base it on number of turns remaining
+			iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+
+			//Resources
+			int iResourceLoop;
+			ResourceTypes eResource;
+
+			// Look to trade Luxuries first
+			for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				eResource = (ResourceTypes)iResourceLoop;
+
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
+					continue;
+
+				iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
+
+			}
+
+			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 : 0;
+			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 : 0;
+
+			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 10 : 0;
+		}
+	}
+
+	return iVal;
 }
 
 

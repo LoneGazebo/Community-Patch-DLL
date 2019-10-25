@@ -227,6 +227,7 @@ public:
 	bool ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDuration);
 
 	bool IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource);
+	int GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource);
 	bool ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
 	bool IsCityTrade(PlayerTypes eFrom, int x, int y);
 	void ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iNewDuration);
@@ -309,6 +310,7 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
+	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	uint CreateDeal();
 	CvDeal* GetDeal(uint index);
