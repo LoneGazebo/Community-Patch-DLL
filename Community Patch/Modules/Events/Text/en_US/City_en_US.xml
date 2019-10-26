@@ -21,7 +21,7 @@
 			<Text>Boast of this, and merchants will come to buy it from us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1_HELP">
-			<Text>+{2_InstantYield}, and 10 turns of 'We Love the King Day' in the City.</Text>
+			<Text>+{2_InstantYield}, and 10 turns of "We Love the King Day" in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_2">
 			<Text>Donate it to the Temple.</Text>
