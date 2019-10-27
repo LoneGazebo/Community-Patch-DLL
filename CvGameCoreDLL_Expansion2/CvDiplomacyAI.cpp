@@ -5960,14 +5960,6 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 
 		if(IsPlayerValid(eLoopPlayer))
 		{
-			// Always war
-			if((GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE)) && GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-				SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-				SetApproachTowardsUsGuessCounter(eLoopPlayer, 0);
-				continue;
-			}
-			
 			eVisibleApproach = GetApproachTowardsUsGuess(eLoopPlayer);
 			eTrueApproachGuess = GetTrueApproachTowardsUsGuess(eLoopPlayer);
 			eMilitaryAggressivePosture = GetMilitaryAggressivePosture(eLoopPlayer);
