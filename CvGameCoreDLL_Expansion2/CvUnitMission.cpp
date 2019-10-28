@@ -703,8 +703,14 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					for(int iI = 0; iI < pTargetPlot->getNumUnits(); iI++)
 					{
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
+						if(!pUnit2->AreUnitsOfSameType(*hUnit))
+							continue;
 
-						if(pUnit2->AreUnitsOfSameType(*(hUnit)) && pUnit2->ReadyToMove())
+						//make sure the other unit is "ready to move"
+						if (pUnit2->GetActivityType()==ACTIVITY_HOLD)
+							pUnit2->SetActivityType(ACTIVITY_AWAKE);
+
+						if(pUnit2->ReadyToMove())
 						{
 							// Start the swap
 							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))

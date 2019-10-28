@@ -6641,7 +6641,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	int iRandSeed = ePlayer + GetNumActiveQuestsForAllPlayers() + m_pPlayer->getGlobalAverage(YIELD_CULTURE) + m_pPlayer->getGlobalAverage(YIELD_SCIENCE);
+	int iRandSeed = ePlayer + GetNumActiveQuestsForAllPlayers() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold();
 	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
 	eQuest = veValidQuests[iRandIndex];
 
@@ -7417,6 +7417,8 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		if(eTarget == NO_PLAYER)
 			return false;
+
+		//should we check if another minor already gave the same quest?
 	}
 	// FIND NATURAL WONDER
 	else if(eQuest == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
@@ -10935,8 +10937,6 @@ bool CvMinorCivAI::IsWantsMinorDead(PlayerTypes eMinor)
 /// Any good players to ask ePlayer to find?
 PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 {
-	PlayerTypes eBestTargetPlayer = NO_PLAYER;
-
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam* pTeam = &GET_TEAM(eTeam);
 
@@ -10983,10 +10983,8 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 		return NO_PLAYER;
 	}
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-	eBestTargetPlayer = veValidTargets[iRandIndex];
-
-	return eBestTargetPlayer;
+	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), GET_PLAYER(ePlayer).getNumUnits() + GET_PLAYER(ePlayer).GetTreasury()->GetLifetimeGrossGold());
+	return veValidTargets[iRandIndex];
 }
 
 /// Natural Wonder available to find that's not TOO easy to find?

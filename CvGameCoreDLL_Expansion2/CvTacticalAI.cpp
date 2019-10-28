@@ -9204,10 +9204,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 
 	//sanity check
 	if (!testPlot.isValid() || !testPlot.isRelevant() || !assumedUnitPlot.isValid())
-	{
-		OutputDebugString("bad plot\n");
 		return result;
-	}
 
 	//this is only for melee attacks - ranged attacks are handled separately
 	if (testPlot.isEnemy() && !pUnit->isRanged())
