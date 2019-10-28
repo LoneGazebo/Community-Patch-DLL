@@ -3748,7 +3748,7 @@ int CvPlot::GetNumAdjacentMountains() const
 	return iNumMountains;
 }
 
-int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const
+int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain, bool bCheckTerritory) const
 {
 	int iCount = 0;
 	for(int iI = 0; iI < RING_PLOTS[min(5,max(0,iRings))]; iI++)
@@ -3762,7 +3762,7 @@ int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes
 		{
 			continue;
 		}
-		if(!isValidMovePlot(ePlayer))
+		if(!isValidMovePlot(ePlayer,bCheckTerritory))
 		{
 			continue;
 		}
