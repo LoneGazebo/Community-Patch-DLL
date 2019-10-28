@@ -32772,7 +32772,6 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		iAttackerStrength,
 		iDefenderStrength,
 		GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE(), //ignore the min part, it's misleading
-		GC.getMIN_CITY_STRIKE_DAMAGE(),
 		GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
 		iRandomSeed,
 		iModifier ) / 100;
