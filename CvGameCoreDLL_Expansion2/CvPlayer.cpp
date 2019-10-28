@@ -307,7 +307,7 @@ CvPlayer::CvPlayer() :
 	, m_iMilitaryMight("CvPlayer::m_iMilitaryMight", m_syncArchive)
 	, m_iEconomicMight("CvPlayer::m_iEconomicMight", m_syncArchive)
 	, m_iProductionMight("CvPlayer::m_iProductionMight", m_syncArchive)
-	, m_iTurnMightRecomputed("CvPlayer::m_iTurnMightRecomputed", m_syncArchive)
+	, m_iTurnSliceMightRecomputed("CvPlayer::m_iTurnSliceMightRecomputed", m_syncArchive)
 	, m_iNewCityExtraPopulation("CvPlayer::m_iNewCityExtraPopulation", m_syncArchive)
 	, m_iFreeFoodBox("CvPlayer::m_iFreeFoodBox", m_syncArchive)
 	, m_iScenarioScore1("CvPlayer::m_iScenarioScore1", m_syncArchive)
@@ -1621,7 +1621,7 @@ void CvPlayer::uninit()
 	m_iMilitaryMight = 0;
 	m_iEconomicMight = 0;
 	m_iProductionMight = 0;
-	m_iTurnMightRecomputed = -1;
+	m_iTurnSliceMightRecomputed = -1;
 	m_iNewCityExtraPopulation = 0;
 	m_iFreeFoodBox = 0;
 	m_iScenarioScore1 = 0;
@@ -32845,26 +32845,24 @@ void CvPlayer::changeCitiesLost(int iChange)
 
 void CvPlayer::updateMightStatistics()
 {
-	m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
+	m_iTurnSliceMightRecomputed = GC.getGame().getTurnSlice();
 	m_iMilitaryMight = calculateMilitaryMight();
 	m_iEconomicMight = calculateEconomicMight();
 	m_iProductionMight = calculateProductionMight();
+
+#if defined(MOD_BATTLE_ROYALE)
+	m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+	m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+	m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getPower() const
 {
 	// more lazy evaluation
-	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
-	{
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
-#if defined(MOD_BATTLE_ROYALE)
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
-		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
-#endif
-	}
 
 	return m_iMilitaryMight + m_iEconomicMight;
 }
@@ -32873,16 +32871,9 @@ int CvPlayer::getPower() const
 int CvPlayer::GetMilitaryMight(bool bForMinor) const
 {
 	// more lazy evaluation
-	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
-	{
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
-#if defined(MOD_BATTLE_ROYALE)
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
-		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
-#endif
-	}
+
 	if (bForMinor && GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
 	{
 		int iBonus = m_iMilitaryMight;
@@ -32897,45 +32888,27 @@ int CvPlayer::GetMilitaryMight(bool bForMinor) const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitarySeaMight() const
 {
-	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
 	{
-		// more lazy evaluation
-		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
-		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
-		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
 	return m_iMilitarySeaMight;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryAirMight() const
 {
-	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
 	{
-		// more lazy evaluation
-		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
-		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
-		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
 	return m_iMilitaryAirMight;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryLandMight() const
 {
-	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
 	{
-		// more lazy evaluation
-		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
-		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
-		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
 	}
 	return m_iMilitaryLandMight;
 }
@@ -32944,16 +32917,9 @@ int CvPlayer::GetMilitaryLandMight() const
 int CvPlayer::GetEconomicMight() const
 {
 	// more lazy evaluation
-	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
-	{
+	if (m_iTurnSliceMightRecomputed < GC.getGame().getTurnSlice())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
-#if defined(MOD_BATTLE_ROYALE)
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
-		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
-#endif
-	}
+
 	return m_iEconomicMight;
 }
 
@@ -32961,7 +32927,7 @@ int CvPlayer::GetEconomicMight() const
 int CvPlayer::GetProductionMight() const
 {
 	// more lazy evaluation
-	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if(m_iTurnSliceMightRecomputed < GC.getGame().getElapsedGameTurns())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
 
 	return m_iProductionMight;
@@ -33026,10 +32992,8 @@ int CvPlayer::calculateEconomicMight() const
 int CvPlayer::calculateProductionMight() const
 {
 	int iMight = 0;
-
-	const CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iMight += pLoopCity->getRawProductionDifference(/*bIgnoreFood*/ true, /*bOverflow*/ false);
 	}

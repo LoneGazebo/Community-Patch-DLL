@@ -5456,7 +5456,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeR
 	if(bAttackerIsCity)
 	{
 		//since this is melee combat, it's actually the city defending against an attack
-		iModifier += GC.getCITY_ATTACKING_DAMAGE_MOD();
+		iModifier += GC.getCITY_ATTACKING_DAMAGE_MOD()-100;
 
 		//sometimes we take even less damage from cities
 		iModifier -= GetDamageReductionCityAssault();
@@ -5464,7 +5464,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeR
 	// Modify damage for when unit is attacking a city
 	else if(bDefenderIsCity)
 	{
-		iModifier += GC.getATTACKING_CITY_MELEE_DAMAGE_MOD();
+		iModifier += GC.getATTACKING_CITY_MELEE_DAMAGE_MOD()-100;
 	}
 
 	int iRandomSeed = bIncludeRand ? (plot()->GetPlotIndex()+GetID()+iStrength+iOpponentStrength) : 0;
@@ -5472,7 +5472,6 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeR
 		iStrength,
 		iOpponentStrength,
 		GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE(), //ignore the min part, it's misleading
-		1,
 		GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
 		iRandomSeed,
 		iModifier ) / 100;
@@ -17133,7 +17132,6 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		iAttackerStrength,
 		iDefenderStrength,
 		GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE(), //ignore the min part, it's misleading
-		1,
 		GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
 		iRandomSeed,
 		0 ) / 100;
@@ -17256,7 +17254,6 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pInterceptedAttacker, bool bIncl
 		iInterceptorStrength,
 		iInterceptedAttackerStrength,
 		GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE(), //ignore the min part, it's misleading
-		1,
 		GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
 		iRandomSeed,
 		pInterceptedAttacker->GetInterceptionDefenseDamageModifier() ) / 100;
