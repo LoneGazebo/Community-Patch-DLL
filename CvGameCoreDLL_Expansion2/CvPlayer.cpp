@@ -5400,7 +5400,7 @@ void CvPlayer::UpdateCityThreatCriteria()
 	if(getNumCities() <= 1)
 		return;
 
-	//Reset the critera.
+	//Reset the criteria.
 	int iLoop;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -20082,11 +20082,7 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	if (eHistoricEvent == HISTORIC_EVENT_DIG || eHistoricEvent == HISTORIC_EVENT_TRADE_CS)
 		return 0;
 
-	int iEra = GetCurrentEra();
-	if(iEra <= 0)
-	{
-		iEra = 1;
-	}
+	int iEra = max(1,GetCurrentEra());
 	int iHandicapBase = 0;
 	int iHandicapA = 0;
 	int iHandicapB = 0;
@@ -31432,7 +31428,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && getNumCities() > 1)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 1)
 	{
 		int iYieldHandicap = DoDifficultyBonus(eHistoricEvent);
 		if (GC.getLogging() && GC.getAILogging())

@@ -3901,6 +3901,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+		//tricksy players wanting us to DoW so they can get the drop on us...don't fall for it!
+		if (pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR || pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		{
+			return INT_MAX;
+		}
 		//only accept bribes against our biggest competitors. Otherwise, nah.
 		if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 		{

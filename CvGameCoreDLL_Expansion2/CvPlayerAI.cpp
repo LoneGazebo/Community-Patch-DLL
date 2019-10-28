@@ -328,7 +328,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
 
 	// Liberate a city?
-	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner))
+	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
 	{
 		// minor civ
 		if(GET_PLAYER(eOriginalOwner).isMinorCiv())
