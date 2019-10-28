@@ -11328,6 +11328,10 @@ void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 // Since there is no "defensive war" flag, this seems to be the best way to differentiate
 bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 {
+	//we don't have a target value for the barbarians ... could change it but that would break savegames
+	if (ePlayer == BARBARIAN_PLAYER)
+		return true;
+
 	if (GetBoldness() > 6)
 	{
 		//bold players
