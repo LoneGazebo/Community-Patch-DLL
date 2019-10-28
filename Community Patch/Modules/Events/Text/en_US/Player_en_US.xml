@@ -246,7 +246,7 @@
 			<Text>The New World Order begins now!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3_HELP">
-			<Text>10 turns of 'We Love the King Day' in all Cities. Military Academies produce +5 [ICON_RESEARCH] Science for {4_Turns}.</Text>
+			<Text>10 turns of "We Love the King Day" in all Cities. Military Academies produce +5 [ICON_RESEARCH] Science for {4_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_4">
 			<Text>For the Motherland!</Text>
