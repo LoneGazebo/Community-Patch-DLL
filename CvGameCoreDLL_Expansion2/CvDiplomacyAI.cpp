@@ -13917,20 +13917,11 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 			for(iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
 				eMinor = (PlayerTypes) iMinorCivLoop;
-#if !defined(MOD_BALANCE_CORE)
-				// We have a PtP with this minor
-				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
-				{
-					// Player is Allies with this minor
-					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
-						iMinorCivDisputeWeight += iPersonalityMod* /*10*/ GC.getMINOR_CIV_DISPUTE_ALLIES_WEIGHT();
-
-					// Player is Friends with this minor
-					else if(GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(ePlayer))
-						iMinorCivDisputeWeight += iPersonalityMod* /*5*/ GC.getMINOR_CIV_DISPUTE_FRIENDS_WEIGHT();
-				}
-#endif
 #if defined(MOD_BALANCE_CORE)
+				// Ignore if League resolutions make it irrelevant
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsNoAlly() || GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() == GetPlayer()->GetID())
+					continue;
+
 				// We are at least friends
 				//if they're constantly affecting our influence, or we're friends.
 				int iThreshold = ((10 - GetMinorCivCompetitiveness()) + GC.getGame().getCurrentEra());
@@ -22407,6 +22398,12 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 				for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
 					eMinor = (PlayerTypes) iMinorLoop;
+					
+#if defined(MOD_BALANCE_CORE)
+					// Ignore if League resolutions make it irrelevant
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsNoAlly() || GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() == GetPlayer()->GetID())
+						continue;
+#endif
 
 					// We have a PtP with this minor
 					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
@@ -29948,14 +29945,10 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	// If player is planning War, always say no
 	if(eApproach == MAJOR_CIV_APPROACH_WAR)
 		return false;
+	
 	// If player is Hostile, always say no
 	else if(eApproach == MAJOR_CIV_APPROACH_HOSTILE)
 		return false;
-	// If player is afraid, always say yes
-#if !defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	else if(eApproach == MAJOR_CIV_APPROACH_AFRAID)
-		return true;
-#endif
 
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
