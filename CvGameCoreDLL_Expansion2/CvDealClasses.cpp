@@ -454,7 +454,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!MOD_DIPLOMACY_CIV4_FEATURES)
 			return false;
 
-		// Both need tech for Embassy trading
+		// Both need tech for Map trading
 		if (!pToTeam->isMapTrading() || !pFromTeam->isMapTrading())
 			return false;
 

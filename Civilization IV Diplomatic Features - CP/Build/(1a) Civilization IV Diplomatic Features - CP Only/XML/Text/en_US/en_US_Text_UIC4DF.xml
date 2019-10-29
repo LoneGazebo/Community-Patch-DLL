@@ -11,11 +11,20 @@
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP_TT">
 			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
+			<Text>[NEWLINE][NEWLINE]Neither player has the Technology required to trade this item (Military Science).</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
-			<Text>[NEWLINE][NEWLINE]They don't yet have the Technology to sell this item (Military Science).</Text>
+			<Text>[NEWLINE][NEWLINE]They don't yet have the Technology required to trade this item (Military Science).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
-			<Text>[NEWLINE][NEWLINE]You don't yet have the Technology to sell this item (Military Science).</Text>
+			<Text>[NEWLINE][NEWLINE]You don't yet have the Technology required to trade this item (Military Science).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
+			<Text>[NEWLINE][NEWLINE]They have already explored all of the lands revealed in your World Map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED">
+			<Text>[NEWLINE][NEWLINE]We have already explored all of the lands revealed in their World Map.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
 			<Text>No Tech Trading</Text>

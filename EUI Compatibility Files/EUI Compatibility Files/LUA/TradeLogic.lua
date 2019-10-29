@@ -1906,51 +1906,70 @@ function ResetDisplay()
     ---------------------------------------------------------------------------------- 
 
 	local bMapTradingAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_MAPS, g_iDealDuration);
-    
-    -- Are we not allowed to give World Map? (already providing it to them?)
+	
     strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAP_TT", g_iDealDuration);
     
     local strOurTooltip = strTooltip;
     local strTheirTooltip = strTooltip;
-    
-	-- They don't have tech
-    if (not bMapTradingAllowed) then
-		if (not g_pUsTeam:IsMapTrading()) then
-			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
-		end
-	end
-    
-    -- Are we not allowed to give World Map?
-    if (not bMapTradingAllowed) then
+	
+	-- Are we not allowed to give World Map?
+	if (not bMapTradingAllowed) then
 		Controls.UsPocketTradeMap:SetDisabled(true);
 		Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Gray_Black");
-
+	
+		-- We need an embassy with them
 		if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
-			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
+			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
+		end
+		
+		if (not g_pUsTeam:IsMapTrading()) then
+			-- Neither of us have the required tech
+			if (not g_pThemTeam:IsMapTrading()) then
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH" ) .. "[ENDCOLOR]";
+			-- We don't have the required tech
+			else
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
+			end
+		-- They don't have the required tech
+		elseif (not g_pThemTeam:IsMapTrading()) then
+			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
+		-- Our map has no new tiles to reveal
+		elseif (g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
+			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED" ) .. "[ENDCOLOR]";
 		end
 	else
 		Controls.UsPocketTradeMap:SetDisabled(false);
 		Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
-    end
+	end
     
     Controls.UsPocketTradeMap:SetToolTipString(strOurTooltip);
     
     bMapTradingAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_MAPS, g_iDealDuration);
-
-	-- We don't have tech
-    if (not bMapTradingAllowed) then
-		if (not g_pThemTeam:IsMapTrading()) then
-			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
-		end
-	end
-    
-    -- Are they not allowed to give World Map?
-    if (not bMapTradingAllowed) then
+	
+	-- Are they not allowed to give World Map?
+	if (not bMapTradingAllowed) then
 		Controls.ThemPocketTradeMap:SetDisabled(true);
 		Controls.ThemPocketTradeMap:GetTextControl(): SetColorByName("Gray_Black");
 		
+		-- They need an embassy with us
 		if (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
 			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT" );
+		end
+		
+		if (not g_pThemTeam:IsMapTrading()) then
+			-- Neither of us have the required tech
+			if (not g_pUsTeam:IsMapTrading()) then
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH" ) .. "[ENDCOLOR]";
+			-- They don't have the required tech
+			else
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
+			end
+		-- We don't have the required tech
+		elseif (not g_pUsTeam:IsMapTrading()) then
+			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
+		-- Their map has no new tiles to reveal
+		elseif (g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED" ) .. "[ENDCOLOR]";
 		end
 	else
 		Controls.ThemPocketTradeMap:SetDisabled(false);
