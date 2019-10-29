@@ -2905,29 +2905,37 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		strBaseString += playerName + ", " + cityName + ", ";
 
 		CvBaseInfo* pEntry = NULL;
+		CvString strType = "unknown";
 		switch(buildable.m_eBuildableType)
 		{
 		case CITY_BUILDABLE_BUILDING:
 			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+			strType = "building";
 			break;
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
-			pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+		{
+			CvUnitEntry* pInfo = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+			strType = (pInfo->GetCombat() > 0) ? "military" : "civilian";
+			pEntry = pInfo;
 			break;
+		}
 		case CITY_BUILDABLE_PROJECT:
 			pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
+			strType = "project";
 			break;
 		case CITY_BUILDABLE_PROCESS:
 			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+			strType = "process";
 			break;
 		}
 
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
-			strDesc.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
+			strDesc.c_str(), strType.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);

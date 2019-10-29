@@ -9745,356 +9745,45 @@ void CvDiplomacyAI::DoUpdatePlayerTargetValues()
 	}
 }
 
-/// Updates what our assessment is of a player's value as a military target
-void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
+int GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, bool bIgnoreCurrentWar)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(!IsPlayerValid(ePlayer))
-		return;
-
-	int iTargetValue = 0;
-	TargetValueTypes eTargetValue;
-
-	int iWarCount;
-
-	CvCity* pLoopCity;
-	int iCityLoop;
-
-	int iOtherPlayerMilitaryStrength;
-	int iCityStrengthMod;
-	int iMilitaryRatio;
-
-	int iMyMilitaryStrength = max(1, GetPlayer()->getPower());
-
-	int iCityDamage = 0;
-	int iNumCities = 0;
-#if !defined(MOD_BALANCE_CORE)
-	int iThirdPartyLoop;
-	PlayerTypes eThirdPartyPlayer;
-#endif
-	int iThirdPartyValue;
-	StrengthTypes eThirdPartyStrength;
-	PlayerProximityTypes eThirdPartyProximity;
-
-#if defined(MOD_BALANCE_CORE)
-	////
-	//MAIN PLAYER
-	////
-	// City Defensive Strength
-	int iCityLoop2;
-	int iMyCityDamage = 0;
-	int iMyNumCities = 0;
-	int iMyCityStrengthMod = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop2); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop2))
-	{
-		iMyCityStrengthMod = pLoopCity->GetPower();
-
-		iMyCityStrengthMod *= /*33*/ GC.getMILITARY_STRENGTH_CITY_MOD();
-		iMyCityStrengthMod /= 100;
-
-		iMyMilitaryStrength += iMyCityStrengthMod;
-
-		// Keep track of damage because we'll use it later as a global modifier for the player's strength
-		iMyCityDamage += pLoopCity->getDamage();
-		iMyNumCities++;
-	}
-
-	// Depending on how damaged a player's Cities are, he can become a much more attractive target
-	if(iMyNumCities > 0)
-	{
-		iMyCityDamage /= iMyNumCities;
-		iMyCityDamage *= 100;
-		iMyCityDamage /= GC.getMAX_CITY_HIT_POINTS();
-		// iCityDamage is now a percentage of global City damage
-		iMyCityDamage *= iMyMilitaryStrength;
-		iMyCityDamage /= 200;	// divide by 200 instead of 100 so that if all Cities have no health it only HALVES our strength instead of taking it all the way to 0
-
-		iMyMilitaryStrength -= iMyCityDamage;
-	}
-
-	// Increase target value if the player is already at war with other players
-	int iMyWarCount = GET_TEAM(m_pPlayer->getTeam()).getAtWarCount(true);
-	// Reduce by 1 if WE'RE already at war with him
-	if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-	{
-		iMyWarCount--;
-	}
-
-	if(iMyWarCount > 0)
-	{
-		iMyMilitaryStrength *= 100 + (iMyWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
-		iMyMilitaryStrength /= 100;
-	}
-
-	// Factor in Minors we are allied to
-	int iMinorCivLoop;
-	if(!GetPlayer()->isMinorCiv() && !GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		// Loop through all minors to check our relationship with them
-		for(iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
-		{
-			PlayerTypes eAlliedUsMinor = (PlayerTypes) iMinorCivLoop;
-
-			if(GET_PLAYER(eAlliedUsMinor).isAlive() && GET_PLAYER(eAlliedUsMinor).isMinorCiv() && GET_PLAYER(eAlliedUsMinor).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
-			{
-				iThirdPartyValue = 0;
-				eThirdPartyStrength		= GetPlayerMilitaryStrengthComparedToUs(eAlliedUsMinor);
-				eThirdPartyProximity	= GetPlayer()->GetProximityToPlayer(eAlliedUsMinor);
-
-				// How strong is this friend?
-				if(eThirdPartyStrength == STRENGTH_PATHETIC)
-					iThirdPartyValue += /* 0*/ GC.getTARGET_MINOR_BACKUP_PATHETIC();
-				else if(eThirdPartyStrength == STRENGTH_WEAK)
-					iThirdPartyValue += /* 0*/ GC.getTARGET_MINOR_BACKUP_WEAK();
-				else if(eThirdPartyStrength == STRENGTH_POOR)
-					iThirdPartyValue += /* 5*/ GC.getTARGET_MINOR_BACKUP_POOR();
-				else if(eThirdPartyStrength == STRENGTH_AVERAGE)
-					iThirdPartyValue += /* 15*/ GC.getTARGET_MINOR_BACKUP_AVERAGE();
-				else if(eThirdPartyStrength == STRENGTH_STRONG)
-					iThirdPartyValue += /* 25*/ GC.getTARGET_MINOR_BACKUP_STRONG();
-				else if(eThirdPartyStrength == STRENGTH_POWERFUL)
-					iThirdPartyValue += /* 35*/ GC.getTARGET_MINOR_BACKUP_POWERFUL();
-				else if(eThirdPartyStrength == STRENGTH_IMMENSE)
-					iThirdPartyValue += /* 50*/ GC.getTARGET_MINOR_BACKUP_IMMENSE();
-
-				// How close is this guy to us?
-				if(eThirdPartyProximity == PLAYER_PROXIMITY_DISTANT)
-					iThirdPartyValue *= /* 100*/ GC.getTARGET_MINOR_BACKUP_DISTANT();
-				else if(eThirdPartyProximity == PLAYER_PROXIMITY_FAR)
-					iThirdPartyValue *= /* 115*/ GC.getTARGET_MINOR_BACKUP_FAR();
-				else if(eThirdPartyProximity == PLAYER_PROXIMITY_CLOSE)
-					iThirdPartyValue *= /* 150*/ GC.getTARGET_MINOR_BACKUP_CLOSE();
-				else if(eThirdPartyProximity == PLAYER_PROXIMITY_NEIGHBORS)
-					iThirdPartyValue *= /* 200*/ GC.getTARGET_MINOR_BACKUP_NEIGHBORS();
-
-				iThirdPartyValue /= 150;
-
-				// Add the strength of this friend in to the overall eval
-				iMyMilitaryStrength += iThirdPartyValue;
-			}
-		}
-	}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// Factor in player's Masters if he has any
-	if(MOD_DIPLOMACY_CIV4_FEATURES && !GetPlayer()->isMinorCiv() && !GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-
-			if(IsPlayerValid(eMajor))
-			{
-				if(GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_PLAYER(eMajor).getTeam())
-				{
-					iThirdPartyValue = 0;
-					eThirdPartyStrength = GetPlayerMilitaryStrengthComparedToUs(eMajor);
-					eThirdPartyProximity = GetPlayer()->GetProximityToPlayer(eMajor);
-
-					// to-do: globals
-					switch(eThirdPartyStrength)
-					{
-						case STRENGTH_IMMENSE:
-							iThirdPartyValue += 50;
-							break;
-						case STRENGTH_POWERFUL:
-							iThirdPartyValue += 35;
-							break;
-						case STRENGTH_STRONG:
-							iThirdPartyValue += 25;
-							break;
-						case STRENGTH_AVERAGE:
-							iThirdPartyValue += 15;
-							break;
-						case STRENGTH_POOR:
-							iThirdPartyValue += 0;
-							break;
-						case STRENGTH_WEAK:
-							iThirdPartyValue += 0;
-							break;
-						case STRENGTH_PATHETIC:
-							iThirdPartyValue += 0;
-							break;
-					}
-
-					switch(eThirdPartyProximity)
-					{
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iThirdPartyValue *= 200;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iThirdPartyValue *= 150;
-							break;
-						case PLAYER_PROXIMITY_FAR:
-							iThirdPartyValue *= 100;
-							break;
-						case PLAYER_PROXIMITY_DISTANT:
-							iThirdPartyValue *= 50;
-							break;
-					}
-
-					iThirdPartyValue /= 100;
-					iMyMilitaryStrength += iThirdPartyValue;
-				}
-				else if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).IsVassal(GetPlayer()->getTeam()))
-				{
-					iThirdPartyValue = 0;
-					eThirdPartyStrength = GetPlayerMilitaryStrengthComparedToUs(eMajor);
-					eThirdPartyProximity = GetPlayer()->GetProximityToPlayer(eMajor);
-
-					// to-do: globals
-					switch(eThirdPartyStrength)
-					{
-						case STRENGTH_IMMENSE:
-							iThirdPartyValue += 50;
-							break;
-						case STRENGTH_POWERFUL:
-							iThirdPartyValue += 35;
-							break;
-						case STRENGTH_STRONG:
-							iThirdPartyValue += 25;
-							break;
-						case STRENGTH_AVERAGE:
-							iThirdPartyValue += 15;
-							break;
-						case STRENGTH_POOR:
-							iThirdPartyValue += 0;
-							break;
-						case STRENGTH_WEAK:
-							iThirdPartyValue += 0;
-							break;
-						case STRENGTH_PATHETIC:
-							iThirdPartyValue += 0;
-							break;
-					}
-
-					switch(eThirdPartyProximity)
-					{
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iThirdPartyValue *= 200;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iThirdPartyValue *= 150;
-							break;
-						case PLAYER_PROXIMITY_FAR:
-							iThirdPartyValue *= 100;
-							break;
-						case PLAYER_PROXIMITY_DISTANT:
-							iThirdPartyValue *= 50;
-							break;
-					}
-
-					iThirdPartyValue /= 100;
-					iMyMilitaryStrength += iThirdPartyValue;
-				}
-			}
-		}
-	}
-#endif
-	
-	// If we are expanding aggressively, we're probably weaker
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerRecklessExpander(GetPlayer()->GetID()))
-	{
-		iMyMilitaryStrength *= 90;
-		iMyMilitaryStrength /= 100;
-	}
-
-	// If we've been at war for a LONG time, we're probably weaker
-	int iMostMyWarTurns = 0;
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-
-		if(eMajor == NO_PLAYER)
-		{
-			continue;
-		}
-		if(eMajor == GetPlayer()->GetID())
-		{
-			continue;
-		}
-		int iTurns = GetPlayerNumTurnsAtWar(eMajor);
-		if(iTurns > iMostMyWarTurns )
-		{
-			iMostMyWarTurns = iTurns;
-		}
-	}
-	if(iMostMyWarTurns  > 0)
-	{
-		iMyMilitaryStrength *= (100 - min(iMostMyWarTurns, GC.getTARGET_INCREASE_WAR_TURNS()));
-		iMyMilitaryStrength /= 100;
-	}
-
-	//Add in our defense pacts as a direct boost to our power
-	if(GetNumDefensePacts() > 0)
-	{
-		iMyMilitaryStrength *= (100 + (GetNumDefensePacts() * 10));
-		iMyMilitaryStrength /= 100;
-	}
-
-	////
-	//OTHER PLAYER
-	////
-
-	iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).getPower();
+	int iStrengthEstimate = GET_PLAYER(ePlayer).getPower();
 
 	// City Defensive Strength
-	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+	int iCityLoop = 0;
+	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
-		iCityStrengthMod = pLoopCity->GetPower();
-
-		iCityStrengthMod *= /*33*/ GC.getMILITARY_STRENGTH_CITY_MOD();
-		iCityStrengthMod /= 100;
-
-		iOtherPlayerMilitaryStrength += iCityStrengthMod;
-
-		// Keep track of damage because we'll use it later as a global modifier for the player's strength
-		iCityDamage += pLoopCity->getDamage();
-		iNumCities++;
+		int iHitpoints = pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage();
+		int iPower = (pLoopCity->GetPower() * iHitpoints) / pLoopCity->GetMaxHitPoints();
+		iStrengthEstimate += (iPower * /*33*/ GC.getMILITARY_STRENGTH_CITY_MOD()) / 100;
 	}
 
-	// Depending on how damaged a player's Cities are, he can become a much more attractive target
-	if(iNumCities > 0)
-	{
-		iCityDamage /= iNumCities;
-		iCityDamage *= 100;
-		iCityDamage /= GC.getMAX_CITY_HIT_POINTS();
-		// iCityDamage is now a percentage of global City damage
-		iCityDamage *= iOtherPlayerMilitaryStrength;
-		iCityDamage /= 200;	// divide by 200 instead of 100 so that if all Cities have no health it only HALVES our strength instead of taking it all the way to 0
-
-		iOtherPlayerMilitaryStrength -= iCityDamage;
-	}
-
-	// Increase target value if the player is already at war with other players
-	iWarCount = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true);
-	// Reduce by 1 if WE'RE already at war with him
-	if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-	{
+	// Decrease target value if the player is already at war with other players
+	int iWarCount = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true);
+	// Reduce by 1 if WE'RE already at war with him or he with us
+	if(bIgnoreCurrentWar)
 		iWarCount--;
-	}
 
 	if(iWarCount > 0)
 	{
-		iOtherPlayerMilitaryStrength *= 100 + (iWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
-		iOtherPlayerMilitaryStrength /= 100;
+		int iScale = max(20, 100 - iWarCount * /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
+		iStrengthEstimate *= iScale;
+		iStrengthEstimate /= 100;
 	}
 
 	// Factor in Minors we are allied to
 	if(!GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		// Loop through all minors to check our relationship with them
-		for(iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
-			PlayerTypes eAlliedUsMinor = (PlayerTypes) iMinorCivLoop;
+			PlayerTypes eAlliedMinor = (PlayerTypes) iMinorCivLoop;
 
-			if(GET_PLAYER(eAlliedUsMinor).isAlive() && GET_PLAYER(eAlliedUsMinor).isMinorCiv() && GET_PLAYER(eAlliedUsMinor).GetMinorCivAI()->IsAllies(ePlayer))
+			if(GET_PLAYER(eAlliedMinor).isAlive() && GET_PLAYER(eAlliedMinor).isMinorCiv() && GET_PLAYER(eAlliedMinor).GetMinorCivAI()->IsAllies(ePlayer))
 			{
-				iThirdPartyValue = 0;
-				eThirdPartyStrength		= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eAlliedUsMinor);
-				eThirdPartyProximity	= GET_PLAYER(ePlayer).GetProximityToPlayer(eAlliedUsMinor);
+				int iThirdPartyValue = 0;
+				StrengthTypes eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eAlliedMinor);
+				PlayerProximityTypes eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eAlliedMinor);
 
 				// How strong is this friend?
 				if(eThirdPartyStrength == STRENGTH_PATHETIC)
@@ -10125,7 +9814,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 				iThirdPartyValue /= 150;
 
 				// Add the strength of this friend in to the overall eval
-				iOtherPlayerMilitaryStrength += iThirdPartyValue;
+				iStrengthEstimate += iThirdPartyValue;
 			}
 		}
 		//Grab their DPs
@@ -10133,11 +9822,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		{
 			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
 
-			if (IsPlayerValid(eMajor) && GET_TEAM(GET_PLAYER(eMajor).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eMajor) && GET_TEAM(GET_PLAYER(eMajor).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 			{
-				iThirdPartyValue = 0;
-				eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
-				eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
+				int iThirdPartyValue = 0;
+				StrengthTypes eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
+				PlayerProximityTypes eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
 
 				// How strong is this friend?
 				if (eThirdPartyStrength == STRENGTH_PATHETIC)
@@ -10168,7 +9857,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 				iThirdPartyValue /= 100;
 
 				// Add the strength of this friend in to the overall eval
-				iOtherPlayerMilitaryStrength += iThirdPartyValue;
+				iStrengthEstimate += iThirdPartyValue;
 			}
 		}
 	}
@@ -10181,13 +9870,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		{
 			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
 
-			if(IsPlayerValid(eMajor))
+			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eMajor))
 			{
 				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GET_PLAYER(eMajor).getTeam())
 				{
-					iThirdPartyValue = 0;
-					eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
-					eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
+					int iThirdPartyValue = 0;
+					StrengthTypes eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
+					PlayerProximityTypes eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
 
 					// to-do: globals
 					switch(eThirdPartyStrength)
@@ -10232,13 +9921,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 					}
 
 					iThirdPartyValue /= 100;
-					iOtherPlayerMilitaryStrength += iThirdPartyValue;
+					iStrengthEstimate += iThirdPartyValue;
 				}
 				else if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
 				{
-					iThirdPartyValue = 0;
-					eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
-					eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
+					int iThirdPartyValue = 0;
+					StrengthTypes eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
+					PlayerProximityTypes eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
 
 					// to-do: globals
 					switch(eThirdPartyStrength)
@@ -10283,293 +9972,69 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 					}
 
 					iThirdPartyValue /= 100;
-					iOtherPlayerMilitaryStrength += iThirdPartyValue;
+					iStrengthEstimate += iThirdPartyValue;
 				}
 			}
 		}
 	}
 #endif
-	
-	// If they are expanding aggressively, they're probably weaker
-	if(IsPlayerRecklessExpander(ePlayer))
-	{
-		iOtherPlayerMilitaryStrength *= 90;
-		iOtherPlayerMilitaryStrength /= 100;
-	}
-	int iMostWarTurns = 0;
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-
-		if(eMajor == NO_PLAYER)
-		{
-			continue;
-		}
-		if(eMajor == GetPlayer()->GetID())
-		{
-			continue;
-		}
-		// If they've been at war for a LONG time, they're probably weaker
-		int iTurns = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsAtWar(eMajor);
-		if(iTurns > iMostWarTurns)
-		{
-			iMostWarTurns = iTurns;
-		}
-	}
-	if(iMostWarTurns > 0)
-	{
-		iOtherPlayerMilitaryStrength *= (100 - min(iMostWarTurns, GC.getTARGET_INCREASE_WAR_TURNS()));
-		iOtherPlayerMilitaryStrength /= 100;
-	}
 
 	//Add in their defense pacts as a direct boost to their power
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
 	{
-		iOtherPlayerMilitaryStrength *= (100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() * 10));
-		iOtherPlayerMilitaryStrength /= 100;
+		iStrengthEstimate *= (100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() * 10));
+		iStrengthEstimate /= 100;
 	}
 
-	//FINAL TEST
-	iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / max(1,iMyMilitaryStrength);
+	return iStrengthEstimate;
+}
+
+/// Updates what our assessment is of a player's value as a military target
+void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if(!IsPlayerValid(ePlayer))
+		return;
+
+	TargetValueTypes eTargetValue = NO_TARGET_VALUE;
+
+	int iMyMilitaryStrength = GetPlayerOverallStrengthEstimate(GetPlayer()->GetID(), GetPlayer()->IsAtWarWith(ePlayer));
+	int iOtherPlayerMilitaryStrength = GetPlayerOverallStrengthEstimate(ePlayer, GetPlayer()->IsAtWarWith(ePlayer));
+
 	// Example: If another player has double the Military strength of us, the Ratio will be 200
-
-	iTargetValue += iMilitaryRatio;
-
-	// Now do the final assessment
-	if(iTargetValue >= /*200*/ GC.getTARGET_IMPOSSIBLE_THRESHOLD())
-		eTargetValue = TARGET_VALUE_IMPOSSIBLE;
-	else if(iTargetValue >= /*125*/ GC.getTARGET_BAD_THRESHOLD())
-		eTargetValue = TARGET_VALUE_BAD;
-	else if(iTargetValue >= /*80*/ GC.getTARGET_AVERAGE_THRESHOLD())
-		eTargetValue = TARGET_VALUE_AVERAGE;
-	else if(iTargetValue >= /*50*/ GC.getTARGET_FAVORABLE_THRESHOLD())
-		eTargetValue = TARGET_VALUE_FAVORABLE;
-	else
-		eTargetValue = TARGET_VALUE_SOFT;
-
-#else
-
-	iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).getPower();
-
-	// City Defensive Strength
-	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-	{
-		iCityStrengthMod = pLoopCity->GetPower();
-
-		iCityStrengthMod *= /*33*/ GC.getMILITARY_STRENGTH_CITY_MOD();
-		iCityStrengthMod /= 100;
-
-		iOtherPlayerMilitaryStrength += iCityStrengthMod;
-
-		// Keep track of damage because we'll use it later as a global modifier for the player's strength
-		iCityDamage += pLoopCity->getDamage();
-		iNumCities++;
-	}
-
-	// Depending on how damaged a player's Cities are, he can become a much more attractive target
-	if(iNumCities > 0)
-	{
-		iCityDamage /= iNumCities;
-		iCityDamage *= 100;
-		iCityDamage /= GC.getMAX_CITY_HIT_POINTS();
-		// iCityDamage is now a percentage of global City damage
-		iCityDamage *= iOtherPlayerMilitaryStrength;
-		iCityDamage /= 200;	// divide by 200 instead of 100 so that if all Cities have no health it only HALVES our strength instead of taking it all the way to 0
-
-		iOtherPlayerMilitaryStrength -= iCityDamage;
-	}
-
-	iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMyMilitaryStrength;
-	// Example: If another player has double the Military strength of us, the Ratio will be 200
-
-	iTargetValue += iMilitaryRatio;
-
-	// Increase target value if the player is already at war with other players
-	iWarCount = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true);
-	// Reduce by 1 if WE'RE already at war with him
-	if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-	{
-		iWarCount--;
-	}
-
-	iTargetValue += (iWarCount* /*30*/ GC.getTARGET_ALREADY_WAR_EACH_PLAYER());
+	int iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / max(1,iMyMilitaryStrength);
 
 	// Factor in distance
 	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
 	{
 	case PLAYER_PROXIMITY_NEIGHBORS:
-		iTargetValue += /*-10*/ GC.getTARGET_NEIGHBORS();
+		iMilitaryRatio += /*-10*/ GC.getTARGET_NEIGHBORS();
 		break;
 	case PLAYER_PROXIMITY_CLOSE:
-		iTargetValue += /*0*/ GC.getTARGET_CLOSE();
+		iMilitaryRatio += /*0*/ GC.getTARGET_CLOSE();
 		break;
 	case PLAYER_PROXIMITY_FAR:
-		iTargetValue += /*30*/ GC.getTARGET_FAR();
+		iMilitaryRatio += /*30*/ GC.getTARGET_FAR();
 		break;
 	case PLAYER_PROXIMITY_DISTANT:
-		iTargetValue += /*80*/ GC.getTARGET_DISTANT();
+		iMilitaryRatio += /*80*/ GC.getTARGET_DISTANT();
 		break;
 	}
 
-	// Factor in Friends this player has, if it's a minor
-	if(GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		for(iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
-		{
-			eThirdPartyPlayer = (PlayerTypes) iThirdPartyLoop;
-
-			if(IsPlayerValid(eThirdPartyPlayer))
-			{
-				// This works for human players as well (NetPledgeMinorProtection in Civ5NetMessage.cpp)
-				if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == eThirdPartyPlayer ||
-				        GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(eThirdPartyPlayer))
-				{
-					iThirdPartyValue = 0;
-					eThirdPartyStrength = GetPlayerMilitaryStrengthComparedToUs(eThirdPartyPlayer);
-					eThirdPartyProximity	= GetPlayer()->GetProximityToPlayer(eThirdPartyPlayer);
-
-					// How strong is this friend?
-					if(eThirdPartyStrength == STRENGTH_PATHETIC)
-						iThirdPartyValue += /* 0*/ GC.getTARGET_MINOR_BACKUP_PATHETIC();
-					else if(eThirdPartyStrength == STRENGTH_WEAK)
-						iThirdPartyValue += /* 0*/ GC.getTARGET_MINOR_BACKUP_WEAK();
-					else if(eThirdPartyStrength == STRENGTH_POOR)
-						iThirdPartyValue += /* 5*/ GC.getTARGET_MINOR_BACKUP_POOR();
-					else if(eThirdPartyStrength == STRENGTH_AVERAGE)
-						iThirdPartyValue += /* 15*/ GC.getTARGET_MINOR_BACKUP_AVERAGE();
-					else if(eThirdPartyStrength == STRENGTH_STRONG)
-						iThirdPartyValue += /* 25*/ GC.getTARGET_MINOR_BACKUP_STRONG();
-					else if(eThirdPartyStrength == STRENGTH_POWERFUL)
-						iThirdPartyValue += /* 35*/ GC.getTARGET_MINOR_BACKUP_POWERFUL();
-					else if(eThirdPartyStrength == STRENGTH_IMMENSE)
-						iThirdPartyValue += /* 50*/ GC.getTARGET_MINOR_BACKUP_IMMENSE();
-
-					// How close is this guy to us?
-					if(eThirdPartyProximity == PLAYER_PROXIMITY_DISTANT)
-						iThirdPartyValue *= /* 100*/ GC.getTARGET_MINOR_BACKUP_DISTANT();
-					else if(eThirdPartyProximity == PLAYER_PROXIMITY_FAR)
-						iThirdPartyValue *= /* 115*/ GC.getTARGET_MINOR_BACKUP_FAR();
-					else if(eThirdPartyProximity == PLAYER_PROXIMITY_CLOSE)
-						iThirdPartyValue *= /* 150*/ GC.getTARGET_MINOR_BACKUP_CLOSE();
-					else if(eThirdPartyProximity == PLAYER_PROXIMITY_NEIGHBORS)
-						iThirdPartyValue *= /* 200*/ GC.getTARGET_MINOR_BACKUP_NEIGHBORS();
-#if defined(MOD_BALANCE_CORE)
-					iThirdPartyValue /= 200;
-#else
-					iThirdPartyValue /= 100;
-#endif
-
-					// Add the strength of this friend in to the overall eval
-					iTargetValue += iThirdPartyValue;
-				}
-			}
-		}
-	}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// Factor in player's Masters if he has any
-	if(MOD_DIPLOMACY_CIV4_FEATURES && !GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-
-			if(IsPlayerValid(eMajor))
-			{
-				if(GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_PLAYER(eMajor).getTeam())
-				{
-					iThirdPartyValue = 0;
-					eThirdPartyStrength = GetPlayerMilitaryStrengthComparedToUs(eMajor);
-					eThirdPartyProximity = GetPlayer()->GetProximityToPlayer(eMajor);
-
-					// to-do: globals
-					switch(eThirdPartyStrength)
-					{
-						case STRENGTH_IMMENSE:
-							iThirdPartyValue += 50;
-							break;
-						case STRENGTH_POWERFUL:
-							iThirdPartyValue += 35;
-							break;
-						case STRENGTH_STRONG:
-							iThirdPartyValue += 25;
-							break;
-						case STRENGTH_AVERAGE:
-							iThirdPartyValue += 15;
-							break;
-						case STRENGTH_POOR:
-							iThirdPartyValue += 0;
-							break;
-						case STRENGTH_WEAK:
-							iThirdPartyValue += 0;
-							break;
-						case STRENGTH_PATHETIC:
-							iThirdPartyValue += 0;
-							break;
-					}
-
-					switch(eThirdPartyProximity)
-					{
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iThirdPartyValue *= 200;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iThirdPartyValue *= 150;
-							break;
-						case PLAYER_PROXIMITY_FAR:
-							iThirdPartyValue *= 100;
-							break;
-						case PLAYER_PROXIMITY_DISTANT:
-							iThirdPartyValue *= 50;
-							break;
-					}
-
-					iThirdPartyValue /= 100;
-					iTargetValue += iThirdPartyValue;
-				}
-			}
-		}
-	}
-#endif
-
 	// Now do the final assessment
-	if(iTargetValue >= /*200*/ GC.getTARGET_IMPOSSIBLE_THRESHOLD())
+	if(iMilitaryRatio >= /*200*/ GC.getTARGET_IMPOSSIBLE_THRESHOLD())
 		eTargetValue = TARGET_VALUE_IMPOSSIBLE;
-	else if(iTargetValue >= /*125*/ GC.getTARGET_BAD_THRESHOLD())
+	else if(iMilitaryRatio >= /*125*/ GC.getTARGET_BAD_THRESHOLD())
 		eTargetValue = TARGET_VALUE_BAD;
-	else if(iTargetValue >= /*80*/ GC.getTARGET_AVERAGE_THRESHOLD())
+	else if(iMilitaryRatio >= /*80*/ GC.getTARGET_AVERAGE_THRESHOLD())
 		eTargetValue = TARGET_VALUE_AVERAGE;
-	else if(iTargetValue >= /*50*/ GC.getTARGET_FAVORABLE_THRESHOLD())
+	else if(iMilitaryRatio >= /*50*/ GC.getTARGET_FAVORABLE_THRESHOLD())
 		eTargetValue = TARGET_VALUE_FAVORABLE;
 	else
 		eTargetValue = TARGET_VALUE_SOFT;
 
-	// If the player is expanding aggressively, bump things down a level
-	if(eTargetValue < TARGET_VALUE_SOFT && IsPlayerRecklessExpander(ePlayer))
-		eTargetValue = TargetValueTypes(eTargetValue + 1);
-
-	// If it's a city-state and we've been at war for a LONG time, bump things up
-	if(eTargetValue > TARGET_VALUE_IMPOSSIBLE && GetPlayerNumTurnsAtWar(ePlayer) > /*50*/ GC.getTARGET_INCREASE_WAR_TURNS())
-		eTargetValue = TargetValueTypes(eTargetValue - 1);
-
-	// If the player is too far from us then we can't consider them Soft
-	if(eTargetValue == TARGET_VALUE_SOFT)
-	{
-		if(GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
-		{
-			eTargetValue = TARGET_VALUE_FAVORABLE;
-		}
-	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
-	{
-		if(eTargetValue > TARGET_VALUE_IMPOSSIBLE)
-		{
-			eTargetValue = TargetValueTypes(eTargetValue - 1);
-		}
-	}
-#endif
-#endif
 	// Set the value
 	SetPlayerTargetValue(ePlayer, eTargetValue);
 }
