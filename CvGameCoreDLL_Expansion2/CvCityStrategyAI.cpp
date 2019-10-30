@@ -2905,37 +2905,61 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		strBaseString += playerName + ", " + cityName + ", ";
 
 		CvBaseInfo* pEntry = NULL;
-		CvString strType = "unknown";
+		CvString strType = "Unknown";
+		int iEra = -1;
 		switch(buildable.m_eBuildableType)
 		{
 		case CITY_BUILDABLE_BUILDING:
-			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
-			strType = "building";
+		{
+			CvBuildingEntry* pInfo = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+			strType = (pInfo->GetBuildingClassInfo().getMaxGlobalInstances() != -1 || pInfo->GetBuildingClassInfo().getMaxPlayerInstances() != -1) ? "Wonder" : "Building";
+
+			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
+			if (eTech != NO_TECH)
+			{
+				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
+				if (pTech && pTech->GetEra() != NO_ERA)
+					iEra = pTech->GetEra();
+			}
+
+			pEntry = pInfo;
 			break;
+		}
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		{
 			CvUnitEntry* pInfo = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
-			strType = (pInfo->GetCombat() > 0) ? "military" : "civilian";
+			strType = (pInfo->GetCombat() > 0) ? "Military" : "Civilian";
+
+			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
+			if (eTech != NO_TECH)
+			{
+				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
+				if (pTech && pTech->GetEra() != NO_ERA)
+					iEra = pTech->GetEra();
+			}
+
 			pEntry = pInfo;
 			break;
 		}
 		case CITY_BUILDABLE_PROJECT:
 			pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
-			strType = "project";
+			strType = "Project";
+			iEra = GC.getGame().getCurrentEra();
 			break;
 		case CITY_BUILDABLE_PROCESS:
 			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
-			strType = "process";
+			strType = "Process";
+			iEra = GC.getGame().getCurrentEra();
 			break;
 		}
 
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
-			strDesc.c_str(), strType.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, %s, ERA: %d, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
+			strType.c_str(), strDesc.c_str(), bRush?"Rush":"NoRush", iEra, buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);

@@ -764,7 +764,6 @@ private:
 	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
 	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
-	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
@@ -776,9 +775,14 @@ private:
 	void PlotCampDefenseMoves();
 	void PlotBarbarianMove(bool bAggressive);
 	void PlotBarbarianCivilianEscortMove();
+///0------------------------------
+//	unify these
+///0------------------------------
 	void PlotGarrisonMoves(int iTurnsToArrive);
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
+	void PlotRepositionMoves();
+//--------------------------------
 	void PlotAncientRuinMoves(int iNumTurnsAway);
 	void PlotAirInterceptMoves();
 	void PlotAirSweepMoves();

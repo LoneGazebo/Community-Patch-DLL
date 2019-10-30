@@ -1049,6 +1049,9 @@ void CvHomelandAI::AssignHomelandMoves()
 		case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 			PlotGarrisonMoves(true /*bCityStateOnly*/);
 			break;
+		case AI_HOMELAND_MOVE_PATROL:
+			PlotPatrolMoves();
+			break;
 ///0------------------------------
 
 		case AI_HOMELAND_MOVE_WORKER:
@@ -1056,9 +1059,6 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 		case AI_HOMELAND_MOVE_WORKER_SEA:
 			PlotWorkerSeaMoves();
-			break;
-		case AI_HOMELAND_MOVE_PATROL:
-			PlotPatrolMoves();
 			break;
 		case AI_HOMELAND_MOVE_UPGRADE:
 			PlotUpgradeMoves();
@@ -1363,47 +1363,21 @@ void CvHomelandAI::PlotHealMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && !pUnit->isHuman())
+		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
+		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt())
 		{
-#if defined(MOD_AI_SMART_HEALING)
-			int iHealingLimit = pUnit->GetMaxHitPoints() * 8 / 10;
+			CvHomelandUnit unit;
+			unit.SetID(pUnit->GetID());
+			m_CurrentMoveUnits.push_back(unit);
 
-			if (MOD_AI_SMART_HEALING) 
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvPlot* unitPlot = pUnit->plot();
-				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && pUnit->GetDanger() > 0)
-				{
-					iHealingLimit /= 2;
-				}
-			}
+				CvString strLogString;
+				CvString strTemp;
 
-			// Am I under my health limit and not at sea or already in a city?
-			if(pUnit->GetCurrHitPoints() < iHealingLimit && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
-#else
-			// Am I under 100% health and not at sea or already in a city?
-			if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
-#endif
-			{
-				// If I'm a naval unit I need to be in friendly territory
-				if(pUnit->getDomainType() != DOMAIN_SEA || pUnit->plot()->IsFriendlyTerritory(m_pPlayer->GetID()))
-				{
-					if (!pUnit->IsUnderEnemyRangedAttack())
-					{
-						CvHomelandUnit unit;
-						unit.SetID(pUnit->GetID());
-						m_CurrentMoveUnits.push_back(unit);
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							CvString strTemp;
-
-							strTemp = pUnit->getUnitInfo().GetDescription();
-							strLogString.Format("%s healing at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-					}
-				}
+				strTemp = pUnit->getUnitInfo().GetDescription();
+				strLogString.Format("%s healing at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
 			}
 		}
 	}
@@ -1427,7 +1401,7 @@ void CvHomelandAI::PlotMovesToSafety()
 			continue;
 
 		int iDangerLevel = pUnit->GetDanger();
-		if (iDangerLevel == 0)
+		if (iDangerLevel == 0 && pUnit->plot()->getOwner()==pUnit->getOwner())
 			continue;
 
 		bool bAddUnit = false;
@@ -2123,7 +2097,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 							if (iNumResource > 0)
 							{
 #if defined(MOD_BALANCE_CORE)
-								//Don't use all of our Aluminum!
+								//Don't use all of our Aluminum, keep some for spaceship parts
 								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 								if (eResource == eAluminumResource)
 								{
