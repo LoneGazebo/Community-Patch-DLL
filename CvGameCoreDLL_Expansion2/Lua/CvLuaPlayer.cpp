@@ -12987,6 +12987,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
+	/*
 	iValue = pDiploAI->GetIgnoredMilitaryPromiseScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -12995,6 +12996,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 		aOpinions.push_back(kOpinion);
 	}
+	*/
 	
 	iValue = pDiploAI->GetBrokenExpansionPromiseScore(eWithPlayer);
 	if (iValue != 0)

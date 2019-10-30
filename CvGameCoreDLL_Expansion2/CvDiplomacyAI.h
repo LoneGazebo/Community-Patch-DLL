@@ -493,6 +493,7 @@ public:
 
 	int GetCompetitorValue(PlayerTypes ePlayer);
 	PlayerTypes GetBiggestCompetitor();
+	bool IsMajorCompetitor(PlayerTypes ePlayer);
 #endif
 
 	// Victory Dispute
