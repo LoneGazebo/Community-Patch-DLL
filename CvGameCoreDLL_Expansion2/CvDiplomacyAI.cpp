@@ -10611,6 +10611,137 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 }
 
 
+/// How much Gold Per Turn would we lose if we went to war with this player?
+int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
+{
+	if (!IsPlayerValid(ePlayer))
+		return 0;
+	
+	if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		return 0;
+	
+	int iGPT = 0;
+	
+	// Minor civ
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(ePlayer) / 100;
+#if defined(MOD_BALANCE_CORE)
+		iGPT += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentGoldBonus(GetPlayer()->GetID());
+#endif
+		return iGPT;
+	}
+	
+	// Major civ
+	iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(ePlayer);
+	iGPT += GC.getGame().GetGameDeals().GetDealGPTLostFromWar(GetPlayer()->GetID(), ePlayer) * 100;
+	
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		// Vassal taxes?
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+		{
+			iGPT += GetPlayer()->GetTreasury()->GetVassalTaxContributionTimes100(ePlayer);
+		}
+	}
+#endif
+	
+	// Loop through other majors we would go to war with
+	if (!bOtherPlayerEstimate)
+	{
+		PlayerTypes eLoopPlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer)
+			{
+				// Teammate?
+				if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
+				{
+					iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(eLoopPlayer);
+					iGPT += GC.getGame().GetGameDeals().GetDealGPTLostFromWar(GetPlayer()->GetID(), eLoopPlayer) * 100;
+				}
+				// Defensive Pact?
+				else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+				{
+					iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(eLoopPlayer);
+					iGPT += GC.getGame().GetGameDeals().GetDealGPTLostFromWar(GetPlayer()->GetID(), eLoopPlayer) * 100;
+				}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				else if (MOD_DIPLOMACY_CIV4_FEATURES)
+				{
+					// Master/vassal?
+					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+					{
+						iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(eLoopPlayer);
+						iGPT += GC.getGame().GetGameDeals().GetDealGPTLostFromWar(GetPlayer()->GetID(), eLoopPlayer) * 100;
+					}
+				}
+#endif	
+			}
+		}
+	}
+	
+	// Loop through minors we would go to war with
+	bool bCombatant = false;
+	PlayerTypes eMinor;
+	PlayerTypes eAlly;
+	for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+	{
+		eMinor = (PlayerTypes) iMinorCivLoop;
+		
+		// Must have met the City-State
+		if (!IsPlayerValid(eMinor))
+			continue;
+		
+		if (bOtherPlayerEstimate && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerValid(eMinor))
+			continue;
+		
+		// Irrelevant if we're not friends
+		if (!GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
+			continue;
+	
+		// Irrelevant if we're allies or they don't have an ally
+		eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+		if (eAlly == NO_PLAYER || eAlly == GetPlayer()->GetID())
+			continue;
+		
+		// Is their ally someone we'd be at war with?
+		if (GET_PLAYER(eAlly).getTeam() == GET_PLAYER(ePlayer).getTeam())
+		{
+			bCombatant = true;
+		}
+		
+		else if (GET_TEAM(GET_PLAYER(eAlly).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+		{
+			bCombatant = true;
+		}
+		
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		else if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(eAlly).getTeam()) || GET_TEAM(GET_PLAYER(eAlly).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+			{
+				bCombatant = true;
+			}
+		}
+#endif
+		if (bCombatant)
+		{
+			iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(eMinor);
+#if defined(MOD_BALANCE_CORE)
+			iGPT += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentGoldBonus(GetPlayer()->GetID()) * 100;
+#endif
+			bCombatant = false;
+		}
+	}
+	
+	// Bring it out of hundreds
+	iGPT /= 100;
+	
+	return iGPT;
+}
 
 // ************************************
 // Threats to this Player

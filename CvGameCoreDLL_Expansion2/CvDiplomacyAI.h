@@ -300,6 +300,9 @@ public:
 	void SetPlayerTargetValue(PlayerTypes ePlayer, TargetValueTypes eTargetValue);
 	void DoUpdatePlayerTargetValues();
 	void DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer);
+	
+	// War Sanity Checks: What would we lose if we went to war?
+	int CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOtherPlayerEstimate);
 
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;

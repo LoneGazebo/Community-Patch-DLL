@@ -1258,7 +1258,7 @@ int CvTreasury::GetVassalTaxContributionTimes100(PlayerTypes ePlayer) const
 		iAmount += GET_PLAYER(ePlayer).GetTreasury()->GetExpensePerTurnFromVassalTaxesTimes100();
 	}
 
-	return iAmount  / iNumTeamMembers;
+	return iAmount / iNumTeamMembers;
 }
 
 int CvTreasury::GetVassalTaxContribution(PlayerTypes ePlayer) const

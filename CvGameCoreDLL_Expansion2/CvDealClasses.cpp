@@ -5681,6 +5681,25 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 	return iVal;
 }
 
+int CvGameDeals::GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	int iGPT = 0;
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			// Add incoming GPT, subtract outgoing GPT
+			iGPT += iter->GetGoldPerTurnTrade(eOtherPlayer);
+			iGPT -= iter->GetGoldPerTurnTrade(ePlayer);
+		}
+	}
+	
+	return iGPT;
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------

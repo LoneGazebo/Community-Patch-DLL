@@ -14331,7 +14331,7 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 	if(ePlayer >= MAX_MAJOR_CIVS)
 		return 0;
 
-	// Only for Religious trait minors
+	// Only for Mercantile trait minors
 	if(GetTrait() != MINOR_CIV_TRAIT_MERCANTILE)
 		return 0;
 
@@ -14375,7 +14375,7 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 	return iAmount;
 }
 
-/// Total faith bonus from this minor civ for this player
+/// Total Gold bonus from this minor civ for this player
 int CvMinorCivAI::GetCurrentGoldBonus(PlayerTypes ePlayer)
 {
 	int iValue = 0;
