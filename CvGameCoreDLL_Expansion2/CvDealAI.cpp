@@ -2856,6 +2856,12 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		{
 			return INT_MAX;
 		}
+		// Are they planning a trap for us? Don't fall for it!
+		if (GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
+		GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		{
+			return INT_MAX;
+		}
 		// Approach is important
 		switch(eApproach)
 		{
@@ -2962,6 +2968,13 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	{
 #if defined(MOD_BALANCE_CORE)
 		if (!GetPlayer()->GetDiplomacyAI()->IsWantsOpenBordersWithPlayer(eOtherPlayer))
+		{
+			return INT_MAX;
+		}
+		
+		// Are they planning a trap for us? Don't fall for it!
+		if (GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
+		GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			return INT_MAX;
 		}
