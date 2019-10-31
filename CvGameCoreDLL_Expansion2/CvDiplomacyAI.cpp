@@ -2594,9 +2594,22 @@ void CvDiplomacyAI::DoCounters()
 
 		if(IsPlayerValid(eLoopPlayer))
 		{
+			bool bAtWar = GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam());
+			bool bPermaWar = false;
+			bool bMultiplayer = false;
+			
+			if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
+				bMultiplayer = true;
+			
+			if (bAtWar)
+			{
+				if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+					bPermaWar = true;
+			}
+			
 			// War Counter
 #if defined(MOD_BALANCE_CORE)
-			if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			if(bAtWar)
 			{
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
 				ChangePlayerNumTurnsSinceCityCapture(eLoopPlayer, 1);
@@ -2609,7 +2622,7 @@ void CvDiplomacyAI::DoCounters()
 				ChangePlayerNumTurnsAtPeace(eLoopPlayer, 1);
 			}
 #else
-			if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			if(bAtWar)
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
 			else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
 				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
@@ -2660,6 +2673,23 @@ void CvDiplomacyAI::DoCounters()
 					SetPlayerMadeBorderPromise(eLoopPlayer, false);
 					SetPlayerBrokenBorderPromise(eLoopPlayer, false);
 					SetPlayerIgnoredBorderPromise(eLoopPlayer, false);
+				}
+				
+				int iNegativeDigPoints = GetNegativeArchaeologyPoints(eLoopPlayer);
+				if (iNegativeDigPoints > 0)
+				{
+					if (bAtWar && !bPermaWar && !bMultiplayer && iNegativeDigPoints <= 10)
+					{
+						// Prevent AI forgetting about stolen artifacts without confronting the player about them
+						if (IsPlayerMadeNoDiggingPromise(eLoopPlayer) || IsPlayerBrokenNoDiggingPromise(eLoopPlayer) || IsPlayerIgnoredNoDiggingPromise(eLoopPlayer))
+						{
+							ChangeNegativeArchaeologyPoints(eLoopPlayer, -1);
+						}
+					}
+					else
+					{
+						ChangeNegativeArchaeologyPoints(eLoopPlayer, -1);
+					}
 				}
 
 				ChangeDeclaredWarOnFriendValue(eLoopPlayer, -GC.getDECLARED_WAR_ON_FRIEND_PER_TURN_DECAY());
@@ -3104,6 +3134,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	iOpinionWeight += GetTimesCultureBombedScore(ePlayer);
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
+	iOpinionWeight += GetDugUpMyYardScore(ePlayer);
 
 	//////////////////////////////////////
 	// RELIGION/IDEOLOGY
@@ -7100,6 +7131,24 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
 	{
 		return false;
+	}
+	// Are they here to steal our PRICELESS ARCHAEOLOGICAL ARTIFACTS???
+	if (GetNegativeArchaeologyPoints(ePlayer) > 0 || IsPlayerMadeNoDiggingPromise(ePlayer) ||
+		IsPlayerIgnoredNoDiggingPromise(ePlayer) || IsPlayerBrokenNoDiggingPromise(ePlayer))
+	{
+		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
+		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
+		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AESTHETICS();
+		
+		if (iNormalSites > 0)
+		{
+			return false;
+		}
+		// Have they unlocked Artistry?
+		if (iHiddenSites > 0 && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
+		{
+			return false;
+		}
 	}
 	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
 	{
@@ -21153,24 +21202,16 @@ void CvDiplomacyAI::DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTy
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
+	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetNegativeArchaeologyPoints(ePlayer) >= 10) // TODO: arch
+		if (GetNegativeArchaeologyPoints(ePlayer) > 0) // TODO: arch
 		{
 			// Have we asked you to make a promise before?
-			if(IsPlayerBrokenNoDiggingPromise(ePlayer) ||
-				IsPlayerIgnoredNoDiggingPromise(ePlayer))
+			if (IsPlayerBrokenNoDiggingPromise(ePlayer) ||
+				IsPlayerIgnoredNoDiggingPromise(ePlayer) ||
+				IsPlayerMadeNoDiggingPromise(ePlayer))
 			{
 				// We don't even want to bother with you again, so do nothing
-			}
-			else if(IsPlayerMadeNoDiggingPromise(ePlayer))
-			{
-				// You broke the promise you made!
-				SetPlayerBrokenNoDiggingPromise(ePlayer, true);
-				SetPlayerMadeNoDiggingPromise(ePlayer, false);
-#if defined(MOD_BALANCE_CORE)
-				SetPlayerBackstabCounter(ePlayer, 0);
-#endif
 			}
 			// Otherwise, ask you to make a promise
 			else
@@ -27418,8 +27459,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else if(iArg1 == 2)
 			{
 				SetPlayerMadeNoDiggingPromise(eFromPlayer, true);
-				// TODO: arch -- do something here
-				ChangeNegativeArchaeologyPoints(eFromPlayer, -10);
 				if(bActivePlayer)
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_STOP_DIGGING_GOOD);
@@ -33291,19 +33330,28 @@ int CvDiplomacyAI::GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const
 /// Sets how many times this player has dug up our artifacts
 void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
 
 		m_paiNegativeArchaeologyPoints[ePlayer] += iChange;
 		CvAssertMsg(m_paiNegativeArchaeologyPoints[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Digs in Other Player's Lands returned. Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
+		
+		if (iChange > 0 && IsPlayerMadeNoDiggingPromise(ePlayer))
+		{
+			// You broke the promise you made!
+			SetPlayerBrokenNoDiggingPromise(ePlayer, true);
+			SetPlayerMadeNoDiggingPromise(ePlayer, false);
+#if defined(MOD_BALANCE_CORE)
+			SetPlayerBackstabCounter(ePlayer, 0);
+#endif
+		}
 
 #if !defined(NO_ACHIEVEMENTS)
 		if(!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 		{
-			if (m_paiNegativeArchaeologyPoints[ePlayer] >= 50 ||
-				m_paiNegativeArchaeologyPoints[ePlayer] >= 40 && IsPlayerBrokenNoDiggingPromise(ePlayer))
+			if (m_paiNegativeArchaeologyPoints[ePlayer] > 200)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_34);
 			}
@@ -33853,6 +33901,45 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 #endif
 	if (GetNumTimesRobbedBy(ePlayer) > 0 + GetNumTimesTheyPlottedAgainstUs(ePlayer))
 		iOpinionWeight += (GetNumTimesRobbedBy(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetDugUpMyYardScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	int iNegativePoints = GetNegativeArchaeologyPoints(ePlayer);
+	int iArtifactsStolen = ceil(iNegativePoints / 50);
+	
+	if (iArtifactsStolen >= 3)
+	{
+		iOpinionWeight += 40;
+		if (iNegativePoints <= 125)
+		{
+			iOpinionWeight += -5;
+		}
+	}
+	else if (iArtifactsStolen == 2)
+	{
+		iOpinionWeight += 30;
+		if (iNegativePoints <= 75)
+		{
+			iOpinionWeight += -5;
+		}
+	}
+	else if (iArtifactsStolen == 1)
+	{
+		iOpinionWeight += 20;
+		if (iNegativePoints <= 25)
+		{
+			iOpinionWeight += -5;
+		}
+	}
+	
+	if (iOpinionWeight > 0 && IsPlayerMadeNoDiggingPromise(ePlayer))
+	{
+		iOpinionWeight += -10;
+	}
+	
 	return iOpinionWeight;
 }
 

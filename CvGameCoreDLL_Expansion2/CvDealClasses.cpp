@@ -5658,7 +5658,6 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			int iResourceLoop;
 			ResourceTypes eResource;
 
-			// Look to trade Luxuries first
 			for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
 				eResource = (ResourceTypes)iResourceLoop;

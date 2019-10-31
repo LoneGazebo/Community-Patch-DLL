@@ -2849,6 +2849,11 @@
 		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
 			<Text>[COLOR_NEGATIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Stolen Artifacts Mod -->
+		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
+			<Text>[COLOR_NEGATIVE_TEXT]You stole their cultural artifacts![ENDCOLOR]</Text>
+		</Row>
 
 		<!-- Aggressive Posture -->
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM">

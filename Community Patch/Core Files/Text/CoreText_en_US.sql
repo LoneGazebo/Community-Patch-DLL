@@ -578,7 +578,7 @@ SET Text = '[COLOR_NEGATIVE_TEXT]You asked them not to spy on you.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You were caught stealing from them.[ENDCOLOR]'
+SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught stealing from them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Friend Betrayal

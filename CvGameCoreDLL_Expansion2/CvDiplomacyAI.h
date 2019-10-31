@@ -1321,6 +1321,7 @@ public:
 	int GetSameLatePoliciesScore(PlayerTypes ePlayer);
 	int GetDifferentLatePoliciesScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
+	int GetDugUpMyYardScore(PlayerTypes ePlayer);
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer);

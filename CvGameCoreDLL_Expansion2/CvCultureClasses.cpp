@@ -3222,7 +3222,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		{
 			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+				}
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
@@ -3287,7 +3290,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		{
 			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+				}
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
@@ -3353,7 +3359,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		{
 			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+				}
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
@@ -3421,7 +3430,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		{
 			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+				}
 			}
 		}
 
