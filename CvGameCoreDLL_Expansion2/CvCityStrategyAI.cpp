@@ -2930,7 +2930,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		{
 			CvUnitEntry* pInfo = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
-			strType = (pInfo->GetCombat() > 0) ? "Military" : "Civilian";
+			strType = (pInfo->GetCombat() > 0 || pInfo->GetRangedCombat() > 0) ? "Military" : "Civilian";
 
 			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
 			if (eTech != NO_TECH)

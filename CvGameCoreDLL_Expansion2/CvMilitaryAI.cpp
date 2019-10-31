@@ -1362,7 +1362,7 @@ CvCity* GetCityFromGlobalID(int iID)
 //-----------------------------------------
 // basic intra-turn caching. not serialized.
 //-----------------------------------------
-int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity)
+int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway)
 {
 	if (!pCity->hasSharedAdjacentArea(pOtherCity))
 		return -1;
@@ -1377,7 +1377,7 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 	}
 
 	int iDistance = -1;
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner());
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner(), iMaxTurnsAway);
 	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 	if (m_pPlayer->CanCrossOcean())
@@ -1417,7 +1417,7 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 //-----------------------------------------
 // basic intra-turn caching. not serialized.
 //-----------------------------------------
-int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity)
+int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway)
 {
 	if (pCity->getArea() != pOtherCity->getArea())
 		return -1;
@@ -1431,7 +1431,7 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 			return itD->second;
 	}
 
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, pOtherCity->getOwner());
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, pOtherCity->getOwner(), iMaxTurnsAway);
 	data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
@@ -1551,20 +1551,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 		return CvMilitaryTarget();
 	}
 
-	//if this is a player we're not about to launch attacks against, save the effort ...
-	if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eEnemy))
-	{
-		if (piWinningScore)
-			*piWinningScore = 0;
-		return CvMilitaryTarget();
-	}
-
 	int iNewScore = 0;
 	CvMilitaryTarget newTarget;
 	bool bFoundInCache = false;
 
-	//todo: compare score across different enemies / op types to see if this makes sense at all
-
+	//todo: compare score across op types to see if this makes sense at all
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE != m_cachedTargets.end())
 	{
@@ -1905,6 +1896,17 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		if (pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
 			continue;
 
+		int iMaxTurns = 29; //going further out really makes little sense
+		int iMinStrenghRatio = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
+
+		// sometimes we were forced into a war and don't even want to attack the enemy
+		// in that case apply a higher standard
+		if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(kEnemy.GetID()))
+		{
+			iMaxTurns = 8; //only very close cities
+			iMinStrenghRatio = 200; //only if we're much stronger locally
+		}
+
 		for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 		{
 			if(pFriendlyCity != NULL && pEnemyCity != NULL)
@@ -1915,11 +1917,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				target.iStrengthRatioTimes100 = (pFriendlyCity->iScratch * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
 
 				//border cities are often strongly guarded ... can't be too timid here
-				if (target.iStrengthRatioTimes100 < 30)
+				if (target.iStrengthRatioTimes100 < iMinStrenghRatio)
 					continue;
 
-				//this is the important part
-				CheckApproachFromLandAndSea(target, eAIOperationType);
+				//this is the important (and also costly) part
+				CheckApproachFromLandAndSea(target, eAIOperationType, iMaxTurns);
 				if(target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
 					continue;
 
@@ -1933,11 +1935,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				int iDistance = 0;
 				if (m_pPlayer->GetCenterOfMassEmpire() != NULL)
 				{
-					iDistance = plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), m_pPlayer->GetCenterOfMassEmpire()->getX(), m_pPlayer->GetCenterOfMassEmpire()->getY());
+					iDistance = plotDistance(*target.m_pMusterCity->plot(), *m_pPlayer->GetCenterOfMassEmpire());
 				}
 
 				// Shorter paths are better, strength ratio also counts, when in doubt muster at central cities
-				int iWeight = 1000 + (target.iStrengthRatioTimes100 / 20) - target.m_iPathLength * 10 - iDistance;
+				int iWeight = 1000 + (target.iStrengthRatioTimes100 * 20) - target.m_iPathLength * 10 - iDistance;
 				prelimWeightedTargetList.push_back(target, iWeight);
 			}
 		}
@@ -1983,7 +1985,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 }
 
 /// Is it better to attack this target by sea?
-void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType)
+void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType, int iMaxTurnsAway)
 {
 	//start out with a land attack with invalid distance
 	target.m_bAttackBySea = false;
@@ -2002,7 +2004,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	{
 		if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
 		{
-			iWaterLength = GetCachedAttackTargetWaterDistance(target.m_pMusterCity, target.m_pTargetCity);
+			iWaterLength = GetCachedAttackTargetWaterDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
 
 			//Theoretically can make it via sea? Mark true so that naval ops can target this city.
 			if (iWaterLength != -1)
@@ -2013,7 +2015,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	}
 
 	//Land and sea ops need to look here.
-	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity);
+	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
 		
 	if (iWaterLength == -1 && iLandLength == -1)
 		return;
@@ -4500,7 +4502,7 @@ void CvMilitaryAI::DoSeaAttacks(PlayerTypes ePlayer)
 		}
 	}
 }
-int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globaltarget)
+int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globaltarget, int iGlobalTargetScore)
 {
 	int iValue = GET_PLAYER(ePlayer).GetMilitaryMight();
 	if(GET_PLAYER(ePlayer).isMinorCiv())
@@ -4522,23 +4524,25 @@ int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globa
 		if (thistarget.m_pTargetCity != NULL && thistarget.m_pMusterCity != NULL && !thistarget.m_bNoLandPath)
 		{
 			iValue += iWinningScore;
+
 			if (thistarget == globaltarget)
 			{
 				iValue *= 5;
 			}
+			else if (iGlobalTargetScore > 3 * iWinningScore)
+				return 0;
+
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
 			{
 				iValue *= 5;
 			}
 		}
 		else
-		{
-			iValue = 0;
-		}
+			return 0;
 	}
 	return iValue;
 }
-int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& globaltarget)
+int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& globaltarget, int iGlobalTargetScore)
 {
 	int iValue = GET_PLAYER(ePlayer).GetMilitaryMight();
 	if(GET_PLAYER(ePlayer).isMinorCiv())
@@ -4560,11 +4564,14 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 		if (thistarget.m_pTargetCity != NULL && thistarget.m_pMusterCity != NULL && thistarget.m_bAttackBySea)
 		{
 			iValue += iWinningScore;
+
 			//Best global?
 			if (globaltarget == thistarget)
 			{
 				iValue *= 5;
 			}
+			else if (iGlobalTargetScore > 3 * iWinningScore)
+				return 0;
 
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
 			{
@@ -4572,9 +4579,8 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 			}
 		}
 		else
-		{
-			iValue = 0;
-		}
+			return 0;
+
 	}
 	return iValue;
 }
@@ -4638,11 +4644,7 @@ void CvMilitaryAI::UpdateOperations()
 			if(!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			// sometimes we were forced into a war and don't even want to attack the enemy
-			if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eLoopPlayer))
-				continue;
-
-			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand));
+			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand, iBestValue));
 		}
 	}
 
@@ -4665,6 +4667,7 @@ void CvMilitaryAI::UpdateOperations()
 				}
 
 				DoNuke(eLoopPlayer);
+
 				if(veLandThreatWeights.GetWeight(iThreatCivs) > 0)
 				{
 					DoLandAttacks(eLoopPlayer);
@@ -4691,14 +4694,10 @@ void CvMilitaryAI::UpdateOperations()
 			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			// sometimes we were forced into a war and don't even want to attack the enemy
-			if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eLoopPlayer))
-				continue;
-
-			int iTargetValue = GetEnemySeaValue(eLoopPlayer, bestTargetSea);
-			veSeaThreatWeights.push_back(eLoopPlayer, iTargetValue);
+			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea,iBestValue));
 		}
 	}
+
 	if(veSeaThreatWeights.size() > 0)
 	{
 		veSeaThreatWeights.SortItems();
