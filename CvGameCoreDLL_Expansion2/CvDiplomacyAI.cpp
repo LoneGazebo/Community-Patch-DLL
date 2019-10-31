@@ -10612,7 +10612,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 
 
 /// How much Gold Per Turn would we lose if we went to war with this player?
-int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
+int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOtherPlayerEstimate, bool bIgnoreDPs)
 {
 	if (!IsPlayerValid(ePlayer))
 		return 0;
@@ -10663,7 +10663,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOt
 					iGPT += GC.getGame().GetGameDeals().GetDealGPTLostFromWar(GetPlayer()->GetID(), eLoopPlayer) * 100;
 				}
 				// Defensive Pact?
-				else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+				else if (!bIgnoreDPs && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 				{
 					iGPT += GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(eLoopPlayer);
 					iGPT += GC.getGame().GetGameDeals().GetDealGPTLostFromWar(GetPlayer()->GetID(), eLoopPlayer) * 100;
@@ -10713,7 +10713,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOt
 			bCombatant = true;
 		}
 		
-		else if (GET_TEAM(GET_PLAYER(eAlly).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+		else if (!bIgnoreDPs && GET_TEAM(GET_PLAYER(eAlly).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 		{
 			bCombatant = true;
 		}
