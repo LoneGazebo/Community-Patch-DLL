@@ -11866,17 +11866,20 @@ void CvDiplomacyAI::SetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, 
 /// Is ePlayer expanding recklessly?
 bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 {
-	// Teammate? We don't care.
-	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	if (!IsPlayerValid(ePlayer, true))
+		return false;
+	
+	// We don't care what our teammates do.
+	if (ePlayer != GetPlayer()->GetID() && GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return false;
 	
 	// If the player is too far away from us, we don't care
-	if(GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
 		return false;
 
 	// If the player has too few cities, don't worry about it
 	int iNumCities = GET_PLAYER(ePlayer).getNumCities();
-	if(iNumCities < 4)
+	if (iNumCities < 4)
 		return false;
 
 	double fAverageNumCities = 0;
@@ -11885,17 +11888,21 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	// Find out what the average is (minus the player we're looking at)
 	PlayerTypes eLoopPlayer;
 	CvPlayer* pPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		pPlayer = &GET_PLAYER(eLoopPlayer);
 		
 		// Dead, haven't met them, no cities, etc.
-		if(!IsPlayerValid(eLoopPlayer, true))
+		if (!IsPlayerValid(eLoopPlayer, true))
+			continue;
+		
+		// Only count City-States that have more than 1 city
+		if (pPlayer->isMinorCiv() && pPlayer->getNumCities() <= 1)
 			continue;
 
 		// Not the guy we're looking at
-		if(eLoopPlayer == ePlayer)
+		if (eLoopPlayer == ePlayer)
 			continue;
 
 		iNumPlayers++;
@@ -11905,11 +11912,11 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	fAverageNumCities /= max(1,iNumPlayers);
 
 	// Must have way more cities than the average player in the game
-	if(iNumCities < fAverageNumCities * 1.5)
+	if (iNumCities < fAverageNumCities * 1.5)
 		return false;
 
 	// If this guy's military is as big as ours, then it probably means he's just stronger than us
-	if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 		return false;
 
 	return true;
