@@ -6008,7 +6008,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 				continue;
 			}
 
-#if defined(MOD_BALANCE_CORE)			
+#if defined(MOD_BALANCE_CORE)
 			// If we just made peace, reset any guess for the WAR approach
 			else if(eTrueApproachGuess == MAJOR_CIV_APPROACH_WAR && (GetNumWarsFought(eLoopPlayer) > 0 && GetPlayerNumTurnsAtPeace(eLoopPlayer) <= 1))
 			{
@@ -6018,23 +6018,6 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 
 			// If their military deployment is very threatening and we haven't made peace recently + they aren't an AFRAID AI, assume they mean WAR
 			else if(eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH)
-			{
-				if(eTrueApproachGuess != MAJOR_CIV_APPROACH_WAR && (bHuman || (!bHuman && eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID)))
-				{
-#if defined(MOD_BALANCE_CORE)
-					if (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 10 || GetNumWarsFought(eLoopPlayer) <= 0)
-					{
-#endif
-						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-						SetApproachTowardsUsGuessCounter(eLoopPlayer, 1);
-						continue;
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
-				}
-			}
-			// Likewise if their military deployment has increased significantly in one turn
-			else if(eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM && eLastTurnMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_NONE)
 			{
 				if(eTrueApproachGuess != MAJOR_CIV_APPROACH_WAR && (bHuman || (!bHuman && eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID)))
 				{
@@ -6099,7 +6082,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					}	
 					
 					// Reset any guess for the GUARDED approach if we've no longer denounced them/gone to war recently, and they don't have soldiers guarding the border
-					else if(eTrueApproachGuess == MAJOR_CIV_APPROACH_GUARDED && !IsDenouncedPlayer(eLoopPlayer) && eMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_LOW)
+					else if(eTrueApproachGuess == MAJOR_CIV_APPROACH_GUARDED && !IsDenouncedPlayer(eLoopPlayer) && eMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_MEDIUM)
 #if defined(MOD_BALANCE_CORE)
 					{
 						if(GetNumWarsFought(eLoopPlayer) > 0)
@@ -6149,16 +6132,6 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
 					}
 
-#if defined(MOD_BALANCE_CORE)
-					// Likewise if their military deployment has increased significantly in one turn
-					if (eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID && eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM && eLastTurnMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_NONE && (GetPlayerNumTurnsAtPeace(eLoopPlayer) >= 10 || GetNumWarsFought(eLoopPlayer) <= 0))
-#else
-	                if(eVisibleApproach != MAJOR_CIV_APPROACH_AFRAID && eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM && eLastTurnMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_NONE)
-#endif
-					{
-						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					}
-					
 					else
 					{
 						// FRIENDLY? Let's not make the same mistake twice...
@@ -6196,16 +6169,6 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					if (eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH && (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 10 || GetNumWarsFought(eLoopPlayer) <= 0))
 #else
 					if(eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_HIGH)
-#endif
-					{
-						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
-					}
-					
-					// Their military deployment has increased significantly in one turn, assume WAR
-#if defined(MOD_BALANCE_CORE)
-					else if (eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM && eLastTurnMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_NONE && (GetPlayerNumTurnsAtPeace(eLoopPlayer) > 10 || GetNumWarsFought(eLoopPlayer) <= 0))
-#else
-					else if(eMilitaryAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM && eLastTurnMilitaryAggressivePosture <= AGGRESSIVE_POSTURE_NONE)
 #endif
 					{
 						SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
