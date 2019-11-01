@@ -216,7 +216,7 @@ public:
 	CvCity* GetAdjacentCity() const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
-	int GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain, bool bCheckTerritory) const;
+	int GetSeaBlockadeScore(PlayerTypes ePlayer) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsWorthDefending(PlayerTypes eDefendingPlayer) const;

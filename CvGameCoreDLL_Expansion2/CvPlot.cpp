@@ -3748,29 +3748,33 @@ int CvPlot::GetNumAdjacentMountains() const
 	return iNumMountains;
 }
 
-int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain, bool bCheckTerritory) const
+int CvPlot::GetSeaBlockadeScore(PlayerTypes ePlayer) const
 {
-	int iCount = 0;
-	for(int iI = 0; iI < RING_PLOTS[min(5,max(0,iRings))]; iI++)
+	int iScore = 0;
+	int iRange = min(5,max(0,GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
+
+	for(int iI = 0; iI < RING_PLOTS[iRange]; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-		if(pLoopPlot == NULL)
-		{
+		if(pLoopPlot == NULL || pLoopPlot->getDomain() != DOMAIN_SEA || pLoopPlot->getArea() != getArea())
 			continue;
-		}
-		if(eDomain!=NO_DOMAIN && getDomain()!=eDomain)
+
+		if (GET_PLAYER(ePlayer).IsAtWarWith(pLoopPlot->getOwner()))
 		{
-			continue;
-		}
-		if(!isValidMovePlot(ePlayer,bCheckTerritory))
-		{
-			continue;
+			//there should really be a function that gives you a weighted score of all yields ...
+			iScore++;
+			if (pLoopPlot->getResourceType() != NO_RESOURCE)
+				iScore++;
+			if (pLoopPlot->getFeatureType() != NO_FEATURE)
+				iScore++;
+			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				iScore++;
 		}
 
-		iCount++;
+		iScore++;
 	}
 
-	return iCount;
+	return iScore;
 }
 
 #if defined(MOD_BALANCE_CORE_SETTLER)

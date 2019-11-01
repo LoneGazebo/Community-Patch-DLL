@@ -956,14 +956,6 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #endif
-			// ... empty barb camp?
-			else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
-			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-				newTarget.SetTargetX(pLoopPlot->getX());
-				newTarget.SetTargetY(pLoopPlot->getY());
-				m_TargetedAncientRuins.push_back(newTarget);
-			}
 			// ... road segment in friendly territory?
 			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
 			{

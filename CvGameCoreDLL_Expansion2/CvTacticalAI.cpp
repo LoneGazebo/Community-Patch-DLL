@@ -1181,7 +1181,7 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... undefended camp? But just because there's no visible defender doesn't mean it's undefended
 				// (also the camp might since have been cleared but we don't know yet - so check if it is owned now)
 				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && 
-					!m_pPlayer->isMinorCiv() && !pLoopPlot->isOwned())
+					!pLoopPlot->isOwned())
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
 
@@ -1324,32 +1324,20 @@ void CvTacticalAI::FindTacticalTargets()
 				if (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && pLoopPlot->isWater() && atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()))
 				{
 					CvCity* pOwningCity = pLoopPlot->getOwningCity();
-					if (pOwningCity != NULL && pOwningCity->isCoastal())
+					if (pOwningCity != NULL && pLoopPlot->isValidMovePlot(m_pPlayer->GetID(),true))
 					{
 						int iDistance = GET_PLAYER(pOwningCity->getOwner()).GetCityDistanceInPlots(pLoopPlot);
 						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>2)
 							continue;
 
 						//try to stay away from land
-						int iWeight = pLoopPlot->GetNumPassableNeighbors(1, m_pPlayer->GetID(), DOMAIN_SEA, false) * 2;
-
-						//stay away from the city itself
-						if (iDistance > 1)
-							iWeight *= 2;
+						int iWeight = pLoopPlot->GetSeaBlockadeScore(m_pPlayer->GetID());
 
 						//prefer close targets
 						iWeight = max(1, iWeight-m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot));
 
-						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							iWeight *= 2;
-
-						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
-							iWeight *= 2;
-
-						if (pOwningCity->isPotentiallyInDanger())
-							iWeight *= 2;
-
-						if (pOwningCity->getDamage() > 0)
+						//try to support the troops
+						if (pOwningCity->getDamage()>0 || pOwningCity->isUnderSiege())
 							iWeight *= 2;
 
 						if (iWeight > 0)
@@ -3641,9 +3629,9 @@ void CvTacticalAI::ReviewUnassignedUnits()
 
 // OPERATIONAL AI SUPPORT FUNCTIONS
 
-CvUnit* SwitchEscort(CvUnit* pCivilian, CvUnit* pEscort, CvArmyAI* pThisArmy)
+CvUnit* SwitchEscort(CvUnit* pCivilian, CvPlot* pNewEscortPlot, CvUnit* pEscort, CvArmyAI* pThisArmy)
 {
-	CvUnit* pPlotDefender = pCivilian->plot()->getBestDefender(pCivilian->getOwner());
+	CvUnit* pPlotDefender = pNewEscortPlot->getBestDefender(pCivilian->getOwner());
 
 	//Maybe we just make this guy our new escort, eh?
 	if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType())
@@ -3722,7 +3710,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					//another military unit is blocking our escort ... find another muster plot
 					if(pCivilian->plot()->GetNumCombatUnits() > 0)
 					{
-						CvUnit* pNewEscort = SwitchEscort(pCivilian,pEscort,pThisArmy);
+						CvUnit* pNewEscort = SwitchEscort(pCivilian,pCivilian->plot(),pEscort,pThisArmy);
 						if (pNewEscort)
 							pOperation->CheckTransitionToNextStage();
 						else //did not switch
@@ -3748,7 +3736,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						if (!ExecuteMoveToPlot(pEscort, pCivilian->plot()))
 						{
 							//d'oh. escort cannot reach us
-							CvUnit* pNewEscort = SwitchEscort(pCivilian,pEscort,pThisArmy);
+							CvUnit* pNewEscort = SwitchEscort(pCivilian,pCivilian->plot(),pEscort,pThisArmy);
 
 							if (pEscort==pNewEscort)
 								pOperation->SetToAbort(AI_ABORT_LOST_PATH);
@@ -3916,6 +3904,17 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							else
 							{
 								bPathFound = false;
+							}
+						}
+						else
+						{
+							//our escort can't move into the next path plot. maybe it's blocked by a friendly unit?
+							CvUnit* pNewEscort = SwitchEscort(pCivilian,pCommonPlot,pEscort,pThisArmy);
+							if (pNewEscort)
+							{
+								ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
+								pNewEscort->PushMission(CvTypes::getMISSION_SKIP());
+								UnitProcessed(pNewEscort->GetID());
 							}
 						}
 					}
@@ -7654,22 +7653,21 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 		bool bTypeMatch = false;
 		if(eType == AI_TACTICAL_TARGET_NONE)
 		{
+			//offensive targets
 			if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 			    target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 			    target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
 			    target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
-				target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
-			{
-				bTypeMatch = true;
-			}
-			
-			//only majors go after barb camps
-			if(target.GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+				target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT ||
+ 				target.GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN ||
+ 				target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN ||
+ 				target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN ||
+				target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN )
 			{
 				bTypeMatch = true;
 			}
 
-			if (bAllowDefensiveTargets || m_pPlayer->isMinorCiv())
+			if (bAllowDefensiveTargets)
 			{
 				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
 					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND ||
