@@ -1213,28 +1213,12 @@ void CvTacticalAI::FindTacticalTargets()
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
 					!pLoopPlot->IsImprovementPillaged())
 				{
-					ResourceUsageTypes eRUT = (ResourceUsageTypes)-1;
 					ResourceTypes eResource = pLoopPlot->getResourceType();
-					if (eResource != NO_RESOURCE)
+					if (eResource != NO_RESOURCE || m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
 					{
-						eRUT = GC.getResourceInfo(eResource)->getResourceUsage();
-					}
-
-					// On land, civs prioritize improvements built on resources
-					//warmongers want to burn it all!
-					if (eRUT == RESOURCEUSAGE_STRATEGIC || eRUT == RESOURCEUSAGE_LUXURY || pLoopPlot->isWater() || m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
-					{
-						// Barbarians can't target naval improvements
-						if (m_pPlayer->isBarbarian() && pLoopPlot->isWater())
-						{
-							continue;
-						}
-						else
-						{
-							newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE);
-							newTarget.SetAuxIntData(40);
-							m_AllTargets.push_back(newTarget);
-						}
+						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE);
+						newTarget.SetAuxIntData(40);
+						m_AllTargets.push_back(newTarget);
 					}
 					else
 					{
@@ -1327,24 +1311,25 @@ void CvTacticalAI::FindTacticalTargets()
 					if (pOwningCity != NULL && pLoopPlot->isValidMovePlot(m_pPlayer->GetID(),true))
 					{
 						int iDistance = GET_PLAYER(pOwningCity->getOwner()).GetCityDistanceInPlots(pLoopPlot);
-						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>2)
-							continue;
-
-						//try to stay away from land
-						int iWeight = pLoopPlot->GetSeaBlockadeScore(m_pPlayer->GetID());
-
-						//prefer close targets
-						iWeight = max(1, iWeight-m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot));
-
-						//try to support the troops
-						if (pOwningCity->getDamage()>0 || pOwningCity->isUnderSiege())
-							iWeight *= 2;
-
-						if (iWeight > 0)
+						//we want to stay for a while, so stay out of danger as far as possible
+						if (iDistance < 4 && m_pPlayer->GetPossibleAttackers(*pLoopPlot).empty())
 						{
-							newTarget.SetTargetType(AI_TACTICAL_TARGET_BLOCKADE_POINT);
-							newTarget.SetAuxIntData(iWeight);
-							m_NavalTargets.push_back(newTarget);
+							//try to stay away from land
+							int iWeight = pLoopPlot->GetSeaBlockadeScore(m_pPlayer->GetID());
+
+							//prefer close targets
+							iWeight = max(1, iWeight - m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot));
+
+							//try to support the troops
+							if (pOwningCity->getDamage() > 0 || pOwningCity->isUnderSiege())
+								iWeight *= 2;
+
+							if (iWeight > 0)
+							{
+								newTarget.SetTargetType(AI_TACTICAL_TARGET_BLOCKADE_POINT);
+								newTarget.SetAuxIntData(iWeight);
+								m_NavalTargets.push_back(newTarget);
+							}
 						}
 					}
 				}
