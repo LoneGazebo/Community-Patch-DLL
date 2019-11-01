@@ -3120,22 +3120,25 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 #endif
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
-		CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
-		// Opinion also matters
-		if(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) < MAJOR_CIV_APPROACH_FRIENDLY)
+		if (!GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition())
 		{
-			if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+			// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			// Opinion also matters
+			if(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) < MAJOR_CIV_APPROACH_FRIENDLY)
 			{
-				if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+				if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
 				{
-					return INT_MAX;
-				}
+					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+					{
+						return INT_MAX;
+					}
 
-				// If he has influence over half the civs, want to block OB with the other half
-				if (kOtherPlayer.GetCulture()->GetNumCivsToBeInfluentialOn() <= kOtherPlayer.GetCulture()->GetNumCivsInfluentialOn())
-				{
-					return INT_MAX;
+					// If he has influence over half the civs, want to block OB with the other half
+					if (kOtherPlayer.GetCulture()->GetNumCivsToBeInfluentialOn() <= kOtherPlayer.GetCulture()->GetNumCivsInfluentialOn())
+					{
+						return INT_MAX;
+					}
 				}
 			}
 		}
@@ -3782,6 +3785,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 	//Are the asked in a DOF with the player? Don't do it!
 	if(GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
+	{
+		return INT_MAX;
+	}
+	// Disallowed by game options
+	if (pDiploAI->IsWarDisallowed(eWithPlayer))
 	{
 		return INT_MAX;
 	}

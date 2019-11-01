@@ -42,6 +42,28 @@ SELECT 'COMBAT_AI_DEFENSE_DANGERWEIGHT', '20';
 INSERT INTO Defines (Name, Value)
 SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
 
+-- Diplo AI Aggression Options
+
+-- [DISABLE VICTORY COMPETITION]
+-- If set to 1, the AI will not receive any aggression boosts towards competitors for victory conditions.
+-- Also, you will not receive any diplomacy penalties for victory competition with the AI.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLO_AI_NO_VICTORY_COMPETITION', '0';
+
+-- NOTE: Enabling the passive AI settings below will cause the AI not to attempt Domination Victories.
+
+-- [PASSIVE AI (HUMAN ONLY)]
+-- If set to 1, AI civilizations will never initiate wars with human players.
+-- Humans can still initiate wars with AI players.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLO_AI_WAR_DISALLOWED_HUMAN', '0';
+
+-- [PASSIVE AI (GLOBAL)]
+-- If set to 1, AI civilizations will never initiate wars with other civs or City-States.
+-- Humans can still initiate wars with AI players.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLO_AI_WAR_DISALLOWED_GLOBAL', '0';
+
 
 -- AI Citystrategy
 

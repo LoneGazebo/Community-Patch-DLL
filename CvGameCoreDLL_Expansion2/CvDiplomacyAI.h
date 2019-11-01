@@ -521,6 +521,10 @@ public:
 	DisputeLevelTypes GetMinorCivDisputeLevel(PlayerTypes ePlayer) const;
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
+	
+	// Diplo AI Aggression Options (defined in CoreChanges.sql)
+	bool IsWarDisallowed(PlayerTypes ePlayer);
+	bool IsNoVictoryCompetition();
 
 	/////////////////////////////////////////////////////////
 	// Personality Members
