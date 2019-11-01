@@ -13739,9 +13739,6 @@ int CvDiplomacyAI::GetCompetitorValue(PlayerTypes ePlayer)
 /// Returns the player who we consider our biggest competitor
 PlayerTypes CvDiplomacyAI::GetBiggestCompetitor()
 {
-	if (IsNoVictoryCompetition())
-		return NO_PLAYER;
-	
 	int iBestValue = 18;
 	PlayerTypes eBestPlayer = NO_PLAYER;
 	// Loop through all (known) Players
