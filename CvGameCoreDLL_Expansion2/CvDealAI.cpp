@@ -3120,7 +3120,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 #endif
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		if (!GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition())
+		if (!GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition() && !GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eOtherPlayer))
 		{
 			// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
 			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);

@@ -14870,6 +14870,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		return;
 #endif
 
+	//They resurrected us, so don't worry about it
+	if(WasResurrectedBy(ePlayer))
+		return;
+
 	AggressivePostureTypes eAggressivePosture;
 	AggressivePostureTypes eLastTurnAggressivePosture;
 
@@ -14973,15 +14977,15 @@ bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	else if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	else if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1) // Disables AI war declarations
 	{
 		return true;
 	}
 	else if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		return true;
+		return false;
 	}
-	else if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1)
+	else if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1) // Disables AI initiating wars involving humans
 	{
 		if (GET_PLAYER(ePlayer).isHuman())
 			return true;
@@ -15046,7 +15050,7 @@ bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 
 bool CvDiplomacyAI::IsNoVictoryCompetition()
 {
-	if (GC.getDIPLO_AI_NO_VICTORY_COMPETITION() == 1)
+	if (GC.getDIPLO_AI_NO_VICTORY_COMPETITION() == 1) // Disables the effects of Victory Dispute/Block/IsCloseToVictory, etc.
 	{
 		return true;
 	}
