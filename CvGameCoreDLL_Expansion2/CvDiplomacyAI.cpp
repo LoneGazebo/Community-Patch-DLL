@@ -6290,6 +6290,10 @@ void CvDiplomacyAI::DoUpdateDemands()
 			if (IsWarDisallowed(eLoopPlayer))
 				continue;
 			
+			// If we can't go to war without us/our team backstabbing a friend or ally, then don't demand
+			if (IsWarWouldBackstabFriendTeamCheck(eLoopPlayer))
+				continue;
+			
 			// Is eLoopPlayer a good target for making a demand?
 			if(IsPlayerDemandAttractive(eLoopPlayer))
 			{
@@ -10782,6 +10786,100 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOt
 	iGPT /= 100;
 	
 	return iGPT;
+}
+
+/// Would going to war with this player backstab a friend or ally?
+bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
+{
+	if (!IsPlayerValid(ePlayer))
+		return false;
+	
+	// Friend?
+	if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).IsDoFAccepted(ePlayer))
+	{
+		return true;
+	}
+	
+	// Defensive Pact?
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
+	{
+		return true;
+	}
+	
+	// Who else would we go to war with?
+	PlayerTypes eLoopPlayer;
+	bool bCheckPlayer = false;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer)
+		{
+			// Teammate?
+			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
+			{
+				bCheckPlayer = true;
+			}
+			// Defensive Pact?
+			else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+			{
+				bCheckPlayer = true;
+			}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			else if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				// Master/vassal?
+				if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+				{
+					bCheckPlayer = true;
+				}
+			}
+#endif	
+			if (bCheckPlayer)
+			{
+				// Friend?
+				if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).IsDoFAccepted(ePlayer))
+				{
+					return true;
+				}
+				
+				// Defensive Pact?
+				if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
+				{
+					return true;
+				}
+				
+				bCheckPlayer = false;
+			}
+		}
+	}
+	
+	return false;
+}
+
+/// Would going to war with this player cause one of our team members to backstab a friend or ally?
+bool CvDiplomacyAI::IsWarWouldBackstabFriendTeamCheck(PlayerTypes ePlayer)
+{
+	if (!IsPlayerValid(ePlayer))
+		return false;
+	
+	if (IsWarWouldBackstabFriend(ePlayer))
+		return true;
+	
+	// Loop through all the other players on this team
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != GetPlayer()->GetID())
+		{
+			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWarWouldBackstabFriend(ePlayer))
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }
 
 // ************************************
@@ -26196,8 +26294,21 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if(GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
 		{
+			bDeclareWar = true;
+			
+			if (bDeclareWar)
+			{
+				// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
+				if (IsWarWouldBackstabFriendTeamCheck(eFromPlayer))
+				{
+					bDeclareWar = false;
+				}
+			}
+			
 			if (DeclareWar(eFromPlayer))
+			{
 				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+			}
 		}
 
 		if(bActivePlayer)
@@ -26800,17 +26911,18 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					bDeclareWar = true;
 				}
-				if (bDeclareWar && IsDoFAccepted(eFromPlayer))
-				{
-					bDeclareWar = false;
-				}
-				if (bDeclareWar && GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam()))
-				{
-					bDeclareWar = false;
-				}
 				if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
 				{
 					bDeclareWar = false;
+				}
+				
+				// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
+				if (bDeclareWar)
+				{
+					if (IsWarWouldBackstabFriendTeamCheck(eFromPlayer))
+					{
+						bDeclareWar = false;
+					}
 				}
 				
 				// Sanity check - who else would we go to war with?
@@ -26842,14 +26954,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #endif
 							if (bCheckPlayer)
 							{
-								bCheckPlayer = false;
-								
-								// Don't break our friendships or DPs over an insult.
-								if (IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()))
-								{
-									bDeclareWar = false;
-									break;
-								}
 								// Would we be declaring war on a powerful neighbor?
 								if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 								{
@@ -26869,6 +26973,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 										break;
 									}
 								}
+								
+								bCheckPlayer = false;
 							}
 						}
 					}
@@ -29256,18 +29362,6 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(eTargetTeam))
 #endif
 		return 0;
-		
-	// Disallowed by game options
-	if (IsWarDisallowed(eTargetPlayer))
-		return 0;
-	
-	// AI teammates of humans should never do this on their own.
-	if (GetPlayer()->IsAITeammateOfHuman())
-		return 0;
-	
-	// They betrayed us? Nope.
-	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer))
-		return 0;
 
 	// If player is inquiring, he has to be planning a war already
 	if(!bAskedByPlayer)
@@ -29281,6 +29375,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	{
 		return 0;
 	}
+	// No vassals!
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return 0;
 
@@ -29292,10 +29387,6 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 #endif
 	// Only players we've met, are alive, etc.
 	if(!IsPlayerValid(eTargetPlayer))
-		return 0;
-
-	// Don't work Target people we're working WITH!
-	if(IsDoFAccepted(eTargetPlayer))
 		return 0;
 	
 	// If we think our "friend" is planning something sneaky, don't fall for the bait.
@@ -29311,6 +29402,22 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		return 0;
 #endif
 
+	// They betrayed us? Nope.
+	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer))
+		return 0;
+	
+	// AI teammates of humans should never do this on their own.
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return 0;
+	
+	// Disallowed by game options
+	if (IsWarDisallowed(eTargetPlayer))
+		return 0;
+	
+	// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
+	if (IsWarWouldBackstabFriendTeamCheck(eTargetPlayer))
+		return 0;
+
 	int iWeight = 0;
 
 	// ePlayer asked us, so if we like him we're more likely to accept
@@ -29322,10 +29429,6 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 			iWeight += 2;
 	}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	// Don't work Target people we're DP'd WITH!
-	if(GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsHasDefensivePact(GetPlayer()->getTeam()))
-		return 0;
-
 	if(MOD_BALANCE_CORE_DIPLOMACY)
 	{
 		if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_NEIGHBORS)

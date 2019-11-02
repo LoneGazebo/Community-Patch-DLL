@@ -3793,10 +3793,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		return INT_MAX;
 	}
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
-	{
-		return INT_MAX;
-	}
 	//Can't see any of their cities?
 	if(bFromMe)
 	{
@@ -3938,6 +3934,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 		//They betrayed us before? It's a trap!
 		if (pDiploAI->IsFriendDenouncedUs(eOtherPlayer) || pDiploAI->IsFriendDeclaredWarOnUs(eOtherPlayer) || pDiploAI->IsPlayerBrokenMilitaryPromise(eOtherPlayer))
+		{
+			return INT_MAX;
+		}
+		// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
+		if (pDiploAI->IsWarWouldBackstabFriendTeamCheck(eWithPlayer))
 		{
 			return INT_MAX;
 		}
