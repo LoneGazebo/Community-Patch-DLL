@@ -29261,6 +29261,10 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	if (IsWarDisallowed(eTargetPlayer))
 		return 0;
 	
+	// AI teammates of humans should never do this on their own.
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return 0;
+	
 	// They betrayed us? Nope.
 	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer))
 		return 0;
