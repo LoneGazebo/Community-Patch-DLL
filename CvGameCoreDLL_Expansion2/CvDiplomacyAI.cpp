@@ -29499,6 +29499,10 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 		return false;
 	if (GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassalOfSomeone())
 		return false;
+	
+	// If it's because war is disallowed by game options, don't give a penalty for it
+	if (IsWarDisallowed(eTargetPlayer))
+		return false;
 		
 	// If the target is a human, never warn them for now (no textkey/diplo statement)
 	if(GET_PLAYER(eTargetPlayer).isHuman())
