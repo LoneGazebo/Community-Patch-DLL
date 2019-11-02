@@ -3793,6 +3793,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	{
 		return INT_MAX;
 	}
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	{
+		return INT_MAX;
+	}
 	//Can't see any of their cities?
 	if(bFromMe)
 	{
@@ -3915,6 +3919,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 		//Can we declare war?
 		if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
+		{
+			return INT_MAX;
+		}
+		// AI teammates of humans should never accept this.
+		if (GetPlayer()->IsAITeammateOfHuman())
 		{
 			return INT_MAX;
 		}
@@ -4948,9 +4957,22 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Them, but them is us. Please send Anton your save file and version.");
+	
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	{
+		return;
+	}
+	
+	// Don't ask humans for third party war if AI is set to passive mode, that's weird
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(eThem).isHuman())
+	{
+		return;
+	}
+	
 #if defined(MOD_BALANCE_CORE)
 	CvWeightedVector<int> viTradeValues;
 #endif
+	
 	if(!bDontChangeTheirExistingItems)
 	{
 		if(iTotalValue < 0)
@@ -5034,13 +5056,24 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 	}
 }
 
-/// See if adding a Vote Commitment to our side of the deal helps even out pDeal
+/// See if adding 3rd Party War to our side of the deal helps even out pDeal
 void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeMyExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountUnderWeWillOffer, bool bUseEvenValue)
 {
 	CvAssert(eThem >= 0);
 	CvAssert(eThem < MAX_MAJOR_CIVS)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
 
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	{
+		return;
+	}
+	
+	// Don't offer humans third party war if AI is set to passive mode, that's weird
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(eThem).isHuman())
+	{
+		return;
+	}
+	
 	if(!bDontChangeMyExistingItems)
 	{
 		if(iTotalValue > 0)
@@ -5054,6 +5087,7 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 
 				if(eLoopPlayer != NO_PLAYER && eLoopPlayer != eThem && eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
+					
 					TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();				
 
 					if (GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).IsVassalOfSomeone() || GET_TEAM(GET_PLAYER(eThem).getTeam()).IsVassalOfSomeone() || GET_TEAM(eOtherTeam).IsVassalOfSomeone())
@@ -7965,6 +7999,17 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	{
 		return false;
 	}
+	
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	{
+		return false;
+	}
+	
+	// Don't ask humans for war if AI is set to passive mode, that's weird
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(eOtherPlayer).isHuman())
+	{
+		return false;
+	}
 
 	// Don't ask for a war if we're hostile or planning a war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
@@ -8017,6 +8062,11 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	{
 		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
 		if (eAgainstPlayer == NO_PLAYER)
+		{
+			continue;
+		}
+		//Disallowed by game options
+		if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowed(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWarDisallowed(ePlayer))
 		{
 			continue;
 		}

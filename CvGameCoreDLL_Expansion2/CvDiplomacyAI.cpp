@@ -14987,6 +14987,10 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 /// Advanced Diplo AI Aggression Options (defined in CoreChanges.sql)
 bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 {
+	if (GetPlayer()->isHuman())
+	{
+		return false;
+	}
 	if (GET_PLAYER(ePlayer).isBarbarian())
 	{
 		return false;
@@ -20599,6 +20603,17 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+		{
+			return;
+		}
+		
+		// Don't ask humans for war if AI is set to passive mode, that's weird
+		if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(ePlayer).isHuman())
+		{
+			return;
+		}
+		
 		// slewis - added so that a player already at war wouldn't try to start another war with another player. The AI should try to only have one war going at a time if possible.
 		if (GET_TEAM(GetTeam()).getAtWarCount(true) == 0)
 		{
