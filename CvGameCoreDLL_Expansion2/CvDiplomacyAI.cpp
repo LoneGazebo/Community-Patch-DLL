@@ -4017,12 +4017,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		break;
 	}
 
-	// If either of us are close to victory, that should influence our decision
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-	}
+	// If we're close to victory, that should influence our decision
 	if (IsCloseToDominationVictory())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -4034,35 +4029,16 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iNumCaps;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iNumCaps;
 	}
-
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-	}
-	if(IsCloseToSSVictory())
+	if (IsCloseToSSVictory())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 	}
-
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-	}
-	if(IsCloseToDiploVictory())
+	if (IsCloseToDiploVictory())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 	}
-
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-	}
-
 	// Special check for culture
-	if(IsCloseToCultureVictory())
+	if (IsCloseToCultureVictory())
 	{
 		if(ePlayer == GetPlayer()->GetCulture()->GetCivLowestInfluence(false))
 		{
@@ -4079,6 +4055,31 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		else
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+		}
+	}
+	
+	// If they're close to victory, that should influence our decision
+	if (!IsNoVictoryCompetition())
+	{
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+		}
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		}
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		}
+		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		}
 	}
 
@@ -4594,7 +4595,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
 	if(iNumMajorsLeft == 2)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		if (!IsNoVictoryCompetition())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		}
 		if(IsGoingForWorldConquest())
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -11915,6 +11919,14 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	int iNumCities = GET_PLAYER(ePlayer).getNumCities();
 	if (iNumCities < 4)
 		return false;
+	
+	// If the player doesn't have more cities than we do, don't worry about it
+	if (iNumCities <= GetPlayer()->getNumCities())
+		return false;
+	
+	// If this guy's military is as big as ours, then it probably means he's just stronger than us
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+		return false;
 
 	double fAverageNumCities = 0;
 	int iNumPlayers = 0;
@@ -11947,10 +11959,6 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 
 	// Must have way more cities than the average player in the game
 	if (iNumCities < fAverageNumCities * 1.5)
-		return false;
-
-	// If this guy's military is as big as ours, then it probably means he's just stronger than us
-	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 		return false;
 
 	return true;
@@ -13341,72 +13349,75 @@ void CvDiplomacyAI::DoRelationshipPairing()
 
 			// If they're close to victory, that should influence our decision
 			// Modify enemy weight for humans based on human difficulty level
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+			if (!IsNoVictoryCompetition())
 			{
-				if (GET_PLAYER(ePlayer).isHuman())
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
 				{
-					int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					EnemyMod /= 100;
-					iEnemyWeight += EnemyMod;
-					iDPWeight += -EnemyMod;
-					iDoFWeight += -EnemyMod;
+					if (GET_PLAYER(ePlayer).isHuman())
+					{
+						int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+						EnemyMod /= 100;
+						iEnemyWeight += EnemyMod;
+						iDPWeight += -EnemyMod;
+						iDoFWeight += -EnemyMod;
+					}
+					else
+					{
+						iEnemyWeight += 20;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+					}
 				}
-				else
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
 				{
-					iEnemyWeight += 20;
-					iDPWeight += -10;
-					iDoFWeight += -10;
+					if (GET_PLAYER(ePlayer).isHuman())
+					{
+						int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+						EnemyMod /= 100;
+						iEnemyWeight += EnemyMod;
+						iDPWeight += -EnemyMod;
+						iDoFWeight += -EnemyMod;
+					}
+					else
+					{
+						iEnemyWeight += 20;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+					}
 				}
-			}
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
-			{
-				if (GET_PLAYER(ePlayer).isHuman())
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
 				{
-					int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					EnemyMod /= 100;
-					iEnemyWeight += EnemyMod;
-					iDPWeight += -EnemyMod;
-					iDoFWeight += -EnemyMod;
+					if (GET_PLAYER(ePlayer).isHuman())
+					{
+						int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+						EnemyMod /= 100;
+						iEnemyWeight += EnemyMod;
+						iDPWeight += -EnemyMod;
+						iDoFWeight += -EnemyMod;
+					}
+					else
+					{
+						iEnemyWeight += 20;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+					}
 				}
-				else
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
-					iEnemyWeight += 20;
-					iDPWeight += -10;
-					iDoFWeight += -10;
-				}
-			}
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
-			{
-				if (GET_PLAYER(ePlayer).isHuman())
-				{
-					int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					EnemyMod /= 100;
-					iEnemyWeight += EnemyMod;
-					iDPWeight += -EnemyMod;
-					iDoFWeight += -EnemyMod;
-				}
-				else
-				{
-					iEnemyWeight += 20;
-					iDPWeight += -10;
-					iDoFWeight += -10;
-				}
-			}
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
-			{
-				if (GET_PLAYER(ePlayer).isHuman())
-				{
-					int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					EnemyMod /= 100;
-					iEnemyWeight += EnemyMod;
-					iDPWeight += -EnemyMod;
-					iDoFWeight += -EnemyMod;
-				}
-				else
-				{
-					iEnemyWeight += 20;
-					iDPWeight += -10;
-					iDoFWeight += -10;
+					if (GET_PLAYER(ePlayer).isHuman())
+					{
+						int EnemyMod = 15 * GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+						EnemyMod /= 100;
+						iEnemyWeight += EnemyMod;
+						iDPWeight += -EnemyMod;
+						iDoFWeight += -EnemyMod;
+					}
+					else
+					{
+						iEnemyWeight += 20;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+					}
 				}
 			}
 
@@ -13720,8 +13731,8 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDoF(bool bIgnoreDoFs)
 		}
 	}
 
-	//If we have a choice, return it. If only one person is known to us, they can't be our DP!
-	if (iNumPlayers > 1)
+	//If we have a choice, return it. If only one person is known to us, they can't be our best friend!
+	if (iNumPlayers > 1 || IsNoVictoryCompetition())
 	{
 		return eBestPlayer;
 	}
@@ -13769,17 +13780,19 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
 		return false;
 	
-	if (IsNoVictoryCompetition())
-		return false;
-	
-	if (GC.getGame().countMajorCivsAlive() == 2)
-		return true;
-	
 	if (GetPlayer()->GetCapitalConqueror() == ePlayer)
 		return true;
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+	if (GC.getGame().countMajorCivsAlive() == 2 && !IsNoVictoryCompetition())
 		return true;
+	
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+	{
+		if (!IsNoVictoryCompetition())
+		{
+			return true;
+		}
+	}
 	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
@@ -14857,21 +14870,19 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(!IsPlayerValid(ePlayer))
+	if (!IsPlayerValid(ePlayer))
 		return;
 
-#if defined(MOD_BALANCE_CORE)
-	//We're allowing them Open Borders? We shouldn't care.
-	if(GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	// We're allowing them Open Borders? We shouldn't care.
+	if (GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
-	//We're working together, so don't worry about it
-	if(IsDoFAccepted(ePlayer))
+	// We're working together, so don't worry about it
+	if (IsDoFAccepted(ePlayer))
 		return;
-#endif
 
-	//They resurrected us, so don't worry about it
-	if(WasResurrectedBy(ePlayer))
+	// They resurrected us, so don't worry about it
+	if (WasResurrectedBy(ePlayer))
 		return;
 
 	AggressivePostureTypes eAggressivePosture;
@@ -35311,9 +35322,6 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory()
 /// Is this player close to a science victory?
 bool CvDiplomacyAI::IsCloseToSSVictory()
 {
-	if (IsNoVictoryCompetition())
-		return false;
-	
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 	if(eVictory != NO_VICTORY)
 	{
@@ -35366,9 +35374,6 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 /// Is this player close to a domination victory?
 bool CvDiplomacyAI::IsCloseToDominationVictory()
 {
-	if (IsNoVictoryCompetition())
-		return false;
-	
 	int iNumCivs = GetPlayer()->GetFractionOriginalCapitalsUnderControl();
 	if(iNumCivs >= 75)
 		return true;
@@ -35378,9 +35383,6 @@ bool CvDiplomacyAI::IsCloseToDominationVictory()
 /// Is this player close to a cultural victory?
 bool CvDiplomacyAI::IsCloseToCultureVictory()
 {
-	if (IsNoVictoryCompetition())
-		return false;
-	
 	int iNumCivsInfluential = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
 	if(iNumCivsInfluential > 0)
 	{
@@ -35415,9 +35417,6 @@ bool CvDiplomacyAI::IsCloseToCultureVictory()
 /// Is this player close to a diplomatic victory?
 bool CvDiplomacyAI::IsCloseToDiploVictory()
 {
-	if (IsNoVictoryCompetition())
-		return false;
-	
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (pLeague != NULL)
 	{
