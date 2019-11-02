@@ -26305,9 +26305,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 			}
 			
-			if (DeclareWar(eFromPlayer))
+			if (bDeclareWar)
 			{
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+				if (DeclareWar(eFromPlayer))
+				{
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+				}
 			}
 		}
 
