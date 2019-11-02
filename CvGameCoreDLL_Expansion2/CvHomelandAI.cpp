@@ -803,9 +803,9 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... antiquity site?
 			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
 			{
-				if( pLoopPlot->getOwner() == NO_PLAYER ||
-					pLoopPlot->getOwner() == m_pPlayer->GetID() || 
-					!m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()) )
+				if (pLoopPlot->getOwner() == NO_PLAYER ||
+					pLoopPlot->getOwner() == m_pPlayer->GetID() ||
+					!GET_PLAYER(pLoopPlot->getOwner()).GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(m_pPlayer->GetID()))
 				{
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 					newTarget.SetTargetX(pLoopPlot->getX());
