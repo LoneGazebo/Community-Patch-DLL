@@ -7084,6 +7084,31 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+#if defined(MOD_BALANCE_CORE)
+	// Are they here to steal our PRICELESS ARCHAEOLOGICAL ARTIFACTS???
+	if (GetNegativeArchaeologyPoints(ePlayer) > 0 || IsPlayerMadeNoDiggingPromise(ePlayer) ||
+		IsPlayerIgnoredNoDiggingPromise(ePlayer) || IsPlayerBrokenNoDiggingPromise(ePlayer))
+	{
+		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
+		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
+		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AESTHETICS();
+		
+		if (iNormalSites > 0)
+		{
+			return false;
+		}
+		// Have they unlocked Artistry?
+		if (iHiddenSites > 0 && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
+		{
+			return false;
+		}
+	}
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+	{
+		return false;
+	}
+#endif
+
 // If going for culture win we always want open borders against civs we need influence on
 #if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 	//If we need influence over them, we want to give OB, thanks.
@@ -7110,28 +7135,6 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	if (IsArmyInPlaceForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
 	{
 		return false;
-	}
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
-	{
-		return false;
-	}
-	// Are they here to steal our PRICELESS ARCHAEOLOGICAL ARTIFACTS???
-	if (GetNegativeArchaeologyPoints(ePlayer) > 0 || IsPlayerMadeNoDiggingPromise(ePlayer) ||
-		IsPlayerIgnoredNoDiggingPromise(ePlayer) || IsPlayerBrokenNoDiggingPromise(ePlayer))
-	{
-		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
-		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
-		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AESTHETICS();
-		
-		if (iNormalSites > 0)
-		{
-			return false;
-		}
-		// Have they unlocked Artistry?
-		if (iHiddenSites > 0 && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
-		{
-			return false;
-		}
 	}
 	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
 	{

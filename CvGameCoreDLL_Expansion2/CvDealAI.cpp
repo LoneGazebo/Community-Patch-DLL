@@ -2818,7 +2818,8 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of Open Borders with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
+	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+	MajorCivApproachTypes eApproach = pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 
 	// If we're friends, then OB is always equally valuable to both parties
 #if !defined(MOD_BALANCE_CORE)
@@ -2848,17 +2849,23 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 	}
 #endif
-
+	
+	// Are they planning a trap for us? Don't fall for it!
+	if (pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
+	pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+	{
+		return INT_MAX;
+	}
+	// They betrayed us before? It's a trap!
+	if (pDiploAI->IsFriendDenouncedUs(eOtherPlayer) || pDiploAI->IsFriendDeclaredWarOnUs(eOtherPlayer) || pDiploAI->IsPlayerBrokenMilitaryPromise(eOtherPlayer))
+	{
+		return INT_MAX;
+	}
+	
 	// Me giving Open Borders to the other guy
 	if(bFromMe)
 	{
-		if (!GetPlayer()->GetDiplomacyAI()->IsWillingToGiveOpenBordersToPlayer(eOtherPlayer))
-		{
-			return INT_MAX;
-		}
-		// Are they planning a trap for us? Don't fall for it!
-		if (GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
-		GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		if (!pDiploAI->IsWillingToGiveOpenBordersToPlayer(eOtherPlayer))
 		{
 			return INT_MAX;
 		}
@@ -2889,7 +2896,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 
 		// If they're at war with our enemies then we're more likely to give them OB
-		int iNumEnemiesAtWarWith = GetPlayer()->GetDiplomacyAI()->GetNumOurEnemiesPlayerAtWarWith(eOtherPlayer);
+		int iNumEnemiesAtWarWith = pDiploAI->GetNumOurEnemiesPlayerAtWarWith(eOtherPlayer);
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(iNumEnemiesAtWarWith > 0)
 #else
@@ -2951,9 +2958,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
 			if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
 			{
-				if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				if(pDiploAI->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
 				{
-					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+					if(pDiploAI->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || pDiploAI->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
 					{
 						iItemValue = 100000;
 					}
@@ -2967,14 +2974,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
-		if (!GetPlayer()->GetDiplomacyAI()->IsWantsOpenBordersWithPlayer(eOtherPlayer))
-		{
-			return INT_MAX;
-		}
-		
-		// Are they planning a trap for us? Don't fall for it!
-		if (GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
-		GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		if (!pDiploAI->IsWantsOpenBordersWithPlayer(eOtherPlayer))
 		{
 			return INT_MAX;
 		}
@@ -3061,12 +3061,12 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		if(GetPlayer()->GetDiplomacyAI()->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
+		if(pDiploAI->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
 		{
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		if(GetPlayer()->GetDiplomacyAI()->MusteringForNeighborAttack(eOtherPlayer))
+		if(pDiploAI->MusteringForNeighborAttack(eOtherPlayer))
 		{
 			iItemValue *= 150;
 			iItemValue /= 100;
@@ -3120,16 +3120,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 #endif
 #if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		if (!GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition() && !GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eOtherPlayer))
+		if (!pDiploAI->IsNoVictoryCompetition() && !pDiploAI->WasResurrectedBy(eOtherPlayer))
 		{
 			// Do we think he's going for culture victory? If we're contesting this, don't take his open borders!
 			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
 			// Opinion also matters
-			if(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) < MAJOR_CIV_APPROACH_FRIENDLY)
+			if(pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) < MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				if (kOtherPlayer.GetCulture()->GetTourism() / 100 > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
 				{
-					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+					if(pDiploAI->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || pDiploAI->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
 					{
 						return INT_MAX;
 					}
@@ -3779,7 +3779,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		return INT_MAX;
 	}
 	//Are we in a DOF with the player? Don't do it!
-	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
+	if(pDiploAI->IsDoFAccepted(eWithPlayer) || GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 	{
 		return INT_MAX;
 	}
@@ -3924,6 +3924,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 		//tricksy players wanting us to DoW so they can get the drop on us...don't fall for it!
 		if (pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR || pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		{
+			return INT_MAX;
+		}
+		//They betrayed us before? It's a trap!
+		if (pDiploAI->IsFriendDenouncedUs(eOtherPlayer) || pDiploAI->IsFriendDeclaredWarOnUs(eOtherPlayer) || pDiploAI->IsPlayerBrokenMilitaryPromise(eOtherPlayer))
 		{
 			return INT_MAX;
 		}
