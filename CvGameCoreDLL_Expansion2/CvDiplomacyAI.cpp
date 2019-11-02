@@ -29231,7 +29231,12 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 #endif
 		return 0;
 		
+	// Disallowed by game options
 	if (IsWarDisallowed(eTargetPlayer))
+		return 0;
+	
+	// They betrayed us? Nope.
+	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer))
 		return 0;
 
 	// If player is inquiring, he has to be planning a war already
