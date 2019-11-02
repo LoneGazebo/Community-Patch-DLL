@@ -26990,10 +26990,21 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			// Teammates
 			if(GetPlayer()->getTeam() == GET_PLAYER(eFromPlayer).getTeam())
-				eAcceptableState = COOP_WAR_STATE_SOON;
+			{
+				if(GetPlayerTargetValue(eAgainstPlayer) >= TARGET_VALUE_FAVORABLE && GetBoldness() > 6)
+				{
+					eAcceptableState = COOP_WAR_STATE_ACCEPTED;
+				}
+				else
+				{
+					eAcceptableState = COOP_WAR_STATE_SOON;
+				}
+			}
 			// Not teammates
 			else
+			{
 				eAcceptableState = GetWillingToAgreeToCoopWarState(eFromPlayer, eAgainstPlayer);
+			}
 
 			SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, eAcceptableState);
 
@@ -29195,14 +29206,14 @@ CoopWarStates CvDiplomacyAI::GetWillingToAgreeToCoopWarState(PlayerTypes ePlayer
 	// Player is willing to agree. War now, or soon?
 	if(GetCoopWarScore(ePlayer, eTargetPlayer, /*bAskedByPlayer*/ true) >= 15)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE && GetBoldness() > 6)
-#else
-		if(GetPlayerTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE)
-#endif
+		{
 			return COOP_WAR_STATE_ACCEPTED;
+		}
 		else
+		{
 			return COOP_WAR_STATE_SOON;
+		}
 	}
 
 	return COOP_WAR_STATE_REJECTED;
