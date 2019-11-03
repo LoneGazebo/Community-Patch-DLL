@@ -5430,7 +5430,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
 		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.getNumCities() > 0)
 		{
 			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
 			{
