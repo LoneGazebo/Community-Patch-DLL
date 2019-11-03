@@ -34353,7 +34353,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	// but the slot status is used to determine if the player is human or not, so it looks like it is an AI!
 	// This should be fixed, but might have unforeseen ramifications so...
 	CvPlayer& kPossibleVictimPlayer = GET_PLAYER(ePossibleVictimPlayer);
-	bool bPossibileVictimIsHuman = kPossibleVictimPlayer.isHuman();
+	bool bPossibleVictimIsHuman = kPossibleVictimPlayer.isHuman();
 
 	// This may 'kill' the player if it is deemed that he does not have the proper units to stay alive
 	kPossibleVictimPlayer.verifyAlive();
@@ -34367,7 +34367,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 		// Leader pops up and whines
 		if(!CvPreGame::isNetworkMultiplayerGame())		// Not in MP
 		{
-			if(!bPossibileVictimIsHuman && !kPossibleVictimPlayer.isMinorCiv() && !kPossibleVictimPlayer.isBarbarian())
+			if(!bPossibleVictimIsHuman && !kPossibleVictimPlayer.isMinorCiv() && !kPossibleVictimPlayer.isBarbarian())
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 		}
 
@@ -34380,6 +34380,14 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 				GET_PLAYER(eCleanupPlayer).GetDiplomacyAI()->KilledPlayerCleanup(kPossibleVictimPlayer.GetID());
 			}
 		}
+		
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_CORE_HAPPINESS && kPossibleVictimPlayer.isMajorCiv())
+		{
+			kPossibleVictimPlayer.GetCulture()->SetWarWeariness(0);
+		}
+#endif
+		
 #if defined(MOD_BALANCE_CORE)
 		DoWarVictoryBonuses();
 #endif

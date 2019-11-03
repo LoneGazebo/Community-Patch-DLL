@@ -5416,6 +5416,9 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
+	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+		return 0;
+	
 	int iCurrentWeary = m_iRawWarWeariness;
 	if (iCurrentWeary == 0 && !m_pPlayer->IsAtWarAnyMajor())
 		return 0;
