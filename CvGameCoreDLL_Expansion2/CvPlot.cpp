@@ -3590,7 +3590,7 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const
+bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)

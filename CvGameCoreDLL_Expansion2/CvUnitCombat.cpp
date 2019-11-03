@@ -446,6 +446,32 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
+
+//	--------------------------------------------------------------------------------
+/// Is this a Barbarian Unit threatening a nearby Minor?
+void DoTestBarbarianThreatToMinorsWithThisUnitsDeath(CvUnit* pUnit, PlayerTypes eKillingPlayer)
+{
+	// Need valid input
+	if(eKillingPlayer == NO_PLAYER || pUnit == NULL)
+		return;
+
+	// No minors
+	if(GET_PLAYER(eKillingPlayer).isMinorCiv())
+		return;
+
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+
+		if(GET_PLAYER(eMinor).isAlive())
+		{
+			if (pUnit->plot()->isAdjacentTeam( GET_PLAYER(eMinor).getTeam() ))
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoThreateningBarbKilled(eKillingPlayer, pUnit->getX(), pUnit->getY());
+		}
+	}
+}
+
+
 //	---------------------------------------------------------------------------
 void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID)
 {
@@ -632,12 +658,12 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		if(bAttackerDead)
 		{
 			if(pkAttacker->isBarbarian())
-				pkAttacker->DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender->getOwner());
+				DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker,pkDefender->getOwner());
 		}
 		else if(bDefenderDead)
 		{
 			if(pkDefender->isBarbarian())
-				pkDefender->DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker->getOwner());
+				DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender,pkAttacker->getOwner());
 		}
 	}
 
@@ -1124,8 +1150,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			CvAssert_Debug(pkDefender != NULL);
 			if(pkDefender)
 			{
-				bBarbarian = pkDefender->isBarbarian();
-
 				if(pkAttacker)
 				{
 #if defined(MOD_BALANCE_CORE)
@@ -1185,9 +1209,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
-						if(bBarbarian)
+						if(pkDefender->isBarbarian())
 						{
-							pkDefender->DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker->getOwner());
+							DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
 						}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -2135,7 +2159,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 						// Friendship from barb death via air-strike
 						if(pkDefender->isBarbarian())
 						{
-						 	pkDefender->DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker->getOwner());
+						 	DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
 						}
 #endif
 					}

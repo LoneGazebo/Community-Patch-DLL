@@ -7656,7 +7656,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 		// Boats can only heal in friendly territory (without promotion)
 		if(getDomainType() == DOMAIN_SEA)
 		{
-			if(!IsInFriendlyTerritory() && !isHealOutsideFriendly())
+			if(!pPlot->IsFriendlyTerritory(getOwner()) && !isHealOutsideFriendly())
 			{
 				return false;
 			}
@@ -7841,7 +7841,12 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	}
 	else
 	{
-		if(!IsInFriendlyTerritory())
+		if(pPlot->IsFriendlyTerritory(getOwner()))
+		{
+			iBaseHeal = GC.getFRIENDLY_HEAL_RATE();
+			iExtraHeal += iExtraFriendlyHeal;
+		}
+		else
 		{
 			if(isEnemy(pPlot->getTeam(), pPlot))
 			{
@@ -7853,11 +7858,6 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				iBaseHeal = GC.getNEUTRAL_HEAL_RATE();
 				iExtraHeal += iExtraNeutralHeal;
 			}
-		}
-		else
-		{
-			iBaseHeal = GC.getFRIENDLY_HEAL_RATE();
-			iExtraHeal += iExtraFriendlyHeal;
 		}
 	}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -8245,7 +8245,6 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
 #endif
 {
 	VALIDATE_OBJECT
-	CvCity* pCity;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	// Early out if we're a trade unit
@@ -8305,7 +8304,7 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
 #endif
 	}
 
-	pCity = pPlot->getPlotCity();
+	CvCity* pCity = pPlot->getPlotCity();
 	if(pCity == NULL)
 	{
 		pCity = pPlot->GetAdjacentCity();
@@ -8371,23 +8370,16 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
 bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 {
 	VALIDATE_OBJECT
-	CvPlot* pTargetPlot;
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* pFromPlot = getAirliftFromPlot(pPlot);
 	
 	if(pFromPlot == NULL)
-#else
-	CvCity* pStartCity;
-	CvCity* pTargetCity;
-
-	if(!canAirlift(pPlot))
-#endif
-	{
 		return false;
-	}
+#else
+	if(!canAirlift(pPlot))
+		return false;
 
-#if !defined(MOD_GLOBAL_RELOCATION)
-	pStartCity = pPlot->getPlotCity();
+	CvCity* pStartCity = pPlot->getPlotCity();
 	if(pStartCity == NULL)
 	{
 		pStartCity = pPlot->GetAdjacentCity();
@@ -8398,7 +8390,7 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 	}
 #endif
 
-	pTargetPlot = GC.getMap().plot(iX, iY);
+	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
 	int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
 	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags) || pTargetPlot->isWater())
 	{
@@ -8408,11 +8400,13 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* pToPlot = getAirliftToPlot(pTargetPlot, pFromPlot->isCity());
 	if(pToPlot == NULL)
-	{
 		return false;
-	}
+
+	if (pToPlot == pFromPlot)
+		return false;
+
 #else
-	pTargetCity = pTargetPlot->getPlotCity();
+	CvCity* pTargetCity = pTargetPlot->getPlotCity();
 	if(pTargetCity == NULL)
 	{
 		pTargetCity = pTargetPlot->GetAdjacentFriendlyCity(getTeam());
@@ -8421,30 +8415,26 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 			return false;
 		}
 	}
-#endif
-
-#if defined(MOD_GLOBAL_RELOCATION)
-	if (pToPlot == pFromPlot)
-#else
 	if (pTargetCity == pStartCity)
-#endif
 	{
 		return false;
 	}
 
-#if !defined(MOD_GLOBAL_RELOCATION)
 	if (!pTargetCity->CanAirlift())
+	{
+		return false;
+	}
+
+	if(pTargetCity->getTeam() != getTeam())
 	{
 		return false;
 	}
 #endif
 
 	// No enemy units adjacent
-	CvPlot* pAdjacentPlot;
-	int iI;
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
 			CvUnit* pDefender = pAdjacentPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true);
@@ -8454,13 +8444,6 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 			}
 		}
 	}
-
-#if !defined(MOD_GLOBAL_RELOCATION)
-	if(pTargetCity->getTeam() != getTeam())
-	{
-		return false;
-	}
-#endif
 
 	return true;
 }
@@ -15036,65 +15019,6 @@ bool CvUnit::isHuman() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(getOwner()).isHuman();
 }
-
-
-//	--------------------------------------------------------------------------------
-/// Is this a Barbarian Unit threatening a nearby Minor?
-void CvUnit::DoTestBarbarianThreatToMinorsWithThisUnitsDeath(PlayerTypes eKillingPlayer)
-{
-	VALIDATE_OBJECT
-
-	// Need valid player
-	if(eKillingPlayer == NO_PLAYER)
-		return;
-
-	// No minors
-	if(GET_PLAYER(eKillingPlayer).isMinorCiv())
-		return;
-
-	PlayerTypes eMinor;
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		eMinor = (PlayerTypes) iMinorLoop;
-
-		if(GET_PLAYER(eMinor).isAlive())
-		{
-			if(IsBarbarianUnitThreateningMinor(eMinor))
-				GET_PLAYER(eMinor).GetMinorCivAI()->DoThreateningBarbKilled(eKillingPlayer, getX(), getY());
-		}
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Is this a Barbarian Unit threatening a nearby Minor?
-bool CvUnit::IsBarbarianUnitThreateningMinor(PlayerTypes eMinor)
-{
-	VALIDATE_OBJECT
-
-	// Must be a barb unit
-	if(!isBarbarian())
-		return false;
-
-	// Plot owned by this minor?
-	if(plot()->getOwner() == eMinor)
-		return true;
-
-	// Look at adjacent plots
-	CvPlot* pLoopPlot;
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(getX(), getY(), (DirectionTypes) iI);
-
-		if(pLoopPlot != NULL)
-		{
-			if(pLoopPlot->getOwner() == eMinor)
-				return true;
-		}
-	}
-
-	return false;
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::visibilityRange() const

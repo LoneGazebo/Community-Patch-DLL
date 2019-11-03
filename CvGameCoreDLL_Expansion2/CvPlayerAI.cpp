@@ -2743,7 +2743,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			if (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0)
 			{
 				//we want to steal at least one plot
-				if (!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+				if (!pAdjacentPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()))
 					continue;
 
 				if (pAdjacentPlot->GetDefenseBuildValue(GetID()) <= 0)

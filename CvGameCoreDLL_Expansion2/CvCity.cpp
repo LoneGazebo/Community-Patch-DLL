@@ -28562,7 +28562,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	}
 
 	//try and snatch up natural wonders
-	if (pPlot->IsNaturalWonder() && pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+	if (pPlot->IsNaturalWonder() && pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()))
 	{
 		iRtnValue *= 2;
 	}

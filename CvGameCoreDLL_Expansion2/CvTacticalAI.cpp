@@ -290,8 +290,6 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_iSeaBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange();
 	m_iRepositionRange = GC.getAI_TACTICAL_REPOSITION_RANGE();
 	m_iDeployRadius = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
-	m_iRandomRange = GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS();
-	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
 
 	// cache TypeInfos rather than doing a hash map look up of the string every time it is being used
 	m_CachedInfoTypes[eTACTICAL_UNASSIGNED] = GC.getInfoTypeForString("TACTICAL_UNASSIGNED");
@@ -456,11 +454,14 @@ void CvTacticalAI::CommandeerUnits()
 		//if we cannot heal in the capital, we can heal nowhere ...
 		CvCity* pCapital = m_pPlayer->getCapitalCity();
 		bool bCanHeal = pCapital ? pLoopUnit->healRate( pCapital->plot() ) > 0 : false;
-		bool bHasTarget = (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit,true,true)!=NULL);
+		//does it need healing? unless barbarian or japanese!
+		bool bNeedHeal = (pLoopUnit->getDamage() > 80 && !m_pPlayer->isBarbarian()) ||
+			(pLoopUnit->isProjectedToDieNextTurn() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged());
 
-		// is the unit healing?
+		// is the unit currently healing?
 		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
 		{
+			bool bHasTarget = (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit,true,true)!=NULL);
 			if ( pLoopUnit->getDamage()>40 && bCanHeal && !bHasTarget )
 				//need to continue healing
 				continue;
@@ -468,11 +469,11 @@ void CvTacticalAI::CommandeerUnits()
 				//done healing
 				m_HealingUnits.erase( pLoopUnit->GetID() );
 		}
-		else if (bCanHeal && !bHasTarget)
+		else if (bCanHeal && bNeedHeal)
 		{
-			//does it need healing? unless barbarian or japanese!
-			if ((pLoopUnit->getDamage()>80 && !m_pPlayer->isBarbarian()) || 
-				(pLoopUnit->isProjectedToDieNextTurn() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged()))
+			//don't force healing if there is a target around. but there's a chance the unit can't be used an will be picked up by PlotHealingMoves anyway
+			bool bHasTarget = (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit,true,true)!=NULL);
+			if (!bHasTarget)
 			{
 				CvPlot* pHealPlot = TacticalAIHelpers::FindSafestPlotInReach(pLoopUnit, true);
 				if (pHealPlot)
@@ -528,34 +529,25 @@ void CvTacticalAI::CommandeerUnits()
 				}
 			}
 
-			bool bNearVisibleEnemy = NearVisibleEnemy(pLoopUnit, GetRecruitRange());
 			// Is this one in an operation we can't interrupt?
 			int iArmyID = pLoopUnit->getArmyID();
-			const CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
-			if(iArmyID != -1 && pArmy && !pArmy->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
+			if (iArmyID != -1)
 			{
-				//those units will be moved as part of the army moves. don't touch them afterwards
+				//those units will be moved as part of the army moves
 				pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS]);
+
+				//some are part of an army but we can still use it for tactical AI if it has moves left
+				const CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
+				if (!pArmy || pArmy->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
+					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 			}
 			else
 			{
-				// Non-zero danger value or near enemy, paratrooper, or recently deployed out of an operation?
-				int iDanger = pLoopUnit->GetDanger();
-				if (iDanger > 0 || bNearVisibleEnemy || pLoopUnit->IsRecentlyDeployedFromOperation() || pLoopUnit->canParadrop(pLoopUnit->plot(), false))
-				{
-					if (iArmyID != -1)
-					{
-						//part of an army but we can still use it for tactical AI if it has moves left
-						pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS]);
-					}
-					else
-					{
-						if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
-							pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-					}
+				//just for debugging
+				if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
+					pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
 
-					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-				}
+				m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 			}
 		}
 	}
@@ -1214,16 +1206,21 @@ void CvTacticalAI::FindTacticalTargets()
 					!pLoopPlot->IsImprovementPillaged())
 				{
 					ResourceTypes eResource = pLoopPlot->getResourceType();
-					if (eResource != NO_RESOURCE || m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
+					int iExtraScore = 0;
+					//does this make a difference in the end?
+					if (m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
+						iExtraScore = 20;
+
+					if (eResource != NO_RESOURCE)
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE);
-						newTarget.SetAuxIntData(40);
+						newTarget.SetAuxIntData(40+iExtraScore);
 						m_AllTargets.push_back(newTarget);
 					}
 					else
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
-						newTarget.SetAuxIntData(5);
+						newTarget.SetAuxIntData(5+iExtraScore);
 						m_AllTargets.push_back(newTarget);
 					}
 				}
@@ -2388,6 +2385,12 @@ void CvTacticalAI::PlotRepositionMoves()
 	{
 		ExecuteRepositionMoves();
 	}
+}
+
+//this function takes care of moving around combat units without contact to the enemy
+//previously this was separated into garrison, bastion, reposition moves and homeland patrol, sentry
+void CvTacticalAI::PlotDefensiveMoves(int iTurnsToArrive)
+{
 }
 
 /// Move barbarians across the map
@@ -8443,7 +8446,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger+=20;
 
 		//heal rate is higher here and danger lower
-		if (bIsInTerritory && !pPlot->IsAdjacentOwnedByOtherTeam(pUnit->getTeam()))
+		if (bIsInTerritory && !pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
 			iDanger -= 5;
 
 		//try to go where our friends are

@@ -2120,7 +2120,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	}
 
 	//too dangerous, might be severed any time
-	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByOtherTeam(thisPlayer.getTeam()))
+	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByTeamOtherThan(thisPlayer.getTeam()))
 		return FALSE;
 
 	return TRUE;

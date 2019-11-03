@@ -233,16 +233,13 @@ public:
 	// Public exploration routines
 	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck, int iMaxTurns) const;
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
-#if defined(MOD_BALANCE_CORE)
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);
-#endif
+
 	// Public logging
 	void LogHomelandMessage(const CvString& strMsg);
 	void LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit);
 
-#if defined(MOD_BALANCE_CORE)
 	bool MoveCivilianToGarrison(CvUnit* pUnit);
-#endif
 	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 private:
@@ -258,17 +255,37 @@ private:
 	void PlotExplorerMoves(bool bSecondPass);
 	void PlotExplorerSeaMoves(bool bSecondPass);
 	void PlotFirstTurnSettlerMoves();
-	void PlotGarrisonMoves(bool bCityStateOnly = false);
 	void PlotHealMoves();
 	void PlotMovesToSafety();
-	void PlotMobileReserveMoves();
+
 #if defined(MOD_AI_SECONDARY_SETTLERS)
 	void PlotOpportunisticSettlementMoves();
 #endif
-	void PlotSentryMoves();
+
+//------------------------------------- move to tactical AI
 #if defined(MOD_BALANCE_CORE)
+	void PlotGarrisonMoves(bool bCityStateOnly = false);
+	void PlotMobileReserveMoves();
+	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
+	void PlotPatrolMoves();
+	void PlotUpgradeMoves();
+	void PlotAircraftMoves();
+	void PlotAirliftMoves();
+
+	void ExecuteAircraftInterceptions();
+	void ExecuteAircraftMoves();
+	void ExecutePatrolMoves(bool bAtWar);
+
+	// Internal low-level utility routines
+	void EliminateAdjacentSentryPoints();
+	void EliminateAdjacentNavalSentryPoints();
+
+	std::vector<CvHomelandTarget> m_TargetedSentryPoints;
+	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
 #endif
+//-------------------------------------
+
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
 	void PlotWorkerSeaMoves(bool bSecondary = false);
@@ -276,8 +293,6 @@ private:
 	void PlotWorkerMoves();
 	void PlotWorkerSeaMoves();
 #endif
-	void PlotPatrolMoves();
-	void PlotUpgradeMoves();
 	void PlotAncientRuinMoves();
 	void PlotWriterMoves();
 	void PlotArtistMoves();
@@ -297,14 +312,10 @@ private:
 	void PlotSSPartAdds();
 	void PlotSSPartMoves();
 	void PlotTreasureMoves();
-	void PlotAircraftMoves();
 	void PlotTradeUnitMoves();
 	void PlotArchaeologistMoves();
-	void PlotAirliftMoves();
 	void ReviewUnassignedUnits();
-#if defined(MOD_BALANCE_CORE)
 	void ExecuteUnassignedUnitMoves();
-#endif
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
@@ -333,19 +344,9 @@ private:
 	void ExecuteSSPartAdds();
 	void ExecuteSSPartMoves();
 	void ExecuteTreasureMoves();
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-	void ExecuteAircraftInterceptions();
-#endif
-	void ExecuteAircraftMoves();
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
-	void ExecutePatrolMoves(bool bAtWar);
 
-	// Internal low-level utility routines
-	void EliminateAdjacentSentryPoints();
-#if defined(MOD_BALANCE_CORE)
-	void EliminateAdjacentNavalSentryPoints();
-#endif
 	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
@@ -354,9 +355,7 @@ private:
 	bool MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
-#if defined(MOD_BALANCE_CORE)
-	CvPlot* FindUnassignedTarget(CvUnit *pUnit);
-#endif
+
 	void UnitProcessed(int iID);
 	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>* allWorkersReachablePlots = NULL);
 	bool ExecuteCultureBlast(CvUnit* pUnit);
@@ -381,20 +380,10 @@ private:
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
-	std::vector<CvHomelandTarget> m_TargetedSentryPoints;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
 	std::vector<CvHomelandTarget> m_TargetedHomelandRoads;
 	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
-#if defined(MOD_BALANCE_CORE)
-	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
-#endif
-
-	// Targeting ranges (pulled in from GlobalAIDefines.XML)
-	int m_iRandomRange;
-	int m_iDefensiveMoveTurns;
-	int m_iUpgradeMoveTurns;
-	double m_fFlavorDampening;
 };
 
 #if defined(MOD_BALANCE_CORE_MILITARY)

@@ -364,10 +364,10 @@ public:
 	void LogMilitarySummaryMessage(const CvString& strMsg);
 
 #if defined(MOD_BALANCE_CORE)
-	void MinorAttackTest();
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 #endif
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetNumNavalAttacksRequested() const
 	{

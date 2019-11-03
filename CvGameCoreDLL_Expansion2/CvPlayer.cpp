@@ -47188,7 +47188,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 			if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
 				ignorePlots[iI] = 1;
-			else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
+			else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
 				ignorePlots[iI] = 1;
 		}
 	}
@@ -47252,7 +47252,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			continue;
 		}
 
-		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
+		if(pPlot->IsAdjacentOwnedByTeamOtherThan(eTeam))
 		{
 			//--------------
 			if (bLogging) 
@@ -49899,7 +49899,7 @@ void CvPlayer::updatePlotFoundValues()
 			if (pPlot->getOwner() != m_eID) //if we own it, it's fine
 				ignorePlots[iI] = 1;
 		}
-		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
+		else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
 			ignorePlots[iI] = 1;
 	}
 

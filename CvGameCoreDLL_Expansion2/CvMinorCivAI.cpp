@@ -5062,10 +5062,10 @@ void CvMinorCivAI::DoTurn()
 				}
 			}
 		}
-		//Let's see if we can launch a military action.
-		GetPlayer()->GetMilitaryAI()->MinorAttackTest();
+		//Let's see if we can make peace
 		DoTestEndSkirmishes(NO_PLAYER);
 #endif
+
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 		{
@@ -6143,10 +6143,8 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 
 	int iLoop;
 	for(CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
-	{
-		if(pLoopUnit->IsBarbarianUnitThreateningMinor(GetPlayer()->GetID()))
+		if(pLoopUnit->plot()->isAdjacentTeam(GetPlayer()->getTeam()))
 			iCount++;
-	}
 
 	return iCount;
 }

@@ -39,7 +39,7 @@ CvCitySiteEvaluator::~CvCitySiteEvaluator(void)
 void CvCitySiteEvaluator::Init()
 {
 	// Set up city ring multipliers
-	m_iRingModifier[0] = 1;   // Items under city get handled separately
+	m_iRingModifier[0] = 3;   // Items under city get handled separately
 	m_iRingModifier[1] = /*6*/ GC.getCITY_RING_1_MULTIPLIER();
 	m_iRingModifier[2] = /*3*/ GC.getCITY_RING_2_MULTIPLIER();
 	m_iRingModifier[3] = /*2*/ GC.getCITY_RING_3_MULTIPLIER();
@@ -182,7 +182,7 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer && pPlot->IsAdjacentOwnedByOtherTeam(pPlayer->getTeam()))
+	if(pPlayer && pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam()))
 	{
 		return false;
 	}
@@ -1243,7 +1243,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pP
 		if(iPlotsFromCity == 1)
 			rtnValue += /*3*/ GC.getHILL_STRATEGIC_VALUE();
 		else if(iPlotsFromCity == 0)
-			rtnValue += GC.getHILL_STRATEGIC_VALUE() * 6; //good for defense
+			rtnValue += GC.getHILL_STRATEGIC_VALUE() * 12; //good for defense
 	}
 
 	// Some Features are less attractive to settle in, (e.g. Jungles, since it takes a while before you can clear them and they slow down movement)

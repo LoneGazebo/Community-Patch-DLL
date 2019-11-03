@@ -55,12 +55,6 @@ void CvHomelandAI::Init(CvPlayer* pPlayer)
 
 	Reset();
 
-	// Initialize AI constants from XML
-	m_iRandomRange = GC.getAI_HOMELAND_MOVE_PRIORITY_RANDOMNESS();
-	m_iDefensiveMoveTurns = GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS();
-	m_iUpgradeMoveTurns = GC.getAI_HOMELAND_MAX_UPGRADE_MOVE_TURNS();
-	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
-
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//needed for better debugging - can't use ID here because it's not set yet!
 	m_CurrentMoveHighPriorityUnits.setPlayer(pPlayer);
@@ -363,18 +357,20 @@ void CvHomelandAI::EstablishHomelandPriorities()
 	int iTurnUpgradePriority = MOD_AI_SMART_UPGRADES ? (GC.getGame().getGameTurn() % 2) * 50 : 0;
 #endif
 
+	float fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
+
 	// Find required flavor values
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
 		{
 			iFlavorDefense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorDefense = (int)(iFlavorDefense * m_fFlavorDampening);
+			iFlavorDefense = (int)(iFlavorDefense * fFlavorDampening);
 		}
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
 		{
 			iFlavorOffense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorOffense = (int)(iFlavorOffense * m_fFlavorDampening);
+			iFlavorOffense = (int)(iFlavorOffense * fFlavorDampening);
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
 		{
@@ -383,7 +379,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RECON")
 		{
 			iFlavorExplore = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorExplore = (int)(iFlavorExplore * m_fFlavorDampening);
+			iFlavorExplore = (int)(iFlavorExplore * fFlavorDampening);
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
 		{
@@ -1277,7 +1273,7 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 
 				if (m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 				{
-					CvUnit *pGarrison = GetBestUnitToReachTarget(pLoopUnit->plot(), m_iDefensiveMoveTurns);
+					CvUnit *pGarrison = GetBestUnitToReachTarget(pLoopUnit->plot(), GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 					if (pGarrison)
 					{
 						ExecuteMoveToTarget(pGarrison, pLoopUnit->plot(), 0);
@@ -1300,7 +1296,8 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 	}
 
 	// Do we have any targets of this type?
-	if(m_TargetedCities.size() > 0)
+	if(
+		m_TargetedCities.size() > 0)
 	{
 		for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
 		{
@@ -1315,7 +1312,7 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 
 				if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 				{
-					CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns);
+					CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 					if(pGarrison)
 					{
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
@@ -1977,7 +1974,7 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 						continue;
 
 					//don't go to border plots, too dangerous
-					if (pLoopPlot->IsAdjacentOwnedByOtherTeam(m_pPlayer->getTeam()))
+					if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
 						continue;
 
 					//Don't patrol into cities.
@@ -2243,7 +2240,7 @@ void CvHomelandAI::PlotAncientRuinMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns);
+				CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 				if(pIndy)
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
@@ -3009,7 +3006,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		ExecuteUnassignedUnitMoves();
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvHomelandAI::ExecuteUnassignedUnitMoves()
 {
 	MoveUnitsArray::iterator it;
@@ -3034,7 +3031,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 		UnitProcessed(pUnit->GetID());
 	}
 }
-#endif
+
 /// Creates cities for AI civs on first turn
 void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 {

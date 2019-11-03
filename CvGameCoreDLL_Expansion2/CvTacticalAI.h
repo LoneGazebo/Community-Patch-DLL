@@ -782,6 +782,7 @@ private:
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
 	void PlotRepositionMoves();
+	void PlotDefensiveMoves(int iTurnsToArrive);
 //--------------------------------
 	void PlotAncientRuinMoves(int iNumTurnsAway);
 	void PlotAirInterceptMoves();
@@ -914,8 +915,6 @@ private:
 	int m_iSeaBarbarianRange;
 	int m_iRepositionRange;
 	int m_iDeployRadius;
-	int m_iRandomRange;
-	double m_fFlavorDampening;
 
 	// Dominance zone info
 	int m_iCurrentZoneID;
