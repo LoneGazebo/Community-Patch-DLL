@@ -26918,6 +26918,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					bDeclareWar = false;
 				}
+				if (IsWarDisallowed(eFromPlayer))
+				{
+					bDeclareWar = false;
+				}
 				
 				// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
 				if (bDeclareWar)
