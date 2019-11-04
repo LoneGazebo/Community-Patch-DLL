@@ -2847,7 +2847,7 @@
 		
 		<!-- PTP Same CS Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
-			<Text>[COLOR_NEGATIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Stolen Artifacts Mod -->
