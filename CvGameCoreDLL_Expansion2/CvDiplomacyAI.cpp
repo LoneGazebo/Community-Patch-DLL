@@ -26371,10 +26371,72 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			
 			if (bDeclareWar)
 			{
-				// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
-				if (IsWarWouldBackstabFriendTeamCheck(eFromPlayer))
+				// Disallowed by game options
+				if (IsWarDisallowed(eFromPlayer))
 				{
 					bDeclareWar = false;
+				}
+				// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
+				else if (IsWarWouldBackstabFriendTeamCheck(eFromPlayer))
+				{
+					bDeclareWar = false;
+				}
+			}
+			
+			// Sanity check - who else would we go to war with?
+			if (bDeclareWar)
+			{
+				PlayerTypes eLoopPlayer;
+				bool bCheckPlayer = false;
+				
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != eFromPlayer)
+					{
+						// Teammate?
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eFromPlayer).getTeam())
+							bCheckPlayer = true;
+						
+						// Defensive Pact?
+						else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam()))
+							bCheckPlayer = true;
+						
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+						else if (MOD_DIPLOMACY_CIV4_FEATURES)
+						{
+							// Master/vassal?
+							if (GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eFromPlayer).getTeam()))
+								bCheckPlayer = true;
+						}
+#endif
+						if (bCheckPlayer)
+						{
+							// Would we be declaring war on a powerful neighbor?
+							if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
+							{
+								if (GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_AFRAID)
+								{
+									bDeclareWar = false;
+									break;
+								}
+								
+								// Bold AIs will take more risks.
+								else if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
+								{
+									bDeclareWar = false;
+									break;
+								}
+								else if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+								{
+									bDeclareWar = false;
+									break;
+								}
+							}
+							
+							bCheckPlayer = false;
+						}
+					}
 				}
 			}
 			
@@ -26991,15 +27053,16 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					bDeclareWar = false;
 				}
-				if (IsWarDisallowed(eFromPlayer))
-				{
-					bDeclareWar = false;
-				}
 				
-				// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
 				if (bDeclareWar)
 				{
-					if (IsWarWouldBackstabFriendTeamCheck(eFromPlayer))
+					// Disallowed by game options
+					if (IsWarDisallowed(eFromPlayer))
+					{
+						bDeclareWar = false;
+					}
+					// Would this war cause us or our teammates to backstab a friend/ally? Don't do it!
+					else if (IsWarWouldBackstabFriendTeamCheck(eFromPlayer))
 					{
 						bDeclareWar = false;
 					}
@@ -27011,7 +27074,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					PlayerTypes eLoopPlayer;
 					bool bCheckPlayer = false;
 					
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != eFromPlayer)
@@ -27021,11 +27084,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 								bCheckPlayer = true;
 							
 							// Defensive Pact?
-							if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam()))
+							else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eFromPlayer).getTeam()))
 								bCheckPlayer = true;
 							
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-							if (MOD_DIPLOMACY_CIV4_FEATURES)
+							else if (MOD_DIPLOMACY_CIV4_FEATURES)
 							{
 								// Master/vassal?
 								if (GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eFromPlayer).getTeam()))
@@ -27038,11 +27101,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 								if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 								{
 									if (GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_AFRAID)
+									{
 										bDeclareWar = false;
 										break;
+									}
 									
 									// Bold AIs will take more risks.
-									if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
+									else if (GetBoldness() > 6 && GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
 									{
 										bDeclareWar = false;
 										break;

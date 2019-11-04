@@ -3942,6 +3942,56 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
+		// Sanity check - who else would we go to war with?
+		PlayerTypes eLoopPlayer;
+		bool bCheckPlayer = false;
+		
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (pDiploAI->IsPlayerValid(eLoopPlayer) && eLoopPlayer != eWithPlayer)
+			{
+				// Teammate?
+				if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eWithPlayer).getTeam())
+					bCheckPlayer = true;
+				
+				// Defensive Pact?
+				else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eWithPlayer).getTeam()))
+					bCheckPlayer = true;
+				
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				else if (MOD_DIPLOMACY_CIV4_FEATURES)
+				{
+					// Master/vassal?
+					if (GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eWithPlayer).getTeam()))
+						bCheckPlayer = true;
+				}
+#endif
+				if (bCheckPlayer)
+				{
+					// Would we be declaring war on a powerful neighbor?
+					if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
+					{
+						if (pDiploAI->GetMajorCivApproach(eLoopPlayer) == MAJOR_CIV_APPROACH_AFRAID)
+						{
+							return INT_MAX;
+						}
+						
+						// Bold AIs will take more risks.
+						else if (pDiploAI->GetBoldness() > 6 && pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
+						{
+							return INT_MAX;
+						}
+						else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+						{
+							return INT_MAX;
+						}
+					}
+					
+					bCheckPlayer = false;
+				}
+			}
+		}
 		//only accept bribes against our biggest competitors. Otherwise, nah.
 		if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 		{
