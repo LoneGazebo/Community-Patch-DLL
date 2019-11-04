@@ -15135,25 +15135,45 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 }
 
 /// Advanced Diplo AI Aggression Options (defined in CoreChanges.sql)
+
+/// Disables AI war declarations
+bool CvDiplomacyAI::IsWarDisallowedGlobal()
+{
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+/// Disables AI initiating wars involving humans
+bool CvDiplomacyAI::IsWarDisallowedHuman()
+{
+	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+/// Would declaring war on ePlayer be in violation of these game options?
 bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 {
 	if (GetPlayer()->isHuman())
 	{
 		return false;
 	}
-	if (GET_PLAYER(ePlayer).isBarbarian())
+	else if (GET_PLAYER(ePlayer).isBarbarian())
 	{
 		return false;
 	}
-	else if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1) // Disables AI war declarations
+	else if (IsWarDisallowedGlobal())
 	{
 		return true;
 	}
-	else if (GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		return false;
-	}
-	else if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1) // Disables AI initiating wars involving humans
+	else if (IsWarDisallowedHuman())
 	{
 		if (GET_PLAYER(ePlayer).isHuman())
 			return true;
@@ -15216,9 +15236,10 @@ bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 	return false;
 }
 
+/// Disables victory competition (Victory Dispute/Victory Block/Is Close To X Victory penalties, etc.
 bool CvDiplomacyAI::IsNoVictoryCompetition()
 {
-	if (GC.getDIPLO_AI_NO_VICTORY_COMPETITION() == 1) // Disables the effects of Victory Dispute/Block/IsCloseToVictory, etc.
+	if (GC.getDIPLO_AI_NO_VICTORY_COMPETITION() == 1)
 	{
 		return true;
 	}
@@ -15227,12 +15248,9 @@ bool CvDiplomacyAI::IsNoVictoryCompetition()
 }
 
 
-
 // ************************************
 // Personality Members
 // ************************************
-
-
 
 /// How much is this player annoyed when he thinks another player is going for the same victory type?
 int CvDiplomacyAI::GetVictoryCompetitiveness() const
@@ -20753,13 +20771,13 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+		if (IsWarDisallowedGlobal())
 		{
 			return;
 		}
 		
 		// Don't ask humans for war if AI is set to passive mode, that's weird
-		if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(ePlayer).isHuman())
+		if (IsWarDisallowedHuman() && GET_PLAYER(ePlayer).isHuman())
 		{
 			return;
 		}

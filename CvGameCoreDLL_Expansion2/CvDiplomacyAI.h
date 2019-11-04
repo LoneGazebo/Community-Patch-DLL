@@ -525,6 +525,8 @@ public:
 	void DoUpdateMinorCivDisputeLevels();
 	
 	// Diplo AI Aggression Options (defined in CoreChanges.sql)
+	bool IsWarDisallowedGlobal();
+	bool IsWarDisallowedHuman();
 	bool IsWarDisallowed(PlayerTypes ePlayer);
 	bool IsNoVictoryCompetition();
 

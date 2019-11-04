@@ -4959,13 +4959,13 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, bool b
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Them, but them is us. Please send Anton your save file and version.");
 	
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal())
 	{
 		return;
 	}
 	
 	// Don't ask humans for third party war if AI is set to passive mode, that's weird
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(eThem).isHuman())
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eThem).isHuman())
 	{
 		return;
 	}
@@ -5064,13 +5064,13 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 	CvAssert(eThem < MAX_MAJOR_CIVS)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
 
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal())
 	{
 		return;
 	}
 	
 	// Don't offer humans third party war if AI is set to passive mode, that's weird
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(eThem).isHuman())
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eThem).isHuman())
 	{
 		return;
 	}
@@ -8001,13 +8001,13 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		return false;
 	}
 	
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal())
 	{
 		return false;
 	}
 	
 	// Don't ask humans for war if AI is set to passive mode, that's weird
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 && GET_PLAYER(eOtherPlayer).isHuman())
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eOtherPlayer).isHuman())
 	{
 		return false;
 	}

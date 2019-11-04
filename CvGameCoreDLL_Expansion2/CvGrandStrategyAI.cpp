@@ -467,7 +467,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	}
 	
 	// Human has disabled war as an option to win, so pick something else
-	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1 || GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal() || GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman())
 	{
 		return -100;
 	}
