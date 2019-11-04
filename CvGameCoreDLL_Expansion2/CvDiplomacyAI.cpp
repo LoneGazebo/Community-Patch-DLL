@@ -4302,7 +4302,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Sanity check - avoid declaring war if we would go bankrupt!
 	int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
 
-#if defined(MOD_BALANCE_CORE)	
+#if defined(MOD_BALANCE_CORE)
 	// Factor in instant yields into our income as well (average of recent turns)
 	int iTurn = GC.getGame().getGameTurn();
 	int iGoldSum = 0;
@@ -15031,6 +15031,12 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	// They resurrected us, so don't worry about it
 	if (WasResurrectedBy(ePlayer))
 		return;
+	
+	bool bIgnoreOtherWars = false;
+	
+	// For humans (Move Troops request), ignore other wars the AI may be waging
+	if (GetPlayer()->isHuman())
+		bIgnoreOtherWars = true;
 
 	AggressivePostureTypes eAggressivePosture;
 	AggressivePostureTypes eLastTurnAggressivePosture;
@@ -15072,7 +15078,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 				if(pUnitPlot->IsHomeFrontForPlayer(eOurPlayerID))
 				{
 					// At war with someone?  Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
-					if(bIsAtWarWithSomeone)
+					if(bIsAtWarWithSomeone && !bIgnoreOtherWars)
 					{
 						// Loop through all players...
 						for(iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
@@ -29558,7 +29564,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		// Sanity check - avoid declaring war if we would go bankrupt!
 		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - CalculateGoldPerTurnLostFromWar(eTargetPlayer, false, false);
 
-#if defined(MOD_BALANCE_CORE)	
+#if defined(MOD_BALANCE_CORE)
 		// Factor in instant yields into our income as well (average of recent turns)
 		int iTurn = GC.getGame().getGameTurn();
 		int iGoldSum = 0;
