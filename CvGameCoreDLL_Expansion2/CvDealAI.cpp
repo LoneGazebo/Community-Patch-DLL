@@ -8117,7 +8117,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 			continue;
 		}
 		//Disallowed by game options
-		if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowed(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWarDisallowed(ePlayer))
+		if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowed(eAgainstPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWarDisallowed(eAgainstPlayer))
 		{
 			continue;
 		}
