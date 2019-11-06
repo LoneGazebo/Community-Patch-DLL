@@ -15022,15 +15022,24 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 
 	// We're allowing them Open Borders? We shouldn't care.
 	if (GET_TEAM(GetPlayer()->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	{
+		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
+	}
 
 	// We're working together, so don't worry about it
 	if (IsDoFAccepted(ePlayer))
+	{
+		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
+	}
 
 	// They resurrected us, so don't worry about it
 	if (WasResurrectedBy(ePlayer))
+	{
+		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
+	}
 	
 	bool bIgnoreOtherWars = false;
 	
