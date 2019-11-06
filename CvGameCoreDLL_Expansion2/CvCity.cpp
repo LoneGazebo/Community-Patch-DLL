@@ -27323,8 +27323,8 @@ void CvCity::updateStrengthValue()
 	{
 		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
 		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
-		if (pGarrisonedUnit->isNativeDomain(plot()))
-			iStrengthFromGarrison /= 2; //see getBestDefender ... naval units make weaker garrisons
+		if (!pGarrisonedUnit->isNativeDomain(plot()))
+			iStrengthFromGarrison /= 2; //see getBestGarrison ... naval units make weaker garrisons
 
 		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
 		iStrengthValue += iStrengthFromGarrison;

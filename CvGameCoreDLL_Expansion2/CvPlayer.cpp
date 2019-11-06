@@ -11908,8 +11908,8 @@ void CvPlayer::updateTimers()
 	} while (bKilledOneThisPass);
 
 #if defined(MOD_CORE_DELAYED_VISIBILITY)
-	//force explicit visibility update for killed units
-	if (bKilledAtLeastOne)
+	//force explicit visibility update for killed units (but not if the player is currently active) 
+	if (bKilledAtLeastOne && GetID()!=GC.getGame().getActivePlayer())
 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif

@@ -2011,7 +2011,8 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	}
 
 	//Land and sea ops need to look here.
-	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
+	if (target.m_pMusterCity->getArea() == target.m_pTargetCity->getArea())
+		iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
 		
 	if (iWaterLength == -1 && iLandLength == -1)
 		return;

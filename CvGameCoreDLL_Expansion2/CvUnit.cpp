@@ -4386,12 +4386,6 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		iOurDefense /= 2;
 	}
 
-	//special check for naval garrison in city
-	if (getDomainType() == DOMAIN_SEA && !plot()->isWater())
-	{
-		iOurDefense /= 2;
-	}
-
 	if(NULL == pAttacker)
 	{
 		if(pDefender->interceptionProbability() > 0)
@@ -20969,6 +20963,8 @@ void CvUnit::finishMoves()
 {
 	VALIDATE_OBJECT
 	setMoves(0);
+	m_bMovedThisTurn = true;
+	SetFortified(false);
 
 	PublishQueuedVisualizationMoves();
 }

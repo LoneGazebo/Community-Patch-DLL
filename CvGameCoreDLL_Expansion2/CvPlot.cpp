@@ -3169,6 +3169,8 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 	CvUnit* pLoopUnit = NULL;
 	CvUnit* pBestUnit = NULL;
 
+	//we don't consider promotions here ...
+	int iBestBaseCS = 0;
 	while(pUnitNode != NULL)
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -3176,9 +3178,15 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
-			if(pLoopUnit->isBetterDefenderThan(pBestUnit,NULL))
+			int iBaseCS = max(pLoopUnit->GetBaseCombatStrength(),pLoopUnit->GetBaseRangedCombatStrength());
+			//naval units considered weaker
+			if (!pLoopUnit->isNativeDomain(this))
+				iBaseCS /= 2;
+
+			if(iBaseCS>iBestBaseCS)
 			{
 				pBestUnit = pLoopUnit;
+				iBestBaseCS = iBaseCS;
 			}
 		}
 	}
