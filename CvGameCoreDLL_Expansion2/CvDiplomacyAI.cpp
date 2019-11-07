@@ -3840,7 +3840,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// TRAITOR OPINION
 	////////////////////////////////////
 	
-	// Do we think this player is a good-for-nothing backstabber?!
+	// Do we think they're a good-for-nothing backstabber?!
 	if (IsUntrustworthyFriend(ePlayer))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -3848,13 +3848,25 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 		
-		// Extra penalties if they betrayed us personally
-		if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer))
+		// Extra penalties if they betrayed us personally!
+		if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 		}
+	}
+	
+	// Are we angry about what they've done to our protected City-States?
+	if (IsAngryAboutProtectedMinorKilled(ePlayer))
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + GetOtherPlayerNumProtectedMinorsKilled(ePlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GetOtherPlayerNumProtectedMinorsKilled(ePlayer));
+	}
+	else if (IsAngryAboutProtectedMinorAttacked(ePlayer) && (!IsPlayerMadeAttackCityStatePromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer)))
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
 	}
 
 	////////////////////////////////////
@@ -13352,7 +13364,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDPWeight += -25;
 				iDoFWeight += -25;
 				
-				// Extra penalties if they betrayed us personally
+				// Extra penalties if they betrayed us personally!
 				if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer))
 				{
 					iEnemyWeight += 10;
