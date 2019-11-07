@@ -3840,13 +3840,21 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// TRAITOR OPINION
 	////////////////////////////////////
 	
-	// We were friends and they betrayed us! (or they're not a trustworthy friend)
-	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+	// Do we think this player is a good-for-nothing backstabber?!
+	if (IsUntrustworthyFriend(ePlayer))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
+		
+		// Extra penalties if they betrayed us personally
+		if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer))
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+		}
 	}
 
 	////////////////////////////////////
@@ -6202,7 +6210,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 							}
 							
 							// If they're untrustworthy or have denounced us, they're probably DECEPTIVE
-							else if(IsFriendDenouncedUs(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend() || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+							else if(IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 							{
 								SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
 							}
@@ -6260,7 +6268,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					else if(IsDoFAccepted(eLoopPlayer))
 					{
 						// ...unless they're untrustworthy
-						if(IsFriendDenouncedUs(eLoopPlayer) || IsFriendDeclaredWarOnUs(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+						if(IsUntrustworthyFriend(eLoopPlayer))
 						{
 							SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
 						}
@@ -13337,12 +13345,20 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += -10;
 			}
 
-			// We were friends and they betrayed us! (or they're not a trustworthy friend)
-			if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+			// Do we think they're a good-for-nothing backstabber?!
+			if (IsUntrustworthyFriend(ePlayer))
 			{
 				iEnemyWeight += 25;
 				iDPWeight += -25;
 				iDoFWeight += -25;
+				
+				// Extra penalties if they betrayed us personally
+				if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer))
+				{
+					iEnemyWeight += 10;
+					iDPWeight += -25;
+					iDoFWeight += -25;
+				}
 			}
 
 			////////////////////////////////////
@@ -28738,7 +28754,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 15;
 		}
 		// Is untrustworthy
-		else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+		else if(IsUntrustworthyFriend(ePlayer))
 		{
 			return 16;
 		}
@@ -28878,7 +28894,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 15;
 		}
 		//Is untrustworthy
-		else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(m_pPlayer->GetID()))
+		else if(IsUntrustworthyFriend(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(m_pPlayer->GetID()))
 		{
 			return 16;
 		}
@@ -32006,31 +32022,28 @@ bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, Pla
 
 
 /// Has this guy had problems with too many of his friends? If so, then his word isn't worth much
-bool CvDiplomacyAI::IsUntrustworthyFriend()
+bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer)
 {
-	//vassals can't be untrustworthy, they have no rights.
-	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+	// Vassals can't be untrustworthy, they have no rights.
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
+	
+	// Did they backstab US????
+	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer))
+		return true;
 
 	// If you've DoWed any friends, you're a bad person
-	if(GetWeDeclaredWarOnFriendCount() > 0)
+	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() > 0)
 		return true;
 
 	// If you've denounced at least 2 of your friends, you're the problem
-	if(GetWeDenouncedFriendCount() >= 2)
+	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount() >= 2)
 		return true;
-
+	
 #if defined(MOD_BALANCE_CORE)
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFBroken(GetPlayer()->GetID()))
-		{
-			return true;
-		}
-	}
+	// We don't trust you if you broke our DoF (and we haven't made amends).
+	if (IsDoFBroken(ePlayer))
+		return true;
 #endif
 
 	return false;
@@ -32047,11 +32060,7 @@ int CvDiplomacyAI::GetNumFriendsDenouncedBy()
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		if(IsFriendDenouncedUs(eLoopPlayer))
-		{
-			// If this guy is untrustworthy, he doesn't count
-			if(!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
-				iNum++;
-		}
+			iNum++;
 	}
 
 	return iNum;
@@ -34957,7 +34966,7 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 		if(eLoopPlayer != GetPlayer()->GetID() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsFriendDenouncedUs(eLoopPlayer))
 		{
 			// If this guy is untrustworthy, he doesn't count
-			if(!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+			if(!IsUntrustworthyFriend(eLoopPlayer))
 			{
 				// Do we like this player who denounced them more than the player we're evaluating?
 				if(GetMajorCivOpinion(eLoopPlayer) > GetMajorCivOpinion(ePlayer))
@@ -34983,7 +34992,7 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 	int iTraitorOpinion = 0;
 	
 	// If they're an untrustworthy friend, apply the full traitor penalty
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend())
+	if(IsUntrustworthyFriend(ePlayer))
 	{	
 	    int iDenouncedFriends = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount();
 	    if(iDenouncedFriends > 0)

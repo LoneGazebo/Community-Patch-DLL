@@ -945,7 +945,7 @@ public:
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	// Problems between friends
-	bool IsUntrustworthyFriend();
+	bool IsUntrustworthyFriend(PlayerTypes ePlayer);
 	int GetNumFriendsDenouncedBy();
 
 	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!

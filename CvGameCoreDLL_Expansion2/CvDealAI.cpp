@@ -5138,7 +5138,6 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 
 				if(eLoopPlayer != NO_PLAYER && eLoopPlayer != eThem && eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					
 					TeamTypes eOtherTeam = GET_PLAYER(eLoopPlayer).getTeam();				
 
 					if (GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).IsVassalOfSomeone() || GET_TEAM(GET_PLAYER(eThem).getTeam()).IsVassalOfSomeone() || GET_TEAM(eOtherTeam).IsVassalOfSomeone())
@@ -8058,6 +8057,12 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	
 	// Don't ask humans for war if AI is set to passive mode, that's weird
 	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman() && GET_PLAYER(eOtherPlayer).isHuman())
+	{
+		return false;
+	}
+	
+	// Don't ask humans' AI teammates
+	if (GET_PLAYER(eOtherPlayer).IsAITeammateOfHuman())
 	{
 		return false;
 	}
