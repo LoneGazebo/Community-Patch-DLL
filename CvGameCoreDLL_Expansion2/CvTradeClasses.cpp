@@ -4361,6 +4361,34 @@ int CvPlayerTrade::GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, Player
 	return iTotal;
 }
 
+//  --------------------------------------------------------------------------------
+int CvPlayerTrade::GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iGold = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (pTrade->IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID() && pConnection->m_eDestOwner == ePlayer)
+		{
+			iGold += pConnection->m_aiOriginYields[YIELD_GOLD];
+		}
+
+		if (pConnection->m_eDestOwner == m_pPlayer->GetID() && pConnection->m_eOriginOwner == ePlayer)
+		{
+			iGold += pConnection->m_aiDestYields[YIELD_GOLD];
+		}
+	}
+
+	return iGold;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::IsConnectedToPlayer(PlayerTypes eOtherPlayer)
 {

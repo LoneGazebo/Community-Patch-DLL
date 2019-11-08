@@ -209,7 +209,7 @@
 		</Row>
 		<!-- Text for GPs -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT">
-			<Text>The great wealth brought back by your {1_UnitType} has led your empire to celebrate 'We Love the King Day' for [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Turns!</Text>
+			<Text>The great wealth brought back by your {1_UnitType} has led your empire to celebrate "We Love the King Day" for [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Turns!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_GREAT_MERCHANT_SUMMARY">
 			<Text>Your {1_UnitType} traded successfully!</Text>
@@ -693,16 +693,16 @@
 			<Text>+{1_Num}% [ICON_CULTURE] from Carnaval</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_WLTKD">
-			<Text>+{1_Num}% [ICON_CULTURE] from 'We Love the King Day'</Text>
+			<Text>+{1_Num}% [ICON_CULTURE] from "We Love the King Day"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_GOLDEN_AGE">
 			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GOLDEN_AGE] Golden Age</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_WLTKD">
-			<Text>+{1_Num}% [ICON_PEACE] from 'We Love the King Day'</Text>
+			<Text>+{1_Num}% [ICON_PEACE] from "We Love the King Day"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_WLTKD">
-			<Text>+{1_Num}% {2_IconString} from 'We Love the King Day'</Text>
+			<Text>+{1_Num}% {2_IconString} from "We Love the King Day"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_GOLDEN_AGE">
 			<Text>+{1_Num}% {2_IconString} from [ICON_GOLDEN_AGE] Golden Age</Text>
@@ -785,7 +785,13 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">
-			<Text>{1_Num} {2_IconString} from City Yields</Text>
+			<Text>{1_Num} {2_IconString} from Yield Conversion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_CITY_YIELDS">
+			<Text>{1_Num} [ICON_CULTURE] from Yield Conversion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_CITY_YIELDS">
+			<Text>{1_Num} [ICON_PEACE] from Yield Conversion</Text>
 		</Row>
 
 		<!-- Barbarian Theft Text-->

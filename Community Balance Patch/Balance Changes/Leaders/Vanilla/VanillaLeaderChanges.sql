@@ -827,10 +827,10 @@ VALUES
 	('BUILDING_SATRAPS_COURT', 'YIELD_GOLD', 20),
 	('BUILDING_SATRAPS_COURT', 'YIELD_GOLDEN_AGE_POINTS', 20);
 
-INSERT INTO Building_ScienceFromYield
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_YieldFromYieldPercent
+	(BuildingType, YieldIn, YieldOut, Value)
 VALUES
-	('BUILDING_HANSE', 'YIELD_GOLD', 10);
+	('BUILDING_HANSE', 'YIELD_GOLD', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)

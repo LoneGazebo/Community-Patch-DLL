@@ -1065,7 +1065,7 @@ public:
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
 #if defined(MOD_BALANCE_CORE)
-	void UpdateCityScienceFromYield(YieldTypes eIndex, int iModifiedYield);
+	void UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield);
 #endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -1167,8 +1167,8 @@ public:
 	int GetYieldPerFriend(YieldTypes eIndex) const;
 	void ChangeYieldPerFriend(YieldTypes eYield, int iChange);
 
-	int GetBuildingScienceFromYield(YieldTypes eIndex1) const;
-	void ChangeBuildingScienceFromYield(YieldTypes eIndex, int iChange);
+	int GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void ChangeBuildingYieldFromYield(YieldTypes eIndex, YieldTypes eIndex2, int iChange);
 
 	int GetYieldFromInternalTREnd(YieldTypes eIndex1) const;
 	void ChangeYieldFromInternalTREnd(YieldTypes eIndex, int iChange);
@@ -1179,8 +1179,8 @@ public:
 	int GetYieldFromProcessModifier(YieldTypes eIndex1) const;
 	void ChangeYieldFromProcessModifier(YieldTypes eIndex, int iChange);
 
-	int GetScienceFromYield(YieldTypes eIndex1) const;
-	void SetScienceFromYield(YieldTypes eIndex1, int iChange);
+	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 	void ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChange);
 	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
@@ -1923,8 +1923,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitLevelUp;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerAlly;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerFriend;
-	FAutoVariable<std::vector<int>, CvCity> m_aiScienceFromYield;
-	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTREnd;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromInternalTR;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromProcessModifier;
@@ -2072,6 +2070,8 @@ protected:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	int** m_ppaiYieldFromYield;
+	int** m_ppaiActualYieldFromYield;
 	int** m_ppaiImprovementYieldChange;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvCity> m_ppaaiSpecialistExtraYield;
 #endif

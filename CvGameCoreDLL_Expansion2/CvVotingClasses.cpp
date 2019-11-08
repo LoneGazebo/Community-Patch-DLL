@@ -1644,6 +1644,13 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 				if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
 				{
 					pPlayer->CheckForMonopoly(eResourceLoop);
+					CvCity* pLoopCity;
+					int iLoop;
+					for (pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+					{
+						if (pLoopCity->GetResourceDemanded() == eResourceLoop)
+							pLoopCity->DoPickResourceDemanded();
+					}
 				}
 			}
 		}

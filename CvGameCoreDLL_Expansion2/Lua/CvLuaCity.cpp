@@ -492,7 +492,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRateFromLeague);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	Method(GetScienceFromCityYield);
+	Method(GetYieldFromCityYield);
 #endif
 
 	Method(GetBaseYieldRateFromReligion);
@@ -4536,18 +4536,24 @@ int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 #endif
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
-int CvLuaCity::lGetScienceFromCityYield(lua_State* L)
+int CvLuaCity::lGetYieldFromCityYield(lua_State* L)
 {
 	int iResult = 0;
 	CvCity* pkCity = GetInstance(L);
+	YieldTypes eIndex1 = (YieldTypes)lua_tointeger(L, 2);
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		YieldTypes eIndex = (YieldTypes)iI;
-		if(eIndex == NO_YIELD)
+		YieldTypes eIndex2 = (YieldTypes)iI;
+		if(eIndex2 == NO_YIELD)
 		{
 			continue;
 		}
-		iResult += pkCity->GetScienceFromYield(eIndex);
+		if (eIndex2 == eIndex1)
+		{
+			continue;
+		}
+		//NOTE! We flip it here, because we want the OUT yield
+		iResult += pkCity->GetRealYieldFromYield(eIndex2, eIndex1);
 	}
 	lua_pushinteger(L, iResult);
 	return 1;

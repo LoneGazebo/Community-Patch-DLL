@@ -270,6 +270,7 @@ public:
 
 	int GetAllTradeValueTimes100 (YieldTypes eYield);
 	int GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, PlayerTypes ePlayer);
+	int GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer);
 
 	bool IsConnectedToPlayer(PlayerTypes eOtherPlayer);
 

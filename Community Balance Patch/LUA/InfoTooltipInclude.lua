@@ -989,6 +989,18 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EVENTS", iCultureFromEvent);
 		end
 
+		local iCultureFromYields = pCity:GetYieldFromCityYield(YieldTypes.YIELD_CULTURE);
+		if (iCultureFromYields ~= 0) then
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CITY_YIELDS", iCultureFromYields);
+		end
+
 		-- Yield modifiers string
 		local strCultureFromTR = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE);
 		if (strCultureFromTR ~= "") then
@@ -1209,6 +1221,11 @@ function GetFaithTooltip(pCity)
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EVENTS", iFaithFromEvent));
 		end
 
+		local iFaithFromYields = pCity:GetYieldFromCityYield(YieldTypes.YIELD_FAITH);
+		if (iFaithFromYields ~= 0) then	
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CITY_YIELDS", iFaithFromYields));
+		end
+
 		local iYieldFromCorps = pCity:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_FAITH);
 		if(iYieldFromCorps ~= 0) then
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CORPORATIONS", iYieldFromCorps));
@@ -1397,12 +1414,10 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	end
 
 	-- Yield Increase from City Yields
-	if (iYieldType == YieldTypes.YIELD_SCIENCE) then
-		local iYieldFromYields = pCity:GetScienceFromCityYield(iYieldType);
-		if (iYieldFromYields ~= 0) then
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CITY_YIELDS", iYieldFromYields, strIconString);
-			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-		end
+	local iYieldFromYields = pCity:GetYieldFromCityYield(iYieldType);
+	if (iYieldFromYields ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CITY_YIELDS", iYieldFromYields, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 
 	-- CBP -- Yield Increase from CS Alliance (Germany)

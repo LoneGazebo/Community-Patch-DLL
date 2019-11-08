@@ -2905,29 +2905,61 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		strBaseString += playerName + ", " + cityName + ", ";
 
 		CvBaseInfo* pEntry = NULL;
+		CvString strType = "Unknown";
+		int iEra = -1;
 		switch(buildable.m_eBuildableType)
 		{
 		case CITY_BUILDABLE_BUILDING:
-			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+		{
+			CvBuildingEntry* pInfo = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+			strType = (pInfo->GetBuildingClassInfo().getMaxGlobalInstances() != -1 || pInfo->GetBuildingClassInfo().getMaxPlayerInstances() != -1) ? "Wonder" : "Building";
+
+			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
+			if (eTech != NO_TECH)
+			{
+				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
+				if (pTech && pTech->GetEra() != NO_ERA)
+					iEra = pTech->GetEra();
+			}
+
+			pEntry = pInfo;
 			break;
+		}
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
-			pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+		{
+			CvUnitEntry* pInfo = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+			strType = (pInfo->GetCombat() > 0 || pInfo->GetRangedCombat() > 0) ? "Military" : "Civilian";
+
+			TechTypes eTech = (TechTypes)pInfo->GetPrereqAndTech();
+			if (eTech != NO_TECH)
+			{
+				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
+				if (pTech && pTech->GetEra() != NO_ERA)
+					iEra = pTech->GetEra();
+			}
+
+			pEntry = pInfo;
 			break;
+		}
 		case CITY_BUILDABLE_PROJECT:
 			pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
+			strType = "Project";
+			iEra = GC.getGame().getCurrentEra();
 			break;
 		case CITY_BUILDABLE_PROCESS:
 			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+			strType = "Process";
+			iEra = GC.getGame().getCurrentEra();
 			break;
 		}
 
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
-			strDesc.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, %s, ERA: %d, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
+			strType.c_str(), strDesc.c_str(), bRush?"Rush":"NoRush", iEra, buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
@@ -4604,14 +4636,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		if (iValue <= pkBuildingInfo->GetYieldChangePerPop(eYield))
 			iValue = pkBuildingInfo->GetYieldChangePerPop(eYield);
-		
+
 		iFlatYield += iValue;
 	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
-		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers(); 
+		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers();
 		int tempYield = (pkBuildingInfo->GetYieldChangePerReligion(eYield) * numReligions) / 100;
-		iFlatYield += numReligions == 1 ? tempYield/2 : tempYield;
+		iFlatYield += numReligions == 1 ? tempYield / 2 : tempYield;
 	}
 
 	if (pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
@@ -4632,10 +4664,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += (pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->countNumWaterPlots());
 	}
-	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
+	for (int j = 0; j < NUM_YIELD_TYPES; j++)
 	{
-		iFlatYield += iYieldRate / pkBuildingInfo->GetScienceFromYield(eYield);
-	}
+		if (pkBuildingInfo->GetYieldFromYield(eYield, (YieldTypes)j) > 0)
+		{
+			iFlatYield += iYieldRate / pkBuildingInfo->GetYieldFromYield(eYield, (YieldTypes)j);
+		}
+	}	
 	if (pkBuildingInfo->GetGreatWorkYieldChange(eYield) > 0)
 	{
 		iFlatYield += pkBuildingInfo->GetGreatWorkYieldChange(eYield) * (kPlayer.GetCulture()->GetNumGreatWorkSlots() / 2);

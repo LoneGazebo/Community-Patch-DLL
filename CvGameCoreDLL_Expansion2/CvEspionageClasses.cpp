@@ -3453,7 +3453,12 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	bool bNotifyAboutConstruction = false;
 	if (eProject != NO_PROJECT)
 	{
-		bNotifyAboutConstruction = true;
+		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+		CvProjectEntry& pProjectInfo = *pkProjectInfo;
+		if (!pProjectInfo.IsRepeatable())
+		{
+			bNotifyAboutConstruction = true;
+		}
 	}
 	else if (eBuilding != NO_BUILDING)
 	{

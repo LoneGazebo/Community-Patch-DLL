@@ -3372,7 +3372,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMilitaryMight;
 	FAutoVariable<int, CvPlayer> m_iEconomicMight;
 	FAutoVariable<int, CvPlayer> m_iProductionMight;
-	FAutoVariable<int, CvPlayer> m_iTurnMightRecomputed;
+	FAutoVariable<int, CvPlayer> m_iTurnSliceMightRecomputed;
 	FAutoVariable<int, CvPlayer> m_iNewCityExtraPopulation;
 	FAutoVariable<int, CvPlayer> m_iFreeFoodBox;
 	FAutoVariable<int, CvPlayer> m_iScenarioScore1;

@@ -127,7 +127,7 @@ public:
 	void DoUpdateMajorCivApproaches();
 	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, int& iHighestWeight, bool bLookAtOtherPlayers, bool bLog, WarFaceTypes& eWarFace);
 
-	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings) const;
+	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 	int GetNumMajorCivApproach(MajorCivApproachTypes eApproach) const;
 
@@ -300,6 +300,11 @@ public:
 	void SetPlayerTargetValue(PlayerTypes ePlayer, TargetValueTypes eTargetValue);
 	void DoUpdatePlayerTargetValues();
 	void DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer);
+	
+	// War Sanity Checks: What would we lose if we went to war?
+	int CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOtherPlayerEstimate, bool bIgnoreDPs);
+	bool IsWarWouldBackstabFriend(PlayerTypes ePlayer);
+	bool IsWarWouldBackstabFriendTeamCheck(PlayerTypes ePlayer);
 
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
@@ -382,7 +387,7 @@ public:
 	bool IsWantsSneakAttack(PlayerTypes ePlayer) const;
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
-	bool IsWantsToConquer(PlayerTypes ePlayer) const;
+	bool IsWantsToConquer(PlayerTypes ePlayer);
 
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
@@ -493,6 +498,7 @@ public:
 
 	int GetCompetitorValue(PlayerTypes ePlayer);
 	PlayerTypes GetBiggestCompetitor();
+	bool IsMajorCompetitor(PlayerTypes ePlayer);
 #endif
 
 	// Victory Dispute
@@ -517,6 +523,12 @@ public:
 	DisputeLevelTypes GetMinorCivDisputeLevel(PlayerTypes ePlayer) const;
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
+	
+	// Diplo AI Aggression Options (defined in CoreChanges.sql)
+	bool IsWarDisallowedGlobal();
+	bool IsWarDisallowedHuman();
+	bool IsWarDisallowed(PlayerTypes ePlayer);
+	bool IsNoVictoryCompetition();
 
 	/////////////////////////////////////////////////////////
 	// Personality Members
@@ -914,7 +926,7 @@ public:
 	// Denounced Player
 	void DoDenouncePlayer(PlayerTypes ePlayer);
 
-	bool IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias);
+	bool IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias = false);
 	int GetDenounceWeight(PlayerTypes ePlayer, bool bBias);
 
 	bool IsDenouncedPlayer(PlayerTypes ePlayer) const;
@@ -933,7 +945,7 @@ public:
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	// Problems between friends
-	bool IsUntrustworthyFriend();
+	bool IsUntrustworthyFriend(PlayerTypes ePlayer);
 	int GetNumFriendsDenouncedBy();
 
 	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
@@ -1317,10 +1329,11 @@ public:
 	int GetSameLatePoliciesScore(PlayerTypes ePlayer);
 	int GetDifferentLatePoliciesScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
+	int GetDugUpMyYardScore(PlayerTypes ePlayer);
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer);
-	int GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer);
+	int GetIgnoredMilitaryPromiseScore(/*PlayerTypes ePlayer*/);
 	int GetBrokenExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenBorderPromiseScore(PlayerTypes ePlayer);

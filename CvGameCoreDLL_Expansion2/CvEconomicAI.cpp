@@ -338,6 +338,7 @@ void CvEconomicAI::Reset()
 	m_iVisibleAntiquitySites = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iVisibleAntiquitySitesOwn = 0;
+	m_iVisibleHiddenAntiquitySitesOwn = 0;
 	m_iVisibleAntiquitySitesNeutral = 0;
 	m_iExplorersNeeded = 0;
 	m_iNavalExplorersNeeded = 0;
@@ -451,7 +452,8 @@ void CvEconomicAI::Read(FDataStream& kStream)
 	kStream >> m_iLastTurnWorkerDisbanded;
 	kStream >> m_iVisibleAntiquitySites;
 #if defined(MOD_BALANCE_CORE)
-	kStream >>  m_iVisibleAntiquitySitesOwn;
+	kStream >> m_iVisibleAntiquitySitesOwn;
+	kStream >> m_iVisibleHiddenAntiquitySitesOwn;
 	kStream >> m_iVisibleAntiquitySitesNeutral;
 	kStream >> m_iExplorersNeeded;
 	kStream >> m_iNavalExplorersNeeded;
@@ -516,7 +518,8 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	kStream << m_iLastTurnWorkerDisbanded;
 	kStream << m_iVisibleAntiquitySites;
 #if defined(MOD_BALANCE_CORE)
-	kStream <<  m_iVisibleAntiquitySitesOwn;
+	kStream << m_iVisibleAntiquitySitesOwn;
+	kStream << m_iVisibleHiddenAntiquitySitesOwn;
 	kStream << m_iVisibleAntiquitySitesNeutral;
 	kStream << m_iExplorersNeeded;
 	kStream << m_iNavalExplorersNeeded;
@@ -2489,6 +2492,7 @@ void CvEconomicAI::DoAntiquitySites()
 	int iNumSites = 0;
 #if defined(MOD_BALANCE_CORE)
 	int iNumSitesOwn = 0;
+	int iNumHiddenSitesOwn = 0;
 	int iNumSitesNeutral = 0;
 #endif
 	int iPlotLoop;
@@ -2508,6 +2512,10 @@ void CvEconomicAI::DoAntiquitySites()
 				if(pPlot->getOwner() == m_pPlayer->GetID())
 				{
 					iNumSitesOwn++;
+					if (pPlot->getResourceType(m_pPlayer->getTeam()) == eHiddenArtifactResourceType)
+					{
+						iNumHiddenSitesOwn++;
+					}
 				}
 				else if(pPlot->getOwner() == NO_PLAYER)
 				{
@@ -2525,6 +2533,7 @@ void CvEconomicAI::DoAntiquitySites()
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_iVisibleAntiquitySitesOwn =  iNumSitesOwn;
+	m_iVisibleHiddenAntiquitySitesOwn = iNumHiddenSitesOwn;
 	m_iVisibleAntiquitySitesNeutral = iNumSitesNeutral;
 #endif
 	m_iVisibleAntiquitySites = iNumSites;

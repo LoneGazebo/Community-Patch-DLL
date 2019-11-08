@@ -228,6 +228,10 @@ public:
 	{
 		return m_iVisibleAntiquitySitesOwn;
 	};
+	int GetVisibleHiddenAntiquitySitesOwnTerritory() const
+	{
+		return m_iVisibleHiddenAntiquitySitesOwn;
+	};
 	int GetVisibleAntiquitySitesUnownedTerritory() const
 	{
 		return m_iVisibleAntiquitySitesNeutral;
@@ -285,6 +289,7 @@ private:
 	int m_iExplorersNeeded;
 	int m_iNavalExplorersNeeded;
 	int m_iVisibleAntiquitySitesOwn;
+	int m_iVisibleHiddenAntiquitySitesOwn;
 	int m_iVisibleAntiquitySitesNeutral;
 #endif
 

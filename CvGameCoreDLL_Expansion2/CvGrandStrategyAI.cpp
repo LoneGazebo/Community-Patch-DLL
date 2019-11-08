@@ -465,6 +465,12 @@ int CvGrandStrategyAI::GetConquestPriority()
 			return -100;
 		}
 	}
+	
+	// Human has disabled war as an option to win, so pick something else
+	if (GetPlayer()->GetDiplomacyAI()->IsWarDisallowedGlobal() || GetPlayer()->GetDiplomacyAI()->IsWarDisallowedHuman())
+	{
+		return -100;
+	}
 
 	int iGeneralWarlikeness = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	int iGeneralHostility = GetPlayer()->GetDiplomacyAI()->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_HOSTILE);

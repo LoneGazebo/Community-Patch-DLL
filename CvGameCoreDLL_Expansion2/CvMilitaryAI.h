@@ -259,14 +259,14 @@ public:
 	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL, bool bCheckWar = false);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 
-	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity);
-	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity);
+	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway);
+	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway);
 	void ResetDistanceCaches();
 	bool PathIsGood(const SPath& path, PlayerTypes eIntendedEnemy);
 	bool IsPlayerValid(PlayerTypes eOtherPlayer);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
-	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
+	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType, int iMaxTurnsAway);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
 
@@ -364,10 +364,10 @@ public:
 	void LogMilitarySummaryMessage(const CvString& strMsg);
 
 #if defined(MOD_BALANCE_CORE)
-	void MinorAttackTest();
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 #endif
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetNumNavalAttacksRequested() const
 	{
@@ -428,8 +428,8 @@ private:
 	void DoLandAttacks(PlayerTypes ePlayer);
 	void DoSeaAttacks(PlayerTypes ePlayer);
 	void DoMinorCivAttacks(PlayerTypes ePlayer);
-	int GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
-	int GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
+	int GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& besttarget, int iGlobalTargetScore);
+	int GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& besttarget, int iGlobalTargetScore);
 #endif
 	void MakeEmergencyPurchases();
 	void RequestImprovements();

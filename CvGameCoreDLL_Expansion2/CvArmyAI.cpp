@@ -735,12 +735,32 @@ bool CvArmyAI::CanTacticalAIInterruptUnit(int /* iUnitId */) const
 /// Retrieve units from the army - first call (CvUnit* version)
 CvUnit* CvArmyAI::GetFirstUnit()
 {
+	//for unknown reasons we sometimes get into endless loops because the same unit is present in multiple slots
+	//so we need to sanitize this
+	set<int> unitsInArmy;
 	for (size_t i = 0; i < m_FormationEntries.size(); i++)
 	{
 		if (!m_FormationEntries[i].IsUsed())
 			continue;
 
-		CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(m_FormationEntries[i].GetUnitID());
+		int iUnitID = m_FormationEntries[i].GetUnitID();
+		if (unitsInArmy.find(iUnitID) == unitsInArmy.end())
+			unitsInArmy.insert(iUnitID);
+		else
+		{
+			//bad case
+			m_FormationEntries[i].SetUnitID(-1);
+			continue;
+		}
+	}
+
+	for (size_t i = 0; i < m_FormationEntries.size(); i++)
+	{
+		if (!m_FormationEntries[i].IsUsed())
+			continue;
+
+		int iUnitID = m_FormationEntries[i].GetUnitID();
+		CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
 		if (pThisUnit)
 			return pThisUnit;
 	}

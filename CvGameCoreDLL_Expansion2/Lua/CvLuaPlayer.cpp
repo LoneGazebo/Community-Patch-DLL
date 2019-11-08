@@ -10277,8 +10277,15 @@ int CvLuaPlayer::lIsPlayerDenouncedEnemy(lua_State* L)
 int CvLuaPlayer::lIsUntrustworthyFriend(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
 
-	const bool bValue = pkPlayer->GetDiplomacyAI()->IsUntrustworthyFriend();
+	if (eOtherPlayer == NO_PLAYER)
+	{
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	const bool bValue = pkPlayer->GetDiplomacyAI()->IsUntrustworthyFriend(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
 	return 1;
@@ -12986,7 +12993,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS");
 		aOpinions.push_back(kOpinion);
 	}
-
+	/*
 	iValue = pDiploAI->GetIgnoredMilitaryPromiseScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -12994,7 +13001,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 		aOpinions.push_back(kOpinion);
-	}
+	}*/
 	
 	iValue = pDiploAI->GetBrokenExpansionPromiseScore(eWithPlayer);
 	if (iValue != 0)
@@ -14948,6 +14955,9 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 		for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 		{
 			if (pLoopCity == NULL)
+				continue;
+
+			if (pLoopCity->GetWeLoveTheKingDayCounter() > 0)
 				continue;
 
 			if (pLoopCity->GetResourceDemanded() == eResource)

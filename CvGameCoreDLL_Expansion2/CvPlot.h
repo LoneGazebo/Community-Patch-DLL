@@ -209,14 +209,14 @@ public:
 
 	bool isAdjacentOwned() const;
 	bool isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly = false) const;
-	bool IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const;
+	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam) const;
 	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentCity() const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
-	int GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const;
+	int GetSeaBlockadeScore(PlayerTypes ePlayer) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsWorthDefending(PlayerTypes eDefendingPlayer) const;

@@ -26,6 +26,11 @@ UPDATE Language_en_US
 SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.'
 WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
 
+-- Avoid Growth
+UPDATE Language_en_US
+SET Text = 'Click here to stop this city from growing in [ICON_CITIZEN] Population.'
+WHERE Tag = 'TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TT';
+
 -- All Growth Modifier Tooltips with Icons
 UPDATE Language_en_US
 SET Text = '[NEWLINE][ICON_BULLET][ICON_CONNECTED] Empire Modifier: {1_Num}%'
@@ -333,7 +338,7 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
 
 UPDATE Language_en_US
 SET Text = 'Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, the City of {1_CityName} has revolted and joined {2_CivName}!'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT';
 
 
 -- Religion
@@ -865,6 +870,10 @@ WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRIBUTE_YES_NEUTRAL';
 UPDATE Language_en_US
 SET Text = 'Very well. It appears as if I have no choice. But someday, you will pay for this.'
 WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY';
+
+UPDATE Language_en_US
+SET Text = 'Very well. I hope you may choke on it!'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_TRIBUTE_YES_ANGRY';
 
 
 -- Refuse Demand (Hostile)

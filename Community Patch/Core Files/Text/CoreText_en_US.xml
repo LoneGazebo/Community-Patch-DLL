@@ -2847,7 +2847,12 @@
 		
 		<!-- PTP Same CS Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
-			<Text>[COLOR_NEGATIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Stolen Artifacts Mod -->
+		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
+			<Text>[COLOR_NEGATIVE_TEXT]You stole their cultural artifacts![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aggressive Posture -->
@@ -5282,10 +5287,10 @@
 			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
-			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}.  With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
-			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}.  With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Diplomatic Marriages</Text>

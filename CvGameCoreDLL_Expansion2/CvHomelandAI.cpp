@@ -55,12 +55,6 @@ void CvHomelandAI::Init(CvPlayer* pPlayer)
 
 	Reset();
 
-	// Initialize AI constants from XML
-	m_iRandomRange = GC.getAI_HOMELAND_MOVE_PRIORITY_RANDOMNESS();
-	m_iDefensiveMoveTurns = GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS();
-	m_iUpgradeMoveTurns = GC.getAI_HOMELAND_MAX_UPGRADE_MOVE_TURNS();
-	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
-
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//needed for better debugging - can't use ID here because it's not set yet!
 	m_CurrentMoveHighPriorityUnits.setPlayer(pPlayer);
@@ -363,18 +357,20 @@ void CvHomelandAI::EstablishHomelandPriorities()
 	int iTurnUpgradePriority = MOD_AI_SMART_UPGRADES ? (GC.getGame().getGameTurn() % 2) * 50 : 0;
 #endif
 
+	float fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
+
 	// Find required flavor values
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
 		{
 			iFlavorDefense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorDefense = (int)(iFlavorDefense * m_fFlavorDampening);
+			iFlavorDefense = (int)(iFlavorDefense * fFlavorDampening);
 		}
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
 		{
 			iFlavorOffense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorOffense = (int)(iFlavorOffense * m_fFlavorDampening);
+			iFlavorOffense = (int)(iFlavorOffense * fFlavorDampening);
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
 		{
@@ -383,7 +379,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RECON")
 		{
 			iFlavorExplore = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorExplore = (int)(iFlavorExplore * m_fFlavorDampening);
+			iFlavorExplore = (int)(iFlavorExplore * fFlavorDampening);
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
 		{
@@ -956,14 +952,6 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #endif
-			// ... empty barb camp?
-			else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
-			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-				newTarget.SetTargetX(pLoopPlot->getX());
-				newTarget.SetTargetY(pLoopPlot->getY());
-				m_TargetedAncientRuins.push_back(newTarget);
-			}
 			// ... road segment in friendly territory?
 			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
 			{
@@ -1049,6 +1037,9 @@ void CvHomelandAI::AssignHomelandMoves()
 		case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 			PlotGarrisonMoves(true /*bCityStateOnly*/);
 			break;
+		case AI_HOMELAND_MOVE_PATROL:
+			PlotPatrolMoves();
+			break;
 ///0------------------------------
 
 		case AI_HOMELAND_MOVE_WORKER:
@@ -1056,9 +1047,6 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 		case AI_HOMELAND_MOVE_WORKER_SEA:
 			PlotWorkerSeaMoves();
-			break;
-		case AI_HOMELAND_MOVE_PATROL:
-			PlotPatrolMoves();
 			break;
 		case AI_HOMELAND_MOVE_UPGRADE:
 			PlotUpgradeMoves();
@@ -1285,7 +1273,7 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 
 				if (m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 				{
-					CvUnit *pGarrison = GetBestUnitToReachTarget(pLoopUnit->plot(), m_iDefensiveMoveTurns);
+					CvUnit *pGarrison = GetBestUnitToReachTarget(pLoopUnit->plot(), GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 					if (pGarrison)
 					{
 						ExecuteMoveToTarget(pGarrison, pLoopUnit->plot(), 0);
@@ -1308,7 +1296,8 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 	}
 
 	// Do we have any targets of this type?
-	if(m_TargetedCities.size() > 0)
+	if(
+		m_TargetedCities.size() > 0)
 	{
 		for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
 		{
@@ -1323,7 +1312,7 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 
 				if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 				{
-					CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns);
+					CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 					if(pGarrison)
 					{
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
@@ -1363,47 +1352,21 @@ void CvHomelandAI::PlotHealMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && !pUnit->isHuman())
+		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
+		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt())
 		{
-#if defined(MOD_AI_SMART_HEALING)
-			int iHealingLimit = pUnit->GetMaxHitPoints() * 8 / 10;
+			CvHomelandUnit unit;
+			unit.SetID(pUnit->GetID());
+			m_CurrentMoveUnits.push_back(unit);
 
-			if (MOD_AI_SMART_HEALING) 
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvPlot* unitPlot = pUnit->plot();
-				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && pUnit->GetDanger() > 0)
-				{
-					iHealingLimit /= 2;
-				}
-			}
+				CvString strLogString;
+				CvString strTemp;
 
-			// Am I under my health limit and not at sea or already in a city?
-			if(pUnit->GetCurrHitPoints() < iHealingLimit && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
-#else
-			// Am I under 100% health and not at sea or already in a city?
-			if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
-#endif
-			{
-				// If I'm a naval unit I need to be in friendly territory
-				if(pUnit->getDomainType() != DOMAIN_SEA || pUnit->plot()->IsFriendlyTerritory(m_pPlayer->GetID()))
-				{
-					if (!pUnit->IsUnderEnemyRangedAttack())
-					{
-						CvHomelandUnit unit;
-						unit.SetID(pUnit->GetID());
-						m_CurrentMoveUnits.push_back(unit);
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							CvString strTemp;
-
-							strTemp = pUnit->getUnitInfo().GetDescription();
-							strLogString.Format("%s healing at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-					}
-				}
+				strTemp = pUnit->getUnitInfo().GetDescription();
+				strLogString.Format("%s healing at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
 			}
 		}
 	}
@@ -1427,7 +1390,7 @@ void CvHomelandAI::PlotMovesToSafety()
 			continue;
 
 		int iDangerLevel = pUnit->GetDanger();
-		if (iDangerLevel == 0)
+		if (iDangerLevel == 0 && pUnit->plot()->getOwner()==pUnit->getOwner())
 			continue;
 
 		bool bAddUnit = false;
@@ -2011,7 +1974,7 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 						continue;
 
 					//don't go to border plots, too dangerous
-					if (pLoopPlot->IsAdjacentOwnedByOtherTeam(m_pPlayer->getTeam()))
+					if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
 						continue;
 
 					//Don't patrol into cities.
@@ -2123,7 +2086,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 							if (iNumResource > 0)
 							{
 #if defined(MOD_BALANCE_CORE)
-								//Don't use all of our Aluminum!
+								//Don't use all of our Aluminum, keep some for spaceship parts
 								ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 								if (eResource == eAluminumResource)
 								{
@@ -2277,7 +2240,7 @@ void CvHomelandAI::PlotAncientRuinMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns);
+				CvUnit *pIndy = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 				if(pIndy)
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
@@ -3043,7 +3006,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		ExecuteUnassignedUnitMoves();
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvHomelandAI::ExecuteUnassignedUnitMoves()
 {
 	MoveUnitsArray::iterator it;
@@ -3068,7 +3031,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 		UnitProcessed(pUnit->GetID());
 	}
 }
-#endif
+
 /// Creates cities for AI civs on first turn
 void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 {

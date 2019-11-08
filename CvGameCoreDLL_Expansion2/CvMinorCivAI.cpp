@@ -5063,7 +5063,6 @@ void CvMinorCivAI::DoTurn()
 			}
 		}
 		//Let's see if we can launch a military action.
-		GetPlayer()->GetMilitaryAI()->MinorAttackTest();
 		DoTestEndSkirmishes(NO_PLAYER);
 #endif
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -6143,10 +6142,8 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 
 	int iLoop;
 	for(CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
-	{
-		if(pLoopUnit->IsBarbarianUnitThreateningMinor(GetPlayer()->GetID()))
+		if(pLoopUnit->plot()->isAdjacentTeam(GetPlayer()->getTeam()))
 			iCount++;
-	}
 
 	return iCount;
 }
@@ -6641,7 +6638,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	int iRandSeed = ePlayer + GetNumActiveQuestsForAllPlayers() + m_pPlayer->getGlobalAverage(YIELD_CULTURE) + m_pPlayer->getGlobalAverage(YIELD_SCIENCE);
+	int iRandSeed = ePlayer + GetNumActiveQuestsForAllPlayers() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold();
 	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
 	eQuest = veValidQuests[iRandIndex];
 
@@ -7417,6 +7414,8 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		if(eTarget == NO_PLAYER)
 			return false;
+
+		//should we check if another minor already gave the same quest?
 	}
 	// FIND NATURAL WONDER
 	else if(eQuest == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
@@ -10935,8 +10934,6 @@ bool CvMinorCivAI::IsWantsMinorDead(PlayerTypes eMinor)
 /// Any good players to ask ePlayer to find?
 PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 {
-	PlayerTypes eBestTargetPlayer = NO_PLAYER;
-
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam* pTeam = &GET_TEAM(eTeam);
 
@@ -10983,10 +10980,8 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 		return NO_PLAYER;
 	}
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-	eBestTargetPlayer = veValidTargets[iRandIndex];
-
-	return eBestTargetPlayer;
+	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), GET_PLAYER(ePlayer).getNumUnits() + GET_PLAYER(ePlayer).GetTreasury()->GetLifetimeGrossGold());
+	return veValidTargets[iRandIndex];
 }
 
 /// Natural Wonder available to find that's not TOO easy to find?
@@ -12922,6 +12917,12 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 #else
 	iNewInfluence = max(GetAlliesThreshold(), iNewInfluence); // Must be at least enough to make us allies
 #endif
+	int iEra = GET_PLAYER(eLiberator).GetCurrentEra();
+	if (iEra <= 0)
+		iEra = 1;
+
+	iNewInfluence *= iEra;
+
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	}
 	//Was this liberated from a barbarian? Less influence for you!
@@ -14333,7 +14334,7 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 	if(ePlayer >= MAX_MAJOR_CIVS)
 		return 0;
 
-	// Only for Religious trait minors
+	// Only for Mercantile trait minors
 	if(GetTrait() != MINOR_CIV_TRAIT_MERCANTILE)
 		return 0;
 
@@ -14377,7 +14378,7 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 	return iAmount;
 }
 
-/// Total faith bonus from this minor civ for this player
+/// Total Gold bonus from this minor civ for this player
 int CvMinorCivAI::GetCurrentGoldBonus(PlayerTypes ePlayer)
 {
 	int iValue = 0;
@@ -17126,7 +17127,7 @@ void CvMinorCivAI::DoElection()
 				}
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 				{
-					iValue *= (iEra * iEra);
+					iValue *= (iEra + iEra);
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 

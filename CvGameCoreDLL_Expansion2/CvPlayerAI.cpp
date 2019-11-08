@@ -328,7 +328,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
 
 	// Liberate a city?
-	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner))
+	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner) && getNumCities() > 1)
 	{
 		// minor civ
 		if(GET_PLAYER(eOriginalOwner).isMinorCiv())
@@ -2743,7 +2743,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			if (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0)
 			{
 				//we want to steal at least one plot
-				if (!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+				if (!pAdjacentPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()))
 					continue;
 
 				if (pAdjacentPlot->GetDefenseBuildValue(GetID()) <= 0)

@@ -545,9 +545,6 @@ public:
 	bool isBarbarian() const;
 	bool isHuman() const;
 
-	void DoTestBarbarianThreatToMinorsWithThisUnitsDeath(PlayerTypes eKillingPlayer);
-	bool IsBarbarianUnitThreateningMinor(PlayerTypes eMinor);
-
 	int visibilityRange() const;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int reconRange() const;

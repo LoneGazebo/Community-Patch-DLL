@@ -454,7 +454,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!MOD_DIPLOMACY_CIV4_FEATURES)
 			return false;
 
-		// Both need tech for Embassy trading
+		// Both need tech for Map trading
 		if (!pToTeam->isMapTrading() || !pFromTeam->isMapTrading())
 			return false;
 
@@ -721,7 +721,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 #endif
 
-		// Already has OP
+		// Already has OB
 		if(pFromTeam->IsAllowsOpenBordersToTeam(eToTeam) && bIgnoreExistingOP)
 			return false;
 
@@ -5658,7 +5658,6 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			int iResourceLoop;
 			ResourceTypes eResource;
 
-			// Look to trade Luxuries first
 			for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
 				eResource = (ResourceTypes)iResourceLoop;
@@ -5681,6 +5680,25 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 	return iVal;
 }
 
+int CvGameDeals::GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	int iGPT = 0;
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			// Add incoming GPT, subtract outgoing GPT
+			iGPT += iter->GetGoldPerTurnTrade(eOtherPlayer);
+			iGPT -= iter->GetGoldPerTurnTrade(ePlayer);
+		}
+	}
+	
+	return iGPT;
+}
 
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------

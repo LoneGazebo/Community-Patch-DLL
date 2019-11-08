@@ -484,7 +484,7 @@ protected:
 	LUAAPIEXTN(GetBaseYieldRateFromLeague, int, iYield);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	static int lGetScienceFromCityYield(lua_State* L);
+	static int lGetYieldFromCityYield(lua_State* L);
 #endif
 	static int lGetBaseYieldRateFromReligion(lua_State* L);
 	static int lChangeBaseYieldRateFromReligion(lua_State* L);

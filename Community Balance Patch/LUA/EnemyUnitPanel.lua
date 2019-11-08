@@ -3170,20 +3170,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			end
 		end
 -- CBP
-		if(theirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) then
-			iModifier = 100 - GameDefines["BALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER"];
-			iModifier = iModifier * -1; 
-			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_NAVAL_DEFENSE_CITY" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-			elseif (iModifier ~= 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
-			end
-		end
-	
 		-- Civ Trait Bonus
 		iModifier = myCity:GetMultiAttackBonusCity(theirUnit);
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then

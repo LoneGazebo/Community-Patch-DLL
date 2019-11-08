@@ -562,10 +562,10 @@ INSERT INTO Building_GoldenAgeYieldMod
 VALUES
 	('BUILDING_STELE', 'YIELD_FAITH', 25);
 
-INSERT INTO Building_ScienceFromYield
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_YieldFromYieldPercent
+	(BuildingType, YieldIn, YieldOut, Value)
 VALUES
-	('BUILDING_COFFEE_HOUSE', 'YIELD_CULTURE', 10);
+	('BUILDING_COFFEE_HOUSE', 'YIELD_CULTURE', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)

@@ -3169,6 +3169,8 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 	CvUnit* pLoopUnit = NULL;
 	CvUnit* pBestUnit = NULL;
 
+	//we don't consider promotions here ...
+	int iBestBaseCS = 0;
 	while(pUnitNode != NULL)
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -3176,9 +3178,15 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
-			if(pLoopUnit->isBetterDefenderThan(pBestUnit,NULL))
+			int iBaseCS = max(pLoopUnit->GetBaseCombatStrength(),pLoopUnit->GetBaseRangedCombatStrength());
+			//naval units considered weaker
+			if (!pLoopUnit->isNativeDomain(this))
+				iBaseCS /= 2;
+
+			if(iBaseCS>iBestBaseCS)
 			{
 				pBestUnit = pLoopUnit;
+				iBestBaseCS = iBaseCS;
 			}
 		}
 	}
@@ -3590,7 +3598,7 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const
+bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
@@ -3748,29 +3756,33 @@ int CvPlot::GetNumAdjacentMountains() const
 	return iNumMountains;
 }
 
-int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const
+int CvPlot::GetSeaBlockadeScore(PlayerTypes ePlayer) const
 {
-	int iCount = 0;
-	for(int iI = 0; iI < RING_PLOTS[min(5,max(0,iRings))]; iI++)
+	int iScore = 0;
+	int iRange = min(5,max(0,GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
+
+	for(int iI = 0; iI < RING_PLOTS[iRange]; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-		if(pLoopPlot == NULL)
-		{
+		if(pLoopPlot == NULL || pLoopPlot->getDomain() != DOMAIN_SEA || pLoopPlot->getArea() != getArea())
 			continue;
-		}
-		if(eDomain!=NO_DOMAIN && getDomain()!=eDomain)
+
+		if (GET_PLAYER(ePlayer).IsAtWarWith(pLoopPlot->getOwner()))
 		{
-			continue;
-		}
-		if(!isValidMovePlot(ePlayer))
-		{
-			continue;
+			//there should really be a function that gives you a weighted score of all yields ...
+			iScore++;
+			if (pLoopPlot->getResourceType() != NO_RESOURCE)
+				iScore++;
+			if (pLoopPlot->getFeatureType() != NO_FEATURE)
+				iScore++;
+			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				iScore++;
 		}
 
-		iCount++;
+		iScore++;
 	}
 
-	return iCount;
+	return iScore;
 }
 
 #if defined(MOD_BALANCE_CORE_SETTLER)

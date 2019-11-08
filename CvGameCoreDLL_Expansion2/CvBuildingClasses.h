@@ -77,6 +77,32 @@ protected:
 	int m_iAIPriority;
 };
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvDoubleYieldInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvDoubleYieldInfo
+{
+	friend class CvBuildingEntry;
+
+public:
+	CvDoubleYieldInfo() :
+		m_iYieldIn(NO_YIELD),
+		m_iYieldOut(NO_YIELD),
+		m_iValue(0)
+	{
+
+	};
+
+	YieldTypes GetYieldIn() { return m_iYieldIn; };
+	YieldTypes GetYieldOut() { return m_iYieldOut; };
+	int GetValue() { return m_iValue; };
+
+protected:
+	YieldTypes m_iYieldIn;
+	YieldTypes m_iYieldOut;
+	int m_iValue;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBuildingEntry
 //!  \brief		A single building available in the game
@@ -460,9 +486,6 @@ public:
 	int GetYieldFromFaithPurchase(int i) const;
 	int* GetYieldFromFaithPurchaseArray() const;
 
-	int GetScienceFromYield(int i) const;
-	int* GetScienceFromYieldArray() const;
-
 	int GetYieldFromInternalTREnd(int i) const;
 	int* GetYieldFromInternalTREndArray() const;
 
@@ -551,6 +574,9 @@ public:
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int GetInstantYield(int i) const;
 	int* GetInstantYieldArray() const;
+
+	int GetYieldFromYield(int i, int j) const;
+
 #endif
 
 	int GetResourceYieldChange(int i, int j) const;
@@ -939,7 +965,6 @@ private:
 	int* m_piYieldFromUnitLevelUp;
 	int* m_piYieldFromPurchase;
 	int* m_piYieldFromFaithPurchase;
-	int* m_piScienceFromYield;
 	int* m_piYieldFromInternalTREnd;
 	int* m_piYieldFromInternal;
 	int* m_piYieldFromProcessModifier;
@@ -989,6 +1014,7 @@ private:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	CvDoubleYieldInfo* m_paYieldFromYield;
 	int** m_ppaiImprovementYieldChange;
 	int** m_ppaiImprovementYieldChangeGlobal;
 	int** m_ppaiSpecialistYieldChangeLocal;

@@ -332,7 +332,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromSpyDefense(NULL),
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
-	m_piScienceFromYield(NULL),
 	m_piYieldFromInternalTREnd(NULL),
 	m_piYieldFromInternal(NULL),
 	m_piYieldFromProcessModifier(NULL),
@@ -410,6 +409,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiBuildingClassLocalYieldChanges(NULL),
 #endif
 	m_paiBuildingClassHappiness(NULL),
+	m_paYieldFromYield(NULL),
 	m_paThemingBonusInfo(NULL),
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	m_piInstantYield(NULL),
@@ -460,7 +460,6 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChangeLocal);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
-	SAFE_DELETE_ARRAY(m_piScienceFromYield);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternalTREnd);
 	SAFE_DELETE_ARRAY(m_piYieldFromInternal);
 	SAFE_DELETE_ARRAY(m_piYieldFromProcessModifier);
@@ -514,8 +513,10 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
+	SAFE_DELETE_ARRAY(m_paYieldFromYield);
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	SAFE_DELETE_ARRAY(m_piInstantYield);
+
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
@@ -933,7 +934,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGreatWorkYieldChangeLocal, "Building_GreatWorkYieldChangesLocal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternalTREnd, "Building_YieldFromInternalTREnd", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromInternal, "Building_YieldFromInternalTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromProcessModifier, "Building_YieldFromProcessModifier", "BuildingType", szBuildingType);
@@ -1012,6 +1012,41 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
+	//YieldFromYieldYieldChanges
+	{
+		//Initialize Theming Bonuses
+		m_paYieldFromYield = FNEW(CvDoubleYieldInfo[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strResourceTypesKey = "Building_YieldFromYieldPercent";
+		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
+		if (pResourceTypes == NULL)
+		{
+			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select YieldIn, YieldOut, Value from Building_YieldFromYieldPercent where BuildingType = ?");
+		}
+
+		const size_t lenBuildingType = strlen(szBuildingType);
+		pResourceTypes->Bind(1, szBuildingType, lenBuildingType, false);
+
+		while (pResourceTypes->Step())
+		{
+			CvDoubleYieldInfo& pDoubleYieldInfo = m_paYieldFromYield[idx];
+
+			const char* szYield = pResourceTypes->GetText("YieldIn");
+			pDoubleYieldInfo.m_iYieldIn = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+
+			szYield = pResourceTypes->GetText("YieldOut");
+			pDoubleYieldInfo.m_iYieldOut = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+
+			pDoubleYieldInfo.m_iValue = pResourceTypes->GetInt("Value");
+
+			idx++;
+		}
+
+		pResourceTypes->Reset();
+	}
+
+
 	//ResourceYieldChanges
 	{
 		kUtility.Initialize2DArray(m_ppaiResourceYieldChange, "Resources", "Yields");
@@ -2994,19 +3029,6 @@ int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
 }
 
 /// Does this Policy grant yields from constructing buildings?
-int CvBuildingEntry::GetScienceFromYield(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piScienceFromYield[i];
-}
-/// Array of yield changes
-int* CvBuildingEntry::GetScienceFromYieldArray() const
-{
-	return m_piScienceFromYield;
-}
-
-/// Does this Policy grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -3501,6 +3523,37 @@ int CvBuildingEntry::GetNumFreeUnits(int i) const
 	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
 }
 
+/// Does this building generate yields from other yields?
+int CvBuildingEntry::GetYieldFromYield(int i, int j) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+
+	if (m_paYieldFromYield == NULL || m_paYieldFromYield[0].GetValue() == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+			{
+				if (m_paYieldFromYield[iI].GetYieldIn() != i)
+					continue;
+				if (m_paYieldFromYield[iI].GetYieldOut() != j)
+					continue;
+
+				return m_paYieldFromYield[iI].GetValue();
+			}
+		}
+	}
+
+	return 0;
+}
+
 /// Change to Resource yield by type
 int CvBuildingEntry::GetResourceYieldChange(int i, int j) const
 {
@@ -3946,6 +3999,7 @@ int* CvBuildingEntry::GetInstantYieldArray() const
 {
 	return m_piInstantYield;
 }
+
 #endif
 
 CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
