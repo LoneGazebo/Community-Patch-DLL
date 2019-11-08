@@ -12972,6 +12972,18 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 		SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
 		return;
 	}
+	
+	// If we're somebody's vassal, chances are we can't compete with them anyway, so hatred is pointless.
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+		{
+			SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
+			return;
+		}
+	}
+#endif
 
 	//Don't do this at the start of the game.
 	if (GC.getGame().getGameTurn() <= 150)
@@ -14026,6 +14038,18 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 		SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 		return;
 	}
+	
+	// If we're somebody's vassal, chances are we can't compete with them anyway, so hatred is pointless.
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+		{
+			SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+			return;
+		}
+	}
+#endif
 
 	//Don't do this at the start of the game.
 	if (GC.getGame().getGameTurn() <= 150)
