@@ -6594,6 +6594,16 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	DoTestSeedGlobalQuestCountdown();
 }
 
+//Check if the player already has the same quest from another minor
+bool IsUniqueQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest)
+{
+	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+		if (GET_PLAYER((PlayerTypes)i).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eQuest))
+			return false;
+
+	return true;
+}
+
 /// See if it is time to start a personal quest for this player
 void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 {
@@ -6621,7 +6631,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 	{
 		eQuest = (MinorCivQuestTypes) iQuestLoop;
 
-		if(IsValidQuestForPlayer(ePlayer, eQuest) && IsPersonalQuest(eQuest))
+		if(IsValidQuestForPlayer(ePlayer, eQuest) && IsPersonalQuest(eQuest) && IsUniqueQuestForPlayer(ePlayer,eQuest))
 		{
 			// What is the bias for this player wanting this particular quest? Queue up multiple copies (default is 10)
 			iCount = GetPersonalityQuestBias(eQuest);
@@ -6666,7 +6676,8 @@ void CvMinorCivAI::AddQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eTy
 
 	// ePlayer can only have at most one quest of each type
 	CvAssertMsg(!IsActiveQuestForPlayer(ePlayer, eType), "ePlayer already has a quest of this type!");
-	if(IsActiveQuestForPlayer(ePlayer, eType)) return;
+	if(IsActiveQuestForPlayer(ePlayer, eType)) 
+		return;
 
 	CvMinorCivQuest newQuest(GetPlayer()->GetID(), ePlayer, eType);
 #if defined(MOD_BALANCE_CORE)

@@ -253,8 +253,8 @@ public:
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
-	int getNumAdjacentNonvisible(TeamTypes eTeam) const;
-	int getNumAdjacentOwnedBy(PlayerTypes ePlayer) const;
+	//count neighbors in a certain domain, owned by a certain player, enemy territory for a certain player, invisible to a certain player
+	int countMatchingAdjacentPlots(DomainTypes eDomain, PlayerTypes eOwningPlayer, PlayerTypes eWarPlayer, PlayerTypes eInvisiblePlayer) const;
 
 	bool isGoody(TeamTypes eTeam = NO_TEAM) const;
 	bool isRevealedGoody(TeamTypes eTeam = NO_TEAM) const;
