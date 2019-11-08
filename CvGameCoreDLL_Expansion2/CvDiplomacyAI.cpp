@@ -3863,7 +3863,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + GetOtherPlayerNumProtectedMinorsKilled(ePlayer));
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GetOtherPlayerNumProtectedMinorsKilled(ePlayer));
 	}
-	else if (IsAngryAboutProtectedMinorAttacked(ePlayer) && (!IsPlayerMadeAttackCityStatePromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer)))
+	else if (IsAngryAboutProtectedMinorAttacked(ePlayer) && (IsPlayerIgnoredAttackCityStatePromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer)))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + GetOtherPlayerNumProtectedMinorsAttacked(ePlayer));
