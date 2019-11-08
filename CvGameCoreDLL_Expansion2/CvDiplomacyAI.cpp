@@ -12968,7 +12968,10 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 	
 	// Disallowed by game options
 	if (IsNoVictoryCompetition())
+	{
+		SetVictoryBlockLevel(ePlayer, BLOCK_LEVEL_NONE);
 		return;
+	}
 
 	//Don't do this at the start of the game.
 	if (GC.getGame().getGameTurn() <= 150)
@@ -14019,7 +14022,10 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 	
 	// Disallowed by game options
 	if (IsNoVictoryCompetition())
+	{
+		SetVictoryDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 		return;
+	}
 
 	//Don't do this at the start of the game.
 	if (GC.getGame().getGameTurn() <= 150)
@@ -43755,16 +43761,27 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						SetLandDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 						SetWonderDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 						SetMinorCivDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
+						SetVictoryDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 						SetWarmongerThreat(eOtherTeamPlayer, THREAT_NONE);
 						SetOtherPlayerWarmongerAmountTimes100(eOtherTeamPlayer, 0);
 						
 						SetPlayerNoSettleRequestCounter(eOtherTeamPlayer, -1);
 						SetPlayerStopSpyingRequestCounter(eOtherTeamPlayer, -1);
 #if defined(MOD_BALANCE_CORE)
+						SetVictoryBlockLevel(eOtherTeamPlayer, BLOCK_LEVEL_NONE);
+						
 						SetPlayerNoSettleRequestEverAsked(eOtherTeamPlayer, false);
 						SetPlayerStopSpyingRequestEverAsked(eOtherTeamPlayer, false);
+						
 						SetNumDemandEverMade(eOtherTeamPlayer, -GetNumDemandEverMade(eOtherTeamPlayer));
 						SetNumTimesCoopWarDenied(eOtherTeamPlayer, 0);
+						
+						if (GetRecentAssistValue(eOtherTeamPlayer) > 0)
+						{
+							ChangeRecentAssistValue(eOtherTeamPlayer, -GetRecentAssistValue(eOtherTeamPlayer));
+						}
+						
+						ChangeNumTimesRazed(eOtherTeamPlayer, -GetNumTimesRazed(eOtherTeamPlayer));
 #endif
 						SetDemandCounter(eOtherTeamPlayer, -1);
 						ChangeNumTimesCultureBombed(eOtherTeamPlayer, -GetNumTimesCultureBombed(eOtherTeamPlayer));
@@ -43816,6 +43833,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						SetFriendDeclaredWarOnUs(eOtherTeamPlayer, false);
 						
 						ChangeNumTimesNuked(eOtherTeamPlayer, -GetNumTimesNuked(eOtherTeamPlayer));
+						
+						SetTurnsSinceWeDislikedTheirProposal(eOtherTeamPlayer, -1);
+						SetTurnsSinceTheyFoiledOurProposal(eOtherTeamPlayer, -1);
 					}
 
 					// In case we had an ongoing operation against our Master, kill it

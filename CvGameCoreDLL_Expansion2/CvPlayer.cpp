@@ -9792,16 +9792,27 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
+			pDiploAI->SetVictoryDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWarmongerThreat(eMePlayer, THREAT_NONE);
 			pDiploAI->SetOtherPlayerWarmongerAmountTimes100(eMePlayer, 0);
 
 			pDiploAI->SetPlayerNoSettleRequestCounter(eMePlayer, -1);
 			pDiploAI->SetPlayerStopSpyingRequestCounter(eMePlayer, -1);
 #if defined(MOD_BALANCE_CORE)
+			pDiploAI->SetVictoryBlockLevel(eMePlayer, BLOCK_LEVEL_NONE);
+			
 			pDiploAI->SetPlayerNoSettleRequestEverAsked(eMePlayer, false);
-			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);			
+			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);
+			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
 			pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
+			
+			if (pDiploAI->GetRecentAssistValue(eMePlayer) > 0)
+			{
+				pDiploAI->ChangeRecentAssistValue(eMePlayer, -pDiploAI->GetRecentAssistValue(eMePlayer));
+			}
+			
+			pDiploAI->ChangeNumTimesRazed(eMePlayer, -pDiploAI->GetNumTimesRazed(eMePlayer));
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));
@@ -9853,6 +9864,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetFriendDeclaredWarOnUs(eMePlayer, false);
 
 			pDiploAI->ChangeNumTimesNuked(eMePlayer, -pDiploAI->GetNumTimesNuked(eMePlayer));
+			
+			pDiploAI->SetTurnsSinceWeDislikedTheirProposal(eMePlayer, -1);
+			pDiploAI->SetTurnsSinceTheyFoiledOurProposal(eMePlayer, -1);
 		}
 	}
 
