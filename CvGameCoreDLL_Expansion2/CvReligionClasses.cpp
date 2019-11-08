@@ -11428,18 +11428,23 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				// Score it
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 				{
+					//make sure we can really purchase it
+					if (pCapital->GetCityReligions()->GetReligiousMajority() != eReligion)
+					{
+						//second chance
+						CvCity *pHolyCity = m_pPlayer->GetHolyCity();
+						if (!pHolyCity || pHolyCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+							continue; //apparently we've been overwhelmed by foreign religions?
+					}
+
 					if (GetReligionToSpread() > RELIGION_PANTHEON)
 					{
 						if (ChooseProphetConversionCity())
-						{
 							iScore += 200;
-						}
 
-#ifdef AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
 						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 						if (pMyReligion && !pMyReligion->m_bEnhanced)
 							iScore *= 2;
-#endif
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))

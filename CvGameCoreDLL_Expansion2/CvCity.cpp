@@ -28176,7 +28176,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 #endif
 
 	// Discount for adjacent plots owned by us
-	iCost = iCost * (105 - pPlot->getNumAdjacentOwnedBy(getOwner())*5); //we know that one is always owned
+	iCost = iCost * (105 - pPlot->countMatchingAdjacentPlots(NO_DOMAIN, getOwner(), NO_PLAYER, NO_PLAYER) * 5); //we know that one is always owned
 	iCost /= 100;
 
 	// Game Speed Mod
@@ -28658,7 +28658,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	CvUnit* pGeneral = pPlot->getFirstUnitOfAITypeOtherTeam(getTeam(), UNITAI_GENERAL);
 	if (pGeneral && plotDistance(*plot(),*pPlot)<4)
 	{
-		int iBonus = 50 * pPlot->getNumAdjacentOwnedBy(getOwner());
+		int iBonus = 50 * pPlot->countMatchingAdjacentPlots(NO_DOMAIN, getOwner(), NO_PLAYER, NO_PLAYER);
 		iRtnValue += (iRtnValue*iBonus) / 100;
 	}
 

@@ -138,8 +138,6 @@
 #define AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
 /// When comparing the final score for beliefs, the score of the lowest scored belief will be subtracted from all beliefs
 #define AUI_RELIGION_RELATIVE_BELIEF_SCORE
-/// Enhance score for prophet purchase if religion is not enhanced yet
-#define AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
 /// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
 #define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
 

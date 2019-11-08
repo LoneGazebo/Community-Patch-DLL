@@ -2114,7 +2114,7 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 				pTarget->SetAuxIntData(iRequiredDamage);
 
 				//when in doubt attack the unit with fewer neighboring enemies first (can happen especially in naval combat)
-				int iTiebreak = 6 - pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), NO_DOMAIN) - pPlot->getNumAdjacentNonvisible(m_pPlayer->getTeam());
+				int iTiebreak = 6 - pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), NO_DOMAIN) - pPlot->countMatchingAdjacentPlots(NO_DOMAIN,NO_PLAYER,NO_PLAYER,m_pPlayer->GetID());
 
 				targets.push_back(STargetWithTwoScoresTiebreak(pTarget,pPlot,iExpectedDamage-iRequiredDamage,iTiebreak) );
 			}
@@ -4432,6 +4432,10 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 				m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 			}
 		}
+
+		// Carriers are always high prio
+		if (pUnit->hasCargo())
+			m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 
 		// Don't consider units that are already high priority
 		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
@@ -8449,6 +8453,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
 			iDanger+=20;
 
+		//naval units should avoid enemy coast, never know what's hiding there
+		if (pUnit->getDomainType() == DOMAIN_SEA)
+			iDanger += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 2;
+
 		//heal rate is higher here and danger lower
 		if (bIsInTerritory && !pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
 			iDanger -= 5;
@@ -11181,7 +11189,6 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 		case UNITAI_RANGED:
 		case UNITAI_CITY_BOMBARD:
 		case UNITAI_ASSAULT_SEA:
-		case UNITAI_CARRIER_SEA:
 			if (pUnit->GetRange() > 2)
 				eStrategy = MS_THIRDLINE;
 			else if (pUnit->GetRange() == 2)
@@ -11195,22 +11202,26 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 					eStrategy = MS_FIRSTLINE; //regular melee
 			}
 			break;
+		//carriers should stay back
+		case UNITAI_CARRIER_SEA:
+			eStrategy = MS_THIRDLINE;
+			break;
 
-			//explorers are an edge case, the visibility can be useful, so include them
-			//they shouldn't fight if the odds are bad
+		//explorers are an edge case, the visibility can be useful, so include them
+		//they shouldn't fight if the odds are bad
 		case UNITAI_EXPLORE:
 		case UNITAI_EXPLORE_SEA:
 			eStrategy = MS_FIRSTLINE;
 			break;
 
-			//combat support, stay out of danger
+		//combat support, stay out of danger
 		case UNITAI_GENERAL:
 		case UNITAI_ADMIRAL:
 		case UNITAI_CITY_SPECIAL:
 			eStrategy = MS_SUPPORT;
 			break;
 
-			//air units. ignore here, attack / rebase is handled elsewhere
+		//air units. ignore here, attack / rebase is handled elsewhere
 		case UNITAI_ATTACK_AIR:
 		case UNITAI_DEFENSE_AIR:
 		case UNITAI_MISSILE_AIR:

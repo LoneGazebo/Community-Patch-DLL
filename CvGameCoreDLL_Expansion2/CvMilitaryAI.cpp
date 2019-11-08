@@ -2284,7 +2284,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		else if(GET_PLAYER(target.m_pTargetCity->getOwner()).isBarbarian())
 		{
 			// if it's right on our doorstep an attack is helpful. barbarian cities are easy targets
-			if (target.m_iPathLength>7)
+			if (target.m_iPathLength>17)
 				return 0;
 		}
 	}
@@ -4352,7 +4352,7 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 
 		if(eWarState >= WAR_STATE_STALEMATE)
 		{
-			if(GET_PLAYER(ePlayer).isMinorCiv())
+			if(GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
 			{
 				CvMilitaryTarget targetLand = FindBestAttackTargetCached(AI_OPERATION_CITY_STATE_ATTACK, ePlayer);
 				if(targetLand.m_pTargetCity && targetLand.m_pMusterCity && !targetLand.m_bNoLandPath)
@@ -4427,7 +4427,7 @@ void CvMilitaryAI::DoSeaAttacks(PlayerTypes ePlayer)
 		int iOperationID;
 		if(eWarState >= WAR_STATE_STALEMATE)
 		{	
-			if(GET_PLAYER(ePlayer).isMinorCiv())
+			if(GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
 			{			
 				CvMilitaryTarget targetSea = FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer);
 				if(targetSea.m_pTargetCity && targetSea.m_pMusterCity && targetSea.m_bAttackBySea)
@@ -4647,7 +4647,7 @@ void CvMilitaryAI::UpdateOperations()
 			if(eLoopPlayer != NO_PLAYER)
 			{
 				//Defense check.
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 				{
 					if(pThreatenedCityA == NULL)
 						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
@@ -4697,7 +4697,7 @@ void CvMilitaryAI::UpdateOperations()
 			if(eLoopPlayer != NO_PLAYER)
 			{
 				//Defense check.
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 				{
 					if (pThreatenedCoastalCityA == NULL)
 						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);

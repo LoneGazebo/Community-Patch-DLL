@@ -4228,40 +4228,32 @@ bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getNumAdjacentOwnedBy(PlayerTypes ePlayer) const
+int CvPlot::countMatchingAdjacentPlots(DomainTypes eDomain, PlayerTypes eOwningPlayer, PlayerTypes eWarPlayer, PlayerTypes eInvisiblePlayer) const
 {
-	int iAdjacentOwnedCount = 0;
+	int iMatchingAdjacentCount = 0;
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
 	for (int i = 0; i < 6; i++)
 	{
 		CvPlot* pNeighbor = aNeighbors[i];
-		if (pNeighbor && pNeighbor->getOwner() == ePlayer)
-			iAdjacentOwnedCount++;
+		if (!pNeighbor)
+			continue;
+
+		if (eDomain != NO_DOMAIN && pNeighbor->getDomain() != eDomain)
+			continue;
+
+		if (eOwningPlayer != NO_PLAYER && pNeighbor->getOwner() != eOwningPlayer)
+			continue;
+
+		if (eWarPlayer != NO_PLAYER && !GET_PLAYER(eWarPlayer).IsAtWarWith(pNeighbor->getOwner()))
+			continue;
+
+		if (eInvisiblePlayer != NO_PLAYER && pNeighbor->isVisible(GET_PLAYER(eInvisiblePlayer).getTeam()))
+			continue;
+
+		iMatchingAdjacentCount++;
 	}
 
-	return iAdjacentOwnedCount;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlot::getNumAdjacentNonvisible(TeamTypes eTeam) const
-{
-	CvPlot* pAdjacentPlot;
-	int iCount = 0;
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
-		{
-			if(!pAdjacentPlot->isVisible(eTeam))
-			{
-				iCount++;
-			}
-		}
-	}
-
-	return iCount;
+	return iMatchingAdjacentCount;
 }
 
 //	--------------------------------------------------------------------------------
