@@ -61,7 +61,7 @@
 		<Column name="Experience" type="integer"/>
 	</Table>
 
-	<!-- Allows you to define an yield that generates another yield for every x% you produce in that city. -->
+	<!-- Allows you to define a yield that generates another yield for every x% you produce in that city. -->
 	<Table name="Building_YieldFromYieldPercent">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="YieldOut" type="integer" reference="Yields(Type)"/>
