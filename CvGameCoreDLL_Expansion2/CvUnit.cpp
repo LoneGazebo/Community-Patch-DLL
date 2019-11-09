@@ -27177,7 +27177,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 							// Make sure units belong to the same player
 							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
-								if (AreUnitsOfSameType(*pLoopUnit))
+								if (AreUnitsOfSameType(*pLoopUnit) && pLoopUnit->ReadyToSwap())
 								{
 									CvPlot* here = plot();
 									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToSwap())

@@ -8574,7 +8574,6 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 			CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pPlot);
 			//melee units are there to soak damage ...
 			int iDangerLimit = pSwapUnit ? (pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
-
 			if (!pSwapUnit || !pSwapUnit->isNativeDomain(pUnit->plot()) || pSwapUnit->GetDanger(pUnit->plot()) > iDangerLimit)
 				continue;
 		}
@@ -10071,7 +10070,7 @@ void CvTacticalPlot::findType(eTactPlotDomain eDomain, const CvTacticalPosition&
 
 	if (bBlockedByEnemyCombatUnit || bBlockedByEnemyCity)
 		eNewType = TP_ENEMY;
-	else if (nEnemyCombatUnitsAdjacent>0 || bEnemyCityAdjacent)
+	else if (nEnemyCombatUnitsAdjacent[eDomain]>0 || bEnemyCityAdjacent)
 		eNewType = TP_FRONTLINE;
 	else if (iFL>0)
 		eNewType = TP_SECONDLINE;
