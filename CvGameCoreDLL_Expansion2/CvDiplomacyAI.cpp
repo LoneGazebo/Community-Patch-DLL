@@ -10316,7 +10316,7 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 		return false;
 	
 	// Friend?
-	if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+	if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 	{
 		return true;
 	}
@@ -10358,7 +10358,7 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 			if (bCheckPlayer)
 			{
 				// Friend?
-				if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+				if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 				{
 					return true;
 				}
@@ -14783,7 +14783,7 @@ bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 	return false;
 }
 
-/// Disables victory competition (Victory Dispute/Victory Block/Is Close To X Victory penalties, etc.
+/// Disables victory competition (Victory Dispute/Victory Block/Is Close To X Victory penalties, etc.)
 bool CvDiplomacyAI::IsNoVictoryCompetition()
 {
 	if (GC.getDIPLO_AI_NO_VICTORY_COMPETITION() == 1)
@@ -33877,31 +33877,53 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDugUpMyYardScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iArtifactsStolen = 0;
 	int iNegativePoints = GetNegativeArchaeologyPoints(ePlayer);
-	int iArtifactsStolen = (int)(iNegativePoints / 50);
 	
-	if (iArtifactsStolen >= 3)
+	if (iNegativePoints > 100)
 	{
-		iOpinionWeight += 40;
-		if (iNegativePoints <= 125)
+		iArtifactsStolen = 3;
+	}
+	else if (iNegativePoints > 50)
+	{
+		iArtifactsStolen = 2;
+	}
+	else if (iNegativePoints > 0)
+	{
+		iArtifactsStolen = 1;
+	}
+	
+	if (iArtifactsStolen == 3)
+	{
+		if (iNegativePoints > 125)
 		{
-			iOpinionWeight += -5;
+			iOpinionWeight = 40;
+		}
+		else
+		{
+			iOpinionWeight = 35;
 		}
 	}
 	else if (iArtifactsStolen == 2)
 	{
-		iOpinionWeight += 30;
-		if (iNegativePoints <= 75)
+		if (iNegativePoints > 75)
 		{
-			iOpinionWeight += -5;
+			iOpinionWeight = 30;
+		}
+		else
+		{
+			iOpinionWeight = 25;
 		}
 	}
 	else if (iArtifactsStolen == 1)
 	{
-		iOpinionWeight += 20;
-		if (iNegativePoints <= 25)
+		if (iNegativePoints > 25)
 		{
-			iOpinionWeight += -5;
+			iOpinionWeight = 20;
+		}
+		else
+		{
+			iOpinionWeight = 15;
 		}
 	}
 	
