@@ -436,7 +436,7 @@
 
 		<!-- Tooltips for EU Panel -->
 		<Row Tag ="TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP">
-			<Text>Bonus VS {1_UnitType} (Mounted)</Text>
+			<Text>Bonus VS Mounted Units</Text>
 		</Row>
 		<!-- Tooltip for Blockades -->
 		<Row Tag="TXT_KEY_EUPANEL_CITY_BLOCKADED">
