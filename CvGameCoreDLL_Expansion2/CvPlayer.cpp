@@ -20506,9 +20506,8 @@ void CvPlayer::DoUpdateTotalHappiness()
 	}
 #endif
 
-	if (m_iHappiness > 0)
+	if (m_iHappiness > 0 && MOD_BALANCE_CORE_HAPPINESS)
 	{
-
 		DistributeHappinessToCities(m_iHappiness, iLuxFlat);
 
 		m_iHappiness += iLuxFlat;

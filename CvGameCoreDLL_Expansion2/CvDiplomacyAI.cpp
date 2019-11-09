@@ -29652,6 +29652,9 @@ bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer)
 	}
 #endif
 
+	if ((GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0))
+		return true;
+
 	return false;
 }
 

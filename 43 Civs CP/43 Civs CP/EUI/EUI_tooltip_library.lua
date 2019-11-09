@@ -1857,9 +1857,7 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 -- CBP
 	-- Yield Increase from City Yields
-	if(yieldID == YieldTypes.YIELD_SCIENCE) then
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CITY_YIELDS", city:GetScienceFromCityYield( yieldID ), yieldIconString)
-	end
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CITY_YIELDS", city:GetYieldFromCityYield( yieldID ), yieldIconString)
 
 	-- Yield Increase from CS Alliance (Germany)
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance( yieldID ), yieldIconString)
@@ -2244,6 +2242,9 @@ local function GetCultureTooltip( city )
 
 	-- Culture from Traits
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_TRAITS", cultureFromTraits )
+
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CITY_YIELDS", city:GetYieldFromCityYield( YieldTypes.YIELD_CULTURE ) )
+
 	-- CP EVENT
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_CULTURE) )
 
@@ -2480,6 +2481,8 @@ local function GetFaithTooltip( city )
 
 		-- Faith from Religion
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CITY_YIELDS", city:GetYieldFromCityYield( YieldTypes.YIELD_FAITH ) )
 
 		--CP EVENTS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_FAITH) )

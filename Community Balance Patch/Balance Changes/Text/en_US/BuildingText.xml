@@ -339,7 +339,7 @@
 			<Text>+4 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains Tile.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not be built next to a River. City must not contain another energy-producing Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Farms and Pastures worked by the City.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Farms and Pastures worked by the City. 10% of [ICON_FOOD] Food created by the City counts as [ICON_GOLD] Gold Per Turn.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>Produces 1 [ICON_RES_COAL] Coal and 1 [ICON_RES_IRON] Iron.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
