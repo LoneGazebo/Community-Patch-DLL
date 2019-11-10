@@ -1126,7 +1126,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			movementRules = pMyUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -1997,7 +1997,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			movementRules = pTheirUnit:GetZOCStatus();
 			if(movementRules ~= "") then
