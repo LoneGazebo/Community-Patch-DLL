@@ -1980,13 +1980,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			if (iNumVisibleAAUnits > 0) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			
 			-------------------------
