@@ -606,7 +606,7 @@
 	
 	-- Naval Leadership
 	UPDATE Language_en_US
-	SET Text = ' May use the [COLOR_POSITIVE_TEXT]Repair Fleet[ENDCOLOR] Ability once before being expended.[NEWLINE]Improves combat effectiveness of nearby naval units.[NEWLINE]+1 [ICON_MOVES] Movement.'
+	SET Text = 'May use the [COLOR_POSITIVE_TEXT]Repair Fleet[ENDCOLOR] Ability once before being expended.[NEWLINE]Improves combat effectiveness of nearby naval units.[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_ADMIRAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
