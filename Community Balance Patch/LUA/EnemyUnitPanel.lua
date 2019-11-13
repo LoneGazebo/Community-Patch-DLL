@@ -2017,7 +2017,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
 						controlTable.Value:SetText("");
-						bonusCount = bonusCount + 1;
+						bonusCount = bonusCount + 2;
 				end
 			end
 			
