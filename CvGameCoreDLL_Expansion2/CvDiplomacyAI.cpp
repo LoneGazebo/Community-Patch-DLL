@@ -4501,16 +4501,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 			}
 		}
-		
-		// We like our vassals (unless they're blocking our path to victory)
-		else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
-		{
-			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0 && !IsMajorCompetitor(ePlayer))
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-			}
-		}
 
 		// They are our master
 		else if (IsVassal(ePlayer))
@@ -5131,6 +5121,15 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != GetPlayer()->GetID())
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+		}
+		// We like our vassals (unless they're blocking our path to victory)
+		else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
+		{
+			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0 && !IsMajorCompetitor(ePlayer))
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			}
 		}
 		
 		////////////////////////////////////
