@@ -11425,6 +11425,15 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer)
 		}
 	}
 	
+	// We're going for world conquest, so play offensively unless we must retreat
+	if (IsGoingForWorldConquest() && GetWarState(ePlayer) > WAR_STATE_DEFENSIVE)
+	{
+		if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+		{
+			return true;
+		}
+	}
+	
 	if (GetBoldness() > 6)
 	{
 		//bold players
