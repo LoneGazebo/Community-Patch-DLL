@@ -4144,7 +4144,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 	}
 	int iNumCaps = GetPlayer()->GetNumCapitalCities();
-	if (iNumCaps > 1)
+	if ((iNumCaps > 0) && GetPlayer()->GetCapitalConqueror() == NO_PLAYER)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iNumCaps;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iNumCaps;
@@ -13717,6 +13717,9 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
 		return false;
 	
+	if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+		return false;
+	
 	if (IsCapitalCapturedBy(ePlayer))
 		return true;
 	
@@ -13764,6 +13767,9 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 			return true;
 		}
 	}
+	
+	if (IsGoingForWorldConquest() && GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+		return true;
 	
 	if (IsGoingForDiploVictory() && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 		return true;
