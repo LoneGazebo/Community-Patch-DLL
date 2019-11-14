@@ -13745,6 +13745,20 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 	if (GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG)
 		return true;
 	
+	if (GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+	{
+		if (GetPlayer()->GetCurrentEra() <= 2 || IsGoingForWorldConquest())
+		{
+			return true;
+		}
+	}
+	
+	if (IsGoingForDiploVictory() && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+		return true;
+	
+	if (IsGoingForCultureVictory() && GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+		return true;
+	
 	if (IsPlayerOpposingIdeology(ePlayer))
 		return true;
 
