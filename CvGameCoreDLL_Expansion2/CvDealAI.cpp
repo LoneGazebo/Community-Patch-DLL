@@ -3992,11 +3992,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 			}
 		}
-		//only accept bribes against our biggest competitors. Otherwise, nah.
-		if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
-		{
-			return INT_MAX;
-		}
 
 		//don't bite if we can't easily attack.
 		if (pDiploAI->GetPlayerTargetValue(eWithPlayer) <= TARGET_VALUE_AVERAGE)
@@ -4024,10 +4019,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 
 		if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
+		{
 			iItemValue /= 2;
-		else
+		}
+		else if (!pDiploAI->IsMajorCompetitor(eWithPlayer))
+		{
 			iItemValue *= 2;
-
+		}
 		
 		// Add 300 gold per era
 		int iExtraCost = eOurEra * 300;
@@ -4306,7 +4304,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 
 			if (eWithPlayer == m_pPlayer->GetDiplomacyAI()->GetBiggestCompetitor())
+			{
 				iItemValue *= 4;
+			}
+			else if (m_pPlayer->GetDiplomacyAI()->IsMajorCompetitor(eWithPlayer))
+			{
+				iItemValue *= 2;
+			}
 		}
 		if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_AFRAID)
 		{
