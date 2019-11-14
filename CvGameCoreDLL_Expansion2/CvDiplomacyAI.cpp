@@ -12380,11 +12380,11 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerLandDisputeLevels()
 						}
 						
 						// Land disputes matter more in the early game.
-						if (GET_PLAYER(ePlayer).GetCurrentEra() == 0)
+						if (GET_PLAYER(eLoopPlayer).GetCurrentEra() == 0)
 						{
 							iContestedScore *= 2;
 						}
-						else if (GET_PLAYER(ePlayer).GetCurrentEra() == 1)
+						else if (GET_PLAYER(eLoopPlayer).GetCurrentEra() == 1)
 						{
 							iContestedScore *= 150;
 							iContestedScore /= 100;
