@@ -27276,6 +27276,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		else if(iArg1 == 2)
 		{
 			SetPlayerForgaveForSpying(eFromPlayer, true);
+#if defined(MOD_BALANCE_CORE)
+			SetForgaveForSpyingTurn(eFromPlayer, GC.getGame().getGameTurn());
+#endif
 			m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyCaught[eFromPlayer] = 0;
 			if(bActivePlayer)
 			{
