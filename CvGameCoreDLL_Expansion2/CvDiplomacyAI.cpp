@@ -11419,7 +11419,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer)
 	// If this is an early game border skirmish, we probably want to attack if we can
 	if (GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetPlayer()->GetCurrentEra() <= 1)
 	{
-		if (GetPlayerTargetValue(ePlayer) < TARGET_VALUE_AVERAGE)
+		if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
 		{
 			return true;
 		}
