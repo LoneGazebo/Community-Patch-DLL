@@ -9789,6 +9789,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
+			
+			pDiploAI->SetApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			pDiploAI->SetApproachTowardsUsGuessCounter(eMePlayer, 0);
+			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);

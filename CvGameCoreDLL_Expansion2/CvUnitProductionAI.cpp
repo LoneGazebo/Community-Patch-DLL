@@ -908,7 +908,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Diplomatic Units!
 		if(MOD_DIPLOMACY_CITYSTATES &&  pkUnitEntry->GetDefaultUnitAIType() == UNITAI_MESSENGER)
 		{
-			if (GC.getGame().GetNumMinorCivsAlive() <= 0)
+			if (!kPlayer.GetDiplomacyAI()->HasMetValidMinorCiv())
 				return 0;
 
 			int iInfluence = 0;
