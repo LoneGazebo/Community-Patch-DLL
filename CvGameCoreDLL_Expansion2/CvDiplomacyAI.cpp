@@ -5089,8 +5089,18 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// DENOUNCEMENT - Don't bother being FRIENDLY (real or fake) if there was a denouncement.
 	////////////////////////////////////
-	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()) || IsUntrustworthyFriend(ePlayer))
 	{
+		if (viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] > viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL])
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] = viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY];
+		}
+		
+		if (viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] > viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL])
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] = viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE];
+		}
+		
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 	}
@@ -13715,9 +13725,6 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
 		return false;
 	
-	if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
-		return false;
-	
 	if (IsCapitalCapturedBy(ePlayer))
 		return true;
 	
@@ -13727,6 +13734,9 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 	if (GC.getGame().countMajorCivsAlive() == 2 && !IsNoVictoryCompetition())
 		return true;
 	
+	if (GET_PLAYER(ePlayer).getNumNukeUnits() > 0)
+		return true;
+	
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 	{
 		if (!IsNoVictoryCompetition())
@@ -13734,6 +13744,9 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 			return true;
 		}
 	}
+	
+	if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+		return false;
 	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
