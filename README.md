@@ -24,6 +24,7 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 * Just clone the repo. Visual Studio solution files are included in the Expansion2 folder
 * You need the Visual C++ 2008 compiler to actually link the resulting game core DLL
 * It is possible to use a recent IDE like Visual Studio 2017 Community though, just make sure to use the correct toolset
+* Always install different Visual Studio editions in chronological order, eg 2008 before 2017
 * Significant portions of the mods are Lua / SQL files. Those can be modified without rebuilding the game core
 
 ## How do I debug this
