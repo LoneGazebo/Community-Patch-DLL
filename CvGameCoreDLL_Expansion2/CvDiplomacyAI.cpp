@@ -4421,36 +4421,35 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iTradeDelta;
 	}
 	
-	/*
 	// Sanity check - avoid declaring war if we would go bankrupt!
 	int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
 
 #if defined(MOD_BALANCE_CORE)
 	// Factor in instant yields into our income as well (average of recent turns)
 	int iTurn = GC.getGame().getGameTurn();
-	int iGoldSum = 0;
-	if (iTurn > 10)
+	int iGoldAverage = 0;
+	for (int iI = 0; iI < 10; iI++)
 	{
-		for (int iI = 0; iI < 10; iI++)
-		{
-			int iYieldTurn = iTurn - iI;
-			if (iYieldTurn <= 0)
-				continue;
+		int iYieldTurn = iTurn - iI;
+		if (iYieldTurn <= 0)
+			continue;
 			
-			iGoldSum += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
-		}
-		
-		iGoldSum /= 10;
+		iGoldAverage += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
 	}
+		
+	iGoldAverage /= 10;
 	
-	iAdjustedGoldPerTurn += iGoldSum;
+	iAdjustedGoldPerTurn += iGoldAverage;
 #endif
 	
 	iAdjustedGoldPerTurn *= 100; // multiply x100 to avoid rounding errors
 	
 	if (iAdjustedGoldPerTurn < 0)
 	{
-		int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max((iAdjustedGoldPerTurn * -1),1);
+		// Flip it!
+		iAdjustedGoldPerTurn *= -1;
+		
+		int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max(iAdjustedGoldPerTurn,1);
 		
 		if (iTurnsUntilBankruptcy <= 30)
 		{
@@ -4460,10 +4459,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			iSanityMod *= 100 - (iTurnsUntilBankruptcy * 2);
 			iSanityMod /= 100;
 			
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iSanityMod;
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= iSanityMod;
 		}
 	}
-	*/
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
@@ -29529,49 +29527,47 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	{
 		iWeight -= 2;
 
-		/*
 		// Sanity check - avoid declaring war if we would go bankrupt!
-		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - CalculateGoldPerTurnLostFromWar(eTargetPlayer, false, false);
+		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
 
 #if defined(MOD_BALANCE_CORE)
 		// Factor in instant yields into our income as well (average of recent turns)
 		int iTurn = GC.getGame().getGameTurn();
-		int iGoldSum = 0;
-		if (iTurn > 10)
+		int iGoldAverage = 0;
+		for (int iI = 0; iI < 10; iI++)
 		{
-			for (int iI = 0; iI < 10; iI++)
-			{
-				int iYieldTurn = iTurn - iI;
-				if (iYieldTurn <= 0)
-					continue;
-				
-				iGoldSum += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
-			}
-			
-			iGoldSum /= 10;
+			int iYieldTurn = iTurn - iI;
+			if (iYieldTurn <= 0)
+				continue;
+
+			iGoldAverage += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
 		}
-		
-		iAdjustedGoldPerTurn += iGoldSum;
+
+		iGoldAverage /= 10;
+
+		iAdjustedGoldPerTurn += iGoldAverage;
 #endif
-		
+
 		iAdjustedGoldPerTurn *= 100; // multiply x100 to avoid rounding errors
-		
+
 		if (iAdjustedGoldPerTurn < 0)
 		{
-			int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max((iAdjustedGoldPerTurn * -1),1);
-			
+			// Flip it!
+			iAdjustedGoldPerTurn *= -1;
+
+			int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max(iAdjustedGoldPerTurn, 1);
+
 			if (iTurnsUntilBankruptcy <= 30)
 			{
 				int iSanityMod = iAdjustedGoldPerTurn / 100;
-				
+
 				// Reduce weight by 2% for each turn it would take to go bankrupt
 				iSanityMod *= 100 - (iTurnsUntilBankruptcy * 2);
 				iSanityMod /= 100;
-				
-				iWeight += iSanityMod;
+
+				iWeight -= iSanityMod;
 			}
 		}
-		*/
 	}
 
 	// Weight for expanding too fast
