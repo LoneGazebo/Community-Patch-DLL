@@ -5087,18 +5087,26 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 	
 	////////////////////////////////////
-	// DENOUNCEMENT - Don't bother being FRIENDLY (real or fake) if there was a denouncement.
+	// NO FRIENDLY - Don't bother being FRIENDLY (real or fake) if there was a denouncement or they're untrustworthy.
 	////////////////////////////////////
 	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()) || IsUntrustworthyFriend(ePlayer))
 	{
-		if (viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] > viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL])
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] = viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY];
-		}
+		int iTransferWeight = max(viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY], viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE]);
 		
-		if (viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] > viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL])
+		// Transfer the weight to GUARDED if Enemy or worse, NEUTRAL otherwise
+		if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] = viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE];
+			if (iTransferWeight >= viApproachWeights[MAJOR_CIV_APPROACH_GUARDED])
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = iTransferWeight;
+			}
+		}
+		else
+		{
+			if (iTransferWeight >= viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL])
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] = iTransferWeight;
+			}
 		}
 		
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
