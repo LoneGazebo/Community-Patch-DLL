@@ -3977,14 +3977,18 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							return INT_MAX;
 						}
 						
-						// Bold AIs will take more risks.
-						else if (pDiploAI->GetBoldness() > 6 && pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
+						// If we're already planning a war/demand against them, then we don't care.
+						else if (pDiploAI->GetMajorCivApproach(eLoopPlayer) != MAJOR_CIV_APPROACH_WAR && pDiploAI->GetWarGoal(eLoopPlayer) != WAR_GOAL_DEMAND)
 						{
-							return INT_MAX;
-						}
-						else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
-						{
-							return INT_MAX;
+							// Bold AIs will take more risks.
+							if (pDiploAI->GetBoldness() > 6 && pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
+							{
+								return INT_MAX;
+							}
+							else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+							{
+								return INT_MAX;
+							}
 						}
 					}
 					
@@ -3992,11 +3996,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 			}
 		}
-		//only accept bribes against our biggest competitors. Otherwise, nah.
-		if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
-		{
+		// Sanity check - avoid going bankrupt
+		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - pDiploAI->CalculateGoldPerTurnLostFromWar(eWithPlayer, false, false);
+		if (iAdjustedGoldPerTurn < 0)
 			return INT_MAX;
-		}
 
 		//don't bite if we can't easily attack.
 		if (pDiploAI->GetPlayerTargetValue(eWithPlayer) <= TARGET_VALUE_AVERAGE)
@@ -4024,10 +4027,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 
 		if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
+		{
 			iItemValue /= 2;
-		else
+		}
+		else if (!pDiploAI->IsMajorCompetitor(eWithPlayer))
+		{
 			iItemValue *= 2;
-
+		}
 		
 		// Add 300 gold per era
 		int iExtraCost = eOurEra * 300;
@@ -4056,7 +4062,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 90;
 				iItemValue /= 100;
 			}
-			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_DECEPTIVE && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				iItemValue *= 150;
 				iItemValue /= 100;
@@ -4224,7 +4230,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					return INT_MAX;
 				}
 			}
-			else if(eMajorApproachTowardsWarPlayer < MAJOR_CIV_APPROACH_DECEPTIVE)
+			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_DECEPTIVE)
 			{
 				if (eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				{
@@ -4306,7 +4312,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 
 			if (eWithPlayer == m_pPlayer->GetDiplomacyAI()->GetBiggestCompetitor())
+			{
 				iItemValue *= 4;
+			}
+			else if (m_pPlayer->GetDiplomacyAI()->IsMajorCompetitor(eWithPlayer))
+			{
+				iItemValue *= 2;
+			}
 		}
 		if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_AFRAID)
 		{

@@ -2850,6 +2850,11 @@
 			<Text>[COLOR_POSITIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Same Master Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
+			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Stolen Artifacts Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
 			<Text>[COLOR_NEGATIVE_TEXT]You stole their cultural artifacts![ENDCOLOR]</Text>
