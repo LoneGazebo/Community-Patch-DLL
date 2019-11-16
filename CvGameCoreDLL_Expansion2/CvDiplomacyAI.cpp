@@ -13532,6 +13532,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					iDoFWeight += -25;
 				}
 			}
+			
+			// Focus on major competitors.
+			if (!IsMajorCompetitor(ePlayer))
+			{
+				iEnemyWeight += -6;
+				iDPWeight += 6;
+				iDoFWeight += 6;
+			}
 
 			////////////////////////////////////
 			// MILITARY THREAT
@@ -13667,6 +13675,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDPWeight += -10;
 				iDoFWeight += -10;
 				break;
+			}
+			
+			// Extra weight for land dispute in the early game
+			if (GetPlayer()->GetCurrentEra() <= 1 && GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+			{
+				iEnemyWeight += 5;
+				iDPWeight += -5;
+				iDoFWeight += -5;
 			}
 			
 			// Modify based on grand strategy
@@ -14306,8 +14322,17 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
 	
 	if (!IsNoVictoryCompetition())
 	{
-		if (IsGoingForWorldConquest() && GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
-			return true;
+		if (IsGoingForWorldConquest())
+		{
+			if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+				return true;
+			
+			if (GetPlayer()->GetCurrentEra() >= 4 && GetLandDisputeLevel(ePlayer) > DISPUTE_LEVEL_NONE)
+				return true;
+			
+			if (GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				return true;
+		}
 		
 		if (IsGoingForDiploVictory() && GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 			return true;
