@@ -6440,7 +6440,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 					continue;
 
 				//don't run away if there's other work to do (will eventually be handled by ExecuteAttackWithUnits)
-				if (TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false) != NULL)
+				if (TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false) != pTargetPlot)
 					continue;
 
 				//finally detailed pathfinding

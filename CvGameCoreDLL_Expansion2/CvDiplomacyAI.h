@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -90,7 +90,7 @@ public:
 
 	CvPlayer* GetPlayer();
 	const CvPlayer* GetPlayer() const;
-	TeamTypes GetTeam();
+	TeamTypes GetTeam() const;
 
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
@@ -387,7 +387,7 @@ public:
 	bool IsWantsSneakAttack(PlayerTypes ePlayer) const;
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
-	bool IsWantsToConquer(PlayerTypes ePlayer);
+	bool IsWantsToConquer(PlayerTypes ePlayer) const;
 
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
@@ -444,15 +444,15 @@ public:
 	int GetRecentAssistValue(PlayerTypes ePlayer);
 	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange);
 
-	bool IsGaveAssistanceTo(PlayerTypes ePlayer);
-	bool IsHasPaidTributeTo(PlayerTypes ePlayer);
-	bool IsNukedBy(PlayerTypes ePlayer);
-	bool IsCapitalCapturedBy(PlayerTypes ePlayer);
-	bool IsHolyCityCapturedBy(PlayerTypes ePlayer);
-	bool IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer);
-	bool IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer);
-	bool IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer);
-	bool IsAngryAboutSidedWithTheirProtectedMinor(PlayerTypes ePlayer);
+	bool IsGaveAssistanceTo(PlayerTypes ePlayer) const;
+	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
+	bool IsNukedBy(PlayerTypes ePlayer) const;
+	bool IsCapitalCapturedBy(PlayerTypes ePlayer) const;
+	bool IsHolyCityCapturedBy(PlayerTypes ePlayer) const;
+	bool IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer) const;
+	bool IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer) const;
+	bool IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer) const;
+	bool IsAngryAboutSidedWithTheirProtectedMinor(PlayerTypes ePlayer) const;
 	
 	int GetTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer);
 	void SetTurnsSinceWeLikedTheirProposal(PlayerTypes ePlayer, int iValue);
@@ -496,9 +496,9 @@ public:
 	int GetDoFValue(PlayerTypes ePlayer);
 	PlayerTypes GetMostValuableDoF(bool bIgnoreDoFs);
 
-	int GetCompetitorValue(PlayerTypes ePlayer);
-	PlayerTypes GetBiggestCompetitor();
-	bool IsMajorCompetitor(PlayerTypes ePlayer);
+	int GetCompetitorValue(PlayerTypes ePlayer) const;
+	PlayerTypes GetBiggestCompetitor() const;
+	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
 #endif
 
 	// Victory Dispute
@@ -525,10 +525,10 @@ public:
 	void DoUpdateMinorCivDisputeLevels();
 	
 	// Diplo AI Aggression Options (defined in CoreChanges.sql)
-	bool IsWarDisallowedGlobal();
-	bool IsWarDisallowedHuman();
-	bool IsWarDisallowed(PlayerTypes ePlayer);
-	bool IsNoVictoryCompetition();
+	bool IsWarDisallowedGlobal() const;
+	bool IsWarDisallowedHuman() const;
+	bool IsWarDisallowed(PlayerTypes ePlayer) const;
+	bool IsNoVictoryCompetition() const;
 
 	/////////////////////////////////////////////////////////
 	// Personality Members
@@ -590,16 +590,16 @@ public:
 	void ChangeOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlayer, int iChange);
 
 	// Protected Minor Bullied
-	int GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPlayer);
-	PlayerTypes GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer);
+	int GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPlayer) const;
+	PlayerTypes GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer) const;
 
 	int GetOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer) const;
 	void SetOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlayer, int iChange);
 
 	// They sided with their Protected Minor (after we attacked/bullied it)
-	bool IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer);
-	int GetTurnsSinceOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer);
+	bool IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer) const;
+	int GetTurnsSinceOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer) const;
 	void SetOtherPlayerTurnsSinceSidedWithProtectedMinor(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerTurnsSinceSidedWithProtectedMinor(PlayerTypes ePlayer, int iChange);
 
@@ -943,7 +943,7 @@ public:
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	// Problems between friends
-	bool IsUntrustworthyFriend(PlayerTypes ePlayer);
+	bool IsUntrustworthyFriend(PlayerTypes ePlayer) const;
 	int GetNumFriendsDenouncedBy();
 
 	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
@@ -1139,24 +1139,24 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer);
 #endif
-	bool IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer);
+	bool IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeMilitaryPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer, bool bValue);
-	short GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer);
+	short GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
-	int GetPlayerMadeExpansionPromise(PlayerTypes ePlayer);
+	int GetPlayerMadeExpansionPromise(PlayerTypes ePlayer) const;
 #endif
-	bool IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn = -1);
+	bool IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn = -1) const;
 	void SetPlayerMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenExpansionPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredExpansionPromise(PlayerTypes ePlayer, bool bValue);
 	AggressivePostureTypes GetPlayerExpansionPromiseData(PlayerTypes ePlayer);
 	bool EverMadeExpansionPromise(PlayerTypes ePlayer);
@@ -1185,65 +1185,65 @@ public:
 #endif
 
 	// Promise to not attack a City-State
-	bool IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer);
+	bool IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer, bool bValue);
 
 	// Promise to not bully a City-State
-	bool IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer);
+	bool IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer, bool bValue);
 
 	// Promise to not spy any more
-	bool IsPlayerMadeSpyPromise(PlayerTypes ePlayer);
+	bool IsPlayerMadeSpyPromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeSpyPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenSpyPromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenSpyPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenSpyPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredSpyPromise(PlayerTypes ePlayer, bool bValue);
 
 	// Forgive for spying
-	bool IsPlayerForgaveForSpying(PlayerTypes ePlayer);
+	bool IsPlayerForgaveForSpying(PlayerTypes ePlayer) const;
 	void SetPlayerForgaveForSpying(PlayerTypes ePlayer, bool bValue);
 
 	// Promise to stop religious conversions
-	bool IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer);
+	bool IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeNoConvertPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenNoConvertPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer, bool bValue);
 
 	// Player asks the AI not to convert
-	bool IsPlayerAskedNotToConvert(PlayerTypes ePlayer);
+	bool IsPlayerAskedNotToConvert(PlayerTypes ePlayer) const;
 	void SetPlayerAskedNotToConvert(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerAgreeNotToConvert(PlayerTypes ePlayer);
+	bool IsPlayerAgreeNotToConvert(PlayerTypes ePlayer) const;
 	void SetPlayerAgreeNotToConvert(PlayerTypes ePlayer, bool bValue);
 
 	bool IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer);
 
 	// Promise to stop digging up our land for archaeological artifacts
-	bool IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer);
+	bool IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer) const;
 	void SetPlayerMadeNoDiggingPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer);
+	bool IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer) const;
 	void SetPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer, bool bValue);
 
 	// Player asks the AI not to dig
-	bool IsPlayerAskedNotToDig(PlayerTypes ePlayer);
+	bool IsPlayerAskedNotToDig(PlayerTypes ePlayer) const;
 	void SetPlayerAskedNotToDig(PlayerTypes ePlayer, bool bValue);
-	bool IsPlayerAgreeNotToDig(PlayerTypes ePlayer);
+	bool IsPlayerAgreeNotToDig(PlayerTypes ePlayer) const;
 	void SetPlayerAgreeNotToDig(PlayerTypes ePlayer, bool bValue);
-	bool IsStopDiggingAcceptable(PlayerTypes ePlayer);
+	bool IsStopDiggingAcceptable(PlayerTypes ePlayer) const;
 
-	bool IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer);
+	bool IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenCoopWarPromise(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const;
@@ -1409,20 +1409,20 @@ public:
 
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer);
 
-	bool IsGoingForWorldConquest();
-	bool IsGoingForDiploVictory();
-	bool IsGoingForCultureVictory();
-	bool IsGoingForSpaceshipVictory();
+	bool IsGoingForWorldConquest() const;
+	bool IsGoingForDiploVictory() const;
+	bool IsGoingForCultureVictory() const;
+	bool IsGoingForSpaceshipVictory() const;
 
 #if defined(MOD_BALANCE_CORE)
-	bool IsCloseToSSVictory();
-	bool IsCloseToDominationVictory();
-	bool IsCloseToCultureVictory();
-	bool IsCloseToDiploVictory();
+	bool IsCloseToSSVictory() const;
+	bool IsCloseToDominationVictory() const;
+	bool IsCloseToCultureVictory() const;
+	bool IsCloseToDiploVictory() const;
 #endif
 
-	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false);
-	bool HasMetValidMinorCiv();
+	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
+	bool HasMetValidMinorCiv() const;
 
 	// Messages sent to other players about protected Minor Civs
 	bool HasSentAttackProtectedMinorTaunt(PlayerTypes ePlayer, PlayerTypes eMinor);

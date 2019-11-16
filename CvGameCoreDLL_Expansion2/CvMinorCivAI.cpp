@@ -7795,7 +7795,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 		}
 
-		if(SpawnHorde() == NO_PLAYER && !IsRebellionActive())
+		if(SpawnHorde() == NO_PLAYER && !IsHordeActive())
 		{
 			return false;
 		}
@@ -9616,7 +9616,7 @@ void CvMinorCivAI::DoRebellion()
 	// In hundreds
 	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 60); //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
-	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) * 300;
+	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * 200;
 	iNumRebels /= 100;
 
 	// Find a city to pop up a bad man

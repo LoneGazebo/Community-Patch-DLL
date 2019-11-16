@@ -249,7 +249,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				continue;
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
-			bool bIndirectFireAllowed = false;
+			bool bIndirectFireAllowed = false; //this is an OUT parameter ...
 			int iRange = pLoopCity->getBombardRange(bIndirectFireAllowed);
 #else
 			int iRange = GC.getCITY_ATTACK_RANGE();

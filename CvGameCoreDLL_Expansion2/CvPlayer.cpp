@@ -9888,13 +9888,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	if (!bForced)
 	{
 		// Is this a Minor we have liberated?
-#if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
-#else
-		if(GET_PLAYER(ePlayer).isMinorCiv())
-#endif
 		{
 			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+
+			//give them a basic but state-of-the-art garrison
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+			if (eUnit != NO_UNIT)
+				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
@@ -9906,8 +9907,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 			}
 		}
-	}
 #endif
+	}
 
 	// slewis
 	// negate warmonger

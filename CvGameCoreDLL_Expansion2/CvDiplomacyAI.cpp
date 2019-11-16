@@ -2309,7 +2309,7 @@ const CvPlayer* CvDiplomacyAI::GetPlayer() const
 	return m_pPlayer;
 }
 /// Returns the Team ID this AI's player is associated with
-TeamTypes CvDiplomacyAI::GetTeam()
+TeamTypes CvDiplomacyAI::GetTeam() const
 {
 	return m_pPlayer->getTeam();
 }
@@ -11716,7 +11716,7 @@ void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
 
 // Does the AI even want to conquer another player if they are at war?
 // Since there is no "defensive war" flag, this seems to be the best way to differentiate
-bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 {
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return true;
@@ -12451,25 +12451,25 @@ void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange)
 }
 
 /// Unused vanilla value
-bool CvDiplomacyAI::IsGaveAssistanceTo(PlayerTypes /*ePlayer*/)
+bool CvDiplomacyAI::IsGaveAssistanceTo(PlayerTypes /*ePlayer*/) const
 {
 	return false;
 }
 
 /// Unused vanilla value
-bool CvDiplomacyAI::IsHasPaidTributeTo(PlayerTypes /*ePlayer*/)
+bool CvDiplomacyAI::IsHasPaidTributeTo(PlayerTypes /*ePlayer*/) const
 {
 	return false;
 }
 
 /// Returns if this player has been nuked by ePlayer
-bool CvDiplomacyAI::IsNukedBy(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsNukedBy(PlayerTypes ePlayer) const
 {
 	return (GetNumTimesNuked(ePlayer) > 0);
 }
 
 /// Returns if this player's original capital is currently owned by ePlayer
-bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer) const
 {
 	if(m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
 	{
@@ -12479,7 +12479,7 @@ bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer)
 }
 
 /// Returns if this player's Holy City is currently owned by ePlayer
-bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer) const
 {
 	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
 	{
@@ -12489,7 +12489,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer)
 }
 
 /// Are we angry about ePlayer killing one of our protected Minors?
-bool CvDiplomacyAI::IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -12508,7 +12508,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer)
 }
 
 /// Are we angry about ePlayer attacking one of our protected Minors?
-bool CvDiplomacyAI::IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -12531,7 +12531,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer)
 }
 
 /// Are we angry about ePlayer bullying one of our protected Minors?
-bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -12550,7 +12550,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer)
 }
 
 /// Are we angry about ePlayer choosing to side with one of their protected minors that we attacked/bullied?
-bool CvDiplomacyAI::IsAngryAboutSidedWithTheirProtectedMinor(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsAngryAboutSidedWithTheirProtectedMinor(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -14219,7 +14219,7 @@ PlayerTypes CvDiplomacyAI::GetMostValuableDoF(bool bIgnoreDoFs)
 }
 
 /// Returns how much we numerically consider ePlayer a competitor/enemy
-int CvDiplomacyAI::GetCompetitorValue(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetCompetitorValue(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -14227,7 +14227,7 @@ int CvDiplomacyAI::GetCompetitorValue(PlayerTypes ePlayer)
 }
 
 /// Returns the player who we consider our biggest competitor
-PlayerTypes CvDiplomacyAI::GetBiggestCompetitor()
+PlayerTypes CvDiplomacyAI::GetBiggestCompetitor() const
 {
 	int iBestValue = 18;
 	PlayerTypes eBestPlayer = NO_PLAYER;
@@ -14254,7 +14254,7 @@ PlayerTypes CvDiplomacyAI::GetBiggestCompetitor()
 }
 
 /// Is this player one of our major competitors?
-bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 {
 	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
 		return false;
@@ -15571,7 +15571,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 /// Advanced Diplo AI Aggression Options (defined in CoreChanges.sql)
 
 /// Disables AI war declarations
-bool CvDiplomacyAI::IsWarDisallowedGlobal()
+bool CvDiplomacyAI::IsWarDisallowedGlobal() const
 {
 	if (GC.getDIPLO_AI_WAR_DISALLOWED_GLOBAL() == 1)
 	{
@@ -15582,7 +15582,7 @@ bool CvDiplomacyAI::IsWarDisallowedGlobal()
 }
 
 /// Disables AI initiating wars involving humans
-bool CvDiplomacyAI::IsWarDisallowedHuman()
+bool CvDiplomacyAI::IsWarDisallowedHuman() const
 {
 	if (GC.getDIPLO_AI_WAR_DISALLOWED_HUMAN() == 1)
 	{
@@ -15593,7 +15593,7 @@ bool CvDiplomacyAI::IsWarDisallowedHuman()
 }
 
 /// Would declaring war on ePlayer be in violation of these game options?
-bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer) const
 {
 	if (GetPlayer()->isHuman())
 	{
@@ -15671,7 +15671,7 @@ bool CvDiplomacyAI::IsWarDisallowed(PlayerTypes ePlayer)
 }
 
 /// Disables victory competition (Victory Dispute/Victory Block/Is Close To X Victory penalties, etc.)
-bool CvDiplomacyAI::IsNoVictoryCompetition()
+bool CvDiplomacyAI::IsNoVictoryCompetition() const
 {
 	if (GC.getDIPLO_AI_NO_VICTORY_COMPETITION() == 1)
 	{
@@ -16286,7 +16286,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumProtectedMinorsKilled(PlayerTypes ePlaye
 }
 
 /// How many turns has it been since this player bullied a Minor we were protecting?
-int CvDiplomacyAI::GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPlayer)
+int CvDiplomacyAI::GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPlayer) const
 {
 	CvAssertMsg(eBullyPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(eBullyPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -16300,7 +16300,7 @@ int CvDiplomacyAI::GetTurnsSincePlayerBulliedProtectedMinor(PlayerTypes eBullyPl
 }
 
 /// Which of our protected Minors has this player most recently bullied?
-PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer)
+PlayerTypes CvDiplomacyAI::GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer) const
 {
 	CvAssertMsg(eBullyPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(eBullyPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -16355,7 +16355,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumProtectedMinorsBullied(PlayerTypes ePlay
 }
 
 /// We bullied or attacked their protected Minor, and they didn't take our side!
-bool CvDiplomacyAI::IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -16365,7 +16365,7 @@ bool CvDiplomacyAI::IsOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer)
 }
 
 /// How many turns has it been since we bullied or attacked their protected Minor and they didn't take our side?
-int CvDiplomacyAI::GetTurnsSinceOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetTurnsSinceOtherPlayerSidedWithProtectedMinor(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -32500,7 +32500,7 @@ bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, Pla
 
 
 /// Has this guy had problems with too many of his friends? If so, then his word isn't worth much
-bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 {
 	// Vassals can't be untrustworthy, they have no rights.
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
@@ -33107,7 +33107,7 @@ int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 #endif
 
 /// Did ePlayer make a military promise to us?
-bool CvDiplomacyAI::IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33123,7 +33123,7 @@ void CvDiplomacyAI::SetPlayerMadeMilitaryPromise(PlayerTypes ePlayer, bool bValu
 }
 
 /// Did ePlayer break a military promise to us?
-bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33152,7 +33152,7 @@ void CvDiplomacyAI::SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bVa
 }
 
 /// Did ePlayer ignore our request to make a military promise?
-bool CvDiplomacyAI::IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33168,7 +33168,7 @@ void CvDiplomacyAI::SetPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer, bool bV
 }
 
 /// How long has it been since ePlayer made a military promise to us?
-short CvDiplomacyAI::GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer)
+short CvDiplomacyAI::GetPlayerMilitaryPromiseCounter(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33190,7 +33190,7 @@ void CvDiplomacyAI::ChangePlayerMilitaryPromiseCounter(PlayerTypes ePlayer, int 
 }
 #if defined(MOD_BALANCE_CORE)
 /// Return the number of turns since ePlayer has made an expansion promise to us
-int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer) const
 {
 	if(!IsPlayerMadeExpansionPromise(ePlayer))
 	{
@@ -33212,7 +33212,7 @@ int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer)
 #endif
 
 /// Did ePlayer make an expansion promise to us?
-bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn)
+bool CvDiplomacyAI::IsPlayerMadeExpansionPromise(PlayerTypes ePlayer, int iTestGameTurn) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33269,7 +33269,7 @@ void CvDiplomacyAI::SetPlayerMadeExpansionPromise(PlayerTypes ePlayer, bool bVal
 }
 
 /// Did this player break an expansion promise to us?
-bool CvDiplomacyAI::IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33290,7 +33290,7 @@ void CvDiplomacyAI::SetPlayerBrokenExpansionPromise(PlayerTypes ePlayer, bool bV
 }
 
 /// Did this player ignore our request to make an expansion promise?
-bool CvDiplomacyAI::IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33540,7 +33540,7 @@ bool CvDiplomacyAI::EverMadeBorderPromise(PlayerTypes ePlayer)
 }
 #endif
 /// Did this player promise to stop attacking one of our protected Minors?
-bool CvDiplomacyAI::IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33556,7 +33556,7 @@ void CvDiplomacyAI::SetPlayerMadeAttackCityStatePromise(PlayerTypes ePlayer, boo
 }
 
 /// Did this player break a promise to stop attacking one of our protected Minors?
-bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33585,7 +33585,7 @@ void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, b
 }
 
 /// Did this player ignore our request to stop attacking one of our protected Minors?
-bool CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -33601,7 +33601,7 @@ void CvDiplomacyAI::SetPlayerIgnoredAttackCityStatePromise(PlayerTypes ePlayer, 
 }
 
 /// Did this player promise to stop bullying one of our protected Minors?
-bool CvDiplomacyAI::IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -33617,7 +33617,7 @@ void CvDiplomacyAI::SetPlayerMadeBullyCityStatePromise(PlayerTypes ePlayer, bool
 }
 
 /// Did this player break a promise to stop bullying one of our protected Minors?
-bool CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -33633,7 +33633,7 @@ void CvDiplomacyAI::SetPlayerBrokenBullyCityStatePromise(PlayerTypes ePlayer, bo
 }
 
 /// Did this player ignore our request to stop bullying one of our protected Minors?
-bool CvDiplomacyAI::IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
@@ -33649,7 +33649,7 @@ void CvDiplomacyAI::SetPlayerIgnoredBullyCityStatePromise(PlayerTypes ePlayer, b
 }
 
 /// Did this player promise to stop spying on us?
-bool CvDiplomacyAI::IsPlayerMadeSpyPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerMadeSpyPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33665,7 +33665,7 @@ void CvDiplomacyAI::SetPlayerMadeSpyPromise(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Did this player break a promise to stop spying on us?
-bool CvDiplomacyAI::IsPlayerBrokenSpyPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenSpyPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33681,7 +33681,7 @@ void CvDiplomacyAI::SetPlayerBrokenSpyPromise(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Did this player ignore our request to stop spying on us?
-bool CvDiplomacyAI::IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredSpyPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33697,7 +33697,7 @@ void CvDiplomacyAI::SetPlayerIgnoredSpyPromise(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Did this player forgive us for spying on them?
-bool CvDiplomacyAI::IsPlayerForgaveForSpying(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerForgaveForSpying(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33713,7 +33713,7 @@ void CvDiplomacyAI::SetPlayerForgaveForSpying(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Did this player promise to stop converting our cities?
-bool CvDiplomacyAI::IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerMadeNoConvertPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33729,7 +33729,7 @@ void CvDiplomacyAI::SetPlayerMadeNoConvertPromise(PlayerTypes ePlayer, bool bVal
 }
 
 /// Did this player break a promise to stop converting our cities?
-bool CvDiplomacyAI::IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenNoConvertPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33745,7 +33745,7 @@ void CvDiplomacyAI::SetPlayerBrokenNoConvertPromise(PlayerTypes ePlayer, bool bV
 }
 
 /// Did this player ignore our request to stop converting our cities?
-bool CvDiplomacyAI::IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33761,7 +33761,7 @@ void CvDiplomacyAI::SetPlayerIgnoredNoConvertPromise(PlayerTypes ePlayer, bool b
 }
 
 /// Has ePlayer asked us to stop sending missionaries and prophets to their cities?
-bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerAskedNotToConvert(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33777,7 +33777,7 @@ void CvDiplomacyAI::SetPlayerAskedNotToConvert(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Did we agree to stop sending missionaries and prophets to ePlayer's cities?
-bool CvDiplomacyAI::IsPlayerAgreeNotToConvert(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerAgreeNotToConvert(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33843,7 +33843,7 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 /////////////////
 
 /// Did this player promise to stop digging up our artifacts?
-bool CvDiplomacyAI::IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerMadeNoDiggingPromise(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
 	{
@@ -33861,7 +33861,7 @@ void CvDiplomacyAI::SetPlayerMadeNoDiggingPromise(PlayerTypes ePlayer, bool bVal
 }
 
 /// Did this player break a promise to stop digging up our artifacts?
-bool CvDiplomacyAI::IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33877,7 +33877,7 @@ void CvDiplomacyAI::SetPlayerBrokenNoDiggingPromise(PlayerTypes ePlayer, bool bV
 }
 
 /// Did this player ignore our request to stop digging up our artifacts?
-bool CvDiplomacyAI::IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33893,7 +33893,7 @@ void CvDiplomacyAI::SetPlayerIgnoredNoDiggingPromise(PlayerTypes ePlayer, bool b
 }
 
 /// Did ePlayer ask us not to dig up their artifacts?
-bool CvDiplomacyAI::IsPlayerAskedNotToDig(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerAskedNotToDig(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33909,7 +33909,7 @@ void CvDiplomacyAI::SetPlayerAskedNotToDig(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Did we agree to stop digging up ePlayer's artifacts?
-bool CvDiplomacyAI::IsPlayerAgreeNotToDig(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerAgreeNotToDig(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis your save file and version.");
@@ -33925,7 +33925,7 @@ void CvDiplomacyAI::SetPlayerAgreeNotToDig(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Will this AI agree to stop digging up ePlayer's artifacts?
-bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer) const
 {
 	// Always acceptable for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -33974,7 +33974,7 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 
 /////////////////
 /// Did this player break a coop war promise to us?
-bool CvDiplomacyAI::IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer)
+bool CvDiplomacyAI::IsPlayerBrokenCoopWarPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -36146,7 +36146,7 @@ int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 }
 
 /// Does this player want to conquer the world?
-bool CvDiplomacyAI::IsGoingForWorldConquest()
+bool CvDiplomacyAI::IsGoingForWorldConquest() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 
@@ -36162,7 +36162,7 @@ bool CvDiplomacyAI::IsGoingForWorldConquest()
 }
 
 /// Does this player want to win by diplomacy?
-bool CvDiplomacyAI::IsGoingForDiploVictory()
+bool CvDiplomacyAI::IsGoingForDiploVictory() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
 
@@ -36178,7 +36178,7 @@ bool CvDiplomacyAI::IsGoingForDiploVictory()
 }
 
 /// Does this player want to win by culture?
-bool CvDiplomacyAI::IsGoingForCultureVictory()
+bool CvDiplomacyAI::IsGoingForCultureVictory() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 
@@ -36194,7 +36194,7 @@ bool CvDiplomacyAI::IsGoingForCultureVictory()
 }
 
 /// Does this player want to win by science?
-bool CvDiplomacyAI::IsGoingForSpaceshipVictory()
+bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
 {
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 
@@ -36210,7 +36210,7 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory()
 }
 #if defined(MOD_BALANCE_CORE)
 /// Is this player close to a science victory?
-bool CvDiplomacyAI::IsCloseToSSVictory()
+bool CvDiplomacyAI::IsCloseToSSVictory() const
 {
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 	if(eVictory != NO_VICTORY)
@@ -36262,7 +36262,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 	return false;
 }
 /// Is this player close to a domination victory?
-bool CvDiplomacyAI::IsCloseToDominationVictory()
+bool CvDiplomacyAI::IsCloseToDominationVictory() const
 {
 	int iNumCivs = GetPlayer()->GetFractionOriginalCapitalsUnderControl();
 	if(iNumCivs >= 75)
@@ -36271,7 +36271,7 @@ bool CvDiplomacyAI::IsCloseToDominationVictory()
 	return false;
 }
 /// Is this player close to a cultural victory?
-bool CvDiplomacyAI::IsCloseToCultureVictory()
+bool CvDiplomacyAI::IsCloseToCultureVictory() const
 {
 	int iNumCivsInfluential = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
 	if(iNumCivsInfluential > 0)
@@ -36305,7 +36305,7 @@ bool CvDiplomacyAI::IsCloseToCultureVictory()
 	return false;
 }
 /// Is this player close to a diplomatic victory?
-bool CvDiplomacyAI::IsCloseToDiploVictory()
+bool CvDiplomacyAI::IsCloseToDiploVictory() const
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (pLeague != NULL)
@@ -36324,7 +36324,7 @@ bool CvDiplomacyAI::IsCloseToDiploVictory()
 #endif
 
 /// Helper function: is this a valid player to be looking at? (e.g. are they alive, do we know them, etc.)
-bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ )
+bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ ) const
 {
 	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -36360,7 +36360,7 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 }
 
 /// Are there any valid minor civs that this player has met?
-bool CvDiplomacyAI::HasMetValidMinorCiv()
+bool CvDiplomacyAI::HasMetValidMinorCiv() const
 {
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
