@@ -4842,7 +4842,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 		if (IsGoingForWorldConquest())
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 10;
 		}
 	}
 
@@ -13303,6 +13303,43 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += 10;
 				break;
 			}
+			
+			// What about their (estimated) Approach towards us?
+			switch (GetTrueApproachTowardsUsGuess(ePlayer))
+			{
+			case MAJOR_CIV_APPROACH_WAR:
+			case MAJOR_CIV_APPROACH_HOSTILE:
+				iEnemyWeight += 10;
+				iDPWeight += -15;
+				iDoFWeight += -15;
+				break;
+			case MAJOR_CIV_APPROACH_GUARDED:
+			case MAJOR_CIV_APPROACH_NEUTRAL:
+				iEnemyWeight += -3;
+				iDPWeight += 1;
+				iDoFWeight += 1;
+				break;
+			case MAJOR_CIV_APPROACH_DECEPTIVE:
+				iEnemyWeight += 5;
+				iDPWeight += -5;
+				iDoFWeight += -5;
+				break;
+			case MAJOR_CIV_APPROACH_AFRAID:
+				iEnemyWeight += -15;
+				iDPWeight += -10;
+				iDoFWeight += 7;
+				break;
+			case MAJOR_CIV_APPROACH_FRIENDLY:
+				iEnemyWeight += -5;
+				iDPWeight += 3;
+				iDoFWeight += 3;
+				break;
+			default:
+				iEnemyWeight += -3;
+				iDPWeight += 1;
+				iDoFWeight += 1;
+				break;
+			}
 
 			// Military Strength compared to us
 			switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
@@ -13575,6 +13612,139 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDPWeight += -10;
 				iDoFWeight += -10;
 				break;
+			}
+			
+			// Modify based on grand strategy
+			if (!IsNoVictoryCompetition())
+			{
+				if (IsGoingForWorldConquest())
+				{
+					int iNumCaps = GET_PLAYER(ePlayer).GetNumCapitalCities();
+					if ((iNumCaps > 0) && GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER)
+					{
+						iEnemyWeight += 5 + iNumCaps;
+						
+						if (IsCloseToDominationVictory())
+						{
+							iEnemyWeight += 10 + iNumCaps;
+						}
+						 // them controlling additional capitals makes them a good partner, less so as they capture more
+						else
+						{
+							iDPWeight += 10 - iNumCaps;
+							iDoFWeight += 10 - iNumCaps;
+						}
+					}
+					
+					// Heavy handed, but intentionally so
+					switch (GetLandDisputeLevel(ePlayer))
+					{
+					case DISPUTE_LEVEL_NONE:
+						iEnemyWeight += -10;
+						iDPWeight += 5;
+						iDoFWeight += 10;
+						break;
+					case DISPUTE_LEVEL_WEAK:
+						iEnemyWeight += 5;
+						iDPWeight += -5;
+						iDoFWeight += -5;
+						break;
+					case DISPUTE_LEVEL_STRONG:
+						iEnemyWeight += 10;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+						break;
+					case DISPUTE_LEVEL_FIERCE:
+						iEnemyWeight += 20;
+						iDPWeight += -20;
+						iDoFWeight += -20;
+						break;
+					}
+				}
+				
+				else if (IsGoingForSSVictory())
+				{
+					// Higher in tech = better friend choice (Research Agreements/Tech Trading), but also worse enemies
+					if (GetPlayer()->GetCurrentEra() < GET_PLAYER(ePlayer).GetCurrentEra())
+					{
+						iEnemyWeight += 10;
+						iDPWeight += -5;
+						iDoFWeight += 10;
+					}
+					else if (GetPlayer()->GetCurrentEra() == GET_PLAYER(ePlayer).GetCurrentEra())
+					{
+						iEnemyWeight += 5;
+						iDoFWeight += 5;
+						
+						// We want other civs to guard our back
+						if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+							iDPWeight += 5;
+					}
+					else
+					{
+						iEnemyWeight += -10;
+						iDoFWeight += -10;
+						
+						// We want other civs to guard our back
+						if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+							iDPWeight += 10;
+					}
+				}
+				
+				
+				else if (IsGoingForCultureVictory())
+				{
+					switch (GetWonderDisputeLevel(ePlayer))
+					{
+					case DISPUTE_LEVEL_NONE:
+						iEnemyWeight += -5;
+						iDPWeight += 3;
+						iDoFWeight += 3;
+						break;
+					case DISPUTE_LEVEL_WEAK:
+						iEnemyWeight += 3;
+						iDPWeight += -3;
+						iDoFWeight += -3;
+						break;
+					case DISPUTE_LEVEL_STRONG:
+						iEnemyWeight += 5;
+						iDPWeight += -5;
+						iDoFWeight += -5;
+						break;
+					case DISPUTE_LEVEL_FIERCE:
+						iEnemyWeight += 10;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+						break;
+					}
+				}
+				
+				else if (IsGoingForDiploVictory())
+				{
+					switch (GetMinorCivDisputeLevel(ePlayer))
+					{
+					case DISPUTE_LEVEL_NONE:
+						iEnemyWeight += -5;
+						iDPWeight += 5;
+						iDoFWeight += 5;
+						break;
+					case DISPUTE_LEVEL_WEAK:
+						iEnemyWeight += 3;
+						iDPWeight += -1;
+						iDoFWeight += -1;
+						break;
+					case DISPUTE_LEVEL_STRONG:
+						iEnemyWeight += 5;
+						iDPWeight += -5;
+						iDoFWeight += -5;
+						break;
+					case DISPUTE_LEVEL_FIERCE:
+						iEnemyWeight += 10;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+						break;
+					}
+				}
 			}
 
 			// Do we already have a DP? Let's keep this alive then.
