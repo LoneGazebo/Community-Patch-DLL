@@ -914,10 +914,8 @@ public:
 
 	bool IsPlayerDoFwithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDoFwithAnyEnemy(PlayerTypes ePlayer) const;
-#if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
-#endif
 
 	// Ideology
 	bool IsPlayerSameIdeology(PlayerTypes ePlayer) const;
@@ -1044,6 +1042,7 @@ public:
 	void ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange);
 
 	int GetTooManyVassalsScore(PlayerTypes ePlayer) const;
+	int GetSameMasterScore(PlayerTypes ePlayer) const;
 
 	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const;
 	void SetBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
@@ -1357,11 +1356,11 @@ public:
 	int GetDOFAcceptedScore(PlayerTypes ePlayer);
 	int GetDOFWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDOFWithAnyEnemyScore(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE_DEALS)
 	int GetResearchAgreementScore(PlayerTypes ePlayer);
 	int GetDPAcceptedScore(PlayerTypes ePlayer);
 	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE_DEALS)
 	int GetOpenBordersScore(PlayerTypes ePlayer);
 	MajorCivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
 	bool MusteringForNeighborAttack(PlayerTypes ePlayer) const;
