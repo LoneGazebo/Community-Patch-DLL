@@ -556,7 +556,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR][NEWLINE]Each turn, increases the a chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR][NEWLINE]Each turn, increases the chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
 			<Text>Transnationalism</Text>
@@ -701,7 +701,7 @@
 			<Text>Hexxon Refinery, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_HELP">
-			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Coal, Nuclear, Wind, and Solar Plants. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Hydro, Nuclear, Wind, and Solar Plants. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY">
 			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, and [ICON_RES_BRAZILWOOD] Brazilwood provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Franchises.</Text>
