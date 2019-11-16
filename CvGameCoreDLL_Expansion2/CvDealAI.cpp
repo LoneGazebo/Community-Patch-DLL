@@ -3983,13 +3983,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							// Bold AIs will take more risks.
 							if (pDiploAI->GetBoldness() > 6 && pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_POWERFUL)
 							{
-								bDeclareWar = false;
-								break;
+								return INT_MAX;
 							}
 							else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
 							{
-								bDeclareWar = false;
-								break;
+								return INT_MAX;
 							}
 						}
 					}

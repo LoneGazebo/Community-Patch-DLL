@@ -4610,7 +4610,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		// We have the same master
 		else if (GET_TEAM(GetTeam()).IsVassalOfSomeone() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		{
-			if (GET_TEAM(GetTeam()).GetMaster() == GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster())
+			if (GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster())
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 			}
@@ -4910,7 +4910,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 	
 	// Loop through all (known) Players
-	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -5133,6 +5132,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 #endif
 	}
+#endif
 	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
@@ -6627,7 +6627,7 @@ void CvDiplomacyAI::DoUpdateApproachTowardsUsGuesses()
 					// For HOSTILE, reset the guess if it doesn't match the visible approach, *unless* they denounced us (in which case we assume the worst)
 					else if (eVisibleApproach != MAJOR_CIV_APPROACH_HOSTILE && eTrueApproachGuess == MAJOR_CIV_APPROACH_HOSTILE)
 					{
-						if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID())
+						if (!GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 						{
 							SetApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 						}
@@ -11368,7 +11368,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 					continue;
 				}
 				// Don't count vassals, since they can't declare war themselves.
-				else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != NO_TEAM)
+				else if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetMaster() != NO_TEAM)
 				{
 					SetOtherPlayerWarmongerAmountTimes100(eLoopPlayer, 0);
 					SetWarmongerThreat(eLoopPlayer, THREAT_NONE);
@@ -12020,11 +12020,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			}
 			
 			// Land disputes matter more in the early game.
-			if (GetPlayer->GetCurrentEra() == 0)
+			if (m_pPlayer->GetCurrentEra() == 0)
 			{
 				iContestedScore *= 2;
 			}
-			else if (GetPlayer->GetCurrentEra() == 1)
+			else if (m_pPlayer->GetCurrentEra() == 1)
 			{
 				iContestedScore *= 150;
 				iContestedScore /= 100;
@@ -13733,7 +13733,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					}
 				}
 				
-				else if (IsGoingForSSVictory())
+				else if (IsGoingForSpaceshipVictory())
 				{
 					// Higher in tech = better friend choice (Research Agreements/Tech Trading), but also worse enemies
 					if (GetPlayer()->GetCurrentEra() < GET_PLAYER(ePlayer).GetCurrentEra())
@@ -44016,12 +44016,14 @@ int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer) const
 int CvDiplomacyAI::GetSameMasterScore(PlayerTypes ePlayer) const
 {
 	// Redundant for teammates
-	if (GetTeam() == GET_PLAYER(ePlayer).getTeam())
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return 0;
 	
-	if (GET_TEAM(GetTeam()).IsVassalOfSomeone() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+	iOpinionWeight = 0;
+	
+	if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 	{
-		if (GET_TEAM(GetTeam()).GetMaster() == GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster())
+		if (GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster())
 			iOpinionWeight += -50;
 	}
 	
