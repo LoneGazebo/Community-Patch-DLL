@@ -776,13 +776,10 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eU
 UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eUnitAI)
 {
 #endif
-	UnitTypes eBestUnit = NO_UNIT;
-	int iBestValue = 0;
-	int iValue = 0;
 
 	CvPlayerAI& kBarbarianPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-
 	CvGame &kGame = GC.getGame();
+	CvWeightedVector<UnitTypes> candidates;
 
 	for(int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 	{
@@ -801,103 +798,63 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 			}
 
 			CvUnitEntry& kUnit = *pkUnitInfo;
-
-			bValid = (kUnit.GetCombat() > 0);
-			if(bValid)
+			if (pArea->isWater())
 			{
-				// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
-				if(kUnit.GetRange() == 0)
+				if (kUnit.GetDomainType() != DOMAIN_SEA)
+					continue;
+			}
+			else
+			{
+				if (kUnit.GetDomainType() != DOMAIN_LAND)
+					continue;
+			}
+
+			if (!GET_PLAYER(BARBARIAN_PLAYER).canBarbariansTrain(eLoopUnit, false, eNearbyResource))
+			{
+				continue;
+			}
+
+			int iValue = 0;
+			if (kUnit.GetRangedCombat() > 0)
+			{
+				iValue += kUnit.GetRangedCombat();
+			}
+			else
+			{
+				iValue += kUnit.GetCombat();
+			}
+
+			// Resource Requirements
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo)
 				{
-					for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+					const int iNumResource = GC.getUnitInfo(eLoopUnit)->GetResourceQuantityRequirement(eResource);
+
+					if (iNumResource > 0)
 					{
-						const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkPromotionInfo)
-						{
-							if(kUnit.GetFreePromotions(iLoop))
-							{
-								if(pkPromotionInfo->IsOnlyDefensive())
-								{
-									bValid = false;
-									break;
-								}
-							}
-						}
+						iValue += 100;
+						break;
 					}
 				}
 			}
 
-			if(bValid)
+			if(kUnit.GetUnitAIType(eUnitAI))
 			{
-				if(pArea->isWater() && kUnit.GetDomainType() != DOMAIN_SEA)
-				{
-					bValid = false;
-				}
-				else if(!pArea->isWater() && kUnit.GetDomainType() != DOMAIN_LAND)
-				{
-					bValid = false;
-				}
+				iValue *= 2;
 			}
 
-			if(bValid)
-			{
-				if (!GET_PLAYER(BARBARIAN_PLAYER).canBarbariansTrain(eLoopUnit, false, eNearbyResource))
-				{
-					bValid = false;
-				}
-			}
-
-			if(bValid)
-			{
-#if defined(MOD_BALANCE_CORE)
-				CvUnitEntry* pUnitInfoPtr = GC.getUnitInfo(eLoopUnit);
-				// Resource Requirements
-				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-				{
-					const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-					CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-					if (pkResourceInfo)
-					{
-						const int iNumResource = pUnitInfoPtr->GetResourceQuantityRequirement(eResource);
-
-						if (iNumResource > 0)
-						{
-							iValue += 500;
-							break;
-						}
-					}
-				}
-				if (pPlot->getImprovementType() != NO_IMPROVEMENT && kUnit.GetRangedCombat() > 0)
-				{
-					iValue += 500;
-				}
-				if (pPlot->getImprovementType() == NO_IMPROVEMENT && kUnit.GetRange() == 1)
-				{
-					iValue += 5;
-				}
-				if (kUnit.GetRangedCombat() > 0)
-				{
-					iValue += kUnit.GetRangedCombat();
-				}
-				else
-				{
-					iValue += kUnit.GetCombat();
-				}
-#endif
-
-				if(kUnit.GetUnitAIType(eUnitAI))
-				{
-					iValue *= 2;
-				}
-
-				if(iValue > iBestValue)
-				{
-					eBestUnit = eLoopUnit;
-					iBestValue = iValue;
-				}
-			}
+			if (iValue>0)
+				candidates.push_back(eLoopUnit, iValue);
 		}
 	}
+
+	//choose from top 3 without looking at weight
+	candidates.SortItems();
+	int iIndex = GC.getGame().getSmallFakeRandNum(min(3, candidates.size()), pPlot->GetPlotIndex());
+	UnitTypes eBestUnit = candidates.GetElement(iIndex);
 
 #if defined(MOD_EVENTS_BARBARIANS)
 	if (MOD_EVENTS_BARBARIANS)
@@ -965,48 +922,39 @@ void CvBarbarians::DoUnits()
 /// Spawn a Barbarian Unit somewhere adjacent to pPlot
 void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves)
 {
-	int iNumNearbyUnits;
-	int iNearbyUnitLoop;
 	int iRange = GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE();
-	int iX;
-	int iY;
-	CvPlot* pNearbyPlot;
-
 	CvGame& kGame = GC.getGame();
 
 	if (pPlot == 0)
 		return;
 
 	// Look at nearby Plots to see if there are already too many Barbs nearby
-	iNumNearbyUnits = 0;
-#if defined(MOD_BALANCE_CORE)
+	int iNumNearbyUnits = 0;
 	ResourceTypes eCloseResource = NO_RESOURCE;
 	ResourceClassTypes eResourceClassRush = (ResourceClassTypes)GC.getInfoTypeForString("RESOURCECLASS_RUSH");
-#endif
-	for (iX = -iRange; iX <= iRange; iX++)
+
+	for (int iX = -iRange; iX <= iRange; iX++)
 	{
-		for (iY = -iRange; iY <= iRange; iY++)
+		for (int iY = -iRange; iY <= iRange; iY++)
 		{
 			// Cut off the corners of the area we're looking at that we don't want
-			pNearbyPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
+			CvPlot* pNearbyPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
 
 			if (pNearbyPlot != NULL)
 			{
-#if defined(MOD_BALANCE_CORE)			
-				if (pNearbyPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pNearbyPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC && GC.getResourceInfo(pNearbyPlot->getResourceType())->getResourceClassType() == eResourceClassRush)
+				if (pNearbyPlot->getResourceType() != NO_RESOURCE && 
+					GC.getResourceInfo(pNearbyPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC && 
+					GC.getResourceInfo(pNearbyPlot->getResourceType())->getResourceClassType() == eResourceClassRush)
 				{
 					eCloseResource = pNearbyPlot->getResourceType();
 				}
-#endif
-				if (pNearbyPlot->getNumUnits() > 0)
+
+				for (int iNearbyUnitLoop = 0; iNearbyUnitLoop < pNearbyPlot->getNumUnits(); iNearbyUnitLoop++)
 				{
-					for (iNearbyUnitLoop = 0; iNearbyUnitLoop < pNearbyPlot->getNumUnits(); iNearbyUnitLoop++)
+					const CvUnit* pUnit = pNearbyPlot->getUnitByIndex(iNearbyUnitLoop);
+					if (pUnit && pUnit->isBarbarian())
 					{
-						const CvUnit* const unit = pNearbyPlot->getUnitByIndex(iNearbyUnitLoop);
-						if (unit && pNearbyPlot->getUnitByIndex(iNearbyUnitLoop)->isBarbarian())
-						{
-							iNumNearbyUnits++;
-						}
+						iNumNearbyUnits++;
 					}
 				}
 			}
@@ -1024,7 +972,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 #endif
 		if (eUnit != NO_UNIT)
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 			CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);	
 			CvUnit* pUnit = NULL;
 			if(pkUnitDef)
@@ -1033,16 +980,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 				if (pUnit)
 					pUnit->finishMoves();
 			}
-#else
-			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
-			pUnit->finishMoves();
-			
-#if defined(MOD_EVENTS_BARBARIANS)
-			if (MOD_EVENTS_BARBARIANS) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pPlot->getX(), pPlot->getY(), eUnit);
-			}
-#endif
-#endif
+
 			return;
 		}
 	}

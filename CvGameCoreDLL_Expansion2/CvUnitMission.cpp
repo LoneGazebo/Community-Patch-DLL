@@ -709,6 +709,8 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						if(pUnit2->ReadyToSwap())
 						{
 							// Start the swap
+							hUnit->ClearPathCache(); //make sure there's no stale path
+							pUnit2->ClearPathCache(); //make sure there's no stale path
 							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))
 							{
 								int iResult = 0;
