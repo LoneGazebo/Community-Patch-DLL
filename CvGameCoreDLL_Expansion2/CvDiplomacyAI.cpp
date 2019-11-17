@@ -4571,7 +4571,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		else if (IsVassal(ePlayer))
 		{
 			// Voluntary vassal
-			if (GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+			if (!bIsCapitulatedVassal)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 			}
@@ -5044,9 +5044,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			int iOpinionFactor = (int)GetMajorCivOpinion(ePlayer) * 2; // Unforgivable: 0, Enemy: 2, Competitor: 4
 			
 			// Protect against a modder setting this too low/high
-			if (iDifficultyBonus < 0 || iDifficultyBonus > 10)
+			if (iDifficultyBonus < 0)
 			{
 				iDifficultyBonus = 0;
+			}
+			else if (iDifficultyBonus > 10)
+			{
+				iDifficultyBonus = 10;
 			}
 			
 			iDifficultyBonus -= iOpinionFactor;
@@ -5239,6 +5243,18 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			//don't want to declare war if we don't have any valid targets
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+		}
+	}
+	
+	int iApproachValue;
+	
+	// Negative approach weights - cap at zero!
+	for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+	{
+		iApproachValue = viApproachWeights[iApproachLoop];
+		if (iApproachValue < 0)
+		{
+			viApproachWeights[(MajorCivApproachTypes)iApproachLoop] = 0;
 		}
 	}
 
@@ -5454,7 +5470,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		int iLastTurnValue = GetPlayer()->GetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop);
 		viApproachWeightsScratch.push_back(iLastTurnValue);
 
-		int iApproachValue = viApproachWeights[iApproachLoop];
+		iApproachValue = viApproachWeights[iApproachLoop];
 		if (iApproachValue > 0)
 		{
 			bAllZero = false;
