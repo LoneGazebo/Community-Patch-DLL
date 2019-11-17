@@ -12678,7 +12678,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
 				aOpinions.push_back(kOpinion);
 			}
-			/*
 			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
 			if (iValue != 0)
 			{
@@ -12687,7 +12686,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
 				aOpinions.push_back(kOpinion);
 			}
-			*/
 		}
 #endif
 	}
