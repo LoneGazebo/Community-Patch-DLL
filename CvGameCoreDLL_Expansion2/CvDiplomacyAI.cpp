@@ -5343,6 +5343,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
 	}
 	
+	int iWarScratchValueOverride = -1;
+	int iHostileScratchValueOverride = -1;
+	
 	////////////////////////////////////
 	// PEACE TREATY - have we made peace with this player recently?  If so, reduce war weight
 	////////////////////////////////////
@@ -5367,6 +5370,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+				iWarScratchValueOverride = 0;
 			}
 		}
 	}
@@ -5374,18 +5378,44 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) 
 	{
-		// If a vassal of someone else, reduce but do not remove the value.
+		// If a vassal of someone else, destroy weight for war (if not already at war)
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != GetPlayer()->GetID())
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-		}
-		// We like our vassals (unless they're blocking our path to victory)
-		else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetTeam())
-		{
-			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0 && !IsMajorCompetitor(ePlayer))
+			if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+				iWarScratchValueOverride = 0;
+			}
+			// If we just started a war, bump last turn's weight up for averaging (helps figure out best approach towards the vassal's master)
+			else if (GetPlayerNumTurnsAtWar(ePlayer) <= 1 && GetPlayer()->GetApproachScratchValue(ePlayer, MAJOR_CIV_APPROACH_WAR) == 0)
+			{
+				iWarScratchValueOverride = viApproachWeights[MAJOR_CIV_APPROACH_WAR];
+			}
+		}
+		// We like our own vassals (unless they're blocking our path to victory)
+		else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetTeam())
+		{
+			// If they control other players' original capitals or are close to victory, don't erase weight for hostility
+			if (!IsMajorCompetitor(ePlayer) && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0)
+			{
+				// We must control all capitals to win a Domination Victory
+				if (IsCloseToDominationVictory() || IsGoingForWorldConquest())
+				{
+					if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+						iWarScratchValueOverride = 0;
+						iHostileScratchValueOverride = 0;
+					}
+				}
+				else
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+					iWarScratchValueOverride = 0;
+					iHostileScratchValueOverride = 0;
+				}
 			}
 		}
 		
@@ -5397,14 +5427,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			iWarScratchValueOverride = 0;
 		}
 
 		// If we agreed to remove our troops from their borders, destroy weight for war
 		if (IsPlayerMoveTroopsRequestAccepted(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			iWarScratchValueOverride = 0;
 		}
 	}
 #endif
@@ -5413,6 +5443,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (IsWarDisallowed(ePlayer) && !GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+		iWarScratchValueOverride = 0;
 	}
 	
 	////////////////////////////////////
@@ -5439,7 +5470,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #endif
 	{
 		// If we're already at war with this player don't cancel out the weight for them!
-		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		}
@@ -5469,6 +5500,17 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		int iLastTurnValue = GetPlayer()->GetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop);
 		viApproachWeightsScratch.push_back(iLastTurnValue);
+		
+		// Certain circumstances call for using a different value than the actual last turn value
+		// Has to be done after pushing back the actual value for logging to work properly
+		if (iApproachLoop == /*WAR*/ 0 && iWarScratchValueOverride >= 0)
+		{
+			iLastTurnValue = iWarScratchValueOverride;
+		}
+		else if (iApproachLoop == /*HOSTILE*/ 1 && iHostileScratchValueOverride >= 0)
+		{
+			iLastTurnValue = iHostileScratchValueOverride;
+		}
 
 		iApproachValue = viApproachWeights[iApproachLoop];
 		if (iApproachValue > 0)
@@ -8055,9 +8097,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-#if !defined(MOD_BALANCE_CORE)
-	int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
-#endif
+	
 	if (GetPlayerNumTurnsAtWar(ePlayer) <= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS) || !GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -8551,26 +8591,23 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	bool bWantToAttack = false;
 	bool bDeclareWar = false;
 
-	if(!IsPlayerValid(eTargetPlayer))
-		return;
-	
-	if (IsWarDisallowed(eTargetPlayer))
+	if (!IsPlayerValid(eTargetPlayer))
 		return;
 
-	if(GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND)
+	if (GetWarGoal(eTargetPlayer) == WAR_GOAL_DEMAND)
 		return;
 
-	if(IsAtWar(eTargetPlayer))
+	if (IsAtWar(eTargetPlayer))
 		return;
 
-	// Don't make demands of them too often (deal speed best idea)
-	if(GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
+	// If we recently made a demand, don't declare war (either it was accepted, or they called a bluff by us)
+	if (GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
 		return;
 
 	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
 
 	// Minor Civ
-	if(GET_PLAYER(eTargetPlayer).isMinorCiv())
+	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
 		bWantToAttack = !bAtWarWithAtLeastOneMajor && (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
 		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
@@ -8582,15 +8619,15 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR || (eApproach <= MAJOR_CIV_APPROACH_HOSTILE && IsGoingForWorldConquest()));
 		bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor; // let's not get into another war right now
 		
-		if(GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()) && bWantToAttack)
+		if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()) && bWantToAttack)
 		{
 			bWantToAttack = false; // don't declare war on a player we promised not to attack, unless we're wily!
 		}
 		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if(MOD_DIPLOMACY_CIV4_FEATURES && bWantToAttack)
+		if (MOD_DIPLOMACY_CIV4_FEATURES && bWantToAttack)
 		{
-			if(IsPlayerMoveTroopsRequestAccepted(eTargetPlayer))
+			if (IsPlayerMoveTroopsRequestAccepted(eTargetPlayer))
 			{
 				bWantToAttack = false;	// don't declare war on a player we promised not to attack, unless we're wily!
 			}
@@ -10912,6 +10949,19 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 				{
 					return true;
 				}
+				
+				// Military promise?
+				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetPlayer()->GetID()))
+				{
+					return true;
+				}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if (IsPlayerMoveTroopsRequestAccepted(eLoopPlayer))
+				{
+					return true;
+				}
+#endif
 				
 				bCheckPlayer = false;
 			}

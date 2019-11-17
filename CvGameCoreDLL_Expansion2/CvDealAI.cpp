@@ -4062,7 +4062,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 90;
 				iItemValue /= 100;
 			}
-			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_DECEPTIVE && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				iItemValue *= 150;
 				iItemValue /= 100;
@@ -4189,7 +4189,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					return INT_MAX;
 				}
 			}
-			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_DECEPTIVE)
+			else if(eMajorApproachTowardsWarPlayer < MAJOR_CIV_APPROACH_DECEPTIVE)
 			{
 				if (eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				{
