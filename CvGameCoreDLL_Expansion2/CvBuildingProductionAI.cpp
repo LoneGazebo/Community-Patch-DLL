@@ -899,7 +899,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				int iTempBonus = 0;
 #if defined(MOD_BALANCE_CORE)
-				int iTempMod = 0; // JJ: Experience modifier from traits, etc
+				int iTempMod = 0;
 #endif
 				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 				{
@@ -914,14 +914,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
 				}
 #if defined(MOD_BALANCE_CORE)
-				// JJ: Check for modifier
+				if (pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) > 0)
+				{
+					iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperienceGlobal(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
+				}
 				if(kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain) != 0)
 				{
 					iTempMod += kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain);
 				}
-#endif
-#if defined(MOD_BALANCE_CORE)
-				// JJ: Apply experience modifier
+
 				iTempBonus *= (100 + iTempMod);
 				iTempBonus /= 100;
 #endif

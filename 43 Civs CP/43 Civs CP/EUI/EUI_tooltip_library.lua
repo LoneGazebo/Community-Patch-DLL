@@ -1155,6 +1155,10 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		item = GameInfo.Domains[ row.DomainType ]
 		tips:insertIf( item and (row.Experience or 0)~=0 and L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ) )
 	end
+	for row in GameInfo.Building_DomainFreeExperiencesGlobal( thisBuildingType ) do
+		item = GameInfo.Domains[ row.DomainType ]
+		tips:insertIf( item and (row.Experience or 0)~=0 and L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ) )
+	end
 	for row in GameInfo.Building_UnitCombatFreeExperiences( thisBuildingType ) do
 		item = GameInfo.UnitCombatInfos[ row.UnitCombatType ]
 		tips:insertIf( item and (row.Experience or 0)>0 and L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ) )

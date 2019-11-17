@@ -535,6 +535,7 @@ public:
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetDomainFreeExperiencePerGreatWorkGlobal(int i) const;
+	int GetDomainFreeExperienceGlobal(int i) const;
 #endif
 	int GetDomainProductionModifier(int i) const;
 	int GetLockedBuildingClasses(int i) const;
@@ -982,6 +983,7 @@ private:
 	int* m_piDomainFreeExperiencePerGreatWork;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piDomainFreeExperiencePerGreatWorkGlobal;
+	std::map<int, int> m_piDomainFreeExperienceGlobal;
 #endif
 	int* m_piDomainProductionModifier;
 	int* m_piPrereqNumOfBuildingClass;

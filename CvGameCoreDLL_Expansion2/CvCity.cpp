@@ -10165,28 +10165,32 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if(pkUnitInfo)
 		{
-			if(pkUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT)
+			DomainTypes eDomain = (DomainTypes)pkUnitInfo->GetDomainType();
+			UnitCombatTypes eUnitCombat = (UnitCombatTypes)(pkUnitInfo->GetUnitCombatType());
+
+			if(eUnitCombat != NO_UNITCOMBAT)
 			{
-				iExperience += getUnitCombatFreeExperience((UnitCombatTypes)(pkUnitInfo->GetUnitCombatType()));
-				iExperience += kOwner.getUnitCombatFreeExperiences((UnitCombatTypes) pkUnitInfo->GetUnitCombatType());
+				iExperience += getUnitCombatFreeExperience(eUnitCombat);
+				iExperience += kOwner.getUnitCombatFreeExperiences(eUnitCombat);
 			}
-			iExperience += getDomainFreeExperience((DomainTypes)(pkUnitInfo->GetDomainType()));
-			iExperience += getDomainFreeExperienceFromGreatWorks((DomainTypes)(pkUnitInfo->GetDomainType()));
+			if (eDomain != NO_DOMAIN)
+			{
+				iExperience += getDomainFreeExperience(eDomain);
+				iExperience += getDomainFreeExperienceFromGreatWorks(eDomain);
 #if defined(MOD_BALANCE_CORE)
-			iExperience += getDomainFreeExperienceFromGreatWorksGlobal((DomainTypes)(pkUnitInfo->GetDomainType()));
+				iExperience += getDomainFreeExperienceFromGreatWorksGlobal(eDomain);
+				iExperience += kOwner.GetDomainFreeExperienceGlobal(eDomain);
+
+				iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier((DomainTypes)(pkUnitInfo->GetDomainType()));
 #endif
+			}
 
 			iExperience += getSpecialistFreeExperience();
-
-#if defined(MOD_BALANCE_CORE)
-			// JJ: Get modifier from trait
-			iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier((DomainTypes)(pkUnitInfo->GetDomainType()));				
-#endif
 		}
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if(iExperienceModifier != 0) // JJ: Apply modifier if it is non-zero
+	if(iExperienceModifier != 0)
 	{
 		iExperience *= (100 + iExperienceModifier);
 		iExperience /= 100;

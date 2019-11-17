@@ -357,6 +357,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piDomainFreeExperiencePerGreatWork(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piDomainFreeExperiencePerGreatWorkGlobal(NULL),
+	m_piDomainFreeExperienceGlobal(),
 #endif
 	m_piDomainProductionModifier(NULL),
 	m_piPrereqNumOfBuildingClass(NULL),
@@ -484,6 +485,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWork);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkGlobal);
+	m_piDomainFreeExperienceGlobal.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
 	SAFE_DELETE_ARRAY(m_piPrereqNumOfBuildingClass);
@@ -1180,6 +1182,30 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 			m_ppaiYieldPerXFeature[FeatureID][YieldID] = yield;
 		}
+	}
+	//Building_DomainFreeExperiencesGlobal
+	{
+		std::string strKey("Building_DomainFreeExperiencesGlobal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Domains.ID as DomainID, Experience from Building_DomainFreeExperiencesGlobal inner join Domains on Domains.Type = DomainType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iDomain = pResults->GetInt(0);
+			const int iExperience = pResults->GetInt(1);
+
+			m_piDomainFreeExperienceGlobal[iDomain] += iExperience;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piDomainFreeExperienceGlobal).swap(m_piDomainFreeExperienceGlobal);
 	}
 #endif
 
@@ -3302,6 +3328,21 @@ int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
 	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWorkGlobal ? m_piDomainFreeExperiencePerGreatWorkGlobal[i] : -1;
+}
+
+/// Free experience gained for units in this domain (global)
+int CvBuildingEntry::GetDomainFreeExperienceGlobal(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	
+	std::map<int, int>::const_iterator it = m_piDomainFreeExperienceGlobal.find(i);
+	if (it != m_piDomainFreeExperienceGlobal.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
 }
 #endif
 

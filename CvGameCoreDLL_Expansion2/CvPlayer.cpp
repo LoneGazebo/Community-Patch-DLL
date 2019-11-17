@@ -16940,11 +16940,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #if defined(MOD_BALANCE_CORE)
 	for(int iDomains = 0; iDomains < NUM_DOMAIN_TYPES; iDomains++)
 	{
-		if((DomainTypes)iDomains != NO_DOMAIN)
+		DomainTypes eDomain = (DomainTypes)iDomains;
+		if(eDomain != NO_DOMAIN)
 		{
-			if(pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains) > 0)
+			int iNewValue;
+			iNewValue = pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains);
+			if(iNewValue > 0)
 			{
-				ChangeDomainFreeExperiencePerGreatWorkGlobal((DomainTypes)iDomains, pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains));
+				ChangeDomainFreeExperiencePerGreatWorkGlobal(eDomain, iNewValue);
+			}
+			iNewValue = pBuildingInfo->GetDomainFreeExperienceGlobal(iDomains);
+			if (iNewValue > 0)
+			{
+				ChangeDomainFreeExperienceGlobal(eDomain, iNewValue);
 			}
 		}
 	}
@@ -30206,6 +30214,33 @@ void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.setAt(eIndex, m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange);
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetDomainFreeExperienceGlobal(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+
+	std::map<int, int>::const_iterator it = m_piDomainFreeExperienceGlobal.find((int)eIndex);
+	if (it != m_piDomainFreeExperienceGlobal.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeDomainFreeExperienceGlobal(DomainTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+
+	m_piDomainFreeExperienceGlobal[(int)eIndex] += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 void CvPlayer::SetNullifyInfluenceModifier(bool bValue)
 {
 	if (bValue != m_bNullifyInfluenceModifier)

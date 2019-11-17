@@ -1407,6 +1407,9 @@ public:
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
 
+	void ChangeDomainFreeExperienceGlobal(DomainTypes eDomain, int iChange);
+	int GetDomainFreeExperienceGlobal(DomainTypes) const;
+
 	void SetNullifyInfluenceModifier(bool bValue);
 	bool IsNullifyInfluenceModifier() const;
 #endif
@@ -3510,6 +3513,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainDiversity;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, int> m_piDomainFreeExperienceGlobal;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
