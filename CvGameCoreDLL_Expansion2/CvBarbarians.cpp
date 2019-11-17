@@ -698,17 +698,7 @@ void CvBarbarians::DoCamps()
 						}
 
 						pLoopPlot->setImprovementType(eCamp);
-#if !defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-						// The notification has been moved into the CvPlot::setImprovementType() method
-						DoCampActivationNotice(pLoopPlot);
-#endif
-
-#if defined(MOD_EVENTS_BARBARIANS)
 						eBestUnit = GetRandomBarbarianUnitType(pLoopPlot, UNITAI_DEFENSE, eCloseResource);
-#else
-						eBestUnit = GetRandomBarbarianUnitType(kMap.getArea(pLoopPlot->getArea()), UNITAI_DEFENSE);
-#endif
-
 						if (eBestUnit != NO_UNIT)
 						{
 							CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pLoopPlot->getX(), pLoopPlot->getY(), GC.getUnitInfo(eBestUnit)->GetDefaultUnitAIType());
@@ -768,19 +758,12 @@ void CvBarbarians::DoCamps()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_EVENTS_BARBARIANS)
 UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eUnitAI, ResourceTypes eNearbyResource)
 {
-	CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
-#else
-UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eUnitAI)
-{
-#endif
-
 	CvPlayerAI& kBarbarianPlayer = GET_PLAYER(BARBARIAN_PLAYER);
 	CvGame &kGame = GC.getGame();
-	CvWeightedVector<UnitTypes> candidates;
 
+	vector<OptionWithScore<UnitTypes>> candidates;
 	for(int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 	{
 		bool bValid = false;
@@ -793,36 +776,26 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 		{
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
 			if(pkUnitInfo == NULL)
-			{
 				continue;
-			}
 
 			CvUnitEntry& kUnit = *pkUnitInfo;
-			if (pArea->isWater())
-			{
-				if (kUnit.GetDomainType() != DOMAIN_SEA)
-					continue;
-			}
-			else
-			{
-				if (kUnit.GetDomainType() != DOMAIN_LAND)
-					continue;
-			}
+			if (pPlot->getDomain() != kUnit.GetDomainType())
+				continue;
 
 			if (!GET_PLAYER(BARBARIAN_PLAYER).canBarbariansTrain(eLoopUnit, false, eNearbyResource))
-			{
 				continue;
-			}
 
 			int iValue = 0;
 			if (kUnit.GetRangedCombat() > 0)
 			{
 				iValue += kUnit.GetRangedCombat();
 			}
-			else
+			else if (kUnit.GetCombat() > 0)
 			{
 				iValue += kUnit.GetCombat();
 			}
+			else
+				continue; //no civilians!
 
 			// Resource Requirements
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -842,19 +815,15 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 			}
 
 			if(kUnit.GetUnitAIType(eUnitAI))
-			{
 				iValue *= 2;
-			}
 
 			if (iValue>0)
-				candidates.push_back(eLoopUnit, iValue);
+				candidates.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iValue));
 		}
 	}
 
-	//choose from top 3 without looking at weight
-	candidates.SortItems();
-	int iIndex = GC.getGame().getSmallFakeRandNum(min(3, candidates.size()), pPlot->GetPlotIndex());
-	UnitTypes eBestUnit = candidates.GetElement(iIndex);
+	//choose from top 3
+	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 3, pPlot->GetPlotIndex());
 
 #if defined(MOD_EVENTS_BARBARIANS)
 	if (MOD_EVENTS_BARBARIANS)
@@ -964,12 +933,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 	// is this camp empty - first priority is to fill it
 	if (pPlot && pPlot->GetNumCombatUnits() == 0 && !pPlot->isCity())
 	{
-		UnitTypes eUnit;
-#if defined(MOD_EVENTS_BARBARIANS)
-		eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_RANGED, eCloseResource);
-#else
-		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
-#endif
+		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_RANGED, eCloseResource);
 		if (eUnit != NO_UNIT)
 		{
 			CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);	
@@ -1030,13 +994,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 #endif
 			CvPlot* pSpawnPlot = vBalidBarbSpawnPlots[iIndex];
 			UnitAITypes eUnitAI = pSpawnPlot->isWater() ? UNITAI_ATTACK_SEA : UNITAI_FAST_ATTACK;
-
-#if defined(MOD_EVENTS_BARBARIANS)
 			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eCloseResource);
-#else
-			UnitTypes eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pSpawnPlot->getArea()), eUnitAI);
-#endif
-
 			if(eUnit != NO_UNIT)
 			{
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnitAI);

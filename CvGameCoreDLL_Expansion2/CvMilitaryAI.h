@@ -253,7 +253,7 @@ public:
 
 	// Finding best cities to target
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	bool HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType);
+	bool HaveValidAttackTarget(PlayerTypes eEnemy);
 	bool IsCurrentAttackTarget(CvCity* pCity);
 	void ClearCachedTargets();
 	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL, bool bCheckWar = false);

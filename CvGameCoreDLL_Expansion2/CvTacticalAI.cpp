@@ -1170,10 +1170,10 @@ void CvTacticalAI::FindTacticalTargets()
 					}
 				}
 
-				// ... undefended camp? But just because there's no visible defender doesn't mean it's undefended
+				// ... barbarian camp? typically revealed but not visible, so don't even check for defenders
 				// (also the camp might since have been cleared but we don't know yet - so check if it is owned now)
 				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && 
-					!pLoopPlot->isOwned())
+					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || pLoopPlot->isAdjacentPlayer(m_pPlayer->GetID())))
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
 

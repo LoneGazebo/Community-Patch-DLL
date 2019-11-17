@@ -4135,73 +4135,32 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 			}
 
-			bool bTargetLand = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(eWithPlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
-			bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
-			bool bTargetSea = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
-			if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
-			{
-				CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eWithPlayer);
-				if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
-				{
-					if(!target.m_bAttackBySea)
-					{
-						bTargetLand = true;
-					}
-					else
-					{
-						bTargetSea = true;
-					}
-				}
-			}
 			//No target? Abort!
-			if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
+			if(!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
 			{
 				return INT_MAX;
 			}
-			else if(!GetPlayer()->CanCrossOcean())
+
+			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 			{
-				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
-				{
-					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 10;
-					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 25;
-						break;
-					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 150;
-						break;
-					case PLAYER_PROXIMITY_NEIGHBORS:
-						iItemValue *= 300;
-						break;
-					default:
-						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-						iItemValue *= 100;
-						break;
-				}
-				iItemValue /= 100;
+				case PLAYER_PROXIMITY_DISTANT:
+					iItemValue *= 10;
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iItemValue *= 25;
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iItemValue *= 200;
+					break;
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iItemValue *= 300;
+					break;
+				default:
+					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+					iItemValue *= 100;
+					break;
 			}
-			else
-			{
-				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
-				{
-					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 10;
-					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 25;
-						break;
-					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 200;
-						break;
-					case PLAYER_PROXIMITY_NEIGHBORS:
-						iItemValue *= 300;
-						break;
-					default:
-						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-						iItemValue *= 100;
-						break;
-				}
-				iItemValue /= 100;
-			}
+			iItemValue /= 100;
 		}
 	}
 
@@ -4354,71 +4313,32 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			//Not a human? Let's see if he has a valid target...if not, don't accept!
 			if(!GET_PLAYER(eOtherPlayer).isHuman())
 			{
-				bool bTargetLand = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->HaveCachedAttackTarget(eWithPlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
-				bool bTargetSeaPure = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->HaveCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
-				bool bTargetSea = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->HaveCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
-				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
-				{
-					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eWithPlayer);
-					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
-					{
-						if(!target.m_bAttackBySea)
-						{
-							bTargetLand = true;
-						}
-						else
-						{
-							bTargetSea = true;
-						}
-					}
-				}
 				//No target? Abort!
-				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
+				if(!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
 				{
 					return INT_MAX;
 				}
-				else if(!GET_PLAYER(eOtherPlayer).CanCrossOcean())
+
+				switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 				{
-					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
-					{
-						case PLAYER_PROXIMITY_DISTANT:
-						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 5;
-						case PLAYER_PROXIMITY_CLOSE:
-							iItemValue *= 125;
-							break;
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iItemValue *= 200;
-							break;
-						default:
-							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-							iItemValue *= 100;
-							break;
-					}
-					iItemValue /= 100;
+					case PLAYER_PROXIMITY_DISTANT:
+						iItemValue *= 5;
+						break;
+					case PLAYER_PROXIMITY_FAR:
+						iItemValue *= 10;
+						break;
+					case PLAYER_PROXIMITY_CLOSE:
+						iItemValue *= 125;
+						break;
+					case PLAYER_PROXIMITY_NEIGHBORS:
+						iItemValue *= 225;
+						break;
+					default:
+						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+						iItemValue *= 100;
+						break;
 				}
-				else
-				{
-					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
-					{
-						case PLAYER_PROXIMITY_DISTANT:
-							iItemValue *= 5;
-						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 10;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iItemValue *= 125;
-							break;
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iItemValue *= 225;
-							break;
-						default:
-							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-							iItemValue *= 100;
-							break;
-					}
-					iItemValue /= 100;
-				}
+				iItemValue /= 100;
 			}
 			//Humans?
 			else

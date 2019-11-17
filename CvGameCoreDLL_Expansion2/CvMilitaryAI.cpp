@@ -1511,13 +1511,12 @@ bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
 	return false;
 }
 
-bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType)
+bool CvMilitaryAI::HaveValidAttackTarget(PlayerTypes eEnemy)
 {
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE != m_cachedTargets.end())
 	{
-		CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.find(eAIOperationType);
-		if (itOp != itE->second.end())
+		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp != itE->second.end(); ++itOp)
 		{
 			// important - this must be a reference!
 			SCachedTarget& cachedTarget = itOp->second;
@@ -1576,49 +1575,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				cachedTarget.iScore = 0;
 			}
 			// Don't want it to already be targeted by an operation that's not on its way
-			else if(pCachedMusterCity != NULL &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_SEA, 25))
+			else if(pCachedMusterCity != NULL && m_pPlayer->IsCityAlreadyTargeted(pCachedTargetCity, NO_DOMAIN, 25))
 			{
-				if(eAIOperationType == AI_OPERATION_NAVAL_INVASION ||
-				eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY ||
-				eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK ||
-				eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-				eAIOperationType == AI_OPERATION_NAVAL_INVASION_CITY_STATE)
-				{	
-					cachedTarget.iScore = 0;
-				}
-			}
-			else if(pCachedMusterCity != NULL &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_LAND, 25))
-			{
-				if(eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK ||
-				eAIOperationType == AI_OPERATION_CITY_SNEAK_ATTACK ||
-				eAIOperationType == AI_OPERATION_CITY_STATE_ATTACK)
-				{	
-					cachedTarget.iScore = 0;
-				}
-			}
-
-			// Respect domains!
-			if (!cachedTarget.bAttackBySea)
-			{
-				if (eAIOperationType == AI_OPERATION_NAVAL_INVASION ||
-					eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY ||
-					eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK ||
-					eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-					eAIOperationType == AI_OPERATION_NAVAL_INVASION_CITY_STATE)
-				{
-					cachedTarget.iScore = 0;
-				}
-			}
-			else if (cachedTarget.bNoLandPath)
-			{
-				if (eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK ||
-					eAIOperationType == AI_OPERATION_CITY_SNEAK_ATTACK ||
-					eAIOperationType == AI_OPERATION_CITY_STATE_ATTACK)
-				{
-					cachedTarget.iScore = 0;
-				}
+				cachedTarget.iScore = 0;
 			}
 
 			//check the current situation
@@ -1665,9 +1624,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
 				{
-					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, Muster: %s",
+					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, muster: %s, optype: %d",
 						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pCachedTargetCity->getName().c_str(), 
-						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE");
+						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE", eAIOperationType);
 					CvString playerName = GetPlayer()->getCivilizationShortDescription();
 					FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 					if (pLog)
@@ -1697,9 +1656,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s, Muster: %s",
+				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s, muster: %s, optype: %d",
 					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
-					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
+					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType);
 				CvString playerName = GetPlayer()->getCivilizationShortDescription();
 				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 				if (pLog)

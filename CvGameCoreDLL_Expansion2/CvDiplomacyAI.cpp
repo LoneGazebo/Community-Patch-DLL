@@ -5172,42 +5172,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Target capacity should matter! If we can't get to them, let's not try to war on them!
 	if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && (viApproachWeights[MAJOR_CIV_APPROACH_WAR] > 0 || viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] > 0))
 	{
-		bool bTargetLand = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
-		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
-		bool bTargetSea = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
-		// No target? Abort!
-		if (!bTargetLand && !bTargetSeaPure && !bTargetSea)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
-		}
-		// Can't embark everywhere? Let's only target neighbors.
-		else if (!GetPlayer()->CanCrossOcean() && bTargetLand)
-		{
-			// Factor in distance - only nearby land wars before the Renaissance.
-			switch (GetPlayer()->GetProximityToPlayer(ePlayer))
-			{
-			case PLAYER_PROXIMITY_NEIGHBORS:
-				if (bTargetLand)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= (/*150*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS());
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
-				}
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
-				if (bTargetLand)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*125*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*125*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
-				}
-				break;
-			}
-		}
-		else
+		if (GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(ePlayer))
 		{
 			// Factor in distance
 			switch (GetPlayer()->GetProximityToPlayer(ePlayer))
@@ -5257,6 +5222,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				break;
 			}
+		}
+		else //no targets ...
+		{
+			//don't want to declare war if we don't have any valid targets
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 		}
 	}
 
@@ -8546,24 +8517,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	if(IsAtWar(eTargetPlayer))
 		return;
 
-#if defined(MOD_BALANCE_CORE)
 	// Don't make demands of them too often (deal speed best idea)
 	if(GetNumTurnsSinceStatementSent(eTargetPlayer, DIPLO_STATEMENT_DEMAND) <= GC.getGame().getGameSpeedInfo().GetDealDuration())
 		return;
 
 	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
-#else
-	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer);
-#endif
+
 	// Minor Civ
 	if(GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
 		bWantToAttack = !bAtWarWithAtLeastOneMajor && (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
-#if defined(MOD_BALANCE_CORE)
 		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
-#else
-		pOperation = GetPlayer()->GetMilitaryAI()->GetCityStateAttackOperation(eTargetPlayer);
-#endif
 	}
 	// Major Civ
 	else
@@ -8610,7 +8574,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 						GetPlayer()->GetMilitaryAI()->RequestCityStateAttack(eTargetPlayer);
 					// Attack on major
 					else
-#if defined(MOD_BALANCE_CORE)
 					{
 						GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eTargetPlayer);
 						SetWantsSneakAttack(eTargetPlayer, true);
@@ -8623,9 +8586,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 					if (!m_pPlayer->IsAtWar() && GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_BULLY)
 						GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
-#else
-					GetPlayer()->GetMilitaryAI()->RequestSneakAttack(eTargetPlayer);
-#endif
 				}
 			}
 		}
@@ -8648,9 +8608,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 					{
 						bDeclareWar = true;
 						SetArmyInPlaceForAttack(eTargetPlayer, false);
-#if defined(MOD_BALANCE_CORE)
 						SetWantsSneakAttack(eTargetPlayer, false);
-#endif
 					}
 				}
 			}
@@ -8661,9 +8619,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			if(pOperation != NULL)
 			{
-#if defined(MOD_BALANCE_CORE)
 				SetWantsSneakAttack(eTargetPlayer, false);
-#endif
 				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 				SetArmyInPlaceForAttack(eTargetPlayer, false);
@@ -8674,9 +8630,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		if(bDeclareWar)
 		{
 			DeclareWar(eTargetPlayer);
-#if defined(MOD_BALANCE_CORE)
 			SetWantsSneakAttack(eTargetPlayer, false);
-#endif
 		}
 	}
 }

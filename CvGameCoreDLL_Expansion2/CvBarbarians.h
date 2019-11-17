@@ -26,7 +26,7 @@ public:
 	static void DoCampSpawnCounter();
 	static void DoCamps();
 	static void DoUnits();
-
+	static void DoCampActivationNotice(CvPlot* pPlot);
 	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
 
 	static void MapInit(int iWorldNumPlots);
@@ -37,22 +37,11 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoCityActivationNotice(CvPlot* pPlot);
 #endif
-private:
 
+private:
 	static bool CanBarbariansSpawn();
 	static bool IsPlotValidForBarbCamp(CvPlot* pPlot);
-#if defined(MOD_EVENTS_BARBARIANS)
 	static UnitTypes GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eUnitAI, ResourceTypes eNearbyResource = NO_RESOURCE);
-#else
-	static UnitTypes GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eUnitAI);
-#endif
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-public:
-#endif
-	static void DoCampActivationNotice(CvPlot* pPlot);
-#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
-private:
-#endif
 
 	static short* m_aiPlotBarbCampSpawnCounter;
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
