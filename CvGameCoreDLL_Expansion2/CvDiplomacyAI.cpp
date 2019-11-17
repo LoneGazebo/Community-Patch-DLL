@@ -5038,6 +5038,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			int iDifficultyBonus = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase(); // ranges from 0 to 9
 			int iOpinionFactor = (int)GetMajorCivOpinion(ePlayer) * 2; // Unforgivable: 0, Enemy: 2, Competitor: 4
 			
+			// Protect against a modder setting this too low/high
+			if (iDifficultyBonus < 0 || iDifficultyBonus > 10)
+			{
+				iDifficultyBonus = 0;
+			}
+			
 			iDifficultyBonus -= iOpinionFactor;
 			
 			if (iDifficultyBonus > 0)
@@ -5316,31 +5322,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
 	}
 	
-	// NO FRIENDLY? Don't bother being FRIENDLY (real or fake) if there was a denouncement or they're untrustworthy.
-	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()) || IsUntrustworthyFriend(ePlayer))
-	{
-		int iTransferWeight = max(viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY], viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE]);
-		
-		// Transfer the weight to GUARDED if Enemy or worse, NEUTRAL otherwise
-		if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
-		{
-			if (iTransferWeight > viApproachWeights[MAJOR_CIV_APPROACH_GUARDED])
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = iTransferWeight;
-			}
-		}
-		else
-		{
-			if (iTransferWeight > viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL])
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] = iTransferWeight;
-			}
-		}
-		
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
-	}
-	
 	////////////////////////////////////
 	// PEACE TREATY - have we made peace with this player recently?  If so, reduce war weight
 	////////////////////////////////////
@@ -5350,7 +5331,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = 20;
+			int iPeaceDampenerTurns = /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER();
 
 			if (MOD_BALANCE_CORE_DIFFICULTY)
 			{
@@ -5495,6 +5476,25 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	eApproach = vApproachWeightsForSorting.GetElement(0);
 	iHighestWeight = vApproachWeightsForSorting.GetWeight(0);
+	
+	// Don't bother being friendly (real or fake) if there's been a denouncement or they're untrustworthy
+	bool bNoFriendly = false;
+	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()) || IsUntrustworthyFriend(ePlayer))
+	{
+		bNoFriendly = true;
+	}
+	
+	if (bNoFriendly && (eApproach == MAJOR_CIV_APPROACH_FRIENDLY || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE))
+	{
+		if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+		{
+			eApproach = MAJOR_CIV_APPROACH_GUARDED;
+		}
+		else
+		{
+			eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+		}
+	}
 
 	// If we're going to war then update how we're acting
 	if (eApproach == MAJOR_CIV_APPROACH_WAR)
@@ -5526,7 +5526,21 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				eWarFace = WAR_FACE_HOSTILE;
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-				eWarFace = WAR_FACE_FRIENDLY;
+				if (!bNoFriendly)
+				{
+					eWarFace = WAR_FACE_FRIENDLY;
+				}
+				else
+				{
+					if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+					{
+						eWarFace = WAR_FACE_GUARDED;
+					}
+					else
+					{
+						eWarFace = WAR_FACE_NEUTRAL;
+					}
+				}
 				break;
 			default:
 				eWarFace = WAR_FACE_NEUTRAL;
@@ -34390,7 +34404,7 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_LAND_WEAK();
 		break;
 	case DISPUTE_LEVEL_NONE:
-		iOpinionWeight += -10;
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_LAND_NONE();
 		break;
 	}
 	
