@@ -5462,6 +5462,17 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 		float fAlpha = 0.10f;
 		int  iAverage = int(0.5f + (iApproachValue * fAlpha) + (iLastTurnValue * ( 1 - fAlpha)));
+		
+		// If the value changed, make sure it goes up/down by at least one
+		if ((iApproachValue > iLastTurnValue) && (iAverage == iLastTurnValue))
+		{
+			iAverage += 1;
+		}
+		else if ((iApproachValue < iLastTurnValue) && (iAverage == iLastTurnValue))
+		{
+			iAverage -= 1;
+		}
+		
 		viApproachWeights[(MajorCivApproachTypes)iApproachLoop] = iAverage;
 
 		// Set the new average for next turn.
