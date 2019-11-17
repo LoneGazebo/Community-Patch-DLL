@@ -4426,7 +4426,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						
 						// Are we also at war with the other player?
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-						if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && !IsVassal(ePlayer))
+						if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && !bIsCapitulatedVassal)
 #else
 						if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 #endif
