@@ -13536,9 +13536,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			// Focus aggression on major competitors.
 			if (!IsMajorCompetitor(ePlayer))
 			{
-				iEnemyWeight += -6;
-				iDPWeight += 6;
-				iDoFWeight += 6;
+				iEnemyWeight += -3;
+				iDPWeight += 3;
+				iDoFWeight += 3;
 			}
 
 			////////////////////////////////////
@@ -13686,7 +13686,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 			
 			// Modify based on grand strategy
-			if (!IsNoVictoryCompetition())
+			if (!IsNoVictoryCompetition() && (GC.getGame().getGameTurn() >= 150 || GetPlayer()->GetCurrentEra() >= 2))
 			{
 				if (IsGoingForWorldConquest())
 				{
