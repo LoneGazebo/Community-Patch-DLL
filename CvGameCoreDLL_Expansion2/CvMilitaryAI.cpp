@@ -1656,7 +1656,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s, muster: %s, optype: %d",
+				CvString strOutBuf = CvString::format("%03d, %s, found new attack target, %s, muster: %s, optype: %d",
 					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
 					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType);
 				CvString playerName = GetPlayer()->getCivilizationShortDescription();
@@ -1929,7 +1929,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	}
 
 	weightedTargetList.StableSortItems();
-	LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
+
+	//LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
 
 	//just take the best one
 	chosenTarget = weightedTargetList.GetElement(0);
@@ -2843,18 +2844,16 @@ void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTyp
 			strOutBuf = strBaseString + strTemp;
 			if(target.m_bAttackBySea)
 			{
-				strOutBuf += ", Sea";
+				if(target.m_bOcean)
+					strOutBuf += ", Ocean";
+				else
+					strOutBuf += ", Sea";
 			}
 			else
 			{
 				strOutBuf += ", Land";
 			}
-#if defined(MOD_BALANCE_CORE)
-			if(target.m_bOcean)
-			{
-				strOutBuf += ", Ocean";
-			}
-#endif
+
 			pLog->Msg(strOutBuf);
 		}
 	}
@@ -4562,7 +4561,7 @@ void CvMilitaryAI::UpdateOperations()
 	//////////////////////////////
 
 	int iBestValue;
-	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, true);
+	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, false);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
@@ -4628,7 +4627,7 @@ void CvMilitaryAI::UpdateOperations()
 	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
 	CvCity* pThreatenedCoastalCityB = m_pPlayer->GetThreatenedCityByRank(1, true);
 
-	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, true);
+	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, false);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veSeaThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
@@ -4643,7 +4642,7 @@ void CvMilitaryAI::UpdateOperations()
 			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea,iBestValue));
+			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea, iBestValue));
 		}
 	}
 
