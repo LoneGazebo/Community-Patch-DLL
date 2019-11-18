@@ -5232,13 +5232,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	if (GetMajorCivOpinion(ePlayer) >= MAJOR_CIV_OPINION_FRIEND)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2;
 	}
+	// REALLY shouldn't backstab friends = major diplo penalties
 	if (IsDoFAccepted(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5;
 	}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	else if (GetDoFType(ePlayer) >= DOF_TYPE_ALLIES)
