@@ -16885,9 +16885,9 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer)
 	// Modify warmonger amount based on global politics
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool bUntrustworthy = false;
-	bool bAtWar = GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam());
+	bool bAtWar = GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam());
 	
-	if (IsUntrustworthyFriend(ePlayer))
+	if (IsUntrustworthyFriend(ePlayer) || IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 		bUntrustworthy = true;
 	
 	if (!bUntrustworthy && !bAtWar)
