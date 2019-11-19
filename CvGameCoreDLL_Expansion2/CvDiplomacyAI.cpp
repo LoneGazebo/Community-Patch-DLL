@@ -5147,17 +5147,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 			}
 			
-			// Are they sanctioned? We should take advantage of this.
+			// If either of us is sanctioned, we should be more hostile.
 			if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(GetPlayer()->GetID(), ePlayer))
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-			}
-			// Are we sanctioned? Let's try to be more friendly.
-			else if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(ePlayer, GetPlayer()->GetID()))
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-				viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 			}
 			
 			// Casus Belli = more war, less friendly
