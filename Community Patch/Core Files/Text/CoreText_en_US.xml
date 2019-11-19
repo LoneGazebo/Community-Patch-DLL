@@ -5752,6 +5752,11 @@
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
 			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
 		</Row>
+		
+		<!-- Coop war button disabled (must be friends) -->
+		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_BLOCKED_NOT_FRIENDS">
+			<Text>You must be friends to start a cooperative war with this civilization.</Text>
+		</Row>
 
 		<!-- Intrigue sharing (co-op wars)-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">

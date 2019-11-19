@@ -9811,8 +9811,16 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);
 			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
-			pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
-			GetDiplomacyAI()->SetNumTimesCoopWarDenied(ePlayer, 0);
+			
+			if (pDiploAI->GetNumTimesCoopWarDenied(eMePlayer) > 0)
+			{
+				pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
+			}
+			
+			if (GetDiplomacyAI()->GetNumTimesCoopWarDenied(ePlayer) > 0)
+			{
+				GetDiplomacyAI()->SetNumTimesCoopWarDenied(ePlayer, 0);
+			}
 			
 			if (pDiploAI->GetRecentAssistValue(eMePlayer) > 0)
 			{
