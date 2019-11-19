@@ -5712,21 +5712,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				eWarFace = WAR_FACE_HOSTILE;
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-				if (!bNoFriendly)
-				{
-					eWarFace = WAR_FACE_FRIENDLY;
-				}
-				else
-				{
-					if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
-					{
-						eWarFace = WAR_FACE_GUARDED;
-					}
-					else
-					{
-						eWarFace = WAR_FACE_NEUTRAL;
-					}
-				}
+				eWarFace = WAR_FACE_FRIENDLY;
 				break;
 			default:
 				eWarFace = WAR_FACE_NEUTRAL;
@@ -5738,6 +5724,18 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		// Reset this so a new War Face can be picked next time
 		eWarFace = NO_WAR_FACE_TYPE;
+	}
+	
+	if (bNoFriendly && eWarFace == WAR_FACE_FRIENDLY)
+	{
+		if (GetMajorCivOpinion(ePlayer) <= MAJOR_CIV_OPINION_ENEMY)
+		{
+			eWarFace = WAR_FACE_GUARDED;
+		}
+		else
+		{
+			eWarFace = WAR_FACE_NEUTRAL;
+		}
 	}
 
 	// Don't want to log if we're just seeing what the highest weight is and don't care about what Approach we like
