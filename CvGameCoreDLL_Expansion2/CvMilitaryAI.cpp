@@ -1373,19 +1373,23 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner(), iMaxTurnsAway);
 	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
-	if (m_pPlayer->CanCrossOcean())
+	//performance optimization
+	if (plotDistance(*pCity->plot(), *pOtherCity->plot()) < iMaxTurnsAway * 2)
 	{
-		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-		if (!!path && PathIsGood(path, eIntendedEnemy))
-			iDistance = path.iTotalTurns;
-	}
-	else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
-	{
-		//try without ocean
-		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
-		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-		if (!!path && PathIsGood(path, eIntendedEnemy))
-			iDistance = path.iTotalTurns;
+		if (m_pPlayer->CanCrossOcean())
+		{
+			SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+			if (!!path && PathIsGood(path, eIntendedEnemy))
+				iDistance = path.iTotalTurns;
+		}
+		else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
+		{
+			//try without ocean
+			data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
+			SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+			if (!!path && PathIsGood(path, eIntendedEnemy))
+				iDistance = path.iTotalTurns;
+		}
 	}
 
 	//update the cache
@@ -1429,9 +1433,13 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 	int iDistance = -1;
-	SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-	if (!!path && PathIsGood(path, eIntendedEnemy))
-		iDistance = path.iTotalTurns;
+	//performance optimization
+	if (plotDistance(*pCity->plot(), *pOtherCity->plot()) < iMaxTurnsAway * 2)
+	{
+		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+		if (!!path && PathIsGood(path, eIntendedEnemy))
+			iDistance = path.iTotalTurns;
+	}
 
 	//update the cache
 	m_cachedLandDistances[pCity][pOtherCity] = iDistance;
@@ -1971,8 +1979,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	}
 
 	//Land and sea ops need to look here.
-	if (target.m_pMusterCity->getArea() == target.m_pTargetCity->getArea())
-		iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
+	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
 		
 	if (iWaterLength == -1 && iLandLength == -1)
 		return;
@@ -4565,17 +4572,15 @@ void CvMilitaryAI::UpdateOperations()
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 		{
 			// If we cannot declare war on this player, abort all offensive operations related to him
-			if(!GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			if(!m_pPlayer->IsAtWarWith(eLoopPlayer) && !GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
 				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,true,AI_ABORT_DIPLO_OPINION_CHANGE);
 				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,true,AI_ABORT_DIPLO_OPINION_CHANGE);
@@ -4631,9 +4636,9 @@ void CvMilitaryAI::UpdateOperations()
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veSeaThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
