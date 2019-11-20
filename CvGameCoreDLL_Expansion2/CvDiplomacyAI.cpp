@@ -4954,6 +4954,27 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 	
 	////////////////////////////////////
+	// EASY TARGET
+	////////////////////////////////////
+	bool bIsEasyTarget = IsEasyTarget(ePlayer);
+	
+	if (bIsEasyTarget)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		
+		if (!IsMajorCompetitor(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
+		}
+		if (IsDoFAccepted(ePlayer))
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
+		}
+	}
+	
+	////////////////////////////////////
 	// UNIQUE UNITS - We've got a UU? Let's see if it is time to go.
 	////////////////////////////////////
 	if (GetPlayer()->HasUUPeriod())
@@ -4984,8 +5005,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		}
+		
+		// Easy target?
+		if (bHasUU && bIsEasyTarget)
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		}
 	}
-
+	
 	////////////////////////////////////
 	// KEY PLAYERS
 	////////////////////////////////////
@@ -4993,11 +5020,34 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		
+		// Easy target? Let's get 'em.
+		if (bIsEasyTarget && !IsDoFAccepted(ePlayer))
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5;
+		}
 	}
 	else
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+	}
+	// Focus our attention on major competitors.
+	if (IsMajorCompetitor(ePlayer))
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		
+		// Easy target? Let's get 'em.
+		if (bIsEasyTarget && !IsDoFAccepted(ePlayer))
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
+		}
+	}
+	else
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
 	}
 	
 	if (GetMostValuableDoF(false) == ePlayer)
@@ -5007,18 +5057,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (GetMostValuableDefensivePact(false) == ePlayer)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-	}
-	
-	// Focus our attention on major competitors.
-	if (IsMajorCompetitor(ePlayer))
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
-	}
-	else
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -5036,6 +5074,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
 			iWarBonus += 3;
+			
+			// Easy target?
+			if (bIsEasyTarget)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			}
 			
 			// Warmonger + unique unit active? Slay them all!
 			if (GetPlayer()->HasUUPeriod() && GetPlayer()->HasUUActive())
@@ -5129,6 +5173,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+			
+			// Easy target?
+			if (bIsEasyTarget)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			}
 		}
 		
 		////////////////////////////////////
@@ -5347,6 +5397,15 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
 		}
+	}
+	
+	// Easy target? War good, demands bad.
+	if (bIsEasyTarget && !IsDoFAccepted(ePlayer))
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 125;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= 75;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
 	}
 	
 	int iApproachValue;
@@ -9895,7 +9954,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 	// Are we going for World conquest?  If so, then we want to fight our wars to the death
 	bool bWorldConquest = false;
 
-	if(IsGoingForWorldConquest())
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
 	{
 		bWorldConquest = true;
 	}
@@ -11897,14 +11956,11 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return false;
 	
 	// Bankrupt? Retreat!
-	if (GetPlayer()->GetTreasury()->GetGold() == 0 && GetPlayer()->calculateGoldRate() <= 0)
+	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
 		return false;
 	
-	TargetValueTypes eTargetValue = GetPlayerTargetValue(ePlayer);
-	
-	// Conditions are very good, so play offensively!
-	if (GetWarProjection(ePlayer) == WAR_PROJECTION_VERY_GOOD || GetWarState(ePlayer) == WAR_STATE_NEARLY_WON || eTargetValue == TARGET_VALUE_SOFT ||
-		(GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_WEAK && GetPlayerEconomicStrengthComparedToUs(ePlayer) <= STRENGTH_WEAK))
+	// They're an easy target, so play offensively!
+	if (IsEasyTarget(ePlayer))
 	{
 		return true;
 	}
@@ -11920,6 +11976,8 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	{
 		return true;
 	}
+	
+	TargetValueTypes eTargetValue = GetPlayerTargetValue(ePlayer);
 	
 	// Medieval or earlier and strong territorial disputes...attack if we can
 	if (GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetPlayer()->GetCurrentEra() <= 2)
@@ -14513,6 +14571,107 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 	}
 
 	return false;
+}
+
+/// Is this player an easy attack target?
+bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
+{
+	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
+		return false;
+	
+	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
+		return true;
+	
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PROXIMITY_FAR)
+		return false;
+	
+	bool bIsEasyTarget = false;
+	bool bWantsConquest = false;
+	
+	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
+	
+	if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_SOFT || GetWarProjection(ePlayer) == WAR_PROJECTION_VERY_GOOD ||
+		eMilitaryStrength == STRENGTH_PATHETIC || eEconomicStrength == STRENGTH_PATHETIC)
+	{
+		bIsEasyTarget = true;
+	}
+	
+	// Humans can tell this by mousing over any of the AI's units (only apply if at war, for fairness)...also don't apply if WE'RE also very unhappy
+	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy() && !GetPlayer()->IsEmpireVeryUnhappy())
+	{
+		bIsEasyTarget = true;
+	}
+	
+	if (!bIsEasyTarget)
+	{
+		if (GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN && GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
+		{
+			bWantsConquest = true;
+		}
+		else if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+		{
+			bWantsConquest = true;
+		}
+	}
+	
+	// Compare military and economic strengths to look for opportunities to strike
+	// We sense more opportunities to attack our biggest competitor or people we want to conquer
+	if (GetBiggestCompetitor() == ePlayer || bWantsConquest)
+	{
+		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POOR)
+		{
+			bIsEasyTarget = true;
+		}
+		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POWERFUL)
+		{
+			bIsEasyTarget = true;
+		}
+		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_STRONG)
+		{
+			bIsEasyTarget = true;
+		}
+		if (eEconomicStrength <= STRENGTH_POOR && eMilitaryStrength <= STRENGTH_POWERFUL)
+		{
+			bIsEasyTarget = true;
+		}
+		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_STRONG)
+		{
+			bIsEasyTarget = true;
+		}
+	}
+	else
+	{
+		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_WEAK)
+		{
+			bIsEasyTarget = true;
+		}
+		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_AVERAGE)
+		{
+			bIsEasyTarget = true;
+		}
+		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_AVERAGE)
+		{
+			bIsEasyTarget = true;
+		}
+	}
+	
+	// They're only an easy target if we're not already at war with somebody else.
+	// ...however, if we're already at war with them, let's keep this weight.
+	if (!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+		bIsEasyTarget = bIsEasyTarget && !bAtWarWithAtLeastOneMajor;
+	}
+	
+	if (bIsEasyTarget)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 #endif
 
