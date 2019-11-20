@@ -10034,13 +10034,17 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 					{
 						// Default goal is Damage
 						eWarGoal = WAR_GOAL_DAMAGE;
-
+						
 						// If we're locked into a coop war, we're out for conquest
-						if(IsLockedIntoCoopWar(eLoopPlayer))
+						if (IsLockedIntoCoopWar(eLoopPlayer))
+							eWarGoal = WAR_GOAL_CONQUEST;
+						
+						// If they're about to win the game, we're out for conquest
+						else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
 							eWarGoal = WAR_GOAL_CONQUEST;
 
 						// If we think the war will go well, we can aim for conquest, which means we will not make peace
-						if (eProjection > WAR_PROJECTION_UNKNOWN)
+						else if (eProjection > WAR_PROJECTION_UNKNOWN)
 						{
 							// If they're unforgivable we're out to destroy them, no less
 							if (GetMajorCivOpinion(eLoopPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
