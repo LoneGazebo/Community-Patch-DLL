@@ -14604,7 +14604,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		return false;
 	
 	// If they're too far away, they can't be an easy target
-	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PROXIMITY_FAR)
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
 		return false;
 	
 	bool bIsEasyTarget = false;
