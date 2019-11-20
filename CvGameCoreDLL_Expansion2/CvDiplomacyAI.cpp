@@ -11955,10 +11955,6 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED || GetPlayer()->IsEmpireVeryUnhappy())
 		return false;
 	
-	// Bankrupt? Retreat!
-	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
-		return false;
-	
 	// They're an easy target, so play offensively!
 	if (IsEasyTarget(ePlayer))
 	{
