@@ -4267,7 +4267,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2;
 		}
-		else // if we're close to victory, victory dispute/block levels should matter more
+		else if (!IsCloseToDominationVictory()) // if we're close to victory, victory dispute/block levels should matter more (except domination)
 		{
 			switch (GetVictoryDisputeLevel(ePlayer))
 			{
