@@ -14609,6 +14609,10 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		{
 			bWantsConquest = true;
 		}
+		else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
+		{
+			bWantsConquest = true;
+		}
 	}
 	
 	// Compare military and economic strengths to look for opportunities to strike
