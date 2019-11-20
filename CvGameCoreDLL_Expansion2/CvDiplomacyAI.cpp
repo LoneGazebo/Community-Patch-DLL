@@ -14723,7 +14723,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		{
 			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				if (GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE)
+				if (GetWarState(eLoopPlayer) <= WAR_STATE_CALM)
 				{
 					return false;
 				}
