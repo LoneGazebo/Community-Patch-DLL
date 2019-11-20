@@ -14163,6 +14163,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					iEnemyWeight += 5;
 				}
 			}
+			
+			// Ongoing trade with them?
+			if ((GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) > 0) || (GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), ePlayer) > 0))
+			{
+				iDoFWeight += 2;
+				iEnemyWeight -= 2;
+			}
 
 			// Loop through all (known) Players and see who he likes/hates - if he likes/hates who we like/hate, then add those points in!
 			for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
@@ -14263,6 +14270,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight /= 2;
 				iEnemyWeight /= 2;
 			}
+			
+			// Sanity check - don't want friendship or defensive pacts if we're hostile or want war
+			if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+			{
+				iDPWeight = 0;
+				iDoFWeight = 0;
+			}	
 		}
 		//Total it up and add it to the pool of values.
 		m_paiCompetitorValue[ePlayer] = iEnemyWeight;
