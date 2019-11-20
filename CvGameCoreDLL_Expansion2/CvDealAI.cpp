@@ -4118,7 +4118,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			
 			// Easy target? Halve the value.
-			if (pDiploAI->IsEasyTarget(eWithPlayer))
+			if (pDiploAI->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
 			{
 				iItemValue /= 2;
 			}
@@ -4259,7 +4259,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 		
 		// Easy target? Halve the value.
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
 		{
 			iItemValue /= 2;
 		}

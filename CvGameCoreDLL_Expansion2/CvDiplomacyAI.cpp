@@ -5024,7 +5024,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// EASY TARGET
 	////////////////////////////////////
-	bool bIsEasyTarget = IsEasyTarget(ePlayer);
+	bool bIsEasyTarget = IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false);
 	
 	// They're only an easy target if we're not already at war with somebody else.
 	// ...however, if we're already at war with them, let's keep this weight.
@@ -8874,7 +8874,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 		
 		// Don't get into multiple wars at once (unless this is an easy target)
-		if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
+		if (bWantToAttack && !IsEasyTarget(eTargetPlayer, /*bOtherPlayerEstimate*/ false))
 		{
 			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
 		}
@@ -12049,7 +12049,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're an easy target, so play offensively!
-	if (IsEasyTarget(ePlayer))
+	if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
 	{
 		return true;
 	}
@@ -13863,7 +13863,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 			
 			// Easy targets don't make good DPs, but friends is fine if we aren't major competitors
-			if (IsEasyTarget(ePlayer))
+			if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
 			{
 				iDPWeight -= 10;
 				
@@ -14694,7 +14694,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 }
 
 /// Is this player an easy attack target?
-bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 {
 	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
 		return false;
@@ -14767,7 +14767,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		return true;
 	}
 	
-	if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+	if (!bOtherPlayerEstimate && (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()))
 	{
 		// If we would go bankrupt by declaring war on them, they can't be an easy target
 		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
@@ -14837,7 +14837,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 	
 	// Compare military and economic strengths to look for opportunities to strike
 	// We sense more opportunities to attack our biggest competitor or people we want to conquer
-	if ((GetBiggestCompetitor() == ePlayer || bWantsConquest) && !bAtWarWithAtLeastOneMajor)
+	if ((GetBiggestCompetitor() == ePlayer || bWantsConquest) && !bAtWarWithAtLeastOneMajor && !bOtherPlayerEstimate)
 	{
 		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POOR)
 		{

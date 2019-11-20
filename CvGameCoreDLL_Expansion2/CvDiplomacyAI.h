@@ -499,7 +499,7 @@ public:
 	int GetCompetitorValue(PlayerTypes ePlayer) const;
 	PlayerTypes GetBiggestCompetitor() const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
-	bool IsEasyTarget(PlayerTypes ePlayer) const;
+	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate);
 #endif
 
 	// Victory Dispute
