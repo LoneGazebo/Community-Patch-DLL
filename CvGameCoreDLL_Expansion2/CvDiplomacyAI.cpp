@@ -14767,47 +14767,44 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		return true;
 	}
 	
-	if (!bIsEasyTarget)
+	if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
 	{
-		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+		// If we would go bankrupt by declaring war on them, they can't be an easy target
+		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
+		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
+		
+		if (iLostGoldPerTurn > 0)
 		{
-			// If we would go bankrupt by declaring war on them, they can't be an easy target
-			int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
-			int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
-			
-			if (iLostGoldPerTurn > 0)
-			{
 #if defined(MOD_BALANCE_CORE)
-				// Factor in instant yields into our income as well (average of recent turns)
-				int iTurn = GC.getGame().getGameTurn();
-				int iGoldAverage = 0;
-				for (int iI = 0; iI < 10; iI++)
-				{
-					int iYieldTurn = iTurn - iI;
-					if (iYieldTurn <= 0)
-						continue;
+			// Factor in instant yields into our income as well (average of recent turns)
+			int iTurn = GC.getGame().getGameTurn();
+			int iGoldAverage = 0;
+			for (int iI = 0; iI < 10; iI++)
+			{
+				int iYieldTurn = iTurn - iI;
+				if (iYieldTurn <= 0)
+					continue;
 
-					iGoldAverage += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
-				}
+				iGoldAverage += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
+			}
 
-				iGoldAverage /= 10;
+			iGoldAverage /= 10;
 
-				iAdjustedGoldPerTurn += iGoldAverage;
+			iAdjustedGoldPerTurn += iGoldAverage;
 #endif
 
-				iAdjustedGoldPerTurn *= 100; // multiply x100 to avoid rounding errors
+			iAdjustedGoldPerTurn *= 100; // multiply x100 to avoid rounding errors
 
-				if (iAdjustedGoldPerTurn < 0)
+			if (iAdjustedGoldPerTurn < 0)
+			{
+				// Flip it!
+				iAdjustedGoldPerTurn *= -1;
+
+				int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max(iAdjustedGoldPerTurn, 1);
+
+				if (iTurnsUntilBankruptcy <= 30)
 				{
-					// Flip it!
-					iAdjustedGoldPerTurn *= -1;
-
-					int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max(iAdjustedGoldPerTurn, 1);
-
-					if (iTurnsUntilBankruptcy <= 30)
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 		}
@@ -14816,27 +14813,24 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 	// Humans can tell this by mousing over any of the AI's units (only apply if at war, for fairness)
 	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
 	{
-		bIsEasyTarget = true;
+		return true;
 	}
 	
-	if (!bIsEasyTarget)
+	if (GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN && GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
 	{
-		if (GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN && GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
-		{
-			bWantsConquest = true;
-		}
-		else if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
-		{
-			bWantsConquest = true;
-		}
-		else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
-		{
-			bWantsConquest = true;
-		}
-		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
-		{
-			bWantsConquest = true;
-		}
+		bWantsConquest = true;
+	}
+	else if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	{
+		bWantsConquest = true;
+	}
+	else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
+	{
+		bWantsConquest = true;
+	}
+	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+	{
+		bWantsConquest = true;
 	}
 	
 	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
@@ -14847,49 +14841,42 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 	{
 		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POOR)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POWERFUL)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_STRONG)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 		if (eEconomicStrength <= STRENGTH_POOR && eMilitaryStrength <= STRENGTH_POWERFUL)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_STRONG)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 	}
 	else
 	{
 		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_WEAK)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_AVERAGE)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_AVERAGE)
 		{
-			bIsEasyTarget = true;
+			return true;
 		}
 	}
 	
-	if (bIsEasyTarget)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 #endif
 
