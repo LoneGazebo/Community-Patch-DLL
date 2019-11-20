@@ -434,8 +434,11 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 
 	int weight = 0;
 	for (size_t i = 0; i < maxCandidates; i++)
-		if (weight + candidates[i].score > selectedWeight)
+	{
+		weight += candidates[i].score;
+		if (weight > selectedWeight)
 			return candidates[i].option;
+	}
 
 	return defaultChoice;
 }
