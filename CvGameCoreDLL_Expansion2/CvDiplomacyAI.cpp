@@ -14826,7 +14826,12 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		bWantsConquest = true;
 	}
 	
-	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+	bool bAtWarWithAtLeastOneMajor = false;
+	
+	if (!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+	}
 	
 	// Compare military and economic strengths to look for opportunities to strike
 	// We sense more opportunities to attack our biggest competitor or people we want to conquer
