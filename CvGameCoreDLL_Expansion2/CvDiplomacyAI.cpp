@@ -5026,6 +5026,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	bool bIsEasyTarget = IsEasyTarget(ePlayer);
 	
+	// They're only an easy target if we're not already at war with somebody else.
+	// ...however, if we're already at war with them, let's keep this weight.
+	if (!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+		bIsEasyTarget = bIsEasyTarget && !bAtWarWithAtLeastOneMajor;
+	}
+	
 	if (bIsEasyTarget)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -14854,14 +14862,6 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		{
 			bIsEasyTarget = true;
 		}
-	}
-	
-	// They're only an easy target if we're not already at war with somebody else.
-	// ...however, if we're already at war with them, let's continue to count this.
-	if (!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-	{
-		bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
-		bIsEasyTarget = bIsEasyTarget && !bAtWarWithAtLeastOneMajor;
 	}
 	
 	if (bIsEasyTarget)
