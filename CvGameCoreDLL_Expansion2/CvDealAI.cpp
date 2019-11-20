@@ -4116,6 +4116,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					iItemValue *= 100;
 					break;
 			}
+			
+			// Easy target? Halve the value.
+			if (pDiploAI->IsEasyTarget(eWithPlayer))
+			{
+				iItemValue /= 2;
+			}
+			
 			iItemValue /= 100;
 		}
 	}
@@ -4250,6 +4257,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
+		
+		// Easy target? Halve the value.
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer))
+		{
+			iItemValue /= 2;
+		}
 
 		if(!bMinor)
 		{
@@ -4267,7 +4280,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 			}
 			//Not a human? Let's see if he has a valid target...if not, don't accept!
-			if(!GET_PLAYER(eOtherPlayer).isHuman())
+			if (!GET_PLAYER(eOtherPlayer).isHuman())
 			{
 				//No target? Abort!
 				if(!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
@@ -4320,22 +4333,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 				iItemValue /= 100;
 			}
-		}
-#else
-		// Minor
-		if(bMinor)
-			iItemValue = -100000;
-
-		// Major
-		else
-		{
-			// Modify for our feelings towards the player they would go to war with
-			if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
-				iItemValue = 200;
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ENEMY)
-				iItemValue = 100;
-			else
-				iItemValue = -100000;
 		}
 #endif
 	}
