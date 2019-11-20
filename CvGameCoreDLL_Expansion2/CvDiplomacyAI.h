@@ -1416,6 +1416,7 @@ public:
 	bool IsGoingForSpaceshipVictory() const;
 
 #if defined(MOD_BALANCE_CORE)
+	bool IsCloseToAnyVictoryCondition() const;
 	bool IsCloseToSSVictory() const;
 	bool IsCloseToDominationVictory() const;
 	bool IsCloseToCultureVictory() const;

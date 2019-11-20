@@ -11945,8 +11945,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return true;
 	
 	// If they're about to win, we have nothing to lose!
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory() ||
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 	{
 		return true;
 	}
@@ -14488,13 +14487,9 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 	if (IsNukedBy(ePlayer) || GET_PLAYER(ePlayer).getNumNukeUnits() > 0)
 		return true;
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() ||
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 	{
-		if (!IsNoVictoryCompetition())
-		{
-			return true;
-		}
+		return true;
 	}
 	
 	if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
@@ -14610,6 +14605,10 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 			bWantsConquest = true;
 		}
 		else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
+		{
+			bWantsConquest = true;
+		}
+		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
 		{
 			bWantsConquest = true;
 		}
@@ -36692,6 +36691,19 @@ bool CvDiplomacyAI::IsGoingForSpaceshipVictory() const
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Is this player close to ANY victory condition?
+bool CvDiplomacyAI::IsCloseToAnyVictoryCondition() const
+{
+	if (IsCloseToSSVictory() || IsCloseToDominationVictory() || IsCloseToDiploVictory() || IsCloseToCultureVictory())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 /// Is this player close to a science victory?
 bool CvDiplomacyAI::IsCloseToSSVictory() const
 {
