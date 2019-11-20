@@ -14823,9 +14823,11 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		}
 	}
 	
+	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+	
 	// Compare military and economic strengths to look for opportunities to strike
 	// We sense more opportunities to attack our biggest competitor or people we want to conquer
-	if (GetBiggestCompetitor() == ePlayer || bWantsConquest)
+	if ((GetBiggestCompetitor() == ePlayer || bWantsConquest) && !bAtWarWithAtLeastOneMajor)
 	{
 		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POOR)
 		{
