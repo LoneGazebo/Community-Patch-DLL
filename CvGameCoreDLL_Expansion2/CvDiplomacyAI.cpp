@@ -8864,8 +8864,8 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		MajorCivApproachTypes eApproach = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
 		bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR || (eApproach <= MAJOR_CIV_APPROACH_HOSTILE && (IsGoingForWorldConquest() || IsCloseToDominationVictory())));
 		
-		// We want to attack more if they're about to win the game
-		if (!bWantToAttack && eApproach <= MAJOR_CIV_APPROACH_DECEPTIVE)
+		// We want to attack more if they're about to win the game (or we're about to win a conquest victory)
+		if (!bWantToAttack && eApproach <= MAJOR_CIV_APPROACH_DECEPTIVE && !IsDoFAccepted(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 		{
 			if ((IsCloseToDominationVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition()) && !IsNoVictoryCompetition())
 			{
