@@ -14377,13 +14377,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight /= 2;
 				iEnemyWeight /= 2;
 			}
-			
-			// Sanity check - don't want friendship or defensive pacts if we're hostile or want war
-			if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				iDPWeight = 0;
-				iDoFWeight = 0;
-			}	
 		}
 		//Total it up and add it to the pool of values.
 		m_paiCompetitorValue[ePlayer] = iEnemyWeight;
