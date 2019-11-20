@@ -2686,43 +2686,20 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 	}
 #endif
 
-	if(bFromMe)  // giving the other player an embassy in my capital
+	if (bFromMe)  // giving the other player an embassy in my capital
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+		if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 			return INT_MAX;
 #endif
 		// Approach is important
-		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
+		switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
-		case MAJOR_CIV_APPROACH_WAR:
-			switch(GetPlayer()->GetDiplomacyAI()->GetWarFaceWithPlayer(eOtherPlayer))
-			{
-				case WAR_FACE_HOSTILE:
-					iItemValue *= 250;
-					break;
-				case WAR_FACE_GUARDED:
-					iItemValue *= 130;
-					break;
-				case WAR_FACE_NEUTRAL:
-					iItemValue *= 100;
-					break;
-				case WAR_FACE_FRIENDLY:
-					iItemValue *= 100;
-					break;
-				default:
-					iItemValue *= 100;
-					break;
-			}
-			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 250;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 130;
-			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue *= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 80;
@@ -2741,42 +2718,19 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		iItemValue /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(!bFromMe)  // they want to give us an embassy in their capital
+	if (!bFromMe)  // they want to give us an embassy in their capital
 	{
-		if(GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+		if (GetPlayer()->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer) || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 			return INT_MAX;
 
 		// Approach is important
-		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
+		switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
-		case MAJOR_CIV_APPROACH_WAR:
-			switch(GetPlayer()->GetDiplomacyAI()->GetWarFaceWithPlayer(eOtherPlayer))
-			{
-				case WAR_FACE_HOSTILE:
-					iItemValue *= 30;
-					break;
-				case WAR_FACE_GUARDED:
-					iItemValue *= 60;
-					break;
-				case WAR_FACE_NEUTRAL:
-					iItemValue *= 100;
-					break;
-				case WAR_FACE_FRIENDLY:  // embassies are worth so little that it's not worth revealing deception over
-					iItemValue *= 150;
-					break;
-				default:
-					iItemValue *= 100;
-					break;
-			}
-			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			iItemValue *= 30;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			iItemValue *= 60;
-			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:  // embassies are worth so little that it's not worth revealing deception over
-			iItemValue *= 150;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			iItemValue *= 120;
@@ -2800,7 +2754,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		iItemValue = 15;
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
-	if(bUseEvenValue)
+	if (bUseEvenValue)
 	{
 		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetEmbassyValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
 		if (iReverseValue == INT_MAX)
@@ -4162,6 +4116,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					iItemValue *= 100;
 					break;
 			}
+			
+			// Easy target? Halve the value.
+			if (pDiploAI->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
+			{
+				iItemValue /= 2;
+			}
+			
 			iItemValue /= 100;
 		}
 	}
@@ -4296,6 +4257,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
+		
+		// Easy target? Halve the value.
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
+		{
+			iItemValue /= 2;
+		}
 
 		if(!bMinor)
 		{
@@ -4313,7 +4280,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 			}
 			//Not a human? Let's see if he has a valid target...if not, don't accept!
-			if(!GET_PLAYER(eOtherPlayer).isHuman())
+			if (!GET_PLAYER(eOtherPlayer).isHuman())
 			{
 				//No target? Abort!
 				if(!GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(eWithPlayer))
@@ -4366,22 +4333,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				}
 				iItemValue /= 100;
 			}
-		}
-#else
-		// Minor
-		if(bMinor)
-			iItemValue = -100000;
-
-		// Major
-		else
-		{
-			// Modify for our feelings towards the player they would go to war with
-			if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
-				iItemValue = 200;
-			else if(eOpinionTowardsWarPlayer == MAJOR_CIV_OPINION_ENEMY)
-				iItemValue = 100;
-			else
-				iItemValue = -100000;
 		}
 #endif
 	}
