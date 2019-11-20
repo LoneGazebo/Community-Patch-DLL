@@ -4559,7 +4559,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
 	int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
 	
-	if (iLostGoldPerTurn != 0)
+	if (iLostGoldPerTurn <= 0)
 	{
 		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
 		{
@@ -14759,7 +14759,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 			int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, false, false);
 			int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
 			
-			if (iLostGoldPerTurn != 0)
+			if (iLostGoldPerTurn <= 0)
 			{
 #if defined(MOD_BALANCE_CORE)
 				// Factor in instant yields into our income as well (average of recent turns)
@@ -30834,7 +30834,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(eTargetPlayer, false, false);
 		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
 		
-		if (iLostGoldPerTurn != 0)
+		if (iLostGoldPerTurn <= 0)
 		{
 			if (!GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
 			{
