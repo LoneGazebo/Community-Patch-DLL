@@ -634,7 +634,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		happinessChange = happinessChange + city:GetReligionBuildingClassHappiness(buildingClassID)
 	end
 
-	local tip, tipKey, items, item
+	local tip, tipKey, items, item, tipAlt
 	-- Name
 	local tips = table( BuildingColor( Locale_ToUpper( building.Description ) ) )
 -- CBP
@@ -1032,6 +1032,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	for resource in GameInfo.Resources() do
 		thisBuildingAndResourceTypes.ResourceType = resource.Type or -1
 		tip = GetYieldString( GameInfo.Building_ResourceYieldChanges( thisBuildingAndResourceTypes ) )
+		tipAlt = GetYieldString( GameInfo.Building_ResourceYieldChangesGlobal( thisBuildingAndResourceTypes ) )
 		for row in GameInfo.Building_ResourceCultureChanges( thisBuildingAndResourceTypes ) do
 			if (row.CultureChange or 0)~= 0 then
 				tip = tip .. S(" %+i[ICON_CULTURE]", row.CultureChange )
@@ -1046,6 +1047,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		end
 -- TODO GameInfo.Building_ResourceYieldModifiers( thisBuildingType ), ResourceType, YieldType, Yield
 		tips:insertIf( #tip > 0 and tostring(resource.IconString) .. " " .. L(resource.Description) .. ":" .. tip )
+		tips:insertIf( #tipAlt > 0 and L("TXT_KEY_EUI_GLOBAL") .. " " .. tostring(resource.IconString) .. " " .. L(resource.Description) .. ":" .. tipAlt )
 	end
 
 	-- Feature Yields enhanced by Building
@@ -1157,7 +1159,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 	for row in GameInfo.Building_DomainFreeExperiencesGlobal( thisBuildingType ) do
 		item = GameInfo.Domains[ row.DomainType ]
-		tips:insertIf( item and (row.Experience or 0)~=0 and L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ) )
+		tips:insertIf( item and (row.Experience or 0)~=0 and L( "TXT_KEY_EUI_GLOBAL" ).." "..L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ))
 	end
 	for row in GameInfo.Building_UnitCombatFreeExperiences( thisBuildingType ) do
 		item = GameInfo.UnitCombatInfos[ row.UnitCombatType ]

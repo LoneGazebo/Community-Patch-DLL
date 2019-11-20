@@ -621,6 +621,7 @@ CvPlayer::CvPlayer() :
 	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 	, m_iCitySupplyFlatGlobal("CvPlayer::m_iCitySupplyFlatGlobal", m_syncArchive)
 	, m_iMissionaryExtraStrength("CvPlayer::m_iMissionaryExtraStrength", m_syncArchive)
+	, m_piDomainFreeExperience()
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1544,6 +1545,7 @@ void CvPlayer::uninit()
 	m_iCSAllies = 0;
 	m_iCSFriends = 0;
 	m_iCitiesNeedingTerrainImprovements = 0;
+	m_piDomainFreeExperience.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -1920,6 +1922,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
 
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_piDomainFreeExperience.clear();
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -16952,7 +16957,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			iNewValue = pBuildingInfo->GetDomainFreeExperienceGlobal(iDomains);
 			if (iNewValue > 0)
 			{
-				ChangeDomainFreeExperienceGlobal(eDomain, iNewValue);
+				ChangeDomainFreeExperience(eDomain, iNewValue);
 			}
 		}
 	}
@@ -17139,6 +17144,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		if(iMod != 0)
 		{
 			ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
+		}
+
+		for (iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		{
+			changeResourceYieldChange(((ResourceTypes)iJ), ((YieldTypes)iI), (pBuildingInfo->GetResourceYieldChangeGlobal((ResourceTypes)iJ, (YieldTypes)iI) * iChange));
 		}
 #endif
 	}
@@ -30215,14 +30225,14 @@ void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, 
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetDomainFreeExperienceGlobal(DomainTypes eIndex) const
+int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
-	std::map<int, int>::const_iterator it = m_piDomainFreeExperienceGlobal.find((int)eIndex);
-	if (it != m_piDomainFreeExperienceGlobal.end()) // find returns the iterator to map::end if the key i is not present in the map
+	std::map<int, int>::const_iterator it = m_piDomainFreeExperience.find((int)eIndex);
+	if (it != m_piDomainFreeExperience.end()) // find returns the iterator to map::end if the key i is not present in the map
 	{
 		return it->second;
 	}
@@ -30231,13 +30241,13 @@ int CvPlayer::GetDomainFreeExperienceGlobal(DomainTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeDomainFreeExperienceGlobal(DomainTypes eIndex, int iChange)
+void CvPlayer::ChangeDomainFreeExperience(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
-	m_piDomainFreeExperienceGlobal[(int)eIndex] += iChange;
+	m_piDomainFreeExperience[(int)eIndex] += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -45394,6 +45404,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
+	kStream >> m_piDomainFreeExperience;
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
@@ -45562,6 +45573,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_aistrInstantGreatPersonProgress;
+	kStream << m_piDomainFreeExperience;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;

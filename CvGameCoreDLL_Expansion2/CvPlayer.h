@@ -1407,8 +1407,8 @@ public:
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
 
-	void ChangeDomainFreeExperienceGlobal(DomainTypes eDomain, int iChange);
-	int GetDomainFreeExperienceGlobal(DomainTypes) const;
+	void ChangeDomainFreeExperience(DomainTypes eDomain, int iChange);
+	int GetDomainFreeExperience(DomainTypes) const;
 
 	void SetNullifyInfluenceModifier(bool bValue);
 	bool IsNullifyInfluenceModifier() const;
@@ -3515,7 +3515,7 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	std::map<int, int> m_piDomainFreeExperienceGlobal;
+	std::map<int, int> m_piDomainFreeExperience;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

@@ -468,5 +468,8 @@
 		<Row Tag="TXT_KEY_AIR_STRENGTH_DEFENSE">
 			<Text>Air Strike Defense:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUI_GLOBAL">
+			<Text>[COLOR_HIGHLIGHT_TEXT]Global[ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

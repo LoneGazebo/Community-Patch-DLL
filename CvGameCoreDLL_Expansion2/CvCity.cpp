@@ -10179,7 +10179,7 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 				iExperience += getDomainFreeExperienceFromGreatWorks(eDomain);
 #if defined(MOD_BALANCE_CORE)
 				iExperience += getDomainFreeExperienceFromGreatWorksGlobal(eDomain);
-				iExperience += kOwner.GetDomainFreeExperienceGlobal(eDomain);
+				iExperience += kOwner.GetDomainFreeExperience(eDomain);
 
 				iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier((DomainTypes)(pkUnitInfo->GetDomainType()));
 #endif

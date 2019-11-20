@@ -916,7 +916,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 #if defined(MOD_BALANCE_CORE)
 				if (pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) > 0)
 				{
-					iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperienceGlobal(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
+					iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
 				}
 				if(kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain) != 0)
 				{

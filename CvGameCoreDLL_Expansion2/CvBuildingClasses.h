@@ -585,6 +585,7 @@ public:
 	int GetFeatureYieldChange(int i, int j) const;
 	int* GetFeatureYieldChangeArray(int i) const;
 #if defined(MOD_BALANCE_CORE)
+	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
 
@@ -1016,6 +1017,7 @@ private:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	int** m_ppaiImprovementYieldChange;
 	int** m_ppaiImprovementYieldChangeGlobal;
