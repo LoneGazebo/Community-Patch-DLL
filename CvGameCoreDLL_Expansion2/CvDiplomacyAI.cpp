@@ -14599,6 +14599,11 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
 		return true;
 	
+	// If we're doing very badly, they can't be an easy target
+	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
+		return false;
+	
+	// If they're too far away, they can't be an easy target
 	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PROXIMITY_FAR)
 		return false;
 	
@@ -14614,8 +14619,8 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		bIsEasyTarget = true;
 	}
 	
-	// Humans can tell this by mousing over any of the AI's units (only apply if at war, for fairness)...also don't apply if WE'RE also very unhappy
-	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy() && !GetPlayer()->IsEmpireVeryUnhappy())
+	// Humans can tell this by mousing over any of the AI's units (only apply if at war, for fairness)
+	if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
 	{
 		bIsEasyTarget = true;
 	}
