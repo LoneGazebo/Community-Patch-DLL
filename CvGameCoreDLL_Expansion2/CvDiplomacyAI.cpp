@@ -14739,6 +14739,22 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 		}
 	}
 	
+	// First check the overall strength estimate (bold AIs will be more aggressive)
+	if (GetBoldness() > 6)
+	{
+		if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_IMPOSSIBLE)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (GetPlayerTargetValue(ePlayer) <= TARGET_VALUE_BAD)
+		{
+			return false;
+		}
+	}
+	
 	bool bIsEasyTarget = false;
 	bool bWantsConquest = false;
 	
@@ -14748,7 +14764,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
 	if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_SOFT || GetWarProjection(ePlayer) == WAR_PROJECTION_VERY_GOOD ||
 		eMilitaryStrength == STRENGTH_PATHETIC || eEconomicStrength == STRENGTH_PATHETIC)
 	{
-		bIsEasyTarget = true;
+		return true;
 	}
 	
 	if (!bIsEasyTarget)
