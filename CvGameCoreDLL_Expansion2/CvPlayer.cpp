@@ -621,6 +621,7 @@ CvPlayer::CvPlayer() :
 	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 	, m_iCitySupplyFlatGlobal("CvPlayer::m_iCitySupplyFlatGlobal", m_syncArchive)
 	, m_iMissionaryExtraStrength("CvPlayer::m_iMissionaryExtraStrength", m_syncArchive)
+	, m_piDomainFreeExperience()
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1544,6 +1545,7 @@ void CvPlayer::uninit()
 	m_iCSAllies = 0;
 	m_iCSFriends = 0;
 	m_iCitiesNeedingTerrainImprovements = 0;
+	m_piDomainFreeExperience.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -1920,6 +1922,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
 
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_piDomainFreeExperience.clear();
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -13635,6 +13640,35 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 					// maybe the player owns ALL of the plots or there are none available?
 					if(pPlotToAcquire)
 					{
+						// Instant yield from tiles gained by culture bombing
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							YieldTypes eYield = (YieldTypes)iI;
+
+							int iPassYield = 0;
+
+							if (eYield == NO_YIELD)
+								continue;
+
+							TerrainTypes eTerrain = pPlotToAcquire->getTerrainType();
+
+							if (eTerrain == NO_TERRAIN)
+								continue;
+
+							// Stole foreign tiles
+							if (pPlotToAcquire->getOwner() != NO_PLAYER)
+							{
+								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
+							}
+							// Obtained neutral tiles
+							else
+							{
+								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
+							}
+
+							doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
+						}
+
 						pBestCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 					}
 				}
@@ -16956,11 +16990,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #if defined(MOD_BALANCE_CORE)
 	for(int iDomains = 0; iDomains < NUM_DOMAIN_TYPES; iDomains++)
 	{
-		if((DomainTypes)iDomains != NO_DOMAIN)
+		DomainTypes eDomain = (DomainTypes)iDomains;
+		if(eDomain != NO_DOMAIN)
 		{
-			if(pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains) > 0)
+			int iNewValue;
+			iNewValue = pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains);
+			if(iNewValue > 0)
 			{
-				ChangeDomainFreeExperiencePerGreatWorkGlobal((DomainTypes)iDomains, pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains));
+				ChangeDomainFreeExperiencePerGreatWorkGlobal(eDomain, iNewValue);
+			}
+			iNewValue = pBuildingInfo->GetDomainFreeExperienceGlobal(iDomains);
+			if (iNewValue > 0)
+			{
+				ChangeDomainFreeExperience(eDomain, iNewValue);
 			}
 		}
 	}
@@ -17147,6 +17189,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		if(iMod != 0)
 		{
 			ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
+		}
+
+		for (iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		{
+			changeResourceYieldChange(((ResourceTypes)iJ), ((YieldTypes)iI), (pBuildingInfo->GetResourceYieldChangeGlobal((ResourceTypes)iJ, (YieldTypes)iI) * iChange));
 		}
 #endif
 	}
@@ -27020,6 +27067,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+				{
+					iValue += MAX(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -27877,6 +27930,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -30222,6 +30281,33 @@ void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.setAt(eIndex, m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange);
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+
+	std::map<int, int>::const_iterator it = m_piDomainFreeExperience.find((int)eIndex);
+	if (it != m_piDomainFreeExperience.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeDomainFreeExperience(DomainTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+
+	m_piDomainFreeExperience[(int)eIndex] += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 void CvPlayer::SetNullifyInfluenceModifier(bool bValue)
 {
 	if (bValue != m_bNullifyInfluenceModifier)
@@ -45375,6 +45461,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
+	kStream >> m_piDomainFreeExperience;
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
@@ -45543,6 +45630,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_aistrInstantGreatPersonProgress;
+	kStream << m_piDomainFreeExperience;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;

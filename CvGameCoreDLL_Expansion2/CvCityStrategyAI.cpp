@@ -977,6 +977,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	//I cannot use the yield rate since it adds in set process yield, which is what I am trying to set...
 	int iBaseYield = GetCity()->getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
+#if defined(MOD_BALANCE_CORE)
+	iBaseYield += (GetCity()->GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(GetCity()->getOwner()).getTotalPopulation());
+#endif
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
 	iModifiedYield /= 10000;
 
@@ -4639,6 +4642,18 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		iFlatYield += iValue;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) > 0)
+	{
+		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
+		int iValue = (GET_PLAYER(pCity->getOwner()).getTotalPopulation() * pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * 100) / (100 * (iEra + 1));
+
+		if (iValue <= pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield))
+			iValue = pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield);
+
+		iFlatYield += iValue;
+	}
+#endif
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
 		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers();

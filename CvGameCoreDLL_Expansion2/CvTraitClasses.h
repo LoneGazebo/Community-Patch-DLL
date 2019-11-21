@@ -314,6 +314,7 @@ public:
 	int GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraScaling) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -658,6 +659,7 @@ protected:
 	int** m_ppiYieldFromTileStealCultureBomb;
 	int** m_ppiYieldFromTileSettle;
 	int** m_ppiYieldChangePerImprovementBuilt;
+	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
@@ -1675,6 +1677,7 @@ public:
 	int GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	int GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
@@ -2207,6 +2210,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileStealCultureBomb;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileSettle;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
+	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;

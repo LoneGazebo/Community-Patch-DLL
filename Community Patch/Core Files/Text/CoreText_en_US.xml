@@ -38,6 +38,15 @@
 		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
 			<Text>Unit Health</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION">
+			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_EMPIRE_POP">
+			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA">
+			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
@@ -6674,6 +6683,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED">
 			<Text>[ICON_STRENGTH] Obtained a Promotion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED">
+			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
 		<!-- Quest Data -->

@@ -346,6 +346,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piYieldChangePerPopInEmpire(),
+#endif
 	m_piYieldChangePerReligion(NULL),
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
@@ -357,6 +360,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piDomainFreeExperiencePerGreatWork(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piDomainFreeExperiencePerGreatWorkGlobal(NULL),
+	m_piDomainFreeExperienceGlobal(),
 #endif
 	m_piDomainProductionModifier(NULL),
 	m_piPrereqNumOfBuildingClass(NULL),
@@ -390,6 +394,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiResourceYieldChange(NULL),
 	m_ppaiFeatureYieldChange(NULL),
 #if defined(MOD_BALANCE_CORE)
+	m_ppiResourceYieldChangeGlobal(),
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
 	m_ppaiSpecialistYieldChangeLocal(NULL),
@@ -473,6 +478,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
+#if defined(MOD_BALANCE_CORE)
+	m_piYieldChangePerPopInEmpire.clear();
+#endif
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
@@ -484,6 +492,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWork);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkGlobal);
+	m_piDomainFreeExperienceGlobal.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
 	SAFE_DELETE_ARRAY(m_piPrereqNumOfBuildingClass);
@@ -521,6 +530,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 #if defined(MOD_BALANCE_CORE)
+	m_ppiResourceYieldChangeGlobal.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChangeLocal);
@@ -1070,6 +1080,59 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//Building_ResourceYieldChangesGlobal
+	{
+		std::string strKey("Building_ResourceYieldChangesGlobal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, Yields.ID as YieldID, Yield from Building_ResourceYieldChangesGlobal inner join Resources on Resources.Type = ResourceType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iResource = pResults->GetInt(0);
+			const int iYieldType = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			m_ppiResourceYieldChangeGlobal[iResource][iYieldType] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_ppiResourceYieldChangeGlobal).swap(m_ppiResourceYieldChangeGlobal);
+	}
+
+	//Building_YieldChangesPerPopInEmpire
+		{
+			std::string strKey("Building_YieldChangesPerPopInEmpire");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield from Building_YieldChangesPerPopInEmpire inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+			}
+
+			pResults->Bind(1, szBuildingType);
+
+			while (pResults->Step())
+			{
+				const int iYieldType = pResults->GetInt(0);
+				const int iYield = pResults->GetInt(1);
+
+				m_piYieldChangePerPopInEmpire[iYieldType] += iYield;
+			}
+
+			pResults->Reset();
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::map<int, int>(m_piYieldChangePerPopInEmpire).swap(m_piYieldChangePerPopInEmpire);
+		}
+#endif
+
 	//FeatureYieldChanges
 	{
 		kUtility.Initialize2DArray(m_ppaiFeatureYieldChange, "Features", "Yields");
@@ -1180,6 +1243,30 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 			m_ppaiYieldPerXFeature[FeatureID][YieldID] = yield;
 		}
+	}
+	//Building_DomainFreeExperiencesGlobal
+	{
+		std::string strKey("Building_DomainFreeExperiencesGlobal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Domains.ID as DomainID, Experience from Building_DomainFreeExperiencesGlobal inner join Domains on Domains.Type = DomainType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iDomain = pResults->GetInt(0);
+			const int iExperience = pResults->GetInt(1);
+
+			m_piDomainFreeExperienceGlobal[iDomain] += iExperience;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piDomainFreeExperienceGlobal).swap(m_piDomainFreeExperienceGlobal);
 	}
 #endif
 
@@ -2702,6 +2789,10 @@ bool CvBuildingEntry::IsScienceBuilding() const
 		bRtnValue = true;
 	}
 #if defined(MOD_BALANCE_CORE)
+	else if (GetYieldChangePerPopInEmpire(YIELD_SCIENCE) > 0)
+	{
+		bRtnValue = true;
+	}
 	else if(GetMedianTechPercentChange() > 0)
 	{
 		bRtnValue = true;
@@ -3138,6 +3229,23 @@ int* CvBuildingEntry::GetYieldChangePerPopArray() const
 	return m_piYieldChangePerPop;
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// Change to yield by type
+int CvBuildingEntry::GetYieldChangePerPopInEmpire(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piYieldChangePerPopInEmpire.find(i);
+	if (it != m_piYieldChangePerPopInEmpire.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+#endif
+
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerReligion(int i) const
 {
@@ -3302,6 +3410,21 @@ int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
 	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWorkGlobal ? m_piDomainFreeExperiencePerGreatWorkGlobal[i] : -1;
+}
+
+/// Free experience gained for units in this domain (global)
+int CvBuildingEntry::GetDomainFreeExperienceGlobal(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	
+	std::map<int, int>::const_iterator it = m_piDomainFreeExperienceGlobal.find(i);
+	if (it != m_piDomainFreeExperienceGlobal.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
 }
 #endif
 
@@ -3571,6 +3694,28 @@ int* CvBuildingEntry::GetResourceYieldChangeArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiResourceYieldChange[i];
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Change to Resource yield by type
+int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType) const
+{
+	CvAssertMsg(iResource < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(iResource > -1, "Index out of bounds");
+	CvAssertMsg(iYieldType < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(iYieldType > -1, "Index out of bounds");
+	std::map<int, std::map<int, int>>::const_iterator itResource = m_ppiResourceYieldChangeGlobal.find(iResource);
+	if (itResource != m_ppiResourceYieldChangeGlobal.end()) // find returns the iterator to map::end if the key iResource is not present in the map
+	{
+		std::map<int, int>::const_iterator itYield = itResource->second.find(iYieldType);
+		if (itYield != itResource->second.end()) // find returns the iterator to map::end if the key iYield is not present in the map
+		{
+			return itYield->second;
+		}
+	}
+
+	return 0;
+}
+#endif
 
 /// Change to Feature yield by type
 int CvBuildingEntry::GetFeatureYieldChange(int i, int j) const
