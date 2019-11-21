@@ -35539,6 +35539,9 @@ int CvDiplomacyAI::GetHasReligionFounderDifferenceScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	}
+	
+	iOpinionWeight *= -1;
+	
 	return iOpinionWeight;
 }
 #endif
