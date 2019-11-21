@@ -3122,7 +3122,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	// Player has asked us to do stuff we don't like
 	//////////////////////////////////////
-	iOpinionWeight += GetNoSetterRequestScore(ePlayer);
+	iOpinionWeight += GetNoSettleRequestScore(ePlayer);
 	iOpinionWeight += GetStopSpyingRequestScore(ePlayer);
 	iOpinionWeight += GetDemandEverMadeScore(ePlayer);
 	
@@ -35437,7 +35437,7 @@ int CvDiplomacyAI::GetForgaveForSpyingScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetNoSetterRequestScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetNoSettleRequestScore(PlayerTypes ePlayer)
 {
 	// No penalty for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -35548,7 +35548,7 @@ int CvDiplomacyAI::GetSameLatePoliciesScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	
 	if(IsPlayerSameIdeology(ePlayer))
-		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_SAME_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiplpEmphasisLatePolicies();
+		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_SAME_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
 
 	return iOpinionWeight;
 }
@@ -35558,7 +35558,7 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	
 	if(IsPlayerOpposingIdeology(ePlayer))
-		iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiplpEmphasisLatePolicies();
+		iOpinionWeight += /*5*/ GC.getOPINION_WEIGHT_DIFFERENT_LATE_POLICIES() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
 	
 	// No penalty for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
