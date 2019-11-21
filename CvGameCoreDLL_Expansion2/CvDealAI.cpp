@@ -3120,6 +3120,12 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Defensive Pact with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 500;
+	
+	// AI teammates of humans should never do this on their own.
+	if (GetPlayer()->IsAITeammateOfHuman())
+	{
+		return INT_MAX;
+	}
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if(GetPlayer()->GetDiplomacyAI()->IsArmyInPlaceForAttack(eOtherPlayer))
