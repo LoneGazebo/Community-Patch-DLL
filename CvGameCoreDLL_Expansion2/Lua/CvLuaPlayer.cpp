@@ -12468,7 +12468,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		if (GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetNumWarsFought(pkPlayer->GetID()) > 0)
 		{
-			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL || iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
+			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID ||
+			(iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL && !GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(pkPlayer->GetID())))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
