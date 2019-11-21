@@ -12494,9 +12494,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 // Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY))) 
+	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)))
 #else
-	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY) 
+	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 #endif
 	{
 		// land dispute
@@ -12598,7 +12598,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
+		if (!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()))
 		{
 			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 5;
 			if (iValue > 0)
@@ -12676,6 +12676,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
+				aOpinions.push_back(kOpinion);
+			}
+			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
 				aOpinions.push_back(kOpinion);
 			}
 		}
@@ -12964,6 +12972,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAUGHT_STEALING");
+		aOpinions.push_back(kOpinion);
+	}
+	
+	iValue = pDiploAI->GetDugUpMyYardScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_STOLEN_ARTIFACTS");
 		aOpinions.push_back(kOpinion);
 	}
 

@@ -403,4 +403,44 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 #if defined(MOD_BALANCE_CORE)
 //take value and map it linearly to [0;100]. if outside of given thresholds, map to min/max. 
 int MapToPercent(int iValue, int iZeroAt, int iHundredAt);
+
+template<class T>
+struct OptionWithScore
+{
+	T option;
+	int score;
+	OptionWithScore(T t, int s) : option(t), score(s) {}
+	bool operator<(const OptionWithScore& rhs) const { return score > rhs.score; } //sort descending!
+};
+
+template<class T>
+T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, int randomSeed)
+{
+	if (candidates.empty())
+		return defaultChoice;
+
+	if (candidates.size() == 1)
+		return candidates[0].option;
+
+	size_t maxCandidates = min(candidates.size(), (size_t)maxCandidatesToConsider);
+	sort(candidates.begin(), candidates.end());
+
+	int totalWeight = 0;
+	for (size_t i = 0; i < maxCandidates; i++)
+		totalWeight += candidates[i].score;
+
+	int index = GC.getGame().getSmallFakeRandNum(10, randomSeed);
+	int selectedWeight = (totalWeight*index) / 10;
+
+	int weight = 0;
+	for (size_t i = 0; i < maxCandidates; i++)
+	{
+		weight += candidates[i].score;
+		if (weight > selectedWeight)
+			return candidates[i].option;
+	}
+
+	return defaultChoice;
+}
+
 #endif

@@ -9794,6 +9794,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
+			
+			pDiploAI->SetApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			pDiploAI->SetApproachTowardsUsGuessCounter(eMePlayer, 0);
+			GetDiplomacyAI()->SetApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(ePlayer, 0);
+			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -9810,7 +9816,16 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);
 			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
-			pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
+			
+			if (pDiploAI->GetNumTimesCoopWarDenied(eMePlayer) > 0)
+			{
+				pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
+			}
+			
+			if (GetDiplomacyAI()->GetNumTimesCoopWarDenied(ePlayer) > 0)
+			{
+				GetDiplomacyAI()->SetNumTimesCoopWarDenied(ePlayer, 0);
+			}
 			
 			if (pDiploAI->GetRecentAssistValue(eMePlayer) > 0)
 			{
@@ -9886,13 +9901,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	if (!bForced)
 	{
 		// Is this a Minor we have liberated?
-#if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
-#else
-		if(GET_PLAYER(ePlayer).isMinorCiv())
-#endif
 		{
 			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+
+			//give them a basic but state-of-the-art garrison
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+			if (eUnit != NO_UNIT)
+				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
@@ -9904,8 +9920,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 			}
 		}
-	}
 #endif
+	}
 
 	// slewis
 	// negate warmonger

@@ -8680,17 +8680,14 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 
 	int iBestPlot = -1;
 	int iBestPlotWeight = -1;
-	CvPlot* pPlot;
-
 	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 
 	// Start at 1, since ID 0 is the city plot itself
-
 	for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
 	{
-		pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-		if(!pPlot)		// Should be valid, but make sure
+		CvPlot *pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+		// Could be outside of the map ...
+		if(!pPlot)		
 			continue;
 
 		// Can't be impassable
@@ -8701,15 +8698,15 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		if(pPlot->isWater())
 			continue;
 
-		// Can't be ANOTHER city
-		if(pPlot->isCity())
+		// Don't pick plots that aren't ours
+		if(pPlot->getOwner() != pCity->getOwner())
 			continue;
 
 		// Don't place on a plot where a unit is already standing
 		if(pPlot->getNumUnits() > 0)
 			continue;
 
-		int iTempWeight = getSmallFakeRandNum(10, *pPlot);
+		int iTempWeight = getSmallFakeRandNum(10, GET_PLAYER(pCity->getOwner()).GetMilitaryMight()+pPlot->GetPlotIndex());
 
 		// Add weight if there's an improvement here!
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -8720,10 +8717,6 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 			if(pPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
 				iTempWeight += 3;
 		}
-			
-		// Don't pick plots that aren't ours
-		if(pPlot->getOwner() != pCity->GetID())
-			iTempWeight = -1;
 
 		// Add weight if there's a defensive bonus for this plot
 		if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
@@ -8735,11 +8728,12 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 			iBestPlot = iPlotLoop;
 		}
 	}
+
 	bool bUnitCreated = false;
 	// Found valid plot
 	if(iBestPlot != -1)
 	{
-		pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
+		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
 		// Pick a unit type - should give us more melee than ranged
 		UnitTypes eUnit = GetCompetitiveSpawnUnitType(ePlayer, /*bIncludeUUs*/ bIncludeUUs, /*bIncludeRanged*/ true, bIncludeShips, bNoResource, bIncludeOwnUUsOnly);

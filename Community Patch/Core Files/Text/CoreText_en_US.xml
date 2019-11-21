@@ -2859,6 +2859,11 @@
 			<Text>[COLOR_POSITIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Same Master Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
+			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Stolen Artifacts Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
 			<Text>[COLOR_NEGATIVE_TEXT]You stole their cultural artifacts![ENDCOLOR]</Text>
@@ -5755,6 +5760,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
 			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
+		</Row>
+		
+		<!-- Coop war button disabled (must be friends) -->
+		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_BLOCKED_NOT_FRIENDS">
+			<Text>You must be friends to start a cooperative war with this civilization.</Text>
 		</Row>
 
 		<!-- Intrigue sharing (co-op wars)-->

@@ -7,7 +7,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Fertility Rites (Now Goddess of Fertility)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith from Shrines, Watermills, and Wells. 25% faster [ICON_FOOD] Growth Rate'
+SET Text = '+2 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith from Shrines, Water Mills, and Wells. 25% faster [ICON_FOOD] Growth Rate'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
