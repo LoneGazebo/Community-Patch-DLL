@@ -889,7 +889,7 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
-		<Column name="IsEraScaling" type="boolean" default="	"/>
+		<Column name="IsEraScaling" type="boolean" default="0"/>
 	</Table>
 
 	<!-- TRAIT: Allows you to define a terrain type that is gained when you acquire a tile naturally. -->

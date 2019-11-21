@@ -13624,6 +13624,35 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 					// maybe the player owns ALL of the plots or there are none available?
 					if(pPlotToAcquire)
 					{
+						// Instant yield from tiles gained by culture bombing
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							YieldTypes eYield = (YieldTypes)iI;
+
+							int iPassYield = 0;
+
+							if (eYield == NO_YIELD)
+								continue;
+
+							TerrainTypes eTerrain = pPlotToAcquire->getTerrainType();
+
+							if (eTerrain == NO_TERRAIN)
+								continue;
+
+							// Stole foreign tiles
+							if (pPlotToAcquire->getOwner() != NO_PLAYER)
+							{
+								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
+							}
+							// Obtained neutral tiles
+							else
+							{
+								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
+							}
+
+							doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
+						}
+
 						pBestCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 					}
 				}
@@ -27022,6 +27051,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+				{
+					iValue += MAX(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -27879,6 +27914,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED");
 				localizedText << totalyieldString;
 				break;
 			}
