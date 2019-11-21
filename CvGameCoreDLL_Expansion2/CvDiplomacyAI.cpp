@@ -4938,6 +4938,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	case MAJOR_CIV_APPROACH_HOSTILE:
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 		break;
 	case MAJOR_CIV_APPROACH_GUARDED:
@@ -10130,7 +10131,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 							eWarGoal = WAR_GOAL_CONQUEST;
 						
 						// If they're about to win the game, we're out for conquest
-						else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+						else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 							eWarGoal = WAR_GOAL_CONQUEST;
 
 						// If we think the war will go well, we can aim for conquest, which means we will not make peace
@@ -12049,7 +12050,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're an easy target, so play offensively!
-	if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
+	if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
 	{
 		return true;
 	}
@@ -35671,11 +35672,11 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 			iNumIntrigue = 3;
 		}
 		// Full credit for first one
-		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
 		// Partial credit for any after first
 		if (iNumIntrigue > 1)
 		{
-			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 3) * (iNumIntrigue - 1));
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 2) * (iNumIntrigue - 1));
 		}
 	}
 
@@ -36427,7 +36428,7 @@ int CvDiplomacyAI::GetNukedByScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if(IsNukedBy(ePlayer))
-		iOpinionWeight += /*100*/ GC.getOPINION_WEIGHT_NUKED_MAX();
+		iOpinionWeight += /*50*/ GC.getOPINION_WEIGHT_NUKED_MAX();
 	return iOpinionWeight;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -36459,7 +36460,7 @@ int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
 	{
 		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
 		{
-			iOpinionWeight += (/*100*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 5);
+			iOpinionWeight += (/*50*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 5);
 		}
 	}
 
