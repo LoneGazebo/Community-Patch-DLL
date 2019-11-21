@@ -35672,11 +35672,11 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 			iNumIntrigue = 3;
 		}
 		// Full credit for first one
-		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
 		// Partial credit for any after first
 		if (iNumIntrigue > 1)
 		{
-			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 3) * (iNumIntrigue - 1));
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 2) * (iNumIntrigue - 1));
 		}
 	}
 
@@ -36428,7 +36428,7 @@ int CvDiplomacyAI::GetNukedByScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if(IsNukedBy(ePlayer))
-		iOpinionWeight += /*100*/ GC.getOPINION_WEIGHT_NUKED_MAX();
+		iOpinionWeight += /*50*/ GC.getOPINION_WEIGHT_NUKED_MAX();
 	return iOpinionWeight;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -36460,7 +36460,7 @@ int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
 	{
 		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
 		{
-			iOpinionWeight += (/*100*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 5);
+			iOpinionWeight += (/*50*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 5);
 		}
 	}
 
