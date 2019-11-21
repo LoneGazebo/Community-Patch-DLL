@@ -68,6 +68,47 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
 
+#if defined(MOD_BALANCE_CORE)
+	if (ePlayer != NO_PLAYER)
+	{
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+		// find closest city belonging to the player who cleared the camp
+
+		int iBestCityID = -1;
+
+		int iBestCityDistance = -1;
+
+		int iDistance;
+
+		CvCity* pLoopCity = NULL;
+		int iLoop = 0;
+		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			CvPlot* pPlot = pLoopCity->plot();
+			if (pPlot)
+			{
+				iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+				if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				{
+					iBestCityID = pLoopCity->GetID();
+					iBestCityDistance = iDistance;
+				}
+			}
+		}
+
+		CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+
+		if (pBestCity != NULL)
+		{
+			// call one for era scaling, and another for non-era scaling
+			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pBestCity);
+			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pBestCity);
+		}
+	}
+#endif
+
 #if defined(MOD_EVENTS_BARBARIANS)
 	if (MOD_EVENTS_BARBARIANS) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansCampCleared, pPlot->getX(), pPlot->getY(), ePlayer);

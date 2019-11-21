@@ -499,6 +499,7 @@ public:
 	int GetCompetitorValue(PlayerTypes ePlayer) const;
 	PlayerTypes GetBiggestCompetitor() const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
+	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate);
 #endif
 
 	// Victory Dispute
@@ -1415,6 +1416,7 @@ public:
 	bool IsGoingForSpaceshipVictory() const;
 
 #if defined(MOD_BALANCE_CORE)
+	bool IsCloseToAnyVictoryCondition() const;
 	bool IsCloseToSSVictory() const;
 	bool IsCloseToDominationVictory() const;
 	bool IsCloseToCultureVictory() const;

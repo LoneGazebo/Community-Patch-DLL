@@ -12468,7 +12468,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		if (GET_PLAYER(eWithPlayer).GetDiplomacyAI()->GetNumWarsFought(pkPlayer->GetID()) > 0)
 		{
-			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL || iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
+			if (iVisibleApproach == MAJOR_CIV_APPROACH_FRIENDLY || iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID ||
+			(iVisibleApproach == MAJOR_CIV_APPROACH_NEUTRAL && !GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(pkPlayer->GetID())))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -12598,7 +12599,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		if(!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
+		if (!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()))
 		{
 			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 5;
 			if (iValue > 0)
@@ -12678,7 +12679,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
 				aOpinions.push_back(kOpinion);
 			}
-			/*
 			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
 			if (iValue != 0)
 			{
@@ -12687,7 +12687,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
 				aOpinions.push_back(kOpinion);
 			}
-			*/
 		}
 #endif
 	}
