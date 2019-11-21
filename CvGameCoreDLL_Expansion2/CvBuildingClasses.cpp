@@ -346,6 +346,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piYieldChangePerPopInEmpire(),
+#endif
 	m_piYieldChangePerReligion(NULL),
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
@@ -475,6 +478,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
+#if defined(MOD_BALANCE_CORE)
+	m_piYieldChangePerPopInEmpire.clear();
+#endif
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
@@ -1100,6 +1106,31 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_ppiResourceYieldChangeGlobal).swap(m_ppiResourceYieldChangeGlobal);
 	}
+
+	//Building_YieldChangesPerPopInEmpire
+		{
+			std::string strKey("Building_YieldChangesPerPopInEmpire");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if (pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield from Building_YieldChangesPerPopInEmpire inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+			}
+
+			pResults->Bind(1, szBuildingType);
+
+			while (pResults->Step())
+			{
+				const int iYieldType = pResults->GetInt(0);
+				const int iYield = pResults->GetInt(1);
+
+				m_piYieldChangePerPopInEmpire[iYieldType] += iYield;
+			}
+
+			pResults->Reset();
+
+			//Trim extra memory off container since this is mostly read-only.
+			std::map<int, int>(m_piYieldChangePerPopInEmpire).swap(m_piYieldChangePerPopInEmpire);
+		}
 #endif
 
 	//FeatureYieldChanges
@@ -2758,6 +2789,10 @@ bool CvBuildingEntry::IsScienceBuilding() const
 		bRtnValue = true;
 	}
 #if defined(MOD_BALANCE_CORE)
+	else if (GetYieldChangePerPopInEmpire(YIELD_SCIENCE) > 0)
+	{
+		bRtnValue = true;
+	}
 	else if(GetMedianTechPercentChange() > 0)
 	{
 		bRtnValue = true;
@@ -3193,6 +3228,23 @@ int* CvBuildingEntry::GetYieldChangePerPopArray() const
 {
 	return m_piYieldChangePerPop;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Change to yield by type
+int CvBuildingEntry::GetYieldChangePerPopInEmpire(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piYieldChangePerPopInEmpire.find(i);
+	if (it != m_piYieldChangePerPopInEmpire.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+#endif
 
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerReligion(int i) const

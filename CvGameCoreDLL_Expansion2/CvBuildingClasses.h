@@ -509,6 +509,9 @@ public:
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
 	int* GetYieldChangePerPopArray() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldChangePerPopInEmpire(int i) const;
+#endif
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
 	int GetYieldModifier(int i) const;
@@ -973,6 +976,9 @@ private:
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, int> m_piYieldChangePerPopInEmpire;
+#endif
 	int* m_piYieldChangePerReligion;
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;

@@ -490,6 +490,9 @@ protected:
 	static int lChangeBaseYieldRateFromReligion(lua_State* L);
 
 	static int lGetYieldPerPopTimes100(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetYieldPerPopInEmpireTimes100(lua_State* L);
+#endif
 
 	static int lGetBaseYieldRateModifier(lua_State* L);
 	static int lGetYieldRate(lua_State* L);

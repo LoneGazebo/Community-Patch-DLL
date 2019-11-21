@@ -230,6 +230,9 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromReligion("CvCity::m_aiBaseYieldRateFromReligion", m_syncArchive)
 	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
 	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
+#if defined(MOD_BALANCE_CORE)
+	, m_aiYieldPerPopInEmpire()
+#endif
 	, m_aiYieldPerReligion("CvCity::m_aiYieldPerReligion", m_syncArchive)
 	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
 	, m_aiResourceYieldRateModifier("CvCity::m_aiResourceYieldRateModifier", m_syncArchive)
@@ -1427,6 +1430,7 @@ void CvCity::uninit()
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion);
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain);
 	SAFE_DELETE_ARRAY(m_ppaiEventTerrainYield);
+	m_aiYieldPerPopInEmpire.clear();
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1739,6 +1743,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES);
 #endif
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
+#if defined(MOD_BALANCE_CORE)
+	m_aiYieldPerPopInEmpire.clear();
+#endif
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiPowerYieldRateModifier.resize(NUM_YIELD_TYPES);
@@ -12782,6 +12789,9 @@ int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction
 	// Sum up difference
 	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
+#if defined(MOD_BALANCE_CORE)
+	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
+#endif
 
 	int iModifiedProduction = iBaseProduction * getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
 	iModifiedProduction /= 10000;
@@ -12833,6 +12843,9 @@ int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iPr
 	// Sum up difference
 	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
+#if defined(MOD_BALANCE_CORE)
+	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
+#endif
 
 	int iModifiedProduction = iBaseProduction * getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
 	iModifiedProduction /= 100;
@@ -14998,6 +15011,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			changeSeaResourceYield(eYield, (pBuildingInfo->GetSeaResourceYieldChange(eYield) * iChange));
 			ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
 			ChangeYieldPerPopTimes100(eYield, pBuildingInfo->GetYieldChangePerPop(eYield) * iChange);
+#if defined(MOD_BALANCE_CORE)
+			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
+#endif
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
 
@@ -18210,6 +18226,9 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetBaseYieldRateFromSpecialists(YIELD_CULTURE);
 	iCulturePerTurn += (GetYieldPerPopTimes100(YIELD_CULTURE) * getPopulation()) / 100;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	iCulturePerTurn += (GetYieldPerPopInEmpireTimes100(YIELD_CULTURE) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (IsRouteToCapitalConnected())
 	{
@@ -18504,6 +18523,9 @@ int CvCity::GetFaithPerTurn() const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	iFaith += GetBaseYieldRateFromSpecialists(YIELD_FAITH);
 	iFaith += (GetYieldPerPopTimes100(YIELD_FAITH) * getPopulation()) / 100;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	iFaith += (GetYieldPerPopInEmpireTimes100(YIELD_FAITH) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (IsRouteToCapitalConnected())
@@ -24239,6 +24261,9 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 	// Sum up yield rate
 	int iBaseYield = getBaseYieldRate(eIndex) * 100;
 	iBaseYield += (GetYieldPerPopTimes100(eIndex) * getPopulation());
+#if defined(MOD_BALANCE_CORE)
+	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
+#endif
 	iBaseYield += (GetYieldPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers());
 	int iNonSpecialist = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizens(eIndex);
 	if (iNonSpecialist != 0)
@@ -26488,6 +26513,37 @@ void CvCity::ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange)
 	if(iChange != 0)
 		m_aiYieldPerPop.setAt(eIndex, m_aiYieldPerPop[eIndex] + iChange);
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Extra yield for each pop point in empire
+int CvCity::GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	std::map<int, int>::const_iterator it = m_aiYieldPerPopInEmpire.find((int)eIndex);
+	if (it != m_aiYieldPerPopInEmpire.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield for each pop point in empire
+void CvCity::ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+		m_aiYieldPerPopInEmpire[(int)eIndex] += iChange;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Extra yield for each religion with a follower
@@ -32031,6 +32087,9 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	kStream >> m_ppiGreatPersonProgressFromConstruction;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_aiYieldPerPopInEmpire;
+#endif
 
 	CvCityManager::OnCityCreated(this);
 }
@@ -32143,6 +32202,9 @@ VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	kStream << m_ppiGreatPersonProgressFromConstruction;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_aiYieldPerPopInEmpire;
 #endif
 }
 

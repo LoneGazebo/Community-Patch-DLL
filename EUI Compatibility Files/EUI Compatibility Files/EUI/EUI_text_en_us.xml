@@ -471,5 +471,8 @@
 		<Row Tag="TXT_KEY_EUI_GLOBAL">
 			<Text>[COLOR_HIGHLIGHT_TEXT]Global[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUI_EMPIRE">
+			<Text>[COLOR_HIGHLIGHT_TEXT]Empire[ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

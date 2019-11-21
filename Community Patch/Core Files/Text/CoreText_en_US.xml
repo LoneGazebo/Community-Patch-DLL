@@ -38,6 +38,15 @@
 		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
 			<Text>Unit Health</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION">
+			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_EMPIRE_POP">
+			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA">
+			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
