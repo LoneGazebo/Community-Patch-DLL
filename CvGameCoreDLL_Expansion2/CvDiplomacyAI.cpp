@@ -10130,7 +10130,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 							eWarGoal = WAR_GOAL_CONQUEST;
 						
 						// If they're about to win the game, we're out for conquest
-						else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+						else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 							eWarGoal = WAR_GOAL_CONQUEST;
 
 						// If we think the war will go well, we can aim for conquest, which means we will not make peace
@@ -12049,7 +12049,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're an easy target, so play offensively!
-	if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
+	if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
 	{
 		return true;
 	}
