@@ -1939,7 +1939,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 				}
 
 				//see whether we have melee units for capturing
-				int iRangedCount = 0, iMeleeCount = 0;
+				int iMeleeCount = 0;
 				for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 				{
 					CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
@@ -1947,16 +1947,16 @@ void CvTacticalAI::PlotCaptureCityMoves()
 						continue;
 
 					// Are we a melee unit
-					if (pUnit->IsCanAttackRanged())
-						iRangedCount++;
-					else
+					if (!pUnit->IsCanAttackRanged())
+					{
 						iMeleeCount++;
 
-					//don't use too many melee units
-					//the combat sim can't deal with too many units
-					//make sure there are range units in there as well
-					if (iMeleeCount > 3)
-						m_CurrentMoveUnits[iI].SetAttackStrength(0);
+						//don't use too many melee units
+						//the combat sim can't deal with too many units
+						//make sure there are ranged units in there as well
+						if (iMeleeCount > 3 && m_CurrentMoveUnits.size()>9)
+							m_CurrentMoveUnits[iI].SetAttackStrength(0);
+					}
 				}
 
 				if (iMeleeCount == 0 && iRequiredDamage <= 1)
@@ -9028,11 +9028,17 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
 
-		int iRemainingTurnsOnCity = iPrevHitPoints / (iDamageDealt+1) + 1;
+		//if we have multiple melee units encircling the city, try to take into account their attacks as well
+		//otherwise nobody will make the first move
+		int iMeleeAttackers = tactPlot.getNumAdjacentFirstlineFriendlies(CvTacticalPlot::TD_BOTH, assumedPlot.getPlotIndex());
+		int iAssumedDamageFromOtherAttacks = iDamageDealt * iMeleeAttackers;
+
+		int iRemainingTurnsOnCity = (iPrevHitPoints-iAssumedDamageFromOtherAttacks) / (iDamageDealt+1) + 1;
 		int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived+1) + 1;
+		bool bAttackerWeak = (pUnit->getDamage() + iDamageReceived) * 2 > pUnit->GetMaxHitPoints();
 
 		//should consider self-damage from previous attacks here ... blitz
-		if (pUnit->GetCurrHitPoints() - iDamageReceived < 0 || (iRemainingTurnsOnAttacker < iRemainingTurnsOnCity && iRemainingTurnsOnCity > 1) )
+		if (pUnit->GetCurrHitPoints() - iDamageReceived < 0 || (bAttackerWeak && iRemainingTurnsOnAttacker < iRemainingTurnsOnCity && iRemainingTurnsOnCity > 1) )
 		{
 			result.iScore = -INT_MAX;
 			return;
