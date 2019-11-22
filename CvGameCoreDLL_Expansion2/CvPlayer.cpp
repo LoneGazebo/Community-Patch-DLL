@@ -41083,6 +41083,9 @@ int CvPlayer::numOperationsOfType(int iOperationType)
 /// Is an existing operation already going after this city?
 bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
 {
+	if (pCity == NULL)
+		return false;
+
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
 	AIOperationState eOperationState = INVALID_AI_OPERATION_STATE;

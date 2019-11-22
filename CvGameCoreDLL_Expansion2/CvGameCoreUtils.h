@@ -419,7 +419,7 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 	if (candidates.empty())
 		return defaultChoice;
 
-	if (candidates.size() == 1)
+	if (candidates.size() == 1 || maxCandidatesToConsider == 1)
 		return candidates[0].option;
 
 	size_t maxCandidates = min(candidates.size(), (size_t)maxCandidatesToConsider);

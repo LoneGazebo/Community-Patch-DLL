@@ -1172,11 +1172,11 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... barbarian camp? typically revealed but not visible, so don't even check for defenders
 				// (also the camp might since have been cleared but we don't know yet - so check if it is owned now)
+				// minors only care for camps adjacent to their borders
 				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && 
-					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || pLoopPlot->isAdjacentPlayer(m_pPlayer->GetID())))
+					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian() || pLoopPlot->isAdjacentPlayer(m_pPlayer->GetID())))
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
-
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 					newTarget.SetAuxIntData(iBaseScore);
 					m_AllTargets.push_back(newTarget);

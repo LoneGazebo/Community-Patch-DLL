@@ -8834,7 +8834,6 @@ void CvDiplomacyAI::ChangeWantPeaceCounter(PlayerTypes ePlayer, int iChange)
 /// Handles declarations of War for this AI
 void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 {
-	CvAIOperation* pOperation;
 	bool bWantToAttack = false;
 	bool bDeclareWar = false;
 
@@ -8857,7 +8856,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
 		bWantToAttack = !bAtWarWithAtLeastOneMajor && (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
-		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
 	}
 	// Major Civ
 	else
@@ -8894,11 +8892,11 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			}
 		}
 #endif
-		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
 	}
 
 	// Not yet readying an attack
-	if(pOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
+	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
+	if(pCurrentSneakAttackOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
 	{
 		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
@@ -8948,7 +8946,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
 #endif
 				{
-					if(IsArmyInPlaceForAttack(eTargetPlayer) || (pOperation != NULL && pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
+					if(IsArmyInPlaceForAttack(eTargetPlayer) || (pCurrentSneakAttackOperation != NULL && pCurrentSneakAttackOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
 					{
 						bDeclareWar = true;
 						SetArmyInPlaceForAttack(eTargetPlayer, false);
@@ -8961,10 +8959,10 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		// We were planning an attack, but changed our minds so abort
 		else
 		{
-			if(pOperation != NULL)
+			if(pCurrentSneakAttackOperation != NULL)
 			{
 				SetWantsSneakAttack(eTargetPlayer, false);
-				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
+				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_CANCELLED);
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 				SetArmyInPlaceForAttack(eTargetPlayer, false);
 			}

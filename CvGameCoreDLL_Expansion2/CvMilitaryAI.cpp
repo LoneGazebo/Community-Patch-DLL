@@ -476,16 +476,7 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	//first pass: count how many relevant cache entries we have
 	int iCount = 0;
 	for (CachedTargetsMap::iterator itE = m_cachedTargets.begin(); itE!=m_cachedTargets.end(); ++itE)
-	{
-		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp!=itE->second.end(); ++itOp)
-		{
-			if (GC.getGame().getGameTurn() - itOp->second.iTurnChosen < 25)
-			{
-				iCount++;
-			}
-		}
-	}
-
+		iCount += itE->second.size();
 	kStream << iCount;
 
 	//second pass: write them
@@ -493,18 +484,15 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	{
 		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp!=itE->second.end(); ++itOp)
 		{
-			if (GC.getGame().getGameTurn() - itOp->second.iTurnChosen < 25)
-			{
-				kStream << itE->first;
-				kStream << itOp->first;
-				kStream << itOp->second.iTargetCity;
-				kStream << itOp->second.iMusterCity;
-				kStream << itOp->second.bAttackBySea;
-				kStream << itOp->second.bOcean;
-				kStream << itOp->second.bNoLandPath;
-				kStream << itOp->second.iScore;
-				kStream << itOp->second.iTurnChosen;
-			}
+			kStream << itE->first;
+			kStream << itOp->first;
+			kStream << itOp->second.iTargetCity;
+			kStream << itOp->second.iMusterCity;
+			kStream << itOp->second.bAttackBySea;
+			kStream << itOp->second.bOcean;
+			kStream << itOp->second.bNoLandPath;
+			kStream << itOp->second.iScore;
+			kStream << itOp->second.iTurnChosen;
 		}
 	}	
 #endif
@@ -1071,10 +1059,10 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;
-		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_NAVAL_SQUADRON, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_NAVAL_SQUADRON, false, m_pPlayer->CanCrossOcean(), pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
 		if (iFilledSlots >= iNumRequiredSlots)
 		{
-			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
+			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity, m_pPlayer->CanCrossOcean());
 			if (pOperation != NULL && !pOperation->ShouldAbort())
 			{
 				return true;
@@ -1526,9 +1514,7 @@ bool CvMilitaryAI::HaveValidAttackTarget(PlayerTypes eEnemy)
 	{
 		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp != itE->second.end(); ++itOp)
 		{
-			// important - this must be a reference!
-			SCachedTarget& cachedTarget = itOp->second;
-
+			const SCachedTarget& cachedTarget = itOp->second;
 			CvCity* pCachedTargetCity = GetCityFromGlobalID(cachedTarget.iTargetCity);
 			CvCity* pCachedMusterCity = GetCityFromGlobalID(cachedTarget.iMusterCity);
 			if (pCachedTargetCity != NULL && pCachedMusterCity != NULL)
@@ -1540,7 +1526,7 @@ bool CvMilitaryAI::HaveValidAttackTarget(PlayerTypes eEnemy)
 	return false;
 }
 
-CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore, bool bCheckWar)
+CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
 	int ciAgeLimit = 8; //don't switch targets too often but update our cached targets from time and time
 
@@ -1551,10 +1537,6 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 		return CvMilitaryTarget();
 	}
 
-	int iNewScore = 0;
-	CvMilitaryTarget newTarget;
-	bool bFoundInCache = false;
-
 	//todo: compare score across op types to see if this makes sense at all
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE != m_cachedTargets.end())
@@ -1562,40 +1544,27 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 		CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.find(eAIOperationType);
 		if (itOp != itE->second.end())
 		{
-			bFoundInCache = true;
-
 			// important - this must be a reference!
 			SCachedTarget& cachedTarget = itOp->second;
 
 			CvCity* pCachedTargetCity = GetCityFromGlobalID(cachedTarget.iTargetCity);
 			CvCity* pCachedMusterCity = GetCityFromGlobalID(cachedTarget.iMusterCity);
 
-			//check if the cached target is still good
-			if (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit)
-				cachedTarget.iScore = 0;
+			//check if we can still use it
+			bool bInvalidTarget = (pCachedTargetCity == NULL || pCachedMusterCity == NULL || pCachedTargetCity->getOwner() != eEnemy || pCachedMusterCity->getOwner() != m_pPlayer->GetID());
+			bool bWantNewTarget = (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit);
 
-			if (pCachedTargetCity == NULL || pCachedMusterCity == NULL || pCachedTargetCity->getOwner() != eEnemy || pCachedMusterCity->getOwner() != m_pPlayer->GetID())
-			{
-				cachedTarget.iScore = 0;
-			}
-			else if (bCheckWar && !GET_TEAM(GET_PLAYER(eEnemy).getTeam()).isAtWar(m_pPlayer->getTeam()))
-			{
-				cachedTarget.iScore = 0;
-			}
-			// Don't want it to already be targeted by an operation that's not on its way
-			else if(pCachedMusterCity != NULL && m_pPlayer->IsCityAlreadyTargeted(pCachedTargetCity, NO_DOMAIN, 25))
-			{
-				cachedTarget.iScore = 0;
-			}
-
-			//check the current situation
-			if (cachedTarget.iTurnChosen<GC.getGame().getGameTurn())
+			//only search for a new target if we didn't already do so this turn
+			int iNewScore = 0;
+			CvMilitaryTarget newTarget;
+			if (cachedTarget.iTurnChosen < GC.getGame().getGameTurn())
 				newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
 			//if we can't use the old one anymore or the new target is much better
-			if(iNewScore > cachedTarget.iScore*1.35)
+			if (bInvalidTarget || bWantNewTarget || 3 * iNewScore > 4 * cachedTarget.iScore)
 			{
-				if(newTarget.m_pTargetCity && newTarget.m_pMusterCity)
+				//new target valid?
+				if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
 				{
 					cachedTarget.iTargetCity = newTarget.m_pTargetCity->GetID();
 					cachedTarget.iMusterCity = newTarget.m_pMusterCity->GetID();
@@ -1603,26 +1572,41 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 					cachedTarget.bOcean = newTarget.m_bOcean;
 					cachedTarget.bNoLandPath = newTarget.m_bNoLandPath;
 					cachedTarget.iScore = iNewScore;
-					cachedTarget.iTurnChosen = GC.getGame().getGameTurn();			
+					cachedTarget.iTurnChosen = GC.getGame().getGameTurn();
 
 					//important, update the cache
 					m_cachedTargets[eEnemy][eAIOperationType] = cachedTarget;
 
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						CvString strOutBuf = CvString::format("%d, %s, refreshed our attack target, %s, Muster: %s",
-							GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
-							newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
+						CvString strOutBuf = CvString::format("%03d, %s, refreshed our attack target, %s, Muster: %s, optype: %d, score: %d",
+							GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(),
+							newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType, iNewScore);
 						CvString playerName = GetPlayer()->getCivilizationShortDescription();
 						FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 						if (pLog)
 							pLog->Msg(strOutBuf);
 					}
+
+					if (piWinningScore)
+						*piWinningScore = iNewScore;
+
+					return newTarget;
+				}
+				//no new valid target?
+				else if (bInvalidTarget || bWantNewTarget)
+				{
+					//don't keep the old invalid target around
+					itE->second.erase(itOp);
+
+					if (piWinningScore)
+						*piWinningScore = 0;
+
+					return CvMilitaryTarget();
 				}
 			}
-			else
+			else //old one still valid and couldn't find a better target
 			{
-				//may be null!
 				newTarget.m_pTargetCity = pCachedTargetCity;
 				newTarget.m_pMusterCity = pCachedMusterCity;
 				newTarget.m_bAttackBySea = cachedTarget.bAttackBySea;
@@ -1630,6 +1614,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				newTarget.m_bNoLandPath = cachedTarget.bNoLandPath;
 				iNewScore = cachedTarget.iScore;
 
+				/*
 				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
 				{
 					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, muster: %s, optype: %d",
@@ -1640,38 +1625,42 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 					if (pLog)
 						pLog->Msg(strOutBuf);
 				}
+				*/
+
+				if (piWinningScore)
+					*piWinningScore = iNewScore;
+
+				return newTarget;
 			}
 		}
 	}
 
-	if (!bFoundInCache)
+	//no cache hit, start from scratch
+	int iNewScore = 0;
+	CvMilitaryTarget newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
+	if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
 	{
-		newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
+		SCachedTarget memory;
+		memory.iTargetCity = newTarget.m_pTargetCity->GetID();
+		memory.iMusterCity = newTarget.m_pMusterCity->GetID();
+		memory.bAttackBySea = newTarget.m_bAttackBySea;
+		memory.bOcean = newTarget.m_bOcean;
+		memory.bNoLandPath = newTarget.m_bNoLandPath;
+		memory.iScore = iNewScore;
+		memory.iTurnChosen = GC.getGame().getGameTurn();
 
-		if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
+		//update the cache
+		m_cachedTargets[eEnemy][eAIOperationType] = memory;
+
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			SCachedTarget memory;
-			memory.iTargetCity = newTarget.m_pTargetCity->GetID();
-			memory.iMusterCity = newTarget.m_pMusterCity->GetID();
-			memory.bAttackBySea = newTarget.m_bAttackBySea;
-			memory.bOcean = newTarget.m_bOcean;
-			memory.bNoLandPath = newTarget.m_bNoLandPath;
-			memory.iScore = iNewScore;
-			memory.iTurnChosen = GC.getGame().getGameTurn();
-
-			//update the cache
-			m_cachedTargets[eEnemy][eAIOperationType] = memory;
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strOutBuf = CvString::format("%03d, %s, found new attack target, %s, muster: %s, optype: %d",
-					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
-					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType);
-				CvString playerName = GetPlayer()->getCivilizationShortDescription();
-				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-				if (pLog)
-					pLog->Msg(strOutBuf);
-			}
+			CvString strOutBuf = CvString::format("%03d, %s, found new attack target, %s, muster: %s, optype: %d, score: %d",
+				GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
+				newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType, iNewScore);
+			CvString playerName = GetPlayer()->getCivilizationShortDescription();
+			FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+			if (pLog)
+				pLog->Msg(strOutBuf);
 		}
 	}
 
@@ -1681,6 +1670,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 	return newTarget;
 }
+
 /// Clear cached targets so we can try something else.
 void CvMilitaryAI::ClearCachedTargets()
 {
@@ -1716,7 +1706,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 			}
 
 			int iNewScore = 0;
-			CvMilitaryTarget newTarget = FindBestAttackTargetCached(eAIOperationType,eLoopPlayer,&iNewScore, bCheckWar);
+			CvMilitaryTarget newTarget = FindBestAttackTargetCached(eAIOperationType,eLoopPlayer,&iNewScore);
 
 			if (iNewScore>iBestScore)
 			{
@@ -4278,7 +4268,7 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pThreatenedCity->plot());
 		if (!bHasOperationUnderway || bIsEnemyZone)
 		{
-			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, false, pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
+			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, m_pPlayer->CanCrossOcean(), pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
 			if (iFilledSlots > 1 && (bIsEnemyZone || ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)))
 			{
 				m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pCoastalPlot->getArea(), pThreatenedCity, pThreatenedCity, m_pPlayer->CanCrossOcean());
@@ -4475,7 +4465,7 @@ int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globa
 	else
 	{
 		int iWinningScore;
-		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_BASIC_ATTACK, ePlayer, &iWinningScore, true);
+		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_BASIC_ATTACK, ePlayer, &iWinningScore);
 		if (thistarget.m_pTargetCity != NULL && thistarget.m_pMusterCity != NULL && !thistarget.m_bNoLandPath)
 		{
 			iValue += iWinningScore;
@@ -4515,7 +4505,7 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 	else
 	{
 		int iWinningScore;
-		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer, &iWinningScore, true);
+		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer, &iWinningScore);
 		if (thistarget.m_pTargetCity != NULL && thistarget.m_pMusterCity != NULL && thistarget.m_bAttackBySea)
 		{
 			iValue += iWinningScore;
@@ -5573,7 +5563,7 @@ void CvMilitaryAI::LogAvailableForces()
 		}
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
+		/*
 		// Loop through our units
 		CvUnit* pLoopUnit;
 		int iLoop;
@@ -5603,6 +5593,7 @@ void CvMilitaryAI::LogAvailableForces()
 
 			pLog->Msg(strOutBuf);
 		}
+		*/
 	}
 }
 
@@ -7078,8 +7069,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		}
 	}
 
+	//fixme - the max number of turns actually depends on the operation we are trying to kick off!
 	ReachablePlots turnsFromMuster;
-	SPathFinderUserData data(pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+	SPathFinderUserData data(pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT());
 	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMuster, data);
 
 	int iLoop = 0;
