@@ -4923,7 +4923,7 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 				continue;
 
 			// Is it in an army?
-			if(pLoopUnit->getArmyID() != -1)
+			if(pLoopUnit->getArmyID() != -1 || TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
 				continue;
 
 			// Is this a ship on a water body without enemies?
