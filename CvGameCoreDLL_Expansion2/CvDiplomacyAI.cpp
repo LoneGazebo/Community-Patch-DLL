@@ -3930,6 +3930,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// VENGEANCE! Grrrr....
 	////////////////////////////////////
 	
+	// Stole our territory with Great Generals?
+	if (GetNumTimesCultureBombed(ePlayer) > 0)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + GetNumTimesCultureBombed(ePlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GetNumTimesCultureBombed(ePlayer));
+	}
+	
 	bool bIsCapitulatedVassal = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassal(ePlayer))
@@ -35525,7 +35532,7 @@ int CvDiplomacyAI::GetForgaveForSpyingScore(PlayerTypes ePlayer)
 	}
 #endif
 	if(IsPlayerForgaveForSpying(ePlayer))
-		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_FORGAVE_FOR_SPYING();
+		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_FORGAVE_FOR_SPYING();
 	return iOpinionWeight;
 }
 
@@ -35570,6 +35577,14 @@ int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNumTimesCultureBombed(ePlayer) > 0)
 		iOpinionWeight += (GetNumTimesCultureBombed(ePlayer) * /*30*/ GC.getOPINION_WEIGHT_CULTURE_BOMBED());
+	
+#if defined(MOD_BALANCE_CORE)
+	if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+	{
+		iOpinionWeight *= 2;
+	}
+#endif
+	
 	return iOpinionWeight;
 }
 
@@ -36439,7 +36454,7 @@ int CvDiplomacyAI::GetDenouncedFriendScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	// They've denounced someone we have a DoF with
 	if(IsPlayerDenouncedFriend(ePlayer))
-		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND();
+		iOpinionWeight += /*18*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND();
 	
 	// No penalty for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -36453,7 +36468,7 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	// They've denounced someone we've denounced
 	if(IsPlayerDenouncedEnemy(ePlayer))
-		iOpinionWeight += /*-15*/ GC.getOPINION_WEIGHT_DENOUNCED_ENEMY();
+		iOpinionWeight += /*-18*/ GC.getOPINION_WEIGHT_DENOUNCED_ENEMY();
 	return iOpinionWeight;
 }
 
@@ -36471,7 +36486,7 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 	if(GetRecentTradeValue(ePlayer) > 0)
 	{
 		int iWeightChange = -1 * GetRecentTradeValue(ePlayer) / GC.getDEAL_VALUE_PER_OPINION_WEIGHT();
-		if(iWeightChange < /*-30*/ GC.getOPINION_WEIGHT_TRADE_MAX())
+		if(iWeightChange < /*-35*/ GC.getOPINION_WEIGHT_TRADE_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_TRADE_MAX();
 		}
@@ -36501,11 +36516,11 @@ int CvDiplomacyAI::GetRecentAssistScore(PlayerTypes ePlayer)
 	if(GetRecentAssistValue(ePlayer) != 0)
 	{
 		int iWeightChange = GetRecentAssistValue(ePlayer) / GC.getDEAL_VALUE_PER_OPINION_WEIGHT();
-		if (iWeightChange < -GC.getOPINION_WEIGHT_ASSIST_MAX())
+		if (iWeightChange < /*-30*/ -GC.getOPINION_WEIGHT_ASSIST_MAX())
 		{
 			iWeightChange = -GC.getOPINION_WEIGHT_ASSIST_MAX();
 		}
-		else if (iWeightChange > GC.getOPINION_WEIGHT_ASSIST_MAX())
+		else if (iWeightChange > /*30*/ GC.getOPINION_WEIGHT_ASSIST_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_ASSIST_MAX();
 		}
