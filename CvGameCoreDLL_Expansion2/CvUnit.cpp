@@ -12894,6 +12894,9 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Humans can handle their own diplo
 			if(pPlayer->isHuman())
 				continue;
+			
+			if (pPlayer->isBarbarian())
+				continue;
 
 			// Minor civ response
 			if(pPlayer->isMinorCiv())
@@ -12904,7 +12907,10 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Major civ response
 			else
 			{
-				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+				if (!GET_TEAM(eOtherTeam).isAtWar(getTeam()))
+				{
+					pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+				}
 
 				// Message for human
 				if(getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader)

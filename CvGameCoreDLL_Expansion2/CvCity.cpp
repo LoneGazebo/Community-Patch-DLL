@@ -28292,11 +28292,14 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		//Did we buy this plot from someone? Oh no!
 		if(pPlot != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner())
 		{
-			if(!GET_PLAYER(pPlot->getOwner()).isHuman())
+			if (!GET_PLAYER(pPlot->getOwner()).isHuman() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 			{
 				if(GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+					if (!GET_TEAM(GET_PLAYER(pPlot->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+					{
+						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+					}
 				}
 				else if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 				{
