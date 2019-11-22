@@ -3141,8 +3141,10 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
 	
 #if defined(MOD_BALANCE_CORE)
+	iOpinionWeight += GetHasReligionFounderDifferenceScore(ePlayer);
 	iOpinionWeight += GetPolicyScore(ePlayer);
 #endif
+
 	iOpinionWeight += GetSameLatePoliciesScore(ePlayer);
 	iOpinionWeight += GetDifferentLatePoliciesScore(ePlayer);
 	
@@ -3927,6 +3929,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// VENGEANCE! Grrrr....
 	////////////////////////////////////
+	
+	// Stole our territory with Great Generals?
+	if (GetNumTimesCultureBombed(ePlayer) > 0)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + GetNumTimesCultureBombed(ePlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GetNumTimesCultureBombed(ePlayer));
+	}
 	
 	bool bIsCapitulatedVassal = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -6160,15 +6169,33 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 
 	bool bIsGoodWarTarget = false;
 	bool bCheckIfGoodWarTarget = false;
+	
+	////////////////////////////////////
+	// EASY TARGET
+	////////////////////////////////////
+	bool bIsEasyTarget = false;
+	
+	if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
+		bIsEasyTarget = true;
+		bCheckIfGoodWarTarget = true;
+	}
 
 	////////////////////////////////////
 	// CONQUEST GRAND STRATEGY
 	////////////////////////////////////
 
-	if(IsGoingForWorldConquest())
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
+		
+		if (bIsEasyTarget)
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		}
 
 		bCheckIfGoodWarTarget = true;
 	}
@@ -6581,9 +6608,30 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	if (bIsGoodWarTarget)
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		
+		if (bIsEasyTarget)
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+			
+			if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+			{
+				viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+			}
+		}
 	}
-	else
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
+	else if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
+	{
+		if (IsGoingForWorldConquest())
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 2;
+			viApproachWeights[MINOR_CIV_APPROACH_BULLY] /= 2;
+		}
+		else
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
+			viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
+		}
+	}
 
 	////////////////////////////////////
 	// APPROACHES TOWARDS OTHER PLAYERS
@@ -8856,7 +8904,14 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Minor Civ
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
-		bWantToAttack = !bAtWarWithAtLeastOneMajor && (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
+		bWantToAttack = (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
+		
+		// Don't get into multiple wars at once (unless this is an easy target)
+		if (bWantToAttack && !IsEasyTarget(eTargetPlayer, /*bOtherPlayerEstimate*/ false))
+		{
+			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
+		}
+		
 		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
 	}
 	// Major Civ
@@ -14690,7 +14745,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 /// Is this player an easy attack target?
 bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 {
-	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
+	if (!IsPlayerValid(ePlayer))
 		return false;
 	
 	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
@@ -14707,7 +14762,14 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 	// If we're bankrupt, they can't be an easy target
 	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
 	{
-		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+		if (GET_PLAYER(ePlayer).isMajorCiv())
+		{
+			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+			{
+				return false;
+			}
+		}
+		else
 		{
 			return false;
 		}
@@ -14725,14 +14787,52 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		{
 			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				if (GetWarState(eLoopPlayer) <= WAR_STATE_CALM)
+				if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
 				{
-					return false;
+					if (GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (GetWarState(eLoopPlayer) <= WAR_STATE_CALM) // if we're not offensive in this war, don't open ourselves up to dogpiling
+					{
+						return false;
+					}
 				}
 			}
 		}
 	}
 	
+	// Minor civ
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if (GetBoldness() > 6)
+		{
+			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	
+	// Major civ
 	// First check the overall strength estimate (bold AIs will be more aggressive)
 	if (GetBoldness() > 6)
 	{
@@ -14749,7 +14849,6 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		}
 	}
 	
-	bool bIsEasyTarget = false;
 	bool bWantsConquest = false;
 	
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
@@ -35433,7 +35532,7 @@ int CvDiplomacyAI::GetForgaveForSpyingScore(PlayerTypes ePlayer)
 	}
 #endif
 	if(IsPlayerForgaveForSpying(ePlayer))
-		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_FORGAVE_FOR_SPYING();
+		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_FORGAVE_FOR_SPYING();
 	return iOpinionWeight;
 }
 
@@ -35478,6 +35577,14 @@ int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNumTimesCultureBombed(ePlayer) > 0)
 		iOpinionWeight += (GetNumTimesCultureBombed(ePlayer) * /*30*/ GC.getOPINION_WEIGHT_CULTURE_BOMBED());
+	
+#if defined(MOD_BALANCE_CORE)
+	if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+	{
+		iOpinionWeight *= 2;
+	}
+#endif
+	
 	return iOpinionWeight;
 }
 
@@ -36347,7 +36454,7 @@ int CvDiplomacyAI::GetDenouncedFriendScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	// They've denounced someone we have a DoF with
 	if(IsPlayerDenouncedFriend(ePlayer))
-		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND();
+		iOpinionWeight += /*18*/ GC.getOPINION_WEIGHT_DENOUNCED_FRIEND();
 	
 	// No penalty for teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
@@ -36361,7 +36468,7 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	// They've denounced someone we've denounced
 	if(IsPlayerDenouncedEnemy(ePlayer))
-		iOpinionWeight += /*-15*/ GC.getOPINION_WEIGHT_DENOUNCED_ENEMY();
+		iOpinionWeight += /*-18*/ GC.getOPINION_WEIGHT_DENOUNCED_ENEMY();
 	return iOpinionWeight;
 }
 
@@ -36379,7 +36486,7 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 	if(GetRecentTradeValue(ePlayer) > 0)
 	{
 		int iWeightChange = -1 * GetRecentTradeValue(ePlayer) / GC.getDEAL_VALUE_PER_OPINION_WEIGHT();
-		if(iWeightChange < /*-30*/ GC.getOPINION_WEIGHT_TRADE_MAX())
+		if(iWeightChange < /*-35*/ GC.getOPINION_WEIGHT_TRADE_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_TRADE_MAX();
 		}
@@ -36409,11 +36516,11 @@ int CvDiplomacyAI::GetRecentAssistScore(PlayerTypes ePlayer)
 	if(GetRecentAssistValue(ePlayer) != 0)
 	{
 		int iWeightChange = GetRecentAssistValue(ePlayer) / GC.getDEAL_VALUE_PER_OPINION_WEIGHT();
-		if (iWeightChange < -GC.getOPINION_WEIGHT_ASSIST_MAX())
+		if (iWeightChange < /*-30*/ -GC.getOPINION_WEIGHT_ASSIST_MAX())
 		{
 			iWeightChange = -GC.getOPINION_WEIGHT_ASSIST_MAX();
 		}
-		else if (iWeightChange > GC.getOPINION_WEIGHT_ASSIST_MAX())
+		else if (iWeightChange > /*30*/ GC.getOPINION_WEIGHT_ASSIST_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_ASSIST_MAX();
 		}
