@@ -6162,15 +6162,33 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 
 	bool bIsGoodWarTarget = false;
 	bool bCheckIfGoodWarTarget = false;
+	
+	////////////////////////////////////
+	// EASY TARGET
+	////////////////////////////////////
+	bool bIsEasyTarget = false;
+	
+	if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
+		bIsEasyTarget = true;
+		bCheckIfGoodWarTarget = true;
+	}
 
 	////////////////////////////////////
 	// CONQUEST GRAND STRATEGY
 	////////////////////////////////////
 
-	if(IsGoingForWorldConquest())
+	if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
+		
+		if (bIsEasyTarget)
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		}
 
 		bCheckIfGoodWarTarget = true;
 	}
@@ -6583,9 +6601,30 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	if (bIsGoodWarTarget)
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		
+		if (bIsEasyTarget)
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+			
+			if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+			{
+				viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+			}
+		}
 	}
-	else
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
+	else if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
+	{
+		if (IsGoingForWorldConquest())
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 2;
+			viApproachWeights[MINOR_CIV_APPROACH_BULLY] /= 2;
+		}
+		else
+		{
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
+			viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
+		}
+	}
 
 	////////////////////////////////////
 	// APPROACHES TOWARDS OTHER PLAYERS
@@ -8858,7 +8897,14 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	// Minor Civ
 	if (GET_PLAYER(eTargetPlayer).isMinorCiv())
 	{
-		bWantToAttack = !bAtWarWithAtLeastOneMajor && (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
+		bWantToAttack = (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
+		
+		// Don't get into multiple wars at once (unless this is an easy target)
+		if (bWantToAttack && !IsEasyTarget(eTargetPlayer, /*bOtherPlayerEstimate*/ false))
+		{
+			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
+		}
+		
 		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
 	}
 	// Major Civ
@@ -14692,7 +14738,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 /// Is this player an easy attack target?
 bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 {
-	if (!IsPlayerValid(ePlayer) || GET_PLAYER(ePlayer).isMinorCiv())
+	if (!IsPlayerValid(ePlayer))
 		return false;
 	
 	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
@@ -14709,7 +14755,14 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 	// If we're bankrupt, they can't be an easy target
 	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
 	{
-		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+		if (GET_PLAYER(ePlayer).isMajorCiv())
+		{
+			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+			{
+				return false;
+			}
+		}
+		else
 		{
 			return false;
 		}
@@ -14735,6 +14788,34 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		}
 	}
 	
+	// Minor civ
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if (GetBoldness() > 6)
+		{
+			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	
+	// Major civ
 	// First check the overall strength estimate (bold AIs will be more aggressive)
 	if (GetBoldness() > 6)
 	{
@@ -14751,7 +14832,6 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		}
 	}
 	
-	bool bIsEasyTarget = false;
 	bool bWantsConquest = false;
 	
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
