@@ -3141,8 +3141,10 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetReligiousConversionPointsScore(ePlayer);
 	
 #if defined(MOD_BALANCE_CORE)
+	iOpinionWeight += GetHasReligionFounderDifferenceScore(ePlayer);
 	iOpinionWeight += GetPolicyScore(ePlayer);
 #endif
+
 	iOpinionWeight += GetSameLatePoliciesScore(ePlayer);
 	iOpinionWeight += GetDifferentLatePoliciesScore(ePlayer);
 	
