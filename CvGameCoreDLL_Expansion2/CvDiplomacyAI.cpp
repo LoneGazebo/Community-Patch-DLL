@@ -16624,6 +16624,10 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					ChangeRecentTradeValue(ePlayer, -GetRecentTradeValue(ePlayer));
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eMyPlayer, -GetRecentTradeValue(eMyPlayer));
 					
+					// Clear penalties for stealing territory during peacetime
+					ChangeNumTimesCultureBombed(ePlayer, -GetNumTimesCultureBombed(ePlayer));
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesCultureBombed(eMyPlayer, -GetNumTimesCultureBombed(eMyPlayer));
+					
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 					if (!bDefensivePact)
 					{
