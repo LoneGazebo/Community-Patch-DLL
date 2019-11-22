@@ -14780,9 +14780,19 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		{
 			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				if (GetWarState(eLoopPlayer) <= WAR_STATE_CALM)
+				if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
 				{
-					return false;
+					if (GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (GetWarState(eLoopPlayer) <= WAR_STATE_CALM) // if we're not offensive in this war, don't open ourselves up to dogpiling
+					{
+						return false;
+					}
 				}
 			}
 		}
