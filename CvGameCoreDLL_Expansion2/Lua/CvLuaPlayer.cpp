@@ -12879,7 +12879,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// Asking AI teammates not to settle nearby should be visible but with no penalty
 	if (pDiploAI->IsPlayerNoSettleRequestEverAsked(eWithPlayer))
 	{
-		iValue = pDiploAI->GetNoSetterRequestScore(eWithPlayer);
+		iValue = pDiploAI->GetNoSettleRequestScore(eWithPlayer);
 		
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;

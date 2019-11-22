@@ -7336,7 +7336,7 @@ CvEraInfo::CvEraInfo() :
 	m_iSpiesGrantedForEveryone(0),
 	m_iFaithCostMultiplier(0),
 	m_iDiploEmphasisReligion(0),
-	m_iDiplpEmphasisLatePolicies(0),
+	m_iDiploEmphasisLatePolicies(0),
 	m_iTradeRouteFoodBonusTimes100(0),
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
@@ -7491,9 +7491,9 @@ int CvEraInfo::getDiploEmphasisReligion() const
 }
 
 //------------------------------------------------------------------------------
-int CvEraInfo::getDiplpEmphasisLatePolicies() const
+int CvEraInfo::getDiploEmphasisLatePolicies() const
 {
-	return m_iDiplpEmphasisLatePolicies;
+	return m_iDiploEmphasisLatePolicies;
 }
 
 //------------------------------------------------------------------------------
@@ -7617,7 +7617,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iSpiesGrantedForEveryone  = kResults.GetInt("SpiesGrantedForEveryone");
 	m_iFaithCostMultiplier      = kResults.GetInt("FaithCostMultiplier");
 	m_iDiploEmphasisReligion    = kResults.GetInt("DiploEmphasisReligion");
-	m_iDiplpEmphasisLatePolicies= kResults.GetInt("DiploEmphasisLatePolicies");
+	m_iDiploEmphasisLatePolicies= kResults.GetInt("DiploEmphasisLatePolicies");
 	m_iTradeRouteFoodBonusTimes100 = kResults.GetInt("TradeRouteFoodBonusTimes100");
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
