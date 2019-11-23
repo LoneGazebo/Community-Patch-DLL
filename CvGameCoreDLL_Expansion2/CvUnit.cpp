@@ -12892,14 +12892,14 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			TeamTypes eOtherTeam = pPlayer->getTeam();
 
 			// Humans can handle their own diplo
-			if(pPlayer->isHuman())
+			if (pPlayer->isHuman())
 				continue;
 			
 			if (pPlayer->isBarbarian())
 				continue;
 
 			// Minor civ response
-			if(pPlayer->isMinorCiv())
+			if (pPlayer->isMinorCiv())
 			{
 				int iFriendship = /*-50*/ GC.getCULTURE_BOMB_MINOR_FRIENDSHIP_CHANGE();
 				pPlayer->GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iFriendship);
@@ -12913,7 +12913,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				}
 
 				// Message for human
-				if(getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader)
+				if (getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader)
 				{
 					bAlreadyShownLeader = true;
 

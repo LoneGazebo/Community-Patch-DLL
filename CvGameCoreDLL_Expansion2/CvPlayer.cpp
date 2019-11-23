@@ -41084,7 +41084,7 @@ int CvPlayer::numOperationsOfType(int iOperationType)
 bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
 {
 	if (pCity == NULL)
-		return false;
+		return false;	
 
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;

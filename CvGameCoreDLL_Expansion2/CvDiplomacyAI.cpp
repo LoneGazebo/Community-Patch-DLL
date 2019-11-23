@@ -5048,11 +5048,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		
+		/*
 		if (!IsMajorCompetitor(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
 		}
+		*/
 		if (IsDoFAccepted(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
@@ -8910,7 +8912,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
 		}
-		
 	}
 	// Major Civ
 	else
@@ -8951,24 +8952,26 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 	// Not yet readying an attack
 	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
-	if(pCurrentSneakAttackOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
+	if (pCurrentSneakAttackOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
 	{
-		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
+		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 #else
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
 #endif
 			{
 				// Want to declare war on someone
-				if(bWantToAttack)
+				if (bWantToAttack)
 				{
 					SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
 
 					// Attack on minor
-					if(GET_PLAYER(eTargetPlayer).isMinorCiv())
+					if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+					{
 						GetPlayer()->GetMilitaryAI()->RequestCityStateAttack(eTargetPlayer);
+					}
 					// Attack on major
 					else
 					{
@@ -8982,7 +8985,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 					SetWantsSneakAttack(eTargetPlayer, false);
 
 					if (!m_pPlayer->IsAtWar() && GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_BULLY)
+					{
 						GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
+					}
 				}
 			}
 		}
@@ -8991,17 +8996,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	else
 	{
 		// Our Approach with this player calls for war
-		if(bWantToAttack)
+		if (bWantToAttack)
 		{
-			if(!IsAtWar(eTargetPlayer))
+			if (!IsAtWar(eTargetPlayer))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
+				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 #else
-				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
+				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
 #endif
 				{
-					if(IsArmyInPlaceForAttack(eTargetPlayer) || (pCurrentSneakAttackOperation != NULL && pCurrentSneakAttackOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
+					if (IsArmyInPlaceForAttack(eTargetPlayer) || (pCurrentSneakAttackOperation != NULL && pCurrentSneakAttackOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
 					{
 						bDeclareWar = true;
 						SetArmyInPlaceForAttack(eTargetPlayer, false);
@@ -9014,7 +9019,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		// We were planning an attack, but changed our minds so abort
 		else
 		{
-			if(pCurrentSneakAttackOperation != NULL)
+			if (pCurrentSneakAttackOperation != NULL)
 			{
 				SetWantsSneakAttack(eTargetPlayer, false);
 				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_CANCELLED);
@@ -9024,7 +9029,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 
 		// If our Sneak Attack is read then actually initiate the DoW
-		if(bDeclareWar)
+		if (bDeclareWar)
 		{
 			DeclareWar(eTargetPlayer);
 			SetWantsSneakAttack(eTargetPlayer, false);
@@ -12287,6 +12292,10 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	// No DPs if we're hostile or want war
 	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 		return false;
+	
+	// No DPs if they're untrustworthy
+	if (IsUntrustworthyFriend(ePlayer) || GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_WAR || GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		return false;
 
 	int iValue = 0;
 
@@ -13896,16 +13905,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (IsUntrustworthyFriend(ePlayer))
 			{
 				iEnemyWeight += 25;
-				iDPWeight += -25;
-				iDoFWeight += -25;
-				
-				// Extra penalties if they betrayed us personally!
-				if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer))
-				{
-					iEnemyWeight += 10;
-					iDPWeight += -25;
-					iDoFWeight += -25;
-				}
+				iDPWeight += -50;
+				iDoFWeight += -50;
 			}
 			
 			// Focus our aggression on major competitors.
@@ -13926,11 +13927,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					iEnemyWeight += 5;
 					iDoFWeight -= 10;
 				}
+				/*
 				else
 				{
 					iEnemyWeight -= 10;
 					iDoFWeight += 5;
 				}
+				*/
 			}
 
 			////////////////////////////////////
@@ -31955,7 +31958,15 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Haven't known this guy for long enough
-	if(IsTooEarlyForDoF(ePlayer))
+	if (IsTooEarlyForDoF(ePlayer))
+		return false;
+	
+	// Untrustworthy friend
+	if (IsUntrustworthyFriend(ePlayer))
+		return false;
+	
+	// Hostile towards us
+	if (GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_WAR || GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_HOSTILE)
 		return false;
 
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
