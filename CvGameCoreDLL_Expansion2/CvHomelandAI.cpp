@@ -3424,7 +3424,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			//verify that we don't move into danger ...
 			if (pBestPlot)
 			{
-				//this must be the same moveflags as above so we can reuse the path next turn
+				//this  must be the same moveflags as above so we can reuse the path next turn
 				if (pUnit->GeneratePath(pBestPlot, iMoveFlags, INT_MAX, NULL, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();

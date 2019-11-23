@@ -290,9 +290,9 @@ public:
 	int GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow, int iAssumedResearchRate=-1) const;
 	int GetNumTechsCanBeResearched() const;
 	CvTechXMLEntries* GetTechs() const;
-	long long GetResearchCost(TechTypes eTech) const;
-	long long GetResearchProgress(TechTypes eTech) const;
-	long long GetMedianTechResearch() const;
+	int GetResearchCost(TechTypes eTech) const;
+	int GetResearchProgress(TechTypes eTech) const;
+	int GetMedianTechResearch() const;
 
 	bool HasUUTech() const;
 	void CheckHasUUTech();
@@ -358,23 +358,23 @@ public:
 	bool IsNoTradeTech(TechTypes eIndex) const;
 	void IncrementTechCount(TechTypes eIndex);
 	int GetTechCount(TechTypes eIndex) const;
-	void SetResearchProgress(TechTypes eIndex, long long iNewValue, PlayerTypes ePlayer);
+	void SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-	void SetResearchProgressTimes100(TechTypes eIndex, long long iNewValue, PlayerTypes ePlayer, long long iPlayerOverflow = 0, long long iPlayerOverflowDivisorTimes100 = 100);
+	void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow = 0, int iPlayerOverflowDivisorTimes100 = 100);
 #else
-	void SetResearchProgressTimes100(TechTypes eIndex, long long iNewValue, PlayerTypes ePlayer);
+	void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
 #endif
-	long long GetResearchProgress(TechTypes eIndex) const;
-	long long GetResearchProgressTimes100(TechTypes eIndex) const;
-	void ChangeResearchProgress(TechTypes eIndex, long long iChange, PlayerTypes ePlayer);
+	int GetResearchProgress(TechTypes eIndex) const;
+	int GetResearchProgressTimes100(TechTypes eIndex) const;
+	void ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-	void ChangeResearchProgressTimes100(TechTypes eIndex, long long iChange, PlayerTypes ePlayer, long long iPlayerOverflow = 0, long long iPlayerOverflowDivisorTimes100 = 100);
+	void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow = 0, int iPlayerOverflowDivisorTimes100 = 100);
 #else
 	void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
 #endif
-	long long ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer);
-	long long GetResearchCost(TechTypes eTech) const;
-	long long GetResearchLeft(TechTypes eTech) const;
+	int ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer);
+	int GetResearchCost(TechTypes eTech) const;
+	int GetResearchLeft(TechTypes eTech) const;
 	CvTechXMLEntries* GetTechs() const;
 
 #if defined(MOD_CIV6_EUREKA)
@@ -384,14 +384,14 @@ public:
 #endif
 
 private:
-	long long GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const;
+	int GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const;
 
 	TechTypes m_eLastTechAcquired;
 	int m_iNumTechs;
 
 	bool* m_pabHasTech;
 	bool* m_pabNoTradeTech;
-	long long* m_paiResearchProgress;  // Stored in hundredths
+	int* m_paiResearchProgress;  // Stored in hundredths
 #if defined(MOD_CIV6_EUREKA)
 	int* m_paiEurekaCounter;
 #endif

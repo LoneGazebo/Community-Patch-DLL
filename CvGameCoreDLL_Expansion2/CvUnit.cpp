@@ -28821,7 +28821,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 	}
 
 	bool bEndMove = (pPathPlot == pDestPlot);
-	if (!bEndMove && (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
+	if ((iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) && (pPathPlot == m_kLastPath.GetTurnDestinationPlot(0) && !bEndMove))
 	{
 		int iOldDanger = GetDanger();
 		int iNewDanger = GetDanger(pPathPlot);

@@ -1755,8 +1755,6 @@ public:
 	int GetYieldFromDevelopment(YieldTypes eYield) const;
 #endif
 
-	int iScratch; // know the scope of your validity
-
 protected:
 	FAutoArchiveClassContainer<CvCity> m_syncArchive;
 

@@ -3943,7 +3943,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						pTurnTarget = TacticalAIHelpers::FindSafestPlotInReach(pCivilian, true, false, true);
 
 					bSaveMoves = (pTurnTarget == pOperation->GetTargetPlot());
-					ExecuteMoveToPlot(pCivilian, pTurnTarget, bSaveMoves, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+					ExecuteMoveToPlot(pCivilian, pTurnTarget, bSaveMoves);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						strLogString.Format("%s now at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -8335,41 +8335,32 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 }
 
 ///Returns false if insufficient free plots around the target
-bool TacticalAIHelpers::CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iRange)
+int TacticalAIHelpers::CountDeploymentPlots(PlayerTypes ePlayer, const CvPlot* pTarget, int iRange)
 {
-	int iDX, iDY;
-	CvPlot* pPlot;
 	int iNumDeployPlotsFound = 0;
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
-	for(iDX = -(iRange); iDX <= iRange; iDX++)
+	for(int iDX = -(iRange); iDX <= iRange; iDX++)
 	{
-		for(iDY = -(iRange); iDY <= iRange; iDY++)
+		for(int iDY = -(iRange); iDY <= iRange; iDY++)
 		{
-			pPlot = plotXY(pTarget->getX(), pTarget->getY(), iDX, iDY);
+			CvPlot* pPlot = plotXY(pTarget->getX(), pTarget->getY(), iDX, iDY);
 			if(pPlot != NULL)
 			{
 				int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
 				if(iPlotDistance <= iRange)
 				{
-					if(!pPlot->isValidMovePlot(NO_PLAYER))
+					if(!pPlot->isValidMovePlot(ePlayer))
 					{
 						continue;
 					}
-					if(!GET_TEAM(eTeam).canEmbark() && (pPlot->isShallowWater() || pPlot->isWater()))
+					if(!GET_TEAM(eTeam).canEmbark() && pPlot->isWater())
 					{
 						continue;
 					}
-					else if(!GET_TEAM(eTeam).canEmbarkAllWaterPassage() && (pPlot->isWater()))
+					else if(!GET_TEAM(eTeam).canEmbarkAllWaterPassage() && (pPlot->isDeepWater()))
 					{
 						continue;
-					}
-					if(pPlot->getNumUnits() > 0)
-					{
-						CvUnit* pUnit = pPlot->getUnitByIndex(0);
-						if(pUnit && pUnit->IsCombatUnit())
-						{
-							continue;
-						}
 					}
 
 					iNumDeployPlotsFound++;
@@ -8378,13 +8369,7 @@ bool TacticalAIHelpers::CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTar
 		}
 	}
 
-	// Make sure we found enough
-	if(iNumDeployPlotsFound < iNumUnits)
-	{
-		return false;
-	}
-
-	return true;
+	return iNumDeployPlotsFound;
 }
 
 CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly, bool bConsiderSwap)
@@ -9011,7 +8996,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 {
 	int iDamageDealt = 0;
 	int iDamageReceived = 0; //always zero for ranged attack
-	int iExtraDamage = 0; //splash damage and other bonuses
+	int iExtraScore = 0; //splash damage and other bonuses
 
 	//the damage calculation doesn't know about hypothetical flanking units, so we ignore it here and add it ourselves 
 	int iPrevDamage = tactPlot.getDamage();
@@ -9025,7 +9010,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		CvCity* pEnemy = pTestPlot->getPlotCity();
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(
 			pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
-		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
+		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
 
 		//if we have multiple melee units encircling the city, try to take into account their attacks as well
@@ -9064,7 +9049,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 		//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
-		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot);
+		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz
@@ -9102,6 +9087,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	//bonus for a kill
 	if (iDamageDealt >= iPrevHitPoints)
 	{
+		//don't hand out points for over-killing (but make an allowance for randomness)
+		iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
+
 		if (tactPlot.isEnemyCity()) //city capture
 		{
 			//ranged units can't capture, so discourage the attack
@@ -9114,19 +9102,15 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			}
 			else
 			{
-				iDamageDealt = 108; //more than any unit except if it's a perfect kill
-				iExtraDamage += 100; //capturing a city is important
+				iExtraScore += 300; //capturing a city is important
 				result.eAssignmentType = A_MELEEKILL;
 			}
 		}
 		else //enemy unit killed
 		{
-			//don't hand out points for over-killing (but make an allowance for randomness)
-			iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
-
-			iExtraDamage += 30;
+			iExtraScore += 30;
 			if (pTestPlot->isEnemyUnit(pUnit->getOwner(),false,false))
-				iExtraDamage += 20; //even more points for a double kill
+				iExtraScore += 20; //even more points for a double kill
 			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
 				iDamageReceived = max( iDamageReceived-pUnit->getHPHealedIfDefeatEnemy(), -pUnit->getDamage() ); //may turn negative, but can't heal more than current damage
 
@@ -9144,12 +9128,12 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	case AL_LOW:
 		fAggFactor *= 0.4f+fAggBias/10; //bias is at least 0.9
 		if ( iHPbelowHalf>0 )
-			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
+			iExtraScore -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
 		fAggFactor *= 0.8f+fAggBias/10; //bias is at least 0.9
 		if ( iHPbelowHalf>0 )
-			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
+			iExtraScore -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
 		//don't care how much damage we do but we want to be able to survive a counterattack ...
@@ -9164,7 +9148,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
 	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
-	result.iScore = int(iDamageDealt*fAggBias*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
+	result.iScore = int(iDamageDealt*fAggBias*fAggFactor+0.5) - iDamageReceived + iExtraScore; 
 	result.iDamage = iDamageDealt;
 	result.iSelfDamage = iDamageReceived;
 }

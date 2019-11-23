@@ -374,7 +374,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iDefaultPlotValue = -100;
 
 	//this is in plots
-	int iBorderlandRangeTurns = 4;
+	int iBorderlandRangeTurns = 5;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -687,28 +687,16 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
-	if (iTotalProductionValue > 2 * iTotalFoodValue)
-	{
-		iValueModifier -= 10 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
-	}
-
 	if ( iTotalProductionValue > 4*iTotalFoodValue )
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) very unbalanced yields (lacking food)");
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
-	if (iTotalFoodValue > 5 * iTotalProductionValue)
+	if (iTotalFoodValue > 8 * iTotalProductionValue)
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
-	}
-
-	if ( iTotalFoodValue > 10*iTotalProductionValue )
-	{
-		iValueModifier -= 40 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) very unbalanced yields (lacking hammers)");
 	}
 
 	if (pPlot->isRiver())
@@ -769,7 +757,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				int iEnemyMight = kNeighbor.GetMilitaryMight();
 				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
-				if (iEnemyDistanceTurns < max(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
+				if (iEnemyDistanceTurns < min(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
 				{
 					//stay away if we are weak
 					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
@@ -1273,7 +1261,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pP
 				int iDistToUs = pPlayer->GetCityDistanceInEstimatedTurns(potentialAttackPlots[i]);
 				//check if the plot is facing our potential enemies
 				if (iDistToAll < iDistToUs)
-					rtnValue -= GC.getHILL_STRATEGIC_VALUE() * 6;
+					rtnValue -= GC.getHILL_STRATEGIC_VALUE();
 			}
 		}
 	}

@@ -1895,6 +1895,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					//the jig is up
 					if (nVisible>2)
 					{
+						LogOperationSpecialMessage("Discovered by enemy");
 						bInPlace = true;
 
 						CvPlot *pOtherTarget = NULL;
@@ -2450,17 +2451,11 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 			return AI_ABORT_NO_TARGET;
 		}
 
-		// If we have a better target, switch
+		// swtich if we have a better target
 		if (pBetterTarget != GetTargetPlot())
 		{
-			int iOldPlotValue = GetTargetPlot()->getFoundValue(m_eOwner);
-			int iNewPlotValue = pBetterTarget->getFoundValue(m_eOwner);
-
-			if (plotDistance(*GetTargetPlot(),*pBetterTarget)<2 || iNewPlotValue>iOldPlotValue*1.2f)
-			{
-				SetTargetPlot(pBetterTarget);
-				pArmy->SetGoalPlot(pBetterTarget);
-			}
+			SetTargetPlot(pBetterTarget);
+			pArmy->SetGoalPlot(pBetterTarget);
 		}
 
 		return NO_ABORT_REASON;
