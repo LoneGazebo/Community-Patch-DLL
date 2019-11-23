@@ -127,7 +127,7 @@ struct CvMilitaryTarget
 #if defined(MOD_BALANCE_CORE)
 		m_bOcean(false),
 #endif
-		iStrengthRatioTimes100(100),
+		m_iExposureScore(100),
 		m_iPathLength(0)
 	{
 	}
@@ -139,7 +139,7 @@ struct CvMilitaryTarget
 
 	CvCity* m_pTargetCity;
 	CvCity* m_pMusterCity;
-	int iStrengthRatioTimes100;
+	int m_iExposureScore; //expected value is 100
 	int m_iPathLength;
 	bool m_bAttackBySea;
 #if defined(MOD_BALANCE_CORE)

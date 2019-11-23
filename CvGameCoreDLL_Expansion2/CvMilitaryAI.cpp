@@ -1737,52 +1737,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	{
 		bNavalOp = true;
 	}
-	DomainTypes eDomain = bNavalOp ? DOMAIN_SEA : DOMAIN_LAND;
 
 	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> weightedTargetList;
-	CvMilitaryTarget chosenTarget;
 	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
-
-	// Estimate the relative strength of our strongest city (this is purely beneficial from figuring out which of their cities is weakest, as this shouldn't really affect muster)
-	int iBestPower = 0;
-	for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
-	{
-		int iPower = 0;
-		bool bGeneralInTheVicinity = false;
-		for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
-		{
-			CvPlot* pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(0);
-					if(pLoopUnit != NULL)
-					{
-						if (pLoopUnit->IsCombatUnit() && (pLoopUnit->getDomainType()==eDomain || pLoopUnit->isRanged()))
-						{
-							iPower += pLoopUnit->GetPower();
-						}
-						if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral())
-						{
-							bGeneralInTheVicinity = true;
-						}
-					}
-				}
-			}
-		}
-		//if we can recruit him, he will boost our power
-		if (bGeneralInTheVicinity)
-		{
-			iPower *= (100 + m_pPlayer->GetGreatGeneralCombatBonus());
-			iPower /= 100;
-		}
-		if(iPower > iBestPower)
-		{
-			iBestPower = iPower;
-		}
-	}
 
 	//Now check enemy cities
 	map<CvCity*, int> enemyCityScore;
@@ -1793,42 +1750,46 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		if (!pPlot->isRevealed(m_pPlayer->getTeam()) && !pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
 			continue;
 		
-		//cheating a little here - we're not checking visibility - but the result is just used as a rough estimate
-		int iPower = 0;
+		int iTotalPlots = 0;
+		int iEnemyOwnedPlots = 0;
+		int iFriendlyOwnedPlots = 0;
 		int iCitadelCount = 0;
 		ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-		for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
+		for (int iI=RING0_PLOTS; iI<RING5_PLOTS; iI++)
 		{
-			CvPlot* pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(0);
-					if(pLoopUnit != NULL)
-					{
-						if (pLoopUnit->IsCombatUnit() && (pLoopUnit->getDomainType()==eDomain || pLoopUnit->isRanged()))
-						{
-							iPower += pLoopUnit->GetPower();
-						}
-					}
-				}
+			CvPlot* pLoopPlot = iterateRingPlots(pEnemyCity->plot(), iI);
+			if (!pLoopPlot)
+				continue;
 
-				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == eCitadel)
-				{
-					if (pLoopPlot->getOwner() == eEnemy)
-						iCitadelCount++;
-					else if (pLoopPlot->getOwner() == m_pPlayer->GetID())
-						iCitadelCount--;
-				}
+			iTotalPlots++;
+			if (!pLoopPlot->isOwned() || !pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+				continue;
+
+			CvTeam& plotTeam = GET_TEAM(pLoopPlot->getTeam());
+
+			if (plotTeam.GetID() == kEnemy.getTeam())
+				iEnemyOwnedPlots++;
+			else if (plotTeam.IsHasDefensivePact(kEnemy.getTeam()))
+				iEnemyOwnedPlots++;
+			else if (plotTeam.IsVassal(kEnemy.getTeam()))
+				iEnemyOwnedPlots++;
+			else if (plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(eEnemy))
+				iEnemyOwnedPlots++;
+			else if (plotTeam.GetID() == m_pPlayer->getTeam())
+				iFriendlyOwnedPlots++;
+
+			//for the inner plots citadels can be important
+			if (iI<RING3_PLOTS && pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == eCitadel)
+			{
+				if (pLoopPlot->getOwner() == eEnemy)
+					iCitadelCount++;
+				else if (pLoopPlot->getOwner() == m_pPlayer->GetID())
+					iCitadelCount--;
 			}
 		}
 
-		//their citadels increase their power, ours reduce it
-		iPower *= (100 + 10 * iCitadelCount);
-		iPower /= 100;
-
-		enemyCityScore[pEnemyCity] = iPower;
+		//higher than 100 is good, lower is bad
+		enemyCityScore[pEnemyCity] =  100 - (iEnemyOwnedPlots*100)/iTotalPlots + (iFriendlyOwnedPlots*100)/iTotalPlots;
 	}
 
 	// Build a list of all the possible start city/target city pairs
@@ -1841,14 +1802,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			continue;
 
 		int iMaxTurns = 29; //going further out really makes little sense
-		int iMinStrenghRatio = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
+		int iMinExposureScore = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
 
 		// sometimes we were forced into a war and don't even want to attack the enemy
 		// in that case apply a higher standard
 		if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(kEnemy.GetID()))
 		{
 			iMaxTurns = 8; //only very close cities
-			iMinStrenghRatio = 200; //only if we're much stronger locally
+			iMinExposureScore = 120; //only if the enemy city is isolated
 		}
 
 		for (map<CvCity*,int>::iterator it = enemyCityScore.begin(); it != enemyCityScore.end(); ++it)
@@ -1856,10 +1817,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			CvMilitaryTarget target;
 			target.m_pMusterCity = pFriendlyCity;
 			target.m_pTargetCity = it->first;
-			target.iStrengthRatioTimes100 = (iBestPower * 100) / (it->second + 1);
+			target.m_iExposureScore = it->second;
 
 			//border cities are often strongly guarded ...
-			if (target.iStrengthRatioTimes100 < iMinStrenghRatio)
+			if (target.m_iExposureScore < iMinExposureScore)
 				continue;
 
 			//this is the important (and also costly) part
@@ -1881,7 +1842,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			}
 
 			// Shorter paths are better, strength ratio also counts, when in doubt muster at central cities
-			int iWeight = 1000 + (target.iStrengthRatioTimes100 * 20) - target.m_iPathLength * 10 - iDistance;
+			int iWeight = 1000 + (target.m_iExposureScore * 20) - target.m_iPathLength * 10 - iDistance;
 			prelimWeightedTargetList.push_back(target, iWeight);
 		}
 	}
@@ -1906,20 +1867,18 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	// Didn't find anything, abort
 	if(weightedTargetList.size() == 0)
 	{
-		chosenTarget.m_pTargetCity = NULL;   // Call off the attack
 		if (piWinningScore)
 		{
 			*piWinningScore = -1;
 		}
-		return chosenTarget;
+		return CvMilitaryTarget();
 	}
 
 	weightedTargetList.StableSortItems();
-
 	//LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
 
 	//just take the best one
-	chosenTarget = weightedTargetList.GetElement(0);
+	CvMilitaryTarget chosenTarget = weightedTargetList.GetElement(0);
 	if (piWinningScore)
 		*piWinningScore = weightedTargetList.GetWeight(0);
 
@@ -2163,8 +2122,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		break;
 	}
 
-	//strength values for each target are estimated before calling this function
-	float fStrengthRatio = min(10.f, target.iStrengthRatioTimes100 / 100.f);
+	//scores for each target are estimated before calling this function
+	float fExposureScore = min(10.f, target.m_iExposureScore / 100.f);
 	float fDesirability = 100.f;
 
 	bool bMinorButMajorWar = false;
@@ -2178,12 +2137,6 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		{
 			bMinorButMajorWar = true;
 		}
-	}
-	//increase if a weak city
-	if (fStrengthRatio > 0.5f)
-	{
-		fDesirability *= 115;
-		fDesirability /= 100;
 	}
 
 	if (target.m_pTargetCity->IsOriginalCapital() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory()))
@@ -2397,7 +2350,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	fEconomicValue = sqrt(fEconomicValue/250);
 
 	//everything together now
-	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
+	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fExposureScore * fDesirability * fEconomicValue);
 
 	/*
 	if(GC.getLogging() && GC.getAILogging())
@@ -2406,9 +2359,9 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
-		CvString msg = CvString::format( "%03d, %s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, strength ratio %.2f, economic value %.2f --> score %d\n", 
+		CvString msg = CvString::format( "%03d, %s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, exposure score %.2f, economic value %.2f --> score %d\n", 
 			GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), target.m_pTargetCity->getName().c_str(), target.m_pMusterCity->getName().c_str(), 
-			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
+			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fExposureScore, fEconomicValue, iRtnValue );
 		pLog->Msg( msg.c_str() );
 	}
 	*/
