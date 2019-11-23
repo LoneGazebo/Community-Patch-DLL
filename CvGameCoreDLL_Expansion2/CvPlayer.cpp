@@ -47448,7 +47448,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			continue;
 
 		//take into account distance from existing cities
-		int iRelevantDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : GetCityDistanceInEstimatedTurns(pPlot)*2;
+		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
+
+		//however, if we ever have a settler very far away, don't wander around forever ...
+		if (pUnit && GetCityDistanceInEstimatedTurns(pUnit->plot()) * 2 > iMaxSettleDistance)
+			iRelevantDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//on a new continent we want to settle along the coast
