@@ -1856,10 +1856,10 @@ CvTechXMLEntries* CvPlayerTechs::GetTechs() const
 //	----------------------------------------------------------------------------
 /// Return the research cost for a tech for this player.  This will be different from the team research cost as it will
 /// include the player's research adjustment
-int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
+long long CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 {
 	// Get the research cost for the team
-	int iResearchCost = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
+	long long iResearchCost = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
 	
 	// Adjust to the player's research modifier
 	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech)) - 100;
@@ -1899,10 +1899,10 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 
 //	----------------------------------------------------------------------------
 /// Return the research progress for a tech for this player.
-int CvPlayerTechs::GetResearchProgress(TechTypes eTech) const
+long long CvPlayerTechs::GetResearchProgress(TechTypes eTech) const
 {
 	// Get the research progress for the team
-	int iResearchProgress = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eTech);
+	long long iResearchProgress = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eTech);
 	// Add in any overflow we have yet to accumulate into the research progress.
 	// Overflow is the leftover research from the previous research.  It is automatically rolled into the main progress value
 	// the next time research is 'updated'.
@@ -1912,7 +1912,7 @@ int CvPlayerTechs::GetResearchProgress(TechTypes eTech) const
 }
 
 /// Median value of a tech we can research (that's what's awarded for research agreements now)
-int CvPlayerTechs::GetMedianTechResearch() const
+long long CvPlayerTechs::GetMedianTechResearch() const
 {
 	vector<int> aiTechCosts;
 	int iRtnValue = 0;
@@ -2286,7 +2286,7 @@ void CvTeamTechs::Init(CvTechXMLEntries* pTechs, CvTeam* pTeam)
 	CvAssertMsg(m_pabNoTradeTech==NULL, "about to leak memory, CvTeamTechs::m_pabNoTradeTech");
 	m_pabNoTradeTech = FNEW(bool[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_paiResearchProgress==NULL, "about to leak memory, CvTeamTechs::m_paiResearchProgress");
-	m_paiResearchProgress = FNEW(int [m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
+	m_paiResearchProgress = FNEW(long long[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
 #if defined(MOD_CIV6_EUREKA)
 	CvAssertMsg(m_paiEurekaCounter == NULL, "about to leak memory, CvTeamTechs::m_paiEurekaCounter");
 	m_paiEurekaCounter = FNEW(int[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
@@ -2389,7 +2389,7 @@ void CvTeamTechs::Write(FDataStream& kStream)
 
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabHasTech);
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabNoTradeTech);
-		kStream << ArrayWrapper<int>(iNumTechs, m_paiResearchProgress);
+		kStream << ArrayWrapper<long long>(iNumTechs, m_paiResearchProgress);
 #if defined(MOD_CIV6_EUREKA)
 		kStream << ArrayWrapper<int>(iNumTechs, m_paiEurekaCounter);
 #endif
@@ -2512,16 +2512,16 @@ int CvTeamTechs::GetTechCount(TechTypes eIndex)const
 }
 
 /// Accessor: set research done on one tech
-void CvTeamTechs::SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
+void CvTeamTechs::SetResearchProgress(TechTypes eIndex, long long iNewValue, PlayerTypes ePlayer)
 {
 	SetResearchProgressTimes100(eIndex, iNewValue * 100, ePlayer);
 }
 
 /// Accessor: set research done on one tech (in hundredths)
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
+void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, long long iNewValue, PlayerTypes ePlayer, long long iPlayerOverflow, long long iPlayerOverflowDivisorTimes100)
 #else
-void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
+void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, long long iNewValue, PlayerTypes ePlayer)
 #endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -2545,8 +2545,8 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 		}
-		int iResearchProgress = GetResearchProgressTimes100(eIndex);
-		int iResearchCost = GetResearchCost(eIndex) * 100;
+		long long iResearchProgress = GetResearchProgressTimes100(eIndex);
+		long long iResearchCost = GetResearchCost(eIndex) * 100;
 
 		// Player modifiers to cost
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
@@ -2573,7 +2573,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 #endif
 		// April 2014 Balance Patch change - EFB
 		//    Don't allow the overflow to get out of hand
-		int iMaxOverflow = GetMaxResearchOverflow(eIndex, ePlayer);
+		long long iMaxOverflow = GetMaxResearchOverflow(eIndex, ePlayer);
 		if (iOverflow > iMaxOverflow)
 		{
 			iOverflow = iMaxOverflow;
@@ -2625,7 +2625,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 }
 
 /// Accessor: get research done on one tech
-int CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
+long long CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
 {
 #if defined(MOD_BUGFIX_MINOR)
 	return GetResearchProgressTimes100(eIndex) / 100;
@@ -2642,7 +2642,7 @@ int CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
 }
 
 /// Accessor: get research done on one tech (in hundredths)
-int CvTeamTechs::GetResearchProgressTimes100(TechTypes eIndex) const
+long long CvTeamTechs::GetResearchProgressTimes100(TechTypes eIndex) const
 {
 	if(eIndex != NO_TECH)
 	{
@@ -2655,7 +2655,7 @@ int CvTeamTechs::GetResearchProgressTimes100(TechTypes eIndex) const
 }
 
 /// Accessor: what is the cost of researching this tech (taking all modifiers into account)
-int CvTeamTechs::GetResearchCost(TechTypes eTech) const
+long long CvTeamTechs::GetResearchCost(TechTypes eTech) const
 {
 	CvAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
@@ -2664,7 +2664,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 		return 0;
 	}
 
-	int iCost = pkTechInfo->GetResearchCost();
+	long long iCost = pkTechInfo->GetResearchCost();
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
 	if(pkHandicapInfo)
@@ -2692,7 +2692,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iCost /= 100;
 #endif
 
-	return std::max(1, iCost);
+	return std::max((long long)1, iCost);
 }
 
 #if defined(MOD_CIV6_EUREKA)
@@ -2709,9 +2709,9 @@ int CvTeamTechs::GetEurekaDiscount(TechTypes eTech) const
 #endif
 
 /// Accessor: how many beakers of research to go for this tech?
-int CvTeamTechs::GetResearchLeft(TechTypes eTech) const
+long long CvTeamTechs::GetResearchLeft(TechTypes eTech) const
 {
-	return std::max(0, (GetResearchCost(eTech) - GetResearchProgress(eTech)));
+	return std::max((long long)0, (GetResearchCost(eTech) - GetResearchProgress(eTech)));
 }
 
 /// Return the tech data (from XML)
@@ -2721,16 +2721,16 @@ CvTechXMLEntries* CvTeamTechs::GetTechs() const
 }
 
 /// Add an increment of research to a tech
-void CvTeamTechs::ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
+void CvTeamTechs::ChangeResearchProgress(TechTypes eIndex, long long iChange, PlayerTypes ePlayer)
 {
 	ChangeResearchProgressTimes100(eIndex, iChange * 100, ePlayer);
 }
 
 /// Add an increment of research to a tech (in hundredths)
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
-void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
+void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, long long iChange, PlayerTypes ePlayer, long long iPlayerOverflow, long long iPlayerOverflowDivisorTimes100)
 #else
-void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
+void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, long long iChange, PlayerTypes ePlayer)
 #endif
 {
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
@@ -2741,9 +2741,9 @@ void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, 
 }
 
 /// Add research for a tech to a specified percent complete
-int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer)
+long long CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer)
 {
-	int iBeakers = 0;
+	long long iBeakers = 0;
 
 	if(0 != iPercent && !HasTech(eIndex))
 	{
@@ -2764,12 +2764,12 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 
 // PRIVATE FUNCTIONS
 
-int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const
+long long CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const
 {
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 
 	// 5 turns of science is a reasonable allowance of overflow (about equal to a standard research agreement award)
-	int iReturnValue = kPlayer.GetScienceTimes100() * 5;   
+	long long iReturnValue = kPlayer.GetScienceTimes100() * 5;
 
 	// Alternatively let it be the raw cost of the tech (times 100)
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
@@ -2778,7 +2778,7 @@ int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) co
 		return 0;
 	}
 
-	int iCost = pkTechInfo->GetResearchCost() * 100;
+	long long iCost = pkTechInfo->GetResearchCost() * 100;
 
 	iReturnValue = max(iCost, iReturnValue);
 
