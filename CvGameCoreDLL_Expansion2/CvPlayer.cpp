@@ -47448,8 +47448,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			continue;
 
 		//take into account distance from existing cities
-		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot)*2); //times 2 to get the approximate plot distance
+		int iRelevantDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : GetCityDistanceInEstimatedTurns(pPlot)*2;
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//on a new continent we want to settle along the coast
@@ -47579,20 +47578,23 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (it != reachablePlots.end())
 		{
 			bDangerous = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))>30); //a ranged attack or some fog danger is ok
-			bCanReachThisTurn = (it->iTurns==0) || (it->iTurns==1 && !bDangerous); //also allow next turn if no visible danger
+			bCanReachThisTurn = (it->iTurns == 0 && it->iMovesLeft > 0);
 		}
 
 		//check if it's too close to an enemy
-		for (size_t j=0; j<vBadPlots.size(); j++)
+		if (!bCanReachThisTurn && !bDangerous)
 		{
-			if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
-				continue;
-
-			int iDistanceToDanger = plotDistance(*pTestPlot,*(vBadPlots[j]));
-			if (iDistanceToDanger<4 && !bCanReachThisTurn)
+			for (size_t j = 0; j < vBadPlots.size(); j++)
 			{
-				bDangerous = true;
-				break;
+				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
+					continue;
+
+				int iDistanceToDanger = plotDistance(*pTestPlot, *(vBadPlots[j]));
+				if (iDistanceToDanger < 4)
+				{
+					bDangerous = true;
+					break;
+				}
 			}
 		}
 

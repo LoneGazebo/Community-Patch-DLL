@@ -3943,7 +3943,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						pTurnTarget = TacticalAIHelpers::FindSafestPlotInReach(pCivilian, true, false, true);
 
 					bSaveMoves = (pTurnTarget == pOperation->GetTargetPlot());
-					ExecuteMoveToPlot(pCivilian, pTurnTarget, bSaveMoves, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+					ExecuteMoveToPlot(pCivilian, pTurnTarget, bSaveMoves);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						strLogString.Format("%s now at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );

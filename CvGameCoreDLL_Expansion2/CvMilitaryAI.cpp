@@ -1784,24 +1784,13 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		}
 	}
 
-	//Now set our scratch value for all cities. We only want highest because we're just trying to figure out which of their cities is the weakest.
-	if(iBestPower > 0)
-	{
-		for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
-		{
-			pFriendlyCity->iScratch = iBestPower;
-		}
-	}
-
 	//Now check enemy cities
+	map<CvCity*, int> enemyCityScore;
 	for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 	{
-		//better be safe
-		pEnemyCity->iScratch = -1;
-
 		//need to have explored around the city
 		CvPlot* pPlot = pEnemyCity->plot();
-		if (!pPlot->isRevealed(m_pPlayer->getTeam()) || !pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
+		if (!pPlot->isRevealed(m_pPlayer->getTeam()) && !pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
 			continue;
 		
 		//cheating a little here - we're not checking visibility - but the result is just used as a rough estimate
@@ -1839,7 +1828,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		iPower *= (100 + 10 * iCitadelCount);
 		iPower /= 100;
 
-		pEnemyCity->iScratch = iPower;
+		enemyCityScore[pEnemyCity] = iPower;
 	}
 
 	// Build a list of all the possible start city/target city pairs
@@ -1862,41 +1851,38 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			iMinStrenghRatio = 200; //only if we're much stronger locally
 		}
 
-		for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+		for (map<CvCity*,int>::iterator it = enemyCityScore.begin(); it != enemyCityScore.end(); ++it)
 		{
-			if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->iScratch >= 0)
+			CvMilitaryTarget target;
+			target.m_pMusterCity = pFriendlyCity;
+			target.m_pTargetCity = it->first;
+			target.iStrengthRatioTimes100 = (iBestPower * 100) / (it->second + 1);
+
+			//border cities are often strongly guarded ...
+			if (target.iStrengthRatioTimes100 < iMinStrenghRatio)
+				continue;
+
+			//this is the important (and also costly) part
+			CheckApproachFromLandAndSea(target, eAIOperationType, iMaxTurns);
+			if(target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
+				continue;
+
+			if (bNavalOp && !target.m_bAttackBySea)
+				continue;
+
+			if (!bNavalOp && target.m_bNoLandPath)
+				continue;
+
+			//Add distance to center of mass of empire, so that we aren't setting up way, way away from the center.
+			int iDistance = 0;
+			if (m_pPlayer->GetCenterOfMassEmpire() != NULL)
 			{
-				CvMilitaryTarget target;
-				target.m_pMusterCity = pFriendlyCity;
-				target.m_pTargetCity = pEnemyCity;
-				target.iStrengthRatioTimes100 = (pFriendlyCity->iScratch * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
-
-				//border cities are often strongly guarded ...
-				if (target.iStrengthRatioTimes100 < iMinStrenghRatio)
-					continue;
-
-				//this is the important (and also costly) part
-				CheckApproachFromLandAndSea(target, eAIOperationType, iMaxTurns);
-				if(target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
-					continue;
-
-				if (bNavalOp && !target.m_bAttackBySea)
-					continue;
-
-				if (!bNavalOp && target.m_bNoLandPath)
-					continue;
-
-				//Add distance to center of mass of empire, so that we aren't setting up way, way away from the center.
-				int iDistance = 0;
-				if (m_pPlayer->GetCenterOfMassEmpire() != NULL)
-				{
-					iDistance = plotDistance(*target.m_pMusterCity->plot(), *m_pPlayer->GetCenterOfMassEmpire());
-				}
-
-				// Shorter paths are better, strength ratio also counts, when in doubt muster at central cities
-				int iWeight = 1000 + (target.iStrengthRatioTimes100 * 20) - target.m_iPathLength * 10 - iDistance;
-				prelimWeightedTargetList.push_back(target, iWeight);
+				iDistance = plotDistance(*target.m_pMusterCity->plot(), *m_pPlayer->GetCenterOfMassEmpire());
 			}
+
+			// Shorter paths are better, strength ratio also counts, when in doubt muster at central cities
+			int iWeight = 1000 + (target.iStrengthRatioTimes100 * 20) - target.m_iPathLength * 10 - iDistance;
+			prelimWeightedTargetList.push_back(target, iWeight);
 		}
 	}
 
@@ -2074,16 +2060,6 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		eAIOperationType == AI_OPERATION_NAVAL_INVASION_CITY_STATE)
 	{
 		eDomain = DOMAIN_SEA;
-	}
-
-	// Don't want target/muster to already be targeted by an idential operation
-	if (m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, eDomain, 0, -1, eAIOperationType))
-	{	
-		return 0;
-	}
-	if (m_pPlayer->IsMusterCityAlreadyTargeted(target.m_pMusterCity, eDomain, 0, -1, eAIOperationType))
-	{
-		return 0;
 	}
 
 	float fDistWeightInterpolated = 1;
