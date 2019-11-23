@@ -2414,7 +2414,7 @@ public:
 	int getSpiesGrantedForEveryone() const;
 	int getFaithCostMultiplier() const;
 	int getDiploEmphasisReligion() const;
-	int getDiplpEmphasisLatePolicies() const;
+	int getDiploEmphasisLatePolicies() const;
 	int getTradeRouteFoodBonusTimes100() const;
 	int getTradeRouteProductionBonusTimes100() const;
 	int getLeaguePercent() const;
@@ -2476,7 +2476,7 @@ protected:
 	int m_iSpiesGrantedForEveryone;
 	int m_iFaithCostMultiplier;
 	int m_iDiploEmphasisReligion;
-	int m_iDiplpEmphasisLatePolicies;
+	int m_iDiploEmphasisLatePolicies;
 	int m_iTradeRouteFoodBonusTimes100;
 	int m_iTradeRouteProductionBonusTimes100;
 	int m_iLeaguePercent;
