@@ -3138,7 +3138,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	}
 	if(GET_PLAYER(eOtherPlayer).isHuman())
 	{
-		if (!GetPlayer()->GetDiplomacyAI()->IsGoodChoiceForDefensivePact(eOtherPlayer))
+		if (!GetPlayer()->GetDiplomacyAI()->IsGoodChoiceForDefensivePact(eOtherPlayer, /*bIgnoreCurrentDP*/ false))
 			return INT_MAX;
 	}
 #endif

@@ -305,6 +305,8 @@ public:
 	int CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer, bool bOtherPlayerEstimate, bool bIgnoreDPs);
 	bool IsWarWouldBackstabFriend(PlayerTypes ePlayer);
 	bool IsWarWouldBackstabFriendTeamCheck(PlayerTypes ePlayer);
+	bool IsBackstabbingAcceptable(PlayerTypes ePlayer);
+	bool IsBackstabbingAcceptableTeamCheck(PlayerTypes ePlayer);
 
 	// War Damage Level: how much damage have we taken in a war against ePlayer? Looks at WarValueLost
 	WarDamageLevelTypes GetWarDamageLevel(PlayerTypes ePlayer) const;
@@ -398,7 +400,7 @@ public:
 	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
 
-	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
+	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer, bool bIgnoreCurrentDP);
 #endif
 	/////////////////////////////////////////////////////////
 	// Issues of Dispute
