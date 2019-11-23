@@ -1895,6 +1895,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					//the jig is up
 					if (nVisible>2)
 					{
+						LogOperationSpecialMessage("Discovered by enemy");
 						bInPlace = true;
 
 						CvPlot *pOtherTarget = NULL;

@@ -1772,10 +1772,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				}
 			}
 		}
+		//if we can recruit him, he will boost our power
 		if (bGeneralInTheVicinity)
 		{
-			iPower *= 12;
-			iPower /= 10;
+			iPower *= (100 + m_pPlayer->GetGreatGeneralCombatBonus());
+			iPower /= 100;
 		}
 		if(iPower > iBestPower)
 		{
@@ -1802,14 +1803,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		CvPlot* pPlot = pEnemyCity->plot();
 		if (!pPlot->isRevealed(m_pPlayer->getTeam()) || !pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
 			continue;
-
-		//If there aren't at least 8 non-occupied plots around this city, abort.
-		if(pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
-			continue;
 		
 		//cheating a little here - we're not checking visibility - but the result is just used as a rough estimate
 		int iPower = 0;
-		bool bGeneralInTheVicinity = false;
+		int iCitadelCount = 0;
+		ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 		for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
 		{
 			CvPlot* pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -1824,19 +1822,23 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 						{
 							iPower += pLoopUnit->GetPower();
 						}
-						if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral())
-						{
-							bGeneralInTheVicinity = true;
-						}
 					}
+				}
+
+				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == eCitadel)
+				{
+					if (pLoopPlot->getOwner() == eEnemy)
+						iCitadelCount++;
+					else if (pLoopPlot->getOwner() == m_pPlayer->GetID())
+						iCitadelCount--;
 				}
 			}
 		}
-		if (bGeneralInTheVicinity)
-		{
-			iPower *= 12;
-			iPower /= 10;
-		}
+
+		//their citadels increase their power, ours reduce it
+		iPower *= (100 + 10 * iCitadelCount);
+		iPower /= 100;
+
 		pEnemyCity->iScratch = iPower;
 	}
 
@@ -1846,7 +1848,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	{
 		//If there aren't at least 8 non-occupied plots around this city, abort.
 		CvPlot* pPlot = pFriendlyCity->plot();
-		if (pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
+		if (TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->GetID(), pPlot, 3)<8)
 			continue;
 
 		int iMaxTurns = 29; //going further out really makes little sense
@@ -1869,7 +1871,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				target.m_pTargetCity = pEnemyCity;
 				target.iStrengthRatioTimes100 = (pFriendlyCity->iScratch * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
 
-				//border cities are often strongly guarded ... can't be too timid here
+				//border cities are often strongly guarded ...
 				if (target.iStrengthRatioTimes100 < iMinStrenghRatio)
 					continue;
 
@@ -4532,7 +4534,8 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 /// Abort or start operations as appropriate given the current threats and war states
 void CvMilitaryAI::UpdateOperations()
 {
-	if(m_pPlayer->isBarbarian())
+	//only major players set up operations
+	if(!m_pPlayer->isMajorCiv())
 		return;
 
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
