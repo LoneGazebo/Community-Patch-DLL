@@ -8882,7 +8882,6 @@ void CvDiplomacyAI::ChangeWantPeaceCounter(PlayerTypes ePlayer, int iChange)
 /// Handles declarations of War for this AI
 void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 {
-	CvAIOperation* pOperation;
 	bool bWantToAttack = false;
 	bool bDeclareWar = false;
 
@@ -8911,8 +8910,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
 		}
-		
-		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
 	}
 	// Major Civ
 	else
@@ -8949,28 +8946,30 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			}
 		}
 #endif
-		pOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
 	}
 
 	// Not yet readying an attack
-	if(pOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
+	CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
+	if (pCurrentSneakAttackOperation == NULL && !IsArmyInPlaceForAttack(eTargetPlayer))
 	{
-		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
+		if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 		{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 #else
-			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
+			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
 #endif
 			{
 				// Want to declare war on someone
-				if(bWantToAttack)
+				if (bWantToAttack)
 				{
 					SetWarGoal(eTargetPlayer, WAR_GOAL_PREPARE);
 
 					// Attack on minor
-					if(GET_PLAYER(eTargetPlayer).isMinorCiv())
+					if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+					{
 						GetPlayer()->GetMilitaryAI()->RequestCityStateAttack(eTargetPlayer);
+					}
 					// Attack on major
 					else
 					{
@@ -8984,7 +8983,9 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 					SetWantsSneakAttack(eTargetPlayer, false);
 
 					if (!m_pPlayer->IsAtWar() && GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_BULLY)
+					{
 						GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
+					}
 				}
 			}
 		}
@@ -8993,17 +8994,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	else
 	{
 		// Our Approach with this player calls for war
-		if(bWantToAttack)
+		if (bWantToAttack)
 		{
-			if(!IsAtWar(eTargetPlayer))
+			if (!IsAtWar(eTargetPlayer))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
+				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetPlayer()->GetID()))
 #else
-				if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
+				if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam()))
 #endif
 				{
-					if(IsArmyInPlaceForAttack(eTargetPlayer) || (pOperation != NULL && pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
+					if (IsArmyInPlaceForAttack(eTargetPlayer) || (pCurrentSneakAttackOperation != NULL && pCurrentSneakAttackOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH))
 					{
 						bDeclareWar = true;
 						SetArmyInPlaceForAttack(eTargetPlayer, false);
@@ -9016,17 +9017,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		// We were planning an attack, but changed our minds so abort
 		else
 		{
-			if(pOperation != NULL)
+			if (pCurrentSneakAttackOperation != NULL)
 			{
 				SetWantsSneakAttack(eTargetPlayer, false);
-				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
+				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_CANCELLED);
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 				SetArmyInPlaceForAttack(eTargetPlayer, false);
 			}
 		}
 
 		// If our Sneak Attack is read then actually initiate the DoW
-		if(bDeclareWar)
+		if (bDeclareWar)
 		{
 			DeclareWar(eTargetPlayer);
 			SetWantsSneakAttack(eTargetPlayer, false);

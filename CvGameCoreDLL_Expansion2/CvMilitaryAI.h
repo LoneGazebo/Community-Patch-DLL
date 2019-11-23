@@ -256,7 +256,7 @@ public:
 	bool HaveValidAttackTarget(PlayerTypes eEnemy);
 	bool IsCurrentAttackTarget(CvCity* pCity);
 	void ClearCachedTargets();
-	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL, bool bCheckWar = false);
+	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 
 	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity, int iMaxTurnsAway);

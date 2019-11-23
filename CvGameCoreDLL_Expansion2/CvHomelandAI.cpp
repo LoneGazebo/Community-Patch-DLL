@@ -3287,7 +3287,11 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		//if the scout is already embarked, we need to allow it so we don't get stuck!
-		ReachablePlots eligiblePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), iMoveFlags);
+		int iMoveFlagsLocal = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+		if (!pUnit->isEmbarked())
+			iMoveFlagsLocal |= CvUnit::MOVEFLAG_NO_EMBARK;
+
+		ReachablePlots eligiblePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), iMoveFlagsLocal);
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -3420,6 +3424,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			//verify that we don't move into danger ...
 			if (pBestPlot)
 			{
+				//this must be the same moveflags as above so we can reuse the path next turn
 				if (pUnit->GeneratePath(pBestPlot, iMoveFlags, INT_MAX, NULL, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
@@ -3445,6 +3450,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				LogHomelandMessage(strLogString);
 			}
 
+			//again same flags
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags,	false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			if (pUnit->canMove() && pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pUnit->plot()))
