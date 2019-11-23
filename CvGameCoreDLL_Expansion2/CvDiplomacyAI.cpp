@@ -5048,11 +5048,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		
+		/*
 		if (!IsMajorCompetitor(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
 		}
+		*/
 		if (IsDoFAccepted(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
@@ -13929,11 +13931,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					iEnemyWeight += 5;
 					iDoFWeight -= 10;
 				}
+				/*
 				else
 				{
 					iEnemyWeight -= 10;
 					iDoFWeight += 5;
 				}
+				*/
 			}
 
 			////////////////////////////////////
