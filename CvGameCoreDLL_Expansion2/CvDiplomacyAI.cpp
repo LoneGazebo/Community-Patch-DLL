@@ -12292,6 +12292,10 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	// No DPs if we're hostile or want war
 	if (GetMajorCivApproach(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 		return false;
+	
+	// No DPs if they're untrustworthy
+	if (IsUntrustworthyFriend(ePlayer) || GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_WAR || GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+		return false;
 
 	int iValue = 0;
 
@@ -13901,16 +13905,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (IsUntrustworthyFriend(ePlayer))
 			{
 				iEnemyWeight += 25;
-				iDPWeight += -25;
-				iDoFWeight += -25;
-				
-				// Extra penalties if they betrayed us personally!
-				if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer))
-				{
-					iEnemyWeight += 10;
-					iDPWeight += -25;
-					iDoFWeight += -25;
-				}
+				iDPWeight += -50;
+				iDoFWeight += -50;
 			}
 			
 			// Focus our aggression on major competitors.
@@ -31962,7 +31958,15 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Haven't known this guy for long enough
-	if(IsTooEarlyForDoF(ePlayer))
+	if (IsTooEarlyForDoF(ePlayer))
+		return false;
+	
+	// Untrustworthy friend
+	if (IsUntrustworthyFriend(ePlayer))
+		return false;
+	
+	// Hostile towards us
+	if (GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_WAR || GetTrueApproachTowardsUsGuess(ePlayer) == MAJOR_CIV_APPROACH_HOSTILE)
 		return false;
 
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
