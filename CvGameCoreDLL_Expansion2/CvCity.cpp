@@ -7618,6 +7618,60 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 
 	return iCounter/10;
 }
+
+int CvCity::GetExposureScore(PlayerTypes eAttacker) const
+{
+	if (eAttacker == NO_PLAYER)
+		return 0;
+	TeamTypes eAttackerTeam = GET_PLAYER(eAttacker).getTeam();
+
+	//need to have explored around the city
+	if (!plot()->isRevealed(eAttackerTeam) || !plot()->isAdjacentRevealed(eAttackerTeam))
+		return 0;
+		
+	int iTotalPlots = 0;
+	int iDefenderOwnedPlots = 0;
+	int iAttackerOwnedPlots = 0;
+	int iCitadelCount = 0;
+	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+	for (int iI=RING0_PLOTS; iI<RING5_PLOTS; iI++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(plot(), iI);
+		if (!pLoopPlot || !pLoopPlot->isRevealed(eAttackerTeam))
+			continue;
+
+		iTotalPlots++;
+		if (!pLoopPlot->isOwned() || !pLoopPlot->isImpassable(eAttackerTeam))
+			continue;
+
+		CvTeam& plotTeam = GET_TEAM(pLoopPlot->getTeam());
+
+		if (plotTeam.GetID() == getTeam())
+			iDefenderOwnedPlots++;
+		else if (plotTeam.IsHasDefensivePact(getTeam()))
+			iDefenderOwnedPlots++;
+		else if (plotTeam.IsVassal(getTeam()))
+			iDefenderOwnedPlots++;
+		else if (plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(getOwner()))
+			iDefenderOwnedPlots++;
+		else if (plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(eAttacker))
+			iAttackerOwnedPlots++;
+		else if (plotTeam.GetID() == eAttackerTeam)
+			iAttackerOwnedPlots++;
+
+		//for the inner plots citadels can be important
+		if (iI<RING3_PLOTS && pLoopPlot->getRevealedImprovementType(eAttackerTeam) == eCitadel && !pLoopPlot->IsImprovementPillaged())
+		{
+			if (pLoopPlot->getOwner() == getOwner())
+				iCitadelCount--;
+			else if (pLoopPlot->getOwner() == eAttacker)
+				iCitadelCount++;
+		}
+	}
+
+	//higher than 100 is good for attack, lower than 100 is good for defender
+	return 100 - (iDefenderOwnedPlots*100)/iTotalPlots + (iAttackerOwnedPlots*100)/iTotalPlots + iCitadelCount*2;
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE_SPIES)

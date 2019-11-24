@@ -1050,6 +1050,7 @@ public:
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
+	int GetExposureScore(PlayerTypes eAttacker) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);

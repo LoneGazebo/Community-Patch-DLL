@@ -1726,6 +1726,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 /// Best target by land OR sea
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
+	vector<OptionWithScore<CvMilitaryTarget>> targets;
+	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
 	int iFriendlyLoop;
 	int iEnemyLoop;
 
@@ -1738,94 +1740,63 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		bNavalOp = true;
 	}
 
-	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> weightedTargetList;
-	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
+	int iMaxTurns = 29; //going further out really makes little sense
+	int iMinExposureScore = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
 
-	//Now check enemy cities
-	map<CvCity*, int> enemyCityScore;
-	for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+	// sometimes we were forced into a war and don't even want to attack the enemy
+	// in that case apply a higher standard
+	if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eEnemy))
 	{
-		//need to have explored around the city
-		CvPlot* pPlot = pEnemyCity->plot();
-		if (!pPlot->isRevealed(m_pPlayer->getTeam()) && !pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
-			continue;
-		
-		int iTotalPlots = 0;
-		int iEnemyOwnedPlots = 0;
-		int iFriendlyOwnedPlots = 0;
-		int iCitadelCount = 0;
-		ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-		for (int iI=RING0_PLOTS; iI<RING5_PLOTS; iI++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pEnemyCity->plot(), iI);
-			if (!pLoopPlot)
-				continue;
-
-			iTotalPlots++;
-			if (!pLoopPlot->isOwned() || !pLoopPlot->isImpassable(m_pPlayer->getTeam()))
-				continue;
-
-			CvTeam& plotTeam = GET_TEAM(pLoopPlot->getTeam());
-
-			if (plotTeam.GetID() == kEnemy.getTeam())
-				iEnemyOwnedPlots++;
-			else if (plotTeam.IsHasDefensivePact(kEnemy.getTeam()))
-				iEnemyOwnedPlots++;
-			else if (plotTeam.IsVassal(kEnemy.getTeam()))
-				iEnemyOwnedPlots++;
-			else if (plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(eEnemy))
-				iEnemyOwnedPlots++;
-			else if (plotTeam.GetID() == m_pPlayer->getTeam())
-				iFriendlyOwnedPlots++;
-
-			//for the inner plots citadels can be important
-			if (iI<RING3_PLOTS && pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == eCitadel)
-			{
-				if (pLoopPlot->getOwner() == eEnemy)
-					iCitadelCount--;
-				else if (pLoopPlot->getOwner() == m_pPlayer->GetID())
-					iCitadelCount++;
-			}
-		}
-
-		//higher than 100 is good, lower is bad
-		enemyCityScore[pEnemyCity] =  100 - (iEnemyOwnedPlots*100)/iTotalPlots + (iFriendlyOwnedPlots*100)/iTotalPlots + iCitadelCount*2;
+		iMaxTurns = 8; //only very close cities
+		iMinExposureScore = 120; //only if the enemy city is isolated
 	}
 
-	// Build a list of all the possible start city/target city pairs
-	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> prelimWeightedTargetList;
-	for(CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
+	// check for enticing enemy cities
+	vector<OptionWithScore<CvCity*>> mostExposedEnemyCities;
+	for (CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 	{
-		//If there aren't at least 8 non-occupied plots around this city, abort.
-		CvPlot* pPlot = pFriendlyCity->plot();
-		if (TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->GetID(), pPlot, 3)<8)
+		//higher than 100 is good, lower is bad
+		int iExposureScore = pEnemyCity->GetExposureScore(m_pPlayer->GetID());
+
+		//don't take unnecessary risks
+		if (iExposureScore < iMinExposureScore)
 			continue;
 
-		int iMaxTurns = 29; //going further out really makes little sense
-		int iMinExposureScore = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
+		mostExposedEnemyCities.push_back( OptionWithScore<CvCity*>(pEnemyCity,iExposureScore) );
+	}
 
-		// sometimes we were forced into a war and don't even want to attack the enemy
-		// in that case apply a higher standard
-		if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(kEnemy.GetID()))
+	//look at the top 5 possible targets only
+	std::sort(mostExposedEnemyCities.begin(), mostExposedEnemyCities.end());
+	for (size_t i = 0; i < min(5u, mostExposedEnemyCities.size()); i++)
+	{
+		CvCity* pEnemyCity = mostExposedEnemyCities[i].option;
+
+		//find possible muster cities
+		vector<OptionWithScore<CvCity*>> closestOwnedCities;
+		for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 		{
-			iMaxTurns = 8; //only very close cities
-			iMinExposureScore = 120; //only if the enemy city is isolated
+			if (TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->GetID(), pFriendlyCity->plot(), 3)<8)
+				continue;
+
+			//plot distance may be misleading but it's fast
+			//use negative distance because we sort descending later
+			int iDistance = plotDistance( *pEnemyCity->plot(), *pFriendlyCity->plot() );
+			closestOwnedCities.push_back( OptionWithScore<CvCity*>(pFriendlyCity,-iDistance) );
 		}
 
-		for (map<CvCity*,int>::iterator it = enemyCityScore.begin(); it != enemyCityScore.end(); ++it)
+		std::sort(closestOwnedCities.begin(), closestOwnedCities.end());
+		for (size_t j = 0; j < min(5u, closestOwnedCities.size()); j++)
 		{
+			CvCity* pFriendlyCity = closestOwnedCities[j].option;
+
 			CvMilitaryTarget target;
 			target.m_pMusterCity = pFriendlyCity;
-			target.m_pTargetCity = it->first;
-			target.m_iExposureScore = it->second;
-
-			//border cities are often strongly guarded ...
-			if (target.m_iExposureScore < iMinExposureScore)
-				continue;
+			target.m_pTargetCity = pEnemyCity;
+			target.m_iExposureScore = mostExposedEnemyCities[i].score;
 
 			//this is the important (and also costly) part
 			CheckApproachFromLandAndSea(target, eAIOperationType, iMaxTurns);
-			if(target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
+			if (target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
 				continue;
 
 			if (bNavalOp && !target.m_bAttackBySea)
@@ -1834,55 +1805,25 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			if (!bNavalOp && target.m_bNoLandPath)
 				continue;
 
-			//Add distance to center of mass of empire, so that we aren't setting up way, way away from the center.
-			int iDistance = 0;
-			if (m_pPlayer->GetCenterOfMassEmpire() != NULL)
-			{
-				iDistance = plotDistance(*target.m_pMusterCity->plot(), *m_pPlayer->GetCenterOfMassEmpire());
-			}
-
-			// Shorter paths are better, strength ratio also counts, when in doubt muster at central cities
-			int iWeight = 1000 + (target.m_iExposureScore * 20) - target.m_iPathLength * 10 - iDistance;
-			prelimWeightedTargetList.push_back(target, iWeight);
+			int iWeight = ScoreTarget(target, eAIOperationType);
+			if (iWeight > 0)
+				targets.push_back(OptionWithScore<CvMilitaryTarget>(target, iWeight));
 		}
 	}
 
-	// Let's score the 5 shortest paths ... 
-	// anything more than that means there are too many interior cities from one (or both) sides being considered
-	prelimWeightedTargetList.StableSortItems();
-	weightedTargetList.clear();
-	int iTargetsConsidered = 0;
-	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 5; iI++)
-	{
-		CvMilitaryTarget target = prelimWeightedTargetList.GetElement(iI);
-
-		int iWeight = ScoreTarget(target, eAIOperationType);
-		if (iWeight > 0)
-		{
-			weightedTargetList.push_back(target, iWeight);
-			iTargetsConsidered++;
-		}
-	}
-
-	// Didn't find anything, abort
-	if(weightedTargetList.size() == 0)
+	// didn't find anything, abort
+	if(targets.empty())
 	{
 		if (piWinningScore)
-		{
 			*piWinningScore = -1;
-		}
 		return CvMilitaryTarget();
 	}
 
-	weightedTargetList.StableSortItems();
-	//LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
-
 	//just take the best one
-	CvMilitaryTarget chosenTarget = weightedTargetList.GetElement(0);
+	std::sort(targets.begin(), targets.end());
 	if (piWinningScore)
-		*piWinningScore = weightedTargetList.GetWeight(0);
-
-	return chosenTarget;
+		*piWinningScore = targets.front().score;
+	return targets.front().option;
 }
 
 /// Is it better to attack this target by sea?
