@@ -9795,6 +9795,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
 			
+			pDiploAI->ChangeNumCitiesLiberated(eMyPlayer, 1);
+			
 			pDiploAI->SetApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
 			pDiploAI->SetApproachTowardsUsGuessCounter(eMePlayer, 0);
 			GetDiplomacyAI()->SetApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
