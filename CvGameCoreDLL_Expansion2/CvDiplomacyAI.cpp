@@ -2845,8 +2845,15 @@ void CvDiplomacyAI::DoCounters()
 				}
 
 				// Did this player make a demand of us?
-				if(GetDemandCounter(eLoopPlayer) > -1)
+				if (GetDemandCounter(eLoopPlayer) > -1)
+				{
 					ChangeDemandCounter(eLoopPlayer, 1);
+					
+					if (GetDemandCounter(eLoopPlayer) >= GetDemandTooSoonNumTurns(eLoopPlayer))
+					{
+						SetDemandCounter(eLoopPlayer, -1);
+					}
+				}
 
 				// DoF?
 				if(GetDoFCounter(eLoopPlayer) > -1)
@@ -31387,12 +31394,14 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	SetNumDemandEverMade(ePlayer, 1);
-	
+	if (eDemand != DEMAND_RESPONSE_REFUSE_TOO_SOON && GetDemandCounter(ePlayer) == -1)
+	{
+		SetNumDemandEverMade(ePlayer, 1);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (IsVassal(ePlayer))
-		ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
+		if (IsVassal(ePlayer))
+			ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
 #endif
+	}
 
 	// Assume the human is HOSTILE only if we don't already think they want war OR if we gave them what they wanted
 	if (eDemand == DEMAND_RESPONSE_ACCEPT)
@@ -35503,9 +35512,6 @@ int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNumDemandEverMade(ePlayer) > 0)
 		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() * GetNumDemandEverMade(ePlayer);
-	
-	if (iOpinionWeight > 40)
-		iOpinionWeight = 40;
 	
 	return iOpinionWeight;
 }
