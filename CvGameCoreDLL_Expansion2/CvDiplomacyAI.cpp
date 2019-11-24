@@ -9022,6 +9022,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			if (pCurrentSneakAttackOperation != NULL)
 			{
 				SetWantsSneakAttack(eTargetPlayer, false);
+				pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
 				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_CANCELLED);
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 				SetArmyInPlaceForAttack(eTargetPlayer, false);

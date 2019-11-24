@@ -1472,81 +1472,59 @@ void CvAIOperation::LogOperationEnd() const
 			strTemp += "Success";
 			break;
 		case AI_ABORT_NO_TARGET:
-			strTemp += "No target";
+			strTemp += "NoTarget";
 			break;
 		case AI_ABORT_CANCELLED:
 			strTemp += "Cancelled";
 			break;
 		case AI_ABORT_LOST_TARGET:
-			strTemp += "Lost target";
+			strTemp += "LostTarget";
 			break;
 		case AI_ABORT_TARGET_ALREADY_CAPTURED:
-			strTemp += "Target already captured";
+			strTemp += "TargetAlreadyCaptured";
 			break;
 		case AI_ABORT_NO_ROOM_DEPLOY:
-			strTemp += "No room to deploy";
+			strTemp += "NoRoomToDeploy";
 			break;
 		case AI_ABORT_HALF_STRENGTH:
-			strTemp += "Half strength";
+			strTemp += "HalfStrength";
 			break;
 		case AI_ABORT_NO_MUSTER:
-			strTemp += "No muster point";
+			strTemp += "NoMusterPoint";
 			break;
 		case AI_ABORT_LOST_CIVILIAN:
-			strTemp += "Lost civilian";
+			strTemp += "LostCivilian";
 			break;
 		case AI_ABORT_ESCORT_DIED:
-			strTemp += "Escort died";
+			strTemp += "EscortDied";
 			break;
 		case AI_ABORT_TOO_DANGEROUS:
-			strTemp += "Too dangerous";
+			strTemp += "TooDangerous";
 			break;
 		case AI_ABORT_KILLED:
 			strTemp += "Killed";
 			break;
 		case AI_ABORT_WAR_STATE_CHANGE:
-			strTemp += "War State Change";
+			strTemp += "WarStateChange";
 			break;
 		case AI_ABORT_DIPLO_OPINION_CHANGE:
-			strTemp += "Diplo Opinion Change";
+			strTemp += "DiploOpinionChange";
 			break;
 		case AI_ABORT_LOST_PATH:
-			strTemp += "Lost Path to Target";
+			strTemp += "NoTarget";
 			break;
 		case AI_ABORT_TIMED_OUT:
-			strTemp += "Timed Out";
+			strTemp += "TimedOut";
 			break;
 		case AI_ABORT_NO_UNITS:
-			strTemp += "No Units";
+			strTemp += "NoUnits";
 			break;
 		default:
-			strTemp += "Unknown reason";
+			strTemp += "UnknownReason";
 		}
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
-		// Message to summary log?
-		switch (GetOperationType())
-		{
-		case AI_OPERATION_CITY_BASIC_ATTACK:
-		case AI_OPERATION_PILLAGE_ENEMY:
-		case AI_OPERATION_CITY_SNEAK_ATTACK:
-		case AI_OPERATION_NAVAL_BOMBARDMENT:
-		case AI_OPERATION_NAVAL_SUPERIORITY:
-		case AI_OPERATION_NAVAL_INVASION:
-		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
-		case AI_OPERATION_CITY_STATE_ATTACK:
-		case AI_OPERATION_NAVAL_INVASION_CITY_STATE:
-		case AI_OPERATION_NUKE_ATTACK:
-		case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
-		case AI_OPERATION_DIPLOMAT_DELEGATION:
-		case AI_OPERATION_ALLY_DEFENSE:
-
-			strOutBuf = CvString( GetOperationName() ) + ", ";
-			strOutBuf += strTemp;
-			LogOperationSpecialMessage(strOutBuf);
-		}
 	}
 }
 

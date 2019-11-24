@@ -1782,14 +1782,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			if (iI<RING3_PLOTS && pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == eCitadel)
 			{
 				if (pLoopPlot->getOwner() == eEnemy)
-					iCitadelCount++;
-				else if (pLoopPlot->getOwner() == m_pPlayer->GetID())
 					iCitadelCount--;
+				else if (pLoopPlot->getOwner() == m_pPlayer->GetID())
+					iCitadelCount++;
 			}
 		}
 
 		//higher than 100 is good, lower is bad
-		enemyCityScore[pEnemyCity] =  100 - (iEnemyOwnedPlots*100)/iTotalPlots + (iFriendlyOwnedPlots*100)/iTotalPlots;
+		enemyCityScore[pEnemyCity] =  100 - (iEnemyOwnedPlots*100)/iTotalPlots + (iFriendlyOwnedPlots*100)/iTotalPlots + iCitadelCount*2;
 	}
 
 	// Build a list of all the possible start city/target city pairs
