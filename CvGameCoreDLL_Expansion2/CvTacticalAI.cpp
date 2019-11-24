@@ -9253,82 +9253,88 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
  		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			return result;
 
-		//check all plots we could possibly attack from here
-		std::vector<int> vDamageRatios;
-		std::vector<CvPlot*> vAttackPlots;
+		CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pAssumedUnitPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
 
 		//different contributions
 		int iDamageScore = 0;
 		int iDangerScore = 0;
 		int iMiscScore = 0;
 
-		//works for both melee and ranged
-		int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
-		//ranged attacks are cross-domain
-		CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pAssumedUnitPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
-		for (int iRange = 1; iRange < iMaxRange + 1; iRange++)
+		//check how much damage we can do to the enemies around this plot
+		//but don't hand out points for moving into position if we're already in that position
+		if (plot.iPlotIndex != unit.iPlotIndex)
 		{
-			//performance optimization
-			if (iRange == 1 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE)
-				continue;
-			if (iRange == 2 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_SECONDLINE)
-				continue;
+			//check all plots we could possibly attack from here
+			std::vector<int> vDamageRatios;
+			std::vector<CvPlot*> vAttackPlots;
 
-			vAttackPlots = GC.getMap().GetPlotsAtRange(pTestPlot, iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
-			for (size_t iCount = 0; iCount < vAttackPlots.size(); iCount++)
+			//works for both melee and ranged
+			int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
+			//ranged attacks are cross-domain
+			for (int iRange = 1; iRange < iMaxRange + 1; iRange++)
 			{
-				CvPlot* pLoopPlot = vAttackPlots[iCount];
-				if (!pLoopPlot)
+				//performance optimization
+				if (iRange == 1 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE)
+					continue;
+				if (iRange == 2 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_SECONDLINE)
 					continue;
 
-				const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
-				if (enemyPlot.isValid() && enemyPlot.isEnemy())
+				vAttackPlots = GC.getMap().GetPlotsAtRange(pTestPlot, iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
+				for (size_t iCount = 0; iCount < vAttackPlots.size(); iCount++)
 				{
-					//don't attack cities if the real target is something else
-					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot)
+					CvPlot* pLoopPlot = vAttackPlots[iCount];
+					if (!pLoopPlot)
 						continue;
 
-					//we don't care for damage here but let's reuse the scoring function
-					STacticalAssignment temp;
-					ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), temp);
-
-					if (temp.iScore > 0)
+					const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
+					if (enemyPlot.isValid() && enemyPlot.isEnemy())
 					{
-						//don't break formation if there are many enemies around
-						if (temp.eAssignmentType == A_MELEEKILL && enemyPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3)
+						//don't attack cities if the real target is something else
+						if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot)
 							continue;
 
-						vDamageRatios.push_back(temp.iScore);
+						//we don't care for damage here but let's reuse the scoring function
+						STacticalAssignment temp;
+						ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), temp);
+
+						if (temp.iScore > 0)
+						{
+							//don't break formation if there are many enemies around
+							if (temp.eAssignmentType == A_MELEEKILL && enemyPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3)
+								continue;
+
+							vDamageRatios.push_back(temp.iScore);
+						}
+						else if (assumedUnitPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), unit.iPlotIndex) > 0)
+							//for melee units the attack might be cancelled because of bad damage ratio. 
+							//nevertheless we need to cover our ranged units. so add a token amount.
+							vDamageRatios.push_back(4); //4 so that something remains after the /4 below
 					}
-					else if ( assumedUnitPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),unit.iPlotIndex)>0 )
-						//for melee units the attack might be cancelled because of bad damage ratio. 
-						//nevertheless we need to cover our ranged units. so add a token amount.
-						vDamageRatios.push_back(4); //4 so that something remains after the /4 below
 				}
 			}
-		}
 
-		if (gTacticalCombatDebugOutput>1)
-		{
-			OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
-				assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), plot.iPlotIndex).c_str());
-		}
-
-		//how often can we attack this turn (depending on moves left on the plot)
-		if (!vDamageRatios.empty())
-		{
-			int iMaxAttacks = min(unit.iAttacksLeft,(plot.iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR());
-			if (iMaxAttacks > 0)
+			if (gTacticalCombatDebugOutput > 1)
 			{
-				//the best target comes last
-				std::sort(vDamageRatios.begin(), vDamageRatios.end());
-				//for simplicity assume we will get the same score for multiple attacks
-				//discount the score because the attack is still hypothetical
-				//also we want the real attacks to have higher scores than movement to guarantee they are picked!
-				iDamageScore += (iMaxAttacks * vDamageRatios.back()) / 2;
+				OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
+					assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), plot.iPlotIndex).c_str());
 			}
-			else
-				iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
+
+			//how often can we attack this turn (depending on moves left on the plot)
+			if (!vDamageRatios.empty())
+			{
+				int iMaxAttacks = min(unit.iAttacksLeft, (plot.iMovesLeft + GC.getMOVE_DENOMINATOR() - 1) / GC.getMOVE_DENOMINATOR());
+				if (iMaxAttacks > 0)
+				{
+					//the best target comes last
+					std::sort(vDamageRatios.begin(), vDamageRatios.end());
+					//for simplicity assume we will get the same score for multiple attacks
+					//discount the score because the attack is still hypothetical
+					//also we want the real attacks to have higher scores than movement to guarantee they are picked!
+					iDamageScore += (iMaxAttacks * vDamageRatios.back()) / 2;
+				}
+				else
+					iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
+			}
 		}
 
 		//lookup desirability by unit strategy / plot type
