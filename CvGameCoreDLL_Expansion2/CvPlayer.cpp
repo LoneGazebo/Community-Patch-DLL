@@ -9795,12 +9795,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
 			
-			pDiploAI->ChangeNumCitiesLiberated(eMyPlayer, 1);
-			
-			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
-			GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-			GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
+			pDiploAI->SetApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			pDiploAI->SetApproachTowardsUsGuessCounter(eMePlayer, 0);
+			GetDiplomacyAI()->SetApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(ePlayer, 0);
 			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
