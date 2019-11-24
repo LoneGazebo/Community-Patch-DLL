@@ -31394,13 +31394,27 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if (eDemand != DEMAND_RESPONSE_REFUSE_TOO_SOON && GetDemandCounter(ePlayer) == -1)
+	if (eDemand != DEMAND_RESPONSE_REFUSE_TOO_SOON)
 	{
-		SetNumDemandEverMade(ePlayer, 1);
+		if (GetNumDemandEverMade(ePlayer) > 2)
+		{
+			if (eDemand == DEMAND_RESPONSE_ACCEPT)
+			{
+				SetNumDemandEverMade(ePlayer, 1);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (IsVassal(ePlayer))
-			ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
+				if (IsVassal(ePlayer))
+					ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
 #endif
+			}
+		}
+		else
+		{
+			SetNumDemandEverMade(ePlayer, 1);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if (IsVassal(ePlayer))
+				ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
+#endif
+		}
 	}
 
 	// Assume the human is HOSTILE only if we don't already think they want war OR if we gave them what they wanted
