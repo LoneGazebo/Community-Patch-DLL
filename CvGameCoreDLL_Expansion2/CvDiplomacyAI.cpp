@@ -31387,18 +31387,12 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// Reset counter
-	SetDemandCounter(ePlayer, 0);
-	if (eDemand != DEMAND_RESPONSE_REFUSE_TOO_SOON)
-	{
-#if defined(MOD_BALANCE_CORE)
-		SetNumDemandEverMade(ePlayer, 1);
-#endif
+	SetNumDemandEverMade(ePlayer, 1);
+	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (IsVassal(ePlayer))
-			ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
+	if (IsVassal(ePlayer))
+		ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
 #endif
-	}
 
 	// Assume the human is HOSTILE only if we don't already think they want war OR if we gave them what they wanted
 	if (eDemand == DEMAND_RESPONSE_ACCEPT)
@@ -31414,6 +31408,9 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 	// If we accepted, see how long it'll be before we might agree to another demand
 	if (eDemand == DEMAND_RESPONSE_ACCEPT)
 	{
+		// Reset counter
+		SetDemandCounter(ePlayer, 0);
+		
 		int iNumTurns = /*20*/ GC.getDEMAND_TURN_LIMIT_MIN();
 		int iRand = GC.getGame().getSmallFakeRandNum(GC.getDEMAND_TURN_LIMIT_RAND(), ePlayer);
 		iNumTurns += iRand;
@@ -35506,6 +35503,10 @@ int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNumDemandEverMade(ePlayer) > 0)
 		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() * GetNumDemandEverMade(ePlayer);
+	
+	if (iOpinionWeight > 40)
+		iOpinionWeight = 40;
+	
 	return iOpinionWeight;
 }
 
