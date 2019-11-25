@@ -41,7 +41,7 @@
 	-- Per non-puppet city % modifier for unhappiness thresholds (i.e. # cities * value below = % modifier).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '8'
+	SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '7'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- Flat unhappiness per founded city.

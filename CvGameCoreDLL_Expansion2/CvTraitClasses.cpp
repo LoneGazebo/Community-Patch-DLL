@@ -280,6 +280,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiYieldFromTileStealCultureBomb(NULL),
 	m_ppiYieldFromTileSettle(NULL),
 	m_ppiYieldChangePerImprovementBuilt(NULL),
+	m_pbiYieldFromBarbarianCampClear(),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -349,6 +350,7 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileStealCultureBomb);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileSettle);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldChangePerImprovementBuilt);
+	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
 }
 
@@ -1498,6 +1500,25 @@ int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, Yi
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldChangePerImprovementBuilt ? m_ppiYieldChangePerImprovementBuilt[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraScaling) const
+{
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eIndex1);
+	if (itYield != m_pbiYieldFromBarbarianCampClear.end()) // find returns the iterator to map::end if the key eYield is not present in the map
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+
+		return 0;
+	}
+
+	return 0;
 }
 #endif
 
@@ -2776,6 +2797,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiYieldChangePerImprovementBuilt[ImprovementID][YieldID] = yield;
 		}
 	}
+	//Populate m_pbiYieldFromBarbarianCampClear
+	{
+		std::string strKey("Trait_YieldFromBarbarianCampClears");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Yield, IsEraScaling from Trait_YieldFromBarbarianCampClears inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iYieldType = pResults->GetInt(0);
+			const int iYield = pResults->GetInt(1);
+			const int bEraScaling = pResults->GetBool(2);
+
+			m_pbiYieldFromBarbarianCampClear[iYieldType][bEraScaling] = iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<bool, int>>(m_pbiYieldFromBarbarianCampClear).swap(m_pbiYieldFromBarbarianCampClear);
+	}
 	//Populate m_MovesChangeUnitClass
 	{
 		const int iNumUnitClasses = kUtility.MaxRows("UnitClasses");
@@ -3915,7 +3961,9 @@ void CvPlayerTraits::SetIsReligious()
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
 		GetExtraMissionaryStrength() > 0 ||
-		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0)
+		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0 ||
+		GetYieldFromBarbarianCampClear(YIELD_FAITH, true) > 0 ||
+		GetYieldFromBarbarianCampClear(YIELD_FAITH, false) > 0)
 	{
 		m_bIsReligious = true;
 		return;
@@ -4466,6 +4514,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
+				m_pbiYieldFromBarbarianCampClear[iYield][true] = trait->GetYieldFromBarbarianCampClear((YieldTypes)iYield, true);
+				m_pbiYieldFromBarbarianCampClear[iYield][false] = trait->GetYieldFromBarbarianCampClear((YieldTypes)iYield, false);
 				if (trait->GetGoldenAgeYieldModifier(iYield) != 0)
 				{
 					m_aiGoldenAgeYieldModifier.insert(std::pair<int, int>(iYield, trait->GetGoldenAgeYieldModifier(iYield)));
@@ -4723,6 +4773,7 @@ void CvPlayerTraits::Uninit()
 	m_ppiYieldFromTileStealCultureBomb.clear();
 	m_ppiYieldFromTileSettle.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
+	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
@@ -5002,6 +5053,7 @@ void CvPlayerTraits::Reset()
 	m_ppiYieldFromTileSettle.resize(GC.getNumTerrainInfos());
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
+	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChange.clear();
@@ -5464,6 +5516,24 @@ int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovem
 		return 0;
 	}
 	return m_ppaaiYieldChangePerImprovementBuilt[(int)eImprovement][(int)eYield];
+}
+int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldFromBarbarianCampClear()");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eYield);
+	if (itYield != m_pbiYieldFromBarbarianCampClear.end()) // find returns the iterator to map::end if the key eYield is not present in the map
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+
+		return 0;
+	}
+
+	return 0;
 }
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -7325,6 +7395,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiYieldFromTileStealCultureBomb;
 	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
+	kStream >> m_pbiYieldFromBarbarianCampClear;
 	kStream >> m_aiGoldenAgeYieldModifier;
 	kStream >> m_aibUnitCombatProductionCostModifier;
 	kStream >> m_iNonSpecialistFoodChange;
@@ -7772,6 +7843,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiYieldFromTileStealCultureBomb;
 	kStream << m_ppiYieldFromTileSettle;
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
+	kStream << m_pbiYieldFromBarbarianCampClear;
 	kStream << m_aiGoldenAgeYieldModifier;
 	kStream << m_aibUnitCombatProductionCostModifier;
 	kStream << m_iNonSpecialistFoodChange;

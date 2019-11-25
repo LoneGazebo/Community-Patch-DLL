@@ -1407,6 +1407,9 @@ public:
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
 
+	void ChangeDomainFreeExperience(DomainTypes eDomain, int iChange);
+	int GetDomainFreeExperience(DomainTypes) const;
+
 	void SetNullifyInfluenceModifier(bool bValue);
 	bool IsNullifyInfluenceModifier() const;
 #endif
@@ -2097,6 +2100,9 @@ public:
 	bool IsCannotFailSpies() const;
 	int GetCannotFailSpies() const;
 	void changeCannotFailSpies(int iChange);
+	
+	void changeMaxAirUnits(int iChange);
+	int getMaxAirUnits() const;
 
 	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
@@ -3213,6 +3219,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionWonder;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionBuilding;
 	FAutoVariable<int, CvPlayer> m_iCannotFailSpies;
+	FAutoVariable<int, CvPlayer> m_iMaxAirUnits;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	FAutoVariable<int, CvPlayer> m_iInvestmentModifier;
@@ -3510,6 +3517,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainDiversity;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, int> m_piDomainFreeExperience;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

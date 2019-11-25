@@ -634,7 +634,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		happinessChange = happinessChange + city:GetReligionBuildingClassHappiness(buildingClassID)
 	end
 
-	local tip, tipKey, items, item
+	local tip, tipKey, items, item, tipAlt
 	-- Name
 	local tips = table( BuildingColor( Locale_ToUpper( building.Description ) ) )
 -- CBP
@@ -731,6 +731,10 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		for row in GameInfo.Building_YieldChangesPerPop( thisBuildingAndYieldTypes ) do
 			yieldPerPop = yieldPerPop + (row.Yield or 0)
 		end
+		local yieldPerPopInEmpire = 0
+		for row in GameInfo.Building_YieldChangesPerPopInEmpire( thisBuildingAndYieldTypes ) do
+			yieldPerPopInEmpire = yieldPerPopInEmpire + (row.Yield or 0)
+		end
 		if yieldChange ~=0 then
 			tip = S("%s %+i%s", tip, yieldChange, tostring(yield.IconString) )
 		end
@@ -739,6 +743,9 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		end
 		if yieldPerPop ~= 0 then
 			tip = S("%s %+i%%[ICON_CITIZEN]%s", tip, yieldPerPop, tostring(yield.IconString) )
+		end
+		if yieldPerPopInEmpire ~= 0 then
+			tip = S("%s %+i%%[ICON_CITY_STATE][ICON_CITIZEN]%s", tip, yieldPerPopInEmpire, tostring(yield.IconString) )-- .. " " .. L("TXT_KEY_EUI_EMPIRE") .. " " .. "[ICON_CITIZEN]" .. tostring(yield.IconString)
 		end
 		if tips and tip~="" then
 			tips:insert( tostring(YieldNames[ yieldID ]) .. ":" .. tip )
@@ -1032,6 +1039,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	for resource in GameInfo.Resources() do
 		thisBuildingAndResourceTypes.ResourceType = resource.Type or -1
 		tip = GetYieldString( GameInfo.Building_ResourceYieldChanges( thisBuildingAndResourceTypes ) )
+		tipAlt = GetYieldString( GameInfo.Building_ResourceYieldChangesGlobal( thisBuildingAndResourceTypes ) )
 		for row in GameInfo.Building_ResourceCultureChanges( thisBuildingAndResourceTypes ) do
 			if (row.CultureChange or 0)~= 0 then
 				tip = tip .. S(" %+i[ICON_CULTURE]", row.CultureChange )
@@ -1046,6 +1054,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		end
 -- TODO GameInfo.Building_ResourceYieldModifiers( thisBuildingType ), ResourceType, YieldType, Yield
 		tips:insertIf( #tip > 0 and tostring(resource.IconString) .. " " .. L(resource.Description) .. ":" .. tip )
+		tips:insertIf( #tipAlt > 0 and L("TXT_KEY_EUI_GLOBAL") .. " " .. tostring(resource.IconString) .. " " .. L(resource.Description) .. ":" .. tipAlt )
 	end
 
 	-- Feature Yields enhanced by Building
@@ -1154,6 +1163,10 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	for row in GameInfo.Building_DomainFreeExperiences( thisBuildingType ) do
 		item = GameInfo.Domains[ row.DomainType ]
 		tips:insertIf( item and (row.Experience or 0)~=0 and L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ) )
+	end
+	for row in GameInfo.Building_DomainFreeExperiencesGlobal( thisBuildingType ) do
+		item = GameInfo.Domains[ row.DomainType ]
+		tips:insertIf( item and (row.Experience or 0)~=0 and L( "TXT_KEY_EUI_GLOBAL" ).." "..L(item.Description).." "..L( "TXT_KEY_EXPERIENCE_POPUP", row.Experience ))
 	end
 	for row in GameInfo.Building_UnitCombatFreeExperiences( thisBuildingType ) do
 		item = GameInfo.UnitCombatInfos[ row.UnitCombatType ]

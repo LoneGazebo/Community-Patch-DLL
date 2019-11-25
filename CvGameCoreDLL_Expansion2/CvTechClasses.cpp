@@ -1863,38 +1863,27 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	
 	// Adjust to the player's research modifier
 	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech)) - 100;
-	//iResearchCost = ((iResearchCost * 10000) / iResearchMod);
 
 	// Mod for City Count
-	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	iMod += m_pPlayer->GetTechCostXCitiesModifier();
+	int iCityCountMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
 
-	//Never less than 1%!
-	if (iMod <= 1)
-		iMod = 1;
+#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	iCityCountMod += m_pPlayer->GetTechCostXCitiesModifier();
 
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+		iCityCountMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);
 	}
 	else
 	{
-		iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+		iCityCountMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
 	}
 #else
-	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+	iMod *= m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
 #endif
-	iResearchCost = iResearchCost * (100 + iMod - iResearchMod);
 
-	// We're going to round up so that the user wont get confused when the research progress seems to be equal to the research cost, but it is not acutally done.
-	// This is because the 'real' calculations use the GameCore's fixed point math where things are multiplied by 100
-	if((iResearchCost % 100) != 0)
-		iResearchCost = (iResearchCost / 100) + 1;
-	else
-		iResearchCost = (iResearchCost / 100);
-
-	return iResearchCost;
+	//apply the modifiers
+	return iResearchCost + (iResearchCost/100) * (iCityCountMod - iResearchMod);
 }
 
 //	----------------------------------------------------------------------------
@@ -1903,12 +1892,11 @@ int CvPlayerTechs::GetResearchProgress(TechTypes eTech) const
 {
 	// Get the research progress for the team
 	int iResearchProgress = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eTech);
+
 	// Add in any overflow we have yet to accumulate into the research progress.
 	// Overflow is the leftover research from the previous research.  It is automatically rolled into the main progress value
 	// the next time research is 'updated'.
-	iResearchProgress += m_pPlayer->getOverflowResearch();
-
-	return iResearchProgress;
+	return iResearchProgress + m_pPlayer->getOverflowResearch();
 }
 
 /// Median value of a tech we can research (that's what's awarded for research agreements now)
@@ -2664,35 +2652,24 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 		return 0;
 	}
 
+	//to avoid overflow, we have to work a bit differently here
 	int iCost = pkTechInfo->GetResearchCost();
+	int iModifier = 0;
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
 	if(pkHandicapInfo)
-	{
-		iCost *= pkHandicapInfo->getResearchPercent();
-		iCost /= 100;
-	}
+		iModifier += (pkHandicapInfo->getResearchPercent() - 100);
 
-	//here
-
-	iCost *= GC.getMap().getWorldInfo().getResearchPercent();
-	iCost /= 100;
-
-	iCost *= GC.getGame().getGameSpeedInfo().getResearchPercent();
-	iCost /= 100;
-
-	iCost *= GC.getGame().getStartEraInfo().getResearchPercent();
-	iCost /= 100;
-
-	iCost *= std::max(0, ((GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)) + 100));
-	iCost /= 100;
+	iModifier += (GC.getMap().getWorldInfo().getResearchPercent() - 100);
+	iModifier += (GC.getGame().getGameSpeedInfo().getResearchPercent() - 100);
+	iModifier += (GC.getGame().getStartEraInfo().getResearchPercent() - 100);
+	iModifier += std::max(0, GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1));
 
 #if defined(MOD_CIV6_EUREKA)
-	iCost *= std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000);
-	iCost /= 100;
+	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
 #endif
 
-	return std::max(1, iCost);
+	return std::max(1, iCost + (iCost/100)*iModifier);
 }
 
 #if defined(MOD_CIV6_EUREKA)

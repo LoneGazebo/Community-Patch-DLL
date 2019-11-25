@@ -977,6 +977,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	//I cannot use the yield rate since it adds in set process yield, which is what I am trying to set...
 	int iBaseYield = GetCity()->getBaseYieldRate(YIELD_PRODUCTION) * 100;
 	iBaseYield += (GetCity()->GetYieldPerPopTimes100(YIELD_PRODUCTION) * GetCity()->getPopulation());
+#if defined(MOD_BALANCE_CORE)
+	iBaseYield += (GetCity()->GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(GetCity()->getOwner()).getTotalPopulation());
+#endif
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
 	iModifiedYield /= 10000;
 
@@ -4639,6 +4642,18 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		iFlatYield += iValue;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) > 0)
+	{
+		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
+		int iValue = (GET_PLAYER(pCity->getOwner()).getTotalPopulation() * pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * 100) / (100 * (iEra + 1));
+
+		if (iValue <= pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield))
+			iValue = pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield);
+
+		iFlatYield += iValue;
+	}
+#endif
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
 		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers();
@@ -4939,11 +4954,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldPerAlly(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * kPlayer.GetNumCSAllies());
+		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()));
 	}
 	if (pkBuildingInfo->GetYieldPerFriend(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * kPlayer.GetNumCSFriends());
+		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()));
 	}
 	if (pkBuildingInfo->GetYieldFromInternal(eYield) > 0)
 	{
@@ -5544,6 +5559,11 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		iConquestValue += (pkBuildingInfo->GetAirModifier() / 2);
 	}
 
+	if (pkBuildingInfo->GetAirModifierGlobal() > 0)
+	{
+		iConquestValue += pkBuildingInfo->GetAirModifierGlobal() * ((kPlayer.getNumCities()+1) * 10);
+	}
+
 	for (int ik = 0; ik < GC.getNumHurryInfos(); ik++)
 	{
 		if (pkBuildingInfo->GetHurryModifier((HurryTypes)ik) <= 0)
@@ -5639,6 +5659,8 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
 		iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 10);
+		if (pCity != NULL && pCity->GetCityCulture()->GetNumGreatWorkSlots() <= pkBuildingInfo->GetGreatWorkCount())
+			iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 10);
 	}
 	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
 	{

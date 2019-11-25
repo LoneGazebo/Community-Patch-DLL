@@ -476,16 +476,7 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	//first pass: count how many relevant cache entries we have
 	int iCount = 0;
 	for (CachedTargetsMap::iterator itE = m_cachedTargets.begin(); itE!=m_cachedTargets.end(); ++itE)
-	{
-		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp!=itE->second.end(); ++itOp)
-		{
-			if (GC.getGame().getGameTurn() - itOp->second.iTurnChosen < 25)
-			{
-				iCount++;
-			}
-		}
-	}
-
+		iCount += itE->second.size();
 	kStream << iCount;
 
 	//second pass: write them
@@ -493,18 +484,15 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	{
 		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp!=itE->second.end(); ++itOp)
 		{
-			if (GC.getGame().getGameTurn() - itOp->second.iTurnChosen < 25)
-			{
-				kStream << itE->first;
-				kStream << itOp->first;
-				kStream << itOp->second.iTargetCity;
-				kStream << itOp->second.iMusterCity;
-				kStream << itOp->second.bAttackBySea;
-				kStream << itOp->second.bOcean;
-				kStream << itOp->second.bNoLandPath;
-				kStream << itOp->second.iScore;
-				kStream << itOp->second.iTurnChosen;
-			}
+			kStream << itE->first;
+			kStream << itOp->first;
+			kStream << itOp->second.iTargetCity;
+			kStream << itOp->second.iMusterCity;
+			kStream << itOp->second.bAttackBySea;
+			kStream << itOp->second.bOcean;
+			kStream << itOp->second.bNoLandPath;
+			kStream << itOp->second.iScore;
+			kStream << itOp->second.iTurnChosen;
 		}
 	}	
 #endif
@@ -1071,10 +1059,10 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 
 		//don't try to build additional units, only do this if we have enough at hand
 		int iNumRequiredSlots, iLandReservesUsed;
-		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_NAVAL_SQUADRON, false, false, pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
+		int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_NAVAL_SQUADRON, false, m_pPlayer->CanCrossOcean(), pMusterCity->plot(), pTargetCity->plot(), &iNumRequiredSlots, &iLandReservesUsed);
 		if (iFilledSlots >= iNumRequiredSlots)
 		{
-			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity);
+			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_BULLY_CITY_STATE, eEnemy, -1, pTargetCity, pMusterCity, m_pPlayer->CanCrossOcean());
 			if (pOperation != NULL && !pOperation->ShouldAbort())
 			{
 				return true;
@@ -1373,19 +1361,23 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner(), iMaxTurnsAway);
 	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
-	if (m_pPlayer->CanCrossOcean())
+	//performance optimization
+	if (plotDistance(*pCity->plot(), *pOtherCity->plot()) < iMaxTurnsAway * 2)
 	{
-		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-		if (!!path && PathIsGood(path, eIntendedEnemy))
-			iDistance = path.iTotalTurns;
-	}
-	else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
-	{
-		//try without ocean
-		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
-		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-		if (!!path && PathIsGood(path, eIntendedEnemy))
-			iDistance = path.iTotalTurns;
+		if (m_pPlayer->CanCrossOcean())
+		{
+			SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+			if (!!path && PathIsGood(path, eIntendedEnemy))
+				iDistance = path.iTotalTurns;
+		}
+		else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
+		{
+			//try without ocean
+			data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
+			SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+			if (!!path && PathIsGood(path, eIntendedEnemy))
+				iDistance = path.iTotalTurns;
+		}
 	}
 
 	//update the cache
@@ -1429,9 +1421,13 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
 	int iDistance = -1;
-	SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
-	if (!!path && PathIsGood(path, eIntendedEnemy))
-		iDistance = path.iTotalTurns;
+	//performance optimization
+	if (plotDistance(*pCity->plot(), *pOtherCity->plot()) < iMaxTurnsAway * 2)
+	{
+		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+		if (!!path && PathIsGood(path, eIntendedEnemy))
+			iDistance = path.iTotalTurns;
+	}
 
 	//update the cache
 	m_cachedLandDistances[pCity][pOtherCity] = iDistance;
@@ -1511,17 +1507,14 @@ bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
 	return false;
 }
 
-bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType)
+bool CvMilitaryAI::HaveValidAttackTarget(PlayerTypes eEnemy)
 {
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE != m_cachedTargets.end())
 	{
-		CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.find(eAIOperationType);
-		if (itOp != itE->second.end())
+		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp != itE->second.end(); ++itOp)
 		{
-			// important - this must be a reference!
-			SCachedTarget& cachedTarget = itOp->second;
-
+			const SCachedTarget& cachedTarget = itOp->second;
 			CvCity* pCachedTargetCity = GetCityFromGlobalID(cachedTarget.iTargetCity);
 			CvCity* pCachedMusterCity = GetCityFromGlobalID(cachedTarget.iMusterCity);
 			if (pCachedTargetCity != NULL && pCachedMusterCity != NULL)
@@ -1533,7 +1526,7 @@ bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes e
 	return false;
 }
 
-CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore, bool bCheckWar)
+CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
 	int ciAgeLimit = 8; //don't switch targets too often but update our cached targets from time and time
 
@@ -1544,10 +1537,6 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 		return CvMilitaryTarget();
 	}
 
-	int iNewScore = 0;
-	CvMilitaryTarget newTarget;
-	bool bFoundInCache = false;
-
 	//todo: compare score across op types to see if this makes sense at all
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE != m_cachedTargets.end())
@@ -1555,80 +1544,27 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 		CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.find(eAIOperationType);
 		if (itOp != itE->second.end())
 		{
-			bFoundInCache = true;
-
 			// important - this must be a reference!
 			SCachedTarget& cachedTarget = itOp->second;
 
 			CvCity* pCachedTargetCity = GetCityFromGlobalID(cachedTarget.iTargetCity);
 			CvCity* pCachedMusterCity = GetCityFromGlobalID(cachedTarget.iMusterCity);
 
-			//check if the cached target is still good
-			if (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit)
-				cachedTarget.iScore = 0;
+			//check if we can still use it
+			bool bInvalidTarget = (pCachedTargetCity == NULL || pCachedMusterCity == NULL || pCachedTargetCity->getOwner() != eEnemy || pCachedMusterCity->getOwner() != m_pPlayer->GetID());
+			bool bWantNewTarget = (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit);
 
-			if (pCachedTargetCity == NULL || pCachedMusterCity == NULL || pCachedTargetCity->getOwner() != eEnemy || pCachedMusterCity->getOwner() != m_pPlayer->GetID())
-			{
-				cachedTarget.iScore = 0;
-			}
-			else if (bCheckWar && !GET_TEAM(GET_PLAYER(eEnemy).getTeam()).isAtWar(m_pPlayer->getTeam()))
-			{
-				cachedTarget.iScore = 0;
-			}
-			// Don't want it to already be targeted by an operation that's not on its way
-			else if(pCachedMusterCity != NULL &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_SEA, 25))
-			{
-				if(eAIOperationType == AI_OPERATION_NAVAL_INVASION ||
-				eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY ||
-				eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK ||
-				eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-				eAIOperationType == AI_OPERATION_NAVAL_INVASION_CITY_STATE)
-				{	
-					cachedTarget.iScore = 0;
-				}
-			}
-			else if(pCachedMusterCity != NULL &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_LAND, 25))
-			{
-				if(eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK ||
-				eAIOperationType == AI_OPERATION_CITY_SNEAK_ATTACK ||
-				eAIOperationType == AI_OPERATION_CITY_STATE_ATTACK)
-				{	
-					cachedTarget.iScore = 0;
-				}
-			}
-
-			// Respect domains!
-			if (!cachedTarget.bAttackBySea)
-			{
-				if (eAIOperationType == AI_OPERATION_NAVAL_INVASION ||
-					eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY ||
-					eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK ||
-					eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-					eAIOperationType == AI_OPERATION_NAVAL_INVASION_CITY_STATE)
-				{
-					cachedTarget.iScore = 0;
-				}
-			}
-			else if (cachedTarget.bNoLandPath)
-			{
-				if (eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK ||
-					eAIOperationType == AI_OPERATION_CITY_SNEAK_ATTACK ||
-					eAIOperationType == AI_OPERATION_CITY_STATE_ATTACK)
-				{
-					cachedTarget.iScore = 0;
-				}
-			}
-
-			//check the current situation
-			if (cachedTarget.iTurnChosen<GC.getGame().getGameTurn())
+			//only search for a new target if we didn't already do so this turn
+			int iNewScore = 0;
+			CvMilitaryTarget newTarget;
+			if (cachedTarget.iTurnChosen < GC.getGame().getGameTurn())
 				newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
 			//if we can't use the old one anymore or the new target is much better
-			if(iNewScore > cachedTarget.iScore*1.35)
+			if (bInvalidTarget || bWantNewTarget || 3 * iNewScore > 4 * cachedTarget.iScore)
 			{
-				if(newTarget.m_pTargetCity && newTarget.m_pMusterCity)
+				//new target valid?
+				if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
 				{
 					cachedTarget.iTargetCity = newTarget.m_pTargetCity->GetID();
 					cachedTarget.iMusterCity = newTarget.m_pMusterCity->GetID();
@@ -1636,26 +1572,41 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 					cachedTarget.bOcean = newTarget.m_bOcean;
 					cachedTarget.bNoLandPath = newTarget.m_bNoLandPath;
 					cachedTarget.iScore = iNewScore;
-					cachedTarget.iTurnChosen = GC.getGame().getGameTurn();			
+					cachedTarget.iTurnChosen = GC.getGame().getGameTurn();
 
 					//important, update the cache
 					m_cachedTargets[eEnemy][eAIOperationType] = cachedTarget;
 
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						CvString strOutBuf = CvString::format("%d, %s, refreshed our attack target, %s, Muster: %s",
-							GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
-							newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
+						CvString strOutBuf = CvString::format("%03d, %s, refreshed our attack target, %s, Muster: %s, optype: %d, score: %d",
+							GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(),
+							newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType, iNewScore);
 						CvString playerName = GetPlayer()->getCivilizationShortDescription();
 						FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 						if (pLog)
 							pLog->Msg(strOutBuf);
 					}
+
+					if (piWinningScore)
+						*piWinningScore = iNewScore;
+
+					return newTarget;
+				}
+				//no new valid target?
+				else if (bInvalidTarget || bWantNewTarget)
+				{
+					//don't keep the old invalid target around
+					itE->second.erase(itOp);
+
+					if (piWinningScore)
+						*piWinningScore = 0;
+
+					return CvMilitaryTarget();
 				}
 			}
-			else
+			else //old one still valid and couldn't find a better target
 			{
-				//may be null!
 				newTarget.m_pTargetCity = pCachedTargetCity;
 				newTarget.m_pMusterCity = pCachedMusterCity;
 				newTarget.m_bAttackBySea = cachedTarget.bAttackBySea;
@@ -1663,48 +1614,53 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				newTarget.m_bNoLandPath = cachedTarget.bNoLandPath;
 				iNewScore = cachedTarget.iScore;
 
+				/*
 				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
 				{
-					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, Muster: %s",
+					CvString strOutBuf = CvString::format("%03d, %s, keeping cached attack target, %s, muster: %s, optype: %d",
 						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pCachedTargetCity->getName().c_str(), 
-						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE");
+						pCachedMusterCity ? pCachedMusterCity->getName().c_str() : "NONE", eAIOperationType);
 					CvString playerName = GetPlayer()->getCivilizationShortDescription();
 					FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 					if (pLog)
 						pLog->Msg(strOutBuf);
 				}
+				*/
+
+				if (piWinningScore)
+					*piWinningScore = iNewScore;
+
+				return newTarget;
 			}
 		}
 	}
 
-	if (!bFoundInCache)
+	//no cache hit, start from scratch
+	int iNewScore = 0;
+	CvMilitaryTarget newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
+	if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
 	{
-		newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
+		SCachedTarget memory;
+		memory.iTargetCity = newTarget.m_pTargetCity->GetID();
+		memory.iMusterCity = newTarget.m_pMusterCity->GetID();
+		memory.bAttackBySea = newTarget.m_bAttackBySea;
+		memory.bOcean = newTarget.m_bOcean;
+		memory.bNoLandPath = newTarget.m_bNoLandPath;
+		memory.iScore = iNewScore;
+		memory.iTurnChosen = GC.getGame().getGameTurn();
 
-		if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
+		//update the cache
+		m_cachedTargets[eEnemy][eAIOperationType] = memory;
+
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			SCachedTarget memory;
-			memory.iTargetCity = newTarget.m_pTargetCity->GetID();
-			memory.iMusterCity = newTarget.m_pMusterCity->GetID();
-			memory.bAttackBySea = newTarget.m_bAttackBySea;
-			memory.bOcean = newTarget.m_bOcean;
-			memory.bNoLandPath = newTarget.m_bNoLandPath;
-			memory.iScore = iNewScore;
-			memory.iTurnChosen = GC.getGame().getGameTurn();
-
-			//update the cache
-			m_cachedTargets[eEnemy][eAIOperationType] = memory;
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s, Muster: %s",
-					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
-					newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE");
-				CvString playerName = GetPlayer()->getCivilizationShortDescription();
-				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-				if (pLog)
-					pLog->Msg(strOutBuf);
-			}
+			CvString strOutBuf = CvString::format("%03d, %s, found new attack target, %s, muster: %s, optype: %d, score: %d",
+				GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), newTarget.m_pTargetCity->getName().c_str(), 
+				newTarget.m_pMusterCity ? newTarget.m_pMusterCity->getName().c_str() : "NONE", eAIOperationType, iNewScore);
+			CvString playerName = GetPlayer()->getCivilizationShortDescription();
+			FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+			if (pLog)
+				pLog->Msg(strOutBuf);
 		}
 	}
 
@@ -1714,6 +1670,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 
 	return newTarget;
 }
+
 /// Clear cached targets so we can try something else.
 void CvMilitaryAI::ClearCachedTargets()
 {
@@ -1749,7 +1706,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 			}
 
 			int iNewScore = 0;
-			CvMilitaryTarget newTarget = FindBestAttackTargetCached(eAIOperationType,eLoopPlayer,&iNewScore, bCheckWar);
+			CvMilitaryTarget newTarget = FindBestAttackTargetCached(eAIOperationType,eLoopPlayer,&iNewScore);
 
 			if (iNewScore>iBestScore)
 			{
@@ -1769,6 +1726,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 /// Best target by land OR sea
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
+	vector<OptionWithScore<CvMilitaryTarget>> targets;
+	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
 	int iFriendlyLoop;
 	int iEnemyLoop;
 
@@ -1780,204 +1739,91 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	{
 		bNavalOp = true;
 	}
-	DomainTypes eDomain = bNavalOp ? DOMAIN_SEA : DOMAIN_LAND;
 
-	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> weightedTargetList;
-	CvMilitaryTarget chosenTarget;
-	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
+	int iMaxTurns = 29; //going further out really makes little sense
+	int iMinExposureScore = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
 
-	// Estimate the relative strength of our strongest city (this is purely beneficial from figuring out which of their cities is weakest, as this shouldn't really affect muster)
-	int iBestPower = 0;
-	for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
+	// sometimes we were forced into a war and don't even want to attack the enemy
+	// in that case apply a higher standard
+	if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eEnemy))
 	{
-		int iPower = 0;
-		bool bGeneralInTheVicinity = false;
-		for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
-		{
-			CvPlot* pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(0);
-					if(pLoopUnit != NULL)
-					{
-						if (pLoopUnit->IsCombatUnit() && (pLoopUnit->getDomainType()==eDomain || pLoopUnit->isRanged()))
-						{
-							iPower += pLoopUnit->GetPower();
-						}
-						if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral())
-						{
-							bGeneralInTheVicinity = true;
-						}
-					}
-				}
-			}
-		}
-		if (bGeneralInTheVicinity)
-		{
-			iPower *= 12;
-			iPower /= 10;
-		}
-		if(iPower > iBestPower)
-		{
-			iBestPower = iPower;
-		}
+		iMaxTurns = 8; //only very close cities
+		iMinExposureScore = 120; //only if the enemy city is isolated
 	}
 
-	//Now set our scratch value for all cities. We only want highest because we're just trying to figure out which of their cities is the weakest.
-	if(iBestPower > 0)
+	// check for enticing enemy cities
+	vector<OptionWithScore<CvCity*>> mostExposedEnemyCities;
+	for (CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 	{
+		//higher than 100 is good, lower is bad
+		int iExposureScore = pEnemyCity->GetExposureScore(m_pPlayer->GetID());
+
+		//don't take unnecessary risks
+		if (iExposureScore < iMinExposureScore)
+			continue;
+
+		mostExposedEnemyCities.push_back( OptionWithScore<CvCity*>(pEnemyCity,iExposureScore) );
+	}
+
+	//look at the top 5 possible targets only
+	std::sort(mostExposedEnemyCities.begin(), mostExposedEnemyCities.end());
+	for (size_t i = 0; i < min(5u, mostExposedEnemyCities.size()); i++)
+	{
+		CvCity* pEnemyCity = mostExposedEnemyCities[i].option;
+
+		//find possible muster cities
+		vector<OptionWithScore<CvCity*>> closestOwnedCities;
 		for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 		{
-			pFriendlyCity->iScratch = iBestPower;
+			if (TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->GetID(), pFriendlyCity->plot(), 3)<8)
+				continue;
+
+			//plot distance may be misleading but it's fast
+			//use negative distance because we sort descending later
+			int iDistance = plotDistance( *pEnemyCity->plot(), *pFriendlyCity->plot() );
+			closestOwnedCities.push_back( OptionWithScore<CvCity*>(pFriendlyCity,-iDistance) );
+		}
+
+		std::sort(closestOwnedCities.begin(), closestOwnedCities.end());
+		for (size_t j = 0; j < min(5u, closestOwnedCities.size()); j++)
+		{
+			CvCity* pFriendlyCity = closestOwnedCities[j].option;
+
+			CvMilitaryTarget target;
+			target.m_pMusterCity = pFriendlyCity;
+			target.m_pTargetCity = pEnemyCity;
+			target.m_iExposureScore = mostExposedEnemyCities[i].score;
+
+			//this is the important (and also costly) part
+			CheckApproachFromLandAndSea(target, eAIOperationType, iMaxTurns);
+			if (target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
+				continue;
+
+			if (bNavalOp && !target.m_bAttackBySea)
+				continue;
+
+			if (!bNavalOp && target.m_bNoLandPath)
+				continue;
+
+			int iWeight = ScoreTarget(target, eAIOperationType);
+			if (iWeight > 0)
+				targets.push_back(OptionWithScore<CvMilitaryTarget>(target, iWeight));
 		}
 	}
 
-	//Now check enemy cities
-	for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+	// didn't find anything, abort
+	if(targets.empty())
 	{
-		//better be safe
-		pEnemyCity->iScratch = -1;
-
-		//need to have explored around the city
-		CvPlot* pPlot = pEnemyCity->plot();
-		if (!pPlot->isRevealed(m_pPlayer->getTeam()) || !pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
-			continue;
-
-		//If there aren't at least 8 non-occupied plots around this city, abort.
-		if(pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
-			continue;
-		
-		//cheating a little here - we're not checking visibility - but the result is just used as a rough estimate
-		int iPower = 0;
-		bool bGeneralInTheVicinity = false;
-		for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
-		{
-			CvPlot* pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(0);
-					if(pLoopUnit != NULL)
-					{
-						if (pLoopUnit->IsCombatUnit() && (pLoopUnit->getDomainType()==eDomain || pLoopUnit->isRanged()))
-						{
-							iPower += pLoopUnit->GetPower();
-						}
-						if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral())
-						{
-							bGeneralInTheVicinity = true;
-						}
-					}
-				}
-			}
-		}
-		if (bGeneralInTheVicinity)
-		{
-			iPower *= 12;
-			iPower /= 10;
-		}
-		pEnemyCity->iScratch = iPower;
-	}
-
-	// Build a list of all the possible start city/target city pairs
-	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> prelimWeightedTargetList;
-	for(CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
-	{
-		//If there aren't at least 8 non-occupied plots around this city, abort.
-		CvPlot* pPlot = pFriendlyCity->plot();
-		if (pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
-			continue;
-
-		int iMaxTurns = 29; //going further out really makes little sense
-		int iMinStrenghRatio = 50; //border cities are often strongly guarded ... so we need to attack even if we're outnumbered
-
-		// sometimes we were forced into a war and don't even want to attack the enemy
-		// in that case apply a higher standard
-		if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(kEnemy.GetID()))
-		{
-			iMaxTurns = 8; //only very close cities
-			iMinStrenghRatio = 200; //only if we're much stronger locally
-		}
-
-		for(CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
-		{
-			if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->iScratch >= 0)
-			{
-				CvMilitaryTarget target;
-				target.m_pMusterCity = pFriendlyCity;
-				target.m_pTargetCity = pEnemyCity;
-				target.iStrengthRatioTimes100 = (pFriendlyCity->iScratch * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
-
-				//border cities are often strongly guarded ... can't be too timid here
-				if (target.iStrengthRatioTimes100 < iMinStrenghRatio)
-					continue;
-
-				//this is the important (and also costly) part
-				CheckApproachFromLandAndSea(target, eAIOperationType, iMaxTurns);
-				if(target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
-					continue;
-
-				if (bNavalOp && !target.m_bAttackBySea)
-					continue;
-
-				if (!bNavalOp && target.m_bNoLandPath)
-					continue;
-
-				//Add distance to center of mass of empire, so that we aren't setting up way, way away from the center.
-				int iDistance = 0;
-				if (m_pPlayer->GetCenterOfMassEmpire() != NULL)
-				{
-					iDistance = plotDistance(*target.m_pMusterCity->plot(), *m_pPlayer->GetCenterOfMassEmpire());
-				}
-
-				// Shorter paths are better, strength ratio also counts, when in doubt muster at central cities
-				int iWeight = 1000 + (target.iStrengthRatioTimes100 * 20) - target.m_iPathLength * 10 - iDistance;
-				prelimWeightedTargetList.push_back(target, iWeight);
-			}
-		}
-	}
-
-	// Let's score the 5 shortest paths ... 
-	// anything more than that means there are too many interior cities from one (or both) sides being considered
-	prelimWeightedTargetList.StableSortItems();
-	weightedTargetList.clear();
-	int iTargetsConsidered = 0;
-	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 5; iI++)
-	{
-		CvMilitaryTarget target = prelimWeightedTargetList.GetElement(iI);
-
-		int iWeight = ScoreTarget(target, eAIOperationType);
-		if (iWeight > 0)
-		{
-			weightedTargetList.push_back(target, iWeight);
-			iTargetsConsidered++;
-		}
-	}
-
-	// Didn't find anything, abort
-	if(weightedTargetList.size() == 0)
-	{
-		chosenTarget.m_pTargetCity = NULL;   // Call off the attack
 		if (piWinningScore)
-		{
 			*piWinningScore = -1;
-		}
-		return chosenTarget;
+		return CvMilitaryTarget();
 	}
-
-	weightedTargetList.StableSortItems();
-	LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
 
 	//just take the best one
-	chosenTarget = weightedTargetList.GetElement(0);
+	std::sort(targets.begin(), targets.end());
 	if (piWinningScore)
-		*piWinningScore = weightedTargetList.GetWeight(0);
-
-	return chosenTarget;
+		*piWinningScore = targets.front().score;
+	return targets.front().option;
 }
 
 /// Is it better to attack this target by sea?
@@ -2011,8 +1857,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 	}
 
 	//Land and sea ops need to look here.
-	if (target.m_pMusterCity->getArea() == target.m_pTargetCity->getArea())
-		iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
+	iLandLength = GetCachedAttackTargetLandDistance(target.m_pMusterCity, target.m_pTargetCity, iMaxTurnsAway);
 		
 	if (iWaterLength == -1 && iLandLength == -1)
 		return;
@@ -2117,16 +1962,6 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		eDomain = DOMAIN_SEA;
 	}
 
-	// Don't want target/muster to already be targeted by an idential operation
-	if (m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, eDomain, 0, -1, eAIOperationType))
-	{	
-		return 0;
-	}
-	if (m_pPlayer->IsMusterCityAlreadyTargeted(target.m_pMusterCity, eDomain, 0, -1, eAIOperationType))
-	{
-		return 0;
-	}
-
 	float fDistWeightInterpolated = 1;
 	if(!target.m_bAttackBySea)
 	{
@@ -2228,8 +2063,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		break;
 	}
 
-	//strength values for each target are estimated before calling this function
-	float fStrengthRatio = min(10.f, target.iStrengthRatioTimes100 / 100.f);
+	//scores for each target are estimated before calling this function
+	float fExposureScore = min(10.f, target.m_iExposureScore / 100.f);
 	float fDesirability = 100.f;
 
 	bool bMinorButMajorWar = false;
@@ -2243,12 +2078,6 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		{
 			bMinorButMajorWar = true;
 		}
-	}
-	//increase if a weak city
-	if (fStrengthRatio > 0.5f)
-	{
-		fDesirability *= 115;
-		fDesirability /= 100;
 	}
 
 	if (target.m_pTargetCity->IsOriginalCapital() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory()))
@@ -2462,7 +2291,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	fEconomicValue = sqrt(fEconomicValue/250);
 
 	//everything together now
-	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
+	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fExposureScore * fDesirability * fEconomicValue);
 
 	/*
 	if(GC.getLogging() && GC.getAILogging())
@@ -2471,9 +2300,9 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
-		CvString msg = CvString::format( "%03d, %s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, strength ratio %.2f, economic value %.2f --> score %d\n", 
+		CvString msg = CvString::format( "%03d, %s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, exposure score %.2f, economic value %.2f --> score %d\n", 
 			GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), target.m_pTargetCity->getName().c_str(), target.m_pMusterCity->getName().c_str(), 
-			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
+			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fExposureScore, fEconomicValue, iRtnValue );
 		pLog->Msg( msg.c_str() );
 	}
 	*/
@@ -2884,18 +2713,16 @@ void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTyp
 			strOutBuf = strBaseString + strTemp;
 			if(target.m_bAttackBySea)
 			{
-				strOutBuf += ", Sea";
+				if(target.m_bOcean)
+					strOutBuf += ", Ocean";
+				else
+					strOutBuf += ", Sea";
 			}
 			else
 			{
 				strOutBuf += ", Land";
 			}
-#if defined(MOD_BALANCE_CORE)
-			if(target.m_bOcean)
-			{
-				strOutBuf += ", Ocean";
-			}
-#endif
+
 			pLog->Msg(strOutBuf);
 		}
 	}
@@ -4313,7 +4140,7 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pThreatenedCity->plot());
 		if (!bHasOperationUnderway || bIsEnemyZone)
 		{
-			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, false, pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
+			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, m_pPlayer->CanCrossOcean(), pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
 			if (iFilledSlots > 1 && (bIsEnemyZone || ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)))
 			{
 				m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pCoastalPlot->getArea(), pThreatenedCity, pThreatenedCity, m_pPlayer->CanCrossOcean());
@@ -4510,7 +4337,7 @@ int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globa
 	else
 	{
 		int iWinningScore;
-		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_BASIC_ATTACK, ePlayer, &iWinningScore, true);
+		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_BASIC_ATTACK, ePlayer, &iWinningScore);
 		if (thistarget.m_pTargetCity != NULL && thistarget.m_pMusterCity != NULL && !thistarget.m_bNoLandPath)
 		{
 			iValue += iWinningScore;
@@ -4550,7 +4377,7 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 	else
 	{
 		int iWinningScore;
-		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer, &iWinningScore, true);
+		CvMilitaryTarget thistarget = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer, &iWinningScore);
 		if (thistarget.m_pTargetCity != NULL && thistarget.m_pMusterCity != NULL && thistarget.m_bAttackBySea)
 		{
 			iValue += iWinningScore;
@@ -4577,7 +4404,8 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 /// Abort or start operations as appropriate given the current threats and war states
 void CvMilitaryAI::UpdateOperations()
 {
-	if(m_pPlayer->isBarbarian())
+	//only major players set up operations
+	if(!m_pPlayer->isMajorCiv())
 		return;
 
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
@@ -4603,21 +4431,19 @@ void CvMilitaryAI::UpdateOperations()
 	//////////////////////////////
 
 	int iBestValue;
-	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, true);
+	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, false);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 		{
 			// If we cannot declare war on this player, abort all offensive operations related to him
-			if(!GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			if(!m_pPlayer->IsAtWarWith(eLoopPlayer) && !GET_TEAM(m_pPlayer->getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
 				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,true,AI_ABORT_DIPLO_OPINION_CHANGE);
 				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,true,AI_ABORT_DIPLO_OPINION_CHANGE);
@@ -4669,13 +4495,13 @@ void CvMilitaryAI::UpdateOperations()
 	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
 	CvCity* pThreatenedCoastalCityB = m_pPlayer->GetThreatenedCityByRank(1, true);
 
-	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, true);
+	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, false);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veSeaThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
@@ -4684,7 +4510,7 @@ void CvMilitaryAI::UpdateOperations()
 			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea,iBestValue));
+			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea, iBestValue));
 		}
 	}
 
@@ -4960,7 +4786,7 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 				continue;
 
 			// Is it in an army?
-			if(pLoopUnit->getArmyID() != -1)
+			if(pLoopUnit->getArmyID() != -1 || TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
 				continue;
 
 			// Is this a ship on a water body without enemies?
@@ -5610,7 +5436,7 @@ void CvMilitaryAI::LogAvailableForces()
 		}
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
-
+		/*
 		// Loop through our units
 		CvUnit* pLoopUnit;
 		int iLoop;
@@ -5640,6 +5466,7 @@ void CvMilitaryAI::LogAvailableForces()
 
 			pLog->Msg(strOutBuf);
 		}
+		*/
 	}
 }
 
@@ -7115,8 +6942,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		}
 	}
 
+	//fixme - the max number of turns actually depends on the operation we are trying to kick off!
 	ReachablePlots turnsFromMuster;
-	SPathFinderUserData data(pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+	SPathFinderUserData data(pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT());
 	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMuster, data);
 
 	int iLoop = 0;

@@ -5237,7 +5237,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 	if(IsPeaceBlocked(eTeam))
 	{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam, false, GetPlayer()->GetID());
+		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam, true, GetPlayer()->GetID());
 #else
 		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam);
 #endif
@@ -7795,7 +7795,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 		}
 
-		if(SpawnHorde() == NO_PLAYER && !IsRebellionActive())
+		if(SpawnHorde() == NO_PLAYER && !IsHordeActive())
 		{
 			return false;
 		}
@@ -9616,7 +9616,7 @@ void CvMinorCivAI::DoRebellion()
 	// In hundreds
 	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 60); //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
-	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) * 300;
+	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * 200;
 	iNumRebels /= 100;
 
 	// Find a city to pop up a bad man
@@ -11855,7 +11855,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			if(kNewAllyTeam.isAtWar(eLoopTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
-				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
+				kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
 			}
 #else
 				kOurTeam.declareWar(eLoopTeam);

@@ -256,7 +256,7 @@
 			<Text>Covering Fire I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP">
-			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy Land Units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR], [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR], and [COLOR_NEGATIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy Land Units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II">
 			<Text>Covering Fire II</Text>
@@ -540,7 +540,7 @@
 			<Text>Pioneer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PIONEER_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Watermill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
+			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_PIONEER_TEXT">
 			<Text>
@@ -554,7 +554,7 @@
 			<Text>Colonist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Watermill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
+			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_COLONIST_TEXT">
 			<Text>
@@ -587,10 +587,33 @@
 		
 		<!-- Rough Terrain for Ranged Mounted-->
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN">
-			<Text>Rough Terrain Extra Move</Text>
+			<Text>Skirmisher Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross.</Text>
+			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross. -25% [ICON_STRENGTH]/[ICON_RANGED_STRENGHTH] Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR], +50% [ICON_STRENGTH]/[ICON_RANGED_STRENGHTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+		</Row>
+
+		<!-- New Slinger Promotion -->
+
+		<Row Tag="TXT_KEY_PROMOTION_SLINGER">
+			<Text>Concussive Hits</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SLINGER_HELP">
+			<Text>Unit [COLOR_POSITIVE_TEXT]Ignores[ENDCOLOR] Zone of Control. [COLOR_POSITIVE_TEXT]Ranged[ENDCOLOR] Attacks by this Unit inflict the [COLOR_POSITIVE_TEXT]Dazed[ENDCOLOR] status on other Units, reducing their [ICON_STRENGTH] Strength by 15% for 5 Turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DAZED">
+			<Text>Dazed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DAZED_HELP">
+			<Text>-15% [ICON_STRENGTH] Combat Strength.</Text>
+		</Row>
+		
+		<!-- New CKN Promotion -->
+		<Row Tag="TXT_KEY_PROMOTION_REPEATER">
+			<Text>Siege Volleys</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_REPEATER_HELP">
+			<Text>25% [ICON_STRENGTH] Combat Strength when adjacent to or in a [COLOR_POSITIVE_TEXT]City[ENDCOLOR]. Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 		
 		<!-- New Tier 4 Promotions -->
@@ -781,14 +804,14 @@
 			<Text>Splash Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE] Range).</Text>
+			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II">
 			<Text>Splash Damage II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE] Range).</Text>
+			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TERROR">

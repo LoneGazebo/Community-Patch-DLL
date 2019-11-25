@@ -243,6 +243,8 @@ CvUnit::CvUnit() :
 	, m_iFlankAttackModifier("CvUnit::m_iFlankAttackModifier", m_syncArchive)
 	, m_iExtraOpenDefensePercent("CvUnit::m_iExtraOpenDefensePercent", m_syncArchive)
 	, m_iExtraRoughDefensePercent("CvUnit::m_iExtraRoughDefensePercent", m_syncArchive)
+	, m_iExtraOpenFromPercent("CvUnit::m_iExtraOpenFromPercent", m_syncArchive)
+	, m_iExtraRoughFromPercent("CvUnit::m_iExtraRoughFromPercent", m_syncArchive)
 	, m_iPillageChange("CvUnit::m_iPillageChange", m_syncArchive)
 	, m_iUpgradeDiscount("CvUnit::m_iUpgradeDiscount", m_syncArchive)
 	, m_iExperiencePercent("CvUnit::m_iExperiencePercent", m_syncArchive)
@@ -1524,6 +1526,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iFlankAttackModifier=0;
 	m_iExtraOpenDefensePercent = 0;
 	m_iExtraRoughDefensePercent = 0;
+	m_iExtraOpenFromPercent = 0;
+	m_iExtraRoughFromPercent = 0;
 	m_iPillageChange = 0;
 	m_iUpgradeDiscount = 0;
 	m_iExperiencePercent = 0;
@@ -12892,11 +12896,14 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			TeamTypes eOtherTeam = pPlayer->getTeam();
 
 			// Humans can handle their own diplo
-			if(pPlayer->isHuman())
+			if (pPlayer->isHuman())
+				continue;
+			
+			if (pPlayer->isBarbarian())
 				continue;
 
 			// Minor civ response
-			if(pPlayer->isMinorCiv())
+			if (pPlayer->isMinorCiv())
 			{
 				int iFriendship = /*-50*/ GC.getCULTURE_BOMB_MINOR_FRIENDSHIP_CHANGE();
 				pPlayer->GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iFriendship);
@@ -12904,10 +12911,13 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Major civ response
 			else
 			{
-				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+				if (!GET_TEAM(eOtherTeam).isAtWar(getTeam()))
+				{
+					pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+				}
 
 				// Message for human
-				if(getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader)
+				if (getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader)
 				{
 					bAlreadyShownLeader = true;
 
@@ -16222,6 +16232,18 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			if(pToPlot->isRoughGround())
 				iModifier += roughAttackModifier();
 
+			if (pFromPlot != NULL)
+			{
+				// Attacking from Open Ground
+				if (pFromPlot->isOpenGround())
+					iModifier += getExtraOpenFromPercent();
+
+				// Attacking from Rough Ground
+				if (pFromPlot->isRoughGround())
+					iModifier += getExtraRoughFromPercent();
+				
+			}
+
 			// Attacking into a Feature
 			if(pToPlot->getFeatureType() != NO_FEATURE)
 				iModifier += featureAttackModifier(pToPlot->getFeatureType());
@@ -16668,6 +16690,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			if (pTargetPlot->isRoughGround())
 				iModifier += roughRangedAttackModifier();
 		}
+
+		// FROM Open Ground
+		if (pMyPlot->isOpenGround())
+			iModifier += getExtraOpenFromPercent();
+
+		// FROM Rough Ground
+		if (pMyPlot->isRoughGround())
+			iModifier += getExtraRoughFromPercent();
 
 		// Bonus for fighting in one's lands
 		if (pMyPlot->IsFriendlyTerritory(getOwner()))
@@ -22800,6 +22830,26 @@ void CvUnit::changeExtraOpenDefensePercent(int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraOpenFromPercent() const
+{
+	VALIDATE_OBJECT
+		return m_iExtraOpenFromPercent;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraOpenFromPercent(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			m_iExtraOpenFromPercent = (m_iExtraOpenFromPercent + iChange);
+
+			setInfoBarDirty(true);
+		}
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraRoughDefensePercent() const
@@ -22821,6 +22871,25 @@ void CvUnit::changeExtraRoughDefensePercent(int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraRoughFromPercent() const
+{
+	VALIDATE_OBJECT
+		return m_iExtraRoughFromPercent;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraRoughFromPercent(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			m_iExtraRoughFromPercent = (m_iExtraRoughFromPercent + iChange);
+
+			setInfoBarDirty(true);
+		}
+}
 //	--------------------------------------------------------------------------------
 int CvUnit::getNumAttacks() const
 {
@@ -26872,6 +26941,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
 		changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
 		changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
+		changeExtraOpenFromPercent(thisPromotion.GetOpenFromPercent() * iChange);
+		changeExtraRoughFromPercent(thisPromotion.GetRoughFromPercent() * iChange);
 		changeExtraAttacks(thisPromotion.GetExtraAttacks() * iChange);
 		ChangeNumInterceptions(thisPromotion.GetNumInterceptionChange() * iChange);
 
@@ -27177,7 +27248,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 							// Make sure units belong to the same player
 							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
-								if (AreUnitsOfSameType(*pLoopUnit))
+								if (AreUnitsOfSameType(*pLoopUnit) && pLoopUnit->ReadyToSwap())
 								{
 									CvPlot* here = plot();
 									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToSwap())
@@ -28815,7 +28886,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 	}
 
 	bool bEndMove = (pPathPlot == pDestPlot);
-	if (!bEndMove && (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
+	if ((iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) && (pPathPlot == m_kLastPath.GetTurnDestinationPlot(0) && !bEndMove))
 	{
 		int iOldDanger = GetDanger();
 		int iNewDanger = GetDanger(pPathPlot);
@@ -30315,6 +30386,28 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraOpenDefensePercent();
 		if(noDefensiveBonus())
+		{
+			iExtra *= 2;
+		}
+		iValue += iTemp + iExtra + iFlavorMobile;
+	}
+
+	iTemp = pkPromotionInfo->GetOpenFromPercent();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraOpenFromPercent();
+		if (noDefensiveBonus())
+		{
+			iExtra *= 2;
+		}
+		iValue += iTemp + iExtra + iFlavorMobile;
+	}
+
+	iTemp = pkPromotionInfo->GetRoughFromPercent();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraRoughFromPercent();
+		if (noDefensiveBonus())
 		{
 			iExtra *= 2;
 		}

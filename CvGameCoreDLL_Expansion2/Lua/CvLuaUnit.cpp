@@ -364,6 +364,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AttackBelow50Modifier);
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
+	Method(RoughFromModifier);
+	Method(OpenFromModifier);
 	Method(TerrainAttackModifier);
 	Method(TerrainDefenseModifier);
 	Method(FeatureAttackModifier);
@@ -3810,6 +3812,40 @@ int CvLuaUnit::lRoughDefenseModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+
+//------------------------------------------------------------------------------
+//int openDefenseModifier();
+int CvLuaUnit::lOpenFromModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	if (pkUnit->plot() == NULL)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	const int iResult = pkUnit->plot()->isOpenGround() ? pkUnit->getExtraOpenFromPercent() : 0; 
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int RoughDefenseModifier();
+int CvLuaUnit::lRoughFromModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	if (pkUnit->plot() == NULL)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	const int iResult = pkUnit->plot()->isRoughGround() ? pkUnit->getExtraRoughFromPercent() : 0;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int terrainAttackModifier(int /*TerrainTypes*/ eTerrain);
 int CvLuaUnit::lTerrainAttackModifier(lua_State* L)

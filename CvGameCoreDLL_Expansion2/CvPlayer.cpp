@@ -621,6 +621,7 @@ CvPlayer::CvPlayer() :
 	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 	, m_iCitySupplyFlatGlobal("CvPlayer::m_iCitySupplyFlatGlobal", m_syncArchive)
 	, m_iMissionaryExtraStrength("CvPlayer::m_iMissionaryExtraStrength", m_syncArchive)
+	, m_piDomainFreeExperience()
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -709,6 +710,7 @@ CvPlayer::CvPlayer() :
 	, m_iAdvancedActionWonder("CvPlayer::m_iAdvancedActionWonder", m_syncArchive)
 	, m_iAdvancedActionBuilding("CvPlayer::m_iAdvancedActionBuilding", m_syncArchive)
 	, m_iCannotFailSpies("CvPlayer::m_iCannotFailSpies", m_syncArchive)
+	, m_iMaxAirUnits("CvPlayer::m_iMaxAirUnits", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	, m_iInvestmentModifier("CvPlayer::m_iInvestmentModifier", m_syncArchive)
@@ -1544,6 +1546,7 @@ void CvPlayer::uninit()
 	m_iCSAllies = 0;
 	m_iCSFriends = 0;
 	m_iCitiesNeedingTerrainImprovements = 0;
+	m_piDomainFreeExperience.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -1600,6 +1603,7 @@ void CvPlayer::uninit()
 	m_iAdvancedActionWonder = 0;
 	m_iAdvancedActionBuilding = 0;
 	m_iCannotFailSpies = 0;
+	m_iMaxAirUnits = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -1920,6 +1924,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
 
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_piDomainFreeExperience.clear();
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -9789,6 +9796,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
+			
+			pDiploAI->ChangeNumCitiesLiberated(eMePlayer, 1);
+			
+			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
+			GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
+			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -9805,7 +9820,16 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetPlayerStopSpyingRequestEverAsked(eMePlayer, false);
 			
 			pDiploAI->SetNumDemandEverMade(eMePlayer, -pDiploAI->GetNumDemandEverMade(eMePlayer));
-			pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
+			
+			if (pDiploAI->GetNumTimesCoopWarDenied(eMePlayer) > 0)
+			{
+				pDiploAI->SetNumTimesCoopWarDenied(eMePlayer, 0);
+			}
+			
+			if (GetDiplomacyAI()->GetNumTimesCoopWarDenied(ePlayer) > 0)
+			{
+				GetDiplomacyAI()->SetNumTimesCoopWarDenied(ePlayer, 0);
+			}
 			
 			if (pDiploAI->GetRecentAssistValue(eMePlayer) > 0)
 			{
@@ -9881,13 +9905,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	if (!bForced)
 	{
 		// Is this a Minor we have liberated?
-#if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
-#else
-		if(GET_PLAYER(ePlayer).isMinorCiv())
-#endif
 		{
 			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+
+			//give them a basic but state-of-the-art garrison
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+			if (eUnit != NO_UNIT)
+				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
@@ -9899,8 +9924,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 			}
 		}
-	}
 #endif
+	}
 
 	// slewis
 	// negate warmonger
@@ -13619,6 +13644,35 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 					// maybe the player owns ALL of the plots or there are none available?
 					if(pPlotToAcquire)
 					{
+						// Instant yield from tiles gained by culture bombing
+						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						{
+							YieldTypes eYield = (YieldTypes)iI;
+
+							int iPassYield = 0;
+
+							if (eYield == NO_YIELD)
+								continue;
+
+							TerrainTypes eTerrain = pPlotToAcquire->getTerrainType();
+
+							if (eTerrain == NO_TERRAIN)
+								continue;
+
+							// Stole foreign tiles
+							if (pPlotToAcquire->getOwner() != NO_PLAYER)
+							{
+								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
+							}
+							// Obtained neutral tiles
+							else
+							{
+								iPassYield += GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
+							}
+
+							doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
+						}
+
 						pBestCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 					}
 				}
@@ -16940,11 +16994,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #if defined(MOD_BALANCE_CORE)
 	for(int iDomains = 0; iDomains < NUM_DOMAIN_TYPES; iDomains++)
 	{
-		if((DomainTypes)iDomains != NO_DOMAIN)
+		DomainTypes eDomain = (DomainTypes)iDomains;
+		if(eDomain != NO_DOMAIN)
 		{
-			if(pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains) > 0)
+			int iNewValue;
+			iNewValue = pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains);
+			if(iNewValue > 0)
 			{
-				ChangeDomainFreeExperiencePerGreatWorkGlobal((DomainTypes)iDomains, pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains));
+				ChangeDomainFreeExperiencePerGreatWorkGlobal(eDomain, iNewValue);
+			}
+			iNewValue = pBuildingInfo->GetDomainFreeExperienceGlobal(iDomains);
+			if (iNewValue > 0)
+			{
+				ChangeDomainFreeExperience(eDomain, iNewValue);
 			}
 		}
 	}
@@ -17132,6 +17194,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		{
 			ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
 		}
+
+		for (iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		{
+			changeResourceYieldChange(((ResourceTypes)iJ), ((YieldTypes)iI), (pBuildingInfo->GetResourceYieldChangeGlobal((ResourceTypes)iJ, (YieldTypes)iI) * iChange));
+		}
 #endif
 	}
 
@@ -17200,6 +17267,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			changeCannotFailSpies(pBuildingInfo->GetCannotFailSpies() * iChange);
 		}
 	}
+
+	changeMaxAirUnits(pBuildingInfo->GetAirModifierGlobal() * iChange);
 	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		YieldTypes eYield = (YieldTypes) iJ;
@@ -27004,6 +27073,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+				{
+					iValue += MAX(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -27861,6 +27936,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -30206,6 +30287,33 @@ void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.setAt(eIndex, m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange);
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+
+	std::map<int, int>::const_iterator it = m_piDomainFreeExperience.find((int)eIndex);
+	if (it != m_piDomainFreeExperience.end()) // find returns the iterator to map::end if the key i is not present in the map
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeDomainFreeExperience(DomainTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+
+	m_piDomainFreeExperience[(int)eIndex] += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 void CvPlayer::SetNullifyInfluenceModifier(bool bValue)
 {
 	if (bValue != m_bNullifyInfluenceModifier)
@@ -36005,6 +36113,19 @@ void CvPlayer::changeCannotFailSpies(int iChange)
 {
 	m_iCannotFailSpies += iChange;
 }
+
+void CvPlayer::changeMaxAirUnits(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iMaxAirUnits += iChange;
+	}
+}
+int CvPlayer::getMaxAirUnits() const
+{
+	return m_iMaxAirUnits;
+}
+
 //	--------------------------------------------------------------------------------
 /// Extra yield for a improvement this city is working?
 int CvPlayer::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
@@ -40981,6 +41102,9 @@ int CvPlayer::numOperationsOfType(int iOperationType)
 /// Is an existing operation already going after this city?
 bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPercentToTarget, int iIgnoreOperationID, AIOperationTypes eAlreadyActiveOperation) const
 {
+	if (pCity == NULL)
+		return false;	
+
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
 	AIOperationState eOperationState = INVALID_AI_OPERATION_STATE;
@@ -45359,6 +45483,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
+	kStream >> m_piDomainFreeExperience;
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPlots();
@@ -45527,6 +45652,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_aistrInstantGreatPersonProgress;
+	kStream << m_piDomainFreeExperience;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;
@@ -47341,8 +47467,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			continue;
 
 		//take into account distance from existing cities
-		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot)*2); //times 2 to get the approximate plot distance
+		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
+
+		//however, if we ever have a settler very far away, don't wander around forever ...
+		if (pUnit && GetCityDistanceInEstimatedTurns(pUnit->plot()) * 2 > iMaxSettleDistance)
+			iRelevantDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//on a new continent we want to settle along the coast
@@ -47472,20 +47602,23 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (it != reachablePlots.end())
 		{
 			bDangerous = (pUnit->GetDanger(GC.getMap().plotByIndex(it->iPlotIndex))>30); //a ranged attack or some fog danger is ok
-			bCanReachThisTurn = (it->iTurns==0) || (it->iTurns==1 && !bDangerous); //also allow next turn if no visible danger
+			bCanReachThisTurn = (it->iTurns == 0 && it->iMovesLeft > 0);
 		}
 
 		//check if it's too close to an enemy
-		for (size_t j=0; j<vBadPlots.size(); j++)
+		if (!bCanReachThisTurn && !bDangerous)
 		{
-			if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
-				continue;
-
-			int iDistanceToDanger = plotDistance(*pTestPlot,*(vBadPlots[j]));
-			if (iDistanceToDanger<4 && !bCanReachThisTurn)
+			for (size_t j = 0; j < vBadPlots.size(); j++)
 			{
-				bDangerous = true;
-				break;
+				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
+					continue;
+
+				int iDistanceToDanger = plotDistance(*pTestPlot, *(vBadPlots[j]));
+				if (iDistanceToDanger < 4)
+				{
+					bDangerous = true;
+					break;
+				}
 			}
 		}
 

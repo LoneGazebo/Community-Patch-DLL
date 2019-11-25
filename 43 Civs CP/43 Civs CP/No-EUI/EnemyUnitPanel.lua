@@ -867,13 +867,11 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1; 
 			end
 			if (iNumVisibleAAUnits > 0) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
 			end
 			
 			-- Displays miscellaneous bonus here if there are more than 4 bonuses
@@ -1129,7 +1127,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			movementRules = pMyUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -1815,6 +1813,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 			
+			-- RoughAttackModifier
+			iModifier = pMyUnit:OpenFromModifier() + pMyUnit:RoughFromModifier();
+
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			elseif (iModifier ~= 0) then
+				bonusSum = bonusSum + iModifier;
+				bonusCount = bonusCount + 1;				
+			end
+			
 			if (pToPlot:GetFeatureType() ~= -1) then
 			
 				-- FeatureAttackModifier
@@ -1983,7 +1994,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			if (iNumVisibleAAUnits > 0) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
@@ -2000,7 +2011,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			movementRules = pTheirUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -2019,7 +2030,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
 						controlTable.Value:SetText("");
-						bonusCount = bonusCount + 1;
+						bonusCount = bonusCount + 2;
 				end
 			end
 			
@@ -2527,6 +2538,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusSum = bonusSum + iModifier;
 						bonusCount = bonusCount + 1;					
 					end
+				end
+	
+				-- RoughAttackModifier
+				iModifier = pTheirUnit:OpenFromModifier() + pTheirUnit:RoughFromModifier();
+
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;				
 				end
 	
 -- COMMUNITY PATCH CHANGE	
@@ -3038,6 +3062,20 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;			
 			end
+		end
+
+		
+		-- RoughAttackModifier
+		iModifier = theirUnit:OpenFromModifier() + theirUnit:RoughFromModifier();
+
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				bonusCount = bonusCount + 1;
+		elseif (iModifier ~= 0) then
+			bonusSum = bonusSum + iModifier;
+			bonusCount = bonusCount + 1;				
 		end
 
 		-- CapitalDefenseModifier

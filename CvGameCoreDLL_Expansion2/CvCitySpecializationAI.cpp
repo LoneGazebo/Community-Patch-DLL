@@ -1879,6 +1879,11 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 20)) / 100;
 	}
 #if defined(MOD_BALANCE_CORE)
+	iYieldChanges = pCity->GetYieldPerPopInEmpireTimes100(eYield);
+	if (iYieldChanges > 0)
+	{
+		iRtnValue = iRtnValue * (100 + iYieldChanges * 5) / 100;
+	}
 	iYieldChanges = pCity->GetBaseYieldRateFromGreatWorks(eYield);
 	if(iYieldChanges > 0)
 	{

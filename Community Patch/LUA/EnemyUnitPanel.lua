@@ -867,13 +867,11 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1; 
 			end
 			if (iNumVisibleAAUnits > 0) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
 			end
 			
 			-- Displays miscellaneous bonus here if there are more than 4 bonuses
@@ -1128,7 +1126,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			movementRules = pMyUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -1982,7 +1980,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			if (iNumVisibleAAUnits > 0) then
 				controlTable = g_TheirCombatDataIM:GetInstance();
@@ -1999,7 +1997,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				controlTable = g_TheirCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText(movementRules);
 				controlTable.Value:SetText("");
-				bonusCount = bonusCount + 1;
+				bonusCount = bonusCount + 2;
 			end
 			movementRules = pTheirUnit:GetZOCStatus();
 			if(movementRules ~= "") then
@@ -2018,7 +2016,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
 						controlTable.Value:SetText("");
-						bonusCount = bonusCount + 1;
+						bonusCount = bonusCount + 2;
 				end
 			end
 			

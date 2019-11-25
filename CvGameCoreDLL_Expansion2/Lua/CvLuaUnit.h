@@ -375,6 +375,9 @@ protected:
 	static int lOpenDefenseModifier(lua_State* L);
 	static int lRoughDefenseModifier(lua_State* L);
 
+	static int lOpenFromModifier(lua_State* L);
+	static int lRoughFromModifier(lua_State* L);
+
 	static int lTerrainAttackModifier(lua_State* L);
 	static int lTerrainDefenseModifier(lua_State* L);
 	static int lFeatureAttackModifier(lua_State* L);

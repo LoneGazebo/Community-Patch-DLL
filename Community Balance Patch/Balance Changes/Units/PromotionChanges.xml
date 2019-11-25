@@ -418,8 +418,8 @@
 			<Help>TXT_KEY_PROMOTION_AMBUSH_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<TechPrereq>TECH_COMBUSTION</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
+			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_DRILL_3</PromotionPrereqOr2>
 			<OrderPriority>6</OrderPriority>
 			<PortraitIndex>3</PortraitIndex>
 			<RoughAttack>15</RoughAttack>
@@ -4055,6 +4055,49 @@
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDED_III</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_SLINGER</Type>
+			<Description>TXT_KEY_PROMOTION_SLINGER</Description>
+			<Help>TXT_KEY_PROMOTION_SLINGER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PortraitIndex>59</PortraitIndex>
+			<PlagueChance>100</PlagueChance>
+			<IgnoreZOC>true</IgnoreZOC>
+			<PlaguePromotion>PROMOTION_DAZED</PlaguePromotion>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SLINGER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_REPEATER</Type>
+			<Description>TXT_KEY_PROMOTION_REPEATER</Description>
+			<Help>TXT_KEY_PROMOTION_REPEATER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PortraitIndex>59</PortraitIndex>
+			<NearbyCityCombatMod>25</NearbyCityCombatMod>
+			<NearbyRange>1</NearbyRange>
+			<SplashDamage>5</SplashDamage>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_REPEATER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_DAZED</Type>
+			<Description>TXT_KEY_PROMOTION_DAZED</Description>
+			<Help>TXT_KEY_PROMOTION_DAZED_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PortraitIndex>1</PortraitIndex>
+			<CombatPercent>-15</CombatPercent>
+			<PromotionDuration>5</PromotionDuration>
+			<PlagueID>2</PlagueID>
+			<PlaguePriority>0</PlaguePriority>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_DAZED</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_MINELAYER</Type>
 			<Description>TXT_KEY_PROMOTION_MINELAYER</Description>
 			<Help>TXT_KEY_PROMOTION_MINELAYER_HELP</Help>
@@ -4192,6 +4235,8 @@
 			<Help>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LostWithUpgrade>true</LostWithUpgrade>
+			<OpenFromMod>50</OpenFromMod>
+			<RoughFromMod>-25</RoughFromMod>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>

@@ -195,6 +195,7 @@ public:
 	int GetFoodKept() const;
 	bool IsAirlift() const;
 	int GetAirModifier() const;
+	int GetAirModifierGlobal() const;
 	int GetNukeModifier() const;
 	int GetNukeExplosionRand() const;
 	int GetWorkerSpeedModifier() const;
@@ -509,6 +510,9 @@ public:
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
 	int* GetYieldChangePerPopArray() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldChangePerPopInEmpire(int i) const;
+#endif
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
 	int GetYieldModifier(int i) const;
@@ -535,6 +539,7 @@ public:
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetDomainFreeExperiencePerGreatWorkGlobal(int i) const;
+	int GetDomainFreeExperienceGlobal(int i) const;
 #endif
 	int GetDomainProductionModifier(int i) const;
 	int GetLockedBuildingClasses(int i) const;
@@ -584,6 +589,7 @@ public:
 	int GetFeatureYieldChange(int i, int j) const;
 	int* GetFeatureYieldChangeArray(int i) const;
 #if defined(MOD_BALANCE_CORE)
+	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
 
@@ -698,6 +704,7 @@ private:
 	int m_iFoodKept;
 	bool m_bAirlift;
 	int m_iAirModifier;
+	int m_iAirModifierGlobal;
 	int m_iNukeModifier;
 	int m_iNukeExplosionRand;
 	int m_iWorkerSpeedModifier;
@@ -971,6 +978,9 @@ private:
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, int> m_piYieldChangePerPopInEmpire;
+#endif
 	int* m_piYieldChangePerReligion;
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;
@@ -982,6 +992,7 @@ private:
 	int* m_piDomainFreeExperiencePerGreatWork;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piDomainFreeExperiencePerGreatWorkGlobal;
+	std::map<int, int> m_piDomainFreeExperienceGlobal;
 #endif
 	int* m_piDomainProductionModifier;
 	int* m_piPrereqNumOfBuildingClass;
@@ -1014,6 +1025,7 @@ private:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	int** m_ppaiImprovementYieldChange;
 	int** m_ppaiImprovementYieldChangeGlobal;

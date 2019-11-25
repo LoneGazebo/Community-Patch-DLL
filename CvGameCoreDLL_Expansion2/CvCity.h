@@ -1050,6 +1050,7 @@ public:
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount = false, bool bIncludeConqueredCities = false) const;
+	int GetExposureScore(PlayerTypes eAttacker) const;
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);
@@ -1332,6 +1333,11 @@ public:
 
 	int GetYieldPerPopTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerPopTimes100(YieldTypes eIndex, int iChange);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldPerPopInEmpireTimes100(YieldTypes eIndex) const;
+	void ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange);
+#endif
 
 	int GetYieldPerReligionTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange);
@@ -1750,8 +1756,6 @@ public:
 	int GetYieldFromDevelopment(YieldTypes eYield) const;
 #endif
 
-	int iScratch; // know the scope of your validity
-
 protected:
 	FAutoArchiveClassContainer<CvCity> m_syncArchive;
 
@@ -1990,6 +1994,9 @@ protected:
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
+#if defined(MOD_BALANCE_CORE)
+	std::map<int, int> m_aiYieldPerPopInEmpire;
+#endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiPowerYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceYieldRateModifier;

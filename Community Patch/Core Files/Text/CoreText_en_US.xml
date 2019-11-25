@@ -38,6 +38,15 @@
 		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
 			<Text>Unit Health</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION">
+			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_EMPIRE_POP">
+			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA">
+			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
@@ -2848,6 +2857,11 @@
 		<!-- PTP Same CS Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
 			<Text>[COLOR_POSITIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Same Master Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_SAME_MASTER">
+			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Stolen Artifacts Mod -->
@@ -5747,6 +5761,11 @@
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
 			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
 		</Row>
+		
+		<!-- Coop war button disabled (must be friends) -->
+		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_BLOCKED_NOT_FRIENDS">
+			<Text>You must be friends to start a cooperative war with this civilization.</Text>
+		</Row>
 
 		<!-- Intrigue sharing (co-op wars)-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
@@ -6664,6 +6683,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED">
 			<Text>[ICON_STRENGTH] Obtained a Promotion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED">
+			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
 		<!-- Quest Data -->

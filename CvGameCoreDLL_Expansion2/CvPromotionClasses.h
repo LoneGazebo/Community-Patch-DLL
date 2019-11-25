@@ -87,8 +87,10 @@ public:
 	int  GetHillsAttackPercent() const;
 	int  GetHillsDefensePercent() const;
 	int  GetOpenAttackPercent() const;
+	int  GetOpenFromPercent() const;
 	int  GetOpenRangedAttackMod() const;
 	int  GetRoughAttackPercent() const;
+	int  GetRoughFromPercent() const;
 	int  GetRoughRangedAttackMod() const;
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
@@ -403,8 +405,10 @@ protected:
 	int m_iHillsAttackPercent;
 	int m_iHillsDefensePercent;
 	int m_iOpenAttackPercent;
+	int m_iOpenFromPercent;
 	int m_iOpenRangedAttackMod;
 	int m_iRoughAttackPercent;
+	int m_iRoughFromPercent;
 	int m_iRoughRangedAttackMod;
 	int m_iAttackFortifiedMod;
 	int m_iAttackWoundedMod;

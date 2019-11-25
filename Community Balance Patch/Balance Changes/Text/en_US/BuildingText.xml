@@ -312,7 +312,7 @@
 			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, combats Poverty, and improves the tile yield of Bananas.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_STRATEGY">
-			<Text>The Agribusiness is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. An Agribusiness helps your City grow more quickly, however the use of Horses is a risky tradeoff during an era in which Cavalry is still quite powerful.</Text>
+			<Text>The Agribusiness is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. An Agribusiness greatly improves the yields on your city's Farm and Pasture tiles, and boosts GPT significantly if your city has high Food yields. However, the use of Horses is a risky tradeoff during an era in which Cavalry is still quite powerful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_STRATEGY">
 			<Text>The Refinery is a Modern-era building which can only be constructed in 5 Cities total. The Refinery helps your Production and produces 1 Coal and 1 Iron Resource, however it has a high maintenance cost. Only construct if you find yourself without these vital late-game strategic resources.</Text>
@@ -324,7 +324,7 @@
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Watermill[ENDCOLOR].</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Water Mill[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
 			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations and Camps.</Text>

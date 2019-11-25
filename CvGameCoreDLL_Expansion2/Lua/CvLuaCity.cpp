@@ -499,6 +499,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeBaseYieldRateFromReligion);
 
 	Method(GetYieldPerPopTimes100);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetYieldPerPopInEmpireTimes100);
+#endif
 
 	Method(GetBaseYieldRateModifier);
 	Method(GetYieldRate);
@@ -4574,6 +4577,14 @@ int CvLuaCity::lGetYieldPerPopTimes100(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetYieldPerPopTimes100);
 }
+
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetYieldPerPopInEmpireTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetYieldPerPopInEmpireTimes100);
+}
+#endif
 
 //------------------------------------------------------------------------------
 //int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0);

@@ -76,6 +76,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyEnemyCombatRange(0),
 	m_iOpenDefensePercent(0),
 	m_iRoughDefensePercent(0),
+	m_iOpenFromPercent(0),
+	m_iRoughFromPercent(0),
 	m_iExtraAttacks(0),
 	m_bGreatGeneral(false),
 	m_bGreatAdmiral(false),
@@ -573,8 +575,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iHillsAttackPercent = kResults.GetInt("HillsAttack");
 	m_iHillsDefensePercent = kResults.GetInt("HillsDefense");
 	m_iOpenAttackPercent = kResults.GetInt("OpenAttack");
+	m_iOpenFromPercent = kResults.GetInt("OpenFromMod");
 	m_iOpenRangedAttackMod = kResults.GetInt("OpenRangedAttackMod");
 	m_iRoughAttackPercent = kResults.GetInt("RoughAttack");
+	m_iRoughFromPercent = kResults.GetInt("RoughFromMod");
 	m_iRoughRangedAttackMod = kResults.GetInt("RoughRangedAttackMod");
 	m_iAttackFortifiedMod = kResults.GetInt("AttackFortifiedMod");
 	m_iAttackWoundedMod = kResults.GetInt("AttackWoundedMod");
@@ -1500,6 +1504,11 @@ int CvPromotionEntry::GetOpenAttackPercent() const
 {
 	return m_iOpenAttackPercent;
 }
+/// Accessor: Bonus open terrain attack percent
+int CvPromotionEntry::GetOpenFromPercent() const
+{
+	return m_iOpenFromPercent;
+}
 
 /// Accessor: Bonus open terrain ranged attack mod
 int CvPromotionEntry::GetOpenRangedAttackMod() const
@@ -1511,6 +1520,12 @@ int CvPromotionEntry::GetOpenRangedAttackMod() const
 int CvPromotionEntry::GetRoughAttackPercent() const
 {
 	return m_iRoughAttackPercent;
+}
+
+/// Accessor: Bonus open terrain attack percent
+int CvPromotionEntry::GetRoughFromPercent() const
+{
+	return m_iRoughFromPercent;
 }
 
 /// Accessor: Bonus rough terrain ranged attack mod

@@ -242,6 +242,42 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	end
 
 	------------------
+	-- Global Building Filter (for buildings with global effect)
+	local function GlobalBuildingFilter( building )
+
+		if building and activePlayer and activeTeam and activeCivilizationType then
+			local buildingClass = building.BuildingClass
+			if buildingClass then
+				-- filter out building classes that the player already has
+				for row in GameInfo.Buildings{ BuildingClass = buildingClass } do
+					if activePlayer:CountNumBuildings(row.ID) > 0 then
+						return false
+					end
+				end
+
+				-- filter out buildings which player will never be able to build
+				if activePlayer:IsProductionMaxedBuildingClass( GameInfoTypes[buildingClass] )
+-- redundant						or Game.IsBuildingClassMaxedOut( GameInfoTypes[buildingClass] )
+-- redundant						or activeTeam:IsBuildingClassMaxedOut( GameInfoTypes[buildingClass] )
+-- redundant						or activePlayer:IsBuildingClassMaxedOut( GameInfoTypes[buildingClass] )
+					or activeTeam:IsObsoleteBuilding( building.ID )
+					or ( civ5_mode and building.MaxStartEra and Game.GetStartEra() > GameInfoTypes[building.MaxStartEra] )
+				then
+					return false
+				end
+
+				-- special building ?
+				local buildingClassOverride = GameInfo.Civilization_BuildingClassOverrides{ BuildingClassType = buildingClass, CivilizationType = activeCivilizationType }()
+				if buildingClassOverride then
+					return building.Type == buildingClassOverride.BuildingType
+				else
+					return building.Type == (GameInfo.BuildingClasses[ buildingClass ] or {}).DefaultBuilding
+				end
+			end
+		end
+	end
+
+	------------------
 	-- Building Filter
 	local function BuildingFilter( building )
 
@@ -858,6 +894,8 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				resource and GameInfo.Building_ResourceYieldChanges{ ResourceType = resource.Type },
 				feature and GameInfo.Building_FeatureYieldChanges{ FeatureType = feature.Type },
 				gk_mode and not isFeatureReplacesTerrain and GameInfo.Building_TerrainYieldChanges{ TerrainType = terrain.Type } )
+			insertYieldChanges(tips,  "[ICON_BULLET]", "[COLOR_YIELD_FOOD]", "BuildingType", GlobalBuildingFilter, GameInfo.Buildings,
+				resource and GameInfo.Building_ResourceYieldChangesGlobal{ ResourceType = resource.Type } )
 			if g_isPoliciesEnabled then
 				insertYieldChanges( tips, "[ICON_BULLET]", "[COLOR_MAGENTA]", "PolicyType", PolicyFilter, GameInfoPolicies,
 					plotCity and GameInfo.Policy_CityYieldChanges(),

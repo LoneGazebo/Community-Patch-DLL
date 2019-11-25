@@ -436,7 +436,7 @@
 
 		<!-- Tooltips for EU Panel -->
 		<Row Tag ="TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP">
-			<Text>Bonus VS {1_UnitType} (Mounted)</Text>
+			<Text>Bonus VS Mounted Units</Text>
 		</Row>
 		<!-- Tooltip for Blockades -->
 		<Row Tag="TXT_KEY_EUPANEL_CITY_BLOCKADED">
@@ -465,7 +465,13 @@
 		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
 			<Text>Enemy Defection</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
+			<Text>Terrain Penalty</Text>
+		</Row>
+
+
+
 		<!-- Text for Preview Combat Miscellaneous Bonuses -->
 		<Row Tag="TXT_KEY_MISC_BONUS">
 			<Text>Miscellaneous</Text>

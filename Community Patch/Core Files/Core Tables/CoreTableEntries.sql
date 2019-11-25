@@ -1141,6 +1141,8 @@ ALTER TABLE Buildings ADD COLUMN 'BlockUnrestSpies' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
+--Increase Air Unit Support Per City Global
+ALTER TABLE Buildings ADD COLUMN 'AirModifierGlobal' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'EventChoiceRequiredActive' TEXT DEFAULT NULL;
 ALTER TABLE Buildings ADD COLUMN 'CityEventChoiceRequiredActive' TEXT DEFAULT NULL;
@@ -1203,6 +1205,10 @@ ALTER TABLE UnitPromotions ADD COLUMN 'IsPlague' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'PlagueID' INTEGER DEFAULT -1;
 ALTER TABLE UnitPromotions ADD COLUMN 'PlaguePriority' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'PlagueIDImmunity' INTEGER DEFAULT 0;
+
+-- Modify CS/RCS based on terrain roughness
+ALTER TABLE UnitPromotions ADD COLUMN 'OpenFromMod' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'RoughFromMod' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 

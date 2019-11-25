@@ -1277,8 +1277,14 @@ public:
 	int getExtraOpenDefensePercent() const;
 	void changeExtraOpenDefensePercent(int iChange);
 
+	int getExtraOpenFromPercent() const;
+	void changeExtraOpenFromPercent(int iChange);
+
 	int getExtraRoughDefensePercent() const;
 	void changeExtraRoughDefensePercent(int iChange);
+
+	int getExtraRoughFromPercent() const;
+	void changeExtraRoughFromPercent(int iChange);
 
 	int getNumAttacks() const;
 	int getNumAttacksMadeThisTurn() const;
@@ -2049,6 +2055,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
 	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
 	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;
+	FAutoVariable<int, CvUnit> m_iExtraOpenFromPercent;
+	FAutoVariable<int, CvUnit> m_iExtraRoughFromPercent;
 	FAutoVariable<int, CvUnit> m_iPillageChange;
 	FAutoVariable<int, CvUnit> m_iUpgradeDiscount;
 	FAutoVariable<int, CvUnit> m_iExperiencePercent;

@@ -812,6 +812,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		local cityCultureRateModifier = cityOwner:GetCultureCityModifier() + city:GetCultureRateModifier() + (city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0)
 		local cityCultureRate
 		local population = city:GetPopulation()
+		local populationEmpire = cityOwner:GetTotalPopulation()
 		local tips = table()
 		local thisBuildingAndYieldTypes = { BuildingType = building.Type }
 		if civ5_mode then
@@ -846,7 +847,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			tips:insertIf( healthChange ~=0 and healthChange .. "[ICON_HEALTH_1]" )
 --			tips:insertLocalizedIfNonZero( "TXT_KEY_STAT_POSITIVE_YIELD_MOD", "[ICON_HEALTH_1]", healthModifier )
 		end
-		local buildingYieldRate, buildingYieldPerPop, buildingYieldModifier, cityYieldRate, cityYieldRateModifier, isProducing
+		local buildingYieldRate, buildingYieldPerPop, buildingYieldPerPopInEmpire, buildingYieldModifier, cityYieldRate, cityYieldRateModifier, isProducing
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
 			isProducing = isNotResistance
 			thisBuildingAndYieldTypes.YieldType = (GameInfo.Yields[yieldID] or {}).Type or -1
@@ -888,7 +889,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				--END
 			end
 			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
-			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID )
+			cityYieldRate = city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID ) + city:GetYieldPerPopInEmpireTimes100( yieldID ) * populationEmpire / 100
 			-- Special culture case
 			if yieldID == YieldTypes.YIELD_CULTURE then
 				buildingYieldRate = buildingYieldRate + buildingCultureRate
@@ -921,6 +922,12 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				buildingYieldPerPop = buildingYieldPerPop + (row.Yield or 0)
 			end
 			buildingYieldRate = buildingYieldRate + buildingYieldPerPop * population / 100
+			-- Empire Population yield
+			buildingYieldPerPopInEmpire = 0
+			for row in GameInfo.Building_YieldChangesPerPopInEmpire( thisBuildingAndYieldTypes ) do
+				buildingYieldPerPopInEmpire = buildingYieldPerPopInEmpire + (row.Yield or 0)
+			end
+			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
 			-- Events
 			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
 			-- End 
