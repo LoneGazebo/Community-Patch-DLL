@@ -7641,7 +7641,7 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 			continue;
 
 		iTotalPlots++;
-		if (!pLoopPlot->isOwned() || !pLoopPlot->isImpassable(eAttackerTeam))
+		if (!pLoopPlot->isOwned() || pLoopPlot->isImpassable(eAttackerTeam))
 			continue;
 
 		CvTeam& plotTeam = GET_TEAM(pLoopPlot->getTeam());
@@ -7670,7 +7670,7 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 	}
 
 	//higher than 100 is good for attack, lower than 100 is good for defender
-	return 100 - (iDefenderOwnedPlots*100)/iTotalPlots + (iAttackerOwnedPlots*100)/iTotalPlots + iCitadelCount*2;
+	return 100 - (iDefenderOwnedPlots*100)/iTotalPlots + (3*iAttackerOwnedPlots*100)/iTotalPlots + iCitadelCount*3;
 }
 #endif
 
