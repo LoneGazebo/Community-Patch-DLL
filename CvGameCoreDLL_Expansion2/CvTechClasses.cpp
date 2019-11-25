@@ -1862,7 +1862,7 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	int iResearchCost = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
 	
 	// Adjust to the player's research modifier
-	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech)) - 100;
+	int iResearchMod = std::max(0, m_pPlayer->calculateResearchModifier(eTech) - 100);
 
 	// Mod for City Count
 	int iCityCountMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
@@ -1883,7 +1883,10 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 #endif
 
 	//apply the modifiers
-	return iResearchCost + (iResearchCost/100) * (iCityCountMod - iResearchMod);
+	if (iResearchCost<10000)
+		return iResearchCost + (iResearchCost * (iCityCountMod - iResearchMod))/100;
+	else
+		return iResearchCost + (iResearchCost/100) * (iCityCountMod - iResearchMod);
 }
 
 //	----------------------------------------------------------------------------
@@ -2669,7 +2672,12 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
 #endif
 
-	return std::max(1, iCost + (iCost/100)*iModifier);
+	if (iCost<10000)
+		//avoid rounding errors
+		return std::max(1, iCost + (iCost*iModifier)/100);
+	else
+		//avoid overflow
+		return std::max(1, iCost + (iCost/100)*iModifier);
 }
 
 #if defined(MOD_CIV6_EUREKA)

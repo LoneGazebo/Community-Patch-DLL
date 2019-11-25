@@ -310,7 +310,6 @@ void CvPlayerEspionage::Reset()
 	m_aaPlayerStealableTechList.clear();
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		m_aiMaxTechCost[ui] = -1;
 		m_aHeistLocations[ui].clear();
 #if defined(MOD_BALANCE_CORE)
 		m_aiNumSpyActionsDone[ui] = 0;
@@ -4505,25 +4504,23 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 				return -1;
 			}
 
-			CvAssertMsg(m_aiMaxTechCost[ePlayer] >= 0, "m_aiMaxTechCost[ePlayer] is below zero");
-			uint uiMaxTechCostAdjusted = m_aiMaxTechCost[ePlayer];			
-			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
-			uiMaxTechCostAdjusted /= 100;
-#if defined(MOD_BALANCE_CORE)
-			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+			int iMaxTechCost = 0;
+			for (size_t i = 0; i < m_aaPlayerStealableTechList[ePlayer].size(); i++)
 			{
-				uiMaxTechCostAdjusted *= 100;
-				uiMaxTechCostAdjusted /= (100 + (GET_PLAYER(ePlayer).GetCurrentEra() + 1 * GET_PLAYER(ePlayer).GetCurrentEra() + 1));
+				CvTechEntry* pkTechInfo = GC.getTechInfo(m_aaPlayerStealableTechList[ePlayer][i]);
+				if (pkTechInfo)
+					iMaxTechCost = max(iMaxTechCost, pkTechInfo->GetResearchCost());
 			}
+
+			int iModifier = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() - 100;
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-			{
-				uiMaxTechCostAdjusted *= (100 - GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
-				uiMaxTechCostAdjusted /= 100;
-			}
-#endif
-			int iMaxTechCostAdjusted = uiMaxTechCostAdjusted;
-			CvAssertMsg(m_aiMaxTechCost[ePlayer] >= 0, "iMaxTechCostAdjusted is below zero. Overflow!");
-			return iMaxTechCostAdjusted;
+				iModifier -= GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD();
+
+			//avoid rounding / overflow error
+			if (iMaxTechCost < 10000)
+				return iMaxTechCost + (iModifier*iMaxTechCost) / 100;
+			else
+				return iMaxTechCost + iModifier * (iMaxTechCost / 100);
 		}
 	}
 	break;
@@ -5394,8 +5391,6 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 		return;
 	}
 
-	int iMaxTechCost = -1;
-
 	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
 	CvPlayerTechs* pOtherPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pOtherPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
@@ -5416,16 +5411,7 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 		// add to list!
 		m_aaPlayerStealableTechList[ePlayer].push_back(eTech);
-
-		// try to find the most expensive tech that can be researched
-		int iTechCost = m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) * 100;
-		if(iTechCost > iMaxTechCost)
-		{
-			iMaxTechCost = iTechCost;
-		}
 	}
-
-	m_aiMaxTechCost[ePlayer] = iMaxTechCost;
 }
 
 /// IsTechStealable - Check to see if you can steal this tech from an opponent
@@ -8030,14 +8016,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 	}
 #endif
 
-	int iMaxTechCostEntries;
-	loadFrom >> iMaxTechCostEntries;
-	for(int i = 0; i < iMaxTechCostEntries; i++)
-	{
-		loadFrom >> writeTo.m_aiMaxTechCost[i];
-	}
-
-
 	int iNumCivs;
 	loadFrom >> iNumCivs;
 	for(int iCiv = 0; iCiv < iNumCivs; iCiv++)
@@ -8170,12 +8148,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 		saveTo << readFrom.m_aiMaxGWCost[ui];
 	}
 #endif
-
-	saveTo << MAX_MAJOR_CIVS;
-	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-	{
-		saveTo << readFrom.m_aiMaxTechCost[ui];
-	}
 
 	saveTo << MAX_MAJOR_CIVS;
 	for(uint uiCiv = 0; uiCiv < MAX_MAJOR_CIVS; uiCiv++)
@@ -9661,31 +9633,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
-#if !defined(MOD_BALANCE_CORE_SPIES)
-	// find the most expensive available research
-	int iMaxTechCost = -1;
-	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
 
-	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
-	{
-		const TechTypes eTech = static_cast<TechTypes>(iTechLoop);
-		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		if(!pkTechInfo)
-		{
-			continue;
-		}
-
-		// try to find the most expensive tech that can be researched
-		if(pMyPlayerTechs->CanResearch(eTech))
-		{
-			int iTechCost = m_pPlayer->GetPlayerTechs()->GetResearchCost(eTech) * 100;
-			if(iTechCost > iMaxTechCost)
-			{
-				iMaxTechCost = iTechCost;
-			}
-		}
-	}
-#endif
 	std::vector<ScoreCityEntry> aCityScores;
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
@@ -9715,44 +9663,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			{
 				continue;
 			}
-#if !defined(MOD_BALANCE_CORE_SPIES)
-			CvCityEspionage* pCityEspionage = pLoopCity->GetCityEspionage();
-			int iNumRemainingTurns = MAX_INT;
-			int iSpyIndex = pEspionage->GetSpyIndexInCity(pLoopCity);
-			// if there is a spy currently stealing there, use the actual data
-			if(iSpyIndex >= 0 && pEspionage->m_aSpyList[iSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL)
-			{
-				if(pCityEspionage->m_aiRate[ePlayer] != 0)
-				{
-					iNumRemainingTurns = (pCityEspionage->m_aiGoal[ePlayer] - pCityEspionage->m_aiAmount[ePlayer]) / pCityEspionage->m_aiRate[ePlayer];
-				}
-			}
-			// if we have any history with the city, use that data instead
-			else if(pCityEspionage->m_aiLastBasePotential[m_pPlayer->GetID()] > 0)
-			{
-				int iCost = iMaxTechCost;
-				if(pEspionage->m_aiMaxTechCost[eTargetPlayer] > 0)
-				{
-					iCost = pEspionage->m_aiMaxTechCost[eTargetPlayer];
-				}
 
-				iNumRemainingTurns = iCost / pCityEspionage->m_aiLastBasePotential[m_pPlayer->GetID()];
-			}
-			// estimate the number of turns using the population
-			else
-			{
-				int iCost = iMaxTechCost;
-				if(pEspionage->m_aiMaxTechCost[eTargetPlayer] > 0)
-				{
-					iCost = pEspionage->m_aiMaxTechCost[eTargetPlayer];
-				}
-				if(pLoopCity->getPopulation() > 0)
-				{
-					iNumRemainingTurns = iCost / (pLoopCity->getPopulation() * 100);
-				}
-			}
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
 			int iValue = pLoopCity->GetRank() * 10;
 			if(iValue <= 0)
 				continue;
@@ -9919,98 +9830,10 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 	{
 		aOffenseCityList.push_back(aCityScores[ui].m_pCity);
 	}
-#else
-			int iDiploModifier = 1;
-
-			if (pDiploAI->GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
-			{
-				iDiploModifier = 1;
-			}
-			else if (GET_TEAM(eTeam).isAtWar(eTargetTeam))
-			{
-				// ignore promises
-				// bonus targeting!
-				iDiploModifier = 1;
-			}
-			else // we're not at war with them, so look at other factors
-			{
-				// raise our diplo modifier by a scale of 10 so that we're less likely to target those we aren't at war with
-				iDiploModifier = 10;
-
-				// if we promised not to spy, make it less likely that we will spy
-				if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
-				{
-					// target far less frequently
-					iDiploModifier *= 100;
-				}
-
-				// if we've denounced them or they've denounced us, spy bonus!
-				if (pDiploAI->IsDenouncedPlayer(eTargetPlayer) || pTargetDiploAI->IsDenouncedPlayer(ePlayer))
-				{
-					iDiploModifier /= 2;
-				}
-				else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
-				{
-					iDiploModifier *= 50;
-				}
-
-				if (GET_TEAM(eTeam).IsHasResearchAgreement(eTargetTeam))
-				{
-					iDiploModifier *= 5;
-				}
-
-				if (GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam))
-				{
-					iDiploModifier *= 50;
-				}
-
-				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eTargetTeam))
-				{
-					iDiploModifier *= 2;
-				}
-
-				if (GET_TEAM(eTargetTeam).IsAllowsOpenBordersToTeam(eTeam))
-				{
-					iDiploModifier *= 2;
-				}
-			}
-			ScoreCityEntry kEntry;
-			kEntry.m_pCity = pLoopCity;
-
-			int iScore = iNumRemainingTurns * iDiploModifier;
-			if (m_aiCivOutOfTechTurn[eTargetPlayer] == GC.getGame().getGameTurn())
-			{
-				iScore = MAX_INT;
-			}
-			else if(m_aiCivOutOfTechTurn[eTargetPlayer] > 0)
-			{
-				iScore = iScore * m_aiCivOutOfTechTurn[eTargetPlayer];
-			}
-
-			kEntry.m_iScore = iScore;
-
-			aCityScores.push_back(kEntry);
-
-		}
-	}
-
-	// sort
-	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryLowEval());
-
-	// transfer values to OffenseCityList
-	for(uint ui = 0; ui < aCityScores.size(); ui++)
-	{
-		aOffenseCityList.push_back(aCityScores[ui].m_pCity);
-	}
-#endif
 }
 
 void CvEspionageAI::BuildDefenseCityList(EspionageCityList& aDefenseCityList)
 {
-#if !defined(MOD_BALANCE_CORE_SPIES)
-	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
-#endif
-
 	aDefenseCityList.clear();
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
@@ -10022,7 +9845,6 @@ void CvEspionageAI::BuildDefenseCityList(EspionageCityList& aDefenseCityList)
 	{
 		ScoreCityEntry kEntry;
 		kEntry.m_pCity = pLoopCity;
-#if defined(MOD_BALANCE_CORE_SPIES)
 		kEntry.m_iScore = pLoopCity->GetRank();
 		if(pLoopCity->isCapital())
 		{
@@ -10030,9 +9852,7 @@ void CvEspionageAI::BuildDefenseCityList(EspionageCityList& aDefenseCityList)
 		}
 		if(kEntry.m_iScore <= 0)
 			continue;
-#else
-		kEntry.m_iScore = pEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
-#endif
+
 		aCityScores.push_back(kEntry);
 	}
 
