@@ -688,22 +688,6 @@ SET Text = 'Just between you and me, your military is kind of the laughing stock
 WHERE Tag = 'TXT_KEY_GENERIC_GREETING_HOSTILE_HUMAN_SMALL_ARMY';
 
 
--- Agree
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT_2';
-
-
--- Disagree
-UPDATE Language_en_US
-SET Text = 'Certainly not.'
-WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT_1';
-
-
 -- Open Trade Screen
 UPDATE Language_en_US
 SET Text = 'Speak: anything to drown out the whispers.'
