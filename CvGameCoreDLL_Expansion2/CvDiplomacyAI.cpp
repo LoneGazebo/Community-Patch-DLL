@@ -35482,7 +35482,7 @@ int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	int iNumLandmarks = GetNumLandmarksBuiltForMe(ePlayer);
-	if (iNumLandmarks> 0)
+	if (iNumLandmarks > 0)
 	{
 		// Full credit for first one
 		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_BUILT_LANDMARK();
