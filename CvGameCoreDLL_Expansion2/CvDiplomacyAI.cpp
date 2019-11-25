@@ -14017,14 +14017,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += -50;
 			}
 			
-			// Focus our aggression on major competitors.
-			if (!IsMajorCompetitor(ePlayer))
-			{
-				iEnemyWeight += -3;
-				iDPWeight += 3;
-				iDoFWeight += 3;
-			}
-			
 			// Easy targets don't make good DPs
 			if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
 			{
@@ -35393,22 +35385,22 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	// Look at Victory Dispute
-	switch(GetVictoryDisputeLevel(ePlayer))
+	switch (GetVictoryDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_FIERCE:
-		iOpinionWeight += 40;
+		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_VICTORY_FIERCE();
 		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case DISPUTE_LEVEL_STRONG:
-		iOpinionWeight += 30;
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_STRONG();
 		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		iOpinionWeight += 20;
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_VICTORY_WEAK();
 		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case DISPUTE_LEVEL_NONE:
-		iOpinionWeight = 0;
+		iOpinionWeight = /*0*/ GC.getOPINION_WEIGHT_VICTORY_NONE();
 		break;
 	}
 
@@ -35419,22 +35411,22 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	// Look at Victory Dispute
-	switch(GetVictoryBlockLevel(ePlayer))
+	switch (GetVictoryBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_FIERCE:
-		iOpinionWeight += 30;
+		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_VICTORY_FIERCE() - 10;
 		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case BLOCK_LEVEL_STRONG:
-		iOpinionWeight += 20;
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_STRONG() - 10;
 		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case BLOCK_LEVEL_WEAK:
-		iOpinionWeight += 10;
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_VICTORY_WEAK() - 10;
 		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case BLOCK_LEVEL_NONE:
-		iOpinionWeight = 0;
+		iOpinionWeight = /*0*/ GC.getOPINION_WEIGHT_VICTORY_NONE();
 		break;
 	}
 
@@ -35461,22 +35453,22 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 	if (iNumCivs > 0)
 	{
 		// Full credit for first one
-		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN();
-		iOpinionWeight /= 2;
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN();
+		
 		// Partial credit for any after first
 		if (iNumCivs > 1)
 		{
-			iOpinionWeight += ((GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() / 4) * (iNumCivs - 1));
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() / 2) * (iNumCivs - 1));
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(iOpinionWeight > 0)
+	if (iOpinionWeight > 0)
 	{
 		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
-		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= iTurn)
+		if ((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= iTurn)
 		{
 			iOpinionWeight /= 2;
-			if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= (iTurn * 2))
+			if ((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= (iTurn * 2))
 			{
 				iOpinionWeight = 0;
 			}
