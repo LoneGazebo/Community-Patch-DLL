@@ -7624,6 +7624,7 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 	if (eAttacker == NO_PLAYER)
 		return 0;
 	TeamTypes eAttackerTeam = GET_PLAYER(eAttacker).getTeam();
+	bool bOwnerIsMajor = GET_PLAYER(m_eOwner).isMajorCiv();
 
 	//need to have explored around the city
 	if (!plot()->isRevealed(eAttackerTeam) || !plot()->isAdjacentRevealed(eAttackerTeam))
@@ -7632,17 +7633,21 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 	int iTotalPlots = 0;
 	int iDefenderOwnedPlots = 0;
 	int iAttackerOwnedPlots = 0;
+	int iNeutralPlots = 0;
 	int iCitadelCount = 0;
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 	for (int iI=RING0_PLOTS; iI<RING5_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(plot(), iI);
-		if (!pLoopPlot || !pLoopPlot->isRevealed(eAttackerTeam))
+		if (!pLoopPlot || !pLoopPlot->isRevealed(eAttackerTeam) || pLoopPlot->isImpassable(eAttackerTeam))
 			continue;
 
 		iTotalPlots++;
-		if (!pLoopPlot->isOwned() || pLoopPlot->isImpassable(eAttackerTeam))
+		if (!pLoopPlot->isOwned())
+		{
+			iNeutralPlots++;
 			continue;
+		}
 
 		CvTeam& plotTeam = GET_TEAM(pLoopPlot->getTeam());
 
@@ -7652,12 +7657,16 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 			iDefenderOwnedPlots++;
 		else if (plotTeam.IsVassal(getTeam()))
 			iDefenderOwnedPlots++;
-		else if (plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(getOwner()))
+		else if (bOwnerIsMajor && plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(getOwner()))
 			iDefenderOwnedPlots++;
-		else if (plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(eAttacker))
+		else if (bOwnerIsMajor && plotTeam.isMinorCiv() && GET_PLAYER(pLoopPlot->getOwner()).GetMinorCivAI()->IsAllies(eAttacker))
 			iAttackerOwnedPlots++;
+		else if (!bOwnerIsMajor && plotTeam.isMajorCiv() && GET_PLAYER(getOwner()).GetMinorCivAI()->IsProtectedByMajor(pLoopPlot->getOwner()))
+			iDefenderOwnedPlots++;
 		else if (plotTeam.GetID() == eAttackerTeam)
 			iAttackerOwnedPlots++;
+		else
+			iNeutralPlots++;
 
 		//for the inner plots citadels can be important
 		if (iI<RING3_PLOTS && pLoopPlot->getRevealedImprovementType(eAttackerTeam) == eCitadel && !pLoopPlot->IsImprovementPillaged())
@@ -7670,7 +7679,7 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 	}
 
 	//higher than 100 is good for attack, lower than 100 is good for defender
-	return 100 - (iDefenderOwnedPlots*100)/iTotalPlots + (3*iAttackerOwnedPlots*100)/iTotalPlots + iCitadelCount*3;
+	return max(1,100 - (iDefenderOwnedPlots*100)/iTotalPlots + (iNeutralPlots*100)/iTotalPlots + (3*iAttackerOwnedPlots*100)/iTotalPlots + iCitadelCount*3);
 }
 #endif
 
