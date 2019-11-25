@@ -3963,7 +3963,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 		}
 		// Sanity check - avoid going bankrupt
-		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - pDiploAI->CalculateGoldPerTurnLostFromWar(eWithPlayer, false, false);
+		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - pDiploAI->CalculateGoldPerTurnLostFromWar(eWithPlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
 		if (iAdjustedGoldPerTurn < 0)
 			return INT_MAX;
 
