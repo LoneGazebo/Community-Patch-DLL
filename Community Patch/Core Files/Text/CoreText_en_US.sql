@@ -1069,3 +1069,96 @@ WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_1';
 UPDATE Language_en_US
 SET Text = 'I am sorry, but it is time for our Declaration of Friendship to end.'
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_2';
+
+-- Unimportant capitalization fixes
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_AHMAD_ALMANSUR_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_ASHURBANIPAL_AGREE_SHORT_1';
+
+UPDATE Language_en_US
+SET Text = 'Certainly not.'
+WHERE Tag = 'TXT_KEY_LEADER_ASHURBANIPAL_DISAGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_ATTILA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_CASIMIR_AGREE_SHORT_1';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_DIDO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_ENRICO_DANDOLO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_HARALD_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_KAMEHAMEHA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_MARIA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_MARIA_I_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Certainly not.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT_1';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_PEDRO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_SELASSIE_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
