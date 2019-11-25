@@ -9322,7 +9322,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//how often can we attack this turn (depending on moves left on the plot)
 			if (!vDamageRatios.empty())
 			{
-				int iMaxAttacks = min(unit.iAttacksLeft, (plot.iMovesLeft + GC.getMOVE_DENOMINATOR() - 1) / GC.getMOVE_DENOMINATOR());
+				int iMaxAttacks = NumAttacksForUnit(plot.iMovesLeft, unit.iAttacksLeft);
 				if (iMaxAttacks > 0)
 				{
 					//the best target comes last
@@ -9421,6 +9421,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				iMiscScore++;
 			//when in doubt, stay under air cover
 			if (testPlot.hasAirCover())
+				iMiscScore++;
+			//when in doubt, hide from the enemy
+			if (!testPlot.isVisibleToEnemy() && unit.iAttacksLeft==0)
 				iMiscScore++;
 
 			//the danger value reflects any defensive terrain bonuses
@@ -9755,6 +9758,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bAdjacentToEnemyCitadel = false;
 	bHasAirCover = false;
 	bIsOtherEmbarkedUnit = false;
+	bIsVisibleToEnemy = false;
 	iDamageDealt = 0;
 	eType[0] = TP_FARAWAY;
 	eType[1] = TP_FARAWAY;
@@ -9878,6 +9882,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		bBlockedByEnemyCity = (pPlot->isCity() && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner()));
 		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isEnemyUnit(ePlayer,false,false); //visibility is checked elsewhere!
 		bHasAirCover = pPlot->HasAirCover(ePlayer);
+		bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
 
 		//general handling is a bit awkward
 		nSupportUnitsAdjacent = 0;
@@ -11615,6 +11620,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
+	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();
 
 	cvStopWatch timer("tactsim_offense",NULL,0,true);
 	timer.StartPerfTest();
@@ -11652,7 +11658,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			for (int j = 0; j < RING2_PLOTS; j++)
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-				if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
+				if (pPlot && pPlot->isVisible(ourTeam))
 					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
@@ -11664,7 +11670,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget, i);
-		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ))
+		if (pPlot && pPlot->isVisible(ourTeam))
 			initialPosition->addTacticalPlot(pPlot,ourUnits);
 	}
 

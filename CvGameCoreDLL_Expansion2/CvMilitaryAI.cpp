@@ -1748,15 +1748,15 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	if (!m_pPlayer->GetDiplomacyAI()->IsWantsToConquer(eEnemy))
 	{
 		iMaxTurns = 8; //only very close cities
-		iMinExposureScore = 120; //only if the enemy city is isolated
+		iMinExposureScore = 150; //only if the enemy city is isolated
 	}
 
 	// check for enticing enemy cities
 	vector<OptionWithScore<CvCity*>> mostExposedEnemyCities;
 	for (CvCity* pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 	{
-		//higher than 100 is good, lower is bad
-		int iExposureScore = pEnemyCity->GetExposureScore(m_pPlayer->GetID());
+		//higher than 100 is good for attack, lower is bad
+		int iExposureScore = pEnemyCity->GetExposureScore(m_pPlayer->GetID(),bNavalOp);
 
 		//don't take unnecessary risks
 		if (iExposureScore < iMinExposureScore)

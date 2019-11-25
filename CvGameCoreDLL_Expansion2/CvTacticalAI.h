@@ -1010,6 +1010,7 @@ public:
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isOtherEmbarkedUnit() const { return bIsOtherEmbarkedUnit; }
+	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -1047,6 +1048,7 @@ protected:
 	bool bAdjacentToEnemyCitadel:1;
 	bool bHasAirCover:1;
 	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
+	bool bIsVisibleToEnemy:1;
 
 	eTactPlotType eType[3]; //land, sea, both
 	unsigned char iDamageDealt;

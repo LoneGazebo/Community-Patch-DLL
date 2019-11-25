@@ -7619,7 +7619,7 @@ int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer, bool bJustCount, boo
 	return iCounter/10;
 }
 
-int CvCity::GetExposureScore(PlayerTypes eAttacker) const
+int CvCity::GetExposureScore(PlayerTypes eAttacker, bool bNavalAttack) const
 {
 	if (eAttacker == NO_PLAYER)
 		return 0;
@@ -7633,17 +7633,40 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 	int iTotalPlots = 0;
 	int iDefenderOwnedPlots = 0;
 	int iAttackerOwnedPlots = 0;
+	int iImpassablePlots = 0;
 	int iNeutralPlots = 0;
 	int iCitadelCount = 0;
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 	for (int iI=RING0_PLOTS; iI<RING5_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(plot(), iI);
-		if (!pLoopPlot || !pLoopPlot->isRevealed(eAttackerTeam) || pLoopPlot->isImpassable(eAttackerTeam))
+		if (!pLoopPlot || !pLoopPlot->isRevealed(eAttackerTeam))
 			continue;
 
 		iTotalPlots++;
-		if (!pLoopPlot->isOwned())
+
+		//for inner plots we care if the plot is impassable
+		if (pLoopPlot->isImpassable(eAttackerTeam))
+		{
+			if (iI<RING2_PLOTS)
+				iImpassablePlots++;
+			continue;
+		}
+		else if (pLoopPlot->isWater() && !bNavalAttack)
+		{
+			if (iI < RING2_PLOTS)
+				iImpassablePlots++;
+			continue;
+		}
+		else if (!pLoopPlot->isWater() && bNavalAttack)
+		{
+			if (iI < RING2_PLOTS)
+				iImpassablePlots++;
+			continue;
+		}
+
+		//consider deepwater plots as neutral ... ships move so fast they are no obstacle
+		if (!pLoopPlot->isOwned() || (bNavalAttack && pLoopPlot->isDeepWater()))
 		{
 			iNeutralPlots++;
 			continue;
@@ -7679,7 +7702,8 @@ int CvCity::GetExposureScore(PlayerTypes eAttacker) const
 	}
 
 	//higher than 100 is good for attack, lower than 100 is good for defender
-	return max(1,100 - (iDefenderOwnedPlots*100)/iTotalPlots + (iNeutralPlots*100)/iTotalPlots + (3*iAttackerOwnedPlots*100)/iTotalPlots + iCitadelCount*3);
+	int iScore = 100 + (iAttackerOwnedPlots * 300 + iNeutralPlots * 100	- iDefenderOwnedPlots * 100	- iImpassablePlots * 100) / iTotalPlots + iCitadelCount * 3;
+	return max(1,iScore);
 }
 #endif
 
