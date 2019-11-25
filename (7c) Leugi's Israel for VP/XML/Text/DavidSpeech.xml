@@ -6,7 +6,7 @@
 		<!--General phrases -->
 		<!--Greeting (first time meeting) -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_FIRSTGREETING_1">
-			<Text>Welcome to the Kingdom of Israel. I'm King David, may the lord share blessings upon us both.</Text>
+			<Text>Welcome to the Kingdom of Israel. I'm King David, may the Lord share blessings upon us both.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_FIRSTGREETING_2">
 			<Text>Well met, I'm King David of Israel, and I hope we won't need any unnecessary bloodshed.</Text>
@@ -100,11 +100,11 @@
 			<Text>All right.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_AGREE_SHORT_2">
-			<Text>Very Well.</Text>
+			<Text>Very well.</Text>
 		</Row>
 		<!--Disagrees -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_1">
-			<Text>Certainly Not.</Text>
+			<Text>Certainly not.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_2">
 			<Text>No.</Text>
@@ -134,7 +134,7 @@
 		</Row>
 		<!--Trade offer from player - yes -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_YES_HAPPY">
-			<Text>My people is always glad to welcome your proposals.</Text>
+			<Text>My people are always glad to welcome your proposals.</Text>
 		</Row>
 		<!--Trade offer from player - sweeten the deal -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_HAPPY_1">
@@ -144,7 +144,7 @@
 			<Text>As much as a friend you are, my people can't really accept that...</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_HAPPY_3">
-			<Text>Near enough, but I'm afraid we need more</Text>
+			<Text>Near enough, but I'm afraid we need more.</Text>
 		</Row>
 		<!--Trade offer from player - no -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NO_HAPPY">
@@ -188,7 +188,7 @@
 		<!--Angry -->
 		<!--Greetings (subsequent meetings) -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_5">
-			<Text>What business do you have here, vile one?.</Text>
+			<Text>What business do you have here, vile one?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_6">
 			<Text>What do you want? You're not welcome here.</Text>
@@ -271,7 +271,7 @@
 			<Text>The Qullana peopple will fight for our freedom, no matter who dies first!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_ATTACKED_3">
-			<Text>And so its come to this... Know that we will fight until the end!</Text>
+			<Text>And so it's come to this... Know that we will fight until the end!</Text>
 		</Row>
 	</Language_en_US>
 

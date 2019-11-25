@@ -590,11 +590,10 @@
 			<Text>Skirmisher Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross. -25% [ICON_STRENGTH]/[ICON_RANGED_STRENGHTH] Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR], +50% [ICON_STRENGTH]/[ICON_RANGED_STRENGHTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross. -25% [ICON_STRENGTH]/[ICON_RANGED_STRENGTH] Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR], +50% [ICON_STRENGTH]/[ICON_RANGED_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- New Slinger Promotion -->
-
 		<Row Tag="TXT_KEY_PROMOTION_SLINGER">
 			<Text>Concussive Hits</Text>
 		</Row>
