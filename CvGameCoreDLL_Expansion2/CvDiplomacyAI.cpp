@@ -17413,6 +17413,14 @@ void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iVa
 void CvDiplomacyAI::ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange)
 {
 	SetNumTimesTheyPlottedAgainstUs(ePlayer, GetNumTimesTheyPlottedAgainstUs(ePlayer) + iChange);
+	
+#if defined(MOD_BALANCE_CORE)
+		if (iChange > 0)
+		{
+			SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+#endif
+	
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000 */ GC.getWARMONGER_THREAT_MAJOR_CONQUERED_WEIGHT());
 }
 
