@@ -17399,10 +17399,14 @@ int CvDiplomacyAI::GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const
 /// Sets how many times ePlayer has plotted against us
 void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue)
 {
+	if (iValue >= 0)
+	{
+		m_paiTheyPlottedAgainstUs[ePlayer] = iValue;
+	}
+	
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(iValue >= 0, "DIPLOMACY_AI: Setting number of Majors conquered to a negative value.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_paiTheyPlottedAgainstUs[ePlayer] = iValue;
 }
 
 /// Changes how many times ePlayer has plotted against us
@@ -35250,6 +35254,12 @@ void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 		}
 #endif
 		m_paiNumTimesRobbedBy[ePlayer] += iChange;
+		
+		if (m_paiNumTimesRobbedBy[ePlayer] < 0)
+		{
+			m_paiNumTimesRobbedBy[ePlayer] = 0;
+		}
+		
 		CvAssertMsg(m_paiNumTimesRobbedBy[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Robbed By returned. Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	}
 }
@@ -35726,11 +35736,13 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iNumThefts = (GetNumTimesRobbedBy(ePlayer) + GetNumTimesTheyPlottedAgainstUs(ePlayer));
+	
 #if defined(MOD_BALANCE_CORE)
-	if(GetNumTimesRobbedBy(ePlayer) > 0 + GetNumTimesTheyPlottedAgainstUs(ePlayer))
+	if (iNumThefts > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
-		if((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) > iTurn)
+		if ((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) > iTurn)
 		{
 			ChangeNumTimesRobbedBy(ePlayer, -1);
 			ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
@@ -35738,8 +35750,8 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 		}
 	}
 #endif
-	if ((GetNumTimesRobbedBy(ePlayer) + GetNumTimesTheyPlottedAgainstUs(ePlayer)) > 0)
-		iOpinionWeight += (GetNumTimesRobbedBy(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
+	if (iNumThefts > 0)
+		iOpinionWeight += (iNumThefts * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
 	return iOpinionWeight;
 }
 
