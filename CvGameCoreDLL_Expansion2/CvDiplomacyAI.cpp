@@ -2686,7 +2686,7 @@ void CvDiplomacyAI::DoCounters()
 				int iNegativeDigPoints = GetNegativeArchaeologyPoints(eLoopPlayer);
 				if (iNegativeDigPoints > 0)
 				{
-					if (bAtWar && !bPermaWar && !bMultiplayer && iNegativeDigPoints <= 10)
+					if (bAtWar && !bPermaWar && !bMultiplayer && GetPlayer()->getTeam() != GET_PLAYER(eLoopPlayer).getTeam() && iNegativeDigPoints <= 10)
 					{
 						// Prevent AI forgetting about stolen artifacts without confronting the player about them
 						if (IsPlayerMadeNoDiggingPromise(eLoopPlayer) || IsPlayerBrokenNoDiggingPromise(eLoopPlayer) || IsPlayerIgnoredNoDiggingPromise(eLoopPlayer))
