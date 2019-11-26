@@ -16186,8 +16186,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	
 	bool bIgnoreOtherWars = false;
 	
-	// For humans (Move Troops request), ignore other wars the AI may be waging
-	if (GetPlayer()->isHuman())
+	// For humans (Move Troops request) or if at war with them, ignore other wars the player may be waging
+	if (GetPlayer()->isHuman() || IsAtWar(ePlayer))
 		bIgnoreOtherWars = true;
 
 	AggressivePostureTypes eAggressivePosture;
