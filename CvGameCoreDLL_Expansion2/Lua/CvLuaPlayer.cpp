@@ -12975,6 +12975,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAUGHT_STEALING");
 		aOpinions.push_back(kOpinion);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	iValue = pDiploAI->GetPerformedCoupScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PERFORMED_COUP");
+		aOpinions.push_back(kOpinion);
+	}
+#endif
 	
 	iValue = pDiploAI->GetDugUpMyYardScore(eWithPlayer);
 	if (iValue != 0)

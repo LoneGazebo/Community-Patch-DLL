@@ -2864,9 +2864,14 @@
 			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
 		</Row>
 		
-		<!-- Stolen Artifacts Mod -->
+		<!-- Stolen Artifacts Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
 			<Text>[COLOR_NEGATIVE_TEXT]You excavated their cultural artifacts![ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- City-State Coup Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
+			<Text>[COLOR_NEGATIVE_TEXT]Your spies lowered their City-State Influence in a coup d'état.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aggressive Posture -->
