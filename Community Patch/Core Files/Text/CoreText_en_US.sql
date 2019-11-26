@@ -588,6 +588,26 @@ WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Promises
 UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer their protected City-State, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer another civilization''s protected City-State, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_BROKEN_WITH_OTHERS';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop attacking their protected City-State, and you ignored them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on them, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on another civilization, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to stop excavating their artifacts, and then broke it![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
 
