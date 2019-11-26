@@ -13367,7 +13367,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
-			str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE");
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS");
 		}
 
 		iTempValue = pDiploAI->GetWeDenouncedFriendScore(eWithPlayer);
