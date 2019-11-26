@@ -16181,7 +16181,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	}
 
 	// They resurrected us, so don't worry about it
-	if (WasResurrectedBy(ePlayer))
+	if (WasResurrectedBy(ePlayer) && !IsAtWar(ePlayer))
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
