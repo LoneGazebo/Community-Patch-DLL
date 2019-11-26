@@ -3146,6 +3146,9 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	iOpinionWeight += GetTimesCultureBombedScore(ePlayer);
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	iOpinionWeight += GetPerformedCoupScore(ePlayer);
+#endif
 	iOpinionWeight += GetDugUpMyYardScore(ePlayer);
 
 	//////////////////////////////////////
@@ -3970,14 +3973,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 	}
-#if defined(MOD_BALANCE_CORE)
 	if (IsHolyCityCapturedBy(ePlayer) && !bIsCapitulatedVassal)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 	}
-#endif
 
 	////////////////////////////////////
 	// MILITARY THREAT
@@ -4863,10 +4864,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		// Do we have the same religion?
 		else if (GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) == eMyReligion)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if (!IsHolyCityCapturedBy(ePlayer))
 			{
-#endif
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 				
 				// If it's the World Religion and we control its Holy City, we should work together
@@ -4874,9 +4873,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 				}
-#if defined(MOD_BALANCE_CORE)
 			}
-#endif
 		}
 	}
 	
@@ -11265,12 +11262,14 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 		return true;
 	}
 	
+	/*
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (GetDoFType(ePlayer) >= DOF_TYPE_ALLIES)
 	{
 		return true;
 	}
 #endif
+	*/
 	
 	// Defensive Pact?
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
@@ -11344,12 +11343,15 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 					return true;
 				}
 				
+				/*
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				if (GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES)
 				{
 					return true;
 				}
 #endif
+				*/
+				
 				// Defensive Pact?
 				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()))
 				{
@@ -16176,7 +16178,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	}
 
 	// They resurrected us, so don't worry about it
-	if (WasResurrectedBy(ePlayer))
+	if (WasResurrectedBy(ePlayer) && !IsAtWar(ePlayer))
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
@@ -17394,16 +17396,28 @@ int CvDiplomacyAI::GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const
 /// Sets how many times ePlayer has plotted against us
 void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue)
 {
+	if (iValue >= 0)
+	{
+		m_paiTheyPlottedAgainstUs[ePlayer] = iValue;
+	}
+	
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(iValue >= 0, "DIPLOMACY_AI: Setting number of Majors conquered to a negative value.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_paiTheyPlottedAgainstUs[ePlayer] = iValue;
 }
 
 /// Changes how many times ePlayer has plotted against us
 void CvDiplomacyAI::ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange)
 {
 	SetNumTimesTheyPlottedAgainstUs(ePlayer, GetNumTimesTheyPlottedAgainstUs(ePlayer) + iChange);
+	
+#if defined(MOD_BALANCE_CORE)
+		if (iChange > 0)
+		{
+			SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+		}
+#endif
+	
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000 */ GC.getWARMONGER_THREAT_MAJOR_CONQUERED_WEIGHT());
 }
 
@@ -35245,6 +35259,12 @@ void CvDiplomacyAI::ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange)
 		}
 #endif
 		m_paiNumTimesRobbedBy[ePlayer] += iChange;
+		
+		if (m_paiNumTimesRobbedBy[ePlayer] < 0)
+		{
+			m_paiNumTimesRobbedBy[ePlayer] = 0;
+		}
+		
 		CvAssertMsg(m_paiNumTimesRobbedBy[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Robbed By returned. Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	}
 }
@@ -35653,7 +35673,7 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetHasAdoptedHisReligionScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(m_pPlayer->GetReligions()->HasOthersReligionInMostCities(ePlayer) && !IsHolyCityCapturedBy(ePlayer))
+	if(m_pPlayer->GetReligions()->HasOthersReligionInMostCities(ePlayer) && !IsHolyCityCapturedBy(ePlayer) && GetNegativeReligiousConversionPoints(ePlayer) <= 0)
 	{
 		iOpinionWeight += /*-4*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	}
@@ -35721,22 +35741,57 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	int iNumThefts = GetNumTimesRobbedBy(ePlayer);
+	
+	if (!GET_PLAYER(ePlayer).isHuman())
+	{
+		iNumThefts += GetNumTimesTheyPlottedAgainstUs(ePlayer);
+	}
+	
 #if defined(MOD_BALANCE_CORE)
-	if(GetNumTimesRobbedBy(ePlayer) > 0 + GetNumTimesTheyPlottedAgainstUs(ePlayer))
+	if (iNumThefts > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
-		if((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) > iTurn)
+		if ((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) >= iTurn)
 		{
 			ChangeNumTimesRobbedBy(ePlayer, -1);
-			ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
 			SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+			
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
+			}
 		}
 	}
 #endif
-	if (GetNumTimesRobbedBy(ePlayer) > 0 + GetNumTimesTheyPlottedAgainstUs(ePlayer))
-		iOpinionWeight += (GetNumTimesRobbedBy(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
+	if (iNumThefts > 0)
+		iOpinionWeight += (iNumThefts * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
 	return iOpinionWeight;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPerformedCoupScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	
+	if (GET_PLAYER(ePlayer).isHuman())
+	{
+		iOpinionWeight = (GetNumTimesTheyPlottedAgainstUs(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
+
+		if (iOpinionWeight > 0)
+		{
+			int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
+			if ((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) >= iTurn)
+			{
+				ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
+				SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+			}
+		}
+	}
+	
+	return iOpinionWeight;
+}
+#endif
 
 int CvDiplomacyAI::GetDugUpMyYardScore(PlayerTypes ePlayer)
 {
@@ -45242,6 +45297,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						}
 						
 						ChangeNumTimesRazed(eOtherTeamPlayer, -GetNumTimesRazed(eOtherTeamPlayer));
+						
+						ChangeNumTimesTheyPlottedAgainstUs(eOtherTeamPlayer, -GetNumTimesTheyPlottedAgainstUs(eOtherTeamPlayer));
+						ChangeNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer, -GetNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer));
 #endif
 						SetDemandCounter(eOtherTeamPlayer, -1);
 						ChangeNumTimesCultureBombed(eOtherTeamPlayer, -GetNumTimesCultureBombed(eOtherTeamPlayer));
