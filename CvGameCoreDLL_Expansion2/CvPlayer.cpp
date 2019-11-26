@@ -9837,6 +9837,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 			
 			pDiploAI->ChangeNumTimesRazed(eMePlayer, -pDiploAI->GetNumTimesRazed(eMePlayer));
+			
+			pDiploAI->ChangeNumTimesTheyPlottedAgainstUs(eMePlayer, -pDiploAI->GetNumTimesTheyPlottedAgainstUs(eMePlayer));
+			pDiploAI->ChangeNumTimesTheyLoweredOurInfluence(eMePlayer, -pDiploAI->GetNumTimesTheyLoweredOurInfluence(eMePlayer));
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));

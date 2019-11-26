@@ -45303,6 +45303,9 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						}
 						
 						ChangeNumTimesRazed(eOtherTeamPlayer, -GetNumTimesRazed(eOtherTeamPlayer));
+						
+						ChangeNumTimesTheyPlottedAgainstUs(eOtherTeamPlayer, -GetNumTimesTheyPlottedAgainstUs(eOtherTeamPlayer));
+						ChangeNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer, -GetNumTimesTheyLoweredOurInfluence(eOtherTeamPlayer));
 #endif
 						SetDemandCounter(eOtherTeamPlayer, -1);
 						ChangeNumTimesCultureBombed(eOtherTeamPlayer, -GetNumTimesCultureBombed(eOtherTeamPlayer));
