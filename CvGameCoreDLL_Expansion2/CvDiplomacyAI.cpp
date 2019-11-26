@@ -35738,7 +35738,7 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 		}
 	}
 #endif
-	if (GetNumTimesRobbedBy(ePlayer) > 0 + GetNumTimesTheyPlottedAgainstUs(ePlayer))
+	if ((GetNumTimesRobbedBy(ePlayer) + GetNumTimesTheyPlottedAgainstUs(ePlayer)) > 0)
 		iOpinionWeight += (GetNumTimesRobbedBy(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
 	return iOpinionWeight;
 }
