@@ -12976,6 +12976,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 	
+	iValue = pDiploAI->GetPerformedCoupScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PERFORMED_COUP");
+		aOpinions.push_back(kOpinion);
+	}
+	
 	iValue = pDiploAI->GetDugUpMyYardScore(eWithPlayer);
 	if (iValue != 0)
 	{

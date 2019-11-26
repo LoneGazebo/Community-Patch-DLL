@@ -3146,6 +3146,9 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	iOpinionWeight += GetTimesCultureBombedScore(ePlayer);
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	iOpinionWeight += GetPerformedCoupScore(ePlayer);
+#endif
 	iOpinionWeight += GetDugUpMyYardScore(ePlayer);
 
 	//////////////////////////////////////
@@ -35744,17 +35747,26 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	int iNumThefts = (GetNumTimesRobbedBy(ePlayer) + GetNumTimesTheyPlottedAgainstUs(ePlayer));
+	int iNumThefts = GetNumTimesRobbedBy(ePlayer);
+	
+	if (!GET_PLAYER(ePlayer).isHuman())
+	{
+		iNumThefts += GetNumTimesTheyPlottedAgainstUs(ePlayer);
+	}
 	
 #if defined(MOD_BALANCE_CORE)
 	if (iNumThefts > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
-		if ((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) > iTurn)
+		if ((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) >= iTurn)
 		{
 			ChangeNumTimesRobbedBy(ePlayer, -1);
-			ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
 			SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+			
+			if (!GET_PLAYER(ePlayer).isHuman())
+			{
+				ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
+			}
 		}
 	}
 #endif
@@ -35762,6 +35774,30 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 		iOpinionWeight += (iNumThefts * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
 	return iOpinionWeight;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPerformedCoupScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	
+	if (GET_PLAYER(ePlayer).isHuman())
+	{
+		iOpinionWeight = (GetNumTimesTheyPlottedAgainstUs(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_ROBBED_BY());
+
+		if (iOpinionWeight > 0)
+		{
+			int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
+			if ((GC.getGame().getGameTurn() - GetRobbedTurn(ePlayer)) >= iTurn)
+			{
+				ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
+				SetRobbedTurn(ePlayer, GC.getGame().getGameTurn());
+			}
+		}
+	}
+	
+	return iOpinionWeight;
+}
+#endif
 
 int CvDiplomacyAI::GetDugUpMyYardScore(PlayerTypes ePlayer)
 {

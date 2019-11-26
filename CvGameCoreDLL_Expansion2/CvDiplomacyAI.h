@@ -1335,6 +1335,9 @@ public:
 	int GetSameLatePoliciesScore(PlayerTypes ePlayer);
 	int GetDifferentLatePoliciesScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	int GetPerformedCoupScore(PlayerTypes ePlayer);
+#endif
 	int GetDugUpMyYardScore(PlayerTypes ePlayer);
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
