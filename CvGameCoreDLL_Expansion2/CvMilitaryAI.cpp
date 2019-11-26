@@ -1528,7 +1528,7 @@ bool CvMilitaryAI::HaveValidAttackTarget(PlayerTypes eEnemy)
 
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
-	int ciAgeLimit = 8; //don't switch targets too often but update our cached targets from time and time
+	int ciAgeLimit = 5; //don't switch targets too often but update our cached targets from time and time
 
 	if (eEnemy >= MAX_PLAYERS) //barb cities are valid targets!
 	{
@@ -1555,14 +1555,12 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 			bool bWantNewTarget = (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit);
 
 			//only search for a new target if we didn't already do so this turn
-			int iNewScore = 0;
 			CvMilitaryTarget newTarget;
-			if (cachedTarget.iTurnChosen < GC.getGame().getGameTurn())
+			if (bInvalidTarget || bWantNewTarget)
+			{
+				int iNewScore = 0;
 				newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
-			//if we can't use the old one anymore or the new target is much better
-			if (bInvalidTarget || bWantNewTarget || 3 * iNewScore > 4 * cachedTarget.iScore)
-			{
 				//new target valid?
 				if (newTarget.m_pTargetCity && newTarget.m_pMusterCity)
 				{
@@ -1594,7 +1592,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 					return newTarget;
 				}
 				//no new valid target?
-				else if (bInvalidTarget || bWantNewTarget)
+				else
 				{
 					//don't keep the old invalid target around
 					itE->second.erase(itOp);
@@ -1612,7 +1610,6 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				newTarget.m_bAttackBySea = cachedTarget.bAttackBySea;
 				newTarget.m_bOcean = cachedTarget.bOcean;
 				newTarget.m_bNoLandPath = cachedTarget.bNoLandPath;
-				iNewScore = cachedTarget.iScore;
 
 				/*
 				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
@@ -1628,7 +1625,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 				*/
 
 				if (piWinningScore)
-					*piWinningScore = iNewScore;
+					*piWinningScore = cachedTarget.iScore;
 
 				return newTarget;
 			}
@@ -1775,7 +1772,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		vector<OptionWithScore<CvCity*>> closestOwnedCities;
 		for (CvCity* pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 		{
-			if (TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->GetID(), pFriendlyCity->plot(), 3)<8)
+			if (TacticalAIHelpers::CountDeploymentPlots(pFriendlyCity->plot(), 3, m_pPlayer->getTeam(), bNavalOp)<8)
 				continue;
 
 			//plot distance may be misleading but it's fast

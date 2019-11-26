@@ -8335,38 +8335,35 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 }
 
 ///Returns false if insufficient free plots around the target
-int TacticalAIHelpers::CountDeploymentPlots(PlayerTypes ePlayer, const CvPlot* pTarget, int iRange)
+int TacticalAIHelpers::CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp)
 {
 	int iNumDeployPlotsFound = 0;
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	bool bAllowDeepWater = GET_TEAM(eTeam).canEmbarkAllWaterPassage();
 
-	for(int iDX = -(iRange); iDX <= iRange; iDX++)
+	iRange = max(1, min(5, iRange));
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
-		for(int iDY = -(iRange); iDY <= iRange; iDY++)
-		{
-			CvPlot* pPlot = plotXY(pTarget->getX(), pTarget->getY(), iDX, iDY);
-			if(pPlot != NULL)
-			{
-				int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
-				if(iPlotDistance <= iRange)
-				{
-					if(!pPlot->isValidMovePlot(ePlayer))
-					{
-						continue;
-					}
-					if(!GET_TEAM(eTeam).canEmbark() && pPlot->isWater())
-					{
-						continue;
-					}
-					else if(!GET_TEAM(eTeam).canEmbarkAllWaterPassage() && (pPlot->isDeepWater()))
-					{
-						continue;
-					}
+		CvPlot* pPlot = iterateRingPlots(pTarget, i);
+		if (!pPlot)
+			continue;
 
-					iNumDeployPlotsFound++;
-				}
-			}
+		if(pPlot->isImpassable(eTeam))
+			continue;
+
+		if (pPlot->isOwned() && pPlot->getTeam() != eTeam)
+			continue;
+
+		if (pPlot->isWater())
+		{
+			if (!bForNavalOp)
+				continue;
+			else if(!bAllowDeepWater && pPlot->isDeepWater())
+				continue;
 		}
+		else if (bForNavalOp)
+			continue;
+
+		iNumDeployPlotsFound++;
 	}
 
 	return iNumDeployPlotsFound;

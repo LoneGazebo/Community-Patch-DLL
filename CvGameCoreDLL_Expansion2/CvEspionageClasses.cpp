@@ -803,7 +803,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			if(pCityEspionage->HasCounterSpy())
 			{
 				//Higher better for defense; lower better for offense.
-				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
+				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) * iSpyRankPower;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -852,7 +852,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
-				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
+				iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
 				if (iSpyResult < iChancetoDetectNoCounterSpy /* 150 */ )
@@ -1231,7 +1231,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				int iSpyResult;
 				if (pCityEspionage->HasCounterSpy())
 				{
-					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
+					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
 					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(eCityOwner) * iSpyRankPower;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -1264,7 +1264,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				else
 				{
-					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
+					iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
 					if (iSpyResult < iChancetoDetectNoCounterSpy)
@@ -1881,7 +1881,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 		//Do we have at least something good in here?
 		if(aiAdvancedAction.size() > 1)
 		{
-			int iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, *pCity->plot());
+			int	iSpyResult = GC.getGame().getSmallFakeRandNum(iRandomRollSpyAction, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
 			if (iSpyResult <= 50)
 				return;
 			iSpyResult += (pCity->GetEspionageModifier() + GET_PLAYER(eCityOwner).GetEspionageModifier() * -1);
@@ -4317,12 +4317,14 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 	{
 		if(pCity)
 		{
+			//careful with overflow
 			PlayerTypes eCityOwner = pCity->getOwner();
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
 			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
+			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT();
+			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
-			iBaseYieldRate /= 10000;
 			int iCityEspionageModifier = pCity->GetEspionageModifier();
 			int iPlayerEspionageModifier = GET_PLAYER(eCityOwner).GetEspionageModifier();
 			int iTheirPoliciesEspionageModifier = GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
@@ -4360,12 +4362,14 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 	{
 		if (pCity)
 		{
+			//careful with overflow
 			PlayerTypes eCityOwner = pCity->getOwner();
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_CULTURE, false);
 			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
+			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT();
+			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
-			iBaseYieldRate /= 10000;
 			int iCityEspionageModifier = pCity->GetEspionageModifier();
 			int iPlayerEspionageModifier = GET_PLAYER(eCityOwner).GetEspionageModifier();
 			int iTheirPoliciesEspionageModifier = GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_GW_SLOWER_MODIFIER);
@@ -4509,7 +4513,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			{
 				CvTechEntry* pkTechInfo = GC.getTechInfo(m_aaPlayerStealableTechList[ePlayer][i]);
 				if (pkTechInfo)
-					iMaxTechCost = max(iMaxTechCost, pkTechInfo->GetResearchCost());
+					iMaxTechCost = max(iMaxTechCost, pkTechInfo->GetResearchCost()*100);
 			}
 
 			int iModifier = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() - 100;
