@@ -600,6 +600,14 @@ SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop attacking their protecte
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED';
 
 UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to start a cooperative war against another empire, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop expanding near them, and you ignored them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on them, and then broke it![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
 
@@ -612,10 +620,6 @@ SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to stop excavating their art
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
 
 -- Friend Betrayal
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Your friends found reason to Denounce you![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
-
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
