@@ -11265,12 +11265,14 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 		return true;
 	}
 	
+	/*
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (GetDoFType(ePlayer) >= DOF_TYPE_ALLIES)
 	{
 		return true;
 	}
 #endif
+	*/
 	
 	// Defensive Pact?
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
@@ -11344,12 +11346,15 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 					return true;
 				}
 				
+				/*
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				if (GetDoFType(eLoopPlayer) >= DOF_TYPE_ALLIES)
 				{
 					return true;
 				}
 #endif
+				*/
+				
 				// Defensive Pact?
 				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GetTeam()))
 				{
