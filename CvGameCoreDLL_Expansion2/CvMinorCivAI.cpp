@@ -17222,7 +17222,7 @@ void CvMinorCivAI::DoElection()
 					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
 					
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
+					//GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 #if defined(MOD_EVENTS_ESPIONAGE)
 				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
