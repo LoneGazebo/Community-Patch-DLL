@@ -12647,11 +12647,11 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 		return false;
 	
 	// If the player doesn't have more cities than we do, don't worry about it
-	if (iNumCities <= GetPlayer()->getNumCities())
+	if (ePlayer != GetPlayer()->GetID() && iNumCities <= GetPlayer()->getNumCities())
 		return false;
 	
 	// If this guy's military is as big as ours, then it probably means he's just stronger than us
-	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+	if (ePlayer != GetPlayer()->GetID() && GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 		return false;
 
 	double fAverageNumCities = 0;

@@ -12679,14 +12679,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
 				aOpinions.push_back(kOpinion);
 			}
-			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
-				aOpinions.push_back(kOpinion);
-			}
 		}
 #endif
 	}
@@ -13351,6 +13343,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_VASSAL_ME");
 			aOpinions.push_back(kOpinion);
 		}
+		
+		iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
+			aOpinions.push_back(kOpinion);
+		}
 	}
 #endif
 
@@ -13525,7 +13526,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
+		kOpinion.m_iValue = (iValue + iValue2);
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
 		aOpinions.push_back(kOpinion);
 	}
