@@ -2979,7 +2979,21 @@ int CvLuaUnit::lGetRangeCombatDamage(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	const bool bIncludeRand = lua_toboolean(L, 4);
 
-	const int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, bIncludeRand);
+	int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, bIncludeRand);
+
+#if defined(MOD_BALANCE_CORE)
+	//for visual feedback, take care that we show the precise value
+	if (pkCity && pkCity->HasGarrison())
+	{
+		CvUnit* pGarrison = pkCity->GetGarrisonedUnit();
+		if (pGarrison)
+		{
+			int iGarrisonShare = (iResult*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+			iResult -= iGarrisonShare;
+		}
+	}
+#endif
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -1421,6 +1421,7 @@ void CvTacticalAI::ProcessDominanceZones()
 			//global moves don't depend on a particular zone
 			if (!pkTacticalMoveInfo->IsDominanceZoneMove())
 			{
+				/*
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -1429,6 +1430,7 @@ void CvTacticalAI::ProcessDominanceZones()
 						pkMoveInfo ? pkMoveInfo->GetType() : "unknown", pkMoveInfo ? pkMoveInfo->GetPriority() : -1);
 					LogTacticalMessage(strLogString);
 				}
+				*/
 
 #if defined(MOD_CORE_TACTICAL_MOVE_DELAY_SORT)
 				ZoneMoveWithPrio zmp;
@@ -5746,69 +5748,19 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					{
 #if defined(MOD_BALANCE_CORE)
 						if(pUnit->shouldPillage(pUnit->plot()))
-						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strMsg;
-								strMsg.Format("Pillaging during a barbarian move order. %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-									pUnit->plot()->getX(), pUnit->plot()->getY());
-								LogTacticalMessage(strMsg, false);
-							}
-						}
 #endif
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("%s moved to empty space near target, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-							                    pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
 					}
-					else
-					{
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("No target for %s at position, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-				}
 
+					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+				}
 				// NAVAL MOVES
 				else
 				{
-
-					AI_PERF_FORMAT("AI-perf-tact.csv", ("Barb Naval Move, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
 					pBestPlot = FindBestBarbarianSeaMove(pUnit);
-
-					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_SEA,12))
-					{
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Moving %s to new position, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-							                    pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-					else
-					{
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("No target for %s at position, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
+					MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12);
+					//no naval pillaging, it's just too annoying
+					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 				}
 			}
 		}
@@ -8402,6 +8354,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		//   prefer being in your own territory with the lowest danger value
 		//   prefer the lowest danger value
 
+		// plot danger is a bit unreliable, so we need extra checks
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
 
@@ -8440,12 +8393,20 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 2;
 
 		//heal rate is higher here and danger lower
-		if (bIsInTerritory && !pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+		if (bIsInTerritory)
+		{
 			iDanger -= 5;
+			if (!pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+				iDanger -= 5;
+		}
 
 		//try to go where our friends are
 		int iFriendlyUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN);
 		iDanger -= (iFriendlyUnitsAdjacent * 5);
+
+		//don't go where our foes are
+		int iEnemyUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), NULL, true);
+		iDanger += (iEnemyUnitsAdjacent * 5);
 		
 		//use city distance as tiebreaker
 		int iScore = iDanger * 10 + iCityDistance;
@@ -9329,8 +9290,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					//also we want the real attacks to have higher scores than movement to guarantee they are picked!
 					iDamageScore += (iMaxAttacks * vDamageRatios.back()) / 2;
 				}
-				else
-					iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
 			}
 		}
 

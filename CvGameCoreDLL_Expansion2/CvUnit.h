@@ -2313,7 +2313,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDiploMissionInfluence;
 	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
-	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
+	FAutoVariable<int, CvUnit> m_iReuseMe; // <-------------------------------
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iHurryStrength;

@@ -379,7 +379,7 @@ CvUnit::CvUnit() :
 	, m_pReligion(FNEW(CvUnitReligion, c_eCiv5GameplayDLL, 0))
 	, m_iMapLayer("CvUnit::m_iMapLayer", m_syncArchive, DEFAULT_UNIT_MAP_LAYER)
 	, m_iNumGoodyHutsPopped("CvUnit::m_iNumGoodyHutsPopped", m_syncArchive)
-	, m_iLastGameTurnAtFullHealth("CvUnit::m_iLastGameTurnAtFullHealth", m_syncArchive, -1)
+	, m_iReuseMe("CvUnit::m_iReuseMe", m_syncArchive, -1)
 	, m_eCombatType("CvUnit::m_eCombatType", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iOriginCity("CvUnit::m_iOriginCity", m_syncArchive)
@@ -1776,7 +1776,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
-	m_iLastGameTurnAtFullHealth = -1;
+	m_iReuseMe = -1;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	m_strMissionInfoString = "";
@@ -15979,7 +15979,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 				if(eTheirReligion == NO_RELIGION)
 					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 
-				if (eFoundedReligion != NO_RELIGION)
+				if (eFoundedReligion != NO_RELIGION && eFoundedReligion == kPlayer.GetReligions()->GetReligionInMostCities())
 				{
 					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
 					if(pReligion)
@@ -16741,7 +16741,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				{
 					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 				} 
-				if (eFoundedReligion != NO_RELIGION)
+				if (eFoundedReligion != NO_RELIGION && eFoundedReligion == kPlayer.GetReligions()->GetReligionInMostCities())
 				{
 					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
 					if(pReligion)
@@ -20719,15 +20719,8 @@ int CvUnit::getDamage() const
 int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT
-	int iOldValue;
+	int iOldValue = getDamage();
 	float fDelay = 0.0f + fAdditionalTextDelay;
-
-	iOldValue = getDamage();
-
-	if(GetCurrHitPoints() == GetMaxHitPoints() && iNewValue < GetMaxHitPoints()) 
-	{
-		m_iLastGameTurnAtFullHealth = GC.getGame().getGameTurn();
-	}
 
 	m_iDamage = range(iNewValue, 0, GetMaxHitPoints());
 	int iDiff = m_iDamage - iOldValue;
@@ -20826,33 +20819,24 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 
 	if(IsDead())
 	{
-#if !defined(NO_ACHIEVEMENTS)
-		CvGame& game = GC.getGame();
-		const PlayerTypes eActivePlayer = game.getActivePlayer();
-		CvPlayerAI& activePlayer = GET_PLAYER(eActivePlayer);
-		if(m_iLastGameTurnAtFullHealth != -1 && m_iLastGameTurnAtFullHealth == game.getGameTurn() && getOwner() == eActivePlayer && activePlayer.isHuman())
-		{
-			CvUnitEntry* pUnitInfo = GC.getUnitInfo(getUnitType());
-			if(pUnitInfo != NULL && strcmp(pUnitInfo->GetType(),"UNIT_XCOM_SQUAD") == 0)
-			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_46);
-			}
-		}
-#endif
-
-		m_iLastGameTurnAtFullHealth = -1;
-
-		kill(true, ePlayer);
-
 		CvString szMsg;
-		CvString szUnitAIString;
-		getUnitAIString(szUnitAIString, AI_getUnitAIType());
-		szMsg.Format("Killed in combat: %s, AI was: ", getName().GetCString());
-		szMsg += szUnitAIString;
+		CvString lastMission("no_tactical_move");
+		if (m_eTacticalMove!=NO_TACTICAL_MOVE)
+		{
+			CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
+			if (pkMoveInfo)
+				lastMission == (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
+		}
+		szMsg.Format("KilledInCombat %s, LastMove %s, KilledBy %d", getName().GetCString(), lastMission.c_str(), ePlayer);
 		GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+
+		//--- finally ----------------------------
+		kill(true, ePlayer);
+		//----------------------------------------
 
 		if(ePlayer != NO_PLAYER)
 		{
+			//for barbarian conversion trait
 			if(m_eOwner == BARBARIAN_PLAYER && plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
 				GET_PLAYER(ePlayer).GetPlayerTraits()->SetDefeatedBarbarianCampGuardType(getUnitType());
