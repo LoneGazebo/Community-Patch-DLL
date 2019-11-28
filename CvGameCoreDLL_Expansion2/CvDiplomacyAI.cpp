@@ -5591,6 +5591,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+				viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 				iWarScratchValueOverride = 0;
 			}
 		}
