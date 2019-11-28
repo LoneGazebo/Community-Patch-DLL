@@ -15034,19 +15034,19 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		{
 			return true;
 		}
-		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POWERFUL)
+		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_STRONG)
 		{
 			return true;
 		}
-		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_STRONG)
+		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_POWERFUL)
 		{
 			return true;
 		}
-		if (eEconomicStrength <= STRENGTH_POOR && eMilitaryStrength <= STRENGTH_POWERFUL)
+		if (eEconomicStrength <= STRENGTH_POOR && eMilitaryStrength <= STRENGTH_STRONG)
 		{
 			return true;
 		}
-		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_STRONG)
+		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_POWERFUL)
 		{
 			return true;
 		}
