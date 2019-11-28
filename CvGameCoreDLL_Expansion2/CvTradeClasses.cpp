@@ -5229,7 +5229,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		}
 	}
 	// Diplo penalty for destination civilization if not at war (and they're not at war with the owner)
-	if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())
+	if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())
 	{
 		if (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && pPlunderPlot->isVisible(eDestTeam)))
 		{
