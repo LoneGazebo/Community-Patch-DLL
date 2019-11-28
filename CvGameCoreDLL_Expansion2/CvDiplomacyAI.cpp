@@ -5641,9 +5641,20 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 		}
 		
-		// If WE'RE somebody's vassal, we shouldn't usually be hostile to anyone except our master
+		// WE'RE somebody's vassal
 		if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone() && !IsVassal(ePlayer))
 		{
+			if (!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+				iWarScratchValueOverride = 0;
+			}
+			else if (GetPlayerNumTurnsAtWar(ePlayer) <= 1 && GetPlayer()->GetApproachScratchValue(ePlayer, MAJOR_CIV_APPROACH_WAR) == 0)
+			{
+				iWarScratchValueOverride = viApproachWeights[MAJOR_CIV_APPROACH_WAR];
+			}
+			
+			// We shouldn't usually be hostile to anyone except our master
 			if (!IsUntrustworthyFriend(ePlayer) && !IsNukedBy(ePlayer))
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
