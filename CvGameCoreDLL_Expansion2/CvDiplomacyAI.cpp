@@ -3884,7 +3884,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 	}
 	
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(eMyPlayer)
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->WasResurrectedBy(eMyPlayer))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
@@ -5401,17 +5401,29 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		if (GetPlayer()->GetMilitaryAI()->HaveValidAttackTarget(ePlayer))
 		{
+			bool bWantsConquest = (IsGoingForWorldConquest() || IsCloseToDominationVictory() || ((GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN) && (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)));
+			
 			// Factor in distance
 			switch (GetPlayer()->GetProximityToPlayer(ePlayer))
 			{
 			case PLAYER_PROXIMITY_NEIGHBORS:
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
+				if (!bWantsConquest)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
+				}
+				else
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*250*/ (GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() + 50);
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*250*/ (GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() + 50);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
+				}
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
-				if (!IsGoingForWorldConquest() && !IsCloseToDominationVictory())
+				if (!bWantsConquest)
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
@@ -5427,7 +5439,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				break;
 			case PLAYER_PROXIMITY_FAR:
-				if ((!IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || !m_pPlayer->CanCrossOcean())
+				if (!bWantsConquest || !m_pPlayer->CanCrossOcean())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*100*/ GC.getAPPROACH_WAR_PROXIMITY_FAR();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
@@ -5436,14 +5448,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				else
 				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*200*/ GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS();
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
 				}
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				if ((!IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || !m_pPlayer->CanCrossOcean())
+				if (!bWantsConquest || !m_pPlayer->CanCrossOcean())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*50*/ GC.getAPPROACH_WAR_PROXIMITY_DISTANT();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
@@ -5452,9 +5464,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				else
 				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*100*/ GC.getAPPROACH_WAR_PROXIMITY_FAR();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*100*/ GC.getAPPROACH_WAR_PROXIMITY_FAR();
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
 				}
 				break;
