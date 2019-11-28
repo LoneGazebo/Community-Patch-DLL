@@ -9217,12 +9217,22 @@ void CvDiplomacyAI::MakeWar()
 					PlayerTypes eThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
 
 					bool bInvalid = false;
-					if (!IsPlayerValid(eThirdPlayer))
+					if (!IsPlayerValid(eLoopPlayer) || !IsPlayerValid(eThirdPlayer))
+					{
+						bInvalid = true;
+					}
+					
+					if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), eLoopPlayer) && !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), GetPlayer()->GetID()))
 					{
 						bInvalid = true;
 					}
 
-					if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), eLoopPlayer) || (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), GetPlayer()->GetID()) && !GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
+					if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), GetPlayer()->GetID()) && !GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eThirdPlayer).getTeam()))
+					{
+						bInvalid = true;
+					}
+					
+					if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), eLoopPlayer) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GET_PLAYER(eThirdPlayer).getTeam()))
 					{
 						bInvalid = true;
 					}
