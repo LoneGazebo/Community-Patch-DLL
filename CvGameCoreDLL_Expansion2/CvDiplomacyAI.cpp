@@ -3734,7 +3734,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
+	TeamTypes eMyTeam = GetPlayer()->getTeam();
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
 	MajorCivApproachTypes eApproach;
@@ -33385,7 +33385,7 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 	
 	// Stole our capital/Holy City? Unless we're your vassal, we don't care about anything you have to say...
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (!IsVassal(ePlayer) && (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer)))
+	if ((!IsVassal(ePlayer) || GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam())) && (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer)))
 #else
 	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer))
 #endif
