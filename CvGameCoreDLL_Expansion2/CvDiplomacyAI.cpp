@@ -5417,7 +5417,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
 				break;
 			case PLAYER_PROXIMITY_FAR:
-				if (!IsGoingForWorldConquest() || !m_pPlayer->CanCrossOcean())
+				if ((!IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || !m_pPlayer->CanCrossOcean())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*100*/ GC.getAPPROACH_WAR_PROXIMITY_FAR();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
@@ -5433,7 +5433,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				break;
 			case PLAYER_PROXIMITY_DISTANT:
-				if (!IsGoingForWorldConquest() || !m_pPlayer->CanCrossOcean())
+				if ((!IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || !m_pPlayer->CanCrossOcean())
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*50*/ GC.getAPPROACH_WAR_PROXIMITY_DISTANT();
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
