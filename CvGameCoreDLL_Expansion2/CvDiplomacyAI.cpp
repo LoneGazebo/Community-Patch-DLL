@@ -5469,7 +5469,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 	
 	// Easy target? War good, demands and sulking less good.
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (bIsEasyTarget && !IsDoFAccepted(ePlayer) && !GET_TEAM(GetTeam()).IsVassalOfSomeone())
+#else
 	if (bIsEasyTarget && !IsDoFAccepted(ePlayer))
+#endif
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 125;
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
