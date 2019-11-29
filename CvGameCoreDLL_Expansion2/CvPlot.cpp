@@ -2425,6 +2425,14 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		bValid = true;
 	}
 
+	if(pkImprovementInfo->IsAnyBodyOfWaterMakesValid())
+	{
+		if (isCoastalLand() || isFreshWater() || isRiver()) 
+		{
+			bValid = true;
+		}
+	}
+
 	if(pkImprovementInfo->IsFreshWaterMakesValid() && isFreshWater())
 	{
 		bValid = true;
