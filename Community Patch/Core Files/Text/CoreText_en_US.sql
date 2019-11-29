@@ -214,6 +214,15 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CITADEL_TEXT';
 
 -- CS Stuff
 
+-- Merchant of Venice
+UPDATE Language_en_US
+SET Text = 'The Merchant of Venice will use his considerable wealth to purchase a City-State and place it under your control as a [ICON_PUPPET] Puppet City. You will also gain control over all of the City-State''s existing units.'
+WHERE Tag = 'TXT_KEY_MISSION_BUY_CITY_STATE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Your Merchant of Venice bought a City-State!'
+WHERE Tag = 'TXT_KEY_VENETIAN_MERCHANT_BOUGHT_CITY_STATE';
+
 -- Bullying/Tribute
 UPDATE Language_en_US
 SET Text = 'Enslave {@1_Unit} - lose {2_NumInfluence} [ICON_INFLUENCE] Influence'
