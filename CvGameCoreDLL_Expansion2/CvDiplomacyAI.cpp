@@ -13075,6 +13075,10 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	
+	// Anger over attacked/killed city-states trumps this, don't stack
+	if (IsAngryAboutProtectedMinorKilled(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer))
+		return false;
 
 	int iNumProtectedMinorsBullied = GetOtherPlayerNumProtectedMinorsBullied(ePlayer);
 	if (iNumProtectedMinorsBullied > 0)
