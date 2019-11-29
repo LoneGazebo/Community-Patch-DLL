@@ -851,38 +851,38 @@
 			<Text>Siege I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II">
 			<Text>Siege II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III">
 			<Text>Siege III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I">
 			<Text>Field I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II">
 			<Text>Field II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III">
 			<Text>Field III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">
@@ -962,3 +962,4 @@
 		</Row>
 	</Language_en_US>
 </GameData>
+TXT_KEY_PROMOTION_SLINGER_HELP
