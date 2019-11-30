@@ -317,6 +317,7 @@ public:
 	int GetYieldFromKills(int i) const;
 	int GetYieldFromBarbarianKills(int i) const;
 	int GetGarrisonYield(int i) const;
+	int GetFortificationYield(int i) const;
 #endif
 	int GetUnitCombatModifierPercent(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
@@ -631,6 +632,7 @@ protected:
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
 	int* m_piGarrisonYield;
+	int* m_piFortificationYield;
 #endif
 	int* m_piUnitCombatModifierPercent;
 	int* m_piUnitClassModifierPercent;

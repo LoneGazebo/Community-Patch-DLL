@@ -283,6 +283,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piGarrisonYield(NULL),
+	m_piFortificationYield(NULL),
 #endif
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitClassModifierPercent(NULL),
@@ -335,6 +336,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
 	SAFE_DELETE_ARRAY(m_piGarrisonYield);
+	SAFE_DELETE_ARRAY(m_piFortificationYield);
 #endif
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
@@ -899,6 +901,33 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Bind(1, szPromotionType);
 
 		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piGarrisonYield[iYieldID] = iYield;
+		}
+	}
+
+	//UnitPromotions_FortificationYield
+	{
+		kUtility.InitializeArray(m_piFortificationYield, NUM_YIELD_TYPES, 0);
+
+		std::string sqlKey = "UnitPromotions_FortificationYield";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_FortificationYield.* from UnitPromotions_FortificationYield inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if (!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
 			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
@@ -2613,6 +2642,19 @@ int CvPromotionEntry::GetGarrisonYield(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piGarrisonYield)
 	{
 		return m_piGarrisonYield[i];
+	}
+
+	return 0;
+}
+
+int CvPromotionEntry::GetFortificationYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piFortificationYield)
+	{
+		return m_piFortificationYield[i];
 	}
 
 	return 0;

@@ -948,6 +948,9 @@ public:
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
+	int GetFortificationYieldChange(YieldTypes eYield) const;
+	void SetFortificationYieldChange(YieldTypes eYield, int iValue);
+
 	inline int GetID() const
 	{
 		return m_iID;
@@ -2244,6 +2247,7 @@ protected:
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
 	std::vector<int> m_iGarrisonYieldChange;
+	std::vector<int> m_iFortificationYieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;
