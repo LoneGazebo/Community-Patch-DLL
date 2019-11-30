@@ -542,6 +542,10 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier *= 2;
 	}
+	else if (pPlot->needsEmbarkation(pUnit) && pUnit->isFreeEmbark())
+	{
+		iModifier = 0;
+	}
 
 	return iModifier;
 }
