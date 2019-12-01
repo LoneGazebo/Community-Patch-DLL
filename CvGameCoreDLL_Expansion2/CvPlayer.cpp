@@ -3144,6 +3144,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// zero out any liberation credit since we just captured a city from them
 			PlayerTypes ePlayer;
 			CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI();
+			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
 			int iNumLiberatedCities = pOldOwnerDiploAI->GetNumCitiesLiberated(GetID());
 			pOldOwnerDiploAI->ChangeNumCitiesLiberated(GetID(), -iNumLiberatedCities);
 
@@ -9734,13 +9735,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 	else
 	{
-		if (!bForced)
-		{
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
-#if defined(MOD_BALANCE_CORE)
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
-#endif
-		}
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{
 			// add notification
@@ -9785,6 +9779,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
 #endif
 
+	// Diplo bonus for returning the city
+	if (!bForced)
+	{
+		if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerLiberatedCapital(m_eID, true);
+		}
+				
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
+#if defined(MOD_BALANCE_CORE)
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
+#endif
+	}
+
 	if (!GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		// slewis - if the player we're liberating the city for is dead, give the liberating player a resurrection mark in the once-defeated player's book
@@ -9796,8 +9804,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
-			
-			pDiploAI->ChangeNumCitiesLiberated(eMePlayer, 1);
 			
 			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
 			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
@@ -9837,9 +9843,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 			
 			pDiploAI->ChangeNumTimesRazed(eMePlayer, -pDiploAI->GetNumTimesRazed(eMePlayer));
+			pDiploAI->ChangeNumTradeRoutesPlundered(eMePlayer, -pDiploAI->GetNumTradeRoutesPlundered(eMePlayer));
 			
-			pDiploAI->ChangeNumTimesTheyPlottedAgainstUs(eMePlayer, -pDiploAI->GetNumTimesTheyPlottedAgainstUs(eMePlayer));
-			pDiploAI->ChangeNumTimesTheyLoweredOurInfluence(eMePlayer, -pDiploAI->GetNumTimesTheyLoweredOurInfluence(eMePlayer));
+			pDiploAI->ChangeNumArtifactsEverDugUp(eMePlayer, -pDiploAI->GetNumArtifactsEverDugUp(eMePlayer));
+			pDiploAI->SetPlayerEverConvertedCity(eMePlayer, false);
+			
+			pDiploAI->SetNumTimesTheyPlottedAgainstUs(eMePlayer, 0);
+			pDiploAI->SetNumTimesTheyLoweredOurInfluence(eMePlayer, 0);
+			pDiploAI->SetNumTimesPerformedCoupAgainstUs(eMePlayer, 0);
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
 			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));

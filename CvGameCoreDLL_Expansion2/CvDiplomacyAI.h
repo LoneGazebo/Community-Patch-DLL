@@ -439,6 +439,9 @@ public:
 
 	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
 	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
+	
+	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
+	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
 
 	int GetNumCitiesLiberated(PlayerTypes ePlayer);
 	void ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange);
@@ -638,6 +641,10 @@ public:
 	int GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const;
 	void SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iChange);
+	
+	int GetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer) const;
+	void SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
 #endif
 
 	// Get the amount of warmonger hatred they generated
@@ -835,6 +842,11 @@ public:
 
 	int GetNumDemandEverMade(PlayerTypes ePlayer) const;
 	bool IsDemandEverMade(PlayerTypes ePlayer) const;
+	
+#if defined(MOD_BALANCE_CORE)
+	int GetDemandMadeTurn(PlayerTypes ePlayer) const;
+	void SetDemandMadeTurn(PlayerTypes ePlayer, int iValue);
+#endif
 
 	short GetDemandCounter(PlayerTypes ePlayer) const;
 	void SetDemandCounter(PlayerTypes ePlayer, int iValue);
@@ -1278,8 +1290,17 @@ public:
 	int GetReligiousConversionTurn(PlayerTypes ePlayer) const;
 	void SetReligiousConversionTurn(PlayerTypes ePlayer, int iChange);
 	
+	int GetPlunderedTradeRouteTurn(PlayerTypes ePlayer) const;
+	void SetPlunderedTradeRouteTurn(PlayerTypes ePlayer, int iChange);
+	
 	int GetRobbedTurn(PlayerTypes ePlayer) const;
 	void SetRobbedTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetPlottedAgainstUsTurn(PlayerTypes ePlayer) const;
+	void SetPlottedAgainstUsTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetPerformedCoupTurn(PlayerTypes ePlayer) const;
+	void SetPerformedCoupTurn(PlayerTypes ePlayer, int iChange);
 #endif
 
 	bool WasResurrectedBy(PlayerTypes ePlayer) const;
@@ -1291,12 +1312,21 @@ public:
 
 	int GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const;
 	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
+	
+#if defined(MOD_BALANCE_CORE)
+	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
+	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
+#endif
 
 	int GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const;
 	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
 #if defined(MOD_BALANCE_CORE)
+	bool HasPlayerEverConvertedCity(PlayerTypes ePlayer) const;
+	void SetPlayerEverConvertedCity(PlayerTypes ePlayer);
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
+	int GetNumTradeRoutesPlundered(PlayerTypes ePlayer) const;
+	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
 #endif
 	int GetNumTimesNuked(PlayerTypes ePlayer) const;
 	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
@@ -1322,6 +1352,7 @@ public:
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);
 	int GetLandmarksBuiltForMeScore(PlayerTypes ePlayer);
 	int GetResurrectedScore(PlayerTypes ePlayer);
+	int GetLiberatedCapitalScore(PlayerTypes ePlayer);
 	int GetLiberatedCitiesScore(PlayerTypes ePlayer);
 	int GetEmbassyScore(PlayerTypes ePlayer);
 	int GetForgaveForSpyingScore(PlayerTypes ePlayer);
@@ -1336,13 +1367,15 @@ public:
 	int GetDifferentLatePoliciesScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
-	int GetPerformedCoupScore(PlayerTypes ePlayer);
+	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
+	int GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer);
+	int GetTimesPerformedCoupScore(PlayerTypes ePlayer);
 #endif
 	int GetDugUpMyYardScore(PlayerTypes ePlayer);
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer);
-	int GetIgnoredMilitaryPromiseScore(/*PlayerTypes ePlayer*/);
+	int GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenBorderPromiseScore(PlayerTypes ePlayer);
@@ -1681,11 +1714,15 @@ private:
 		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
 		short m_aiNumTimesRazed[REALLY_MAX_PLAYERS];
+		short m_aiNumTradeRoutesPlundered[REALLY_MAX_PLAYERS];
 		bool m_abPlayerEverMadeBorderPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerEverMadeExpansionPromise[MAX_MAJOR_CIVS];
 		bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
 		bool m_abHelpRequestEverMade[MAX_MAJOR_CIVS];
 		int m_aiDemandEverMade[MAX_MAJOR_CIVS];
+		short m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
+		int m_aiArtifactsEverDugUp[MAX_MAJOR_CIVS];
+		bool m_abEverConvertedCity[MAX_MAJOR_CIVS];
 		bool m_abPlayerNoSettleRequestEverAsked[MAX_MAJOR_CIVS];
 		bool m_abPlayerStopSpyingRequestEverAsked[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMeTurn[MAX_MAJOR_CIVS];
@@ -1695,7 +1732,10 @@ private:
 		short m_aiLiberatedCitiesTurn[MAX_MAJOR_CIVS];
 		short m_aiIntrigueSharedTurn[MAX_MAJOR_CIVS];
 		short m_aiReligiousConversionTurn[MAX_MAJOR_CIVS];
+		short m_aiPlunderedTradeRouteTurn[MAX_MAJOR_CIVS];
 		short m_aiTimesRobbedTurn[MAX_MAJOR_CIVS];
+		short m_aiPlottedAgainstUsTurn[MAX_MAJOR_CIVS];
+		short m_aiPerformedCoupTurn[MAX_MAJOR_CIVS];
 #endif
 		short m_aiNumTimesNuked[MAX_MAJOR_CIVS];
 		short m_aiNumTimesRobbedBy[MAX_MAJOR_CIVS];
@@ -1707,6 +1747,7 @@ private:
 		short m_aiIgnoredBorderPromiseValue[MAX_MAJOR_CIVS];
 
 		short m_aiDeclaredWarOnFriendValue[MAX_MAJOR_CIVS];
+		bool m_abPlayerLiberatedCapital[MAX_MAJOR_CIVS];
 		short m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];
 
 		short m_aiTradeValue[MAX_MAJOR_CIVS];
@@ -1714,7 +1755,6 @@ private:
 		short m_aiAssistValue[MAX_MAJOR_CIVS];
 
 		// Player's response to AI statements
-
 		bool m_abPlayerMadeMilitaryPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerBrokenMilitaryPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerIgnoredMilitaryPromise[MAX_MAJOR_CIVS];
@@ -1777,6 +1817,7 @@ private:
 #if defined(MOD_API_EXTENSIONS)
 		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
 		char m_aiTheyLoweredOurInfluence[MAX_MAJOR_CIVS];
+		char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
 		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 #else
 		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
@@ -2014,13 +2055,18 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	short* m_paiNumTimesRazed;
+	short* m_paiNumTradeRoutesPlundered;
+	short* m_paiDemandMadeTurn;
 	short* m_paiNumLandmarksBuiltForMeTurn;
 	short* m_paiCiviliansReturnedToMeTurn;
 	short* m_paiPlayerForgaveForSpyingTurn;
 	short* m_paiLiberatedCitiesTurn;
 	short* m_paiIntrigueSharedTurn;
 	short* m_paiReligiousConversionTurn;
+	short* m_paiPlunderedTradeRouteTurn;
 	short* m_paiTimesRobbedTurn;
+	short* m_paiPlottedAgainstUsTurn;
+	short* m_paiPerformedCoupTurn;
 #endif
 	short* m_paiNumTimesNuked;
 	short* m_paiNumTimesRobbedBy;
@@ -2035,6 +2081,7 @@ private:
 	short* m_paiCommonFoeValue;
 	short* m_paiAssistValue;
 
+	bool* m_pabPlayerLiberatedCapital;
 	short* m_paiNumCitiesLiberated;
 
 	bool** m_ppaabWorkingAgainstPlayerAccepted;
@@ -2043,8 +2090,7 @@ private:
 	char** m_ppaacCoopWarAcceptedState;
 	short** m_ppaaiCoopWarCounter;
 
-	// Player's repsonse to AI statements
-
+	// Player's response to AI statements
 	bool* m_pabPlayerMadeMilitaryPromise;
 	bool* m_pabPlayerBrokenMilitaryPromise;
 	bool* m_pabPlayerIgnoredMilitaryPromise;
@@ -2065,6 +2111,8 @@ private:
 	bool* m_pabDoFEverAsked;
 	bool* m_pabHelpRequestEverMade;
 	int*  m_paiDemandEverMade;
+	int*  m_paiArtifactsEverDugUp;
+	bool* m_pabEverConvertedCity;
 	bool* m_pabPlayerNoSettleRequestEverAsked;
 	bool* m_pabPlayerStopSpyingRequestEverAsked;
 #endif
@@ -2137,6 +2185,7 @@ private:
 #if defined(MOD_API_EXTENSIONS)
 	char* m_paiTheyPlottedAgainstUs;
 	char* m_paiTheyLoweredOurInfluence;
+	char* m_paiPerformedCoupAgainstUs;
 	int*  m_paiOtherPlayerWarmongerAmountTimes100;
 #else
 	int*  m_paiOtherPlayerWarmongerAmount;

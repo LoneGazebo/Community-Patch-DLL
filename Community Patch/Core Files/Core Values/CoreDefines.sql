@@ -300,7 +300,42 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', '10';
 
--- Defensive Pact Values
+-- Missing Firaxis Opinion Weights
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_BROKEN_BULLY_CITY_STATE_PROMISE', '20';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_IGNORED_BULLY_CITY_STATE_PROMISE', '10';
+
+-- Victory Block Opinion Weights
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '30';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', '20';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_WEAK', '10';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_NONE', '0';
+
+-- Research Agreement Opinion Weight
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_RA', '-5';
+
+-- Defensive Pact Opinion Weights
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_DP', '-10';
+
 INSERT INTO Defines (
 Name, Value)
 SELECT 'OPINION_WEIGHT_DP_WITH_FRIEND', '-5';
@@ -309,11 +344,7 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'OPINION_WEIGHT_DP_WITH_ENEMY', '10';
 
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_DP', '-10';
-
--- Open Borders Values
+-- Open Borders Opinion Weights
 INSERT INTO Defines (
 Name, Value)
 SELECT 'OPINION_WEIGHT_OPEN_BORDERS_MUTUAL', '-12';
@@ -325,6 +356,19 @@ SELECT 'OPINION_WEIGHT_OPEN_BORDERS_US', '-8';
 INSERT INTO Defines (
 Name, Value)
 SELECT 'OPINION_WEIGHT_OPEN_BORDERS_THEM', '-4';
+
+-- Theft Opinion Weights
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_PLUNDERED_TRADE_ROUTE', '10';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_PLOTTED_AGAINST_US', '20';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_PERFORMED_COUP', '15';
 
 -- Open Borders Trade Gold Value (halved if not mutual)
 INSERT INTO Defines (
