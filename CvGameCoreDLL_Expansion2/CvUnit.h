@@ -1100,6 +1100,10 @@ public:
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
 
+	int getFreeEmbarkMoveCount() const;
+	bool isFreeEmbark() const;
+	void changeFreeEmbarkMoveCount(int iChange);
+
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
 	
@@ -1989,6 +1993,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+	FAutoVariable<int, CvUnit> m_iFreeEmbarkMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iAoEDamageOnMove;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;

@@ -182,6 +182,7 @@ public:
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
 	bool IsMountainsDoubleMove() const;
+	bool IsFreeEmbark() const;
 	bool IsMountedOnly() const;
 	int GetAOEDamageOnKill() const;
 	int GetAoEDamageOnMove() const;
@@ -532,6 +533,7 @@ protected:
 	int m_iLandAirDefenseValue;
 	int m_iDamageReductionCityAssault;
 	bool m_bMountainsDoubleMove;
+	bool m_bFreeEmbark;
 	bool m_bMountedOnly;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
