@@ -262,6 +262,9 @@ ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 -- Improvement grants extra moves when unit is on this plot
 ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
+-- Improvement requires any body of water adjacent to it in order to be built
+ALTER TABLE Improvements ADD COLUMN 'AnyBodyOfWaterMakesValid' BOOLEAN DEFAULT 0;
+
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
 
