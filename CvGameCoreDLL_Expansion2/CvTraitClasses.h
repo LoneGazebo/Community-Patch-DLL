@@ -128,6 +128,7 @@ public:
 	bool IsNoNaturalReligionSpread() const;
 	bool IsNoOpenTrade() const;
 	bool IsGoldenAgeOnWar() const;
+	bool IsUnableToCancelRazing() const;
 	int GetWLTKDGPImprovementModifier() const;
 	int GetGrowthBoon() const;
 	int GetAllianceCSDefense() const;
@@ -496,6 +497,7 @@ protected:
 	bool m_bNoNaturalReligionSpread;
 	bool m_bNoOpenTrade;
 	bool m_bGoldenAgeOnWar;
+	bool m_bUnableToCancelRazing;
 	int m_iTourismToGAP;
 	int m_iGoldToGAP;
 	int m_iInfluenceMeetCS;
@@ -1118,6 +1120,10 @@ public:
 	{
 		return m_bGoldenAgeOnWar;
 	};
+	bool IsUnableToCancelRazing() const
+	{
+		return m_bUnableToCancelRazing;
+	}
 	int GetWLTKDGPImprovementModifier() const
 	{
 		return m_iWLTKDGPImprovementModifier;
@@ -2032,6 +2038,7 @@ private:
 	bool m_bNoNaturalReligionSpread;
 	bool m_bNoOpenTrade;
 	bool m_bGoldenAgeOnWar;
+	bool m_bUnableToCancelRazing;
 	int m_iTourismToGAP;
 	int m_iGoldToGAP;
 	int m_iInfluenceMeetCS;

@@ -236,6 +236,9 @@ ALTER TABLE Traits ADD COLUMN 'GAGarrisonCityRangeStrikeModifier' INTEGER DEFAUL
 -- Player enters a golden age on a declaration of war, either as attacking or defending
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 
+-- Is this Civ unable to cancel razing?
+ALTER TABLE Traits ADD COLUMN 'UnableToCancelRazing' BOOLEAN DEFAULT 0;
+
 -- Puppet negative modifiers reduced
 ALTER TABLE Traits ADD COLUMN 'ReducePuppetPenalties' INTEGER DEFAULT 0;
 
