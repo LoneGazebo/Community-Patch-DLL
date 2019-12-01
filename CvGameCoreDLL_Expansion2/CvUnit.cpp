@@ -351,6 +351,7 @@ CvUnit::CvUnit() :
 	, m_YieldModifier()
 	, m_YieldChange()
 	, m_iGarrisonYieldChange()
+	, m_iFortificationYieldChange()
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
 	, m_iScenarioData("CvUnit::m_iScenarioData", m_syncArchive)
 	, m_terrainDoubleMoveCount("CvUnit::m_terrainDoubleMoveCount", m_syncArchive)
@@ -1738,11 +1739,13 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_YieldModifier.clear();
 	m_YieldChange.clear();
 	m_iGarrisonYieldChange.clear();
+	m_iFortificationYieldChange.clear();
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_YieldModifier.push_back(0);
 		m_YieldChange.push_back(0);
 		m_iGarrisonYieldChange.push_back(0);
+		m_iFortificationYieldChange.clear();
 	}
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -19081,6 +19084,22 @@ void CvUnit::SetGarrisonYieldChange(YieldTypes eYield, int iValue)
 	m_iGarrisonYieldChange[eYield] = (m_iGarrisonYieldChange[eYield] + iValue);
 }
 
+int CvUnit::GetFortificationYieldChange(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	return m_iFortificationYieldChange[eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetFortificationYieldChange(YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	m_iFortificationYieldChange[eYield] = (m_iFortificationYieldChange[eYield] + iValue);
+}
+
 //	--------------------------------------------------------------------------------
 #if defined(MOD_CARGO_SHIPS)
 SpecialUnitTypes CvUnit::specialUnitCargoLoad() const
@@ -27048,6 +27067,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
 			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
 			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
+			SetFortificationYieldChange(((YieldTypes)iI), (thisPromotion.GetFortificationYield(iI) * iChange));
 #if defined(MOD_API_UNIFIED_YIELDS)
 			changeYieldFromKills(((YieldTypes)iI), (thisPromotion.GetYieldFromKills(iI) * iChange));
 			changeYieldFromBarbarianKills(((YieldTypes)iI), (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
@@ -27342,6 +27362,7 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_YieldModifier;
 	kStream >> m_YieldChange;
 	kStream >> m_iGarrisonYieldChange;
+	kStream >> m_iFortificationYieldChange;
 	MOD_SERIALIZE_READ(78, kStream, m_iMaxHitPointsBase, m_pUnitInfo->GetMaxHitPoints());
 #endif
 
@@ -27424,6 +27445,7 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_YieldModifier;
 	kStream << m_YieldChange;
 	kStream << m_iGarrisonYieldChange;
+	kStream << m_iFortificationYieldChange;
 #if defined(MOD_UNITS_MAX_HP)
 	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
 #endif

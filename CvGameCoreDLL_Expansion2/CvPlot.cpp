@@ -9650,6 +9650,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	int iYield;
 	TeamTypes eTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
+	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
@@ -9805,6 +9808,15 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 				{
 					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
 					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonstrength) / 8);
+				}
+			}
+			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
+			{
+				CvUnit* pUnit = pOwningCity->plot()->getCenterUnit();
+				if (pUnit != NULL && pUnit->GetFortificationYieldChange(eYield) > 0)
+				{
+					int iUnitStrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
 				}
 			}
 		}
