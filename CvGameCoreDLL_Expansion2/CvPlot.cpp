@@ -9814,8 +9814,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 				CvUnit* pUnit = pOwningCity->GetGarrisonedUnit();
 				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
 				{
-					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
-					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonstrength) / 8);
+					int iGarrisonStrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonStrength) / 8);
 				}
 			}
 			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
