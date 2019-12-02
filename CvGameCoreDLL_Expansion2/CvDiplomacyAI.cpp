@@ -2772,15 +2772,9 @@ void CvDiplomacyAI::DoCounters()
 				}
 				
 				if (GetNegativeArchaeologyPoints(eLoopPlayer) > 0)
-<<<<<<< HEAD
-					{
-						ChangeNegativeArchaeologyPoints(eLoopPlayer, -1);
-					}
-=======
 				{
 					ChangeNegativeArchaeologyPoints(eLoopPlayer, -1);
 				}
->>>>>>> origin/master
 
 				ChangeDeclaredWarOnFriendValue(eLoopPlayer, -GC.getDECLARED_WAR_ON_FRIEND_PER_TURN_DECAY());
 
@@ -5503,30 +5497,18 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				else
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*250*/ (GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() + 50);
-<<<<<<< HEAD
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*250*/ (GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() + 50);
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
-=======
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*250*/ (GC.getAPPROACH_WAR_PROXIMITY_NEIGHBORS() + 50);
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
->>>>>>> origin/master
 				}
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
 				if (!bWantsConquest)
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
-<<<<<<< HEAD
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
-=======
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*150*/ GC.getAPPROACH_WAR_PROXIMITY_CLOSE();
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
->>>>>>> origin/master
 				}
 				else
 				{
@@ -9334,11 +9316,7 @@ void CvDiplomacyAI::MakeWar()
 					{
 						bInvalid = true;
 					}
-<<<<<<< HEAD
-
-=======
 					
->>>>>>> origin/master
 					if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), eLoopPlayer) && !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eThirdPlayer).getTeam(), GetPlayer()->GetID()))
 					{
 						bInvalid = true;
@@ -17589,24 +17567,15 @@ void CvDiplomacyAI::ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int 
 {
 	SetNumTimesTheyPlottedAgainstUs(ePlayer, GetNumTimesTheyPlottedAgainstUs(ePlayer) + iChange);
 	
-<<<<<<< HEAD
-		if (iChange > 0)
-		{
-=======
 	if (iChange > 0)
 	{
->>>>>>> origin/master
 		SetPlottedAgainstUsTurn(ePlayer, GC.getGame().getGameTurn());
 		
 		if (GetRecentAssistValue(ePlayer) < 0)
 		{
 			ChangeRecentAssistValue(ePlayer, -GetRecentAssistValue(ePlayer));
 		}
-<<<<<<< HEAD
-		}
-=======
 	}
->>>>>>> origin/master
 }
 
 /// How many times has ePlayer lowered our influence with a Minor Civ?
@@ -22979,11 +22948,7 @@ void CvDiplomacyAI::DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStateme
 #if defined(MOD_BALANCE_CORE)
 		if (HasPlayerEverConvertedCity(ePlayer))
 #else
-<<<<<<< HEAD
 		if(GetNegativeReligiousConversionPoints(ePlayer) >= GC.getRELIGION_DIPLO_HIT_THRESHOLD())
-=======
-		if (GetNegativeReligiousConversionPoints(ePlayer) >= GC.getRELIGION_DIPLO_HIT_THRESHOLD())
->>>>>>> origin/master
 #endif
 		{
 			// Have we asked you to make a promise before?
@@ -29309,23 +29274,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					GetTrueApproachTowardsUsGuess(ePlottingPlayer) != MAJOR_CIV_APPROACH_WAR &&
 					GET_PLAYER(ePlottingPlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() <= 0)
 				{
-<<<<<<< HEAD
-				SetTrueApproachTowardsUsGuess(ePlottingPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
-=======
 					SetTrueApproachTowardsUsGuess(ePlottingPlayer, MAJOR_CIV_APPROACH_DECEPTIVE);
->>>>>>> origin/master
 				}
 				else
 				{
 					SetTrueApproachTowardsUsGuess(ePlottingPlayer, MAJOR_CIV_APPROACH_WAR);
 				}
 			}
-			
-<<<<<<< HEAD
-				SetTrueApproachTowardsUsGuessCounter(ePlottingPlayer, 0);
-=======
+
 			SetTrueApproachTowardsUsGuessCounter(ePlottingPlayer, 0);
->>>>>>> origin/master
 #endif
 			if (bActivePlayer)
 			{
@@ -31873,12 +31830,8 @@ void CvDiplomacyAI::SetDemandCounter(PlayerTypes ePlayer, int iValue)
 void CvDiplomacyAI::ChangeDemandCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetDemandCounter(ePlayer, GetDemandCounter(ePlayer) + iChange);
-<<<<<<< HEAD
-	}
-=======
 }
 
->>>>>>> origin/master
 
 /////////////////////////////////////////////////////////
 // Don't Settle Request
@@ -35557,11 +35510,7 @@ void CvDiplomacyAI::SetPlayerEverConvertedCity(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-<<<<<<< HEAD
 	m_pabEverConvertedCity[ePlayer] = bValue;
-=======
-	m_pabEverConvertedCity[ePlayer] = iValue;
->>>>>>> origin/master
 }
 
 /// How many times has this player razed one of our cities?
@@ -35927,11 +35876,7 @@ int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetResurrectedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-<<<<<<< HEAD
-	if(WasResurrectedBy(ePlayer))
-=======
 	if (WasResurrectedBy(ePlayer))
->>>>>>> origin/master
 		iOpinionWeight += /*-200*/ GC.getOPINION_WEIGHT_RESURRECTED();
 	return iOpinionWeight;
 }
@@ -36048,11 +35993,7 @@ int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 	bool bHalve = false;
 	
 #if defined(MOD_BALANCE_CORE)
-<<<<<<< HEAD
-	if(GetNumDemandEverMade(ePlayer) > 0)
-=======
 	if (GetNumDemandEverMade(ePlayer) > 0)
->>>>>>> origin/master
 	{
 		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
 		if((GC.getGame().getGameTurn() - GetDemandMadeTurn(ePlayer)) >= (iTurn * 2))
@@ -36072,15 +36013,8 @@ int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 		}
 	}
 #endif
-	
-<<<<<<< HEAD
-		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() * GetNumDemandEverMade(ePlayer);
-=======
+
 	iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() * GetNumDemandEverMade(ePlayer);
-	
-	if (bHalve)
-		iOpinionWeight /= 2;
->>>>>>> origin/master
 	
 	if (bHalve)
 		iOpinionWeight /= 2;
@@ -36189,11 +36123,7 @@ int CvDiplomacyAI::GetDifferentLatePoliciesScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> origin/master
 #if defined(MOD_BALANCE_CORE)
 	if (GetNumTimesRobbedBy(ePlayer) > 0)
 	{
@@ -36227,9 +36157,7 @@ int CvDiplomacyAI::GetTradeRoutesPlunderedScore(PlayerTypes ePlayer)
 	}
 	
 	iOpinionWeight += (GetNumTradeRoutesPlundered(ePlayer) * /*10*/ GC.getOPINION_WEIGHT_PLUNDERED_TRADE_ROUTE());
-	
-<<<<<<< HEAD
-=======
+
 	return iOpinionWeight;
 }
 
@@ -36262,46 +36190,6 @@ int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
 			ChangeNumTimesPerformedCoupAgainstUs(ePlayer, -1);
 			SetPerformedCoupTurn(ePlayer, GC.getGame().getGameTurn());
 		}
-	}
-	
-	iOpinionWeight += (GetNumTimesPerformedCoupAgainstUs(ePlayer) * /*15*/ GC.getOPINION_WEIGHT_PERFORMED_COUP());
-	
->>>>>>> origin/master
-	return iOpinionWeight;
-}
-#endif
-
-int CvDiplomacyAI::GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer)
-	{
-	int iOpinionWeight = 0;
-
-	if (GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
-	{
-		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
-		if ((GC.getGame().getGameTurn() - GetPlottedAgainstUsTurn(ePlayer)) >= iTurn)
-		{
-			ChangeNumTimesTheyPlottedAgainstUs(ePlayer, -1);
-			SetPlottedAgainstUsTurn(ePlayer, GC.getGame().getGameTurn());
-		}
-	}		
-	
-	iOpinionWeight += (GetNumTimesTheyPlottedAgainstUs(ePlayer) * /*20*/ GC.getOPINION_WEIGHT_PLOTTED_AGAINST_US());
-
-	return iOpinionWeight;
-}
-
-int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
-{
-	int iOpinionWeight = 0;
-	
-	if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
-	{
-		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
-		if ((GC.getGame().getGameTurn() - GetPerformedCoupTurn(ePlayer)) >= iTurn)
-		{
-			ChangeNumTimesPerformedCoupAgainstUs(ePlayer, -1);
-			SetPerformedCoupTurn(ePlayer, GC.getGame().getGameTurn());
-	}
 	}
 	
 	iOpinionWeight += (GetNumTimesPerformedCoupAgainstUs(ePlayer) * /*15*/ GC.getOPINION_WEIGHT_PERFORMED_COUP());
