@@ -12452,7 +12452,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = -99999;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE");
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_TEAMMATE");
 		aOpinions.push_back(kOpinion);
 	}
 	
@@ -12679,14 +12679,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
 				aOpinions.push_back(kOpinion);
 			}
-			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
-				aOpinions.push_back(kOpinion);
-			}
 		}
 #endif
 	}
@@ -12822,6 +12814,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTED");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetLiberatedCapitalScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_CAPITAL");
 		aOpinions.push_back(kOpinion);
 	}
 
@@ -12976,6 +12977,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 	
+#if defined(MOD_BALANCE_CORE)
+	iValue = pDiploAI->GetTradeRoutesPlunderedScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PLUNDERING_OUR_TRADE_ROUTES");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetTimesPlottedAgainstUsScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PLOTTED_AGAINST_US");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetTimesPerformedCoupScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PERFORMED_COUP");
+		aOpinions.push_back(kOpinion);
+	}
+#endif
+	
 	iValue = pDiploAI->GetDugUpMyYardScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13011,6 +13041,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS");
 		aOpinions.push_back(kOpinion);
 	}
+	
 	/*
 	iValue = pDiploAI->GetIgnoredMilitaryPromiseScore(eWithPlayer);
 	if (iValue != 0)
@@ -13019,7 +13050,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 		aOpinions.push_back(kOpinion);
-	}*/
+	}
+	*/
 	
 	iValue = pDiploAI->GetBrokenExpansionPromiseScore(eWithPlayer);
 	if (iValue != 0)
@@ -13340,6 +13372,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ATTACKED_VASSAL_ME");
 			aOpinions.push_back(kOpinion);
 		}
+		
+		iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
+			aOpinions.push_back(kOpinion);
+		}
 	}
 #endif
 
@@ -13356,7 +13397,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (iTempValue > iValue)
 		{
 			iValue = iTempValue;
-			str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE");
+			str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_DENOUNCED_BY_FRIENDS");
 		}
 
 		iTempValue = pDiploAI->GetWeDenouncedFriendScore(eWithPlayer);
@@ -13514,7 +13555,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
+		kOpinion.m_iValue = (iValue + iValue2);
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
 		aOpinions.push_back(kOpinion);
 	}

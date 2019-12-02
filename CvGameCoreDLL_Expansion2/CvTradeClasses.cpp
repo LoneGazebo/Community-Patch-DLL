@@ -5220,9 +5220,26 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
 		}
 	}
-	if (pPlunderPlot->isVisible(eOwningTeam) && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()))
+	// Temporary diplo penalty (including if at war) for killing a civilian unit
+	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && pPlunderPlot->isVisible(eOwningTeam))))
 	{
-		GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTimesRobbedBy(m_pPlayer->GetID(), 2);
+		GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTimesRazed(m_pPlayer->GetID(), (10 - GET_PLAYER(eOwningPlayer).GetCurrentEra()));
+	}
+	// Diplo penalty for trade route owner if not at war
+	if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
+	{
+		if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && pPlunderPlot->isVisible(eOwningTeam) && !GET_PLAYER(eOwningPlayer).isMinorCiv() && !GET_PLAYER(eOwningPlayer).isBarbarian())
+	{
+			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
+	}
+	}
+	// Diplo penalty for destination civilization if not at war (don't apply for internal trade routes)
+	if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && !m_pPlayer->isBarbarian() && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())
+	{
+		if (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && pPlunderPlot->isVisible(eDestTeam)))
+		{
+			GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 1);
+		}
 	}
 #endif
 	// do the notification stuff
@@ -5276,7 +5293,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 				Localization::String strMessage;
 
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_SUMMARY");
-				if (m_pPlayer->isBarbarian())
+				if (m_pPlayer->isBarbarian() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_BARBARIANS");
 					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())

@@ -1010,6 +1010,7 @@ public:
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isOtherEmbarkedUnit() const { return bIsOtherEmbarkedUnit; }
+	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -1047,6 +1048,7 @@ protected:
 	bool bAdjacentToEnemyCitadel:1;
 	bool bHasAirCover:1;
 	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
+	bool bIsVisibleToEnemy:1;
 
 	eTactPlotType eType[3]; //land, sea, both
 	unsigned char iDamageDealt;
@@ -1195,7 +1197,7 @@ namespace TacticalAIHelpers
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
-	int CountDeploymentPlots(PlayerTypes ePlayer, const CvPlot* pTarget, int iDeployRange);
+	int CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);

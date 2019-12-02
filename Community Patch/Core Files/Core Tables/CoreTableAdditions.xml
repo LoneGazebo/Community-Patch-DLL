@@ -1118,6 +1118,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Promotion: City gains extra yield if unit is on tile with a fort or citadel -->
+	<Table name="UnitPromotions_FortificationYield">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<!-- Promotion: City gains %Yield modifier from a Unit in this city (unit can be combat or civilian) -->
 	<Table name="UnitPromotions_YieldModifiers">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>

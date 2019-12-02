@@ -590,16 +590,15 @@
 			<Text>Skirmisher Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-			<Text>Rough Terrain (Forest, Jungle, Marsh, Flood Plain, Hills) costs an additional movement point to cross. -25% [ICON_STRENGTH]/[ICON_RANGED_STRENGHTH] Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR], +50% [ICON_STRENGTH]/[ICON_RANGED_STRENGHTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+      <Text>-25% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+50% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- New Slinger Promotion -->
-
 		<Row Tag="TXT_KEY_PROMOTION_SLINGER">
 			<Text>Concussive Hits</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SLINGER_HELP">
-			<Text>Unit [COLOR_POSITIVE_TEXT]Ignores[ENDCOLOR] Zone of Control. [COLOR_POSITIVE_TEXT]Ranged[ENDCOLOR] Attacks by this Unit inflict the [COLOR_POSITIVE_TEXT]Dazed[ENDCOLOR] status on other Units, reducing their [ICON_STRENGTH] Strength by 15% for 5 Turns.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Ranged[ENDCOLOR] Attacks by this Unit inflict the [COLOR_POSITIVE_TEXT]Dazed[ENDCOLOR] status on other Units, reducing their [ICON_STRENGTH] Combat Strength by 15% for 5 Turns.[NEWLINE]Ignores[COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DAZED">
 			<Text>Dazed</Text>
@@ -613,7 +612,7 @@
 			<Text>Siege Volleys</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_REPEATER_HELP">
-			<Text>25% [ICON_STRENGTH] Combat Strength when adjacent to or in a [COLOR_POSITIVE_TEXT]City[ENDCOLOR]. Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when adjacent to or in a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].[NEWLINE]Deals 5 Damage to all Enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
 		
 		<!-- New Tier 4 Promotions -->
@@ -852,38 +851,38 @@
 			<Text>Siege I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II">
 			<Text>Siege II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III">
 			<Text>Siege III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I">
 			<Text>Field I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II">
 			<Text>Field II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III">
 			<Text>Field III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">

@@ -321,7 +321,8 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
 						if(pAdjacentPlot != NULL)
-							m_DangerPlots[pAdjacentPlot->GetPlotIndex()].m_iImprovementDamage += iDamage;
+							//unlike the rest, citadel damage applies with 100% certainty, so add twice the amount to drive the point home
+							m_DangerPlots[pAdjacentPlot->GetPlotIndex()].m_iImprovementDamage += iDamage*2;
 					}
 				}
 

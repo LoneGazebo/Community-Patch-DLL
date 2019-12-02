@@ -2986,9 +2986,9 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->isRoute())
-		iRouteFactor = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 6 : 4;
+		iRouteFactor = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 4 : 3;
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
-		iRouteFactor = 4; //can't get better than this even if next plot is railroad
+		iRouteFactor = 3; //can't get better than this even if next plot is railroad
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
 		iRouteFactor = 2;
@@ -3067,7 +3067,7 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 
 	// avoid cities (just for the looks)
 	if (pToPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
-		iCost += PATH_BASE_COST/4;
+		iCost += PATH_BASE_COST*2;
 
 	// avoid enemy territory
 	TeamTypes eToPlotTeam = pToPlot->getTeam();

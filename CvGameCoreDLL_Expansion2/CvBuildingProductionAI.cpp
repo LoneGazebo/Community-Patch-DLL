@@ -752,6 +752,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	iBonus += iDefense;
 
+	//desperate, and this ISN'T a defensive building?
+	if (bDesperate && iDefense <= 0)
+		iBonus -= 500;
+
 	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
 	{
 		int iSupply = kPlayer.GetNumUnitsSupplied();

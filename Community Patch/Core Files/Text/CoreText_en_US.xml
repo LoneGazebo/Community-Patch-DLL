@@ -2806,8 +2806,8 @@
 			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
 		</Row>
 		
-		<!-- Opinion "Modifier" for Human Teammate -->
-		<Row Tag="TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE">
+		<!-- Opinion Indicator for Human Teammate -->
+		<Row Tag="TXT_KEY_DIPLO_HUMAN_TEAMMATE">
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
 		</Row>
 		
@@ -2864,9 +2864,19 @@
 			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
 		</Row>
 		
-		<!-- Stolen Artifacts Mod -->
+		<!-- Stolen Artifacts Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
-			<Text>[COLOR_NEGATIVE_TEXT]You stole their cultural artifacts![ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]You excavated their cultural artifacts![ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Plotted Against Them Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PLOTTED_AGAINST_US">
+			<Text>[COLOR_NEGATIVE_TEXT]You were caught plotting against them.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- City-State Coup Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
+			<Text>[COLOR_NEGATIVE_TEXT]Your spies lowered their City-State Influence in a coup d'état.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aggressive Posture -->

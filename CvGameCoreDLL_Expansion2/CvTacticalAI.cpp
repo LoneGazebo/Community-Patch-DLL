@@ -1421,6 +1421,7 @@ void CvTacticalAI::ProcessDominanceZones()
 			//global moves don't depend on a particular zone
 			if (!pkTacticalMoveInfo->IsDominanceZoneMove())
 			{
+				/*
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -1429,6 +1430,7 @@ void CvTacticalAI::ProcessDominanceZones()
 						pkMoveInfo ? pkMoveInfo->GetType() : "unknown", pkMoveInfo ? pkMoveInfo->GetPriority() : -1);
 					LogTacticalMessage(strLogString);
 				}
+				*/
 
 #if defined(MOD_CORE_TACTICAL_MOVE_DELAY_SORT)
 				ZoneMoveWithPrio zmp;
@@ -5746,69 +5748,19 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					{
 #if defined(MOD_BALANCE_CORE)
 						if(pUnit->shouldPillage(pUnit->plot()))
-						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strMsg;
-								strMsg.Format("Pillaging during a barbarian move order. %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-									pUnit->plot()->getX(), pUnit->plot()->getY());
-								LogTacticalMessage(strMsg, false);
-							}
-						}
 #endif
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("%s moved to empty space near target, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-							                    pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
 						}
-					}
-					else
-					{
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("No target for %s at position, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-				}
 
+						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+					}
 				// NAVAL MOVES
 				else
 				{
-
-					AI_PERF_FORMAT("AI-perf-tact.csv", ("Barb Naval Move, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
 					pBestPlot = FindBestBarbarianSeaMove(pUnit);
-
-					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_SEA,12))
-					{
+					MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12);
+					//no naval pillaging, it's just too annoying
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Moving %s to new position, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-							                    pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-					else
-					{
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("No target for %s at position, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
 				}
 			}
 		}
@@ -8335,38 +8287,35 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 }
 
 ///Returns false if insufficient free plots around the target
-int TacticalAIHelpers::CountDeploymentPlots(PlayerTypes ePlayer, const CvPlot* pTarget, int iRange)
+int TacticalAIHelpers::CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp)
 {
 	int iNumDeployPlotsFound = 0;
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	bool bAllowDeepWater = GET_TEAM(eTeam).canEmbarkAllWaterPassage();
 
-	for(int iDX = -(iRange); iDX <= iRange; iDX++)
+	iRange = max(1, min(5, iRange));
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
-		for(int iDY = -(iRange); iDY <= iRange; iDY++)
-		{
-			CvPlot* pPlot = plotXY(pTarget->getX(), pTarget->getY(), iDX, iDY);
-			if(pPlot != NULL)
-			{
-				int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
-				if(iPlotDistance <= iRange)
-				{
-					if(!pPlot->isValidMovePlot(ePlayer))
+		CvPlot* pPlot = iterateRingPlots(pTarget, i);
+		if (!pPlot)
+			continue;
+
+		if(pPlot->isImpassable(eTeam))
+			continue;
+
+		if (pPlot->isOwned() && pPlot->getTeam() != eTeam)
+			continue;
+
+		if (pPlot->isWater())
 					{
+			if (!bForNavalOp)
+						continue;
+			else if(!bAllowDeepWater && pPlot->isDeepWater())
 						continue;
 					}
-					if(!GET_TEAM(eTeam).canEmbark() && pPlot->isWater())
-					{
+		else if (bForNavalOp)
 						continue;
-					}
-					else if(!GET_TEAM(eTeam).canEmbarkAllWaterPassage() && (pPlot->isDeepWater()))
-					{
-						continue;
-					}
 
 					iNumDeployPlotsFound++;
-				}
-			}
-		}
 	}
 
 	return iNumDeployPlotsFound;
@@ -8405,6 +8354,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		//   prefer being in your own territory with the lowest danger value
 		//   prefer the lowest danger value
 
+		// plot danger is a bit unreliable, so we need extra checks
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
 
@@ -8443,12 +8393,20 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 2;
 
 		//heal rate is higher here and danger lower
-		if (bIsInTerritory && !pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+		if (bIsInTerritory)
+		{
 			iDanger -= 5;
+			if (!pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+			iDanger -= 5;
+		}
 
 		//try to go where our friends are
 		int iFriendlyUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN);
 		iDanger -= (iFriendlyUnitsAdjacent * 5);
+		
+		//don't go where our foes are
+		int iEnemyUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), NULL, true);
+		iDanger += (iEnemyUnitsAdjacent * 5);
 		
 		//use city distance as tiebreaker
 		int iScore = iDanger * 10 + iCityDistance;
@@ -9322,7 +9280,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//how often can we attack this turn (depending on moves left on the plot)
 			if (!vDamageRatios.empty())
 			{
-				int iMaxAttacks = min(unit.iAttacksLeft, (plot.iMovesLeft + GC.getMOVE_DENOMINATOR() - 1) / GC.getMOVE_DENOMINATOR());
+				int iMaxAttacks = NumAttacksForUnit(plot.iMovesLeft, unit.iAttacksLeft);
 				if (iMaxAttacks > 0)
 				{
 					//the best target comes last
@@ -9332,8 +9290,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 					//also we want the real attacks to have higher scores than movement to guarantee they are picked!
 					iDamageScore += (iMaxAttacks * vDamageRatios.back()) / 2;
 				}
-				else
-					iDamageScore += vDamageRatios.size(); //if we cannot attack right now, hand out some points for possible attacks next turn
 			}
 		}
 
@@ -9421,6 +9377,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 				iMiscScore++;
 			//when in doubt, stay under air cover
 			if (testPlot.hasAirCover())
+				iMiscScore++;
+			//when in doubt, hide from the enemy
+			if (!testPlot.isVisibleToEnemy() && unit.iAttacksLeft==0)
 				iMiscScore++;
 
 			//the danger value reflects any defensive terrain bonuses
@@ -9755,6 +9714,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	bAdjacentToEnemyCitadel = false;
 	bHasAirCover = false;
 	bIsOtherEmbarkedUnit = false;
+	bIsVisibleToEnemy = false;
 	iDamageDealt = 0;
 	eType[0] = TP_FARAWAY;
 	eType[1] = TP_FARAWAY;
@@ -9878,6 +9838,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer, co
 		bBlockedByEnemyCity = (pPlot->isCity() && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner()));
 		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isEnemyUnit(ePlayer,false,false); //visibility is checked elsewhere!
 		bHasAirCover = pPlot->HasAirCover(ePlayer);
+		bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
 
 		//general handling is a bit awkward
 		nSupportUnitsAdjacent = 0;
@@ -11615,6 +11576,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 6;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
+	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();
 
 	cvStopWatch timer("tactsim_offense",NULL,0,true);
 	timer.StartPerfTest();
@@ -11652,7 +11614,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			for (int j = 0; j < RING2_PLOTS; j++)
 			{
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
-				if (pPlot && pPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
+				if (pPlot && pPlot->isVisible(ourTeam))
 					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
@@ -11664,7 +11626,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget, i);
-		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ))
+		if (pPlot && pPlot->isVisible(ourTeam))
 			initialPosition->addTacticalPlot(pPlot,ourUnits);
 	}
 

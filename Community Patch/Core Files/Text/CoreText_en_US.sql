@@ -214,6 +214,15 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CITADEL_TEXT';
 
 -- CS Stuff
 
+-- Merchant of Venice
+UPDATE Language_en_US
+SET Text = 'The Merchant of Venice will use his considerable wealth to purchase a City-State and place it under your control as a [ICON_PUPPET] Puppet City. You will also gain control over all of the City-State''s existing units.'
+WHERE Tag = 'TXT_KEY_MISSION_BUY_CITY_STATE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Your Merchant of Venice bought a City-State!'
+WHERE Tag = 'TXT_KEY_VENETIAN_MERCHANT_BOUGHT_CITY_STATE';
+
 -- Bullying/Tribute
 UPDATE Language_en_US
 SET Text = 'Enslave {@1_Unit} - lose {2_NumInfluence} [ICON_INFLUENCE] Influence'
@@ -544,6 +553,11 @@ WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 -- Diplo Opinion Modifiers
 
+-- Liberation
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]You liberated their original capital.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_LIBERATED_CAPITAL';
+
 -- Recent Trade
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
@@ -583,19 +597,43 @@ SET Text = '[COLOR_NEGATIVE_TEXT]You asked them not to spy on you.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You were caught stealing from them.[ENDCOLOR]'
+SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught stealing from them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Promises
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer a City-State protected by them, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer another civilization''s protected City-State, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_BROKEN_WITH_OTHERS';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop attacking a City-State protected by them, and you ignored them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to start a cooperative war against another empire, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_COOP_WAR_PROMISE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop expanding near them, and you ignored them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on them, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on another civilization, and then broke it![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS';
+
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to stop excavating their artifacts, and then broke it![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
 
 -- Friend Betrayal
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Your friends found reason to Denounce you![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_DENOUNCED_BY_PEOPLE_WE_TRUST_MORE';
-
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]We made a Declaration of Friendship and then denounced them![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_FRIEND_DENOUNCED';
@@ -686,22 +724,6 @@ WHERE Tag = 'TXT_KEY_GENERIC_GREETING_HOSTILE_AGGRESSIVE_EXPANSION_1';
 UPDATE Language_en_US
 SET Text = 'Just between you and me, your military is kind of the laughing stock of the world. Don''t let that get you down though; I''m sure someone will put you out of your misery soon.'
 WHERE Tag = 'TXT_KEY_GENERIC_GREETING_HOSTILE_HUMAN_SMALL_ARMY';
-
-
--- Agree
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT_2';
-
-
--- Disagree
-UPDATE Language_en_US
-SET Text = 'Certainly not.'
-WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT_1';
 
 
 -- Open Trade Screen
@@ -1069,3 +1091,96 @@ WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_1';
 UPDATE Language_en_US
 SET Text = 'I am sorry, but it is time for our Declaration of Friendship to end.'
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_2';
+
+-- Unimportant capitalization fixes
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_AHMAD_ALMANSUR_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_ASHURBANIPAL_AGREE_SHORT_1';
+
+UPDATE Language_en_US
+SET Text = 'Certainly not.'
+WHERE Tag = 'TXT_KEY_LEADER_ASHURBANIPAL_DISAGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_ATTILA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_CASIMIR_AGREE_SHORT_1';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_DIDO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_ENRICO_DANDOLO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_HARALD_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_KAMEHAMEHA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_MARIA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_MARIA_I_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Certainly not.'
+WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT_1';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_PEDRO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_SEJONG_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_SELASSIE_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
+
+UPDATE Language_en_US
+SET Text = 'Very well.'
+WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';

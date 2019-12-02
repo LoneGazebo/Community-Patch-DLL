@@ -17222,7 +17222,7 @@ void CvMinorCivAI::DoElection()
 					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
 					
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
+					//GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 #if defined(MOD_EVENTS_ESPIONAGE)
 				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
@@ -18237,7 +18237,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 				}
 
 				// Random factor so that the same thing isn't always picked
-				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->getGlobalAverage(YIELD_CULTURE) + iTechLoop);
+				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->GetTreasury()->GetLifetimeGrossGold() + iTechLoop);
 
 				TechVector.push_back(iTechLoop, iValue);
 			}

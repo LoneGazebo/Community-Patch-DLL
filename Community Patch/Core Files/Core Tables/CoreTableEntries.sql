@@ -236,6 +236,9 @@ ALTER TABLE Traits ADD COLUMN 'GAGarrisonCityRangeStrikeModifier' INTEGER DEFAUL
 -- Player enters a golden age on a declaration of war, either as attacking or defending
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 
+-- Is this Civ unable to cancel razing?
+ALTER TABLE Traits ADD COLUMN 'UnableToCancelRazing' BOOLEAN DEFAULT 0;
+
 -- Puppet negative modifiers reduced
 ALTER TABLE Traits ADD COLUMN 'ReducePuppetPenalties' INTEGER DEFAULT 0;
 
@@ -261,6 +264,9 @@ ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 
 -- Improvement grants extra moves when unit is on this plot
 ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
+
+-- Improvement requires any body of water adjacent to it in order to be built
+ALTER TABLE Improvements ADD COLUMN 'AnyBodyOfWaterMakesValid' BOOLEAN DEFAULT 0;
 
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
@@ -934,6 +940,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFA
 
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
+
+-- No Movement Points Used On Embark
+ALTER TABLE UnitPromotions ADD COLUMN 'FreeEmbark' BOOLEAN DEFAULT 0;
 
 -- Admirals can use their repair fleet action multiple times before expending.
 ALTER TABLE UnitPromotions ADD COLUMN 'NumRepairCharges' INTEGER DEFAULT 0;

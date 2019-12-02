@@ -107,6 +107,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bNoNaturalReligionSpread(false),
 	m_bNoOpenTrade(false),
 	m_bGoldenAgeOnWar(false),
+	m_bUnableToCancelRazing(false),
 	m_iTourismToGAP(0),
 	m_iGoldToGAP(0),
 	m_iInfluenceMeetCS(0),
@@ -770,6 +771,12 @@ bool CvTraitEntry::IsGoldenAgeOnWar() const
 {
 	return m_bGoldenAgeOnWar;
 }
+
+bool CvTraitEntry::IsUnableToCancelRazing() const
+{
+	return m_bUnableToCancelRazing;
+}
+
 int CvTraitEntry::GetTourismGABonus() const
 {
 	return m_iTourismGABonus;
@@ -2274,6 +2281,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
 	m_bNoOpenTrade							= kResults.GetBool("NoOpenTrade");
 	m_bGoldenAgeOnWar						= kResults.GetBool("GoldenAgeOnWar");
+	m_bUnableToCancelRazing                 = kResults.GetBool("UnableToCancelRazing");
 	m_iInfluenceMeetCS						= kResults.GetInt("InfluenceMeetCS");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
 	m_iGoldToGAP							 = kResults.GetInt("GoldToGAP");
@@ -4126,6 +4134,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			if (trait->IsGoldenAgeOnWar())
 			{
 				m_bGoldenAgeOnWar = true;
+			}
+			if (trait->IsUnableToCancelRazing()) {
+				m_bUnableToCancelRazing = true;
 			}
 			if (trait->IsBestUnitSpawnOnImprovementDOW())
 			{
@@ -7037,6 +7048,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bNoNaturalReligionSpread, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bNoOpenTrade, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGoldenAgeOnWar, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bUnableToCancelRazing, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iWLTKDGPImprovementModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
@@ -7654,6 +7666,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bNoNaturalReligionSpread);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoOpenTrade);
 	MOD_SERIALIZE_WRITE(kStream, m_bGoldenAgeOnWar);
+	MOD_SERIALIZE_WRITE(kStream, m_bUnableToCancelRazing);
 	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDGPImprovementModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);

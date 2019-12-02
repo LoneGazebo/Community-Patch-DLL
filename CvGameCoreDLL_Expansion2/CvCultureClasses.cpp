@@ -3225,6 +3225,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 				{
 					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumArtifactsEverDugUp(pUnit->getOwner(), 1);
+#endif
 				}
 			}
 		}
@@ -3293,6 +3296,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 				{
 					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumArtifactsEverDugUp(pUnit->getOwner(), 1);
+#endif
 				}
 			}
 		}
@@ -3362,6 +3368,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 				{
 					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumArtifactsEverDugUp(pUnit->getOwner(), 1);
+#endif
 				}
 			}
 		}
@@ -3433,6 +3442,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (!GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).isBarbarian())
 				{
 					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 50);
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumArtifactsEverDugUp(pUnit->getOwner(), 1);
+#endif
 				}
 			}
 		}

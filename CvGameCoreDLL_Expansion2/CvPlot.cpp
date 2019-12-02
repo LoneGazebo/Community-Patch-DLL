@@ -2425,6 +2425,14 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		bValid = true;
 	}
 
+	if(pkImprovementInfo->IsAnyBodyOfWaterMakesValid())
+	{
+		if (isCoastalLand() || isFreshWater() || isRiver()) 
+		{
+			bValid = true;
+		}
+	}
+
 	if(pkImprovementInfo->IsFreshWaterMakesValid() && isFreshWater())
 	{
 		bValid = true;
@@ -9650,6 +9658,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	int iYield;
 	TeamTypes eTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
+	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
@@ -9805,6 +9816,23 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 				{
 					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
 					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonstrength) / 8);
+				}
+			}
+			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
+			{
+				// If there are any Units here, meet their owners
+				for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
+				{
+					// If the AI spots a human Unit, don't meet - wait for the human to find the AI
+					CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
+					if (!loopUnit)
+						continue;
+
+					if (loopUnit->GetFortificationYieldChange(eYield) > 0)
+					{
+						int iUnitStrength = loopUnit->GetBaseCombatStrength();
+						iYield += ((loopUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
+					}
 				}
 			}
 		}

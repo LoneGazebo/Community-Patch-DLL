@@ -323,7 +323,6 @@ public:
 
 	PlayerTechList m_aaPlayerStealableTechList;
 	NumTechsToStealList m_aiNumTechsToStealList;
-	MaxTechCost m_aiMaxTechCost;
 	HeistLocationList m_aHeistLocations;
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player
 	std::vector<IntrigueNotificationMessage> m_aIntrigueNotificationMessages; // cleared only between games

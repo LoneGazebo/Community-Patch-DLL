@@ -948,6 +948,9 @@ public:
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
+	int GetFortificationYieldChange(YieldTypes eYield) const;
+	void SetFortificationYieldChange(YieldTypes eYield, int iValue);
+
 	inline int GetID() const
 	{
 		return m_iID;
@@ -1099,6 +1102,10 @@ public:
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
+
+	int getFreeEmbarkMoveCount() const;
+	bool isFreeEmbark() const;
+	void changeFreeEmbarkMoveCount(int iChange);
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
@@ -1989,6 +1996,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+	FAutoVariable<int, CvUnit> m_iFreeEmbarkMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iAoEDamageOnMove;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
@@ -2244,6 +2252,7 @@ protected:
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
 	std::vector<int> m_iGarrisonYieldChange;
+	std::vector<int> m_iFortificationYieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;
@@ -2321,7 +2330,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDiploMissionInfluence;
 	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
-	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iHurryStrength;

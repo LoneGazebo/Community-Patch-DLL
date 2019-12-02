@@ -644,7 +644,7 @@ WHERE Tag = 'TXT_KEY_CO_OPINION_TT_OVERVIEW';
 
 
 UPDATE Language_en_US
-SET Text = 'Destroy this trade route to gain [ICON_GOLD] Gold.[NEWLINE][NEWLINE]If you are not at war with the owner of the trade route, you will need to declare war before you plunder (unless an ability allows otherwise). Plundering a trade route going to another civilization will damage your relationship with the destination civilization if you''re not currently at war.'
+SET Text = 'Destroy this trade route to gain [ICON_GOLD] Gold.[NEWLINE][NEWLINE]If you are not at war with the owner of the trade route, you will need to declare war before you plunder (unless an ability allows otherwise). Plundering a trade route going to another civilization will damage your relationship with the trade route owner and the destination civilization if you''re not currently at war.'
 WHERE Tag = 'TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_HELP';
 
 
