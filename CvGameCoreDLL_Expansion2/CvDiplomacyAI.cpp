@@ -1886,7 +1886,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	}
 	
 	ArrayWrapper<bool> wrapm_pabPlayerLiberatedCapital(MAX_MAJOR_CIVS, m_pabPlayerLiberatedCapital);
-	kStream >> wrapm_abPlayerLiberatedCapital;
+	kStream >> wrapm_pabPlayerLiberatedCapital;
 
 	ArrayWrapper<short> wrapm_paiNumCitiesLiberated(MAX_MAJOR_CIVS, m_paiNumCitiesLiberated);
 	kStream >> wrapm_paiNumCitiesLiberated;
@@ -5135,10 +5135,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// UNIQUE UNITS - We've got a UU? Let's see if it is time to go.
 	////////////////////////////////////
+	bool bHasUUTech = GetPlayer()->GetPlayerTechs()->HasUUTech();
+	bool bHasUU = GetPlayer()->HasUUActive();
+	
 	if (GetPlayer()->HasUUPeriod())
 	{
-		bool bHasUUTech = GetPlayer()->GetPlayerTechs()->HasUUTech();
-		bool bHasUU = GetPlayer()->HasUUActive();
 		// We got it? Let's strike!
 		if (bHasUUTech && bHasUU)
 		{
@@ -12954,7 +12955,7 @@ void CvDiplomacyAI::SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	m_pabPlayerLiberatedCapital[ePlayer] = iValue;
+	m_pabPlayerLiberatedCapital[ePlayer] = bValue;
 }
 
 /// Returns the number of cities liberated by ePlayer
@@ -31667,7 +31668,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eDeman
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
 #if defined(MOD_BALANCE_CORE)
-	SetDemandMadeTurn(ePlayer, GC.getGameTurn());
+	SetDemandMadeTurn(ePlayer, GC.getGame().getGameTurn());
 #endif
 
 	if (eDemand != DEMAND_RESPONSE_REFUSE_TOO_SOON)
@@ -31778,7 +31779,7 @@ void CvDiplomacyAI::SetDemandMadeTurn(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return m_paiDemandMadeTurn[ePlayer] = iValue;
+	m_paiDemandMadeTurn[ePlayer] = iValue;
 }
 #endif
 
@@ -35851,7 +35852,7 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 {
 	// Don't stack the liberation bonus for the capital with other cities
 	if (IsPlayerLiberatedCapital(ePlayer))
-		iOpinionWeight = 0;
+		return 0;
 	
 	int iOpinionWeight = 0;
 	int iNumCitiesLiberated = GetNumCitiesLiberated(ePlayer);

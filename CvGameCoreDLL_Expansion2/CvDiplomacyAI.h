@@ -1322,7 +1322,7 @@ public:
 	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
 #if defined(MOD_BALANCE_CORE)
 	bool HasPlayerEverConvertedCity(PlayerTypes ePlayer) const;
-	void SetPlayerEverConvertedCity(PlayerTypes ePlayer);
+	void SetPlayerEverConvertedCity(PlayerTypes ePlayer, bool bValue);
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
 	int GetNumTradeRoutesPlundered(PlayerTypes ePlayer) const;
