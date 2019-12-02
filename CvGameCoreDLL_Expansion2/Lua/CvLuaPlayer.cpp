@@ -12452,7 +12452,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = -99999;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE");
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HUMAN_TEAMMATE");
 		aOpinions.push_back(kOpinion);
 	}
 	
@@ -12816,6 +12816,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTED");
 		aOpinions.push_back(kOpinion);
 	}
+	
+	iValue = pDiploAI->GetLiberatedCapitalScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_CAPITAL");
+		aOpinions.push_back(kOpinion);
+	}
 
 	iValue = pDiploAI->GetLiberatedCitiesScore(eWithPlayer);
 	if (iValue != 0)
@@ -12969,7 +12978,25 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	iValue = pDiploAI->GetPerformedCoupScore(eWithPlayer);
+	iValue = pDiploAI->GetTradeRoutesPlunderedScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PLUNDERING_OUR_TRADE_ROUTES");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetTimesPlottedAgainstUsScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PLOTTED_AGAINST_US");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetTimesPerformedCoupScore(eWithPlayer);
 	if (iValue != 0)
 	{
 		Opinion kOpinion;
@@ -13014,6 +13041,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_BROKEN_WITH_OTHERS");
 		aOpinions.push_back(kOpinion);
 	}
+	
 	/*
 	iValue = pDiploAI->GetIgnoredMilitaryPromiseScore(eWithPlayer);
 	if (iValue != 0)
@@ -13022,7 +13050,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 		aOpinions.push_back(kOpinion);
-	}*/
+	}
+	*/
 	
 	iValue = pDiploAI->GetBrokenExpansionPromiseScore(eWithPlayer);
 	if (iValue != 0)

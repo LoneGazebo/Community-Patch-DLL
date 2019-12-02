@@ -553,6 +553,11 @@ WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 -- Diplo Opinion Modifiers
 
+-- Liberation
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]You liberated their original capital.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_LIBERATED_CAPITAL';
+
 -- Recent Trade
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
@@ -592,7 +597,7 @@ SET Text = '[COLOR_NEGATIVE_TEXT]You asked them not to spy on you.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_STOP_SPYING_ASKED';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You were caught stealing from them.[ENDCOLOR]'
+SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught stealing from them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Promises
