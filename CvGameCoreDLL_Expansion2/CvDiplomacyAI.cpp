@@ -35949,6 +35949,7 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	bool bHalve = false;
 	
 #if defined(MOD_BALANCE_CORE)
 	if (GetNumDemandEverMade(ePlayer) > 0)
@@ -35965,10 +35966,17 @@ int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 			}
 #endif
 		}
+		else if ((GC.getGame().getGameTurn() - GetDemandMadeTurn(ePlayer)) >= iTurn)
+		{
+			bHalve = true;
+		}
 	}
 #endif
 	
 	iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() * GetNumDemandEverMade(ePlayer);
+	
+	if (bHalve)
+		iOpinionWeight /= 2;
 	
 	return iOpinionWeight;
 }
