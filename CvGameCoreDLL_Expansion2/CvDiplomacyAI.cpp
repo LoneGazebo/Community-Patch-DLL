@@ -12943,6 +12943,10 @@ bool CvDiplomacyAI::IsPlayerLiberatedCapital(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	if (IsCapitalCapturedBy(ePlayer))
+		return false;
+	
 	return m_pabPlayerLiberatedCapital[ePlayer];
 }
 
