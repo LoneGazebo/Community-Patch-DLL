@@ -36100,7 +36100,7 @@ int CvDiplomacyAI::GetTradeRoutesPlunderedScore(PlayerTypes ePlayer)
 	if (GetNumTradeRoutesPlundered(ePlayer) > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
-		if ((GC.getGame().getGameTurn() - GetPlunderedTradeRouteTurn(ePlayer)) >= iTurn)
+		if ((GC.getGame().getGameTurn() - GetPlunderedTradeRouteTurn(ePlayer)) >= (iTurn / 2))
 		{
 			ChangeNumTradeRoutesPlundered(ePlayer, -1);
 			SetPlunderedTradeRouteTurn(ePlayer, GC.getGame().getGameTurn());
