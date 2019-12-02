@@ -2284,7 +2284,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bUnableToCancelRazing                 = kResults.GetBool("UnableToCancelRazing");
 	m_iInfluenceMeetCS						= kResults.GetInt("InfluenceMeetCS");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
-	m_iGoldToGAP							 = kResults.GetInt("GoldToGAP");
+	m_iGoldToGAP							= kResults.GetInt("GoldToGAP");
 	m_iMultipleAttackBonus					= kResults.GetInt("MultipleAttackBonus");
 	m_iCityConquestGWAM						= kResults.GetInt("CityConquestGWAM");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");

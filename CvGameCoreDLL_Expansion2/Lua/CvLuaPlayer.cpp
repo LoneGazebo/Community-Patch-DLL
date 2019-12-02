@@ -12816,6 +12816,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RESURRECTED");
 		aOpinions.push_back(kOpinion);
 	}
+	
+	iValue = pDiploAI->GetLiberatedCapitalScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LIBERATED_CAPITAL");
+		aOpinions.push_back(kOpinion);
+	}
 
 	iValue = pDiploAI->GetLiberatedCapitalScore(eWithPlayer);
 	if (iValue != 0)
@@ -12976,6 +12985,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAUGHT_STEALING");
 		aOpinions.push_back(kOpinion);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	iValue = pDiploAI->GetTradeRoutesPlunderedScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PLUNDERING_OUR_TRADE_ROUTES");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetTimesPlottedAgainstUsScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PLOTTED_AGAINST_US");
+		aOpinions.push_back(kOpinion);
+	}
+
+	iValue = pDiploAI->GetTimesPerformedCoupScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PERFORMED_COUP");
+		aOpinions.push_back(kOpinion);
+	}
+#endif
 	
 #if defined(MOD_BALANCE_CORE)
 	iValue = pDiploAI->GetTradeRoutesPlunderedScore(eWithPlayer);

@@ -439,6 +439,9 @@ public:
 
 	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
 	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
+	
+	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
+	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
 
 	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
@@ -842,6 +845,11 @@ public:
 
 	int GetNumDemandEverMade(PlayerTypes ePlayer) const;
 	bool IsDemandEverMade(PlayerTypes ePlayer) const;
+	
+#if defined(MOD_BALANCE_CORE)
+	int GetDemandMadeTurn(PlayerTypes ePlayer) const;
+	void SetDemandMadeTurn(PlayerTypes ePlayer, int iValue);
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	int GetDemandMadeTurn(PlayerTypes ePlayer) const;
@@ -1312,6 +1320,11 @@ public:
 
 	int GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const;
 	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
+	
+#if defined(MOD_BALANCE_CORE)
+	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
+	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;

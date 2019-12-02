@@ -1744,7 +1744,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_YieldModifier.push_back(0);
 		m_YieldChange.push_back(0);
 		m_iGarrisonYieldChange.push_back(0);
+<<<<<<< HEAD
 		m_iFortificationYieldChange.push_back(0);
+=======
+		m_iFortificationYieldChange.clear();
+>>>>>>> origin/master
 	}
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

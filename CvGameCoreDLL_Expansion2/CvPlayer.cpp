@@ -12922,24 +12922,36 @@ void CvPlayer::raze(CvCity* pCity)
 void CvPlayer::unraze(CvCity* pCity)
 {
 	if (GetPlayerTraits()->IsUnableToCancelRazing() == false)
+<<<<<<< HEAD
 	{
 	if (GetPlayerTraits()->IsNoAnnexing())
+=======
+>>>>>>> origin/master
 	{
-		pCity->DoCreatePuppet();
-	}
-	else
-	{
-		pCity->DoAnnex();
-	}
+		if (GetPlayerTraits()->IsNoAnnexing())
+		{
+			pCity->DoCreatePuppet();
+		}
+		else
+		{
+			pCity->DoAnnex();
+		}
 
-	pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
+		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
 
-	DoUpdateNextPolicyCost();
+		DoUpdateNextPolicyCost();
 
+<<<<<<< HEAD
 	// Update City UI
 	if(GetID() == GC.getGame().getActivePlayer())
 	{
 		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+=======
+		// Update City UI
+		if (GetID() == GC.getGame().getActivePlayer())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+>>>>>>> origin/master
 		}
 	}
 }

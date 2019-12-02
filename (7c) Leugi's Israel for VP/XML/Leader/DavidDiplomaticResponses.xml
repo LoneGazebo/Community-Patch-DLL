@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/27/2013 6:41:03 PM -->
+<GameData>
+	<Diplomacy_Responses>
+		<Row LeaderType="LEADER_DAVID">
+			<ResponseType>RESPONSE_FIRST_GREETING</ResponseType>
+			<Response>TXT_KEY_LEADER_DAVID_FIRSTGREETING_%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DAVID">
+			<ResponseType>RESPONSE_DEFEATED</ResponseType>
+			<Response>TXT_KEY_LEADER_DAVID_DEFEATED_%</Response>
+		</Row>
+	</Diplomacy_Responses>
+</GameData>
