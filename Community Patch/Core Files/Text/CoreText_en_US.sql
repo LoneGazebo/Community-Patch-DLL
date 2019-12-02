@@ -553,6 +553,11 @@ WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 -- Diplo Opinion Modifiers
 
+-- Liberation
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]You liberated their original capital.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_LIBERATED_CAPITAL';
+
 -- Recent Trade
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
