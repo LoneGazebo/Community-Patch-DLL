@@ -8891,6 +8891,21 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		//positive means we are winning - let's ride this out until we get a good peace deal.
 		else
 		{
+			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
+			{
+				// If they're an easy target, don't give up easily.
+				if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false)
+				{
+					iWantPeace -= 30;
+				}
+				
+				// Going for world conquest?
+				if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+				{
+					iWantPeace -= 30;
+				}
+			}
+				
 			//If we get a bonus from high warscore, let's not end early!
 			if (m_pPlayer->GetPositiveWarScoreTourismMod() > 0)
 			{
@@ -8961,7 +8976,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		iWantPeace += (iTheirDanger * -1);
 
 		//Lack of progress in war increases desire for peace.
-		iWantPeace += max(0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12 ); 
+		iWantPeace += max(0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12); 
 
 		//Num of turns since they captured a city?
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
@@ -13766,7 +13781,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 			{
 				MajorCivOpinionTypes eOpinion;
 				eOpinion = GetMajorCivOpinion(ePlayer);
-				if (eOpinion >= MAJOR_CIV_OPINION_FRIEND)
+				if (eOpinion == MAJOR_CIV_OPINION_ALLY)
 				{
 					continue;
 				}
@@ -35773,6 +35788,13 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	
+	// No weight for this if we're at least friends
+	if (GetMajorCivOpinion(ePlayer) >= MAJOR_CIV_OPINION_FRIEND)
+	{
+		return 0;
+	}
+	
 	// Look at Victory Dispute
 	switch (GetVictoryBlockLevel(ePlayer))
 	{
