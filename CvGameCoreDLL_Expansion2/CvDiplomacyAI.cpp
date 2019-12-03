@@ -8900,7 +8900,15 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 				{
 					if (bWantsConquest)
 					{
-						return false;
+						// If we have a HUGE advantage and want them defeated, let's not make peace.
+						if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ true)
+						{
+							return false;
+						}
+						else
+						{
+							iWantPeace -= 50;
+						}
 					}
 					else
 					{
