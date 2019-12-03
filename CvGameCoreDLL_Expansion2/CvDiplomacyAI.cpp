@@ -8893,14 +8893,14 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		{
 			if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireVeryUnhappy())
 			{
-				bool bWantsConquest = (IsGoingForWorldConquest() || IsCloseToDominationVictory() || GetBiggestCompetitor() == ePlayer || (GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN && GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE));
+				bool bWantsConquest = (IsGoingForWorldConquest() || IsCloseToDominationVictory() || GetBiggestCompetitor() == ePlayer || GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE);
 				
 				// If they're an easy target, don't give up easily.
 				if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false)
 				{
 					if (bWantsConquest)
 					{
-						// If we have a HUGE advantage and want them defeated, let's not make peace.
+						// If we have a HUGE advantage and want them conquered, let's not make peace.
 						if (IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ true)
 						{
 							return false;
