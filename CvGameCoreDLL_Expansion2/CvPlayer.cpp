@@ -4896,6 +4896,20 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(pNewCity != NULL && pNewCity->getOwner() == BARBARIAN_PLAYER)
 	{
 		CvBarbarians::DoCityActivationNotice(pNewCity->plot());
+		
+		// Barbarians have captured a city, spawn a unit to garrison the city
+		CvBarbarians::DoSpawnBarbarianUnit(pNewCity->plot(), true, true);
+		
+		// +1 unit if Chill Barbarians isn't enabled
+		if (!GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+		{
+			CvBarbarians::DoSpawnBarbarianUnit(pNewCity->plot(), true, true);
+		}
+		// +1 unit if Raging Barbarians is enabled
+		if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+		{
+			CvBarbarians::DoSpawnBarbarianUnit(pNewCity->plot(), true, true);
+		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -20995,8 +21009,11 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 /// Uprisings pop up if the empire is Very Unhappy
 void CvPlayer::DoUpdateUprisings()
 {
+	if (MOD_BALANCE_CORE_HAPPINESS && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		return;
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//Revolts only happen if super unhappy.
+	// Uprisings only happen if very unhappy.
 	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
@@ -21088,6 +21105,21 @@ void CvPlayer::DoResetUprisingCounter(bool bFirstTime)
 		iTurns *= 75;
 		iTurns /= 100;
 	}
+	
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		// Game options
+		if (GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+		{
+			iTurns *= 3;
+			iTurns /= 2;
+		}
+		if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+		{
+			iTurns /= 2;
+		}
+	}
+	
 	if(iTurns <= 0)
 		iTurns = 1;
 
@@ -21104,6 +21136,16 @@ void CvPlayer::DoUprising()
 	iExtraRoll += GC.getGame().getSmallFakeRandNum(iExtraRoll, getGlobalAverage(YIELD_CULTURE)) * /*20*/ GC.getUPRISING_NUM_CITY_COUNT();
 	iNumRebels += iExtraRoll;
 	iNumRebels /= 100;
+	
+	// Game options
+	if (iNumRebels > 1 && GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+	{
+		iNumRebels--;
+	}
+	if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+	{
+		iNumRebels++;
+	}
 
 	// Find a random city to pop up a bad man
 	CvCity* pBestCity = NULL;
@@ -21194,7 +21236,7 @@ void CvPlayer::DoUprising()
 			pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
 			// Pick a unit type
-			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ false);
+			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
@@ -21212,6 +21254,9 @@ void CvPlayer::DoUprising()
 			do
 			{
 				iNumRebels--;
+				
+				// pick a new unit at random (for variety)
+				eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 
 				// Init unit
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
@@ -21228,7 +21273,7 @@ void CvPlayer::DoUprising()
 }
 
 //	--------------------------------------------------------------------------------
-/// City can revolt if the empire is Super Unhappy
+/// City can revolt if the empire is Very Unhappy
 void CvPlayer::DoUpdateCityRevolts()
 {
 	int iPublicUnhappiness = 0;

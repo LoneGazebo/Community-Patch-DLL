@@ -964,6 +964,14 @@
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
 			<Text>{1_Num} from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
+		
+		<!-- Top Panel Tooltips for Very/Super Unhappy (Barbarians Disabled) -->
+		<Row Tag="TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS">
+			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS">
+			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will quickly start to abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+		</Row>
 
 		<!-- Economic Overview -->
 		<Row Tag="TXT_KEY_EO_CITY_IS_NOT_OCCUPIED">

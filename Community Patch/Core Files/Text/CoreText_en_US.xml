@@ -6927,7 +6927,7 @@
 			<Text>Chill Barbarians</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP">
-			<Text>Barbarian spawn rates reduced slightly, and camps do not spawn two units when created. Groovy, man.</Text>
+			<Text>Barbarian spawn rates are reduced slightly, [ICON_HAPPINESS_4] Uprisings occur less often, and camps do not spawn two units when created. Groovy, man.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY">

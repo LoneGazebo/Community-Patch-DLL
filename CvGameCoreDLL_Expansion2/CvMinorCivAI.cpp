@@ -9618,6 +9618,16 @@ void CvMinorCivAI::DoRebellion()
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
 	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * 200;
 	iNumRebels /= 100;
+	
+	if (iNumRebels > 1 && GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+	{
+		iNumRebels--;
+	}
+	
+	if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+	{
+		iNumRebels++;
+	}
 
 	// Find a city to pop up a bad man
 	CvCity* pBestCity = GetPlayer()->getCapitalCity();

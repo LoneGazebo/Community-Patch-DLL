@@ -1696,6 +1696,8 @@ bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdva
 			{
 				if (pCity->GetBlockRebellion() > 0)
 					return false;
+				if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+					return false;
 				break;
 			}
 		}
@@ -2198,7 +2200,20 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 			int iNumRebelTotal = max(3, iNumRebels);
 			if (iNumRebelTotal > 0)
 			{
-				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, min(6, iNumRebelTotal), false, false, false, false);
+				if (iNumRebelTotal > 1 && GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+				{
+					iNumRebelTotal--;
+				}
+				
+				if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+				{
+					iNumRebelTotal++;
+					GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, min(7, iNumRebelTotal), false, false, false, false);
+				}
+				else
+				{
+					GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, min(6, iNumRebelTotal), false, false, false, false);
+				}
 
 				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
 				if (pDefendingPlayerEspionage)
