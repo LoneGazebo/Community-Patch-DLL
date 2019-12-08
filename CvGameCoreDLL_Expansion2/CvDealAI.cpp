@@ -4372,10 +4372,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 		}
 		
-		// Target is close to winning the game? Halve the value.
+		// Target is close to winning the game? Double the value.
 		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
 		{
-			iItemValue /= 2;
+			iItemValue *= 2;
 		}
 		
 		// Easy target? Halve the value.
