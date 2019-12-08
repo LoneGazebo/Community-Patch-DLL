@@ -14329,6 +14329,22 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += -10;
 			}
 			
+			// Ideology weight
+			int iIdeologyWeight = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+			
+			if (IsPlayerSameIdeology(ePlayer))
+			{
+				iEnemyWeight += -iIdeologyWeight;
+				iDPWeight += iIdeologyWeight;
+				iDoFWeight += iIdeologyWeight;
+			}
+			else if (IsPlayerOpposingIdeology(ePlayer))
+			{
+				iEnemyWeight += iIdeologyWeight;
+				iDPWeight += -iIdeologyWeight;
+				iDoFWeight += -iIdeologyWeight;
+			}
+			
 			// Captured our capital or Holy City, and we aren't their capitulated vassal?
 			if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer))
 			{
