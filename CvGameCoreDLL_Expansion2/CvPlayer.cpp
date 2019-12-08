@@ -21165,7 +21165,7 @@ void CvPlayer::DoUprising()
 			{
 				iTempWeight += 4;
 
-				// If also a a resource, even more weight!
+				// If there's also a resource, even more weight!
 				if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					iTempWeight += 3;
 			}

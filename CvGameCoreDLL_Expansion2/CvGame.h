@@ -329,6 +329,7 @@ public:
 	int GetFaithCost(CvUnitEntry *pkUnit) const;
 
 	TeamTypes getWinner() const;
+	bool CvGame::IsGameWon() const;
 	VictoryTypes getVictory() const;
 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 

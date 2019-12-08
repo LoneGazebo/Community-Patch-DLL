@@ -2805,8 +2805,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #endif
 	
 	// Are they planning a trap for us? Don't fall for it!
-	if (pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR ||
-	pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
+	if (pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 	{
 		return INT_MAX;
 	}
@@ -3143,14 +3142,26 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	}
 #endif
 
+	int iBonus = 0;
+	
+#if defined(MOD_BALANCE_CORE_DEALS)
+	if (MOD_BALANCE_CORE_DEALS)
+	{	
+		if (GetPlayer()->GetDiplomacyAI()->GetMostValuableDefensivePact(/*bIgnoreDPs*/ false) == eOtherPlayer)
+			iBonus = 10;
+		else if (GetPlayer()->GetDiplomacyAI()->GetMostValuableDefensivePact(/*bIgnoreDPs*/ true) == eOtherPlayer)
+			iBonus = 3;
+	}
+#endif
+
 	// What is a Defensive Pact with eOtherPlayer worth to US?
 	if(!bFromMe)
 	{
 #if defined(MOD_BALANCE_CORE_DEALS)
-		if(MOD_BALANCE_CORE_DEALS)
+		if (MOD_BALANCE_CORE_DEALS)
 		{
 			iItemValue *= 35;
-			iItemValue /= max(1, GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer));
+			iItemValue /= max(1, (GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer) + iBonus));
 		}
 #endif
 	}
@@ -3160,30 +3171,8 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(MOD_BALANCE_CORE_DEALS)
 		{
-			iItemValue *= GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer);
+			iItemValue *= (GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer) + iBonus);
 			iItemValue /= 40;
-		}
-#else
-		// Opinion also matters
-		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
-		{
-		case MAJOR_CIV_OPINION_ALLY:
-			iItemValue = 100;
-			break;
-		case MAJOR_CIV_OPINION_FRIEND:
-			iItemValue = 100;
-			break;
-		case MAJOR_CIV_OPINION_FAVORABLE:
-			iItemValue = 100;
-			break;
-		case MAJOR_CIV_OPINION_NEUTRAL:
-		case MAJOR_CIV_OPINION_COMPETITOR:
-		case MAJOR_CIV_OPINION_ENEMY:
-		case MAJOR_CIV_OPINION_UNFORGIVABLE:
-		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Defensive Pact valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-			iItemValue = 100;
-			break;
 		}
 #endif
 	}
@@ -3507,6 +3496,12 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		// Majors
 		else
 		{
+			// Captured our capital or Holy City? Close to winning the game? Don't accept peace bribes.
+			if (pDiploAI->IsCapitalCapturedBy(eWithPlayer) || pDiploAI->IsHolyCityCapturedBy(eWithPlayer) || pDiploAI->IsCloseToDominationVictory() || (GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !pDiploAI->IsNoVictoryCompetition()))
+			{
+				return INT_MAX;
+			}
+			
 			MajorCivApproachTypes eWarMajorCivApproach = pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false);
 			// Modify for our feelings towards the player we're at war with
 			if(eWarMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
@@ -3520,6 +3515,24 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 				iItemValue /= 100;
 			}
 			else if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_GUARDED)
+			{
+				iItemValue *= 150;
+				iItemValue /= 100;
+			}
+			
+			// If we want them conquered, let's be much more reluctant to accept peace bribes.
+			bool bWantsConquest = (pDiploAI->IsGoingForWorldConquest() || pDiploAI->GetMajorCivOpinion(eWithPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE);
+			if (bWantsConquest && eWarMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
+			{
+				iItemValue *= 3;
+			}
+			
+			// Major competitor?
+			if (pDiploAI->GetBiggestCompetitor() == eWithPlayer && eWarMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
+			{
+				iItemValue *= 2;
+			}
+			else if (pDiploAI->IsMajorCompetitor(eWithPlayer) && eWarMajorCivApproach == MAJOR_CIV_APPROACH_WAR)
 			{
 				iItemValue *= 150;
 				iItemValue /= 100;
@@ -3554,10 +3567,16 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			iItemValue *= 150;
 			iItemValue /= 100;
 		}
-		else if(eAskingMajorCivApproach >= MAJOR_CIV_APPROACH_HOSTILE)
+		else if(eAskingMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			iItemValue *= 600;
 			iItemValue /= 100;
+		}
+		
+		// Not an easy target? Halve the value.
+		if (!pDiploAI->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
+		{
+			iItemValue /= 2;
 		}
 	}
 	// From them
@@ -3583,7 +3602,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		{
 			MajorCivApproachTypes eWarMajorCivApproach = pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false);
 
-			// Modify for our feelings towards the player we're at war with
+			// Modify for our feelings towards the player they're at war with
 			if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				iItemValue *= 200;
@@ -3655,6 +3674,23 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		else if (eAskingMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			return INT_MAX;
+		}
+		
+		// Not an easy target? Halve the value.
+		if (GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
+			{
+				iItemValue /= 2;
+			}
+		}
+		// Assume AIs will share relevant information with each other when deciding on a price.
+		else
+		{
+			if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
+			{
+				iItemValue /= 2;
+			}
 		}
 	}
 #else
@@ -3866,20 +3902,15 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		eMajorApproachTowardsWarPlayer = pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false);
 	}
 	// From me
-	if(bFromMe)
+	if (bFromMe)
 	{
 		//Are we already at war with the team? Don't do it!
-		if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(eWithTeam))
+		if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(eWithTeam))
 		{
 			return INT_MAX;
 		}
 		//Can we declare war?
-		if(!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
-		{
-			return INT_MAX;
-		}
-		// Only accept bribes against our major competitors. Otherwise, nah.
-		if (!pDiploAI->IsMajorCompetitor(eWithPlayer))
+		if (!GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			return INT_MAX;
 		}
@@ -3894,12 +3925,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			return INT_MAX;
 		}
 		//tricksy players wanting us to DoW so they can get the drop on us...don't fall for it!
-		if (pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_WAR || pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) == MAJOR_CIV_APPROACH_HOSTILE)
-		{
-			return INT_MAX;
-		}
-		//They betrayed us before? It's a trap!
-		if (pDiploAI->IsFriendDenouncedUs(eOtherPlayer) || pDiploAI->IsFriendDeclaredWarOnUs(eOtherPlayer) || pDiploAI->IsPlayerBrokenMilitaryPromise(eOtherPlayer))
+		if (pDiploAI->IsUntrustworthyFriend(eOtherPlayer) || pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			return INT_MAX;
 		}
@@ -3995,6 +4021,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
 		{
 			iItemValue /= 2;
+		}
+		else if (pDiploAI->IsMajorCompetitor(eWithPlayer))
+		{
+			iItemValue *= 75;
+			iItemValue /= 100;
 		}
 		
 		// Add 300 gold per era
@@ -4121,6 +4152,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
 					iItemValue *= 100;
 					break;
+			}
+			
+			// Target is close to winning the game? Halve the value.
+			if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+			{
+				iItemValue /= 2;
 			}
 			
 			// Easy target? Halve the value.
@@ -4263,12 +4300,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		
-		// Easy target? Halve the value.
-		if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
-		{
-			iItemValue /= 2;
-		}
 
 		if(!bMinor)
 		{
@@ -4338,6 +4369,29 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 						break;
 				}
 				iItemValue /= 100;
+			}
+		}
+		
+		// Target is close to winning the game? Halve the value.
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+		{
+			iItemValue /= 2;
+		}
+		
+		// Easy target? Halve the value.
+		if (GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
+			{
+				iItemValue /= 2;
+			}
+		}
+		// Assume AIs will share relevant information with each other when deciding on a price.
+		else
+		{
+			if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
+			{
+				iItemValue /= 2;
 			}
 		}
 #endif

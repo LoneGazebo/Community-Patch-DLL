@@ -504,6 +504,7 @@ public:
 	
 	int GetDefensivePactValue(PlayerTypes ePlayer);
 	PlayerTypes GetMostValuableDefensivePact(bool bIgnoreDPs);
+	PlayerTypes GetNextBestDefensivePact();
 
 	int GetDoFValue(PlayerTypes ePlayer);
 	PlayerTypes GetMostValuableDoF(bool bIgnoreDoFs);
@@ -915,6 +916,9 @@ public:
 
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
+	
+	int GetDoFBrokenTurn(PlayerTypes ePlayer) const;
+	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
 #endif
 
 	short GetDoFCounter(PlayerTypes ePlayer) const;
@@ -1700,6 +1704,7 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
+		short m_aiDoFBrokenTurn[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
 		pair<int,int> m_paNoExpansionPromise[MAX_MAJOR_CIVS];
 		pair<int,int> m_paLastTurnEmpireDistance[MAX_MAJOR_CIVS];
@@ -2043,6 +2048,7 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
+	short* m_paiDoFBrokenTurn;
 	short* m_paiNumTimesCoopWarDenied;
 	pair<int,int>* m_paNoExpansionPromise;
 	pair<int,int>* m_paLastTurnEmpireDistance;

@@ -303,7 +303,7 @@
 			<Text>We must win. Begin conscription.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_HELP">
-			<Text>50% chance that all Cities will produce a military unit and bein 2 turns of [ICON_RESISTANCE] Resistance.</Text>
+			<Text>50% chance that all Cities will produce a military unit and begin 2 turns of [ICON_RESISTANCE] Resistance.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_SUCCESSFUL">
 			<Text>Conscription was successful, but your people are more angry than ever before. All cities experience 2 turns of [ICON_RESISTANCE] Resistance and produce 1 military unit.</Text>
