@@ -3522,7 +3522,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			
 			// If we want them conquered, let's be much more reluctant to accept peace bribes.
 			bool bWantsConquest = (pDiploAI->IsGoingForWorldConquest() || pDiploAI->GetMajorCivOpinion(eWithPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE);
-			if (bWantsConquest && eWarMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
+			if (bWantsConquest && eWarMajorCivApproach == MAJOR_CIV_APPROACH_WAR)
 			{
 				iItemValue *= 3;
 			}
