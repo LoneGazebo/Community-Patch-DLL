@@ -14794,14 +14794,18 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			{
 				iDPWeight = 0;
 				iDoFWeight /= 2;
-				iEnemyWeight /= 2;
+				
+				if (iEnemyWeight > 0)
+					iEnemyWeight /= 2;
 			}
 			
 			// Sanctioned? Friendship is much less valuable.
-			if (iDoFWeight > 0 && GC.getGame().GetGameLeagues()->IsTradeEmbargoed(GetPlayer()->GetID(), ePlayer))
+			if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(GetPlayer()->GetID(), ePlayer))
 			{
 				iDPWeight = 0;
-				iDoFWeight /= 2;
+				
+				if (iDoFWeight > 0)
+					iDoFWeight /= 2;
 			}
 			
 			// At war with them? Then they're not a potential friend or DP!
