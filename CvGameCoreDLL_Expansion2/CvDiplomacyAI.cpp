@@ -11522,11 +11522,7 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 		}
 		else
 		{
-			if (GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) >= MAJOR_CIV_APPROACH_AFRAID && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE)
-			{
-				return true;
-			}
-			else if (GetNumTimesCoopWarDenied(ePlayer) < 0 && GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_HOSTILE && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_HOSTILE)
+			if (GetDefensivePactValue(ePlayer) > 0 && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE)
 			{
 				return true;
 			}
@@ -29036,9 +29032,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 		PlayerTypes eAgainstPlayer = (PlayerTypes) iArg1;
 
-		// Set the counter (this will handle rejection as well)
-		SetCoopWarCounter(eFromPlayer, eAgainstPlayer, 0);
-
 		CoopWarStates eAcceptableState;
 
 		// Teammates
@@ -29059,6 +29052,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			eAcceptableState = GetWillingToAgreeToCoopWarState(eFromPlayer, eAgainstPlayer);
 		}
 
+		// Guard against diplo penalty exploit
+		if (eAcceptableState != COOP_WAR_STATE_REJECTED || (eAcceptableState == COOP_WAR_STATE_REJECTED && GetCoopWarCounter(eFromPlayer, eAgainstPlayer) <= 0))
+		{
+			// Set the counter
+			SetCoopWarCounter(eFromPlayer, eAgainstPlayer, 0);
+		}
+		
 		SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, eAcceptableState);
 
 		// Accepted
