@@ -1016,7 +1016,7 @@ void CvDiplomacyAI::Uninit()
 	m_paNoExpansionPromise = NULL;
 	m_paLastTurnEmpireDistance = NULL;
 	m_pabDoFBroken = NULL;
-	m_pabDoFBrokenTurn = NULL;
+	m_paiDoFBrokenTurn = NULL;
 	m_paiNumTimesRazed = NULL;
 	m_paiNumTradeRoutesPlundered = NULL;
 	m_pabPlayerEverMadeBorderPromise = NULL;
@@ -1236,7 +1236,7 @@ void CvDiplomacyAI::Reset()
 		m_paNoExpansionPromise[iI] = make_pair(-1, -1);
 		m_paLastTurnEmpireDistance[iI] = make_pair(-1, -1);
 		m_pabDoFBroken[iI] = false;
-		m_pabDoFBrokenTurn[iI] = 0;
+		m_paiDoFBrokenTurn[iI] = 0;
 		m_pabPlayerEverMadeBorderPromise[iI] = false;
 		m_pabPlayerEverMadeExpansionPromise[iI] = false;
 		m_pabDoFEverAsked[iI] = false;
