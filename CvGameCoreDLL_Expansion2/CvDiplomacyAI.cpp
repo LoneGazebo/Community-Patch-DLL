@@ -12290,11 +12290,12 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		}
 
 		// Second loop, add desired DPs in the order of best to worst
-		PlayerTypes eNextBestDP;
-		while (GetNextBestDefensivePact() != NO_PLAYER)
+		PlayerTypes eNextBestDP = GetNextBestDefensivePact();
+		
+		while (eNextBestDP != NO_PLAYER)
 		{
-			eNextBestDP = GetNextBestDefensivePact();
 			DoAddWantsDefensivePactWithPlayer(eNextBestDP);
+			eNextBestDP = GetNextBestDefensivePact();
 		}
 	}
 #endif
