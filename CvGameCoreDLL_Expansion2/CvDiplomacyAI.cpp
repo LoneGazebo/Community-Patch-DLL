@@ -38030,8 +38030,8 @@ bool CvDiplomacyAI::IsCloseToCultureVictory() const
 		return false;
 	}
 	
-	// We're not close to winning a cultural victory if we aren't at least in the Atomic Era
-	if (GetPlayer()->GetCurrentEra() < 6)
+	// % of influenced civs isn't important if we're not at least in the Modern Era
+	if (GetPlayer()->GetCurrentEra() < 5)
 	{
 		return false;
 	}
