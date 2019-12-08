@@ -38030,6 +38030,12 @@ bool CvDiplomacyAI::IsCloseToCultureVictory() const
 		return false;
 	}
 	
+	// We're not close to winning a cultural victory if we aren't at least in the Atomic Era
+	if (GetPlayer()->GetCurrentEra() < 6)
+	{
+		return false;
+	}
+	
 	int iNumCivsInfluential = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
 	if(iNumCivsInfluential > 0)
 	{
