@@ -4155,7 +4155,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			
 			// Target is close to winning the game? Halve the value.
-			if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+			if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition())
 			{
 				iItemValue /= 2;
 			}
@@ -4373,7 +4373,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 		
 		// Target is close to winning the game? Double the value.
-		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !GetPlayer()->GetDiplomacyAI()->IsNoVictoryCompetition())
 		{
 			iItemValue *= 2;
 		}
