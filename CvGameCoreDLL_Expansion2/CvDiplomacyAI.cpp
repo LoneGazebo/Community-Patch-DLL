@@ -4392,7 +4392,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Must be at least in the Medieval Era (or close to winning) to add weight for Domination Victory
 	if (iEra >= 2 || IsCloseToDominationVictory())
 	{
-		if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+		if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
 			// Add some weight for leader flavors
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += ((GetBoldness() + GetMeanness()) / 2);
@@ -4553,7 +4553,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Renaissance Era or later (or close to winning) for other victories
 	if (iEra >= 3 || IsCloseToAnyVictoryCondition())
 	{
-		if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory())
+		if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory() || GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
 			// Spaceship competitor?
 			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount() > 1 || (!IsCloseToSSVictory() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory()))
@@ -4868,7 +4868,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 		}
 		
-		if (IsGoingForCultureVictory() || IsCloseToCultureVictory())
+		if (IsGoingForCultureVictory() || IsCloseToCultureVictory() || GetPlayer()->GetPlayerTraits()->IsTourism())
 		{
 			switch (GetWonderDisputeLevel(ePlayer))
 			{
@@ -15169,7 +15169,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			// Must be at least in the Medieval Era (or close to winning) to add weight for Domination Victory
 			if (iEra >= 2 || IsCloseToDominationVictory())
 			{
-				if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+				if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
 				{
 					int iNumCaps = GET_PLAYER(ePlayer).GetNumCapitalCities();
 					if (iNumCaps > 0)
@@ -15289,7 +15289,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			// Renaissance Era or later (or close to winning) for other victories
 			if (iEra >= 3 || IsCloseToAnyVictoryCondition())
 			{
-				if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory())
+				if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory() || GetPlayer()->GetPlayerTraits()->IsNerd())
 				{
 					// Spaceship competitor?
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount() > 1 || (!IsCloseToSSVictory() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory()))
@@ -15380,7 +15380,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					}
 				}
 				
-				if (IsGoingForDiploVictory() || IsCloseToDiploVictory())
+				if (IsGoingForDiploVictory() || IsCloseToDiploVictory() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
 				{
 					// Increase friendship willingness with all civs (that aren't close to winning)
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
@@ -15561,7 +15561,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					}
 				}
 				
-				if (IsGoingForCultureVictory() || IsCloseToCultureVictory())
+				if (IsGoingForCultureVictory() || IsCloseToCultureVictory() || GetPlayer()->GetPlayerTraits()->IsTourism())
 				{
 					switch (GetWonderDisputeLevel(ePlayer))
 					{
