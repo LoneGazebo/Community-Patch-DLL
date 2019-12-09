@@ -2767,7 +2767,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 	return iItemValue;
 }
 
-/// How much in V-POINTS (aka value) is Open Borders worth?  You gotta admit that V-POINTS sound pretty cool though
+/// How much in V-POINTS (aka value) is Open Borders worth? You gotta admit that V-POINTS sound pretty cool though
 int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of Open Borders with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -2851,22 +2851,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		// If they're at war with our enemies then we're more likely to give them OB
 		int iNumEnemiesAtWarWith = pDiploAI->GetNumOurEnemiesPlayerAtWarWith(eOtherPlayer);
 #if defined(MOD_BALANCE_CORE_DEALS)
-		if(iNumEnemiesAtWarWith > 0)
-#else
-		if(iNumEnemiesAtWarWith >= 2)
-#endif
+		if (iNumEnemiesAtWarWith > 0)
 		{
-#if defined(MOD_BALANCE_CORE_DEALS)
 			iItemValue *= (100 - (iNumEnemiesAtWarWith * 5));
-#else
-			iItemValue *= 10;
-#endif
-			iItemValue /= 100;
-		}
-#if !defined(MOD_BALANCE_CORE_DEALS)
-		else if(iNumEnemiesAtWarWith == 1)
-		{
-			iItemValue *= 50;
 			iItemValue /= 100;
 		}
 #endif
@@ -2922,6 +2909,11 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 #endif
 #endif
+		// Add 200 Gold for each of our artifacts they've stolen
+		if (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) > 0)
+		{
+			iItemValue += (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200);
+		}
 	}
 	// Other guy giving me Open Borders
 	else
@@ -2974,27 +2966,6 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		case PLAYER_PROXIMITY_NEIGHBORS:
 			iItemValue *= 110;
 			iItemValue /= 100;
-			break;
-		default:
-			CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-			iItemValue = 0;
-			break;
-		}
-#else
-		// Proximity is very important
-		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
-		{
-		case PLAYER_PROXIMITY_DISTANT:
-			iItemValue = 5;
-			break;
-		case PLAYER_PROXIMITY_FAR:
-			iItemValue = 10;
-			break;
-		case PLAYER_PROXIMITY_CLOSE:
-			iItemValue = 15;
-			break;
-		case PLAYER_PROXIMITY_NEIGHBORS:
-			iItemValue = 30;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
