@@ -5321,18 +5321,28 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iTradeDelta;
 	}
 	
-	// We're bankrupt!
-	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-	}
-	
 	// Sanity check - avoid declaring war if we would go bankrupt!
 	int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
 	int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
+	
+	// We're bankrupt!
+	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
+	{
+		if (iLostGoldPerTurn < 0) // we're bankrupt, and we'd gain GPT by going to war? Well, there's one way to end that.
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viAPproachWeights[MAJOR_CIV_APPROACH_WAR] -= iLostGoldPerTurn;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= iLostGoldPerTurn;
+		}
+		else
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		}
+	}
 	
 	if (iLostGoldPerTurn > 0 && iAdjustedGoldPerTurn < 0)
 	{
@@ -32817,14 +32827,9 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		return 0;
 		break;
 	}
-	
-	// Bankrupt?
-	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
-	{
-		iWeight -= 5;
-	}
 
 	// Are we getting money from trade with them?
+	int iLostGoldPerTurn = 0;
 	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, eTargetPlayer);
 	int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer);
 	if(iCurrentTradeValue > 0 || iTradeDealValue > 0)
@@ -32832,7 +32837,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		iWeight -= 2;
 
 		// Sanity check - avoid declaring war if we would go bankrupt!
-		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(eTargetPlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
+		iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(eTargetPlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
 		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
 		
 		if (iLostGoldPerTurn > 0 && iAdjustedGoldPerTurn < 0)
@@ -32880,9 +32885,22 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 			}
 		}
 	}
+	
+	// Bankrupt?
+	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
+	{
+		if (iLostGoldPerTurn < 0)
+		{
+			iWeight -= iLostGoldPerTurn;
+		}
+		else
+		{
+			iWeight -= 5;
+		}
+	}
 
 	// Weight for expanding too fast
-	if(IsPlayerRecklessExpander(eTargetPlayer))
+	if (IsPlayerRecklessExpander(eTargetPlayer))
 	{
 		iWeight += 4;
 	}
