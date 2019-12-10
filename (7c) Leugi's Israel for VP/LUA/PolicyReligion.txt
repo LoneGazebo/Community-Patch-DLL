@@ -1,0 +1,34 @@
+-- ProphetEra
+-- Author: muxu
+-- DateCreated: 4/24/2013 10:42:53 AM
+--------------------------------------------------------------
+WARN_NOT_SHARED = false; include( "SaveUtils" ); MY_MOD_NAME = "LeugiIsraelScripts";
+
+print("The Israel Mod Lua loaded succesfully")
+
+
+local iKibbutz = GameInfoTypes.IMPROVEMENT_KIBBUTZ
+local id = GameInfo.Improvements.IMPROVEMENT_KIBBUTZ.ID
+
+function KibbutzReplace(iHexX, iHexY, iContinent1, iContinent2)
+	for _, pPlayer in pairs(Players) do
+			if (pPlayer:IsAlive()) then
+				for pCity in pPlayer:Cities() do
+					local i;
+					for i = 0, pCity:GetNumCityPlots() - 1, 1 do
+						local plot = pCity:GetCityIndexPlot( i );
+						if (plot ~= nil) then
+							if ( plot:GetOwner() == pCity:GetOwner() ) then
+								if (plot:GetImprovementType() == iKibbutz) then
+								
+								plot:SetImprovementType(iKibbutz);
+								print("Kibbutz!");
+								end
+							end
+						end
+					end
+				end
+			end
+	end
+end
+GameEvents.PlayerDoTurn.Add(KibbutzReplace)

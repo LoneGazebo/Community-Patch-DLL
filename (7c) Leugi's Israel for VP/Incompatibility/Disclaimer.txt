@@ -1,0 +1,17 @@
+This mod replaces CityBannerManager.lua... Any mod that also does this might be incompatible, 
+so please rename this file if you're experiencing issues. The reason to do this is aesthetic,
+if you get the Heir event you might choose Solomon over Absalom and Absalom turns one of your cities
+barbarian... When you click on a Barbarian city banner you meet an unexistant grey screen leader, so
+in order to avoid that, this file makes it so clicking a barbarian banner doesn't do a thing.
+
+If you're up to make compatibility yourself though, add this:
+
+if not player:IsBarbarian() then
+	UI.SetRepeatActionPlayer(ePlayer);
+	UI.ChangeStartDiploRepeatCount(1);
+    player:DoBeginDiploWithHuman();
+else
+	return
+end
+
+instead of line 1100-1102
