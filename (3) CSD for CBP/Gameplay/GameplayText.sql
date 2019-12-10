@@ -29,7 +29,7 @@ SET Text = 'Conduct Diplomatic Mission'
 WHERE Tag = 'TXT_KEY_MISSION_CONDUCT_TRADE_MISSION' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'If the unit is inside City-State territory that you are not at war with, this order will expend the unit.[NEWLINE][NEWLINE]If a Great Diplomat, you will gain a large amount of [ICON_INFLUENCE] Influence with the City-State and the [ICON_INFLUENCE] of all other major civilizations known to the City-State will be decreased with this City-State by the same amount.[NEWLINE][NEWLINE] If this unit is a Great Merchant, you will receive a large amount of [ICON_GOLD] Gold and an instant ''We Love the King Day'' in all owned cities. This action will consume the unit.'
+SET Text = 'If the unit is inside City-State territory that you are not at war with, this order will expend the unit.[NEWLINE][NEWLINE]If a Great Diplomat, you will gain a large amount of [ICON_INFLUENCE] Influence with the City-State and the [ICON_INFLUENCE] of all other major civilizations known to the City-State will be decreased with this City-State by the same amount.[NEWLINE][NEWLINE] If this unit is a Great Merchant, you will receive a large amount of [ICON_GOLD] Gold and an instant "We Love the King Day" in all owned cities. This action will consume the unit.'
 WHERE Tag = 'TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
 
 UPDATE Language_en_US
