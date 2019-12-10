@@ -3406,7 +3406,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
 		{
 			// if the surface approach hides this
-			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL || eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED)
+			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL)
 			{
 				if(GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
@@ -3622,7 +3622,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
 		{
 			// if the surface approach hides this
-			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL || eSurfaceApproach == MAJOR_CIV_APPROACH_GUARDED)
+			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL)
 			{
 				if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isAtWar(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
@@ -5025,16 +5025,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				aiNewInfluenceValueTimes100[ui] = iNewInfluence;
 
 				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
-				//GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_pPlayer->GetID(), 1);
-				
-				if (ui == ePreviousAlly)
-				{
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 2);
-				}
-				else
-				{
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
-				}
+				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_pPlayer->GetID(), 1);
 			}
 		}
 
