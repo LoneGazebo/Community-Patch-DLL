@@ -1461,10 +1461,33 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		if (MOD_DIPLOMACY_CIV4_FEATURES) 
 		{
 			// We declared war on our vassal!
-			if(GET_TEAM(eTeam).GetMaster() == GetID())
+			if (GET_TEAM(eTeam).GetMaster() == GetID())
 			{
 				// this guy is no longer our vassal
 				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
+				
+				PlayerTypes eLoopPlayer;
+				PlayerTypes eLoopPlayer2;
+				
+				// Loop through all (living) players on this team
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					
+					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+					{
+						// Loop through all (living) players on the attacker's team - diplo penalty!
+						for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+							
+							if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == GetID())
+							{
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(eLoopPlayer2, true);
+							}
+						}
+					}
+				}
 			}
 		}
 #endif	

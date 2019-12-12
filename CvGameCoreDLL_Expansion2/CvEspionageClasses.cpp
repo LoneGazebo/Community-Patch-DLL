@@ -1694,6 +1694,8 @@ bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdva
 			}
 			case ADVANCED_ACTION_REBELLION:
 			{
+				if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+					return false;
 				if (pCity->GetBlockRebellion() > 0)
 					return false;
 				break;

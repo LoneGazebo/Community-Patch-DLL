@@ -978,8 +978,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDoFMessageTooSoon);
 	Method(IsDoF);
 	Method(GetDoFCounter);
-	Method(IsPlayerDoFwithAnyFriend);
-	Method(IsPlayerDoFwithAnyEnemy);
+	Method(IsPlayerDoFWithAnyFriend);
+	Method(IsPlayerDoFWithAnyEnemy);
 	Method(IsPlayerDenouncedFriend);
 	Method(IsPlayerDenouncedEnemy);
 	Method(IsUntrustworthyFriend);
@@ -10230,23 +10230,23 @@ int CvLuaPlayer::lGetDoFCounter(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lIsPlayerDoFwithAnyFriend(lua_State* L)
+int CvLuaPlayer::lIsPlayerDoFWithAnyFriend(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsPlayerDoFwithAnyFriend(eWithPlayer);
+	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsPlayerDoFWithAnyFriend(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lIsPlayerDoFwithAnyEnemy(lua_State* L)
+int CvLuaPlayer::lIsPlayerDoFWithAnyEnemy(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsPlayerDoFwithAnyEnemy(eWithPlayer);
+	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsPlayerDoFWithAnyEnemy(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
 	return 1;
@@ -12484,20 +12484,77 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 		}
-		if (iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
+	}
+	// Debug: display the AI's true approach in the opinion table (also duplicates Transparent Diplomacy)
+	if (pDiploAI->IsAlwaysShowTrueApproaches())
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
+		
+		switch (pDiploAI->GetMajorCivApproach(eWithPlayer, /*bHideTrueFeelings*/ false))
 		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = 0;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
-			aOpinions.push_back(kOpinion);
+		case MAJOR_CIV_APPROACH_WAR:
+			if (GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_WAR");
+			}
+			else
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR");
+			}
+			break;
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE");
+			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE");
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED");
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID");
+			break;
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY");
+			break;
+		case MAJOR_CIV_APPROACH_NEUTRAL:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL");
+			break;
 		}
+		
+		aOpinions.push_back(kOpinion);
+	}
+	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
+	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
+		
+		switch (iVisibleApproach)
+		{
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY");
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED");
+			break;
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE");
+			break;
+		}
+		
+		aOpinions.push_back(kOpinion);
 	}
 
-// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)))
+	// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
+	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
 #else
-	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY)
+	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || pDiploAI->IsAlwaysShowTrueApproaches())
 #endif
 	{
 		// land dispute
@@ -12539,12 +12596,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 #if defined(MOD_BALANCE_CORE)
 		//Religion
-		iValue = pDiploAI->GetHasReligionFounderDifferenceScore(eWithPlayer);
+		iValue = pDiploAI->GetDifferentMajorityReligionScore(eWithPlayer);
 		if(iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS", iValue);
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
 		// victory dispute
@@ -12647,22 +12704,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 			}
-
-			if (pDiploAI->GetWarmongerHate() >= 7)
+			
+#if defined(MOD_BALANCE_CORE)
+			// Aztecs have a special message.
+			if (pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
 			{
 				str += " ";
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_AZTECS").toUTF8();
 			}
-			else if (pDiploAI->GetWarmongerHate() >= 5)
+			else
 			{
-				str += " ";
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
+#endif
+				if (pDiploAI->GetWarmongerHate() >= 7)
+				{
+					str += " ";
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
+				}
+				else if (pDiploAI->GetWarmongerHate() >= 5)
+				{
+					str += " ";
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
+				}
+				else 
+				{
+					str += " ";
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
+				}
+#if defined(MOD_BALANCE_CORE)
 			}
-			else 
-			{
-				str += " ";
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
-			}
+#endif
 
 			kOpinion.m_str = str;
 
@@ -12902,7 +12972,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND");
+		
+		// Have we accepted a demand from our master? Then we've paid tribute.
+		if (pDiploAI->IsHasPaidTributeTo(eWithPlayer))
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE");
+		}
+		else
+		{
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND");
+		}
+		
 		aOpinions.push_back(kOpinion);
 	}
 
@@ -13042,7 +13122,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 	
-	/*
 	iValue = pDiploAI->GetIgnoredMilitaryPromiseScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13051,7 +13130,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MILITARY_PROMISE_IGNORED");
 		aOpinions.push_back(kOpinion);
 	}
-	*/
 	
 	iValue = pDiploAI->GetBrokenExpansionPromiseScore(eWithPlayer);
 	if (iValue != 0)
@@ -13252,7 +13330,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 	// Befriending a teammate's enemy should still be visible but with no penalty
-	if (pDiploAI->IsPlayerDoFwithAnyEnemy(eWithPlayer))
+	if (pDiploAI->IsPlayerDoFWithAnyEnemy(eWithPlayer))
 	{
 		iValue = pDiploAI->GetDOFWithAnyEnemyScore(eWithPlayer);
 		
@@ -13609,6 +13687,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
+	/*
 	iValue = pDiploAI->GetGaveAssistanceToScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13626,9 +13705,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE");
 		aOpinions.push_back(kOpinion);
 	}
+	*/
 
 	// World Congress >>> United Nations
-	if(GC.getGame().IsUnitedNationsActive())
+	if (GC.getGame().IsUnitedNationsActive())
 	{
 		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
 		if (iValue != 0)
@@ -13723,6 +13803,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && ((GET_PLAYER(eWithPlayer).GetDiplomacyAI()->IsNukedBy(pkPlayer->GetID()) || pkPlayer->getNumNukeUnits() > 0)) && pkPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 9999;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NUCLEAR_GANDHI");
+		aOpinions.push_back(kOpinion);
+	}
+#endif
+
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 	iValue = pDiploAI->GetDiploModifiers(eWithPlayer, aOpinions);
 #else
@@ -13813,17 +13903,29 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			strOutput.insert(0, strFullPositiveColor);
 		}
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if(MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+		if (aOpinions[ui].m_iValue != 0)
 		{
-			CvString strTemp;
-			// Reverse the value of the opinion so as to not confuse players
-			strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
+			{
+				CvString strTemp;
+				// Reverse the value of the opinion so as to not confuse players
+				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
 
-			strOutput += strTemp;
-		}
+				strOutput += strTemp;
+			}
+#else
+			if (pDiploAI->IsAlwaysShowTrueApproaches())
+			{
+				CvString strTemp;
+				// Reverse the value of the opinion so as to not confuse players
+				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+
+				strOutput += strTemp;
+			}
 #endif
-
+		}
+		
 		strOutput += strEndColor;
 
 		lua_pushstring(L, strOutput.c_str());

@@ -255,7 +255,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				-- If we're teammates, there's no need to work together or against anyone
 				if (pAIPlayer:GetTeam() ~= Players[iActivePlayer]:GetTeam()) then
 					-- Ask the AI player to work together
-					if (not pAIPlayer:IsDoF(iActivePlayer) and not pAIPlayer:IsDoFMessageTooSoon(iActivePlayer)) then
+					if (not pAIPlayer:IsDoF(iActivePlayer)) then
 						strButton6Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP" );
 						strButton6Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT" );
 -- CBP
@@ -1145,7 +1145,7 @@ function OnButton6()
 		-- Discussion Root Mode
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
 			-- Ask the AI player to work together
-			if (not pAIPlayer:IsDoF(iActivePlayer) and not pAIPlayer:IsDoFMessageTooSoon(iActivePlayer)) then
+			if (not pAIPlayer:IsDoF(iActivePlayer)) then
 				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_WORK_WITH_US, g_iAIPlayer, 0, 0 );
 -- CBP
 			-- Asking AI to end work together
