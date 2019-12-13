@@ -932,6 +932,7 @@ public:
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
 	
 	bool WasEverBackstabbedBy(PlayerTypes ePlayer) const;
+	bool WasTeammateEverBackstabbedBy(PlayerTypes ePlayer) const;
 	void SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue);
 	
 	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;
@@ -1099,7 +1100,7 @@ public:
 	void SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
 	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer, int iValue);
-	bool GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const;
+	int GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const;
 	
 	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
 	int GetVassalFailedProtectValue(PlayerTypes ePlayer) const;

@@ -34534,6 +34534,12 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			{
 				PlayerTypes eCleanupPlayer = (PlayerTypes)ui;
 				GET_PLAYER(eCleanupPlayer).GetDiplomacyAI()->KilledPlayerCleanup(kPossibleVictimPlayer.GetID());
+				
+				// Apply a backstabbing mark to the players on the team that killed us (in case we're ever resurrected)
+				if (!bPossibleVictimIsHuman && GET_PLAYER(eCleanupPlayer).getTeam() == getTeam())
+				{
+					kPossibleVictimPlayer.GetDiplomacyAI()->SetEverBackstabbedBy(eCleanupPlayer, true);
+				}
 			}
 		}
 		

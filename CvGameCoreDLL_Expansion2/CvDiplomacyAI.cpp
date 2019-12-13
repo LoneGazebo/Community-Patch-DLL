@@ -2784,6 +2784,7 @@ void CvDiplomacyAI::DoCounters()
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				int iDealDuration = GC.getGame().GetDealDuration();
 				int iPenaltyTurns;
+				int iTurn = GC.getGame().getGameTurn();
 
 				if (IsDoFBroken(eLoopPlayer))
 				{
@@ -2791,7 +2792,7 @@ void CvDiplomacyAI::DoCounters()
 					iPenaltyTurns = (iDealDuration * 150);
 					iPenaltyTurns /= 100;
 					
-					if (GetDoFBrokenTurn(eLoopPlayer) >= iPenaltyTurns)
+					if ((iTurn - GetDoFBrokenTurn(eLoopPlayer)) >= iPenaltyTurns)
 					{
 						SetDoFBroken(eLoopPlayer, false);
 					}
@@ -14156,7 +14157,7 @@ bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer) const
 {
 	if (m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
 	{
-		SetEverBackstabbedBy(ePlayer, true);
+		GetPlayer()->GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, true);
 		return true;
 	}
 	
@@ -14168,7 +14169,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer) const
 {
 	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
 	{
-		SetEverBackstabbedBy(ePlayer, true);
+		GetPlayer()->GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, true);
 		return true;
 	}
 	return false;
@@ -34826,6 +34827,31 @@ bool CvDiplomacyAI::WasEverBackstabbedBy(PlayerTypes ePlayer) const
 	return m_pabEverBackstabbedBy[ePlayer];
 }
 
+bool CvDiplomacyAI::WasTeammateEverBackstabbedBy(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+		if (eLoopPlayer == ePlayer || eLoopPlayer == GetPlayer()->GetID())
+			continue;
+		
+		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
+		{
+			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->WasEverBackstabbedBy(ePlayer))
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
 void CvDiplomacyAI::SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -36019,16 +36045,16 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 	int iPlayerLoop;
 	PlayerTypes eLoopPlayer;
 	bool bAlly = GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY;
-	bAlly = bAlly && !WasEverBackstabbedBy(ePlayer);
+	bAlly = bAlly && !WasEverBackstabbedBy(ePlayer) && !WasTeammateEverBackstabbedBy(ePlayer);
 	
 	// Have they backstabbed any of our friends or teammates?
 	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID() && !WasEverBackstabbedBy(eLoopPlayer))
+		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID() && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer))
 		{
-			if ((IsDoFAccepted(eLoopPlayer) && !bAlly) || GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
+			if ((IsDoFAccepted(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isAlive() && !bAlly) || GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(ePlayer))
 				{
@@ -36095,7 +36121,7 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(ePlayer))
 			{
 				// Did the loop player backstab us?
-				if (WasEverBackstabbedBy(eLoopPlayer))
+				if (WasEverBackstabbedBy(eLoopPlayer) || WasTeammateEverBackstabbedBy(eLoopPlayer))
 				{
 					continue;
 				}
@@ -36123,7 +36149,7 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDenouncedUs(ePlayer) && GetPlayer()->GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() <= 0)
 			{
 				// Did the loop player backstab us?
-				if (WasEverBackstabbedBy(eLoopPlayer))
+				if (WasEverBackstabbedBy(eLoopPlayer) || WasTeammateEverBackstabbedBy(eLoopPlayer))
 				{
 					continue;
 				}
@@ -36177,13 +36203,14 @@ bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int iDealDuration = GC.getGame().GetDealDuration();
 	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
 
 	if (m_pabFriendDenouncedUs[ePlayer])
 	{
 		// If it's been long enough (deal duration x 2; 100 turns on Standard), forget the betrayal
 		iPenaltyTurns = (iDealDuration * 2);
 		
-		if (GetFriendDenouncedUsTurn(ePlayer) >= iPenaltyTurns)
+		if ((iTurn - GetFriendDenouncedUsTurn(ePlayer)) >= iPenaltyTurns)
 		{
 			GetPlayer()->GetDiplomacyAI()->SetFriendDenouncedUs(ePlayer, false);
 			return false;
@@ -36255,13 +36282,14 @@ bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int iDealDuration = GC.getGame().GetDealDuration();
 	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
 
 	if (m_pabFriendDeclaredWarOnUs[ePlayer])
 	{
 		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
 		iPenaltyTurns = (iDealDuration * 3);
 		
-		if (GetFriendDeclaredWarOnUsTurn(ePlayer) >= iPenaltyTurns)
+		if ((iTurn - GetFriendDeclaredWarOnUsTurn(ePlayer)) >= iPenaltyTurns)
 		{
 			GetPlayer()->GetDiplomacyAI()->SetFriendDeclaredWarOnUs(ePlayer, false);
 			return false;
@@ -39262,7 +39290,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return 0;
 	
-	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer))
+	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer) && !WasTeammateEverBackstabbedBy(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
@@ -39276,7 +39304,7 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				// If this guy is untrustworthy or we hate him, he doesn't count.
-				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
+				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenMilitaryPromise(ePlayer))
 					{
@@ -39394,7 +39422,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return 0;
 	
-	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer))
+	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer) && !WasTeammateEverBackstabbedBy(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
@@ -39407,7 +39435,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				// If this guy is untrustworthy or we hate him, he doesn't count
-				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
+				if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenAttackCityStatePromise(ePlayer))
 					{
@@ -39831,7 +39859,7 @@ int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsFriendDenouncedUs(eLoopPlayer))
 		{
 			// If this guy is untrustworthy or we hate him, he doesn't count
-			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
+			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
 			{
 				// Do we like this player who denounced them more than the player we're evaluating?
 				if (GetMajorCivOpinion(eLoopPlayer) > GetMajorCivOpinion(ePlayer))
@@ -39872,7 +39900,7 @@ int CvDiplomacyAI::GetWeDenouncedFriendScore(PlayerTypes ePlayer)
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDenouncedUs(ePlayer))
 		{
 			// If this guy is untrustworthy or we hate him, he doesn't count
-			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
+			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
 			{
 				// A friend or teammate?
 				if (IsDoFAccepted(eLoopPlayer) || GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
@@ -39921,7 +39949,7 @@ int CvDiplomacyAI::GetWeDeclaredWarOnFriendScore(PlayerTypes ePlayer)
 		if (GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != GetPlayer()->GetID() && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(ePlayer))
 		{
 			// If this guy is untrustworthy or we hate him, he doesn't count
-			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
+			if (!IsUntrustworthyFriend(eLoopPlayer) && !WasEverBackstabbedBy(eLoopPlayer) && !WasTeammateEverBackstabbedBy(eLoopPlayer) && GetMajorCivOpinion(eLoopPlayer) != MAJOR_CIV_OPINION_UNFORGIVABLE && !IsNukedBy(eLoopPlayer) && ((IsVassal(eLoopPlayer) && !GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).IsVoluntaryVassal(GET_PLAYER(eLoopPlayer).getTeam())) || (!IsCapitalCapturedBy(eLoopPlayer) && !IsHolyCityCapturedBy(eLoopPlayer))))
 			{
 				// A friend or teammate?
 				if (IsDoFAccepted(eLoopPlayer) || GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
@@ -48687,7 +48715,7 @@ int CvDiplomacyAI::GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	// Declared war on us while we were his vassal
-	if(IsPlayerBrokenVassalAgreement(ePlayer))
+	if (IsPlayerBrokenVassalAgreement(ePlayer))
 		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT_OPINION_WEIGHT();
 	return iOpinionWeight;
 }
@@ -48700,13 +48728,14 @@ bool CvDiplomacyAI::IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int iDealDuration = GC.getGame().GetDealDuration();
 	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
 
 	if (m_pabPlayerBrokenVassalAgreement[(int)ePlayer])
 	{
 		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
 		iPenaltyTurns = (iDealDuration * 3);
 		
-		if (GetPlayerBrokenVassalAgreementTurn(ePlayer) >= iPenaltyTurns)
+		if ((iTurn - GetPlayerBrokenVassalAgreementTurn(ePlayer)) >= iPenaltyTurns)
 		{
 			GetPlayer()->GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(ePlayer, false);
 			return false;
@@ -48730,7 +48759,7 @@ void CvDiplomacyAI::SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bVa
 	}
 }
 
-bool CvDiplomacyAI::GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
