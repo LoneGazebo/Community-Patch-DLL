@@ -73,6 +73,13 @@ SELECT 'DIPLO_AI_WAR_DISALLOWED_HUMAN', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLO_AI_WAR_DISALLOWED_GLOBAL', '0';
 
+-- [DISABLE SHOWING NEUTRAL MODIFIER VALUES]
+-- If set to 1, if Transparent Diplomacy or Show True Approaches is enabled, white (neutral) opinion modifiers will not display a "(0)" after them.
+-- This is because they never affect opinion anyway.
+-- ...yes, this is purely a visual thing, for players who are OCD about it. :)
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLO_AI_HIDE_NEUTRAL_OPINION_VALUES', '0';
+
 
 -- AI Citystrategy
 

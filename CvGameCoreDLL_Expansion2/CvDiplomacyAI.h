@@ -559,6 +559,7 @@ public:
 	bool IsWarDisallowed(PlayerTypes ePlayer) const;
 	bool IsNoVictoryCompetition() const;
 	bool IsAlwaysShowTrueApproaches() const;
+	bool IsHideNeutralOpinionValues() const;
 
 	/////////////////////////////////////////////////////////
 	// Personality Members

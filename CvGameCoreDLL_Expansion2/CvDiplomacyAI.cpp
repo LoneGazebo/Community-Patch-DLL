@@ -5471,14 +5471,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 		}
 		
-		// They were our vassal and they declared their independence by force!
+		// They refused to give us our independence!
 		if (IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*4*/ GC.getAPPROACH_WAR_VASSAL_FORCEFULLY_REVOKED();
 			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*-10*/ GC.getAPPROACH_DECEPTIVE_VASSAL_FORCEFULLY_REVOKED();
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += /*-10*/ GC.getAPPROACH_FRIENDLY_VASSAL_FORCEFULLY_REVOKED();
 		}
-		// They were our master and they liberated us peacefully
+		// They gave us our independence when we asked!
 		if (IsHappyAboutPlayerVassalagePeacefullyRevoked(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*-4*/ GC.getAPPROACH_WAR_VASSAL_PEACEFULLY_REVOKED();
@@ -18495,6 +18495,17 @@ bool CvDiplomacyAI::IsNoVictoryCompetition() const
 bool CvDiplomacyAI::IsAlwaysShowTrueApproaches() const
 {
 	if (GC.getDIPLO_AI_SHOW_TRUE_APPROACHES() == 1)
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+/// Hide the (0) after white (neutral) opinion modifiers if Transparent Diplomacy is enabled. Purely aesthetic.
+bool CvDiplomacyAI::IsHideNeutralOpinionValues() const
+{
+	if (GC.getDIPLO_AI_HIDE_NEUTRAL_OPINION_VALUES() == 1)
 	{
 		return true;
 	}
