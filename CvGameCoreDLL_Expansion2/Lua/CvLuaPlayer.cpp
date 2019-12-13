@@ -13903,28 +13903,25 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			strOutput.insert(0, strFullPositiveColor);
 		}
 
-		if (aOpinions[ui].m_iValue != 0)
-		{
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
-			{
-				CvString strTemp;
-				// Reverse the value of the opinion so as to not confuse players
-				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+		if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
+		{
+			CvString strTemp;
+			// Reverse the value of the opinion so as to not confuse players
+			strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
 
-				strOutput += strTemp;
-			}
-#else
-			if (pDiploAI->IsAlwaysShowTrueApproaches())
-			{
-				CvString strTemp;
-				// Reverse the value of the opinion so as to not confuse players
-				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
-
-				strOutput += strTemp;
-			}
-#endif
+			strOutput += strTemp;
 		}
+#else
+		if (pDiploAI->IsAlwaysShowTrueApproaches())
+		{
+			CvString strTemp;
+			// Reverse the value of the opinion so as to not confuse players
+			strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+
+			strOutput += strTemp;
+		}
+#endif
 		
 		strOutput += strEndColor;
 
