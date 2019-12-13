@@ -16862,6 +16862,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		return false;
 	
 #if defined(MOD_BALANCE_CORE)
+	// Nuclear Gandhi always sees vulnerability in his opponents...
 	if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !GetPlayer()->isHuman() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0 && GetPlayer()->getNumNukeUnits() > 0)
 		return true;
 #endif
@@ -25108,9 +25109,8 @@ void CvDiplomacyAI::DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eSt
 				}
 #endif
 				bool bSendStatement = false;
-				int iTurnBuffer = GC.getGame().GetDealDuration();
 				
-				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnBuffer &&
+				if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 30 &&
 				        GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_WORK_WITH_US_RANDFAILED) >= 10)
 				{
 					bSendStatement = true;
