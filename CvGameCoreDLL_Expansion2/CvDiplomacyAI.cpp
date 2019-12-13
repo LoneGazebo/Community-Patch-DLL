@@ -39048,6 +39048,11 @@ int CvDiplomacyAI::GetHasAdoptedMyReligionScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDifferentMajorityReligionScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	
+	// No penalty for teammates
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
+	
 	if (GetPlayer()->GetReligions()->GetCurrentReligion(false) == NO_RELIGION || GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false) == NO_RELIGION)
 	{
 		return 0;
@@ -39111,6 +39116,10 @@ int CvDiplomacyAI::GetTradeRoutesPlunderedScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	
+	// No penalty for teammates
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
+	
 	if (GetNumTradeRoutesPlundered(ePlayer) > 0)
 	{
 		int iTurn = (GC.getGame().getGameSpeedInfo().GetDealDuration());
@@ -39148,6 +39157,10 @@ int CvDiplomacyAI::GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+	
+	// No penalty for teammates
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
 	
 	if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 	{
