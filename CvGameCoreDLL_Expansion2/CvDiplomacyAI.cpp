@@ -16342,7 +16342,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 								iDoFWeight += -5;
 								iEnemyWeight += 5;
 							}
-							else
+							// Don't apply weight for this if the other player isn't offensive in the war
+							else if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarState(ePlayer) >= WAR_STATE_OFFENSIVE)
 							{
 								iDPWeight += 5;
 								iDoFWeight += 5;
