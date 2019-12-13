@@ -36015,6 +36015,8 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 	
 	int iPlayerLoop;
 	PlayerTypes eLoopPlayer;
+	bool bAlly = GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY;
+	bAlly = bAlly && !WasEverBackstabbedBy(ePlayer);
 	
 	// Have they backstabbed any of our friends or teammates?
 	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -36023,7 +36025,7 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 		
 		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID() && !WasEverBackstabbedBy(eLoopPlayer))
 		{
-			if (IsDoFAccepted(eLoopPlayer) || GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
+			if ((IsDoFAccepted(eLoopPlayer) && !bAlly) || GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsFriendDeclaredWarOnUs(ePlayer))
 				{
@@ -36068,6 +36070,11 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 				}
 			}
 		}
+	}
+	
+	if (bAlly) // haven't backstabbed us or any of our teammates, and an ally? Meh.
+	{
+		return false;
 	}
 	
 	int iNumFriendsAttacked = 0;
@@ -38863,13 +38870,13 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 		iOpinionWeight = /*-30*/ GC.getOPINION_WEIGHT_LIBERATED_ONE_CITY();
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(iOpinionWeight > 0)
+	if (iOpinionWeight > 0)
 	{
 		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
-		if((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) >= iTurn)
+		if ((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) >= iTurn)
 		{
 			iOpinionWeight /= 2;
-			if((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) >= (iTurn * 2))
+			if ((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) >= (iTurn * 2))
 			{
 				iOpinionWeight = 0;
 			}
@@ -39234,7 +39241,11 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return 0;
 	
+	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer))
+		return 0;
+	
 	int iOpinionWeight = 0;
+	
 	// Don't add this if they broke a military promise with US
 	if (!IsPlayerBrokenMilitaryPromise(ePlayer))
 	{
@@ -39360,6 +39371,9 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 {
 	// No penalty for teammates
 	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return 0;
+	
+	if (GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_ALLY && !WasEverBackstabbedBy(ePlayer))
 		return 0;
 	
 	int iOpinionWeight = 0;
