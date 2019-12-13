@@ -3145,8 +3145,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			PlayerTypes ePlayer;
 			CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI();
 			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
-			int iNumLiberatedCities = pOldOwnerDiploAI->GetNumCitiesLiberated(GetID());
-			pOldOwnerDiploAI->ChangeNumCitiesLiberated(GetID(), -iNumLiberatedCities);
+			pOldOwnerDiploAI->SetNumCitiesLiberated(GetID(), 0);
 
 			iValue = iDefaultCityValue;
 			iValue += pOldCity->getPopulation() * /*120*/ GC.getWAR_DAMAGE_LEVEL_UNINVOLVED_CITY_POP_MULTIPLIER();
@@ -4896,6 +4895,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(pNewCity != NULL && pNewCity->getOwner() == BARBARIAN_PLAYER)
 	{
 		CvBarbarians::DoCityActivationNotice(pNewCity->plot());
+		
+		// Spawn a Barbarian unit to garrison the acquired city
+		CvBarbarians::DoSpawnBarbarianUnit(pNewCity->plot(), true, true);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -9317,6 +9319,9 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			}
 			if(pkEventChoiceInfo->getRandomBarbs() > 0)
 			{
+				if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+					return;
+				
 				// In hundreds
 				int iNumRebels = pkEventChoiceInfo->getRandomBarbs();
 
@@ -9782,6 +9787,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Diplo bonus for returning the city
 	if (!bForced)
 	{
+		// Liberated the capital - big diplo bonus!
 		if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
 		{
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerLiberatedCapital(m_eID, true);
@@ -9839,13 +9845,13 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			
 			if (pDiploAI->GetRecentAssistValue(eMePlayer) > 0)
 			{
-				pDiploAI->ChangeRecentAssistValue(eMePlayer, -pDiploAI->GetRecentAssistValue(eMePlayer));
+				pDiploAI->SetRecentAssistValue(eMePlayer, 0);
 			}
 			
-			pDiploAI->ChangeNumTimesRazed(eMePlayer, -pDiploAI->GetNumTimesRazed(eMePlayer));
-			pDiploAI->ChangeNumTradeRoutesPlundered(eMePlayer, -pDiploAI->GetNumTradeRoutesPlundered(eMePlayer));
+			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
+			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
 			
-			pDiploAI->ChangeNumArtifactsEverDugUp(eMePlayer, -pDiploAI->GetNumArtifactsEverDugUp(eMePlayer));
+			pDiploAI->SetNumArtifactsEverDugUp(eMePlayer, 0);
 			pDiploAI->SetPlayerEverConvertedCity(eMePlayer, false);
 			
 			pDiploAI->SetNumTimesTheyPlottedAgainstUs(eMePlayer, 0);
@@ -9853,10 +9859,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetNumTimesPerformedCoupAgainstUs(eMePlayer, 0);
 #endif
 			pDiploAI->SetDemandCounter(eMePlayer, -1);
-			pDiploAI->ChangeNumTimesCultureBombed(eMePlayer, -pDiploAI->GetNumTimesCultureBombed(eMePlayer));
-			pDiploAI->ChangeNegativeReligiousConversionPoints(eMePlayer, -pDiploAI->GetNegativeReligiousConversionPoints(eMePlayer));
-			pDiploAI->ChangeNegativeArchaeologyPoints(eMePlayer, -pDiploAI->GetNegativeArchaeologyPoints(eMePlayer));
-			pDiploAI->ChangeNumTimesRobbedBy(eMePlayer, -pDiploAI->GetNumTimesRobbedBy(eMePlayer));
+			pDiploAI->SetNumTimesCultureBombed(eMePlayer, 0);
+			pDiploAI->SetNegativeReligiousConversionPoints(eMePlayer, 0);
+			pDiploAI->SetNegativeArchaeologyPoints(eMePlayer, 0);
+			pDiploAI->SetNumTimesRobbedBy(eMePlayer, 0);
 			
 			// Reset all promises
 			pDiploAI->SetPlayerMadeMilitaryPromise(eMePlayer, false);
@@ -9896,15 +9902,21 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetOtherPlayerNumProtectedMinorsBullied(eMePlayer, 0);
 			pDiploAI->SetOtherPlayerTurnsSinceSidedWithProtectedMinor(eMePlayer, -1);
 
-			pDiploAI->SetFriendDenouncedUs(eMePlayer, false);
+			pDiploAI->SetFriendDenouncedUs(eMePlayer, false); // clear backstabbing penalties
+			pDiploAI->SetFriendDeclaredWarOnUs(eMePlayer, false); // clear backstabbing penalties
 			pDiploAI->SetDenouncedPlayer(eMePlayer, false); // forget any denouncing
 			GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false); // forget any denouncing
-			pDiploAI->SetFriendDeclaredWarOnUs(eMePlayer, false);
 
-			pDiploAI->ChangeNumTimesNuked(eMePlayer, -pDiploAI->GetNumTimesNuked(eMePlayer));
+			pDiploAI->SetNumTimesNuked(eMePlayer, 0);
 			
 			pDiploAI->SetTurnsSinceWeDislikedTheirProposal(eMePlayer, -1);
 			pDiploAI->SetTurnsSinceTheyFoiledOurProposal(eMePlayer, -1);
+			
+			pDiploAI->SetTurnsSinceVassalageForcefullyRevoked(eMePlayer, -1);
+			pDiploAI->SetPlayerBrokenVassalAgreement(eMePlayer, false);
+			
+			// Clear backstabbing mark
+			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 		}
 	}
 
@@ -12922,36 +12934,24 @@ void CvPlayer::raze(CvCity* pCity)
 void CvPlayer::unraze(CvCity* pCity)
 {
 	if (GetPlayerTraits()->IsUnableToCancelRazing() == false)
-<<<<<<< HEAD
 	{
 	if (GetPlayerTraits()->IsNoAnnexing())
-=======
->>>>>>> origin/master
 	{
-		if (GetPlayerTraits()->IsNoAnnexing())
-		{
-			pCity->DoCreatePuppet();
-		}
-		else
-		{
-			pCity->DoAnnex();
-		}
+		pCity->DoCreatePuppet();
+	}
+	else
+	{
+		pCity->DoAnnex();
+	}
 
-		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
+	pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
 
-		DoUpdateNextPolicyCost();
+	DoUpdateNextPolicyCost();
 
-<<<<<<< HEAD
 	// Update City UI
 	if(GetID() == GC.getGame().getActivePlayer())
 	{
 		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
-=======
-		// Update City UI
-		if (GetID() == GC.getGame().getActivePlayer())
-		{
-			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
->>>>>>> origin/master
 		}
 	}
 }
@@ -20995,17 +20995,19 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 /// Uprisings pop up if the empire is Very Unhappy
 void CvPlayer::DoUpdateUprisings()
 {
+	if (MOD_BALANCE_CORE_HAPPINESS && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		return;
+		
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//Revolts only happen if super unhappy.
-	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
+	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if(GetUprisingCounter() > 0)
+		if (GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if(GetUprisingCounter() == 0)
+			if (GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -21019,15 +21021,15 @@ void CvPlayer::DoUpdateUprisings()
 	}
 	else
 #endif
-	if(IsEmpireSuperUnhappy())
+	if (IsEmpireSuperUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if(GetUprisingCounter() > 0)
+		if (GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if(GetUprisingCounter() == 0)
+			if (GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -21165,7 +21167,7 @@ void CvPlayer::DoUprising()
 			{
 				iTempWeight += 4;
 
-				// If also a a resource, even more weight!
+				// If there's also a resource, even more weight!
 				if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					iTempWeight += 3;
 			}
@@ -21194,7 +21196,7 @@ void CvPlayer::DoUprising()
 			pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
 			// Pick a unit type
-			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ false);
+			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
@@ -21212,6 +21214,9 @@ void CvPlayer::DoUprising()
 			do
 			{
 				iNumRebels--;
+				
+				// Pick a new unit type (for variety)
+				UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 
 				// Init unit
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
@@ -21228,7 +21233,7 @@ void CvPlayer::DoUprising()
 }
 
 //	--------------------------------------------------------------------------------
-/// City can revolt if the empire is Super Unhappy
+/// City can revolt if the empire is Very Unhappy
 void CvPlayer::DoUpdateCityRevolts()
 {
 	int iPublicUnhappiness = 0;
@@ -34532,6 +34537,12 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			{
 				PlayerTypes eCleanupPlayer = (PlayerTypes)ui;
 				GET_PLAYER(eCleanupPlayer).GetDiplomacyAI()->KilledPlayerCleanup(kPossibleVictimPlayer.GetID());
+				
+				// Apply a backstabbing mark to the players on the team that killed us (in case we're ever resurrected)
+				if (!bPossibleVictimIsHuman && GET_PLAYER(eCleanupPlayer).getTeam() == getTeam())
+				{
+					kPossibleVictimPlayer.GetDiplomacyAI()->SetEverBackstabbedBy(eCleanupPlayer, true);
+				}
 			}
 		}
 		

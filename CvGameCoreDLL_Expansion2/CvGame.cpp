@@ -6306,6 +6306,11 @@ TeamTypes CvGame::getWinner() const
 	return m_eWinner;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvGame::IsGameWon() const
+{
+	return (getWinner() != NO_TEAM);
+}
 
 //	--------------------------------------------------------------------------------
 VictoryTypes CvGame::getVictory() const
@@ -8713,7 +8718,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		{
 			iTempWeight += 4;
 
-			// If also a a resource, even more weight!
+			// If there's also a resource, even more weight!
 			if(pPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
 				iTempWeight += 3;
 		}

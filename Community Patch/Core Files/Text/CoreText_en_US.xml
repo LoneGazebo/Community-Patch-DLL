@@ -2811,6 +2811,32 @@
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Show True Approach Debug Text -->
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
+			<Text>True Approach: War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR">
+			<Text>True Approach: Planning War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE">
+			<Text>True Approach: Hostile</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE">
+			<Text>True Approach: Deceptive</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED">
+			<Text>True Approach: Guarded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID">
+			<Text>True Approach: Afraid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY">
+			<Text>True Approach: Friendly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
+			<Text>True Approach: Neutral</Text>
+		</Row>
+		
 		<!-- Research Agreement Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
 			<Text>[COLOR_POSITIVE_TEXT]We have made a Research Agreement![ENDCOLOR]</Text>
@@ -2902,6 +2928,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
+			<Text> (They are bloodthirsty warmongers!)</Text>
+		</Row>
+		
+		<!-- :) -->
+		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
+			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Defense Pact Offer -->
@@ -6012,7 +6048,7 @@
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS">
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS">
 			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
 		</Row>
 

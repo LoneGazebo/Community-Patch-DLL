@@ -1473,8 +1473,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 					continue;
 				}
 
-				//venice recalls their trade units
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
+				// Recall trade units
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing())
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -5221,7 +5221,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		}
 	}
 	// Temporary diplo penalty (including if at war) for killing a civilian unit
-	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && pPlunderPlot->isVisible(eOwningTeam))))
+	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && (pPlunderPlot->isVisible(eOwningTeam) || GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam())))))
 	{
 		GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTimesRazed(m_pPlayer->GetID(), (10 - GET_PLAYER(eOwningPlayer).GetCurrentEra()));
 	}
@@ -5229,15 +5229,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
 	{
 		if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && pPlunderPlot->isVisible(eOwningTeam) && !GET_PLAYER(eOwningPlayer).isMinorCiv() && !GET_PLAYER(eOwningPlayer).isBarbarian())
-<<<<<<< HEAD
 	{
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
 	}
-=======
-		{
-			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
-		}
->>>>>>> origin/master
 	}
 	// Diplo penalty for destination civilization if not at war (don't apply for internal trade routes)
 	if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && !m_pPlayer->isBarbarian() && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())

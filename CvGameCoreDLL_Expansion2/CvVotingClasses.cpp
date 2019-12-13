@@ -12098,6 +12098,13 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 				iScore += 35;
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Speaking of Gandhi...
+		if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		{
+			iScore += -5000;
+		}
+#endif
 	}
 	// World Religion
 	if (pProposal->GetEffects()->iVotesForFollowingReligion != 0 ||
