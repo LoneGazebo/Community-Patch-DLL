@@ -467,7 +467,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
-			<Text>Terrain Penalty</Text>
+			<Text>Terrain Modifier</Text>
 		</Row>
 
 
