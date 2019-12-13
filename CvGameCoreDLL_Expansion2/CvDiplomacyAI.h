@@ -553,12 +553,15 @@ public:
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
 	
-	// Advanced Diplo AI Options (defined in CoreChanges.sql)
-	bool IsWarDisallowedGlobal() const;
-	bool IsWarDisallowedHuman() const;
-	bool IsWarDisallowed(PlayerTypes ePlayer) const;
-	bool IsNoVictoryCompetition() const;
+	// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
 	bool IsAlwaysShowTrueApproaches() const;
+	bool IsNoVictoryCompetition() const;
+	bool IsWarDisallowedHuman() const;
+	bool IsWarDisallowedGlobal() const;
+	bool IsWarDisallowed(PlayerTypes ePlayer) const;
+	
+	// Purely visual stuff
+	bool IsShowBaseOpinionScore() const;
 	bool IsHideNeutralOpinionValues() const;
 
 	/////////////////////////////////////////////////////////
@@ -1389,6 +1392,7 @@ public:
 	/////////////////////////////////////////////////////////
 	// Opinion modifiers
 	/////////////////////////////////////////////////////////
+	int GetBaseOpinionScore(PlayerTypes ePlayer);
 	int GetLandDisputeLevelScore(PlayerTypes ePlayer);
 	int GetWonderDisputeLevelScore(PlayerTypes ePlayer);
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);

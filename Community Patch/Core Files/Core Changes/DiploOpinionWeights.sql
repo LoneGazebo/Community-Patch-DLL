@@ -1,6 +1,15 @@
 -- Diplo Opinion Weights
 -- All opinion weights are listed here, even the unmodified ones, for easier modding.
 
+-- Base Opinion Weight (affects all AI players)
+-- Can be used to add an opinion bonus or penalty to human and/or AI players.
+-- Negative values add good opinion, positive values add bad opinion.
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_BASE_HUMAN', '0';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_BASE_AI', '0';
+
 -- 30
 UPDATE Defines
 SET Value = '40'
