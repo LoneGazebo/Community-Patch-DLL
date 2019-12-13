@@ -14154,10 +14154,12 @@ bool CvDiplomacyAI::IsNukedBy(PlayerTypes ePlayer) const
 /// Returns if this player's original capital is currently owned by ePlayer
 bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer) const
 {
-	if(m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
+	if (m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
 	{
+		SetEverBackstabbedBy(ePlayer, true);
 		return true;
 	}
+	
 	return false;
 }
 
@@ -14166,6 +14168,7 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer) const
 {
 	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
 	{
+		SetEverBackstabbedBy(ePlayer, true);
 		return true;
 	}
 	return false;
@@ -38495,6 +38498,11 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	{
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+		
+		if (iChange > 0)
+		{
+			SetEverBackstabbedBy(ePlayer, true);
+		}
 
 		m_paiNumTimesNuked[ePlayer] += iChange;
 		CvAssertMsg(m_paiNumTimesNuked[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Times Nuked returned. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
