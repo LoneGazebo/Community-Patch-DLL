@@ -9914,6 +9914,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			
 			pDiploAI->SetTurnsSinceVassalageForcefullyRevoked(eMePlayer, -1);
 			pDiploAI->SetPlayerBrokenVassalAgreement(eMePlayer, false);
+			
+			// Clear backstabbing mark
+			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 		}
 	}
 
