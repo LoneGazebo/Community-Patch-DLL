@@ -36170,9 +36170,8 @@ bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 
 	if (m_pabFriendDenouncedUs[ePlayer])
 	{
-		// If it's been long enough (deal duration x 1.5; 75 turns on Standard), forget the betrayal
-		iPenaltyTurns = (iDealDuration * 150);
-		iPenaltyTurns /= 100;
+		// If it's been long enough (deal duration x 2; 100 turns on Standard), forget the betrayal
+		iPenaltyTurns = (iDealDuration * 2);
 		
 		if (GetFriendDenouncedUsTurn(ePlayer) >= iPenaltyTurns)
 		{
