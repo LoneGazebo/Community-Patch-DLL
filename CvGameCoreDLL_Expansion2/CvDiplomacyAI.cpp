@@ -31560,7 +31560,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			bool bVassal = IsVassal(eFromPlayer);
 			bool bDebug = IsAlwaysShowTrueApproaches();
 			// AI hasn't known the human for long enough yet
-			if (IsTooEarlyForShareOpinion(eFromPlayer) && !bVassal && !bDebug)
+			if (IsTooEarlyForShareOpinion(eFromPlayer) && !bVassal && !bDebug && !IsAtWar((PlayerTypes)iArg1))
 			{
 				SetShareOpinionCounter(eFromPlayer, 0);
 				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetShareOpinionCounter(eMyPlayer, 0);
