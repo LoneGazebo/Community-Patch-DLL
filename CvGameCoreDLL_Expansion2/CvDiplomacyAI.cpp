@@ -35099,7 +35099,7 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 {
 	// Changed our approach towards ePlayer
-	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
 	if (eApproach == MAJOR_CIV_APPROACH_HOSTILE)
 		return true;
 
