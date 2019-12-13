@@ -9913,6 +9913,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetTurnsSinceTheyFoiledOurProposal(eMePlayer, -1);
 			
 			pDiploAI->SetTurnsSinceVassalageForcefullyRevoked(eMePlayer, -1);
+			pDiploAI->SetPlayerBrokenVassalAgreement(eMePlayer, false);
 		}
 	}
 

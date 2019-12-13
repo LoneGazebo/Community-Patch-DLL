@@ -181,6 +181,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiNumTimesDemandedWhenVassal()
 	, m_abDemandAcceptedWhenVassal()
 	, m_abPlayerBrokenVassalAgreement()
+	, m_aiBrokenVassalAgreementTurn()
 	, m_abOfferingGift()
 	, m_abOfferedGift()
 	, m_abMasterLiberatedMeFromVassalage()
@@ -429,6 +430,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiNumTimesDemandedWhenVassal(NULL),
 	m_pabDemandAcceptedWhenVassal(NULL),
 	m_pabPlayerBrokenVassalAgreement(NULL),
+	m_paiBrokenVassalAgreementTurn(NULL),
 	m_pabMoveTroopsRequestAccepted(NULL),
 	m_paiMoveTroopsRequestCounter(NULL),
 	m_pabOfferingGift(NULL),
@@ -674,6 +676,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiNumTimesDemandedWhenVassal = &m_pDiploData->m_aiNumTimesDemandedWhenVassal[0];
 	m_pabDemandAcceptedWhenVassal = &m_pDiploData->m_abDemandAcceptedWhenVassal[0];
 	m_pabPlayerBrokenVassalAgreement = &m_pDiploData->m_abPlayerBrokenVassalAgreement[0];
+	m_paiBrokenVassalAgreementTurn = &m_pDiploData->m_aiBrokenVassalAgreementTurn[0];
 
 	m_pabMoveTroopsRequestAccepted = &m_pDiploData->m_abMoveTroopsRequestAccepted[0];
 	m_paiMoveTroopsRequestCounter = &m_pDiploData->m_aiMoveTroopsRequestCounter[0];
@@ -1008,6 +1011,7 @@ void CvDiplomacyAI::Uninit()
 	m_paiNumTimesDemandedWhenVassal = NULL;
 	m_pabDemandAcceptedWhenVassal = NULL;
 	m_pabPlayerBrokenVassalAgreement = NULL;
+	m_paiBrokenVassalAgreementTurn = NULL;
 	m_pabMoveTroopsRequestAccepted = NULL;
 	m_paiMoveTroopsRequestCounter = NULL;
 	m_pabOfferingGift = NULL;
@@ -1235,6 +1239,7 @@ void CvDiplomacyAI::Reset()
 		m_paiNumTimesDemandedWhenVassal[iI] = 0;
 		m_pabDemandAcceptedWhenVassal[iI] = false;
 		m_pabPlayerBrokenVassalAgreement[iI] = false;
+		m_paiBrokenVassalAgreementTurn[iI] = 0;
 		m_pabMoveTroopsRequestAccepted[iI] = false;
 		m_paiMoveTroopsRequestCounter[iI] = -1;
 		m_pabOfferingGift[iI] = false;
@@ -1932,6 +1937,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS, 0);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabDemandAcceptedWhenVassal, bool, MAX_MAJOR_CIVS, false);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabPlayerBrokenVassalAgreement, bool, MAX_MAJOR_CIVS, false);
+	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiBrokenVassalAgreementTurn, short, MAX_MAJOR_CIVS, 0);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabMoveTroopsRequestAccepted, bool, MAX_MAJOR_CIVS, false);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiMoveTroopsRequestCounter, short, MAX_MAJOR_CIVS, -1);
 
@@ -2337,6 +2343,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabDemandAcceptedWhenVassal, bool, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabPlayerBrokenVassalAgreement, bool, MAX_MAJOR_CIVS);
+	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiBrokenVassalAgreementTurn, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabMoveTroopsRequestAccepted, bool, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiMoveTroopsRequestCounter, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabMasterLiberatedMeFromVassalage, bool, MAX_MAJOR_CIVS);
@@ -48655,6 +48662,24 @@ bool CvDiplomacyAI::IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+
+	if (m_pabPlayerBrokenVassalAgreement[(int)ePlayer])
+	{
+		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+		iPenaltyTurns = (iDealDuration * 3);
+		
+		if (GetPlayerBrokenVassalAgreementTurn(ePlayer) >= iPenaltyTurns)
+		{
+			GetPlayer()->GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(ePlayer, false);
+			return false;
+		}
+	}
+#endif
+	
 	return m_pabPlayerBrokenVassalAgreement[(int)ePlayer];
 }
 
@@ -48663,6 +48688,28 @@ void CvDiplomacyAI::SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bVa
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_pabPlayerBrokenVassalAgreement[(int)ePlayer] = bValue;
+	
+	if (bValue)
+	{
+		SetEverBackstabbedBy(ePlayer, true);
+		SetPlayerBrokenVassalAgreementTurn(ePlayer, GC.getGame().getGameTurn());
+	}
+}
+
+bool CvDiplomacyAI::GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	return m_paiBrokenVassalAgreementTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiBrokenVassalAgreementTurn[ePlayer] = iValue;
 }
 
 /// How many times did ePlayer demand from us while we were his vassal?

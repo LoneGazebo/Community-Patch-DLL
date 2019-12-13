@@ -1098,6 +1098,8 @@ public:
 	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
 	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const;
+	void SetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer, int iValue);
+	bool GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const;
 	
 	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
 	int GetVassalFailedProtectValue(PlayerTypes ePlayer) const;
@@ -1926,6 +1928,7 @@ private:
 		short m_aiNumTimesDemandedWhenVassal[MAX_MAJOR_CIVS];
 		bool m_abDemandAcceptedWhenVassal[MAX_MAJOR_CIVS];
 		bool m_abPlayerBrokenVassalAgreement[MAX_MAJOR_CIVS];
+		short m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 
 		short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
@@ -1967,6 +1970,7 @@ private:
 	short* m_paiNumTimesDemandedWhenVassal;
 	bool* m_pabDemandAcceptedWhenVassal;
 	bool* m_pabPlayerBrokenVassalAgreement;
+	short* m_paiBrokenVassalAgreementTurn;
 
 	bool* m_pabMoveTroopsRequestAccepted;
 	short* m_paiMoveTroopsRequestCounter;
