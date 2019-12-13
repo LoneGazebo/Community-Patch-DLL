@@ -931,6 +931,9 @@ public:
 	int GetDoFBrokenTurn(PlayerTypes ePlayer) const;
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
 	
+	bool WasEverBackstabbedBy(PlayerTypes ePlayer) const;
+	void SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue);
+	
 	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;
 	void SetFriendDenouncedUsTurn(PlayerTypes ePlayer, int iValue);
 	
@@ -991,14 +994,14 @@ public:
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	// Problems between friends
-	bool IsUntrustworthyFriend(PlayerTypes ePlayer, bool bIncludeVassals = false) const;
+	bool IsUntrustworthyFriend(PlayerTypes ePlayer) const;
 	int GetNumFriendsDenouncedBy();
 
-	bool IsFriendDenouncedUs(PlayerTypes ePlayer, bool bIncludeVassals = false) const;	// They denounced us while we were friends!
+	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
 	void SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue);
 	int GetWeDenouncedFriendCount();
 
-	bool IsFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bIncludeVassals = false) const;	// They declared war on us while we were friends!
+	bool IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const;	// They declared war on us while we were friends!
 	void SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue);
 	int GetWeDeclaredWarOnFriendCount();
 
@@ -1731,6 +1734,7 @@ private:
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
 		short m_aiDoFBrokenTurn[MAX_MAJOR_CIVS];
+		bool m_abEverBackstabbedBy[MAX_MAJOR_CIVS];
 		short m_aiFriendDenouncedUsTurn[MAX_MAJOR_CIVS];
 		short m_aiFriendDeclaredWarOnUsTurn[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
@@ -2080,6 +2084,7 @@ private:
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
 	short* m_paiDoFBrokenTurn;
+	bool* m_pabEverBackstabbedBy;
 	short* m_paiFriendDenouncedUsTurn;
 	short* m_paiFriendDeclaredWarOnUsTurn;
 	short* m_paiNumTimesCoopWarDenied;
