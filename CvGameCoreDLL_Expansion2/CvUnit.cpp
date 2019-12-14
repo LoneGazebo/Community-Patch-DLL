@@ -2313,7 +2313,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
 	//important - zoc has probably changed
-	if (ePlayer != NO_PLAYER)
+	if (ePlayer != NO_PLAYER && IsCombatUnit())
 		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
 #endif
 
