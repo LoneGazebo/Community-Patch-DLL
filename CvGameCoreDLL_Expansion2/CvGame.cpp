@@ -11002,11 +11002,6 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iInitWonders;
 	kStream >> m_iAIAutoPlay;
 
-	if(m_iAIAutoPlay > 0)
-	{
-		m_iAIAutoPlay = 1;
-	}
-
 	kStream >> m_iTotalReligionTechCost;
 	kStream >> m_iCachedWorldReligionTechProgress;
 	kStream >> m_iUnitedNationsCountdown;
