@@ -9219,7 +9219,7 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 								bWorthIt = true;
 							}
 						}
-						else if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eVassalPlayer))
+						else if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eVassalPlayer) || GetPlayer()->GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(eVassalPlayer))
 						{
 							bWorthIt = true;
 						}
