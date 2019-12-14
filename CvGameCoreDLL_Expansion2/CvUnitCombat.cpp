@@ -1708,12 +1708,12 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 	// Any interception to be done?
 	CvUnit* pInterceptor = plot.GetBestInterceptor(kAttacker.getOwner(), &kAttacker);
-	int iInterceptionDamage = 0;
-
 	if(pInterceptor != NULL && pInterceptor != pkDefender)
 	{
 		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
+
 		// Does the attacker evade?
+		int iInterceptionDamage = 0;
 		if(kAttacker.evasionProbability()==0 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+kAttacker.GetID()) >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
@@ -1722,7 +1722,41 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
 			}
 		}
+
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);		// Damage inflicted this round
+
+		if (iInterceptionDamage > 0)
+		{
+			int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_AIR_SWEEP_GROUND();
+			pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
+			pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_INTERCEPTOR, MAX_INT );
+			pkCombatInfo->setInBorders( BATTLE_UNIT_INTERCEPTOR, plot.getOwner() == kAttacker.getOwner() );
+			pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, true );
+			pkCombatInfo->setAttackIsBombingMission(true);
+			pkCombatInfo->setDefenderRetaliates(false);
+
+			//make sure we have zero values everywhere else
+			pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, 0);
+			pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, 0);
+			pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, 0);
+			pkCombatInfo->setDamageInflicted(BATTLE_UNIT_DEFENDER, 0);
+
+			pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, 0);
+
+			pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, 0);
+			pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, 0);
+			pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() != kAttacker.getOwner());	// Not really correct
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+
+			pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, 0);
+			pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, 0);
+			pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, false);
+
+			//attack is aborted after successful interception
+			GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
+			return;
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -1754,7 +1788,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iMaxXP = pkDefender->maxXPValue();
 
 		// Calculate attacker damage
-		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true, iInterceptionDamage);
+		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)
@@ -1809,7 +1843,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		}
 #endif
 
-		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + (iDefenderDamageInflicted + iInterceptionDamage));
+		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
 	}
 	// Target is a City
 	else
@@ -1818,11 +1852,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		CvAssert(pCity != NULL);
 		if(!pCity) return;
 		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
-		
-		CUSTOMLOG("Bombing %s by %s", pCity->getName().GetCString(), kAttacker.getName().GetCString());
-		if(pInterceptor != NULL && pInterceptor != pkDefender) {
-			CUSTOMLOG("  interception being done by %s for %i damage", pInterceptor->getName().GetCString(), iInterceptionDamage);
-		}
 
 		eDefenderOwner = plot.getOwner();
 
@@ -1831,7 +1860,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			bBarbarian = true;
 		iMaxXP = 1000;
 
-		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, /*bIncludeRand*/ true, iInterceptionDamage);
+		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, /*bIncludeRand*/ true);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//if there is a garrison, the unit absorbs part of the damage!
@@ -1888,7 +1917,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 #endif
 		}
 
-		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + (iDefenderDamageInflicted + iInterceptionDamage));
+		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
 
 #if !defined(NO_ACHIEVEMENTS)
 		//Achievement for Washington
@@ -1986,19 +2015,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian);
 #endif
-
-	if (iInterceptionDamage > 0)
-	{
-		iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_AIR_SWEEP_GROUND();
-		pkCombatInfo->setExperience( BATTLE_UNIT_INTERCEPTOR, iExperience );
-		pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_INTERCEPTOR, MAX_INT );
-		pkCombatInfo->setInBorders( BATTLE_UNIT_INTERCEPTOR, plot.getOwner() == kAttacker.getOwner() );
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, pInterceptor->isGGFromBarbarians() || !bBarbarian );
-#else
-		pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_INTERCEPTOR, !bBarbarian );
-#endif
-	}
 
 	pkCombatInfo->setAttackIsBombingMission(true);
 	pkCombatInfo->setDefenderRetaliates(true);
@@ -2357,8 +2373,6 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	pkCombatInfo->setPlot(&plot);
 
 	// Unit vs. Unit
-	CvAssert(pkDefender != NULL);
-
 	int iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(pkDefender, /*pCity*/ NULL, true);
 
 	// Mod to air sweep strength
@@ -2366,7 +2380,6 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 	iAttackerStrength /= 100;
 
 	int iDefenderStrength = 0;
-
 	int iDefenderExperience = 0;
 
 	// Ground AA interceptor
@@ -4176,7 +4189,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 	else
 	{
 		CvCombatInfo kCombatInfo;
-		GenerateAirCombatInfo(kAttacker, NULL, targetPlot, &kCombatInfo);
+		CvUnitCombat::GenerateAirCombatInfo(kAttacker, NULL, targetPlot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
 
