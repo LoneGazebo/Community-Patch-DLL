@@ -174,7 +174,6 @@ CvUnit::CvUnit() :
 	, m_iHillsDoubleMoveCount("CvUnit::m_iHillsDoubleMoveCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
-	, m_iFreeEmbarkMoveCount("CvUnit::m_iFreeEmbarkMoveCount", m_syncArchive)
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 	, m_iAoEDamageOnMove("CvUnit::m_iAoEDamageOnMove", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
@@ -1458,7 +1457,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iHillsDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
-	m_iFreeEmbarkMoveCount = 0;
 	m_iAOEDamageOnKill = 0;
 	m_iAoEDamageOnMove = 0;
 	m_iSplashDamage = 0;
@@ -21873,27 +21871,6 @@ void CvUnit::changeMountainsDoubleMoveCount(int iChange)
 	m_iMountainsDoubleMoveCount = (m_iMountainsDoubleMoveCount + iChange);
 	CvAssert(getMountainsDoubleMoveCount() >= 0);
 }
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getFreeEmbarkMoveCount() const
-{
-	VALIDATE_OBJECT
-		return m_iFreeEmbarkMoveCount;
-}
-//	--------------------------------------------------------------------------------
-bool CvUnit::isFreeEmbark() const
-{
-	VALIDATE_OBJECT
-		return (getFreeEmbarkMoveCount() > 0);
-}
-//	--------------------------------------------------------------------------------
-void CvUnit::changeFreeEmbarkMoveCount(int iChange)
-{
-	VALIDATE_OBJECT
-		m_iFreeEmbarkMoveCount = (m_iFreeEmbarkMoveCount + iChange);
-	CvAssert(getFreeEmbarkMoveCount() >= 0);
-}
-
 //	--------------------------------------------------------------------------------
 int CvUnit::getAOEDamageOnKill() const
 {
@@ -26846,7 +26823,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
-		changeFreeEmbarkMoveCount((thisPromotion.IsFreeEmbark()) ? iChange : 0);
 		ChangeCaptureDefeatedEnemyChance((thisPromotion.GetCaptureDefeatedEnemyChance()) * iChange);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
