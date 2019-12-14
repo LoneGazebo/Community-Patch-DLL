@@ -498,10 +498,6 @@ public:
 	void WriteSupportingClassData(FDataStream& kStream);
 
 	void writeReplay(FDataStream& kStream);
-
-	// Ported in from old CvGameAI
-	int GetCombatValue(UnitTypes eUnit);
-
 	void saveReplay();
 
 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);
@@ -536,24 +532,15 @@ public:
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false);
-#else
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
-#endif
-#if defined(MOD_GLOBAL_CS_GIFTS)
-#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
 #else
+	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer);
 #endif
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal);
-#else
-	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
-#endif
+
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
 	IStartPositioner* GetStartPositioner();
@@ -715,12 +702,6 @@ public:
 #if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 	bool isFirstActivationOfPlayersAfterLoad();
 #endif
-
-private:
-	//------------------------------------------------------------
-	// Convert from city population to discrete size
-	//------------------------------------------------------------
-	const static unsigned int ms_aiSizes[10];
 
 protected:
 

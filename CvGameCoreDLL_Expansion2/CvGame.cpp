@@ -8623,13 +8623,15 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	CvWeightedVector<UnitTypes, SAFE_ESTIMATE_NUM_UNITS, true> veUnitRankings;
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	vector<OptionWithScore<UnitTypes>> veUnitRankings;
 
 	// Loop through all Unit Classes
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++) {
 		const UnitTypes eLoopUnit = (UnitTypes) iUnitLoop;
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-		if (pkUnitInfo == NULL) continue;
+		if (pkUnitInfo == NULL) 
+			continue;
 		
 		bool bValid = (pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true));
 		bValid = bValid || (pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true));
@@ -8638,35 +8640,35 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer)
 
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
 		// Exclude carrier units
-		if (pkUnitInfo->GetSpecialCargo() == (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER")) continue;
+		if (pkUnitInfo->GetSpecialCargo() == (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER")) 
+			continue;
 
 		// Include shipping
 		bValid = bValid || (bIncludeShips && (pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true)));
 		bValid = bValid || (bIncludeShips && (pkUnitInfo->GetUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true)));
 #endif
 
-		if (!bValid) continue;
+		if (!bValid)
+			continue;
 
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes) pkUnitInfo->GetUnitClassType());
-		if (pkUnitClassInfo == NULL) continue;
+		if (pkUnitClassInfo == NULL) 
+			continue;
 
 		// Exclude unique units
-		if (eLoopUnit != pkUnitClassInfo->getDefaultUnitIndex()) continue;
+		if (eLoopUnit != pkUnitClassInfo->getDefaultUnitIndex()) 
+			continue;
 
 		// Must be able to train this thing
-		if (!GET_PLAYER(ePlayer).canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true)) continue;
+		if (!kPlayer.canTrain(eLoopUnit, false, false, false, /*bIgnoreUniqueUnitStatus*/ true)) 
+			continue;
 
 		// CUSTOMLOG("CS Gift considering unit type %i", eLoopUnit);
-		veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
+		veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, pkUnitInfo->GetPower()));
 	}
 
 	// Choose from weighted unit types
-	veUnitRankings.SortItems();
-	int iNumChoices = GC.getUNIT_SPAWN_NUM_CHOICES();
-	RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, &randFn, "Choosing competitive unit from top choices");
-
-	return eChosenUnit;
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, GC.getUNIT_SPAWN_NUM_CHOICES(), kPlayer.getNumUnits() + kPlayer.GetTreasury()->GetLifetimeGrossGold());
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -8850,13 +8852,10 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 }
 #endif
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal)
-#else
-UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged)
-#endif
 {
 	// Find the unique units that have already been assigned
+	int iRandomSeed = 0;
 	std::set<UnitTypes> setUniquesAlreadyAssigned;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
@@ -8864,6 +8863,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
 		if(pMinorLoop && pMinorLoop->isEverAlive())
 		{
+			iRandomSeed += pMinorLoop->GetTreasury()->GetLifetimeGrossGold(); //needed later
 			UnitTypes eUniqueUnit = pMinorLoop->GetMinorCivAI()->GetUniqueUnit();
 			if(eUniqueUnit != NO_UNIT)
 			{
@@ -8872,7 +8872,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		}
 	}
 	
-	CvWeightedVector<UnitTypes, SAFE_ESTIMATE_NUM_UNITS, true> veUnitRankings;
+	vector<OptionWithScore<UnitTypes>> veUnitRankings;
 
 	// Loop through all Unit Classes
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -8969,20 +8969,17 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		// No Ranged units?
 		if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 			continue;
-#if defined(MOD_BALANCE_CORE)
+
 		if(!bCoastal)
 		{
-#endif
-		// Must be land Unit
-		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-			continue;
-#if defined(MOD_BALANCE_CORE)
+			// Must be land Unit
+			if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
+				continue;
 		}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 		if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
 			continue;
-#endif
+
 		// Technology level
 		TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
 		EraTypes ePrereqEra = NO_ERA;
@@ -9011,42 +9008,16 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
 
-#if defined(MOD_BALANCE_CORE)
-
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
 		int iRandom = getSmallFakeRandNum(5, eLoopUnit + iUnitLoop);
-#else
-		int iRandom = getJonRandNum(5, "Random Value For Gift");
-#endif
-		if(iRandom < 0)
-		{
-			iRandom = 1;
-		}
 
 		//Weight minor civ gift units higher, so they're more likely to spawn each game.
 		if (pkUnitInfo->IsMinorCivGift())
-		{
-			veUnitRankings.push_back(eLoopUnit, iRandom * 2);
-		}
-		else
-		{
-			veUnitRankings.push_back(eLoopUnit, iRandom);
-		}
-#else
-		veUnitRankings.push_back(eLoopUnit, 1);
-#endif
+			iRandom *= 2;
+
+		veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 	}
 
-	UnitTypes eChosenUnit = NO_UNIT;
-
-	if (veUnitRankings.size() > 0)
-	{
-		veUnitRankings.SortItems();
-		RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		eChosenUnit = veUnitRankings.ChooseByWeight(&randFn, "Choosing random unique unit for minor civ");
-	}
-
-	return eChosenUnit;
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, GC.getUNIT_SPAWN_NUM_CHOICES(), iRandomSeed);
 }
 
 //	--------------------------------------------------------------------------------
@@ -13675,15 +13646,16 @@ CvCity* CvGame::GetClosestCityByPlots(const CvPlot* pPlot)
 //------------------------------------------------------------
 //------------------------------------------------------------
 //------------------------------------------------------------
-const unsigned int CvGame::ms_aiSizes[10] = { 2, 3, 5, 7, 9, 11, 13, 15, 17, UINT_MAX };
 
 //	--------------------------------------------------------------------------------
 //Function to determine city size from city population
 unsigned int CvGame::GetVariableCitySizeFromPopulation(unsigned int nPopulation)
 {
+	//fibonacci
+	const unsigned int aiSizes[10] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, UINT_MAX };
 	for(unsigned int i = 0; i < 10; ++i)
 	{
-		if(nPopulation < ms_aiSizes[i])
+		if(nPopulation < aiSizes[i])
 		{
 			return i;
 		}
