@@ -229,7 +229,7 @@
 		</Row>
 		<!--Demands tribute -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_DEMANDTRIBUTE_ANGRY">
-			<Text>We give you a change to return to harmony, will you take it?.</Text>
+			<Text>We give you a chance to return to harmony. Will you take it?</Text>
 		</Row>
 		<!--Requests a trade -->
 		<Row Tag="TXT_KEY_LEADER_DAVID_TRADEREQUEST_ANGRY">
@@ -268,7 +268,7 @@
 			<Text>I expected no better from you. You will not find us unprepared.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_ATTACKED_2">
-			<Text>The Qullana peopple will fight for our freedom, no matter who dies first!</Text>
+			<Text>The Qullana people will fight for our freedom, no matter who dies first!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_DAVID_ATTACKED_3">
 			<Text>And so it's come to this... Know that we will fight until the end!</Text>
