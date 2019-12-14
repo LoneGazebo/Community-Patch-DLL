@@ -505,15 +505,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 #if !defined(NO_ACHIEVEMENTS)
 		//One Hit
-#if defined(MOD_UNITS_MAX_HP)
-		if(pkDefender->GetCurrHitPoints() == pkDefender->GetMaxHitPoints() && iAttackerDamageInflicted >= pkDefender->GetCurrHitPoints()  // Defender at full hit points and will the damage be more than the full hit points?
-#else
-		if(pkDefender->GetCurrHitPoints() == GC.getMAX_HIT_POINTS() && iAttackerDamageInflicted >= pkDefender->GetCurrHitPoints()  // Defender at full hit points and will the damage be more than the full hit points?
-#endif
-		        && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-		{
+		if(iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-		}
 #endif
 
 		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
@@ -1192,6 +1185,12 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					if(iDamage + pkDefender->getDamage() >= GC.getMAX_HIT_POINTS())
 #endif
 					{
+#if !defined(NO_ACHIEVEMENTS)
+						//One Hit
+						if(!pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+							gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
+#endif
+
 						if(pkAttacker->getOwner() == GC.getGame().getActivePlayer())
 						{
 							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR_AND_DEATH", pkAttacker->getNameKey(), pkDefender->getNameKey());
@@ -1219,18 +1218,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
 						}
-
-#if !defined(NO_ACHIEVEMENTS)
-						//One Hit
-#if defined(MOD_UNITS_MAX_HP)
-						if(pkDefender->GetCurrHitPoints() == pkDefender->GetMaxHitPoints() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-#else
-						if(pkDefender->GetCurrHitPoints() == GC.getMAX_HIT_POINTS() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-#endif
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-						}
-#endif
 					}
 					// Nobody died
 					else
@@ -2083,14 +2070,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				{
 #if !defined(NO_ACHIEVEMENTS)
 					//One Hit
-#if defined(MOD_UNITS_MAX_HP)
-					if(pkDefender->GetCurrHitPoints() == pkDefender->GetMaxHitPoints() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-#else
-					if(pkDefender->GetCurrHitPoints() == GC.getMAX_HIT_POINTS() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-#endif
-					{
+					if(iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 						gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-					}
 #endif
 
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
@@ -2561,14 +2542,8 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 		{
 #if !defined(NO_ACHIEVEMENTS)
 			//One Hit
-#if defined(MOD_UNITS_MAX_HP)
-			if(pkDefender->GetCurrHitPoints() == pkDefender->GetMaxHitPoints() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-#else
-			if(pkDefender->GetCurrHitPoints() == GC.getMAX_HIT_POINTS() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
-#endif
-			{
+			if(iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 				gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-			}
 #endif
 
 			pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
