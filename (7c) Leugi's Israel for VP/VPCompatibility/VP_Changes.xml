@@ -1,0 +1,92 @@
+<GameData>
+	<IconTextureAtlases>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>TempleJerusalemIcon256.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>128</IconSize>
+			<Filename>TempleJerusalemIcon128.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>80</IconSize>
+			<Filename>TempleJerusalemIcon80.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>TempleJerusalemIcon64.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>48</IconSize>
+			<Filename>TempleJerusalemIcon48.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>TempleJerusalemIcon45.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>JERUSALEM_TEMPLE_ATLAS</Atlas>
+			<IconSize>32</IconSize>
+			<Filename>TempleJerusalemIcon32.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+	</IconTextureAtlases>
+	<!-- Solomon's Temple -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_LEUGI_JERUSALEM_TEMPLE">
+			<Text>Beit HaMikdash</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LEUGI_JERUSALEM_TEMPLE_HELP">
+			<Text>Available much earlier and does not require a Temple. Generates +1 [ICON_PEACE] Faith for every 4 [ICON_CITIZEN] Population on Empire. Receive 50 [ICON_PEACE] Faith as an instant boost whenever you adopt a Policy, scaling with Era.[NEWLINE][NEWLINE]Increases religious pressure emanating from this city by 100%. +20% Conversion Resistance on Empire.[NEWLINE][NEWLINE]+1 [ICON_GOLD] and +1 [ICON_CULTURE] for all sources of [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine, and [ICON_RES_AMBER] Amber on Empire.[NEWLINE]Reduces [ICON_HAPPINESS_3] Religious Unrest in all Cities by 10%. Contains 3 slots for Great Works of Music. +5 [ICON_CULTURE] Culture and +5 [ICON_GOLD] Gold when themed.[NEWLINE][NEWLINE][ICON_PRODUCTION] Production cost scales with number of cities on Empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LEUGI_JERUSALEM_TEMPLE_STRATEGY">
+			<Text>Beit HaMikdash is a powerful religious wonder which nearly guarantees Israel an early religion. The wonder performs most of the duties of a normal Temple, but on an empire-wide scale, saving you a lot of production and time. The Beit HaMikdash's faith generation scales on your empire's total population, so prioritize growth and early expansion to make the most of your faith generating potential.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LEUGI_JERUSALEM_TEMPLE_TEXT">
+			<Text>The First Temple in Jerusalem, also known as Beit HaMikdash or Solomon's Temple, was the first of a series of structures that were located on the Temple Mount in the Old City of Jerusalem. These successive temples functioned as the main site of ancient Israelite and later Jewish worship. According to the Hebrew Book of Kings, the First Temple was built in 957 BCE by King Solomon (reigned c. 970-c. 930 BCE), who proclaimed the Temple as the sole place for Jewish sacrifice, replacing the portable Tabernacle as well as local sanctuaries and altars. King Jeroboam built competing temples at Bethel and at Dan after seceding from Judah to establish the independent kingdom of Israel; Jeroboam did not want his new kingdom to be dependent on Judah for his people's religious needs.[NEWLINE][NEWLINE]The First Temple was totally destroyed by the Babylonians in 586 BCE when they sacked the city. Construction of the Second Temple was authorized by Cyrus the Great of Persia and began in 538 BCE, one year after the fall of the Babylonian Empire. The temple narrowly avoided being destroyed again in 332 BCE when the Jews refused to acknowledge the deification of Alexander the Great, and had to be rededicated in 164 BCE after Seleucid occupiers defiled the temple by sacrificing pigs to their gods there. The Temple underwent a magnificent renovation under Herod the Great in 19 BCE, but was destroyed for final time by the Romans in 70 CE during the Siege of Jerusalem. After another failed revolt in 135 CE, Jews were banned from Jerusalem entirely.[NEWLINE][NEWLINE]Following the Muslim conquest of the Holy Land in the 7th century, Umayyad Caliph Abd al-Malik ibn Marwan ordered the construction of an Islamic shrine, the Dome of the Rock, on the site of the Temple. The shrine has stood on the mount since 691 CE; the al-Aqsa Mosque also stands in what was the Temple courtyard. All that remains of the old Jewish temple is a retaining wall on the western face of the hill, now known as the "Wailing Wall" in reference to the practice of Jews weeping at the site over the destruction of their Temples.</Text>
+		</Row>
+			<Row Tag="TXT_KEY_THEMING_BONUS_JERUSALEM_TEMPLE">
+			<Text>Collection of Psalms</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_JERUSALEM_TEMPLE_HELP">
+			<Text>To maximize your bonus, make sure all slots are filled with Music from your own Civilization.</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_PROMOTION_HASMONEAN">
+			<Text>Hasmonean Guerilla</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HASMONEAN_HELP">
+			<Text>+25% Flank Attack and Wounded Attack Bonus. Ignores Terrain Movement Penalties, and +5 HP when healing in Friendly Territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PROMISED_LAND">
+			<Text>Promised Land</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PROMISED_LAND_HELP">
+			<Text>+25% [ICON_STRENGTH] Strength vs Barbarians. Gain [ICON_PEACE] Faith when [COLOR_POSITIVE_TEXT]Clearing Barbarian Camps[ENDCOLOR].</Text>
+		</Row>
+	</Language_en_US>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_LEUGI_ISRAEL</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+</GameData>

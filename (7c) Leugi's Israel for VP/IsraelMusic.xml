@@ -1,0 +1,42 @@
+<GameData>
+	<Audio_Sounds>
+		<Row>
+			<SoundID>SND_LEADER_MUSIC_DAVID_PEACE</SoundID>
+			<Filename>DavidPeace</Filename>
+			<LoadType>DynamicResident</LoadType>
+		</Row>
+		<Row>
+			<SoundID>SND_LEADER_MUSIC_DAVID_WAR</SoundID>
+			<Filename>DavidWar</Filename>
+			<LoadType>DynamicResident</LoadType>
+		</Row>
+	</Audio_Sounds>
+	<Audio_2DSounds>
+		<Row>
+			<ScriptID>AS2D_LEADER_MUSIC_DAVID_PEACE</ScriptID>
+			<SoundID>SND_LEADER_MUSIC_DAVID_PEACE</SoundID>
+			<SoundType>GAME_MUSIC</SoundType>
+			<MinVolume>50</MinVolume>
+			<MaxVolume>50</MaxVolume>
+			<IsMusic>true</IsMusic>
+		</Row>
+		<Row>
+			<ScriptID>AS2D_LEADER_MUSIC_DAVID_WAR</ScriptID>
+			<SoundID>SND_LEADER_MUSIC_DAVID_WAR</SoundID>
+			<SoundType>GAME_MUSIC</SoundType>
+			<MinVolume>55</MinVolume>
+			<MaxVolume>55</MaxVolume>
+			<IsMusic>true</IsMusic>
+		</Row>
+		<Row>
+			<ScriptID>AS2D_AMBIENCE_LEADER_DAVID_AMBIENCE</ScriptID>
+			<SoundID>SND_AMBIENCE_DESERT_BED</SoundID>
+			<SoundType>GAME_SFX</SoundType>
+			<Looping>true</Looping>
+			<MinVolume>60</MinVolume>
+			<MaxVolume>60</MaxVolume>
+		</Row>
+	</Audio_2DSounds>
+</GameData>
+
+
