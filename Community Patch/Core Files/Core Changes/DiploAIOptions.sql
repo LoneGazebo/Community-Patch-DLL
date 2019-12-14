@@ -29,6 +29,11 @@ SELECT 'DIPLO_AI_WAR_DISALLOWED_HUMAN', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLO_AI_WAR_DISALLOWED_GLOBAL', '0';
 
+-- [ENABLE NUCLEAR GANDHI]
+-- If set to 1, Gandhi (if he has nukes, and Random Personalities isn't enabled) will do what he's best known for in the Civilization series. ;)
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLO_AI_ENABLE_NUCLEAR_GANDHI', '1';
+
 
 -- Visual only
 

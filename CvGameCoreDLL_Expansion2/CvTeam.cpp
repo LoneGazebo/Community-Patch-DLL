@@ -4895,6 +4895,25 @@ bool CvTeam::HasEmbassyAtTeam(TeamTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	
+	if ((GetLiberatedByTeam() == eIndex || GET_TEAM(eIndex).GetLiberatedByTeam() == m_eID) && !isAtWar(eIndex))
+	{
+		return true;
+	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if (GetMaster() == eIndex)
+		{
+			return true;
+		}
+		if (GET_TEAM(eIndex).GetMaster() == m_eID)
+		{
+			return true;
+		}
+	}
+#endif
 
 	return m_abEmbassy[eIndex];
 }
