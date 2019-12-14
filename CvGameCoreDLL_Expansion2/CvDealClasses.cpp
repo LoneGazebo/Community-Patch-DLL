@@ -3372,7 +3372,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 						
 						if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman())
 						{
-							if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
+							if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).IsHasDefensivePact(eTargetTeam))
 							{
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -300);
 							}
@@ -4082,7 +4082,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								
 								if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman())
 								{
-									if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
+									if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).IsHasDefensivePact(eTargetTeam))
 									{
 										GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -300);
 									}
