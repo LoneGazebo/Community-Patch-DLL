@@ -46980,7 +46980,9 @@ void CvPlayer::UpdateAreaEffectUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
+		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || 
+			(pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || 
+			 pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
 			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
