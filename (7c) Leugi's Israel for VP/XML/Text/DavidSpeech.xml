@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 2/18/2013 1:17:59 PM -->
+<GameData>
+	<Language_en_US>
+
+		<!--General phrases -->
+		<!--Greeting (first time meeting) -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_FIRSTGREETING_1">
+			<Text>Welcome to the Kingdom of Israel. I'm King David, may the Lord share blessings upon us both.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_FIRSTGREETING_2">
+			<Text>Well met, I'm King David of Israel, and I hope we won't need any unnecessary bloodshed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_FIRSTGREETING_3">
+			<Text>May the Lord of heaven and earth give blessings to our lands. I'm King David of Israel.</Text>
+		</Row>
+		<!--Reacts to his bluff being called -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_WARBLUFF_1">
+			<Text>So it shall be, prepare to face an army of the Lord.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_WARBLUFF_2">
+			<Text>The Lord of the Armies shall crush your pagan ways!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_WARBLUFF_3">
+			<Text>I pray to my Lord, so this war is not yours.</Text>
+		</Row>
+		<!--Gloats after winning a war -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_WINWAR_1">
+			<Text>The Lord of Armies is with us, your defeat will soon come.</Text>
+		</Row>
+		<!--Submissive after losing a war -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_LOSEWAR_1">
+			<Text>My Lord will bring justice upon thee.</Text>
+		</Row>
+		<!--Defeated and removed from game -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DEFEATED_1">
+			<Text>My Lord has punished my people, but we shall return to the light.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DEFEATED_2">
+			<Text>This is the end, but my Lord will keep His covenant with His people.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DEFEATED_3">
+			<Text>My Lord, why have you forsaken me?</Text>
+		</Row>
+
+		<!--Neutral -->
+		<!--Greetings (subsequent meetings) -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_1">
+			<Text>Hail to you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_2">
+			<Text>Greetings.</Text>
+		</Row>
+		<!--Goodbye -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_GOODBYE_1">
+			<Text>Farewell.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_GOODBYE_2">
+			<Text>Goodbye.</Text>
+		</Row>
+		<!--Trade offer from player - yes -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_YES_NEUTRAL">
+			<Text>My people accept your proposition.</Text>
+		</Row>
+		<!--Trade offer from player - sweeten the deal -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_NEUTRAL_1">
+			<Text>No, that won't be enough, your trade is unfair.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_NEUTRAL_2">
+			<Text>No...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_NEUTRAL_3">
+			<Text>My people doesn't agree with your proposition.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_NEUTRAL_4">
+			<Text>You're going to need more to make this fair...</Text>
+		</Row>
+		<!--Trade offer from player - no -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NO_NEUTRAL">
+			<Text>No, my people disagree...</Text>
+		</Row>
+		<!--Demand for tribute from player - yes -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRIBUTE_YES_NEUTRAL">
+			<Text>Very well, though we hope to be treated likewise in the future.</Text>
+		</Row>
+		<!--Demand for tribute from player - no -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRIBUTE_NO_NEUTRAL">
+			<Text>Your greed is only exceeded by your arrogance. We refuse your ridiculous demands.</Text>
+		</Row>
+		<!--Requests a trade -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADEREQUEST_NEUTRAL">
+			<Text>My people and I have a proposal to make to you.</Text>
+		</Row>
+		<!--Demands tribute -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DEMANDTRIBUTE_NEUTRAL">
+			<Text>My people need your help, and we came to ask for it.</Text>
+		</Row>
+		<!--Agrees -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_AGREE_SHORT_1">
+			<Text>All right.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_AGREE_SHORT_2">
+			<Text>Very well.</Text>
+		</Row>
+		<!--Disagrees -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_1">
+			<Text>Certainly not.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_2">
+			<Text>No.</Text>
+		</Row>
+		<!--Let's hear it -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_LETSHEARIT_1">
+			<Text>I'm listening.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_LETSHEARIT_2">
+			<Text>My people listen to you...</Text>
+		</Row>
+
+		<!--Happy -->
+		<!--Greetings (subsequent meetings) -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_3">
+			<Text>We salute you, friend.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_4">
+			<Text>You're welcome here, not a stranger.</Text>
+		</Row>
+		<!--Goodbye -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_GOODBYE_3">
+			<Text>Walk safely in your path.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_GOODBYE_4">
+			<Text>May we meet again.</Text>
+		</Row>
+		<!--Trade offer from player - yes -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_YES_HAPPY">
+			<Text>My people are always glad to welcome your proposals.</Text>
+		</Row>
+		<!--Trade offer from player - sweeten the deal -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_HAPPY_1">
+			<Text>You understand that we need more than that, so please go on.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_HAPPY_2">
+			<Text>As much of a friend as you are, my people can't really accept that...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_HAPPY_3">
+			<Text>Near enough, but I'm afraid we need more.</Text>
+		</Row>
+		<!--Trade offer from player - no -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NO_HAPPY">
+			<Text>I am afraid that your offer is not acceptable, my friend.</Text>
+		</Row>
+		<!--Demand for tribute from player - yes -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRIBUTE_YES_HAPPY">
+			<Text>We shall help you, friend. But we hope to be treated likewise when we need your help.</Text>
+		</Row>
+		<!--Demand for tribute from player - no -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRIBUTE_NO_HAPPY">
+			<Text>Alas! I am afraid that we cannot accede to your request. You'll have to try to get by without our assistance at this time.</Text>
+		</Row>
+		<!--Demands tribute -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DEMANDTRIBUTE_HAPPY">
+			<Text>You have shown yourself a friend of my people, and now we are in dire need of your help.</Text>
+		</Row>
+		<!--Requests a trade -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADEREQUEST_HAPPY">
+			<Text>The Qullana people need your help, great friend. We'll be eternally thankful.</Text>
+		</Row>
+		<!--Agrees -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_AGREE_SHORT_3">
+			<Text>Certainly.</Text>
+		</Row>
+		<!--Disagrees -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_3">
+			<Text>We decline.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_4">
+			<Text>Of course not.</Text>
+		</Row>
+		<!--Let's hear it -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_LETSHEARIT_3">
+			<Text>You know you may speak.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_LETSHEARIT_4">
+			<Text>Well, here we are...</Text>
+		</Row>
+
+		<!--Angry -->
+		<!--Greetings (subsequent meetings) -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_5">
+			<Text>What business do you have here, vile one?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_GREETING_6">
+			<Text>What do you want? You're not welcome here.</Text>
+		</Row>
+		<!--Goodbye -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_GOODBYE_5">
+			<Text>This has taken too long.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_GOODBYE_6">
+			<Text>Our business here is done.</Text>
+		</Row>
+		<!--Trade offer from player - yes -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_YES_ANGRY">
+			<Text>And so, you have finally done something reasonable and right...</Text>
+		</Row>
+		<!--Trade offer from player - sweeten the deal -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_ANGRY_1">
+			<Text>Do you even understand the concept of 'fair trading'? Your offer is too light: you must improve it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_ANGRY_2">
+			<Text>That's not good enough.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NEEDMORE_ANGRY_3">
+			<Text>You must do better than that.</Text>
+		</Row>
+
+		<!--Trade offer from player - no -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADE_NO_ANGRY">
+			<Text>Much like yourself, your offer is offensive.</Text>
+		</Row>
+		<!--Demand for tribute from player - yes -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRIBUTE_YES_ANGRY">
+			<Text>You may have what you asked for, but we shall demand retribution.</Text>
+		</Row>
+		<!--Demand for tribute from player - no -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRIBUTE_NO_ANGRY">
+			<Text>You will not have it...</Text>
+		</Row>
+		<!--Demands tribute -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DEMANDTRIBUTE_ANGRY">
+			<Text>We give you a change to return to harmony, will you take it?.</Text>
+		</Row>
+		<!--Requests a trade -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_TRADEREQUEST_ANGRY">
+			<Text>Show us you can fight for liberation, even if you didn't before...</Text>
+		</Row>
+		<!--Agrees -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_AGREE_SHORT_4">
+			<Text>So be it.</Text>
+		</Row>
+		<!--Disagrees -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_5">
+			<Text>Always with such oppresive ideas... No...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_6">
+			<Text>That's unacceptable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DISAGREE_SHORT_7">
+			<Text>No.</Text>
+		</Row>
+		<!--Let's hear it -->
+		<Row Tag="TXT_KEY_LEADER_DAVID_LETSHEARIT_5">
+			<Text>Speak, if you must...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_DAVID_DECLAREWAR_1">
+			<Text>It is time my people made our stand against yours. Hallalla!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DECLAREWAR_2">
+			<Text>Justice demands your end, and we shall give it what it demands!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_DECLAREWAR_3">
+			<Text>The time for retribution has come, and we shall find our freedom from you!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_DAVID_ATTACKED_1">
+			<Text>I expected no better from you. You will not find us unprepared.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_ATTACKED_2">
+			<Text>The Qullana peopple will fight for our freedom, no matter who dies first!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DAVID_ATTACKED_3">
+			<Text>And so it's come to this... Know that we will fight until the end!</Text>
+		</Row>
+	</Language_en_US>
+
+</GameData>
