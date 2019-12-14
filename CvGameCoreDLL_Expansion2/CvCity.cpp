@@ -17735,7 +17735,6 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		//updateGenericBuildings();
 		updateStrengthValue();
 
-
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 	}
 
@@ -27529,8 +27528,6 @@ void CvCity::changeSpecialistFreeExperience(int iChange)
 //	--------------------------------------------------------------------------------
 void CvCity::updateStrengthValue()
 {
-	VALIDATE_OBJECT
-	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::updateStrengthValue, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Default Strength
 	int iStrengthValue = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
 
@@ -27540,43 +27537,9 @@ void CvCity::updateStrengthValue()
 
 	// Building Defense
 	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
-#if defined(MOD_BALANCE_CORE)
-	CvPlot* pAdjacentPlot = NULL;
-	int iAdjUnitDefense = 0;
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-		if(pAdjacentPlot != NULL)
-		{
-			for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
-			{
-				const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-				if (adjUnit != NULL && adjUnit->getTeam() == getTeam())
-				{
-					iAdjUnitDefense += adjUnit->GetAdjacentCityDefenseMod();
-				}
-			}
-		}
-	}
-#endif
-	iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod() + iAdjUnitDefense);
+	iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
 	iBuildingDefense /= 100;
-
 	iStrengthValue += iBuildingDefense;
-
-	// Garrisoned Unit
-	int iMinCombatStrength = 0;
-	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
-	if(pGarrisonedUnit)
-	{
-		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
-		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
-		if (!pGarrisonedUnit->isNativeDomain(plot()))
-			iStrengthFromGarrison /= 2; //see getBestGarrison ... naval units make weaker garrisons
-
-		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
-		iStrengthValue += iStrengthFromGarrison;
-	}
 
 	// Tech Progress increases City Strength
 	double fTechProgress = float( GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) / GC.getNumTechInfos() * /*5*/ GC.getCITY_STRENGTH_TECH_BASE();
@@ -27659,19 +27622,43 @@ void CvCity::updateStrengthValue()
 
 	// Terrain mod
 	if(plot()->isHills())
-	{
 		iStrengthValue += /*3*/ GC.getCITY_STRENGTH_HILL_CHANGE();
-	}
 	if(plot()->isMountain())
-	{
 		iStrengthValue += (/*3*/ GC.getCITY_STRENGTH_HILL_CHANGE() * 2);
-	}
 
+	// Policies
 	iStrengthValue += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST);
 
+	// Garrisoned Unit
+	int iMinCombatStrength = 0;
+	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
+	if(pGarrisonedUnit)
+	{
+		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
+		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+		if (!pGarrisonedUnit->isNativeDomain(plot()))
+			iStrengthFromGarrison /= 2; //see getBestGarrison ... naval units make weaker garrisons
+
+		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
+		iStrengthValue += iStrengthFromGarrison;
+	}
+
+	// Generals / Admirals also help (both the city and the garrison)
+	if (GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_GREAT_GENERAL, NO_DOMAIN, plot()) > 0)
+	{
+		iMinCombatStrength += GC.getCITY_STRENGTH_HILL_CHANGE();
+		iStrengthValue += GC.getCITY_STRENGTH_HILL_CHANGE();
+	}
+
+	// Can't be weaker than the garrison alone
+	iStrengthValue = max(iMinCombatStrength, iStrengthValue);
+
 	//finally
-	m_iStrengthValue = max(iMinCombatStrength, iStrengthValue);
-	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+	if (iStrengthValue != m_iStrengthValue)
+	{
+		m_iStrengthValue = iStrengthValue;
+		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+	}
 }
 
 //	--------------------------------------------------------------------------------

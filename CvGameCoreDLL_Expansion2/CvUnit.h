@@ -1315,7 +1315,6 @@ public:
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-	int GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1395,9 +1394,6 @@ public:
 
 	int GetReligiousPressureModifier() const;
 	void ChangeReligiousPressureModifier(int iChange);
-
-	void ChangeAdjacentCityDefenseMod(int iChange);
-	int GetAdjacentCityDefenseMod() const;
 
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
@@ -2214,7 +2210,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
-	FAutoVariable<int, CvUnit> m_iAdjacentCityDefenseMod;
+	FAutoVariable<int, CvUnit> m_iDummy;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;

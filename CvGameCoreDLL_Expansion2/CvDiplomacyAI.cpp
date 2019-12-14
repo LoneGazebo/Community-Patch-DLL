@@ -39310,9 +39310,9 @@ int CvDiplomacyAI::GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer)
 	// Don't add this if they broke a military promise with US
 	if (!IsPlayerBrokenMilitaryPromise(ePlayer))
 	{
-		PlayerTypes eLoopPlayer;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				// If this guy is untrustworthy or we hate him, he doesn't count.
@@ -39441,9 +39441,9 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 	// Don't add this if they broke a City-State attack promise with US
 	if (!IsPlayerBrokenAttackCityStatePromise(ePlayer))
 	{
-		PlayerTypes eLoopPlayer;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				// If this guy is untrustworthy or we hate him, he doesn't count

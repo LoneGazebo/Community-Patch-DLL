@@ -46960,6 +46960,9 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		if (!bFound)
 			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
+
+	//might need to update the UI
+	UpdateCityStrength();
 }
 
 void CvPlayer::UpdateAreaEffectUnits()
@@ -46989,6 +46992,9 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->canIntercept())
 			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 	}
+
+	//might need to update the UI
+	UpdateCityStrength();
 }
 
 void CvPlayer::UpdateAreaEffectPlots()
@@ -47042,6 +47048,85 @@ const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const
 {
 	return m_plotsAreaEffectPositiveFromTraits;
 }
+
+int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit) const
+{
+	int iResult = 0;
+	if (pTestPlot == NULL)
+		return 0;
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+
+		//performance: very rough distance check first without looking up the unit pointer ...
+		if (plotDistance(*pUnitPlot,*pTestPlot) > 5)
+			continue;
+
+		//exclude this unit!
+		CvUnit* pUnit = getUnit(it->first);
+		if (pUnit == NULL || pUnit == pIgnoreThisUnit)
+			continue;
+
+		//domain check
+		if (eDomain != NO_DOMAIN && pUnit->getDomainType() != eDomain)
+			continue;
+
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+		int iEffectRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE() + pUnit->GetAuraRangeChange();
+#else
+		int iEffectRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
+#endif
+
+		//actual distance check
+		int iDistance = plotDistance(*pUnitPlot,*pTestPlot);
+		if (iDistance > iEffectRange)
+			continue;
+
+		switch (eType)
+		{
+			case AE_GREAT_GENERAL:
+			{
+				if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0))
+					iResult = GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange();
+				break;
+			}
+			case AE_SAPPER:
+			{
+				if (pUnit->IsSapper() && IsAtWarWith(pTestPlot->getOwner()))
+				{
+					if (iDistance < iEffectRange)
+					{
+						iResult = GC.getSAPPED_CITY_ATTACK_MODIFIER();
+					}
+					else if (iDistance == iEffectRange)
+					{
+						iResult = GC.getSAPPED_CITY_ATTACK_MODIFIER()/2;
+					}
+				}
+				break;
+			}
+			case AE_SIEGETOWER:
+			{
+				if (pUnit->IsCityAttackSupport())
+					return 1; //just used as a boolean flag
+				break;
+			}
+		}
+	}
+
+	return iResult;
+}
+
+void CvPlayer::UpdateCityStrength()
+{
+	//support unit might have moved close to the city or away from it, so just update the value for all cities without further logic
+	int iCityLoop;
+	for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+		pLoopCity->updateStrengthValue();
+}
+
 
 void CvPlayer::UpdateCurrentAndFutureWars()
 {

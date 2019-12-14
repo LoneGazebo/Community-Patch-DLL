@@ -2577,6 +2577,7 @@ public:
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
+	int GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit=NULL) const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
@@ -2585,6 +2586,7 @@ public:
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
+	void UpdateCityStrength();
 	void UpdateCurrentAndFutureWars();
 	//to check whether peace is a good idea
 	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
