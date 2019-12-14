@@ -8682,11 +8682,11 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 			case TERRAIN_PLAINS:
 			case TERRAIN_HILL:
 			case TERRAIN_COAST:
-				iPlotValue = 60;
+				iPlotValue = 30;
 				break;
 			case TERRAIN_DESERT:
 			case TERRAIN_TUNDRA:
-				iPlotValue = 30;
+				iPlotValue = 10;
 				break;
 			case TERRAIN_MOUNTAIN:
 			case TERRAIN_SNOW:
@@ -8732,7 +8732,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		// Modifier based on uniqueness
 		CvAssertMsg(GC.getGame().countCivTeamsAlive() != 0, "CvDealAI: Civ Team count equals zero...");
 
-		int iNumTeams = GC.getGame().countCivTeamsAlive();
+		int iNumTeams = GC.getGame().countMajorCivsAlive();
 		int iModifier = (iNumTeams - iNumRevealed) * 100 / iNumTeams;
 
 		iPlotValue *= max(50,iModifier);
@@ -8775,6 +8775,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iItemValue *= 100;
 			break;
 		}
+
 		iItemValue /= 500;
 	}
 	else
@@ -8811,6 +8812,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				iItemValue *= 100;
 			break;
 		}
+
 		iItemValue /= 500;
 	}
 
