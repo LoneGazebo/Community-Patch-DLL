@@ -3146,6 +3146,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI();
 			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
 			pOldOwnerDiploAI->SetNumCitiesLiberated(GetID(), 0);
+			pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
+			pOldOwnerDiploAI->SetTurnsSinceVassalagePeacefullyRevoked(GetID(), -1);
 
 			iValue = iDefaultCityValue;
 			iValue += pOldCity->getPopulation() * /*120*/ GC.getWAR_DAMAGE_LEVEL_UNINVOLVED_CITY_POP_MULTIPLIER();
@@ -9811,11 +9813,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetResurrectedBy(eMePlayer, true);
 			}
 			
-			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
-			GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-			GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
-			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -9917,6 +9914,22 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			
 			// Clear backstabbing mark
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
+			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
+			
+			// Update diplo stuff.
+			pDiploAI->DoUpdateTrueApproachTowardsUsGuesses();
+			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
+			pDiploAI->DoUpdateOpinions();
+			pDiploAI->DoUpdateMajorCivApproaches();
+			if (!isHuman())
+			{
+				GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+				GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
+				GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
+				GetDiplomacyAI()->DoUpdateOpinions();
+				GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+			}
 		}
 	}
 

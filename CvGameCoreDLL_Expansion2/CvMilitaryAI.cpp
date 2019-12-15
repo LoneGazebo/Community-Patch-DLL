@@ -6443,7 +6443,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 	}
 	
 #if defined(MOD_BALANCE_CORE)
-	if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+	if (pPlayer->GetDiplomacyAI()->IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 	{
 		return true;
 	}

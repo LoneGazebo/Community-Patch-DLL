@@ -152,7 +152,14 @@ public:
 	void SetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
 	void ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
 
-	void DoUpdateApproachTowardsUsGuesses();
+	void DoUpdateTrueApproachTowardsUsGuesses();
+
+	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
+	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
+	
+	short GetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
+	void SetMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iValue);
+	void ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer, PlayerTypes eWithPlayer, int iChange);
 
 	/////////////////////////////////////////////////////////
 	// Demands
@@ -553,12 +560,16 @@ public:
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
 	
-	// Advanced Diplo AI Options (defined in CoreChanges.sql)
-	bool IsWarDisallowedGlobal() const;
-	bool IsWarDisallowedHuman() const;
-	bool IsWarDisallowed(PlayerTypes ePlayer) const;
-	bool IsNoVictoryCompetition() const;
+	// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
 	bool IsAlwaysShowTrueApproaches() const;
+	bool IsNoVictoryCompetition() const;
+	bool IsWarDisallowedHuman() const;
+	bool IsWarDisallowedGlobal() const;
+	bool IsWarDisallowed(PlayerTypes ePlayer) const;
+	bool IsNuclearGandhiEnabled() const;
+	
+	// Purely visual stuff
+	bool IsShowBaseOpinionScore() const;
 	bool IsHideNeutralOpinionValues() const;
 
 	/////////////////////////////////////////////////////////
@@ -1389,6 +1400,7 @@ public:
 	/////////////////////////////////////////////////////////
 	// Opinion modifiers
 	/////////////////////////////////////////////////////////
+	int GetBaseOpinionScore(PlayerTypes ePlayer);
 	int GetLandDisputeLevelScore(PlayerTypes ePlayer);
 	int GetWonderDisputeLevelScore(PlayerTypes ePlayer);
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);
@@ -1885,6 +1897,8 @@ private:
 
 		//2D Arrays
 		char* m_apaeOtherPlayerMajorCivOpinion[REALLY_MAX_PLAYERS];
+		char* m_apaeOtherPlayerMajorCivApproach[REALLY_MAX_PLAYERS];
+		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
@@ -1903,6 +1917,8 @@ private:
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
 
 		char m_aaeOtherPlayerMajorCivOpinion[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		char m_aaeOtherPlayerMajorCivApproach[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		short m_aaiOtherPlayerMajorCivApproachCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		char m_aaeOtherPlayerLandDisputeLevel[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		char m_aaeOtherPlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aaeOtherPlayerWarDamageLevel[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
@@ -1992,6 +2008,8 @@ private:
 
 	char* m_paeMajorCivOpinion;
 	char** m_ppaaeOtherPlayerMajorCivOpinion;
+	char** m_ppaaeOtherPlayerMajorCivApproach;
+	short** m_ppaaiOtherPlayerMajorCivApproachCounter;
 
 	char* m_paeMajorCivApproach;
 	char* m_paeApproachScratchPad;
