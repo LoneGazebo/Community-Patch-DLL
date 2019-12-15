@@ -3370,7 +3370,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					{
 						eThirdParty = (PlayerTypes) iThirdPartyLoop;
 						
-						if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman())
+						if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman() && GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
 						{
 							if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).IsHasDefensivePact(eTargetTeam))
 							{
@@ -3516,8 +3516,15 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 									// Penalty to recent assistance for friends of the target(s)
 									else if (!GET_PLAYER(eLoopPlayer2).isHuman() && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
 									{
-										GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
-										GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
+										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
+										{
+											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
+										}
+										
+										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedFromPlayer))
+										{
+											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
+										}
 									}
 								}
 							}
@@ -4080,7 +4087,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							{
 								eThirdParty = (PlayerTypes) iThirdPartyLoop;
 								
-								if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman())
+								if (GET_PLAYER(eThirdParty).isMajorCiv() && GET_PLAYER(eThirdParty).isAlive() && !GET_PLAYER(eThirdParty).isHuman() && GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
 								{
 									if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GET_TEAM(GET_PLAYER(eThirdParty).getTeam()).IsHasDefensivePact(eTargetTeam))
 									{
@@ -4233,8 +4240,15 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									// Penalty to recent assistance for friends of the target(s)
 									else if (!GET_PLAYER(eLoopPlayer2).isHuman() && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
 									{
-										GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
-										GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
+										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
+										{
+											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
+										}
+										
+										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedFromPlayer))
+										{
+											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
+										}
 									}
 								}
 							}
