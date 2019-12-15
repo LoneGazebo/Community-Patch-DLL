@@ -320,6 +320,11 @@ inline CvString GetLocalizedText(const char* szString)
 	const char* szComposedString = text.toUTF8(bytes);
 	CvString str;
 	str.assign(szComposedString, bytes);
+
+	//fallback
+	if (str.empty())
+		str = szString;
+
 	return str;
 }
 //------------------------------------------------------------------------------
@@ -333,6 +338,11 @@ inline CvString GetLocalizedText(const char* szString, T arg1)
 	const char* szComposedString = text.toUTF8(bytes);
 	CvString str;
 	str.assign(szComposedString, bytes);
+
+	//fallback
+	if (str.empty())
+		str = szString;
+
 	return str;
 }
 //------------------------------------------------------------------------------
@@ -346,6 +356,11 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 	const char* szComposedString = text.toUTF8(bytes);
 	CvString str;
 	str.assign(szComposedString, bytes);
+
+	//fallback
+	if (str.empty())
+		str = szString;
+
 	return str;
 }
 //------------------------------------------------------------------------------
@@ -359,6 +374,11 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 	const char* szComposedString = text.toUTF8(bytes);
 	CvString str;
 	str.assign(szComposedString, bytes);
+
+	//fallback
+	if (str.empty())
+		str = szString;
+
 	return str;
 }
 //------------------------------------------------------------------------------
@@ -372,6 +392,11 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 	const char* szComposedString = text.toUTF8(bytes);
 	CvString str;
 	str.assign(szComposedString, bytes);
+
+	//fallback
+	if (str.empty())
+		str = szString;
+
 	return str;
 }
 //------------------------------------------------------------------------------
@@ -385,6 +410,11 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 	const char* szComposedString = text.toUTF8(bytes);
 	CvString str;
 	str.assign(szComposedString, bytes);
+
+	//fallback
+	if (str.empty())
+		str = szString;
+
 	return str;
 }
 
