@@ -1626,7 +1626,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					}
 					else
 					{
-						return 0;
+						return INT_MAX;
 					}
 				}
 			}
