@@ -76,6 +76,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyEnemyCombatRange(0),
 	m_iOpenDefensePercent(0),
 	m_iRoughDefensePercent(0),
+	m_iOpenFromPercent(0),
+	m_iRoughFromPercent(0),
 	m_iExtraAttacks(0),
 	m_bGreatGeneral(false),
 	m_bGreatAdmiral(false),
@@ -187,6 +189,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iLandAirDefenseValue(0),
 	m_iDamageReductionCityAssault(0),
 	m_bMountainsDoubleMove(false),
+	m_bFreeEmbark(false),
 	m_bMountedOnly(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -281,6 +284,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piGarrisonYield(NULL),
+	m_piFortificationYield(NULL),
 #endif
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitClassModifierPercent(NULL),
@@ -333,6 +337,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
 	SAFE_DELETE_ARRAY(m_piGarrisonYield);
+	SAFE_DELETE_ARRAY(m_piFortificationYield);
 #endif
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
@@ -445,6 +450,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iLandAirDefenseValue = kResults.GetInt("LandAirDefenseBonus");
 	m_iDamageReductionCityAssault = kResults.GetInt("DamageReductionCityAssault");
 	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
+	m_bFreeEmbark = kResults.GetBool("FreeEmbark");
 	m_bMountedOnly = kResults.GetBool("MountedOnly");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -573,8 +579,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iHillsAttackPercent = kResults.GetInt("HillsAttack");
 	m_iHillsDefensePercent = kResults.GetInt("HillsDefense");
 	m_iOpenAttackPercent = kResults.GetInt("OpenAttack");
+	m_iOpenFromPercent = kResults.GetInt("OpenFromMod");
 	m_iOpenRangedAttackMod = kResults.GetInt("OpenRangedAttackMod");
 	m_iRoughAttackPercent = kResults.GetInt("RoughAttack");
+	m_iRoughFromPercent = kResults.GetInt("RoughFromMod");
 	m_iRoughRangedAttackMod = kResults.GetInt("RoughRangedAttackMod");
 	m_iAttackFortifiedMod = kResults.GetInt("AttackFortifiedMod");
 	m_iAttackWoundedMod = kResults.GetInt("AttackWoundedMod");
@@ -895,6 +903,33 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Bind(1, szPromotionType);
 
 		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piGarrisonYield[iYieldID] = iYield;
+		}
+	}
+
+	//UnitPromotions_FortificationYield
+	{
+		kUtility.InitializeArray(m_piFortificationYield, NUM_YIELD_TYPES, 0);
+
+		std::string sqlKey = "UnitPromotions_FortificationYield";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_FortificationYield.* from UnitPromotions_FortificationYield inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if (!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
 			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
@@ -1500,6 +1535,11 @@ int CvPromotionEntry::GetOpenAttackPercent() const
 {
 	return m_iOpenAttackPercent;
 }
+/// Accessor: Bonus open terrain attack percent
+int CvPromotionEntry::GetOpenFromPercent() const
+{
+	return m_iOpenFromPercent;
+}
 
 /// Accessor: Bonus open terrain ranged attack mod
 int CvPromotionEntry::GetOpenRangedAttackMod() const
@@ -1511,6 +1551,12 @@ int CvPromotionEntry::GetOpenRangedAttackMod() const
 int CvPromotionEntry::GetRoughAttackPercent() const
 {
 	return m_iRoughAttackPercent;
+}
+
+/// Accessor: Bonus open terrain attack percent
+int CvPromotionEntry::GetRoughFromPercent() const
+{
+	return m_iRoughFromPercent;
 }
 
 /// Accessor: Bonus rough terrain ranged attack mod
@@ -2111,6 +2157,11 @@ bool CvPromotionEntry::IsMountainsDoubleMove() const
 	return m_bMountainsDoubleMove;
 }
 
+bool CvPromotionEntry::IsFreeEmbark() const
+{
+	return m_bFreeEmbark;
+}
+
 bool CvPromotionEntry::IsMountedOnly() const
 {
 	return m_bMountedOnly;
@@ -2598,6 +2649,19 @@ int CvPromotionEntry::GetGarrisonYield(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piGarrisonYield)
 	{
 		return m_piGarrisonYield[i];
+	}
+
+	return 0;
+}
+
+int CvPromotionEntry::GetFortificationYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piFortificationYield)
+	{
+		return m_piFortificationYield[i];
 	}
 
 	return 0;

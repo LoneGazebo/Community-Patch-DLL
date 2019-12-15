@@ -741,7 +741,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 			{
 				if (pInterceptor->getDomainType() != DOMAIN_AIR)
 				{
-					return (pInterceptor->GetInterceptionDamage(pUnit, false) * (100+GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD()))/100;
+					return (pInterceptor->GetInterceptionDamage(pUnit, false, m_pPlot) * (100+GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD()))/100;
 				}
 				else
 				{
@@ -997,7 +997,7 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 				if (pInterceptor)
 				{
 					// Always assume interception is successful
-					iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false);
+					iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false, m_pPlot);
 				}
 				iPlotDamage += pUnit->GetAirCombatDamage(NULL, pCity, false, iInterceptDamage, m_pPlot);
 			}

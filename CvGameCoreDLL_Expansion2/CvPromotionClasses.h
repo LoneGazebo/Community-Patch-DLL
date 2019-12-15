@@ -87,8 +87,10 @@ public:
 	int  GetHillsAttackPercent() const;
 	int  GetHillsDefensePercent() const;
 	int  GetOpenAttackPercent() const;
+	int  GetOpenFromPercent() const;
 	int  GetOpenRangedAttackMod() const;
 	int  GetRoughAttackPercent() const;
+	int  GetRoughFromPercent() const;
 	int  GetRoughRangedAttackMod() const;
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
@@ -180,6 +182,7 @@ public:
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
 	bool IsMountainsDoubleMove() const;
+	bool IsFreeEmbark() const;
 	bool IsMountedOnly() const;
 	int GetAOEDamageOnKill() const;
 	int GetAoEDamageOnMove() const;
@@ -315,6 +318,7 @@ public:
 	int GetYieldFromKills(int i) const;
 	int GetYieldFromBarbarianKills(int i) const;
 	int GetGarrisonYield(int i) const;
+	int GetFortificationYield(int i) const;
 #endif
 	int GetUnitCombatModifierPercent(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
@@ -403,8 +407,10 @@ protected:
 	int m_iHillsAttackPercent;
 	int m_iHillsDefensePercent;
 	int m_iOpenAttackPercent;
+	int m_iOpenFromPercent;
 	int m_iOpenRangedAttackMod;
 	int m_iRoughAttackPercent;
+	int m_iRoughFromPercent;
 	int m_iRoughRangedAttackMod;
 	int m_iAttackFortifiedMod;
 	int m_iAttackWoundedMod;
@@ -528,6 +534,7 @@ protected:
 	int m_iLandAirDefenseValue;
 	int m_iDamageReductionCityAssault;
 	bool m_bMountainsDoubleMove;
+	bool m_bFreeEmbark;
 	bool m_bMountedOnly;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -627,6 +634,7 @@ protected:
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
 	int* m_piGarrisonYield;
+	int* m_piFortificationYield;
 #endif
 	int* m_piUnitCombatModifierPercent;
 	int* m_piUnitClassModifierPercent;

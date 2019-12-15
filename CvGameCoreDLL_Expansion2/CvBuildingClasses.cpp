@@ -98,6 +98,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iFoodKept(0),
 	m_bAirlift(false),
 	m_iAirModifier(0),
+	m_iAirModifierGlobal(0),
 	m_iNukeModifier(0),
 	m_iNukeExplosionRand(0),
 	m_iWorkerSpeedModifier(0),
@@ -682,6 +683,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iFoodKept = kResults.GetInt("FoodKept");
 	m_bAirlift = kResults.GetBool("Airlift");
 	m_iAirModifier = kResults.GetInt("AirModifier");
+	m_iAirModifierGlobal = kResults.GetInt("AirModifierGlobal");
 	m_iNukeModifier = kResults.GetInt("NukeModifier");
 	m_iNukeExplosionRand = kResults.GetInt("NukeExplosionRand");
 	m_iHealRateChange = kResults.GetInt("HealRateChange");
@@ -1925,6 +1927,11 @@ bool CvBuildingEntry::IsAirlift() const
 int CvBuildingEntry::GetAirModifier() const
 {
 	return m_iAirModifier;
+}
+
+int CvBuildingEntry::GetAirModifierGlobal() const
+{
+	return m_iAirModifierGlobal;
 }
 
 /// Modifier to city nuke defense

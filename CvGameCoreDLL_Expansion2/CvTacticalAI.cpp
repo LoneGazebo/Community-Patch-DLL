@@ -2905,7 +2905,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			//here we have more advanced logic and allow some movement if it's safe
 			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2);
 
-			if (pGarrison->CanUpgradeRightNow(false))
+			if (pGarrison->CanUpgradeRightNow(false) && pGarrison->GetDanger()==0)
 			{
 				CvUnit* pNewUnit = pGarrison->DoUpgrade();
 				UnitProcessed(pNewUnit->GetID());
@@ -5750,17 +5750,17 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						if(pUnit->shouldPillage(pUnit->plot()))
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 #endif
-					}
+						}
 
-					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-				}
+						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+					}
 				// NAVAL MOVES
 				else
 				{
 					pBestPlot = FindBestBarbarianSeaMove(pUnit);
 					MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12);
 					//no naval pillaging, it's just too annoying
-					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 				}
 			}
 		}
@@ -8156,7 +8156,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 
 			//if the garrison is (almost) unhurt, we can be a bit more aggressive and assume we'll heal up next turn
 			int iHealRate = pUnit->healRate(pUnit->plot());
-			if (pUnit->getDamage() < iHealRate/2 && iDamageReceived < pUnit->GetMaxHitPoints()/2)
+			if (pUnit->getDamage() < iHealRate/2 && iDamageReceived < pUnit->GetMaxHitPoints()/2 && bAllowMovement)
 				iDamageReceived = max(0, iDamageReceived - iHealRate);
 
 			int iScore = (1000 * iDamageDealt) / (iDamageReceived + 10);
@@ -8180,6 +8180,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 
 	std::sort(meleeTargets.begin(), meleeTargets.end());
 
+	//we will never do attacks with negative scores!
 	if (meleeTargets.back().score > iScoreThreshold)
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -8306,16 +8307,16 @@ int TacticalAIHelpers::CountDeploymentPlots(const CvPlot* pTarget, int iRange, T
 			continue;
 
 		if (pPlot->isWater())
-		{
+					{
 			if (!bForNavalOp)
-				continue;
+						continue;
 			else if(!bAllowDeepWater && pPlot->isDeepWater())
-				continue;
-		}
+						continue;
+					}
 		else if (bForNavalOp)
-			continue;
+						continue;
 
-		iNumDeployPlotsFound++;
+					iNumDeployPlotsFound++;
 	}
 
 	return iNumDeployPlotsFound;

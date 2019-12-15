@@ -1043,8 +1043,8 @@ protected:
 	static int lIsDoFMessageTooSoon(lua_State* L);
 	static int lIsDoF(lua_State* L);
 	static int lGetDoFCounter(lua_State* L);
-	static int lIsPlayerDoFwithAnyFriend(lua_State* L);
-	static int lIsPlayerDoFwithAnyEnemy(lua_State* L);
+	static int lIsPlayerDoFWithAnyFriend(lua_State* L);
+	static int lIsPlayerDoFWithAnyEnemy(lua_State* L);
 	static int lIsPlayerDenouncedFriend(lua_State* L);
 	static int lIsPlayerDenouncedEnemy(lua_State* L);
 	static int lIsUntrustworthyFriend(lua_State* L);

@@ -4954,11 +4954,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldPerAlly(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * kPlayer.GetNumCSAllies());
+		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()));
 	}
 	if (pkBuildingInfo->GetYieldPerFriend(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * kPlayer.GetNumCSFriends());
+		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()));
 	}
 	if (pkBuildingInfo->GetYieldFromInternal(eYield) > 0)
 	{
@@ -5559,6 +5559,11 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		iConquestValue += (pkBuildingInfo->GetAirModifier() / 2);
 	}
 
+	if (pkBuildingInfo->GetAirModifierGlobal() > 0)
+	{
+		iConquestValue += pkBuildingInfo->GetAirModifierGlobal() * ((kPlayer.getNumCities()+1) * 10);
+	}
+
 	for (int ik = 0; ik < GC.getNumHurryInfos(); ik++)
 	{
 		if (pkBuildingInfo->GetHurryModifier((HurryTypes)ik) <= 0)
@@ -5654,6 +5659,8 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
 		iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 10);
+		if (pCity != NULL && pCity->GetCityCulture()->GetNumGreatWorkSlots() <= pkBuildingInfo->GetGreatWorkCount())
+			iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 10);
 	}
 	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
 	{

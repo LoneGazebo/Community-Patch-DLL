@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -948,6 +948,9 @@ public:
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
+	int GetFortificationYieldChange(YieldTypes eYield) const;
+	void SetFortificationYieldChange(YieldTypes eYield, int iValue);
+
 	inline int GetID() const
 	{
 		return m_iID;
@@ -1099,6 +1102,10 @@ public:
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
+
+	int getFreeEmbarkMoveCount() const;
+	bool isFreeEmbark() const;
+	void changeFreeEmbarkMoveCount(int iChange);
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
@@ -1277,8 +1284,14 @@ public:
 	int getExtraOpenDefensePercent() const;
 	void changeExtraOpenDefensePercent(int iChange);
 
+	int getExtraOpenFromPercent() const;
+	void changeExtraOpenFromPercent(int iChange);
+
 	int getExtraRoughDefensePercent() const;
 	void changeExtraRoughDefensePercent(int iChange);
+
+	int getExtraRoughFromPercent() const;
+	void changeExtraRoughFromPercent(int iChange);
 
 	int getNumAttacks() const;
 	int getNumAttacksMadeThisTurn() const;
@@ -1302,7 +1315,6 @@ public:
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-	int GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1382,9 +1394,6 @@ public:
 
 	int GetReligiousPressureModifier() const;
 	void ChangeReligiousPressureModifier(int iChange);
-
-	void ChangeAdjacentCityDefenseMod(int iChange);
-	int GetAdjacentCityDefenseMod() const;
 
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
@@ -1983,6 +1992,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+	FAutoVariable<int, CvUnit> m_iFreeEmbarkMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iAoEDamageOnMove;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
@@ -2049,6 +2059,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
 	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
 	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;
+	FAutoVariable<int, CvUnit> m_iExtraOpenFromPercent;
+	FAutoVariable<int, CvUnit> m_iExtraRoughFromPercent;
 	FAutoVariable<int, CvUnit> m_iPillageChange;
 	FAutoVariable<int, CvUnit> m_iUpgradeDiscount;
 	FAutoVariable<int, CvUnit> m_iExperiencePercent;
@@ -2198,7 +2210,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
-	FAutoVariable<int, CvUnit> m_iAdjacentCityDefenseMod;
+	FAutoVariable<int, CvUnit> m_iDummy;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
@@ -2236,6 +2248,7 @@ protected:
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
 	std::vector<int> m_iGarrisonYieldChange;
+	std::vector<int> m_iFortificationYieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;
@@ -2313,7 +2326,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDiploMissionInfluence;
 	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
-	FAutoVariable<int, CvUnit> m_iReuseMe; // <-------------------------------
 	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iHurryStrength;

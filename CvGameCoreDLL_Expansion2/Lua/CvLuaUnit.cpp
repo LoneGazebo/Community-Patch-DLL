@@ -364,6 +364,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AttackBelow50Modifier);
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
+	Method(RoughFromModifier);
+	Method(OpenFromModifier);
 	Method(TerrainAttackModifier);
 	Method(TerrainDefenseModifier);
 	Method(FeatureAttackModifier);
@@ -3824,6 +3826,40 @@ int CvLuaUnit::lRoughDefenseModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+
+//------------------------------------------------------------------------------
+//int openDefenseModifier();
+int CvLuaUnit::lOpenFromModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	if (pkUnit->plot() == NULL)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	const int iResult = pkUnit->plot()->isOpenGround() ? pkUnit->getExtraOpenFromPercent() : 0; 
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int RoughDefenseModifier();
+int CvLuaUnit::lRoughFromModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	if (pkUnit->plot() == NULL)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	const int iResult = pkUnit->plot()->isRoughGround() ? pkUnit->getExtraRoughFromPercent() : 0;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int terrainAttackModifier(int /*TerrainTypes*/ eTerrain);
 int CvLuaUnit::lTerrainAttackModifier(lua_State* L)
@@ -5238,7 +5274,7 @@ int CvLuaUnit::lGetGreatGeneralAuraBonus(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	int iActualBonus = pkUnit->GetAreaEffectBonus(AE_GREAT_GENERAL);
+	int iActualBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_GREAT_GENERAL, pkUnit->getDomainType(), pkUnit->plot());
 	int iDefaultBonus = GET_PLAYER(pkUnit->getOwner()).GetGreatGeneralCombatBonus() + GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetGreatGeneralExtraBonus();
 	lua_pushinteger(L, iActualBonus-iDefaultBonus);
 	return 1;
@@ -5317,6 +5353,22 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
+	if (!pkCity)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	int iBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
+	lua_pushboolean(L, iBonus == GC.getSAPPED_CITY_ATTACK_MODIFIER());
+	return 1;
+}
+
+#if defined(MOD_BALANCE_CORE)
+int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
 
 	if (!pkCity)
 	{
@@ -5324,21 +5376,26 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 		return 1;
 	}
 
-	int iBonus = pkUnit->GetAreaEffectBonus(AE_SAPPER, NULL, pkCity);
-	lua_pushboolean(L, iBonus == GC.getSAPPED_CITY_ATTACK_MODIFIER());
+	int iBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
+	lua_pushboolean(L, iBonus > 0 && iBonus < GC.getSAPPED_CITY_ATTACK_MODIFIER());
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
-	const int bResult = pkUnit->GetAreaEffectBonus(AE_SAPPER, pkUnit->plot(), pkCity);
-	lua_pushinteger(L, bResult);
+	if (!pkCity)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
 
+	const int iResult = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
+	lua_pushinteger(L, iResult);
 	return 1;
 }
+
 int CvLuaUnit::lGetGiveCombatModToUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -5355,23 +5412,7 @@ int CvLuaUnit::lGetNearbyCityBonusCombatMod(lua_State* L)
 
 	return 1;
 }
-//------------------------------------------------------------------------------
-//bool IsHalfNearSapper(CvCity* pTargetCity);
-int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
 
-	if (!pkCity)
-	{
-		lua_pushboolean(L, false);
-		return 1;
-	}
-
-	int iBonus = pkUnit->GetAreaEffectBonus(AE_SAPPER, NULL, pkCity);
-	lua_pushboolean(L, iBonus > 0 && iBonus < GC.getSAPPED_CITY_ATTACK_MODIFIER());
-	return 1;
-}
 //bool GetNearbyUnitClassModifierFromUnitClass();
 int CvLuaUnit::lGetNearbyUnitClassModifierFromUnitClass(lua_State* L)
 {

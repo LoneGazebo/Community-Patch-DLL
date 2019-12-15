@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -147,16 +147,22 @@ public:
 	// Our guess as to another player's approach towards us
 	MajorCivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer);
 	MajorCivApproachTypes GetTrueApproachTowardsUsGuess(PlayerTypes ePlayer);
-	void SetApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
-	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
-	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
-	void ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
+	void SetTrueApproachTowardsUsGuess(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
+	int GetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
+	void SetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
+	void ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
 
 	void DoUpdateApproachTowardsUsGuesses();
 
 	/////////////////////////////////////////////////////////
 	// Demands
 	/////////////////////////////////////////////////////////
+
+	PlayerTypes GetCSBullyTargetPlayer() const;
+	void SetCSBullyTargetPlayer(PlayerTypes ePlayer);
+
+	PlayerTypes GetCSWarTargetPlayer() const;
+	void SetCSWarTargetPlayer(PlayerTypes ePlayer);
 
 	PlayerTypes GetDemandTargetPlayer() const;
 	void SetDemandTargetPlayer(PlayerTypes ePlayer);
@@ -388,6 +394,16 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
+	
+	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
+	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
+	
+	int GetNumDoFsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
+	
+	void DoAddWantsDoFWithPlayer(PlayerTypes ePlayer);
+	void DoCancelWantsDoFWithPlayer(PlayerTypes ePlayer);
+	
+	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
@@ -434,15 +450,24 @@ public:
 	int GetDeclaredWarOnFriendValue(PlayerTypes ePlayer);
 	void ChangeDeclaredWarOnFriendValue(PlayerTypes ePlayer, int iChange);
 
+	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
+	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
+
 	int GetNumCitiesLiberated(PlayerTypes ePlayer);
 	void ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesLiberated(PlayerTypes ePlayer, int iValue);
 
 	int GetRecentTradeValue(PlayerTypes ePlayer);
 	void ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange);
+	void SetRecentTradeValue(PlayerTypes ePlayer, int iValue);
+	
 	int GetCommonFoeValue(PlayerTypes ePlayer);
 	void ChangeCommonFoeValue(PlayerTypes ePlayer, int iChange);
+	void SetCommonFoeValue(PlayerTypes ePlayer, int iValue);
+	
 	int GetRecentAssistValue(PlayerTypes ePlayer);
 	void ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange);
+	void SetRecentAssistValue(PlayerTypes ePlayer, int iValue);
 
 	bool IsGaveAssistanceTo(PlayerTypes ePlayer) const;
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer) const;
@@ -492,12 +517,15 @@ public:
 	
 	int GetDefensivePactValue(PlayerTypes ePlayer);
 	PlayerTypes GetMostValuableDefensivePact(bool bIgnoreDPs);
+	PlayerTypes GetNextBestDefensivePact();
 
 	int GetDoFValue(PlayerTypes ePlayer);
 	PlayerTypes GetMostValuableDoF(bool bIgnoreDoFs);
+	PlayerTypes GetNextBestDoF();
 
 	int GetCompetitorValue(PlayerTypes ePlayer) const;
 	PlayerTypes GetBiggestCompetitor() const;
+	
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
 	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate);
 #endif
@@ -525,11 +553,13 @@ public:
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
 	
-	// Diplo AI Aggression Options (defined in CoreChanges.sql)
+	// Advanced Diplo AI Options (defined in CoreChanges.sql)
 	bool IsWarDisallowedGlobal() const;
 	bool IsWarDisallowedHuman() const;
 	bool IsWarDisallowed(PlayerTypes ePlayer) const;
 	bool IsNoVictoryCompetition() const;
+	bool IsAlwaysShowTrueApproaches() const;
+	bool IsHideNeutralOpinionValues() const;
 
 	/////////////////////////////////////////////////////////
 	// Personality Members
@@ -632,6 +662,10 @@ public:
 	int GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const;
 	void SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iChange);
+	
+	int GetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer) const;
+	void SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
 #endif
 
 	// Get the amount of warmonger hatred they generated
@@ -830,6 +864,11 @@ public:
 	int GetNumDemandEverMade(PlayerTypes ePlayer) const;
 	bool IsDemandEverMade(PlayerTypes ePlayer) const;
 
+#if defined(MOD_BALANCE_CORE)
+	int GetDemandMadeTurn(PlayerTypes ePlayer) const;
+	void SetDemandMadeTurn(PlayerTypes ePlayer, int iValue);
+#endif
+
 	short GetDemandCounter(PlayerTypes ePlayer) const;
 	void SetDemandCounter(PlayerTypes ePlayer, int iValue);
 	void ChangeDemandCounter(PlayerTypes ePlayer, int iChange);
@@ -889,6 +928,19 @@ public:
 
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
+
+	int GetDoFBrokenTurn(PlayerTypes ePlayer) const;
+	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
+	
+	bool WasEverBackstabbedBy(PlayerTypes ePlayer) const;
+	bool WasTeammateEverBackstabbedBy(PlayerTypes ePlayer) const;
+	void SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue);
+	
+	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;
+	void SetFriendDenouncedUsTurn(PlayerTypes ePlayer, int iValue);
+	
+	int GetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer) const;
+	void SetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer, int iValue);
 #endif
 
 	short GetDoFCounter(PlayerTypes ePlayer) const;
@@ -913,8 +965,8 @@ public:
 #endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
-	bool IsPlayerDoFwithAnyFriend(PlayerTypes ePlayer) const;
-	bool IsPlayerDoFwithAnyEnemy(PlayerTypes ePlayer) const;
+	bool IsPlayerDoFWithAnyFriend(PlayerTypes ePlayer) const;
+	bool IsPlayerDoFWithAnyEnemy(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
 
@@ -1046,8 +1098,10 @@ public:
 	int GetSameMasterScore(PlayerTypes ePlayer) const;
 
 	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer) const;
-	void SetBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
+	void SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
 	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const;
+	void SetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer, int iValue);
+	int GetPlayerBrokenVassalAgreementTurn(PlayerTypes ePlayer) const;
 	
 	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
 	int GetVassalFailedProtectValue(PlayerTypes ePlayer) const;
@@ -1249,9 +1303,11 @@ public:
 
 	int GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const;
 	void ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange);
+	void SetNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iValue);
 
 	int GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const;
 	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
+	void SetNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iValue);
 
 #if defined(MOD_BALANCE_CORE)
 	int GetLandmarksBuiltForMeTurn(PlayerTypes ePlayer) const;
@@ -1272,8 +1328,17 @@ public:
 	int GetReligiousConversionTurn(PlayerTypes ePlayer) const;
 	void SetReligiousConversionTurn(PlayerTypes ePlayer, int iChange);
 	
+	int GetPlunderedTradeRouteTurn(PlayerTypes ePlayer) const;
+	void SetPlunderedTradeRouteTurn(PlayerTypes ePlayer, int iChange);
+	
 	int GetRobbedTurn(PlayerTypes ePlayer) const;
 	void SetRobbedTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetPlottedAgainstUsTurn(PlayerTypes ePlayer) const;
+	void SetPlottedAgainstUsTurn(PlayerTypes ePlayer, int iChange);
+	
+	int GetPerformedCoupTurn(PlayerTypes ePlayer) const;
+	void SetPerformedCoupTurn(PlayerTypes ePlayer, int iChange);
 #endif
 
 	bool WasResurrectedBy(PlayerTypes ePlayer) const;
@@ -1282,24 +1347,44 @@ public:
 
 	int GetNumTimesCultureBombed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesCultureBombed(PlayerTypes ePlayer, int iChange);
+	void SetNumTimesCultureBombed(PlayerTypes ePlayer, int iValue);
 
 	int GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const;
 	void ChangeNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iChange);
+	void SetNegativeReligiousConversionPoints(PlayerTypes ePlayer, int iValue);
 
 	int GetNegativeArchaeologyPoints(PlayerTypes ePlayer) const;
 	void ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iChange);
+	void SetNegativeArchaeologyPoints(PlayerTypes ePlayer, int iValue);
+
 #if defined(MOD_BALANCE_CORE)
+	bool HasPlayerEverConvertedCity(PlayerTypes ePlayer) const;
+	void SetPlayerEverConvertedCity(PlayerTypes ePlayer, bool bValue);
+	
+	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
+	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
+	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
+
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
+	void SetNumTimesRazed(PlayerTypes ePlayer, int iValue);
+
+	int GetNumTradeRoutesPlundered(PlayerTypes ePlayer) const;
+	void ChangeNumTradeRoutesPlundered(PlayerTypes ePlayer, int iChange);
+	void SetNumTradeRoutesPlundered(PlayerTypes ePlayer, int iValue);
 #endif
+
 	int GetNumTimesNuked(PlayerTypes ePlayer) const;
 	void ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange);
+	void SetNumTimesNuked(PlayerTypes ePlayer, int iValue);
 
 	int GetNumTimesRobbedBy(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRobbedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumTimesRobbedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetNumTimesIntrigueSharedBy(PlayerTypes ePlayer) const;
 	void ChangeNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumTimesIntrigueSharedBy(PlayerTypes ePlayer, int iValue);
 
 	/////////////////////////////////////////////////////////
 	// Opinion modifiers
@@ -1310,12 +1395,13 @@ public:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
-	int GetHasReligionFounderDifferenceScore(PlayerTypes ePlayer);
+	int GetDifferentMajorityReligionScore(PlayerTypes ePlayer);
 #endif
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);
 	int GetLandmarksBuiltForMeScore(PlayerTypes ePlayer);
 	int GetResurrectedScore(PlayerTypes ePlayer);
+	int GetLiberatedCapitalScore(PlayerTypes ePlayer);
 	int GetLiberatedCitiesScore(PlayerTypes ePlayer);
 	int GetEmbassyScore(PlayerTypes ePlayer);
 	int GetForgaveForSpyingScore(PlayerTypes ePlayer);
@@ -1329,11 +1415,16 @@ public:
 	int GetSameLatePoliciesScore(PlayerTypes ePlayer);
 	int GetDifferentLatePoliciesScore(PlayerTypes ePlayer);
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
+	int GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer);
+	int GetTimesPerformedCoupScore(PlayerTypes ePlayer);
+#endif
 	int GetDugUpMyYardScore(PlayerTypes ePlayer);
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer);
-	int GetIgnoredMilitaryPromiseScore(/*PlayerTypes ePlayer*/);
+	int GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenBorderPromiseScore(PlayerTypes ePlayer);
@@ -1584,6 +1675,7 @@ private:
 		bool m_abArmyInPlaceForAttack[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DEALS)
+		bool m_abWantsDoFWithPlayer[MAX_MAJOR_CIVS];
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
 		bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 #endif
@@ -1645,6 +1737,10 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
+		short m_aiDoFBrokenTurn[MAX_MAJOR_CIVS];
+		bool m_abEverBackstabbedBy[MAX_MAJOR_CIVS];
+		short m_aiFriendDenouncedUsTurn[MAX_MAJOR_CIVS];
+		short m_aiFriendDeclaredWarOnUsTurn[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
 		pair<int,int> m_paNoExpansionPromise[MAX_MAJOR_CIVS];
 		pair<int,int> m_paLastTurnEmpireDistance[MAX_MAJOR_CIVS];
@@ -1672,11 +1768,15 @@ private:
 		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
 		short m_aiNumTimesRazed[REALLY_MAX_PLAYERS];
+		short m_aiNumTradeRoutesPlundered[REALLY_MAX_PLAYERS];
 		bool m_abPlayerEverMadeBorderPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerEverMadeExpansionPromise[MAX_MAJOR_CIVS];
 		bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
 		bool m_abHelpRequestEverMade[MAX_MAJOR_CIVS];
 		int m_aiDemandEverMade[MAX_MAJOR_CIVS];
+		short m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
+		int m_aiArtifactsEverDugUp[MAX_MAJOR_CIVS];
+		bool m_abEverConvertedCity[MAX_MAJOR_CIVS];
 		bool m_abPlayerNoSettleRequestEverAsked[MAX_MAJOR_CIVS];
 		bool m_abPlayerStopSpyingRequestEverAsked[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMeTurn[MAX_MAJOR_CIVS];
@@ -1686,7 +1786,10 @@ private:
 		short m_aiLiberatedCitiesTurn[MAX_MAJOR_CIVS];
 		short m_aiIntrigueSharedTurn[MAX_MAJOR_CIVS];
 		short m_aiReligiousConversionTurn[MAX_MAJOR_CIVS];
+		short m_aiPlunderedTradeRouteTurn[MAX_MAJOR_CIVS];
 		short m_aiTimesRobbedTurn[MAX_MAJOR_CIVS];
+		short m_aiPlottedAgainstUsTurn[MAX_MAJOR_CIVS];
+		short m_aiPerformedCoupTurn[MAX_MAJOR_CIVS];
 #endif
 		short m_aiNumTimesNuked[MAX_MAJOR_CIVS];
 		short m_aiNumTimesRobbedBy[MAX_MAJOR_CIVS];
@@ -1698,6 +1801,7 @@ private:
 		short m_aiIgnoredBorderPromiseValue[MAX_MAJOR_CIVS];
 
 		short m_aiDeclaredWarOnFriendValue[MAX_MAJOR_CIVS];
+		bool m_abPlayerLiberatedCapital[MAX_MAJOR_CIVS];
 		short m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];
 
 		short m_aiTradeValue[MAX_MAJOR_CIVS];
@@ -1705,7 +1809,6 @@ private:
 		short m_aiAssistValue[MAX_MAJOR_CIVS];
 
 		// Player's response to AI statements
-
 		bool m_abPlayerMadeMilitaryPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerBrokenMilitaryPromise[MAX_MAJOR_CIVS];
 		bool m_abPlayerIgnoredMilitaryPromise[MAX_MAJOR_CIVS];
@@ -1768,6 +1871,7 @@ private:
 #if defined(MOD_API_EXTENSIONS)
 		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
 		char m_aiTheyLoweredOurInfluence[MAX_MAJOR_CIVS];
+		char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
 		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 #else
 		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
@@ -1824,7 +1928,9 @@ private:
 		short m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 
 		short m_aiNumTimesDemandedWhenVassal[MAX_MAJOR_CIVS];
+		bool m_abDemandAcceptedWhenVassal[MAX_MAJOR_CIVS];
 		bool m_abPlayerBrokenVassalAgreement[MAX_MAJOR_CIVS];
+		short m_aiBrokenVassalAgreementTurn[MAX_MAJOR_CIVS];
 
 		short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
@@ -1864,7 +1970,9 @@ private:
 	short* m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage;
 
 	short* m_paiNumTimesDemandedWhenVassal;
+	bool* m_pabDemandAcceptedWhenVassal;
 	bool* m_pabPlayerBrokenVassalAgreement;
+	short* m_paiBrokenVassalAgreementTurn;
 
 	bool* m_pabMoveTroopsRequestAccepted;
 	short* m_paiMoveTroopsRequestCounter;
@@ -1894,6 +2002,9 @@ private:
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;
 
+	char m_eCSWarTarget;
+	char m_eCSBullyTarget;
+
 	short* m_paeWantPeaceCounter;
 	char* m_paePeaceTreatyWillingToOffer;
 	char* m_paePeaceTreatyWillingToAccept;
@@ -1903,6 +2014,7 @@ private:
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
 #if defined(MOD_BALANCE_CORE_DEALS)
+	bool* m_pabWantsDoFWithPlayer;
 	bool* m_pabWantsDefensivePactWithPlayer;
 	bool* m_pabWantsSneakAttack;
 
@@ -1977,6 +2089,10 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
+	short* m_paiDoFBrokenTurn;
+	bool* m_pabEverBackstabbedBy;
+	short* m_paiFriendDenouncedUsTurn;
+	short* m_paiFriendDeclaredWarOnUsTurn;
 	short* m_paiNumTimesCoopWarDenied;
 	pair<int,int>* m_paNoExpansionPromise;
 	pair<int,int>* m_paLastTurnEmpireDistance;
@@ -2002,13 +2118,18 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	short* m_paiNumTimesRazed;
+	short* m_paiNumTradeRoutesPlundered;
+	short* m_paiDemandMadeTurn;
 	short* m_paiNumLandmarksBuiltForMeTurn;
 	short* m_paiCiviliansReturnedToMeTurn;
 	short* m_paiPlayerForgaveForSpyingTurn;
 	short* m_paiLiberatedCitiesTurn;
 	short* m_paiIntrigueSharedTurn;
 	short* m_paiReligiousConversionTurn;
+	short* m_paiPlunderedTradeRouteTurn;
 	short* m_paiTimesRobbedTurn;
+	short* m_paiPlottedAgainstUsTurn;
+	short* m_paiPerformedCoupTurn;
 #endif
 	short* m_paiNumTimesNuked;
 	short* m_paiNumTimesRobbedBy;
@@ -2023,6 +2144,7 @@ private:
 	short* m_paiCommonFoeValue;
 	short* m_paiAssistValue;
 
+	bool* m_pabPlayerLiberatedCapital;
 	short* m_paiNumCitiesLiberated;
 
 	bool** m_ppaabWorkingAgainstPlayerAccepted;
@@ -2031,8 +2153,7 @@ private:
 	char** m_ppaacCoopWarAcceptedState;
 	short** m_ppaaiCoopWarCounter;
 
-	// Player's repsonse to AI statements
-
+	// Player's response to AI statements
 	bool* m_pabPlayerMadeMilitaryPromise;
 	bool* m_pabPlayerBrokenMilitaryPromise;
 	bool* m_pabPlayerIgnoredMilitaryPromise;
@@ -2053,6 +2174,8 @@ private:
 	bool* m_pabDoFEverAsked;
 	bool* m_pabHelpRequestEverMade;
 	int*  m_paiDemandEverMade;
+	int*  m_paiArtifactsEverDugUp;
+	bool* m_pabEverConvertedCity;
 	bool* m_pabPlayerNoSettleRequestEverAsked;
 	bool* m_pabPlayerStopSpyingRequestEverAsked;
 #endif
@@ -2125,6 +2248,7 @@ private:
 #if defined(MOD_API_EXTENSIONS)
 	char* m_paiTheyPlottedAgainstUs;
 	char* m_paiTheyLoweredOurInfluence;
+	char* m_paiPerformedCoupAgainstUs;
 	int*  m_paiOtherPlayerWarmongerAmountTimes100;
 #else
 	int*  m_paiOtherPlayerWarmongerAmount;

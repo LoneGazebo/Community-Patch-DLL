@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1886,7 +1886,7 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	if (iResearchCost<10000)
 		return iResearchCost + (iResearchCost * (iCityCountMod - iResearchMod))/100;
 	else
-		return iResearchCost + (iResearchCost/100) * (iCityCountMod - iResearchMod);
+	return iResearchCost + (iResearchCost/100) * (iCityCountMod - iResearchMod);
 }
 
 //	----------------------------------------------------------------------------
@@ -2677,7 +2677,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 		return std::max(1, iCost + (iCost*iModifier)/100);
 	else
 		//avoid overflow
-		return std::max(1, iCost + (iCost/100)*iModifier);
+	return std::max(1, iCost + (iCost/100)*iModifier);
 }
 
 #if defined(MOD_CIV6_EUREKA)

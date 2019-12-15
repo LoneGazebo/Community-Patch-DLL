@@ -152,7 +152,7 @@ void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropaga
 /// Choose a player's next policy purchase (could be opening a branch)
 int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 {
-	if (pPlayer->isMinorCiv())
+	if (!pPlayer->isMajorCiv())
 		return 0;
 
 	RandomNumberDelegate fcn;
@@ -199,13 +199,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-						//Leftover from Vanilla victory
-#else
-	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-	AIGrandStrategyTypes eCurrentGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	bool bNeedToFinish = false;
 	for (int iBranchLoop2 = 0; iBranchLoop2 < GC.getNumPolicyBranchInfos(); iBranchLoop2++)
 	{
@@ -222,7 +216,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 			}
 		}
 	}
-#endif
+
 	// Loop though the branches adding each as another possibility
 	if (!bMustChooseTenet && !bNeedToFinish)
 	{
@@ -266,57 +260,6 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 	m_AdoptablePolicies.SortItems();
 	LogPossiblePolicies();
-#if defined(MOD_BALANCE_CORE)
-#else
-	// If there were any Level 3 tenets found, consider going for the one that matches our victory strategy
-	if (aLevel3Tenets.size() > 0)
-	{
-		vector<int>::const_iterator it;
-		for (it = aLevel3Tenets.begin(); it != aLevel3Tenets.end(); it++)
-		{
-			CvPolicyEntry *pEntry;
-			pEntry = m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(*it);
-			if (pEntry)
-			{
-				AIGrandStrategyTypes eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-				if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
-				{
-					if (pEntry->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) > 0)
-					{
-						LogPolicyChoice((PolicyTypes)*it);
-						return (*it) + GC.getNumPolicyBranchInfos();
-					}
-				}
-				else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
-				{
-					if (pEntry->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP")) > 0)
-					{
-						LogPolicyChoice((PolicyTypes)*it);
-						return (*it) + GC.getNumPolicyBranchInfos();
-					}
-				}
-				else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-				{
-					if (pEntry->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) > 0)
-					{
-						LogPolicyChoice((PolicyTypes)*it);
-						return (*it) + GC.getNumPolicyBranchInfos();
-					}
-				}
-				else if(eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
-				{
-					if (pEntry->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) > 0)
-					{
-						LogPolicyChoice((PolicyTypes)*it);
-						return (*it) + GC.getNumPolicyBranchInfos();
-					}
-				}
-
-			}
-		}
-	}
-#endif
-	CvAssertMsg(m_AdoptablePolicies.GetTotalWeight() >= 0, "Total weights of considered policies should not be negative! Please send Anton your save file and version.");
 
 	// If total weight is above 0, choose one above a threshold
 	if(m_AdoptablePolicies.GetTotalWeight() > 0)

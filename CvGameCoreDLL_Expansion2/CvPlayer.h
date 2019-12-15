@@ -2100,6 +2100,9 @@ public:
 	bool IsCannotFailSpies() const;
 	int GetCannotFailSpies() const;
 	void changeCannotFailSpies(int iChange);
+	
+	void changeMaxAirUnits(int iChange);
+	int getMaxAirUnits() const;
 
 	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
@@ -2574,6 +2577,7 @@ public:
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
+	int GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit=NULL) const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
@@ -2582,6 +2586,7 @@ public:
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
+	void UpdateCityStrength();
 	void UpdateCurrentAndFutureWars();
 	//to check whether peace is a good idea
 	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
@@ -3216,6 +3221,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionWonder;
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionBuilding;
 	FAutoVariable<int, CvPlayer> m_iCannotFailSpies;
+	FAutoVariable<int, CvPlayer> m_iMaxAirUnits;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	FAutoVariable<int, CvPlayer> m_iInvestmentModifier;

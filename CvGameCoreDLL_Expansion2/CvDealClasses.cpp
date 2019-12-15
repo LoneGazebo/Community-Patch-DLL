@@ -3407,8 +3407,8 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								{
 									if (GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 									{
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedToPlayer, 2);
+										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
 									}
 								}
 							}
@@ -4006,13 +4006,13 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
-							//If AI, bump down their opinion of the broker a bit.
+							//If AI, bump down their opinion of the broker and the warrior a bit.
 							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetEspionage())
 							{
 								if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 								{
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 600);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedToPlayer, 2);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
 								}
 							}
 						}

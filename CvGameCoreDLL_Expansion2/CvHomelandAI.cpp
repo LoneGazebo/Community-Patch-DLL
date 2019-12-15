@@ -801,7 +801,7 @@ void CvHomelandAI::FindHomelandTargets()
 			{
 				if( pLoopPlot->getOwner() == NO_PLAYER ||
 					pLoopPlot->getOwner() == m_pPlayer->GetID() || 
-					!m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()) )
+					(!m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()) && !m_pPlayer->GetDiplomacyAI()->IsPlayerAgreeNotToDig(pLoopPlot->getOwner())) )
 				{
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 					newTarget.SetTargetX(pLoopPlot->getX());

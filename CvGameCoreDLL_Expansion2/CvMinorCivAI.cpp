@@ -5237,7 +5237,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 	if(IsPeaceBlocked(eTeam))
 	{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam, false, GetPlayer()->GetID());
+		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam, true, GetPlayer()->GetID());
 #else
 		GET_TEAM(GetPlayer()->getTeam()).declareWar(eTeam);
 #endif
@@ -11855,7 +11855,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			if(kNewAllyTeam.isAtWar(eLoopTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			{
-				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
+				kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
 			}
 #else
 				kOurTeam.declareWar(eLoopTeam);
@@ -17222,7 +17222,7 @@ void CvMinorCivAI::DoElection()
 					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
 					
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
+					//GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 #if defined(MOD_EVENTS_ESPIONAGE)
 				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();

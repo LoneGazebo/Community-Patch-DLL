@@ -195,6 +195,7 @@ public:
 	int GetFoodKept() const;
 	bool IsAirlift() const;
 	int GetAirModifier() const;
+	int GetAirModifierGlobal() const;
 	int GetNukeModifier() const;
 	int GetNukeExplosionRand() const;
 	int GetWorkerSpeedModifier() const;
@@ -703,6 +704,7 @@ private:
 	int m_iFoodKept;
 	bool m_bAirlift;
 	int m_iAirModifier;
+	int m_iAirModifierGlobal;
 	int m_iNukeModifier;
 	int m_iNukeExplosionRand;
 	int m_iWorkerSpeedModifier;

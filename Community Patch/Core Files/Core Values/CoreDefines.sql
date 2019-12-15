@@ -300,32 +300,6 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', '10';
 
--- Defensive Pact Values
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_DP_WITH_FRIEND', '-5';
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_DP_WITH_ENEMY', '10';
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_DP', '-10';
-
--- Open Borders Values
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_OPEN_BORDERS_MUTUAL', '-12';
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_OPEN_BORDERS_US', '-8';
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'OPINION_WEIGHT_OPEN_BORDERS_THEM', '-4';
-
 -- Open Borders Trade Gold Value (halved if not mutual)
 INSERT INTO Defines (
 Name, Value)
@@ -381,10 +355,6 @@ SELECT 'BALANCE_MARRIAGE_GP_RATE', '15';
 UPDATE Defines
 SET Value = '32'
 WHERE Name = 'DOF_THRESHOLD';
-
-UPDATE Defines
-SET Value = '5'
-WHERE Name = 'DEAL_VALUE_PER_OPINION_WEIGHT';
 
 UPDATE Defines
 SET Value = '1400'

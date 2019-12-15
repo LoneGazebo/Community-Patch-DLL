@@ -754,6 +754,18 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 
+			-- RoughAttackModifier
+			iModifier = pMyUnit:OpenFromModifier() + pMyUnit:RoughFromModifier();
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			elseif (iModifier ~= 0) then
+				bonusSum = bonusSum + iModifier;
+				bonusCount = bonusCount + 1;				
+			end
+
 			--NearbyPromotion Unit that gives a combat bonus
 			iModifier = pMyUnit:GetGiveCombatModToUnit();
 			if (pMyUnit:GetGiveCombatModToUnit() ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1813,6 +1825,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 			
+			-- RoughAttackModifier
+			iModifier = pMyUnit:OpenFromModifier() + pMyUnit:RoughFromModifier();
+
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			elseif (iModifier ~= 0) then
+				bonusSum = bonusSum + iModifier;
+				bonusCount = bonusCount + 1;				
+			end
+			
 			if (pToPlot:GetFeatureType() ~= -1) then
 			
 				-- FeatureAttackModifier
@@ -2527,6 +2552,19 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 				end
 	
+				-- RoughAttackModifier
+				iModifier = pTheirUnit:OpenFromModifier() + pTheirUnit:RoughFromModifier();
+
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;				
+				end
+	
 -- COMMUNITY PATCH CHANGE	
 		
 				-- CombatBonusVsHigherPop
@@ -3036,6 +3074,20 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;			
 			end
+		end
+
+		
+		-- RoughAttackModifier
+		iModifier = theirUnit:OpenFromModifier() + theirUnit:RoughFromModifier();
+
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				bonusCount = bonusCount + 1;
+		elseif (iModifier ~= 0) then
+			bonusSum = bonusSum + iModifier;
+			bonusCount = bonusCount + 1;				
 		end
 
 		-- CapitalDefenseModifier

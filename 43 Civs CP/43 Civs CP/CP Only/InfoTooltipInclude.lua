@@ -1044,7 +1044,7 @@ function GetMoodInfo(iOtherPlayer)
 	--[[if (pActivePlayer:IsDoF(iOtherPlayer)) then
 		strInfo = strInfo .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DOF") .. "[NEWLINE]";
 	end]]--
-	--[[if (pActivePlayer:IsPlayerDoFwithAnyFriend(iOtherPlayer)) then		-- Human has a mutual friend with the AI
+	--[[if (pActivePlayer:IsPlayerDoFWithAnyFriend(iOtherPlayer)) then		-- Human has a mutual friend with the AI
 		strInfo = strInfo .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_MUTUAL_DOF") .. "[NEWLINE]";
 	end]]--
 	--[[if (pActivePlayer:IsPlayerDenouncedEnemy(iOtherPlayer)) then		-- Human has denounced an enemy of the AI
@@ -1085,7 +1085,7 @@ function GetMoodInfo(iOtherPlayer)
 	--[[if (pOtherPlayer:IsDenouncedPlayer(iActivePlayer)) then
 		strInfo = strInfo .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DENOUNCED_BY_THEM") .. "[NEWLINE]";
 	end]]--
-	--[[if (pOtherPlayer:IsPlayerDoFwithAnyEnemy(iActivePlayer)) then
+	--[[if (pOtherPlayer:IsPlayerDoFWithAnyEnemy(iActivePlayer)) then
 		strInfo = strInfo .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_HUMAN_DOF_WITH_ENEMY") .. "[NEWLINE]";
 	end]]--
 	--[[if (pOtherPlayer:IsPlayerDenouncedFriend(iActivePlayer)) then

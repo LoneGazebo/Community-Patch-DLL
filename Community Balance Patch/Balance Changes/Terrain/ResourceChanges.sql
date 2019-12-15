@@ -237,6 +237,14 @@ VALUES
 	UPDATE Builds
 	SET PrereqTech = 'TECH_COMBUSTION'
 	WHERE Type = 'BUILD_WELL';
+	
+	UPDATE Resources
+	SET TechReveal = 'TECH_COMBUSTION'
+	WHERE Type = 'RESOURCE_OIL';
+
+	UPDATE Resources
+	SET TechCityTrade = 'TECH_COMBUSTION'
+	WHERE Type = 'RESOURCE_OIL';
 
 	-- Stone good for Ancient and Classical wonders
 	UPDATE Resources

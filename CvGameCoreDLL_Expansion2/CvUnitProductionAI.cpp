@@ -526,9 +526,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 								}
 							}
 						}
+						//we should really be building as many resource units as we can...
 						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 						{
-							iResourceBonus += (kPlayer.getNumResourceAvailable(eResourceLoop, false) - pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop)) * 10;
+							iResourceBonus += max(40, (kPlayer.getNumResourceAvailable(eResourceLoop, false) - pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop)) * 40);
 						}
 					}
 				}
@@ -1710,9 +1711,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += 300;
 			}
 
+			//slight bump in value for ranged units, to counteract some other elements.
+			if (pkUnitEntry->GetRangedCombat() > 0)
+			{
+				iBonus += (pkUnitEntry->GetRangedCombat() / 2);
+			}
+
 			if (kPlayer.GetDiversity(eDomain) == (int)pkUnitEntry->GetDefaultUnitAIType())
 			{
-				iBonus += 100;
+				//special case for paradroppers, we don't want too many
+				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_PARADROP)
+					iBonus += 50;
+				else
+					iBonus += 100;
 			}
 
 			if (eDomain == DOMAIN_LAND)

@@ -2806,9 +2806,35 @@
 			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
 		</Row>
 		
-		<!-- Opinion "Modifier" for Human Teammate -->
-		<Row Tag="TXT_KEY_DIPLO_OPINION_HUMAN_TEAMMATE">
+		<!-- Opinion Indicator for Human Teammate -->
+		<Row Tag="TXT_KEY_DIPLO_HUMAN_TEAMMATE">
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Show True Approach Debug Text -->
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
+			<Text>True Approach: War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR">
+			<Text>True Approach: Planning War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE">
+			<Text>True Approach: Hostile</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE">
+			<Text>True Approach: Deceptive</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED">
+			<Text>True Approach: Guarded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID">
+			<Text>True Approach: Afraid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY">
+			<Text>True Approach: Friendly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
+			<Text>True Approach: Neutral</Text>
 		</Row>
 		
 		<!-- Research Agreement Diplo Mod -->
@@ -2864,9 +2890,19 @@
 			<Text>[COLOR_POSITIVE_TEXT]We are vassals of the same master![ENDCOLOR]</Text>
 		</Row>
 		
-		<!-- Stolen Artifacts Mod -->
+		<!-- Stolen Artifacts Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_STOLEN_ARTIFACTS">
-			<Text>[COLOR_NEGATIVE_TEXT]You stole their cultural artifacts![ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]You excavated their cultural artifacts![ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Plotted Against Them Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PLOTTED_AGAINST_US">
+			<Text>[COLOR_NEGATIVE_TEXT]You were caught plotting against them.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- City-State Coup Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_PERFORMED_COUP">
+			<Text>[COLOR_NEGATIVE_TEXT]Your spies lowered their City-State Influence in a coup d'état.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aggressive Posture -->
@@ -2892,6 +2928,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
+			<Text> (They are bloodthirsty warmongers!)</Text>
+		</Row>
+		
+		<!-- :) -->
+		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
+			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Defense Pact Offer -->
@@ -5337,6 +5383,10 @@
 			<Text>While attacking {@4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_UNIT_BY_AIR_INTERCEPTED">
+			<Text>An enemy {@1_IntUnitName} intercepted your {@2_AttUnitName} ({3_Num} damage)!</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
 			<Text>The City of {@1_CityName} ({3_Num} damage) was bombarded by an enemy {@2_EnUName}!</Text>
 		</Row>
@@ -6002,7 +6052,7 @@
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS">
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS">
 			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
 		</Row>
 
