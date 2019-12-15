@@ -1619,7 +1619,15 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 1)
 				{
 					bBad = true;
-					return 5;
+					
+					if (GET_PLAYER(eOtherPlayer).isHuman())
+					{
+						return 5;
+					}
+					else
+					{
+						return 0;
+					}
 				}
 			}
 			if (!bBad)
