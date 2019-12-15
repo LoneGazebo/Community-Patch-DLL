@@ -2811,6 +2811,20 @@
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Base Opinion Mod -->
+		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
+			<Text>[COLOR_POSITIVE_TEXT]They instinctively like you![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_BASE_OPINION">
+			<Text>[COLOR_POSITIVE_TEXT]They instinctively view you more favorably.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_BASE_OPINION">
+			<Text>[COLOR_NEGATIVE_TEXT]They instinctively view you as a competitor.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION">
+			<Text>[COLOR_NEGATIVE_TEXT]They instinctively hate you![ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Show True Approach Debug Text -->
 		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
 			<Text>True Approach: War</Text>

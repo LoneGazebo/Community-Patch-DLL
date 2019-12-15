@@ -915,6 +915,12 @@ SET Text = 'Very well. I hope you may choke on it!'
 WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_TRIBUTE_YES_ANGRY';
 
 
+-- Refuse Demand (Neutral)
+UPDATE Language_en_US
+SET Text = 'Foolish Jackal! You would do well to go to Egypt, where such as you are worshipped. Here, you get nothing.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_NO_NEUTRAL';
+
+
 -- Refuse Demand (Hostile)
 UPDATE Language_en_US
 SET Text = 'You dare insult me in such a manner? If you want something so badly, then do your best to come and take it.'

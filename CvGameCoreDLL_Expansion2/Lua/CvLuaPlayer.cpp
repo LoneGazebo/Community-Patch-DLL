@@ -12549,6 +12549,40 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		
 		aOpinions.push_back(kOpinion);
 	}
+	
+	// Base opinion score?
+	iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
+	if (iValue != 0)
+	{
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if ((MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
+#else
+		if (pDiploAI->IsShowBaseOpinionScore() || pDiploAI->IsAlwaysShowTrueApproaches())
+#endif
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			
+			if (iValue >= /*20*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
+			}
+			else if (iValue > 0)
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
+			}
+			else if (iValue <= /*-20*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
+			}
+			else
+			{
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GOOD_BASE_OPINION");
+			}
+			
+			aOpinions.push_back(kOpinion);
+		}
+	}
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
