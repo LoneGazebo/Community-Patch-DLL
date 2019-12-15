@@ -20949,7 +20949,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
-
+				DoUpdateTrueApproachTowardsUsGuesses();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+				
 				LogDoF(ePlayer);
 			}
 		}
@@ -20981,6 +20983,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				DoUpdateTrueApproachTowardsUsGuesses();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
 
 				LogDoF(ePlayer);
 			}
@@ -21014,6 +21018,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				DoUpdateTrueApproachTowardsUsGuesses();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
 
 				LogDoF(ePlayer);
 			}
@@ -21046,7 +21052,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateOpinions();
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();				
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				DoUpdateTrueApproachTowardsUsGuesses();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();			
 
 				LogDoF(ePlayer);
 			}
@@ -21081,6 +21089,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				DoUpdateMajorCivApproaches();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				DoUpdateTrueApproachTowardsUsGuesses();
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
 
 				LogDoF(ePlayer);
 			}
@@ -21136,14 +21146,28 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 
 		// Update opinions and approaches
-		DoUpdateOpinions();
-		DoUpdateMajorCivApproaches();
-		
 		if (!GET_PLAYER(ePlayer).isHuman())
 		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+			
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
+			{
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_GUARDED);
+			}
+			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR)
+			{
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarFaceWithPlayer(eMyPlayer) != WAR_FACE_HOSTILE)
+				{
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWarFaceWithPlayer(eMyPlayer, WAR_FACE_GUARDED);
+				}
+			}
 		}
+		
+		DoUpdateTrueApproachTowardsUsGuesses();
+		DoUpdateOpinions();
+		DoUpdateMajorCivApproaches();
 		
 		// Other players' reactions
 		PlayerTypes eLoopPlayer;
@@ -30131,6 +30155,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}		
 #endif
 				// Update opinions and approaches
+				DoUpdateTrueApproachTowardsUsGuesses();
 				DoUpdateOpinions();
 				DoUpdateMajorCivApproaches();
 			}
@@ -30765,6 +30790,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}		
 #endif
 			// Update opinions and approaches
+			DoUpdateTrueApproachTowardsUsGuesses();
 			DoUpdateOpinions();
 			DoUpdateMajorCivApproaches();
 
@@ -30835,6 +30861,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			
 			// Update opinions and approaches
+			DoUpdateTrueApproachTowardsUsGuesses();
 			DoUpdateOpinions();
 			DoUpdateMajorCivApproaches();
 			
@@ -35723,12 +35750,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eMyPlayer, 0);
 	
 	// Update opinions and approaches
-	if (!GetPlayer()->isHuman())
-	{
-		DoUpdateOpinions();
-		DoUpdateMajorCivApproaches();
-	}
-	
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateOpinions();
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 	
@@ -35739,6 +35760,13 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eMyPlayer, /*bHideTrueFeelings*/ false) > MAJOR_CIV_APPROACH_GUARDED)
 	{
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMajorCivApproach(eMyPlayer, MAJOR_CIV_APPROACH_GUARDED);
+	}
+	
+	if (!GetPlayer()->isHuman())
+	{
+		DoUpdateTrueApproachTowardsUsGuesses();
+		DoUpdateOpinions();
+		DoUpdateMajorCivApproaches();
 	}
 	
 	// Other players' reactions
