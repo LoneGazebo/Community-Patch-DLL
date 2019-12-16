@@ -720,6 +720,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 					{
 						iValueDemanded += 75;
 					}
+					break;
 				}
 				
 				// AI will never agree to give these up
