@@ -19071,7 +19071,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 			if (eAttackedPlayer == eMyPlayer)
 			{
 				ChangeNumWarsFought(ePlayer, 1);
-				ChangeNumWarsDeclaredOnUs(ePlayer, 1);
+				
+				if (!bDefensivePact)
+					ChangeNumWarsDeclaredOnUs(ePlayer, 1);
 				
 				// Only stuff for major civs
 				if (!GET_PLAYER(ePlayer).isMinorCiv())
