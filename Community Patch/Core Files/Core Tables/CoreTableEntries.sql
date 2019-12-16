@@ -941,6 +941,12 @@ ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFA
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
 
+-- Embarking Costs One Movement Point
+ALTER TABLE UnitPromotions ADD COLUMN 'EmbarkFlatCost' BOOLEAN DEFAULT 0;
+
+-- Disembarking Costs One Movement Point
+ALTER TABLE UnitPromotions ADD COLUMN 'DisembarkFlatCost' BOOLEAN DEFAULT 0;
+
 -- Admirals can use their repair fleet action multiple times before expending.
 ALTER TABLE UnitPromotions ADD COLUMN 'NumRepairCharges' INTEGER DEFAULT 0;
 

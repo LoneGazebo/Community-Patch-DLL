@@ -189,6 +189,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iLandAirDefenseValue(0),
 	m_iDamageReductionCityAssault(0),
 	m_bMountainsDoubleMove(false),
+	m_bEmbarkFlatCost(false),
+	m_bDisembarkFlatCost(false),
 	m_bMountedOnly(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -449,6 +451,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iLandAirDefenseValue = kResults.GetInt("LandAirDefenseBonus");
 	m_iDamageReductionCityAssault = kResults.GetInt("DamageReductionCityAssault");
 	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
+	m_bEmbarkFlatCost = kResults.GetBool("EmbarkFlatCost");
+	m_bDisembarkFlatCost = kResults.GetBool("DisembarkFlatCost");
 	m_bMountedOnly = kResults.GetBool("MountedOnly");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -2153,6 +2157,16 @@ int CvPromotionEntry::GetDamageReductionCityAssault() const
 bool CvPromotionEntry::IsMountainsDoubleMove() const
 {
 	return m_bMountainsDoubleMove;
+}
+
+bool CvPromotionEntry::IsEmbarkFlatCost() const
+{
+	return m_bEmbarkFlatCost;
+}
+
+bool CvPromotionEntry::IsDisembarkFlatCost() const
+{
+	return m_bDisembarkFlatCost;
 }
 
 bool CvPromotionEntry::IsMountedOnly() const
