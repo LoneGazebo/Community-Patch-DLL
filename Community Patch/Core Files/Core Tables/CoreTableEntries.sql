@@ -266,7 +266,7 @@ ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
 -- Improvement requires fresh water, coast, or river adjacency to make valid.
-ALTER TABLE Improvements ADD COLUMN 'AnyBodyOfWaterMakesValid' BOOLEAN DEFAULT 0;
+ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0;
 
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
