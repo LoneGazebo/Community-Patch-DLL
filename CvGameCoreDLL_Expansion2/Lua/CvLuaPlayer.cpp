@@ -12832,6 +12832,49 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)	
+		// Timer to avoid backstabbing penalties
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (pDiploAI->IsDoFBroken(eWithPlayer) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
+#else
+		if (pDiploAI->IsDoFBroken(eWithPlayer) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()))
+#endif
+		{
+			if (!pDiploAI->IsFriendDenouncedUs(eWithPlayer) && !pDiploAI->IsFriendDeclaredWarOnUs(eWithPlayer))
+			{
+				int iTurn = GC.getGame().getGameTurn();
+				iTurn -= pDiploAI->GetDoFBrokenTurn(eWithPlayer);
+				if (iTurn < 10)
+				{	
+					iValue = (10 - iTurn);
+					Opinion kOpinion;
+					kOpinion.m_iValue = 0;
+					
+					if (!pDiploAI->IsFriendDeclaredWarOnUs(eWithPlayer))
+					{
+						if (!pDiploAI->IsFriendDenouncedUs(eWithPlayer))
+						{
+							kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS", iValue);
+						}
+						else
+						{
+							kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_WAR_ONLY_TURNS", iValue);
+						}
+					}
+					else
+					{
+						if (!pDiploAI->IsFriendDenouncedUs(eWithPlayer))
+						{
+							kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS", iValue);
+						}
+					}
+					
+					aOpinions.push_back(kOpinion);
+				}
+			}
+		}
+#endif
 		
 		iValue = pDiploAI->GetResearchAgreementScore(eWithPlayer);
 		if (iValue != 0)

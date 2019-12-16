@@ -3043,7 +3043,16 @@
 		</Row>
 		<!-- Diplo Modifier Texts-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
-			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
+			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.[NEWLINE][NEWLINE]If you denounce or declare war on this player within [COLOR_NEGATIVE_TEXT]10[ENDCOLOR] turns of cancelling your Declaration of Friendship, you will receive a diplomatic penalty for backstabbing them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS">
+			<Text>If you denounce them or declare war on them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_WAR_ONLY_TURNS">
+			<Text>If you declare war on them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS">
+			<Text>If you denounce them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
@@ -4045,13 +4054,13 @@
 			<Text>The war against {1_PlayerName:textkey} has come. Shall we?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_2">
-			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.</Text>
+			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_3">
-			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.</Text>
+			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_4">
-			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.</Text>
+			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_ENEMY_2">
 			<Text>Time and again, you have shown to be my enemy, not my friend. I suppose it is only logical that I consider you as such.</Text>

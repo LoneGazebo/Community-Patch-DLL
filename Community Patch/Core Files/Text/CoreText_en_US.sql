@@ -1079,6 +1079,10 @@ SET Text = 'Our Declaration of Friendship must end.'
 WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US';
 
 UPDATE Language_en_US
+SET Text = 'Your actions are unforgivable. There can never be reconciliation between our two nations.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)'
+WHERE Tag = 'TXT_KEY_NOW_UNFORGIVABLE_1';
+
+UPDATE Language_en_US
 SET Text = 'I did not want things to end up like this, but I cannot overlook your warmongering. Consider our Declaration of Friendship ended.'
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_WARMONGER_1';
 

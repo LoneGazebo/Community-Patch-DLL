@@ -113,7 +113,12 @@ public:
 	MajorCivOpinionTypes GetMajorCivOpinion(PlayerTypes ePlayer) const;
 	void SetMajorCivOpinion(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 	int GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const;
+	
+	// Our guess as to another player's opinion towards us
+	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer);
+	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 
+	//void DoUpdateOpinionTowardsUsGuesses();
 	void DoEstimateOtherPlayerOpinions();
 
 	MajorCivOpinionTypes GetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
@@ -152,7 +157,8 @@ public:
 	void SetTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
 	void ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
 
-	void DoUpdateTrueApproachTowardsUsGuesses();
+	void DoUpdateTrueApproachTowardsUsGuesses(bool bNoIncrement = false);
+	//void DoEstimateOtherPlayerApproaches();
 
 	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
 	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
@@ -295,6 +301,10 @@ public:
 	int GetNumWarsFought(PlayerTypes ePlayer) const;
 	void SetNumWarsFought(PlayerTypes ePlayer, int iValue);
 	void ChangeNumWarsFought(PlayerTypes ePlayer, int iChange);
+	
+	int GetNumWarsDeclaredOnUs(PlayerTypes ePlayer) const;
+	void SetNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iValue);
+	void ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange);
 
 	// Military Strength: How strong is ePlayer compared to US?
 	StrengthTypes GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const;
@@ -512,7 +522,7 @@ public:
 	// Plot Buying Aggressive Posture: How aggressively is ePlayer buying land near us?
 	AggressivePostureTypes GetPlotBuyingAggressivePosture(PlayerTypes ePlayer) const;
 	void SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
-	void DoUpdatePlotBuyingAggressivePosture();
+	void DoUpdatePlotBuyingAggressivePostures();
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	// Victory Block
@@ -545,6 +555,11 @@ public:
 	DisputeLevelTypes GetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
 	void SetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateEstimateOtherPlayerVictoryDisputeLevels();
+	
+	// Victory Block
+	//BlockLevelTypes GetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
+	//void SetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, BlockLevelTypes eBlockLevel);
+	//void DoUpdateEstimateOtherPlayerVictoryBlockLevels();
 
 	// Wonder Dispute
 	DisputeLevelTypes GetWonderDisputeLevel(PlayerTypes ePlayer) const;
@@ -1375,6 +1390,10 @@ public:
 	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
 	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
+	
+	int GetNumCitiesCaptured(PlayerTypes ePlayer) const;
+	void ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesCaptured(PlayerTypes ePlayer, int iValue);
 
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
@@ -1678,6 +1697,7 @@ private:
 		char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
 		char m_aeApproachScratchPad[REALLY_MAX_PLAYERS];
 		char m_aeMinorCivApproach[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
+		char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
 		char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
 		char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 		short m_aeWantPeaceCounter[REALLY_MAX_PLAYERS];
@@ -1703,6 +1723,7 @@ private:
 		short m_aiPlayerNumTurnsSinceCityCapture[REALLY_MAX_PLAYERS];
 #endif
 		short m_aiNumWarsFought[REALLY_MAX_PLAYERS];
+		short m_aiNumWarsDeclaredOnUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerMilitaryStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerEconomicStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerTargetValue[REALLY_MAX_PLAYERS];
@@ -1779,6 +1800,7 @@ private:
 
 		short m_paiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
+		short m_aiNumCitiesCaptured[REALLY_MAX_PLAYERS];
 		short m_aiNumTimesRazed[REALLY_MAX_PLAYERS];
 		short m_aiNumTradeRoutesPlundered[REALLY_MAX_PLAYERS];
 		bool m_abPlayerEverMadeBorderPromise[MAX_MAJOR_CIVS];
@@ -2014,6 +2036,7 @@ private:
 	char* m_paeMajorCivApproach;
 	char* m_paeApproachScratchPad;
 	char* m_paeMinorCivApproach;
+	char* m_paeOpinionTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuessCounter;
 
@@ -2054,6 +2077,7 @@ private:
 	short* m_paiWarDamageValue;
 #endif
 	short* m_paiNumWarsFought;
+	short* m_paiNumWarsDeclaredOnUs;
 
 	char* m_paePlayerMilitaryStrengthComparedToUs;
 	char* m_paePlayerEconomicStrengthComparedToUs;
@@ -2135,6 +2159,7 @@ private:
 	short* m_paiNegativeArchaeologyPoints;
 
 #if defined(MOD_BALANCE_CORE)
+	short* m_paiNumCitiesCaptured;
 	short* m_paiNumTimesRazed;
 	short* m_paiNumTradeRoutesPlundered;
 	short* m_paiDemandMadeTurn;
