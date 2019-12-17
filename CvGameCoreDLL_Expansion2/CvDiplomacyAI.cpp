@@ -2702,6 +2702,13 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	DoUpdatePlotBuyingAggressivePostures();
 	DoTestPromises(); // Has any player gone back on any promises he made?
 	
+	// Our guess as to other players' diplomatic stances
+	//DoUpdateOpinionTowardsUsGuesses();
+	DoUpdateTrueApproachTowardsUsGuesses();
+	DoEstimateOtherPlayerOpinions();
+	//DoEstimateOtherPlayerApproaches();
+	LogOtherPlayerGuessStatus();
+	
 	/*
 	if (!GetPlayer()->isHuman())
 	{
@@ -2717,12 +2724,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	*/
 
 	// Player Opinion & Approach
-	//DoUpdateOpinionTowardsUsGuesses();
-	DoUpdateTrueApproachTowardsUsGuesses();
-	DoEstimateOtherPlayerOpinions();
-	//DoEstimateOtherPlayerApproaches();
-	LogOtherPlayerGuessStatus();
-	
 	DoUpdateOpinions();
 	DoUpdateMajorCivApproaches();
 	DoUpdateMinorCivApproaches();
