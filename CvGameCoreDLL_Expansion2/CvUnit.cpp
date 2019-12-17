@@ -174,7 +174,8 @@ CvUnit::CvUnit() :
 	, m_iHillsDoubleMoveCount("CvUnit::m_iHillsDoubleMoveCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
-	, m_iFreeEmbarkMoveCount("CvUnit::m_iFreeEmbarkMoveCount", m_syncArchive)
+	, m_iEmbarkFlatCostCount("CvUnit::m_iEmbarkFlatCostCount", m_syncArchive)
+	, m_iDisembarkFlatCostCount("CvUnit::m_iDisembarkFlatCostCount", m_syncArchive)
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 	, m_iAoEDamageOnMove("CvUnit::m_iAoEDamageOnMove", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
@@ -1458,7 +1459,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iHillsDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
-	m_iFreeEmbarkMoveCount = 0;
+	m_iEmbarkFlatCostCount = 0;
+	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
 	m_iAoEDamageOnMove = 0;
 	m_iSplashDamage = 0;
@@ -21875,23 +21877,43 @@ void CvUnit::changeMountainsDoubleMoveCount(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getFreeEmbarkMoveCount() const
+int CvUnit::getEmbarkFlatCostCount() const
 {
 	VALIDATE_OBJECT
-		return m_iFreeEmbarkMoveCount;
+		return m_iEmbarkFlatCostCount;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::isFreeEmbark() const
+bool CvUnit::isEmbarkFlatCost() const
 {
 	VALIDATE_OBJECT
-		return (getFreeEmbarkMoveCount() > 0);
+		return (getEmbarkFlatCostCount() > 0);
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::changeFreeEmbarkMoveCount(int iChange)
+void CvUnit::changeEmbarkFlatCostCount(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iFreeEmbarkMoveCount = (m_iFreeEmbarkMoveCount + iChange);
-	CvAssert(getFreeEmbarkMoveCount() >= 0);
+		m_iEmbarkFlatCostCount = (m_iEmbarkFlatCostCount + iChange);
+	CvAssert(getEmbarkFlatCostCount() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getDisembarkFlatCostCount() const
+{
+	VALIDATE_OBJECT
+		return m_iDisembarkFlatCostCount;
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::isDisembarkFlatCost() const
+{
+	VALIDATE_OBJECT
+		return (getDisembarkFlatCostCount() > 0);
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeDisembarkFlatCostCount(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iDisembarkFlatCostCount = (m_iDisembarkFlatCostCount + iChange);
+	CvAssert(getDisembarkFlatCostCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26846,7 +26868,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
-		changeFreeEmbarkMoveCount((thisPromotion.IsFreeEmbark()) ? iChange : 0);
+		changeEmbarkFlatCostCount((thisPromotion.IsEmbarkFlatCost()) ? iChange : 0);
+		changeDisembarkFlatCostCount((thisPromotion.IsDisembarkFlatCost()) ? iChange : 0);
 		ChangeCaptureDefeatedEnemyChance((thisPromotion.GetCaptureDefeatedEnemyChance()) * iChange);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);

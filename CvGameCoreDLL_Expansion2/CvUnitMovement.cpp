@@ -93,7 +93,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		if (!bToEmbark && bFromEmbark)
 		{
 			// Is the unit from a civ that can disembark for just 1 MP?
-			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+			// Does it have a promotion to do so?
+			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isDisembarkFlatCost())
 				bCheapEmbarkStateChange = true;
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -113,7 +114,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		if (bToEmbark && !bFromEmbark)
 		{
 			// Is the unit from a civ that can embark for just 1 MP?
-			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+			// Does it have a promotion to do so?
+			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isEmbarkFlatCost())
 				bCheapEmbarkStateChange = true;
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -541,10 +543,6 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
 	{
 		iModifier *= 2;
-	}
-	else if (pPlot->needsEmbarkation(pUnit) && pUnit->isFreeEmbark())
-	{
-		iModifier = 0;
 	}
 
 	return iModifier;
