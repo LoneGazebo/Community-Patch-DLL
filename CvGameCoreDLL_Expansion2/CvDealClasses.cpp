@@ -3335,7 +3335,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				{
 					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 					{
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 					}
@@ -4052,7 +4052,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 							}
@@ -4345,7 +4345,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 							}
