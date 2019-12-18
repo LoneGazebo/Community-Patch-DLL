@@ -47617,8 +47617,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
-		if (bNewContinent && !pPlot->isCoastalLand())
-			iScale = 1;
+		if (bNewContinent)
+		{
+			if (!pPlot->isCoastalLand())
+				iScale = 1;
+		}
+		else
+		{
+			//on a settled continent we want our territory to be contiguous, unless there is lots of free space
+			CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pPlot);
+			if (pClosestCity && pClosestCity->getOwner() != GetID() && GET_PLAYER(pClosestCity->getOwner()).isMajorCiv())
+			{
+				if (GC.getGame().GetClosestCityDistanceInTurns(pPlot)*2 < GetCityDistanceInEstimatedTurns(pPlot))
+					iScale = 0;
+			}
+		}
 
 		//if we want offshore expansion, distance is less important
 		if (bWantOffshore && bOffshore)
