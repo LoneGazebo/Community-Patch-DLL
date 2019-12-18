@@ -1048,7 +1048,14 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 		CvUnit* pkUnit = GET_PLAYER(kTradeConnection.m_eOriginOwner).getUnit(kTradeConnection.m_unitID);
 		if (pkUnit)
 		{
+			//remember some things
+			CvPlot* pPlot = pkUnit->plot();
+			TeamTypes eOwnerTeam = pkUnit->getTeam();
+
 			pkUnit->kill(false);
+
+			//force a visibility update so that it's possible to plunder a traderoute with impunity
+			pPlot->flipVisibility(eOwnerTeam);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)

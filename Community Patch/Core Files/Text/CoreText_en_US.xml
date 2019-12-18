@@ -5406,6 +5406,10 @@
 			<Text>While attacking {@4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_UNIT_BY_AIR_INTERCEPTED">
+			<Text>An enemy {@1_IntUnitName} intercepted your {@2_AttUnitName} ({3_Num} damage)!</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
 			<Text>The City of {@1_CityName} ({3_Num} damage) was bombarded by an enemy {@2_EnUName}!</Text>
 		</Row>

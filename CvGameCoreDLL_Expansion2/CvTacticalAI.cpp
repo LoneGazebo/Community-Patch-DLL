@@ -2905,7 +2905,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			//here we have more advanced logic and allow some movement if it's safe
 			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2);
 
-			if (pGarrison->CanUpgradeRightNow(false))
+			if (pGarrison->CanUpgradeRightNow(false) && pGarrison->GetDanger()==0)
 			{
 				CvUnit* pNewUnit = pGarrison->DoUpgrade();
 				UnitProcessed(pNewUnit->GetID());
@@ -8156,7 +8156,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 
 			//if the garrison is (almost) unhurt, we can be a bit more aggressive and assume we'll heal up next turn
 			int iHealRate = pUnit->healRate(pUnit->plot());
-			if (pUnit->getDamage() < iHealRate/2 && iDamageReceived < pUnit->GetMaxHitPoints()/2)
+			if (pUnit->getDamage() < iHealRate/2 && iDamageReceived < pUnit->GetMaxHitPoints()/2 && bAllowMovement)
 				iDamageReceived = max(0, iDamageReceived - iHealRate);
 
 			int iScore = (1000 * iDamageDealt) / (iDamageReceived + 10);
@@ -8180,6 +8180,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 
 	std::sort(meleeTargets.begin(), meleeTargets.end());
 
+	//we will never do attacks with negative scores!
 	if (meleeTargets.back().score > iScoreThreshold)
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -8397,13 +8398,13 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		{
 			iDanger -= 5;
 			if (!pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
-			iDanger -= 5;
+				iDanger -= 5;
 		}
 
 		//try to go where our friends are
 		int iFriendlyUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN);
 		iDanger -= (iFriendlyUnitsAdjacent * 5);
-		
+
 		//don't go where our foes are
 		int iEnemyUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), NULL, true);
 		iDanger += (iEnemyUnitsAdjacent * 5);

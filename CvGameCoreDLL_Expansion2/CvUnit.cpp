@@ -407,7 +407,7 @@ CvUnit::CvUnit() :
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
-	, m_iAdjacentCityDefenseMod("CvUnit::m_iAdjacentCityDefenseMod", m_syncArchive)
+	, m_iDummy("CvUnit::m_iDummy", m_syncArchive) // <------------------------------------- reuse me
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -1617,7 +1617,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
-	m_iAdjacentCityDefenseMod = 0;
+	m_iDummy = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -2315,7 +2315,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
 	//important - zoc has probably changed
-	if (ePlayer != NO_PLAYER)
+	if (ePlayer != NO_PLAYER && IsCombatUnit())
 		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
 #endif
 
@@ -14153,9 +14153,6 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 
 	testPromotionReady();
 
-	//clear our cache, promotions change things!
-	m_lastStrengthModifiers.clear();
-
 	if(IsSelected())
 	{
 		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
@@ -15811,7 +15808,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
-		iModifier += GetAreaEffectBonus(AE_GREAT_GENERAL, pBattlePlot);
+		iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pBattlePlot);
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -16209,7 +16206,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += cityAttackModifier();
 
 			// Nearby unit sapping this city
-			iModifier += GetAreaEffectBonus(AE_SAPPER, pFromPlot, pToPlot->getPlotCity());
+			iModifier += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
 
 #if defined(MOD_BALANCE_CORE)
 			//bonus for attacking same unit over and over in a turn?
@@ -16634,7 +16631,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Great General nearby
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
-		iModifier += GetAreaEffectBonus(AE_GREAT_GENERAL, pMyPlot);
+		iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
 	}
 
 	// sometimes we want to ignore the finer points
@@ -16893,7 +16890,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += cityAttackModifier();
 
 		// Nearby unit sapping this city
-		iModifier += GetAreaEffectBonus(AE_SAPPER, pMyPlot, pCity);
+		iModifier += kPlayer.GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pOtherPlot);
 
 		if (bAttacking)
 		{
@@ -23390,7 +23387,7 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 			return false;
 	}
 
-	return (GetAreaEffectBonus(AE_SIEGETOWER, pAtPlot, NULL, pIgnoreThisGeneral) > 0);
+	return (GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_SIEGETOWER, getDomainType(), pAtPlot, pIgnoreThisGeneral) > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -23405,84 +23402,8 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 			return false;
 	}
 	
-	return (GetAreaEffectBonus(AE_GREAT_GENERAL, pAtPlot, NULL, pIgnoreThisGeneral) > 0);
+	return (GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pAtPlot, pIgnoreThisGeneral) > 0);
 }
-
-int CvUnit::GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot, const CvCity* pTargetCity, const CvUnit* pIgnoreThisUnit) const
-{
-	VALIDATE_OBJECT
-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-	int iResult = 0;
-
-	if (pAtPlot == NULL)
-	{
-		pAtPlot = plot();
-		if (pAtPlot == NULL)
-			return 0;
-	}
-
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
-	{
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY())>5)
-			continue;
-
-		//exclude this unit!
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit == NULL || pUnit->getDomainType() != getDomainType() || pUnit == this || pUnit == pIgnoreThisUnit)
-			continue;
-
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-		int iEffectRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE() + pUnit->GetAuraRangeChange();
-#else
-		int iEffectRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
-#endif
-
-		//distance check first
-		if (plotDistance(pUnit->getX(), pUnit->getY(), pAtPlot->getX(), pAtPlot->getY()) > iEffectRange)
-			continue;
-
-		switch (eType)
-		{
-			case AE_GREAT_GENERAL:
-			{
-				if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0))
-					iResult = max(iResult, kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
-				break;
-			}
-			case AE_SAPPER:
-			{
-				if (pUnit->IsSapper())
-				{
-					CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
-					if (pTargetCity != NULL && pUnit->isEnemy(pTargetCity->getTeam()))
-					{
-						int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY());
-						if (iDistance < iEffectRange)
-						{
-							iResult = max(iResult, GC.getSAPPED_CITY_ATTACK_MODIFIER());
-						}
-						else if (iDistance == iEffectRange)
-						{
-							iResult = max(iResult, GC.getSAPPED_CITY_ATTACK_MODIFIER()/2);
-						}
-					}
-				}
-				break;
-			}
-			case AE_SIEGETOWER:
-			{
-				if (pUnit->IsCityAttackSupport())
-					return 1;
-				break;
-			}
-		}
-	}
-
-	return iResult;
-}
-
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -24441,18 +24362,6 @@ int CvUnit::GetReligiousPressureModifier() const
 void CvUnit::ChangeReligiousPressureModifier(int iChange)
 {
 	m_iReligiousPressureModifier += iChange;
-}
-
-//	--------------------------------------------------------------------------------
-int CvUnit::GetAdjacentCityDefenseMod() const
-{
-	return m_iAdjacentCityDefenseMod;
-}
-
-//	--------------------------------------------------------------------------------
-void CvUnit::ChangeAdjacentCityDefenseMod(int iChange)
-{
-	m_iAdjacentCityDefenseMod += iChange;
 }
 #endif
 
@@ -26912,7 +26821,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
 		ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
 		ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
-		ChangeAdjacentCityDefenseMod(thisPromotion.GetAdjacentCityDefenseMod() * iChange);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
@@ -27163,6 +27071,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			SetPromotionEverObtained(eIndex, bNewValue);
 		}
 #endif
+
+		//promotion changes may invalidate some caches
+		m_lastStrengthModifiers.clear();
+		GET_PLAYER(getOwner()).UpdateAreaEffectUnit(this);
 	}
 }
 
