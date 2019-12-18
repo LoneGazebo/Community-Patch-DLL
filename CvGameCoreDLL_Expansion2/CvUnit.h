@@ -403,7 +403,7 @@ public:
 	bool rebase(int iX, int iY);
 
 	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
-	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, int iMovesOverride = 0);
+	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, int iMovesOverride = 0) const;
 	bool pillage();
 
 	bool canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false) const;
@@ -982,7 +982,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void setOriginCity(int ID);
-	CvCity* getOriginCity();
+	CvCity* getOriginCity() const;
 #endif
 
 	int getLastMoveTurn() const;

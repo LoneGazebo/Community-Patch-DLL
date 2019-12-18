@@ -2249,10 +2249,15 @@ void CvEconomicAI::DoPlotPurchases()
 	}
 }
 
+//debug flag
+bool g_bNoNewExplorers = false;
 
 /// Determine how our recon efforts are going
 void CvEconomicAI::DoReconState()
 {
+	//debug flag so combat units aren't randomly turned into explorers
+	if (g_bNoNewExplorers)
+		return;
 
 	if (m_pPlayer->isMinorCiv())
 		return;
