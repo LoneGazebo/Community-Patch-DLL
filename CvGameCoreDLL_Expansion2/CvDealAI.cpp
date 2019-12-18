@@ -8301,7 +8301,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		if (iItemValue <= 700)
 			return INT_MAX;
 
-		// If we or our teammates consider them or their teammates untrustworthy, don't consider giving them a map!
+		// If we or our teammates consider them or their teammates untrustworthy or we're hostile towards them, don't consider giving them a map!
 		PlayerTypes eLoopPlayer;
 		PlayerTypes eTeammate;
 		int iPlayerLoop;

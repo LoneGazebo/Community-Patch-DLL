@@ -199,7 +199,7 @@ WHERE Name = 'OPINION_WEIGHT_ADOPTING_MY_RELIGION';
 -- Different Majority Religions Opinion Weight
 -- This is multiplied by the current game era's Diplo Emphasis for Religion.
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '4';
+SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '6';
 
 -- 5
 -- This is multiplied by the current game era's Diplo Emphasis for Late Game Policies.
