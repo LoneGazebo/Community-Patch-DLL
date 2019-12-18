@@ -8322,7 +8322,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 				{
 					eTeammate = (PlayerTypes)iTeammateLoop;
 
-					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
 					{
 						return INT_MAX;
 					}
@@ -8334,10 +8334,10 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
 			case MAJOR_CIV_APPROACH_WAR:
-				iItemValue *= 300;
+				return INT_MAX;
 				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
-				iItemValue *= 250;
+				return INT_MAX;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				iItemValue *= 130;
@@ -8599,7 +8599,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		iItemValue *= 2;
 
-		// If we or our teammates consider them or their teammates untrustworthy, don't consider giving them technology!
+		// If we or our teammates consider them or their teammates untrustworthy or we're hostile towards them, don't consider giving them technology!
 		PlayerTypes eLoopPlayer;
 		PlayerTypes eTeammate;
 		int iPlayerLoop;
@@ -8620,7 +8620,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 				{
 					eTeammate = (PlayerTypes)iTeammateLoop;
 
-					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
 					{
 						return INT_MAX;
 					}

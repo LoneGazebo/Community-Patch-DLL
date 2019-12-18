@@ -13506,6 +13506,9 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 	if (GC.getGame().countMajorCivsAlive() == 2)
 		return true;
 	
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return true;
+	
 	//we don't have a target value for the barbarians ... could change it but that would break savegames
 	if (ePlayer == BARBARIAN_PLAYER)
 		return true;
