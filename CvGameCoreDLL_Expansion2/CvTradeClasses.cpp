@@ -5252,15 +5252,17 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	// do the notification stuff
 	if (pOriginCity && pDestCity)
 	{
+		bool bHumanPlunderer = m_pPlayer->isHuman();
+		
 		// send notification to owner player
 		CvNotifications* pNotifications = GET_PLAYER(eOwningPlayer).GetNotifications();
-		if(pNotifications)
+		if (pNotifications)
 		{
 			Localization::String strSummary;
 			Localization::String strMessage;
 
 			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADER_SUMMARY");
-			if (m_pPlayer->isBarbarian() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eOwningTeam)))
+			if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eOwningTeam)))
 			{
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADER_BARBARIAN");
 				strMessage << pOriginCity->getNameKey();
@@ -5300,7 +5302,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 				Localization::String strMessage;
 
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_SUMMARY");
-				if (m_pPlayer->isBarbarian() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
+				if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_BARBARIANS");
 					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())
