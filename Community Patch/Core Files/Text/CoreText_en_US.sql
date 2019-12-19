@@ -883,13 +883,19 @@ SET Text = 'The following tribute would improve my black humor, greatly increasi
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEMANDTRIBUTE_NEUTRAL';
 
 
+-- Accept Demand (Friendly)
+UPDATE Language_en_US
+SET Text = 'Here. I am nothing but the nightmare of a mad god; what good are such things to me?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_HAPPY';
+
+
 -- Accept Demand (Neutral)
 UPDATE Language_en_US
 SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
 WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
-SET Text = 'I agree - if only to confound my advisors, who urge me to refuse.'
+SET Text = 'I agree; if only to confound my advisors, who urge me to refuse.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
@@ -905,6 +911,10 @@ WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRIBUTE_YES_NEUTRAL';
 UPDATE Language_en_US
 SET Text = 'Very well. It appears as if I have no choice. But someday, you will pay for this.'
 WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY';
+
+UPDATE Language_en_US
+SET Text = 'Your fetid breath chokes the life from me! Take what you would and be gone.';
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_ANGRY';
 
 UPDATE Language_en_US
 SET Text = 'Very well. I hope you may choke on it!'
