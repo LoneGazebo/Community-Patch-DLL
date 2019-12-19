@@ -9684,7 +9684,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTacticalPlot& assumedUnitPlot, const CvTacticalPlot& enemyPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is invalid
-	STacticalAssignment result(unit.iPlotIndex, movePlot.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, -INT_MAX, A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex, movePlot.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eStrategy, -INT_MAX, A_FINISH);
 
 	//the plot we're checking right now
 	const CvPlot* pEnemyPlot = enemyPlot.getPlot();
@@ -10929,41 +10929,23 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 		break;
 	}
+	case A_MELEEKILL_NO_ADVANCE:
 	case A_MELEEKILL:
 	{
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
 		itUnit->iSelfDamage += newAssignment.iSelfDamage;
-		//---- difference to below
-		itUnit->iPlotIndex = newAssignment.iToPlotIndex; //this is because we're advancing
-		bVisibilityChange = true; //this is because we're advancing
-		getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment); //this is because we're advancing
-		getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment); //this implicitly removes the enemyUnit flag
-		//----
-		if (newAssignment.iRemainingMoves == 0)
-			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 
-		CvUnit* pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
-		if (getTactPlotMutable(newAssignment.iToPlotIndex).isEnemyCity() && !pEnemy)
-			killedEnemies.push_back(0); //put an invalid unit ID as a placeholder so that isComplete() works
-		else if (pEnemy) //should always be true, else we wouldn't be here
+		if (newAssignment.eAssignmentType == A_MELEEKILL)
 		{
-			freedPlots.push_back(newAssignment.iToPlotIndex);
-			killedEnemies.push_back(pEnemy->GetID());
+			itUnit->iPlotIndex = newAssignment.iToPlotIndex; //this is because we're advancing
+			bVisibilityChange = true; //this is because we're advancing
+			getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment); //this is because we're advancing
+			getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment); //this implicitly removes the enemyUnit flag
 		}
+		else
+			getTactPlotMutable(newAssignment.iToPlotIndex).enemyUnitKilled();
 
-		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
-		bRecomputeAllMoves = true; //ZOC changed
-		break;
-	}
-	case A_MELEEKILL_NO_ADVANCE:
-	{
-		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
-		itUnit->iAttacksLeft--;
-		itUnit->iSelfDamage += newAssignment.iSelfDamage;
-		//---- difference to above
-		getTactPlotMutable(newAssignment.iToPlotIndex).enemyUnitKilled();
-		//----
 		if (newAssignment.iRemainingMoves == 0)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 
