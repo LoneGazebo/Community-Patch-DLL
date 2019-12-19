@@ -347,6 +347,10 @@ SET Text = 'The village increases output of a tile by 3 gold and 1 culture. It d
 WHERE Tag = 'TXT_KEY_WORKERS_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US
+SET Text = 'If there is a road between your capital and another of your cities, those cities have a "city connection." City connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. (Lighthouses can also create city connections between coastal cities.) See the section on City Connections for details.'
+WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_BODY';
+
+UPDATE Language_en_US
 SET Text = 'The Village'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_TITLE';
 
