@@ -8004,6 +8004,16 @@ MajorCivApproachTypes CvDiplomacyAI::GetTrueApproachTowardsUsGuess(PlayerTypes e
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
+	if (ePlayer != GetPlayer()->GetID())
+	{
+		return MAJOR_CIV_APPROACH_NEUTRAL;
+	}
+	else
+	{
+		return MAJOR_CIV_APPROACH_NEUTRAL;
+	}
+	
+	/*
 	if ((MajorCivApproachTypes) m_paeApproachTowardsUsGuess[ePlayer] == NO_MAJOR_CIV_APPROACH)
 	{
 		return MAJOR_CIV_APPROACH_NEUTRAL;
@@ -8012,6 +8022,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetTrueApproachTowardsUsGuess(PlayerTypes e
 	{
 		return (MajorCivApproachTypes) m_paeApproachTowardsUsGuess[ePlayer];
 	}
+	*/
 }
 
 /// Sets our guess as to another player's true Diplomatic Approach towards us
@@ -9176,35 +9187,6 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		return true;
 #endif
 
-	// If we or our teammates consider them or their teammates untrustworthy, don't give them Open Borders!
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-	
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
-		{
-			if (IsUntrustworthyFriend(eLoopPlayer) || GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				return false;
-			}
-			
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes) iTeammateLoop;
-				
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return false;
-				}
-			}
-		}
-	}
-
 #if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 	//If they need influence over us, we don't want their OB, thanks.
 	if ((GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) >= INFLUENCE_TREND_STATIC))
@@ -9297,35 +9279,6 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	if (GetPlayer()->IsAITeammateOfHuman())
 	{
 		return false;
-	}
-	
-	// If we or our teammates consider them or their teammates untrustworthy, don't give them Open Borders!
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-	
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
-		{
-			if (IsUntrustworthyFriend(eLoopPlayer) || GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				return false;
-			}
-			
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes) iTeammateLoop;
-				
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return false;
-				}
-			}
-		}
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -13748,39 +13701,6 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 	// If we're willing to denounce them, don't make friends with them!
 	if (IsDenounceAcceptable(ePlayer) || IsDenounceFriendAcceptable(ePlayer))
 		return false;
-	
-	// If we or our AI teammates consider them or their teammates untrustworthy, don't make friends with them!
-	// Also don't do so if our teammates are HOSTILE or planning WAR
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-	
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
-		{
-			if (IsUntrustworthyFriend(eLoopPlayer) || GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				return false;
-			}
-			
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes) iTeammateLoop;
-				
-				if (GET_PLAYER(eTeammate).isHuman())
-					continue;
-				
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return false;
-				}
-			}
-		}
-	}
 
 	int iValue = 0;
 
@@ -13972,36 +13892,6 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
 	if (iNumMajorsLeft <= 2)
 		return false;
-	
-	// If we or our AI teammates consider them or their teammates untrustworthy, don't make a DP with them!
-	// Also don't do so if our teammates are HOSTILE or planning WAR
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-	
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
-		{
-			if (IsUntrustworthyFriend(eLoopPlayer) || GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				return false;
-			}
-			
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes) iTeammateLoop;
-				
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return false;
-				}
-			}
-		}
-	}
 
 	int iValue = 0;
 
@@ -36923,6 +36813,19 @@ bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, Pla
 /// Has this guy had problems with too many of his friends? If so, then his word isn't worth much
 bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 {
+	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerBrokenVassalAgreement(ePlayer))
+	{
+		return true;
+	}
+	
+	if ((GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() >= 1) || (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount() >= 2))
+	{
+		return true;
+	}
+	
+	return false;
+	
+	/*
 	// Vassals can't be untrustworthy, they have no rights.
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
@@ -37141,6 +37044,7 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 	}
 
 	return false;
+	*/
 }
 
 /// How many former friends have denounced US???

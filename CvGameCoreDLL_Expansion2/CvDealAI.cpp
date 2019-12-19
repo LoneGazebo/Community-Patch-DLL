@@ -2513,35 +2513,6 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 	if (bFromMe)  // giving the other player an embassy in my capital
 	{
-		// If we or our teammates consider them or their teammates untrustworthy, don't give them an embassy!
-		PlayerTypes eLoopPlayer;
-		PlayerTypes eTeammate;
-		int iPlayerLoop;
-		int iTeammateLoop;
-		
-		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-			{
-				if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return INT_MAX;
-				}
-				
-				for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-				{
-					eTeammate = (PlayerTypes) iTeammateLoop;
-					
-					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-					{
-						return INT_MAX;
-					}
-				}
-			}
-		}
-		
 		// Approach is important
 		switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -2939,35 +2910,6 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	if (iNumMajorsLeft <= 2)
 		bCancel = true;
 	
-	// If we or our teammates consider them or their teammates untrustworthy (or are hostile to them), DPs are unacceptable.
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-		{
-			if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				bCancel = true;
-			}
-
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes)iTeammateLoop;
-
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					bCancel = true;
-				}
-			}
-		}
-	}
-	
 	if (bCancel)
 	{
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -3180,35 +3122,6 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
-
-	// If we or our teammates consider them or their teammates untrustworthy, don't consider peace bribes!
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-		{
-			if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				return INT_MAX;
-			}
-
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes)iTeammateLoop;
-
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return INT_MAX;
-				}
-			}
-		}
-	}
 
 	if (bLogging)
 		return iItemValue;
@@ -3573,35 +3486,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
-
-	// If we or our teammates consider them or their teammates untrustworthy, don't consider war bribes!
-	PlayerTypes eLoopPlayer;
-	PlayerTypes eTeammate;
-	int iPlayerLoop;
-	int iTeammateLoop;
-
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-		{
-			if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-			{
-				return INT_MAX;
-			}
-
-			for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-			{
-				eTeammate = (PlayerTypes)iTeammateLoop;
-
-				if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return INT_MAX;
-				}
-			}
-		}
-	}
 
 	if (bLogging)
 		return iItemValue;
@@ -8301,35 +8185,6 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		if (iItemValue <= 700)
 			return INT_MAX;
 
-		// If we or our teammates consider them or their teammates untrustworthy or we're hostile towards them, don't consider giving them a map!
-		PlayerTypes eLoopPlayer;
-		PlayerTypes eTeammate;
-		int iPlayerLoop;
-		int iTeammateLoop;
-
-		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-			{
-				if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return INT_MAX;
-				}
-
-				for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-				{
-					eTeammate = (PlayerTypes)iTeammateLoop;
-
-					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-					{
-						return INT_MAX;
-					}
-				}
-			}
-		}
-
 		// Approach will modify the deal
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
@@ -8601,35 +8456,6 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		iItemValue *= 2;
 
-		// If we or our teammates consider them or their teammates untrustworthy or we're hostile towards them, don't consider giving them technology!
-		PlayerTypes eLoopPlayer;
-		PlayerTypes eTeammate;
-		int iPlayerLoop;
-		int iTeammateLoop;
-
-		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-			{
-				if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				{
-					return INT_MAX;
-				}
-
-				for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-				{
-					eTeammate = (PlayerTypes)iTeammateLoop;
-
-					if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-					{
-						return INT_MAX;
-					}
-				}
-			}
-		}
-
 		// Approach is important
 #if defined(MOD_BALANCE_CORE)
 		if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
@@ -8739,38 +8565,6 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, bWar))
 		{
 			return INT_MAX;
-		}
-
-		if (!bWar) // voluntary vassalage
-		{
-			// If we or our teammates consider them or their teammates untrustworthy, don't consider becoming their vassal!
-			PlayerTypes eLoopPlayer;
-			PlayerTypes eTeammate;
-			int iPlayerLoop;
-			int iTeammateLoop;
-
-			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-				if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-				{
-					if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-					{
-						return INT_MAX;
-					}
-
-					for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-					{
-						eTeammate = (PlayerTypes)iTeammateLoop;
-
-						if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-						{
-							return INT_MAX;
-						}
-					}
-				}
-			}
 		}
 
 		// Initial Vassalage deal value at 1000
