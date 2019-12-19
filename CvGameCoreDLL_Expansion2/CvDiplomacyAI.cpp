@@ -3140,7 +3140,7 @@ void CvDiplomacyAI::DoCounters()
 				}
 
 				// Has our Friendship expired?
-				if (IsDoFAccepted(eLoopPlayer) && GetDoFCounter(eLoopPlayer) >= GC.getDOF_EXPIRATION_TIME())
+				if (IsDoFAccepted(eLoopPlayer) && GetDoFCounter(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
 				{
 					SetDoFCounter(eLoopPlayer, -1);
 					SetDoFAccepted(eLoopPlayer, false);
