@@ -913,7 +913,7 @@ SET Text = 'Very well. It appears as if I have no choice. But someday, you will 
 WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY';
 
 UPDATE Language_en_US
-SET Text = 'Your fetid breath chokes the life from me! Take what you would and be gone.';
+SET Text = 'Your fetid breath chokes the life from me! Take what you would and be gone.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_ANGRY';
 
 UPDATE Language_en_US
