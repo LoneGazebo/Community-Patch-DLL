@@ -4082,7 +4082,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(bCapital)
 	{
 		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
-		GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+		
+		if (isMajorCiv())
+			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
 	}
 
 
@@ -4094,7 +4096,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 			GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, m_eID);
 			GET_PLAYER(eOldOwner).SetLostHolyCityXY(pNewCity->getX(), pNewCity->getY());
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+			
+			if (isMajorCiv())
+				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
 		}
 	}
 

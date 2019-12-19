@@ -2431,7 +2431,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabEverBackstabbedBy);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiFriendDenouncedUsTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiFriendDeclaredWarOnUsTurn);
-	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumCitiesCaptured);
+	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumCitiesCaptured);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumTimesRazed);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumTradeRoutesPlundered);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerEverMadeBorderPromise);
@@ -14630,9 +14630,9 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer) const
 {
 	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
 	{
-		GetPlayer()->GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, true);
 		return true;
 	}
+
 	return false;
 }
 
