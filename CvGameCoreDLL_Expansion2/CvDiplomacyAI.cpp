@@ -36818,6 +36818,11 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 		return true;
 	}
 	
+	if (IsDoFBroken(ePlayer))
+	{
+		return true;
+	}
+	
 	if ((GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount() >= 1) || (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWeDenouncedFriendCount() >= 2))
 	{
 		return true;

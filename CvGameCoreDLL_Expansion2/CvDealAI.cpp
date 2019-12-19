@@ -8834,39 +8834,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 			}
 		}
 
-		// Voluntary? Don't do it if they're untrustworthy.
-		PlayerTypes eTeammate;
-		int iTeammateLoop;
-		if (!bWar)
-		{
-			PlayerTypes eLoopPlayer;
-			PlayerTypes eTeammate;
-			int iPlayerLoop;
-
-			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-				if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-				{
-					if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-					{
-						return INT_MAX;
-					}
-
-					for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-					{
-						eTeammate = (PlayerTypes)iTeammateLoop;
-
-						if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsUntrustworthyFriend(eLoopPlayer) || GET_PLAYER(eTeammate).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eLoopPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-						{
-							return INT_MAX;
-						}
-					}
-				}
-			}
-		}
-
 		// Increase deal value based on number of vassals we have
 		for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 		{
@@ -8895,7 +8862,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		}
 
 		//Diplo and Conquest victories
-		int iFractionCapitalsUnderControl = GetPlayer()->GetFractionOriginalCapitalsUnderControl();
 		if(GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest())
 		{
 			iItemValue *= 2;
@@ -8903,36 +8869,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		if(GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
 			iItemValue *= 2;
-		}
-
-		// Factor in our teammates
-		for (iTeammateLoop = 0; iTeammateLoop < MAX_MAJOR_CIVS; iTeammateLoop++)
-		{
-			eTeammate = (PlayerTypes)iTeammateLoop;
-
-			if (GET_PLAYER(eTeammate).GetFractionOriginalCapitalsUnderControl() > 0)
-			{
-				iFractionCapitalsUnderControl += GET_PLAYER(eTeammate).GetFractionOriginalCapitalsUnderControl();
-			}
-			if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsGoingForWorldConquest())
-			{
-				iItemValue *= 2;
-			}
-			if (GET_PLAYER(eTeammate).GetDiplomacyAI()->IsGoingForDiploVictory())
-			{
-				iItemValue *= 2;
-			}
-		}
-		if (iFractionCapitalsUnderControl >= 50)
-		{
-			if (!bWar)
-			{
-				return INT_MAX;
-			}
-			else
-			{
-				iItemValue *= 2;
-			}
 		}
 
 		// What's the power of the asking party? They need to be real strong to push us out of this.
