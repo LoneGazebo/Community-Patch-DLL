@@ -405,19 +405,19 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 -- Fixed diacritics for spy names.
 UPDATE Language_en_US
-SET Text = 'Ant�nio'
+SET Text = 'Antônio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Est�v�o'
+SET Text = 'Estêvão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fern�o'
+SET Text = 'Fernão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tom�'
+SET Text = 'Tomé'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 
@@ -609,10 +609,6 @@ SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught stealing from them.[ENDC
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Promises
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to stop excavating their artifacts, and then broke it![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
-
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer a City-State protected by them, and then broke it![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE';

@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1646,8 +1646,10 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<short> wrapm_paiDefensivePactValue(MAX_MAJOR_CIVS, m_paiDefensivePactValue);
 	kStream >> wrapm_paiDefensivePactValue;
+
 	ArrayWrapper<short> wrapm_paiDoFValue(MAX_MAJOR_CIVS, m_paiDoFValue);
 	kStream >> wrapm_paiDoFValue;
+
 	ArrayWrapper<short> wrapm_paiCompetitorValue(MAX_MAJOR_CIVS, m_paiCompetitorValue);
 	kStream >> wrapm_paiCompetitorValue;
 #endif
