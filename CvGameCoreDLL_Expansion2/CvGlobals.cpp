@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -731,7 +731,7 @@ CvGlobals::CvGlobals() :
 	m_iOPINION_WEIGHT_RECKLESS_EXPANDER(35),
 	m_iOPINION_WEIGHT_NUKED_MAX(50),
 	m_iOPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE(1),
-	m_iCIVILIAN_KILLER_VALUE_MAX(50),
+	m_iOPINION_WEIGHT_CIVILIAN_KILLER_MAX(50),
 	m_iOPINION_WEIGHT_CIVILIAN_KILLER_WORLD(10),
 	m_iOPINION_WEIGHT_PER_SIMILAR_POLICY(-1),
 	m_iOPINION_WEIGHT_PER_DIVERGENT_POLICY(-1),
@@ -5426,7 +5426,7 @@ void CvGlobals::cacheGlobals()
 	m_iOPINION_WEIGHT_PAID_TRIBUTE = getDefineINT("OPINION_WEIGHT_PAID_TRIBUTE");
 	m_iOPINION_WEIGHT_NUKED_MAX = getDefineINT("OPINION_WEIGHT_NUKED_MAX");
 	m_iOPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE = getDefineINT("OPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE");
-	m_iCIVILIAN_KILLER_VALUE_MAX = getDefineINT("CIVILIAN_KILLER_VALUE_MAX");
+	m_iOPINION_WEIGHT_CIVILIAN_KILLER_MAX = getDefineINT("OPINION_WEIGHT_CIVILIAN_KILLER_MAX");
 	m_iOPINION_WEIGHT_CIVILIAN_KILLER_WORLD = getDefineINT("OPINION_WEIGHT_CIVILIAN_KILLER_WORLD");
 	m_iOPINION_WEIGHT_PER_SIMILAR_POLICY = getDefineINT("OPINION_WEIGHT_PER_SIMILAR_POLICY");
 	m_iOPINION_WEIGHT_PER_DIVERGENT_POLICY = getDefineINT("OPINION_WEIGHT_PER_DIVERGENT_POLICY");

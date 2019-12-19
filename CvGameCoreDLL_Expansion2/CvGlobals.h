@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3152,9 +3152,9 @@ public:
 	{
 		return m_iOPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE;
 	}
-	inline int getCIVILIAN_KILLER_VALUE_MAX()
+	inline int getOPINION_WEIGHT_CIVILIAN_KILLER_MAX()
 	{
-		return m_iCIVILIAN_KILLER_VALUE_MAX;
+		return m_iOPINION_WEIGHT_CIVILIAN_KILLER_MAX;
 	}
 	inline int getOPINION_WEIGHT_CIVILIAN_KILLER_WORLD()
 	{
@@ -10079,7 +10079,7 @@ protected:
 	int m_iOPINION_WEIGHT_PAID_TRIBUTE;
 	int m_iOPINION_WEIGHT_NUKED_MAX;
 	int m_iOPINION_WEIGHT_PER_CIVILIAN_KILLER_VALUE;
-	int m_iCIVILIAN_KILLER_VALUE_MAX;
+	int m_iOPINION_WEIGHT_CIVILIAN_KILLER_MAX;
 	int m_iOPINION_WEIGHT_CIVILIAN_KILLER_WORLD;
 	int m_iOPINION_WEIGHT_PER_SIMILAR_POLICY;
 	int m_iOPINION_WEIGHT_PER_DIVERGENT_POLICY;
