@@ -10329,7 +10329,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	return true;
 }
 
-bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOverride)
+bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, int iMovesOverride) const
 {
 	if (!canPillage(pPlot, iMovesOverride))
 		return false;
@@ -20586,8 +20586,8 @@ bool CvUnit::onMap() const
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-CvCity* CvUnit::getOriginCity()
-{
+CvCity* CvUnit::getOriginCity() const
+{ 
 	VALIDATE_OBJECT
 	if(getOwner() == NO_PLAYER)
 		return NULL;

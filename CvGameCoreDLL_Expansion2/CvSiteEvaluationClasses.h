@@ -47,7 +47,7 @@ protected:
 	virtual int ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPlayer);
 	virtual int ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlayer);
 	virtual int ComputeTradeableResourceValue(CvPlot* pPlot, const CvPlayer* pPlayer);
-	virtual int ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pPlayer, int iPlotsFromCity);
+	virtual int ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity);
 
 	int m_iFlavorMultiplier[NUM_SITE_EVALUATION_FACTORS];  // Extra for tradeable resources and strategic value
 
