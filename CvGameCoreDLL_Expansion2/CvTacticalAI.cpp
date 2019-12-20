@@ -9698,10 +9698,6 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	if (!enemyPlot.isEnemy() || pUnit->isRanged())
 		return result;
 
-	//don't attack cities if the real target is something else
-	if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
-		return result;
-
 	//how often can we attack this turn (depending on moves left on the unit)
 	int iMaxAttacks = min(unit.iAttacksLeft, (unit.iMovesLeft + GC.getMOVE_DENOMINATOR() - 1) / GC.getMOVE_DENOMINATOR());
 	if (iMaxAttacks == 0)
@@ -9710,6 +9706,10 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	//check how much damage we could do
 	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), result);
 	if (result.iScore < 0)
+		return result;
+
+	//don't attack cities if the real target is something else (capturing is ok)
+	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
 		return result;
 
 	//what happens next?
@@ -10196,8 +10196,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 		}
 
 		//score functions are biased so that only scores > 0 are interesting moves
-		//score zero is typically the FINISH move because it's the reference
-		if (newAssignment.iScore >= 0)
+		//still allow mildy negative moves here, maybe we want to do combo moves later!
+		if (newAssignment.iScore > -100)
 			possibleMoves.push_back(newAssignment);
 
 		if (gTacticalCombatDebugOutput > 0)
@@ -10346,6 +10346,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				{
 					if (itMove2->eAssignmentType == A_MOVE && blockMoveToPlots.find(itMove2->iToPlotIndex)==blockMoveToPlots.end())
 					{
+						//check if the combo has a positive score
+						if (itMove->iScore + itMove2->iScore < 0)
+							continue;
+
 						//block wants to move into the plot currently occupied by this unit. bingo!
 						if ( itMove2->iToPlotIndex == itMove->iFromPlotIndex && blocks.size()==1 ) //limit to one block to simplify the logic
 						{
@@ -11687,7 +11691,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		}
 
 		//here the magic happens
-		if (current->makeNextAssignments(iMaxBranches,iMaxChoicesPerUnit,storage))
+		if (current->makeNextAssignments(iMaxBranches, iMaxChoicesPerUnit, storage))
 		{
 			iUsedPositions++;
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
