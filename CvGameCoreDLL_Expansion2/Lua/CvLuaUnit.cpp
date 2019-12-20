@@ -5139,7 +5139,11 @@ int CvLuaUnit::lSetMadeInterception(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bNewValue = lua_toboolean(L, 2);
 
-	pkUnit->setMadeInterception(bNewValue);
+	if (bNewValue)
+		pkUnit->increaseInterceptionCount();
+	else
+		pkUnit->resetInterceptionCount();
+
 	return 0;
 }
 //------------------------------------------------------------------------------

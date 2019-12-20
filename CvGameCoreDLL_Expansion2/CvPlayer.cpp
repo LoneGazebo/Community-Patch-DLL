@@ -11801,7 +11801,7 @@ void CvPlayer::DoUnitReset()
 
 		pLoopUnit->SetIgnoreDangerWakeup(false);
 		pLoopUnit->setMadeAttack(false);
-		pLoopUnit->setMadeInterception(false);
+		pLoopUnit->resetInterceptionCount();
 
 		if(!isHuman())
 		{

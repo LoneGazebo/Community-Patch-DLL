@@ -1461,7 +1461,8 @@ public:
 
 	bool isOutOfInterceptions() const;
 	int getMadeInterceptionCount() const;
-	void setMadeInterception(bool bNewValue);
+	void increaseInterceptionCount();
+	void resetInterceptionCount();
 
 	bool TurnProcessed() const;
 	void SetTurnProcessed(bool bValue);

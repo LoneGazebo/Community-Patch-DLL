@@ -1702,10 +1702,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 		// Does the attacker evade?
 		int iInterceptionDamage = 0;
-		if(kAttacker.evasionProbability()==0 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+kAttacker.GetID()) >= kAttacker.evasionProbability())
+		if(kAttacker.evasionProbability()==0 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+pInterceptor->GetID()+pInterceptor->getMadeInterceptionCount()) >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+pInterceptor->GetID()) <= pInterceptor->interceptionProbability())
+			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+kAttacker.GetID()+kAttacker.getDamage()) <= pInterceptor->interceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, true, &plot);
 			}
@@ -2035,7 +2035,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	CvAssert_Debug(pInterceptor);
 	if(pInterceptor)
 	{
-		pInterceptor->setMadeInterception(true);
+		pInterceptor->increaseInterceptionCount();
 		pInterceptor->setCombatUnit(NULL);
 #if defined(MOD_UNITS_XP_TIMES_100)
 		pInterceptor->changeExperienceTimes100(100 * 
@@ -2548,7 +2548,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 	// Made interception!
 	if(pkDefender)
 	{
-		pkDefender->setMadeInterception(true);
+		pkDefender->increaseInterceptionCount();
 		if(pkAttacker && pkTargetPlot)
 		{
 #if !defined(NO_ACHIEVEMENTS)
@@ -3296,7 +3296,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 		int iInterceptionDamage = 0;
 
 		// Is the interception successful?
-		if(GC.getGame().getSmallFakeRandNum(10, dropPlot.GetPlotIndex()+pInterceptor->GetID()) * 10 < pInterceptor->interceptionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, dropPlot.GetPlotIndex()+paraUnit.GetID()+paraUnit.getDamage()) * 10 < pInterceptor->interceptionProbability())
 		{
 			iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit, true, &dropPlot);
 		}
@@ -3346,7 +3346,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 				// pInterceptor->setCombatUnit(&pParaUnit, false);
 			// }
 
-			pInterceptor->setMadeInterception(true);
+			pInterceptor->increaseInterceptionCount();
 			pInterceptor->setCombatUnit(NULL);
 
 			// Killing the unit during the drop is a really bad idea, the game crashes at random after the drop

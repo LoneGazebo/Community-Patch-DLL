@@ -24659,20 +24659,16 @@ int CvUnit::getMadeInterceptionCount() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setMadeInterception(bool bNewValue)
+void CvUnit::increaseInterceptionCount()
 {
-	VALIDATE_OBJECT
-	if(bNewValue)
-	{
-		m_iMadeInterceptionCount++;
-		m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
-	}
-	else
-	{
-		m_iMadeInterceptionCount = 0;
-	}
+	m_iMadeInterceptionCount++;
+	m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
 }
 
+void CvUnit::resetInterceptionCount()
+{
+	m_iMadeInterceptionCount = 0;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isPromotionReady() const
