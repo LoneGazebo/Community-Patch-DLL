@@ -5390,11 +5390,11 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_ACTUALLY">
-			<Text>Your {@1_UnitName} bombarded the enemy City of {@2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
+			<Text>Your {@1_UnitName} bombarded the enemy City of {2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_INTERCEPTED">
-			<Text>While attacking {@4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+			<Text>While attacking {4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_UNIT_BY_AIR_INTERCEPTED">

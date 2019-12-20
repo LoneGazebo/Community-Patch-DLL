@@ -420,14 +420,12 @@
 		<Row Tag ="TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN_STRATEGIC">
 			<Text>Foreign Strategic Monopolies</Text>
 		</Row>
-
-
 		
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
-			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
+			<Text>Resource Monopoly</Text>
 		</Row>
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
-			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
+			<Text>Resource Monopoly</Text>
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
