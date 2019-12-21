@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2249,10 +2249,15 @@ void CvEconomicAI::DoPlotPurchases()
 	}
 }
 
+//debug flag
+bool g_bNoNewExplorers = false;
 
 /// Determine how our recon efforts are going
 void CvEconomicAI::DoReconState()
 {
+	//debug flag so combat units aren't randomly turned into explorers
+	if (g_bNoNewExplorers)
+		return;
 
 	if (m_pPlayer->isMinorCiv())
 		return;

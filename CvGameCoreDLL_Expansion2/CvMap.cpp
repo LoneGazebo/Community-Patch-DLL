@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2404,12 +2404,12 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 	if (!pPlot)
 		return vector<CvPlot*>();
 
-	//for now, we can only do up to range 3
-	if (iRange<1 || iRange>3)
+	//for now, we can only do up to range 5
+	if (iRange<1 || iRange>5)
 		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
 
 	iRange = max(1, iRange);
-	iRange = min(3, iRange);
+	iRange = min(5, iRange);
 
 	if (bWithLOS)
 	{
@@ -2495,6 +2495,32 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 						m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
 				}
 			}
+		case 4:
+		case 5:
+		{
+			//no caching here
+			vector<CvPlot*> vResult;
+			vResult.reserve( RING_PLOTS[iRange] - RING_PLOTS[iRange-1]);
+			for (int i = RING_PLOTS[iRange-1]; i < RING_PLOTS[iRange]; i++)
+			{
+				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
+				if (!pCandidate)
+					continue;
+
+				if (bFromPlot)
+				{
+					if (pPlot->canSeePlot(pCandidate, NO_TEAM, 2, NO_DIRECTION))
+						vResult.push_back(pCandidate);
+				}
+				else
+				{
+					if (pCandidate->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
+						vResult.push_back(pCandidate);
+				}
+			}
+			return vResult;
+		}
+
 		}
 	}
 	else //no LOS - not cached, rarely accessed (should be only for units with indirect fire promotion)
@@ -2508,22 +2534,13 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 			return vector<CvPlot*>(aDirectNeighbors, aDirectNeighbors + NUM_DIRECTION_TYPES);
 		}
 		case 2:
-		{
-			vector<CvPlot*> vResult;
-			vResult.reserve(RING2_PLOTS - RING1_PLOTS);
-			for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
-			{
-				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
-				if (pCandidate)
-					vResult.push_back(pCandidate);
-			}
-			return vResult;
-		}
 		case 3:
+		case 4:
+		case 5:
 		{
 			vector<CvPlot*> vResult;
-			vResult.reserve(RING3_PLOTS - RING2_PLOTS);
-			for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+			vResult.reserve( RING_PLOTS[iRange] - RING_PLOTS[iRange-1]);
+			for (int i = RING_PLOTS[iRange-1]; i < RING_PLOTS[iRange]; i++)
 			{
 				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
 				if (pCandidate)

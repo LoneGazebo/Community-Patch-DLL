@@ -189,7 +189,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
 
-	if (GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+	if (kGame.isOption(GAMEOPTION_CHILL_BARBARIANS))
 	{
 		iNumTurnsToSpawn *= 2;
 	}
@@ -221,10 +221,8 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	//	iNumTurnsToSpawn += auto_ptr<ICvGame1> pGame = GameCore::GetGame();\n.getJonRandNum(4, "Early game Barb Spawn Rand call");
 	//}
 
-	// Difficulty level can add time between spawns (e.g. Settler is +8 turns)
-	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(kGame.getHandicapType());
-	if (pHandicapInfo)
-		iNumTurnsToSpawn += pHandicapInfo->getBarbSpawnMod();
+	// Difficulty level can add time between spawns
+	iNumTurnsToSpawn += kGame.getHandicapInfo().getBarbSpawnMod();
 
 	// Game Speed can increase or decrease amount of time between spawns (ranges from 67 on Quick to 400 on Marathon)
 	CvGameSpeedInfo* pGameSpeedInfo = GC.getGameSpeedInfo(kGame.getGameSpeedType());
@@ -238,7 +236,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 }
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
-/// Gameplay informing us when a Camp has either been created or spawned a Unit so we can reseed the spawn counter
+/// Gameplay informing us when a City has either been acquired or spawned a Unit so we can reseed the spawn counter
 void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 {
 	if (!pPlot)
@@ -257,7 +255,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
 
-	if (GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+	if (kGame.isOption(GAMEOPTION_CHILL_BARBARIANS))
 	{
 		iNumTurnsToSpawn *= 3;
 		iNumTurnsToSpawn /= 2;
@@ -269,7 +267,6 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 
 #if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
 	if (m_aiPlotBarbCityNumUnitsSpawned == NULL) {
-		// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
 		return;
 	}
 #endif
@@ -280,13 +277,11 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	// Reduce turns between spawn if we've pumped out more guys (meaning we're further into the game)
 	iNumTurnsToSpawn -= min(3, iNumUnitsSpawned);	// -1 turns if we've spawned one Unit, -3 turns if we've spawned three
 
-	// Increment # of barbs spawned from this camp
-	m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()]++;	// This starts at -1 so when a camp is first created it will bump up to 0, which is correct
+	// Increment # of barbs spawned from this city
+	m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()]++;	// This starts at -1 so when a city is first acquired it will bump up to 0, which is correct
 
-	// Difficulty level can add time between spawns (e.g. Settler is +8 turns)
-	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(kGame.getHandicapType());
-	if (pHandicapInfo)
-		iNumTurnsToSpawn += pHandicapInfo->getBarbSpawnMod();
+	// Difficulty level can add time between spawns
+	iNumTurnsToSpawn += kGame.getHandicapInfo().getBarbSpawnMod();
 
 	// Game Speed can increase or decrease amount of time between spawns (ranges from 67 on Quick to 400 on Marathon)
 	CvGameSpeedInfo* pGameSpeedInfo = GC.getGameSpeedInfo(kGame.getGameSpeedType());
@@ -299,7 +294,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	m_aiPlotBarbCitySpawnCounter[pPlot->GetPlotIndex()] = iNumTurnsToSpawn;
 }
 //	--------------------------------------------------------------------------------
-/// Gameplay informing a camp has been attacked - make it more likely to spawn
+/// Gameplay informing us when a city has been attacked - make it more likely to spawn
 void CvBarbarians::DoCityAttacked(CvPlot* pPlot)
 {
 	int iCounter = m_aiPlotBarbCitySpawnCounter[pPlot->GetPlotIndex()];
@@ -316,7 +311,7 @@ void CvBarbarians::DoCityAttacked(CvPlot* pPlot)
 }
 #endif
 //	--------------------------------------------------------------------------------
-/// Gameplay informing a camp has been attacked - make it more likely to spawn
+/// Gameplay informing us when a camp has been attacked - make it more likely to spawn
 void CvBarbarians::DoCampAttacked(CvPlot* pPlot)
 {
 	int iCounter = m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()];
@@ -971,8 +966,8 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		}
 	}
 
-	// is this camp empty - first priority is to fill it
-	if (pPlot && pPlot->GetNumCombatUnits() == 0 && !pPlot->isCity())
+	// is this camp/city empty - first priority is to fill it
+	if (pPlot && pPlot->GetNumCombatUnits() == 0 && (!pPlot->isCity() || (pPlot->isCity() && pPlot->isBarbarian())))
 	{
 		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_RANGED, eCloseResource);
 		if (eUnit != NO_UNIT)

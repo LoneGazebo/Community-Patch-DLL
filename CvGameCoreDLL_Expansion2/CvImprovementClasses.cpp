@@ -116,7 +116,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 #if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	m_bMakesPassable(false),
 #endif
-	m_bAnyBodyOfWaterMakesValid(false),
+	m_bWaterAdjacencyMakesValid(false),
 	m_bFreshWaterMakesValid(false),
 	m_bRiverSideMakesValid(false),
 	m_bNoFreshWater(false),
@@ -289,7 +289,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 #if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	m_bMakesPassable = kResults.GetBool("MakesPassable");
 #endif
-	m_bAnyBodyOfWaterMakesValid = kResults.GetBool("AnyBodyOfWaterMakesValid");
+	m_bWaterAdjacencyMakesValid = kResults.GetBool("WaterAdjacencyMakesValid");
 	m_bFreshWaterMakesValid = kResults.GetBool("FreshWaterMakesValid");
 	m_bRiverSideMakesValid = kResults.GetBool("RiverSideMakesValid");
 	m_bNoFreshWater = kResults.GetBool("NoFreshWater");
@@ -1027,9 +1027,9 @@ bool CvImprovementEntry::IsMakesPassable() const
 #endif
 
 // Requires any body of water to build
-bool CvImprovementEntry::IsAnyBodyOfWaterMakesValid() const
+bool CvImprovementEntry::IsWaterAdjacencyMakesValid() const
 {
-	return m_bAnyBodyOfWaterMakesValid;
+	return m_bWaterAdjacencyMakesValid;
 }
 
 /// Requires fresh water to build

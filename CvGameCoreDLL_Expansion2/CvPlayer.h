@@ -575,27 +575,7 @@ public:
 	void ChangeReformationFollowerReduction(int iValue);
 #endif
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY);
-#if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
-#else
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
-#endif
-#else
-	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
-#if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
-#else
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
-#endif
-#endif
-#if defined(MOD_API_EXTENSIONS)
-	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY);
-#else
-	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY);
-#endif
-	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY);
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)
@@ -1214,7 +1194,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL, CvUnit* pAttackingUnit = NULL);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
@@ -1604,10 +1584,6 @@ public:
 	void ChangeTRVisionBoost(int iValue);
 	int GetTRVisionBoost() const;
 	void SetTRVisionBoost(int iValue);
-
-	void ChangeBuildingMaintenanceMod(int iValue);
-	int GetBuildingMaintenanceMod() const;
-	void SetBuildingMaintenanceMod(int iValue);
 
 	void ChangeEventTourism(int iValue);
 	int GetEventTourism() const;
@@ -2577,6 +2553,7 @@ public:
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
+	int GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit=NULL) const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
@@ -2585,6 +2562,7 @@ public:
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
+	void UpdateCityStrength();
 	void UpdateCurrentAndFutureWars();
 	//to check whether peace is a good idea
 	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
@@ -3339,7 +3317,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;
 	FAutoVariable<int, CvPlayer> m_iVotesPerGPT;
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
-	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iEventTourism;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGlobalTourismAlreadyReceived;
 	FAutoVariable<int, CvPlayer> m_iEventTourismCS;

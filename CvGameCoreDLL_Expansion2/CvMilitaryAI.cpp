@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1558,7 +1558,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 			CvMilitaryTarget newTarget;
 			if (bInvalidTarget || bWantNewTarget)
 			{
-			int iNewScore = 0;
+				int iNewScore = 0;
 				newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
 				//new target valid?
@@ -1815,7 +1815,6 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			*piWinningScore = -1;
 		return CvMilitaryTarget();
 	}
-
 	//just take the best one
 	std::sort(targets.begin(), targets.end());
 	if (piWinningScore)
@@ -2658,70 +2657,6 @@ int CvMilitaryAI::GetPercentOfRecommendedMilitarySize() const
 	else
 	{
 		return m_iNumLandUnits * 100 / m_iRecommendedMilitarySize;
-	}
-}
-
-/// Log all potential attacks
-void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true>& weightedTargetList)
-{
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strTemp;
-		CvString strLogName;
-
-		// Open the log file
-		CvString playerName = GetPlayer()->getCivilizationShortDescription();
-		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
-		if(eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK)
-		{
-			strBaseString += "Basic Attack, ";
-		}
-		else if(eAIOperationType == AI_OPERATION_CITY_SNEAK_ATTACK)
-		{
-			strBaseString += "Sneak Attack, ";
-		}
-		else if(eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK)
-		{
-			strBaseString += "Pure Naval Attack, ";
-		}
-		else if (eAIOperationType == AI_OPERATION_NAVAL_INVASION)
-		{
-			strBaseString += "Naval Invasion, ";
-		}
-		else
-		{
-			strBaseString += "City State Attack, ";
-		}
-		strBaseString += GET_PLAYER(eEnemy).getCivilizationShortDescription();
-		strBaseString += ", ";
-
-		// Dump out the weight of each buildable item
-		for(int iI = 0; iI < weightedTargetList.size(); iI++)
-		{
-			CvMilitaryTarget target = weightedTargetList.GetElement(iI);
-			int iWeight = weightedTargetList.GetWeight(iI);
-			strTemp.Format("Target: %s, Muster: %s, %d, Distance: %d", target.m_pTargetCity->getName().GetCString(), target.m_pMusterCity->getName().GetCString(), iWeight, target.m_iPathLength);
-			strOutBuf = strBaseString + strTemp;
-			if(target.m_bAttackBySea)
-			{
-				if(target.m_bOcean)
-					strOutBuf += ", Ocean";
-				else
-					strOutBuf += ", Sea";
-			}
-			else
-			{
-				strOutBuf += ", Land";
-			}
-
-			pLog->Msg(strOutBuf);
-		}
 	}
 }
 
@@ -6437,10 +6372,17 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirUnits(CvPlayer* pPlayer, int iNumA
 /// "Need A Nuke" Player Strategy: If a player has no nukes but he could
 bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 {
-	if(GC.getGame().isNoNukes())
+	if (GC.getGame().isNoNukes())
 	{
 		return false;
 	}
+	
+#if defined(MOD_BALANCE_CORE)
+	if (pPlayer->GetDiplomacyAI()->IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+	{
+		return true;
+	}
+#endif
 
 	int iFlavorNuke = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NUKE"));
 	int iNumNukes = pPlayer->getNumNukeUnits();

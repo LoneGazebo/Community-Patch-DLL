@@ -1,5 +1,9 @@
 /*	-------------------------------------------------------------------------------------------------------
-	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+<<<<<<< HEAD
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+=======
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+>>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1048,7 +1052,14 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 		CvUnit* pkUnit = GET_PLAYER(kTradeConnection.m_eOriginOwner).getUnit(kTradeConnection.m_unitID);
 		if (pkUnit)
 		{
+			//remember some things
+			CvPlot* pPlot = pkUnit->plot();
+			TeamTypes eOwnerTeam = pkUnit->getTeam();
+
 			pkUnit->kill(false);
+
+			//force a visibility update so that it's possible to plunder a traderoute with impunity
+			pPlot->flipVisibility(eOwnerTeam);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -1473,8 +1484,12 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 					continue;
 				}
 
-				//venice recalls their trade units
+				// Recall trade units
+<<<<<<< HEAD
 				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
+=======
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing())
+>>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -5221,7 +5236,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		}
 	}
 	// Temporary diplo penalty (including if at war) for killing a civilian unit
-	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && pPlunderPlot->isVisible(eOwningTeam))))
+	if (!m_pPlayer->isBarbarian() && (!m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && (pPlunderPlot->isVisible(eOwningTeam) || GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam())))))
 	{
 		GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTimesRazed(m_pPlayer->GetID(), (10 - GET_PLAYER(eOwningPlayer).GetCurrentEra()));
 	}
@@ -5229,15 +5244,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
 	{
 		if (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && pPlunderPlot->isVisible(eOwningTeam) && !GET_PLAYER(eOwningPlayer).isMinorCiv() && !GET_PLAYER(eOwningPlayer).isBarbarian())
-<<<<<<< HEAD
 	{
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
 	}
-=======
-		{
-			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeNumTradeRoutesPlundered(m_pPlayer->GetID(), 2);
-		}
->>>>>>> origin/master
 	}
 	// Diplo penalty for destination civilization if not at war (don't apply for internal trade routes)
 	if (eOwningPlayer != eDestPlayer && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eDestPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()) && !m_pPlayer->isBarbarian() && m_pPlayer->getTeam() != GET_PLAYER(eDestPlayer).getTeam() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isBarbarian())
@@ -5251,15 +5260,17 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	// do the notification stuff
 	if (pOriginCity && pDestCity)
 	{
+		bool bHumanPlunderer = m_pPlayer->isHuman();
+		
 		// send notification to owner player
 		CvNotifications* pNotifications = GET_PLAYER(eOwningPlayer).GetNotifications();
-		if(pNotifications)
+		if (pNotifications)
 		{
 			Localization::String strSummary;
 			Localization::String strMessage;
 
 			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADER_SUMMARY");
-			if (m_pPlayer->isBarbarian() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eOwningTeam)))
+			if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eOwningTeam)))
 			{
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADER_BARBARIAN");
 				strMessage << pOriginCity->getNameKey();
@@ -5299,7 +5310,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 				Localization::String strMessage;
 
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_SUMMARY");
-				if (m_pPlayer->isBarbarian() || (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
+				if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_BARBARIANS");
 					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())

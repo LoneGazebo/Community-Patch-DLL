@@ -161,7 +161,7 @@ VALUES
 	('PROMOTION_RESPECT', 'UNITCOMBAT_MELEE', 15),
 	('PROMOTION_RESPECT', 'UNITCOMBAT_GUN', 15),
 	('PROMOTION_MODERN_RANGED_PENALTY_I', 'UNITCOMBAT_ARMOR', -50),
-	('PROMOTION_ANTI_AIR_II', 'UNITCOMBAT_FIGHTER', 75);
+	('PROMOTION_ANTI_AIR_II', 'UNITCOMBAT_FIGHTER', 100);
 
 INSERT INTO UnitPromotions_CombatModPerAdjacentUnitCombat
 	(PromotionType, UnitCombatType, Modifier, Attack, Defense)
@@ -180,8 +180,8 @@ UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50 WHERE PromotionType = 'PR
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_FORMATION_1' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_FORMATION_2' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
 
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 75 WHERE PromotionType = 'PROMOTION_ANTI_AIR';
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 75 WHERE PromotionType = 'PROMOTION_ANTI_AIR_II';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR_II';
 
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50 WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_1';
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2';
@@ -189,8 +189,8 @@ UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PR
 INSERT INTO UnitPromotions_UnitClasses
 	(PromotionType, UnitClassType, Modifier)
 VALUES
-	('PROMOTION_ANTI_AIR', 'UNITCLASS_GUIDED_MISSILE', 75),
-	('PROMOTION_ANTI_AIR_II', 'UNITCLASS_GUIDED_MISSILE', 75),
+	('PROMOTION_ANTI_AIR', 'UNITCLASS_GUIDED_MISSILE', 100),
+	('PROMOTION_ANTI_AIR_II', 'UNITCLASS_GUIDED_MISSILE', 100),
 	('PROMOTION_ANTI_HELICOPTER', 'UNITCLASS_HELICOPTER_GUNSHIP', 150);
 
 INSERT INTO UnitPromotions_Features

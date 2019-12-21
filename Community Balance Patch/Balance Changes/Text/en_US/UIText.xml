@@ -420,14 +420,16 @@
 		<Row Tag ="TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN_STRATEGIC">
 			<Text>Foreign Strategic Monopolies</Text>
 		</Row>
+<<<<<<< HEAD
 
-
+=======
 		
+>>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
-			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
+			<Text>Resource Monopoly</Text>
 		</Row>
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
-			<Text>Strategic Resource[NEWLINE]Monopoly</Text>
+			<Text>Resource Monopoly</Text>
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
@@ -467,7 +469,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
-			<Text>Terrain Penalty</Text>
+			<Text>Terrain Modifier</Text>
 		</Row>
 
 
@@ -1433,6 +1435,14 @@
 
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS">
+			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS">
+			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">

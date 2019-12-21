@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1461,10 +1461,49 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		if (MOD_DIPLOMACY_CIV4_FEATURES) 
 		{
 			// We declared war on our vassal!
-			if(GET_TEAM(eTeam).GetMaster() == GetID())
+			if (GET_TEAM(eTeam).GetMaster() == GetID())
 			{
 				// this guy is no longer our vassal
 				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
+				
+				PlayerTypes eLoopPlayer;
+				PlayerTypes eLoopPlayer2;
+				PlayerTypes eThirdParty;
+				
+				// Loop through all (living) players on this team
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					
+					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+					{
+						// Loop through all (living) players on the attacker's team - diplo penalty!
+						for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+							
+							if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == GetID())
+							{
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(eLoopPlayer2, true);
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
+								
+								// Friends of the vassal - penalty to recent assistance!
+								for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+								{
+									eThirdParty = (PlayerTypes) iThirdPartyLoop;
+									
+									if (eThirdParty == eLoopPlayer || eThirdParty == eLoopPlayer2 || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eLoopPlayer2).getTeam())
+										continue;
+									
+									if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eThirdParty))
+									{
+										GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 #endif	
@@ -4856,6 +4895,25 @@ bool CvTeam::HasEmbassyAtTeam(TeamTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	
+	if ((GetLiberatedByTeam() == eIndex || GET_TEAM(eIndex).GetLiberatedByTeam() == m_eID) && !isAtWar(eIndex))
+	{
+		return true;
+	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if (GetMaster() == eIndex)
+		{
+			return true;
+		}
+		if (GET_TEAM(eIndex).GetMaster() == m_eID)
+		{
+			return true;
+		}
+	}
+#endif
 
 	return m_abEmbassy[eIndex];
 }

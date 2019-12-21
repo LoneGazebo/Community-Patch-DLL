@@ -413,10 +413,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
-			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Units[ENDCOLOR].</Text>
+			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_II_HELP">
-			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Units[ENDCOLOR].</Text>
+			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE">
@@ -437,7 +437,7 @@
 			<Text>Stealth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]90%[ENDCOLOR] chance to evade Interception</Text>
+			<Text>[COLOR_POSITIVE_TEXT]90%[ENDCOLOR] chance to evade Interception. [COLOR_POSITIVE_TEXT]-50%[ENDCOLOR] Damage received from Interceptions.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HELI_REPAIR">
@@ -590,11 +590,7 @@
 			<Text>Skirmisher Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-<<<<<<< HEAD
       <Text>-25% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+50% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
-=======
-      <Text>[COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR] (Forest, Jungle, Marsh, Flood Plain, Hills) costs 1 Additional [ICON_MOVES] Movement Point to cross.[NEWLINE]-25% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+50% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
->>>>>>> origin/master
 		</Row>
 
 		<!-- New Slinger Promotion -->
@@ -602,11 +598,7 @@
 			<Text>Concussive Hits</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SLINGER_HELP">
-<<<<<<< HEAD
 			<Text>[COLOR_POSITIVE_TEXT]Ranged[ENDCOLOR] Attacks by this Unit inflict the [COLOR_POSITIVE_TEXT]Dazed[ENDCOLOR] status on other Units, reducing their [ICON_STRENGTH] Combat Strength by 15% for 5 Turns.[NEWLINE]Ignores[COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
-=======
-			<Text>[COLOR_POSITIVE_TEXT]Ranged[ENDCOLOR] Attacks by this Unit inflict the [COLOR_POSITIVE_TEXT]Dazed[ENDCOLOR] status on other Units, reducing their [ICON_STRENGTH] Combat Strength by 15% for 5 Turns.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
->>>>>>> origin/master
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DAZED">
 			<Text>Dazed</Text>
@@ -968,6 +960,12 @@
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_3_HELP">
 			<Text>+25% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+25 Hit Points.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MECH">
+			<Text>Titanic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MECH_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE]+100 Hit Points. Begins combat with a free Ranged attack.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
-TXT_KEY_PROMOTION_SLINGER_HELP

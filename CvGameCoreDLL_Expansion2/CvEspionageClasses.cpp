@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+﻿/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1694,6 +1694,8 @@ bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdva
 			}
 			case ADVANCED_ACTION_REBELLION:
 			{
+				if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+					return false;
 				if (pCity->GetBlockRebellion() > 0)
 					return false;
 				break;
@@ -5130,9 +5132,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		}
 	}
 
-
-	if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(m_pPlayer->getTeam()))
-		GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).makePeace(m_pPlayer->getTeam(), false);
+	if (bAttemptSuccess)
+	{
+		if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(m_pPlayer->getTeam()))
+			GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).makePeace(m_pPlayer->getTeam(), false);
+	}
 
 	pMinorCivAI->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), aiNewInfluenceValueTimes100[m_pPlayer->GetID()]);
 
@@ -5188,6 +5192,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	if (bAttemptSuccess)
 	{
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 	}
 
 	// Update City banners and game info
@@ -5424,8 +5429,8 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 		// add to list!
 		m_aaPlayerStealableTechList[ePlayer].push_back(eTech);
-		}
 	}
+}
 
 /// IsTechStealable - Check to see if you can steal this tech from an opponent
 bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)

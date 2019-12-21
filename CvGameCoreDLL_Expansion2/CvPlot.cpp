@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2425,7 +2425,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		bValid = true;
 	}
 
-	if(pkImprovementInfo->IsAnyBodyOfWaterMakesValid())
+	if(pkImprovementInfo->IsWaterAdjacencyMakesValid())
 	{
 		if (isCoastalLand() || isFreshWater() || isRiver()) 
 		{
@@ -3292,6 +3292,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
+	// Note that the barbarians are not included here, to they can never intercept
 	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eAttackingPlayer).GetPlayersAtWarWith();
 
 	for(size_t iI = 0; iI < vEnemies.size(); iI++)
@@ -9820,14 +9821,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 			}
 			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
 			{
-				CvUnit* pUnit = pOwningCity->plot()->getCenterUnit();
-				if (pUnit != NULL && pUnit->GetFortificationYieldChange(eYield) > 0)
-				{
-					int iUnitStrength = pUnit->GetBaseCombatStrength();
-					iYield += ((pUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
-				}
-			}
-			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
+				// Don't provide yield if tile is pillaged
+				if (pOwningCity->plot()->IsImprovementPillaged() == false)
+<<<<<<< HEAD
 			{
 				// If there are any Units here, meet their owners
 				for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
@@ -9841,6 +9837,22 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 					{
 						int iUnitStrength = loopUnit->GetBaseCombatStrength();
 						iYield += ((loopUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
+=======
+				{
+					// If there are any Units here, meet their owners
+					for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
+					{
+						// If the AI spots a human Unit, don't meet - wait for the human to find the AI
+						CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
+						if (!loopUnit)
+							continue;
+
+						if (loopUnit->GetFortificationYieldChange(eYield) > 0)
+						{
+							int iUnitStrength = loopUnit->GetBaseCombatStrength();
+							iYield += ((loopUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
+>>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
+						}
 					}
 				}
 			}

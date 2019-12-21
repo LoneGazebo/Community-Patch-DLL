@@ -449,7 +449,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			int iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
 			int	iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
 			//this is about strategic placement, not resources
-			int iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();
+			int iStrategicValue = ComputeStrategicValue(pLoopPlot, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();
 
 			int iResourceValue = 0;
 			int iHappinessValue = 0;
@@ -1196,7 +1196,7 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 }
 
 /// Value of plot for providing strategic value
-int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pPlayer, int iPlotsFromCity)
+int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity)
 {
 	int rtnValue = 0;
 
@@ -1241,28 +1241,6 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pP
 		if(iWeight != 0 && iPlotsFromCity == 1)
 		{
 			rtnValue += iWeight;
-		}
-	}
-
-	if (iPlotsFromCity == 0 && pPlayer)
-	{
-		int iDistToAll = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
-		int iDistToUs = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
-
-		//is the plot exposed to a potential enemy
-		if (iDistToAll < iDistToUs && iDistToAll < 6)
-		{
-			// from how many plots can this city be bombarded?
-			// might change if forests are chopped but just as an indication
-			vector<CvPlot*> potentialAttackPlots = GC.getMap().GetPlotsAtRange(pPlot, 2, true, true);
-			for (size_t i = 0; i < potentialAttackPlots.size(); i++)
-			{
-				int iDistToAll = GC.getGame().GetClosestCityDistanceInTurns(potentialAttackPlots[i]);
-				int iDistToUs = pPlayer->GetCityDistanceInEstimatedTurns(potentialAttackPlots[i]);
-				//check if the plot is facing our potential enemies
-				if (iDistToAll < iDistToUs)
-					rtnValue -= GC.getHILL_STRATEGIC_VALUE();
-			}
 		}
 	}
 
@@ -1390,7 +1368,7 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, const std:
 				rtnValue += iRingModifier * ComputeScienceValue(pLoopPlot, NULL) * /*1*/ GC.getSTART_AREA_SCIENCE_MULTIPLIER();
 				rtnValue += iRingModifier * ComputeFaithValue(pLoopPlot, NULL) * /*1*/ GC.getSTART_AREA_FAITH_MULTIPLIER();
 				rtnValue += iRingModifier * ComputeTradeableResourceValue(pLoopPlot, NULL) * /*1*/ GC.getSTART_AREA_RESOURCE_MULTIPLIER();
-				rtnValue += iRingModifier * ComputeStrategicValue(pLoopPlot, NULL, iDistance) * /*1*/ GC.getSTART_AREA_STRATEGIC_MULTIPLIER();
+				rtnValue += iRingModifier * ComputeStrategicValue(pLoopPlot, iDistance) * /*1*/ GC.getSTART_AREA_STRATEGIC_MULTIPLIER();
 			}
 		}
 	}

@@ -1,9 +1,17 @@
--- Game Options
+ï»¿-- Game Options
 
 INSERT INTO Language_en_US
 			(Tag,											Text)
 VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
 			('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');
+			
+UPDATE Language_en_US
+SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
+WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Barbarians and their Encampments do not appear on the map. Rebel (barbarian) uprisings from [ICON_HAPPINESS_4] Unhappiness do not occur.'
+WHERE Tag = 'TXT_KEY_GAME_OPTION_NO_BARBARIANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Leaders
 
@@ -397,19 +405,19 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 -- Fixed diacritics for spy names.
 UPDATE Language_en_US
-SET Text = 'Antônio'
+SET Text = 'AntÃ´nio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estêvão'
+SET Text = 'EstÃªvÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernão'
+SET Text = 'FernÃ£o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomé'
+SET Text = 'TomÃ©'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 
@@ -875,13 +883,19 @@ SET Text = 'The following tribute would improve my black humor, greatly increasi
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEMANDTRIBUTE_NEUTRAL';
 
 
+-- Accept Demand (Friendly)
+UPDATE Language_en_US
+SET Text = 'Here. I am nothing but the nightmare of a mad god; what good are such things to me?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_HAPPY';
+
+
 -- Accept Demand (Neutral)
 UPDATE Language_en_US
 SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
 WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
-SET Text = 'I agree - if only to confound my advisors, who urge me to refuse.'
+SET Text = 'I agree; if only to confound my advisors, who urge me to refuse.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
@@ -899,8 +913,18 @@ SET Text = 'Very well. It appears as if I have no choice. But someday, you will 
 WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY';
 
 UPDATE Language_en_US
+SET Text = 'Your fetid breath chokes the life from me! Take what you would and be gone.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_ANGRY';
+
+UPDATE Language_en_US
 SET Text = 'Very well. I hope you may choke on it!'
 WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_TRIBUTE_YES_ANGRY';
+
+
+-- Refuse Demand (Neutral)
+UPDATE Language_en_US
+SET Text = 'Foolish Jackal! You would do well to go to Egypt, where such as you are worshipped. Here, you get nothing.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_NO_NEUTRAL';
 
 
 -- Refuse Demand (Hostile)
@@ -1063,6 +1087,10 @@ WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU';
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
 WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US';
+
+UPDATE Language_en_US
+SET Text = 'Your actions are unforgivable. There can never be reconciliation between our two nations.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)'
+WHERE Tag = 'TXT_KEY_NOW_UNFORGIVABLE_1';
 
 UPDATE Language_en_US
 SET Text = 'I did not want things to end up like this, but I cannot overlook your warmongering. Consider our Declaration of Friendship ended.'

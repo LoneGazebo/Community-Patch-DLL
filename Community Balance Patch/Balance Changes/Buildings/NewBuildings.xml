@@ -882,7 +882,6 @@
 			<Strategy>TXT_KEY_BUILDING_WIND_PLANT_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_WIND_PLANT_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
-			<IsNoRiver>true</IsNoRiver>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>

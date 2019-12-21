@@ -303,7 +303,7 @@
 			<Text>We must win. Begin conscription.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_HELP">
-			<Text>50% chance that all Cities will produce a military unit and bein 2 turns of [ICON_RESISTANCE] Resistance.</Text>
+			<Text>50% chance that all Cities will produce a military unit and begin 2 turns of [ICON_RESISTANCE] Resistance.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_SUCCESSFUL">
 			<Text>Conscription was successful, but your people are more angry than ever before. All cities experience 2 turns of [ICON_RESISTANCE] Resistance and produce 1 military unit.</Text>
@@ -592,7 +592,7 @@
 			<Text>A summit like this gives us an unprecedented opportunity to enact cross-border monetary policy. If our Economic Advisor plays her cards right, we should be able to unlock vast amounts of capital. Now, and in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_3_HELP">
-			<Text>Gain an injection of {2_InstantYield}. Banks permanently increase [ICON_GOLD] Gold output by 5%.</Text>
+			<Text>Gain an injection of {2_InstantYield}. The Bank permanently increases the [ICON_CAPITAL] Capital's [ICON_GOLD] Gold output by 5%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_4">
 			<Text>The idea of an international peacekeeping organisation has gathered support around the world. We cannot allow such a force to exist without being at its head. Send our Military Advisor as our chief representative. Argue strongly for this army, and for our men as its leaders.</Text>

@@ -16944,11 +16944,23 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
 		if (!pMajorLoop) continue;
 
-		if(pMajorLoop->isAlive())
+		if (pMajorLoop->isAlive() && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()))
 		{
 			if(GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
 			{
 				pMajorLoop->GetDiplomacyAI()->DoPlayerBulliedSomeone(eBully, GetPlayer()->GetID());
+
+				CvNotifications* pNotifications = pMajorLoop->GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE_S");
+					strSummary << GetPlayer()->getNameKey();
+					strSummary << pBully->getNameKey();
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE");
+					strNotification << GetPlayer()->getNameKey();
+					strNotification << pBully->getNameKey();
+					pNotifications->Add(NOTIFICATION_MINOR, strNotification.toUTF8(), strSummary.toUTF8(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY(), -1);
+				}
 			}
 		}
 	}

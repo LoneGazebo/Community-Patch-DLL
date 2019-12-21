@@ -4159,6 +4159,7 @@
 			<OrderPriority>1</OrderPriority>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<EvasionChange>90</EvasionChange>
+			<InterceptionDefenseDamageModifier>-50</InterceptionDefenseDamageModifier>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -4256,6 +4257,22 @@
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MOUNTED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ALHAMBRA</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MECH</Type>
+			<Description>TXT_KEY_PROMOTION_MECH</Description>
+			<Help>TXT_KEY_PROMOTION_MECH_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<OrderPriority>6</OrderPriority>
+			<AttackMod>25</AttackMod>
+			<MaxHitPointsChange>100</MaxHitPointsChange>
+			<RangedSupportFire>true</RangedSupportFire>
+			<PortraitIndex>24</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MECH</PediaEntry>
 		</Row>
 	</UnitPromotions>
 </GameData>

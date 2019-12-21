@@ -2811,6 +2811,46 @@
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Base Opinion Mod -->
+		<Row Tag="TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION">
+			<Text>[COLOR_POSITIVE_TEXT]They instinctively like you![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOOD_BASE_OPINION">
+			<Text>[COLOR_POSITIVE_TEXT]They instinctively view you more favorably.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BAD_BASE_OPINION">
+			<Text>[COLOR_NEGATIVE_TEXT]They instinctively view you as a competitor.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION">
+			<Text>[COLOR_NEGATIVE_TEXT]They instinctively hate you![ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Show True Approach Debug Text -->
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_WAR">
+			<Text>True Approach: War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_PLANNING_WAR">
+			<Text>True Approach: Planning War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_HOSTILE">
+			<Text>True Approach: Hostile</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_DECEPTIVE">
+			<Text>True Approach: Deceptive</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_GUARDED">
+			<Text>True Approach: Guarded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_AFRAID">
+			<Text>True Approach: Afraid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_FRIENDLY">
+			<Text>True Approach: Friendly</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRUE_APPROACH_NEUTRAL">
+			<Text>True Approach: Neutral</Text>
+		</Row>
+		
 		<!-- Research Agreement Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_MADE_RESEARCH_AGREEMENT">
 			<Text>[COLOR_POSITIVE_TEXT]We have made a Research Agreement![ENDCOLOR]</Text>
@@ -2903,6 +2943,26 @@
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
+			<Text> (They are bloodthirsty warmongers!)</Text>
+		</Row>
+		
+		<!-- :) -->
+		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
+			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
+			<Text> (They are bloodthirsty warmongers!)</Text>
+		</Row>
+		
+		<!-- :) -->
+		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
+			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
+		</Row>
 
 		<!-- Defense Pact Offer -->
 		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_1">
@@ -2993,7 +3053,16 @@
 		</Row>
 		<!-- Diplo Modifier Texts-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
-			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
+			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.[NEWLINE][NEWLINE]If you denounce or declare war on this player within [COLOR_NEGATIVE_TEXT]10[ENDCOLOR] turns of cancelling your Declaration of Friendship, you will receive a diplomatic penalty for backstabbing them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS">
+			<Text>If you denounce them or declare war on them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_WAR_ONLY_TURNS">
+			<Text>If you declare war on them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS">
+			<Text>If you denounce them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
@@ -3152,6 +3221,14 @@
 			<Text>We may share an ideology, but even that is not enough to keep me from hating you. You will be destroyed soon enough.</Text>
 		</Row>
 
+		<!-- Bullying Notification -->
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE_S">
+			<Text>{1_CS} bullied by {2_Civ}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
+			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
+		</Row>
+		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">
 			<Text>Your friend, {@1_MinorCivName}, stands between me and my dreams of a grand empire. Are you going to intervene, or not?</Text>
@@ -3995,13 +4072,13 @@
 			<Text>The war against {1_PlayerName:textkey} has come. Shall we?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_2">
-			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.</Text>
+			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_3">
-			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.</Text>
+			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_4">
-			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.</Text>
+			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_ENEMY_2">
 			<Text>Time and again, you have shown to be my enemy, not my friend. I suppose it is only logical that I consider you as such.</Text>
@@ -5340,11 +5417,15 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_ACTUALLY">
-			<Text>Your {@1_UnitName} bombarded the enemy City of {@2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
+			<Text>Your {@1_UnitName} bombarded the enemy City of {2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_INTERCEPTED">
-			<Text>While attacking {@4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+			<Text>While attacking {4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_UNIT_BY_AIR_INTERCEPTED">
+			<Text>An enemy {@1_IntUnitName} intercepted your {@2_AttUnitName} ({3_Num} damage)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
@@ -6012,7 +6093,7 @@
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS">
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS">
 			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
 		</Row>
 

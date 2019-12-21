@@ -12098,6 +12098,13 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 				iScore += 35;
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Speaking of Gandhi, he's very nuke happy!
+		if (GetPlayer()->GetDiplomacyAI()->IsNuclearGandhiEnabled() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
+		{
+			iScore += -5000;
+		}
+#endif
 	}
 	// World Religion
 	if (pProposal->GetEffects()->iVotesForFollowingReligion != 0 ||
