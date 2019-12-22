@@ -958,6 +958,7 @@ struct STacticalAssignment
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_ESCORTED_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
+	bool isOffensive() const;
 };
 
 struct SUnitStats
@@ -1074,7 +1075,8 @@ protected:
 	//so we can look up stuff we haven't cached locally
 	const CvTacticalPosition* parentPosition;
 
-	vector<SUnitStats> availableUnits; //which units do still need an assignment
+	vector<SUnitStats> availableUnits; //units which still need an assignment
+	vector<SUnitStats> unfinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
 	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
@@ -1122,7 +1124,8 @@ public:
 	void initFromParent(const CvTacticalPosition& parent); 
 
 	bool isComplete() const;
-	bool isOffensive() const;
+	const CvTacticalPosition* findAncestorWithoutExtraMoves() const;
+	bool addFinishMovesIfAcceptable();
 	void updateTacticalPlotTypes(CvTacticalPlot::eTactPlotDomain eDomain, int iStartPlot = -1);
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);

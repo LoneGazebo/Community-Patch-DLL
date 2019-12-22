@@ -1538,12 +1538,8 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
 	}
 
-	bool bCityConquered = false;
-
 	if(pkDefender)
 		pkDefender->clearCombat();
-	else
-		bCityConquered = true;
 
 	if(pkAttacker)
 	{
@@ -1593,9 +1589,6 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			// Barb goes away after ransom
 			pkAttacker->kill(true, NO_PLAYER);
-
-			// Treat this as a conquest
-			bCityConquered = true;
 		}
 		// Attacker died
 		else if(pkAttacker->IsDead())
@@ -1630,8 +1623,6 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				}
 
 				pkAttacker->UnitMove(pkPlot, true, pkAttacker);
-
-				bCityConquered = true;
 			}
 		}
 		// Neither side lost
