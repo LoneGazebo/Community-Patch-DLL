@@ -3255,9 +3255,9 @@ CvAIOperationNavalInvasionSneaky::~CvAIOperationNavalInvasionSneaky()
 void CvAIOperationCityBasicAttack::OnSuccess() const
 {
 	CvPlot* pPlot = GetTargetPlot();
-	if (!pPlot->isCity())
+	if (!pPlot->isCity() && m_eEnemy != NO_PLAYER)
 	{
-		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
 		if (pCity)
 			pPlot = pCity->plot();
 	}
@@ -3268,9 +3268,9 @@ void CvAIOperationCityBasicAttack::OnSuccess() const
 void CvAIOperationNavalOnlyCityAttack::OnSuccess() const
 {
 	CvPlot* pPlot = GetTargetPlot();
-	if (!pPlot->isCity())
+	if (!pPlot->isCity() && m_eEnemy != NO_PLAYER)
 	{
-		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
 		if (pCity)
 			pPlot = pCity->plot();
 	}
@@ -3281,9 +3281,9 @@ void CvAIOperationNavalOnlyCityAttack::OnSuccess() const
 void CvAIOperationNavalInvasion::OnSuccess() const
 {
 	CvPlot* pPlot = GetTargetPlot();
-	if (!pPlot->isCity())
+	if (!pPlot->isCity() && m_eEnemy != NO_PLAYER)
 	{
-		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		CvCity* pCity = GET_PLAYER(m_eEnemy).GetClosestCityByEstimatedTurns(pPlot);
 		if (pCity)
 			pPlot = pCity->plot();
 	}

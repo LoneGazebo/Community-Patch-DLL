@@ -5,6 +5,11 @@
 
 #include "CvEnums.h"
 
+struct STiebreakGenerator
+{
+	virtual int operator()(int iOwner, int iFeatureID) const = 0;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvDistanceMap
 //!  \brief		Used to calculate the distance transform for given map features (typically cities)
@@ -15,40 +20,47 @@ public:
 	CvDistanceMap(void);
 	~CvDistanceMap(void);
 
-	virtual void SetPlayer(PlayerTypes ePlayer);
-	virtual void Reset();
+	void Reset(int nPlots, int iDefaultDistance);
+	bool UpdateDistanceIfLower(int iPlotIndex, int iOwner, int iID, int iDistance, const STiebreakGenerator& tiebreaker);
 
 	//not const because of deferred updates ...
-	virtual int GetClosestFeatureDistance(const CvPlot& pPlot);
-	virtual int GetClosestFeatureID(const CvPlot& pPlot);
-	virtual int GetClosestFeatureOwner(const CvPlot& pPlot);
+	int GetClosestFeatureDistance(const CvPlot& pPlot);
+	int GetClosestFeatureID(const CvPlot& pPlot);
+	int GetClosestFeatureOwner(const CvPlot& pPlot);
 
 	void Dump(const char* filename);
-	void SetDirty();
-	bool IsDirty() const
-	{
-		return m_bDirty;
-	}
 
 protected:
-
-	virtual void Update() = 0;
-
-	PlayerTypes m_ePlayer; //may be no_player
-	bool m_bArrayAllocated;
-	bool m_bDirty;
-
 	std::vector<int> m_vClosestFeature; //plot index to feature
 	std::vector<int> m_vDistance;		//plot index to distance
 };
 
-class CvDistanceMapTurns : public CvDistanceMap
+class CvDistanceMapWrapper
+{
+protected:
+	bool m_bDirty;
+	CvDistanceMap allPlayers;
+	CvDistanceMap allMajorPlayers;
+	vector<CvDistanceMap> majorPlayers; 
+
+	virtual void Update() = 0;
+
+public:
+	void SetDirty();
+	bool IsDirty() const { return m_bDirty;	}
+
+	int GetDistance(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
+	int GetFeatureId(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
+	int GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
+};
+
+class CvDistanceMapByTurns : public CvDistanceMapWrapper
 {
 protected:
 	virtual void Update();
 };
 
-class CvDistanceMapPlots : public CvDistanceMap
+class CvDistanceMapByPlots : public CvDistanceMapWrapper
 {
 protected:
 	virtual void Update();

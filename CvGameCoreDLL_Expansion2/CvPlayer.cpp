@@ -789,10 +789,6 @@ CvPlayer::CvPlayer() :
 	m_pDealAI = FNEW(CvDealAI, c_eCiv5GameplayDLL, 0);
 	m_pBuilderTaskingAI = FNEW(CvBuilderTaskingAI, c_eCiv5GameplayDLL, 0);
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistanceTurns = FNEW(CvDistanceMapTurns, c_eCiv5GameplayDLL, 0);
-	m_pCityDistancePlots = FNEW(CvDistanceMapPlots, c_eCiv5GameplayDLL, 0);
-#endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
 	m_pTraits = FNEW(CvPlayerTraits, c_eCiv5GameplayDLL, 0);
@@ -827,10 +823,6 @@ CvPlayer::~CvPlayer()
 	uninit();
 
 	SAFE_DELETE(m_pDangerPlots);
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	SAFE_DELETE(m_pCityDistanceTurns);
-	SAFE_DELETE(m_pCityDistancePlots);
-#endif
 	SAFE_DELETE(m_pPlayerPolicies);
 	SAFE_DELETE(m_pEconomicAI);
 	SAFE_DELETE(m_pMilitaryAI);
@@ -1194,11 +1186,6 @@ void CvPlayer::uninit()
 	{
 		m_pDangerPlots->Uninit();
 	}
-
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistanceTurns->Reset();
-	m_pCityDistancePlots->Reset();
-#endif
 
 	m_ppaaiSpecialistExtraYield.clear();
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -2114,12 +2101,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_pDiplomacyRequests->Init(eID);
 		}
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
-
-#if defined(MOD_BALANCE_CORE_SETTLER)
-		m_pCityDistanceTurns->SetPlayer(eID);
-		m_pCityDistancePlots->SetPlayer(eID);
-#endif
-
 		m_pTreasury->Init(this);
 		m_pTraits->Init(GC.GetGameTraits(), this);
 		m_pEspionage->Init(this);
@@ -2332,8 +2313,6 @@ void CvPlayer::gameStartInit()
 #if defined(MOD_BALANCE_CORE)
 	//make sure the non-serialized infos are up to date
 	m_pDangerPlots->Init(GetID(), true);
-	m_pCityDistanceTurns->SetPlayer(GetID());
-	m_pCityDistancePlots->SetPlayer(GetID());
 #else
 	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
 	if(CvPreGame::gameStartType() != GAME_LOADED)
@@ -2963,9 +2942,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-		SetClosestCityMapDirty();
-#endif
+		GC.getGame().SetClosestCityMapDirty();
 
 #if defined(MOD_BALANCE_CORE)
 		int iLoop=0;
@@ -11439,12 +11416,6 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateAreaEffectPlots();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
-
-			if (0)
-			{
-				m_pCityDistanceTurns->Dump( CvString::format("c:\\temp\\CityDistanceTurns_Player%d.csv", m_eID.get()).c_str() );
-				m_pCityDistancePlots->Dump( CvString::format("c:\\temp\\CityDistancePlots_Player%d.csv", m_eID.get()).c_str() );
-			}
 		}
 
 		if(!isBarbarian())
@@ -40623,9 +40594,7 @@ void CvPlayer::deleteCity(int iID)
 	m_cities.Remove(iID);
 	m_iNumUnitsSuppliedCached = -1;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	SetClosestCityMapDirty();
-#endif
+	GC.getGame().SetClosestCityMapDirty();
 
 #if defined(MOD_BALANCE_CORE)
 	int iLoop=0;
@@ -40634,49 +40603,25 @@ void CvPlayer::deleteCity(int iID)
 #endif
 }
 
-#if defined(MOD_BALANCE_CORE)
-void CvPlayer::SetClosestCityMapDirty()
-{
-	if (m_pCityDistanceTurns)
-		m_pCityDistanceTurns->SetDirty();
-	if (m_pCityDistancePlots)
-		m_pCityDistancePlots->SetDirty();
-
-	GC.getGame().SetClosestCityMapDirty();
-}
-
 int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
-	if (pPlot && m_pCityDistanceTurns)
-		return m_pCityDistanceTurns->GetClosestFeatureDistance( *pPlot );
-	else
-		return INT_MAX;
+	return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
 }
 
 CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
-	if (pPlot && m_pCityDistanceTurns)
-		return getCity(m_pCityDistanceTurns->GetClosestFeatureID( *pPlot ));
-	else
-		return NULL;
+	return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
 }
 
 int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 {
-	if (pPlot && m_pCityDistancePlots)
-		return m_pCityDistancePlots->GetClosestFeatureDistance(*pPlot);
-	else
-		return INT_MAX;
+	return GC.getGame().GetClosestCityDistanceInPlots( pPlot, GetID() );
 }
 
 CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
 {
-	if (pPlot && m_pCityDistancePlots)
-		return getCity(m_pCityDistancePlots->GetClosestFeatureID(*pPlot));
-	else
-		return NULL;
+	return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
@@ -45426,9 +45371,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_cityNames;
 
 	kStream >> m_cities;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	SetClosestCityMapDirty();
-#endif
+	GC.getGame().SetClosestCityMapDirty();
 
 	kStream >> m_units;
 	kStream >> m_armyAIs;
@@ -47625,10 +47568,10 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		else
 		{
 			//on a settled continent we want our territory to be contiguous, unless there is lots of free space
-			CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pPlot);
-			if (pClosestCity && pClosestCity->getOwner() != GetID() && GET_PLAYER(pClosestCity->getOwner()).isMajorCiv())
+			CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
+			if (pClosestCity && pClosestCity->getOwner() != GetID())
 			{
-				if (GC.getGame().GetClosestCityDistanceInTurns(pPlot)*2 < GetCityDistanceInEstimatedTurns(pPlot))
+				if (GC.getGame().GetClosestCityDistanceInTurns(pPlot,true)*2 < GetCityDistanceInEstimatedTurns(pPlot))
 					iScale = 0;
 			}
 		}

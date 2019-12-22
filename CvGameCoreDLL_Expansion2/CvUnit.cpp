@@ -23183,6 +23183,7 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 	}
 	return iHeal;
 }
+
 int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -23198,7 +23199,8 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 			return 0;
 	}
 
-	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot);
+	//this is not 100% accurate in case of ties ... but good enough
+	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot,false);
 	if (!pCity || plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) > iRange)
 		return 0;
 
@@ -23217,6 +23219,7 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 
 	return 0;
 }
+
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT

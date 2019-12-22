@@ -2904,14 +2904,11 @@ public:
 	void SetVassalLevy(bool bValue);
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-	void SetClosestCityMapDirty();
 	//assuming a typical unit with baseMoves==2
 	int GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
-#endif
 
 protected:
 	class ConqueredByBoolField
@@ -3656,7 +3653,6 @@ protected:
 	CvDangerPlots* m_pDangerPlots;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	CvDistanceMap *m_pCityDistanceTurns, *m_pCityDistancePlots;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
