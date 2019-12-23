@@ -457,6 +457,11 @@ UPDATE Language_en_US
 SET Text = 'City-State is permanently at war.'
 WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 
+-- Tooltip fix for Defensive Pact
+UPDATE Language_en_US
+SET Text = 'If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.'
+WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_TT';
+
 -- Lua for Cities
 UPDATE Language_en_US
 SET Text = 'We have no tradeable cities and/or we do not have an Embassy with them.'
@@ -498,7 +503,7 @@ SET Text = 'War Score is ever-shifting status of a war between players. War Scor
 WHERE Tag = 'TXT_KEY_DIPLOMACY_PEACE_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Once you have acquired the Chivalry tech, you may engage in a Defensive Pact. Defensive Pacts are always mutual. If a signatory to a Defensive Pact is attacked, the other partner is automatically at war with the attacker.[NEWLINE][NEWLINE]A Defensive Pact lasts for 30 turns (on standard speed). When that time has elapsed, the pact lapses unless it is renegotiated.'
+SET Text = 'Once you have acquired the Chivalry tech, you may engage in a Defensive Pact. Defensive Pacts are always mutual. If a signatory to a Defensive Pact is attacked, the other partner is automatically at war with the attacker.[NEWLINE][NEWLINE]A Defensive Pact lasts for 50 turns (on standard speed). When that time has elapsed, the pact lapses unless it is renegotiated.'
 WHERE Tag = 'TXT_KEY_DIPLOMACY_DEFENSIVEPACT_HEADING3_BODY';
 
 UPDATE Language_en_US
