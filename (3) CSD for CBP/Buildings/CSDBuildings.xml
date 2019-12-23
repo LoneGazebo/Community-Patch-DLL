@@ -882,6 +882,20 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_BuildingClassYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_OLYMPIC_VILLAGE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_STADIUM</BuildingClassType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_OLYMPIC_VILLAGE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_STADIUM</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+	</Building_BuildingClassYieldChanges>
 	<Building_YieldModifiers>
 		<Row>
 			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
