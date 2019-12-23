@@ -2037,7 +2037,7 @@ void CvEconomicAI::DoHurry()
 					m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 					//and train it!
-					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)))
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);

@@ -407,10 +407,6 @@ CvUnit::CvUnit() :
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
-<<<<<<< HEAD
-=======
-	, m_iDummy("CvUnit::m_iDummy", m_syncArchive) // <------------------------------------- reuse me
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -1620,10 +1616,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
-<<<<<<< HEAD
-=======
-	m_iDummy = 0;
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -20605,11 +20597,7 @@ bool CvUnit::onMap() const
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 CvCity* CvUnit::getOriginCity() const
-<<<<<<< HEAD
 {
-=======
-{ 
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	VALIDATE_OBJECT
 	if(getOwner() == NO_PLAYER)
 		return NULL;
@@ -24704,7 +24692,6 @@ int CvUnit::getMadeInterceptionCount() const
 
 //	--------------------------------------------------------------------------------
 void CvUnit::increaseInterceptionCount()
-<<<<<<< HEAD
 	{
 		m_iMadeInterceptionCount++;
 		m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
@@ -24714,17 +24701,6 @@ void CvUnit::resetInterceptionCount()
 	{
 		m_iMadeInterceptionCount = 0;
 	}
-=======
-{
-	m_iMadeInterceptionCount++;
-	m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
-}
-
-void CvUnit::resetInterceptionCount()
-{
-	m_iMadeInterceptionCount = 0;
-}
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isPromotionReady() const

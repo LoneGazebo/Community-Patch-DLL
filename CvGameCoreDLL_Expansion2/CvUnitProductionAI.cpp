@@ -1,9 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-=======
-	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -560,17 +556,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		///////////////
 		//UNIT TYPE CHECKS
 		//////////////////////
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-		if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+		//Virtually force this.
+		if (m_pCity->IsUnitInvestment((UnitClassTypes)pkUnitEntry->GetUnitClassType()))
 		{
-			//Virtually force this.
-			const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
-			if(m_pCity->IsUnitInvestment(eUnitClass))
-			{
-				iBonus += 500;
-			}
+			iBonus += 500;
 		}
-#endif
 
 		//Sanity check for buildable support units.
 		if (!bFree && pkUnitEntry->IsCityAttackSupport())

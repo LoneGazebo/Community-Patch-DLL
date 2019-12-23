@@ -3122,7 +3122,7 @@ void CvCity::doTurn()
 				{
 					SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
 				}
-				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
 				{
 					SetBaseYieldRateFromCSFriendship(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
 				}
@@ -9927,6 +9927,9 @@ void CvCity::DoTestResourceDemanded()
 	VALIDATE_OBJECT
 	ResourceTypes eResource = GetResourceDemanded();
 
+	if (eResource == NO_RESOURCE)
+		DoPickResourceDemanded();
+
 	if(GetWeLoveTheKingDayCounter() > 0)
 	{
 		ChangeWeLoveTheKingDayCounter(-1);
@@ -11046,15 +11049,18 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
+	if (eUnit != NO_UNIT)
 	{
 		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
-		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
-		if(IsUnitInvestment(eUnitClass))
+		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
 		{
-			int iTotalDiscount = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
-			iNumProductionNeeded *= (iTotalDiscount + 100);
-			iNumProductionNeeded /= 100;
+			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+			if (IsUnitInvestment(eUnitClass))
+			{
+				int iTotalDiscount = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+				iNumProductionNeeded *= (iTotalDiscount + 100);
+				iNumProductionNeeded /= 100;
+			}
 		}
 	}
 #endif
@@ -27727,12 +27733,7 @@ void CvCity::updateStrengthValue()
 	if (iStrengthValue != m_iStrengthValue)
 	{
 		m_iStrengthValue = iStrengthValue;
-<<<<<<< HEAD
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-=======
-		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-	}
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 }
 }
 
@@ -30346,19 +30347,29 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			{
 				return false;
 			}
+			//Have we already invested here?
+			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
+			{
+				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+				if (IsUnitInvestment(eUnitClass))
+				{
+					return false;
+				}
+			}
 #endif
 		}
 		// Building
-		else if(eBuildingType != NO_BUILDING)
+		else if (eBuildingType != NO_BUILDING)
 		{
 #if defined(MOD_API_EXTENSIONS)
-			if(!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 #else
 			if(!canConstruct(eBuildingType, false, !bTestTrainable))
 #endif
 			{
 				bool bAlreadyUnderConstruction = canConstruct(eBuildingType, true, !bTestTrainable) && getFirstBuildingOrder(eBuildingType) != -1;
-				if(!bAlreadyUnderConstruction)
+				if (!bAlreadyUnderConstruction)
 				{
 					return false;
 				}
@@ -30366,7 +30377,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 
 			iGoldCost = GetPurchaseCost(eBuildingType);
 #if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
-			if(MOD_BALANCE_CORE_PUPPET_PURCHASE && bIsPuppet && !bPuppetExceptionBuilding && !bAllowsPuppetPurchase && !bVenetianException)
+			if (MOD_BALANCE_CORE_PUPPET_PURCHASE && bIsPuppet && !bPuppetExceptionBuilding && !bAllowsPuppetPurchase && !bVenetianException)
 			{
 				return false;
 			}
@@ -30377,7 +30388,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				//Have we already invested here?
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-				if(IsBuildingInvestment(eBuildingClass))
+				if (IsBuildingInvestment(eBuildingClass))
 				{
 					return false;
 				}
@@ -30401,20 +30412,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						return false;
 				}
 			}
-#endif
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-			if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && (NO_UNIT != eUnitType))
-			{
-				//Have we already invested here?
-				CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
-				if(IsUnitInvestment(eUnitClass))
-				{
-					return false;
-				}
-			}
-#endif		
 		}
+#endif	
 		// Project
 		else if(eProjectType != NO_PROJECT)
 		{

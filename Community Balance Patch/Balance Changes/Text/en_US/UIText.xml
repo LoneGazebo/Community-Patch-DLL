@@ -420,11 +420,7 @@
 		<Row Tag ="TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN_STRATEGIC">
 			<Text>Foreign Strategic Monopolies</Text>
 		</Row>
-<<<<<<< HEAD
 
-=======
-		
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
 			<Text>Resource Monopoly</Text>
 		</Row>

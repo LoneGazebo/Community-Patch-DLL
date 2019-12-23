@@ -1703,6 +1703,10 @@ bool CvMinorCivQuest::IsComplete()
 		return false;
 	}
 
+	//can't complete quests while at war.
+	if (pAssignedPlayer->IsAtWarWith(m_eMinor))
+		return false;
+
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
 		if (pAssignedPlayer->IsCapitalConnectedToPlayer(m_eMinor))

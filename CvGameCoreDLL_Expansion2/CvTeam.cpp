@@ -1461,7 +1461,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		if (MOD_DIPLOMACY_CIV4_FEATURES) 
 		{
 			// We declared war on our vassal!
-			if (GET_TEAM(eTeam).GetMaster() == GetID())
+			if(GET_TEAM(eTeam).GetMaster() == GetID())
 			{
 				// this guy is no longer our vassal
 				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);

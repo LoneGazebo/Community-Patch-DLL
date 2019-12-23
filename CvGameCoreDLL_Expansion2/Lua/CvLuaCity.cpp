@@ -728,6 +728,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CountWorkedTerrain);
 	Method(GetAdditionalFood);
 	Method(SetAdditionalFood);
+
+	Method(IsProductionRoutes);
+	Method(IsFoodRoutes);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
@@ -1251,6 +1254,28 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 				}
 			}
 		}
+#endif
+
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+		//Have we already invested here?
+		const UnitClassTypes eUnitClass = (UnitClassTypes)thisUnitInfo->GetUnitClassType();
+		if (pkCity->IsUnitInvestment(eUnitClass))
+		{
+			int iValue = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			iValue *= -1;
+
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED_UNIT");
+			localizedText << iValue;
+
+			const char* const localized = localizedText.toUTF8();
+			if (localized)
+			{
+				if (!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
 	}
 #endif
 
@@ -1355,31 +1380,6 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 				toolTip += "[NEWLINE]";
 
 			toolTip += localized;
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
-	{
-		//Have we already invested here?
-		
-		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
-		if(pkCity->IsUnitInvestment(eUnitClass))
-		{
-			int iValue = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
-			iValue *= -1;
-
-			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED_UNIT");
-			localizedText << iValue;
-
-			const char* const localized = localizedText.toUTF8();
-			if(localized)
-			{
-				if(!toolTip.IsEmpty())
-					toolTip += "[NEWLINE]";
-
-				toolTip += localized;
-			}
 		}
 	}
 #endif
@@ -6194,6 +6194,23 @@ int CvLuaCity::lSetAdditionalFood(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iFood = lua_tointeger(L, 2);
 	pkCity->SetAdditionalFood(iFood);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaCity::lIsProductionRoutes(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushboolean(L, pkCity->IsProductionRoutes() || GET_PLAYER(pkCity->getOwner()).IsProductionRoutesAllCities());
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lIsFoodRoutes(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushboolean(L, pkCity->IsFoodRoutes() || GET_PLAYER(pkCity->getOwner()).IsFoodRoutesAllCities());
+
 	return 1;
 }
 #endif

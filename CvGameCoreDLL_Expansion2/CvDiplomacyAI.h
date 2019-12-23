@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 /*	-------------------------------------------------------------------------------------------------------
 	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-=======
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -118,18 +113,11 @@ public:
 	MajorCivOpinionTypes GetMajorCivOpinion(PlayerTypes ePlayer) const;
 	void SetMajorCivOpinion(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 	int GetNumMajorCivOpinion(MajorCivOpinionTypes eOpinion) const;
-	
+
 	// Our guess as to another player's opinion towards us
 	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer);
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
 
-<<<<<<< HEAD
-	// Our guess as to another player's opinion towards us
-	MajorCivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer);
-	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, MajorCivOpinionTypes eOpinion);
-
-=======
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	//void DoUpdateOpinionTowardsUsGuesses();
 	void DoEstimateOtherPlayerOpinions();
 
@@ -313,10 +301,6 @@ public:
 	int GetNumWarsFought(PlayerTypes ePlayer) const;
 	void SetNumWarsFought(PlayerTypes ePlayer, int iValue);
 	void ChangeNumWarsFought(PlayerTypes ePlayer, int iChange);
-	
-	int GetNumWarsDeclaredOnUs(PlayerTypes ePlayer) const;
-	void SetNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iValue);
-	void ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange);
 
 	int GetNumWarsDeclaredOnUs(PlayerTypes ePlayer) const;
 	void SetNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iValue);
@@ -427,16 +411,6 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
-	
-	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
-	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
-	
-	int GetNumDoFsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
-	
-	void DoAddWantsDoFWithPlayer(PlayerTypes ePlayer);
-	void DoCancelWantsDoFWithPlayer(PlayerTypes ePlayer);
-	
-	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 
 	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
@@ -581,11 +555,6 @@ public:
 	DisputeLevelTypes GetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
 	void SetEstimateOtherPlayerVictoryDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateEstimateOtherPlayerVictoryDisputeLevels();
-	
-	// Victory Block
-	//BlockLevelTypes GetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
-	//void SetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, BlockLevelTypes eBlockLevel);
-	//void DoUpdateEstimateOtherPlayerVictoryBlockLevels();
 
 	// Victory Block
 	//BlockLevelTypes GetEstimateOtherPlayerVictoryBlockLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
@@ -1421,11 +1390,7 @@ public:
 	int GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const;
 	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
-<<<<<<< HEAD
 
-=======
-	
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	int GetNumCitiesCaptured(PlayerTypes ePlayer) const;
 	void ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange);
 	void SetNumCitiesCaptured(PlayerTypes ePlayer, int iValue);

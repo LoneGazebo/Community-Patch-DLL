@@ -1,9 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-=======
-	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1485,11 +1481,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				}
 
 				// Recall trade units
-<<<<<<< HEAD
 				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
-=======
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing())
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -5264,7 +5256,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		
 		// send notification to owner player
 		CvNotifications* pNotifications = GET_PLAYER(eOwningPlayer).GetNotifications();
-		if (pNotifications)
+		if(pNotifications)
 		{
 			Localization::String strSummary;
 			Localization::String strMessage;

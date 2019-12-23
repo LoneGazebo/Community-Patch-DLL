@@ -4082,11 +4082,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
 		
 		if (isMajorCiv())
-<<<<<<< HEAD
 		GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
-=======
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	}
 
 
@@ -4100,11 +4096,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			GET_PLAYER(eOldOwner).SetLostHolyCityXY(pNewCity->getX(), pNewCity->getY());
 			
 			if (isMajorCiv())
-<<<<<<< HEAD
 			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
-=======
-				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 		}
 	}
 
@@ -9857,20 +9849,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			{
 				pDiploAI->SetRecentAssistValue(eMePlayer, 0);
 			}
-
+			
 			pDiploAI->SetNumWarsDeclaredOnUs(eMePlayer, 0);
 			pDiploAI->SetNumCitiesCaptured(eMePlayer, 0);
 			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
 			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
 			
-<<<<<<< HEAD
-			pDiploAI->SetNumWarsDeclaredOnUs(eMePlayer, 0);
-			pDiploAI->SetNumCitiesCaptured(eMePlayer, 0);
-			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
-			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
-			
-=======
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 			pDiploAI->SetNumArtifactsEverDugUp(eMePlayer, 0);
 			pDiploAI->SetPlayerEverConvertedCity(eMePlayer, false);
 			
@@ -20677,19 +20661,15 @@ void CvPlayer::DoUpdateUprisings()
 		return;
 		
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-<<<<<<< HEAD
 	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
-=======
-	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 	{
 		// If we're very unhappy, make the counter wind down
-		if (GetUprisingCounter() > 0)
+		if(GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if (GetUprisingCounter() == 0)
+			if(GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -20703,15 +20683,15 @@ void CvPlayer::DoUpdateUprisings()
 	}
 	else
 #endif
-	if (IsEmpireSuperUnhappy())
+	if(IsEmpireSuperUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if (GetUprisingCounter() > 0)
+		if(GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if (GetUprisingCounter() == 0)
+			if(GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -20896,9 +20876,6 @@ void CvPlayer::DoUprising()
 			do
 			{
 				iNumRebels--;
-				
-				// Pick a new unit type (for variety)
-				UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 
 				// Pick a new unit type (for variety)
 				UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
@@ -47429,11 +47406,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent)
 		{
 			if (!pPlot->isCoastalLand())
-<<<<<<< HEAD
 			iScale = 1;
-=======
-				iScale = 1;
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 		}
 		else
 		{

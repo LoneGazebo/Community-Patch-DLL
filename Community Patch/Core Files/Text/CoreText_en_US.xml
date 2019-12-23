@@ -2943,16 +2943,6 @@
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
 		</Row>
-		
-		<!-- Special Warmonger Hate Descriptor for Aztecs -->
-		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
-			<Text> (They are bloodthirsty warmongers!)</Text>
-		</Row>
-		
-		<!-- :) -->
-		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
-			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
-		</Row>
 
 		<!-- Special Warmonger Hate Descriptor for Aztecs -->
 		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">

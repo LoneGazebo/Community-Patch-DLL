@@ -8953,15 +8953,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 		if(!bCoastal)
 		{
-<<<<<<< HEAD
 		// Must be land Unit
 		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
 			continue;
-=======
-			// Must be land Unit
-			if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-				continue;
->>>>>>> 0e3b024122798f2776cb4644030ce977a649c5e9
 		}
 
 		if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
