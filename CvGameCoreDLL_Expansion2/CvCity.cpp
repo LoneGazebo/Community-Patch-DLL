@@ -26198,7 +26198,8 @@ void CvCity::DoBarbIncursion()
 	}
 	if(MOD_BALANCE_CORE_BARBARIAN_THEFT)
 	{
-		if(GET_PLAYER(BARBARIAN_PLAYER).GetID() == NO_PLAYER || getOwner() == NO_PLAYER || GET_PLAYER(getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isBarbarian())
+		//don't steal from ourselves
+		if(GET_PLAYER(getOwner()).isBarbarian())
 			return;
 
 		int iCityStrength = getStrengthValue(true);
