@@ -90,6 +90,10 @@ UPDATE Defines
 SET Value = '0'
 WHERE Name = 'OPINION_WEIGHT_VICTORY_NONE';
 
+-- Per-era increase to victory dispute
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_VICTORY_PER_ERA', '1';
+
 -- Victory Block Opinion Weights
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '30';

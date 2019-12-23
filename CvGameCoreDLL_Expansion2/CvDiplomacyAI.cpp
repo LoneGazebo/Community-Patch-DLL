@@ -6716,6 +6716,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 #endif
 
+	// No point in being AFRAID if we don't have a capital city (also fixes an early game bug).
+	if (GetPlayer()->getCapitalCity() == NULL)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
+	}
+
 	////////////////////////////////////
 	// BACKSTABBING IS BAD
 	////////////////////////////////////
@@ -20573,8 +20579,8 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 		// See which Approach is best
 		MajorCivApproachTypes eApproach = GetBestApproachTowardsMajorCiv(ePlayer, /*Passed by Ref, but we won't use it*/ iHighestWeight, /*bLookAtOtherPlayers*/ true, /*bLog*/ true, /*Passed by Ref, used below*/ eWarFace);
 #if defined(MOD_BALANCE_CORE)
-		//Let's not be hostile right off the bat -- neutral is fine, though.
-		if(eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_GUARDED)
+		//Let's not be hostile or afraid right off the bat -- neutral is fine, though.
+		if (eApproach != MAJOR_CIV_APPROACH_NEUTRAL && eApproach != MAJOR_CIV_APPROACH_FRIENDLY)
 		{
 			eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 			SetWarFaceWithPlayer(ePlayer, WAR_FACE_NEUTRAL);
@@ -20586,7 +20592,7 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 #endif
 		CvAssertMsg(eApproach >= 0, "DIPLOMACY_AI: Invalid MajorCivApproachType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-		// Actually assign the (possibly) new Approach
+		// Actually assign the new Approach
 		SetMajorCivApproach(ePlayer, eApproach);
 	}
 
