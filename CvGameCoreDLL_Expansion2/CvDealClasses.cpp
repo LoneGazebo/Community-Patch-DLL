@@ -598,7 +598,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			TechTypes eCityTradeTech = (TechTypes)GC.getResourceInfo(eResource)->getTechCityTrade();
 			if (eCityTradeTech != NO_TECH)
 			{
-				if (!pFromPlayer->HasTech(eCityTradeTech) || !pToPlayer->HasTech(eCityTradeTech))
+				if (!pFromPlayer->HasTech(eCityTradeTech))
 				{
 					return false;
 				}
