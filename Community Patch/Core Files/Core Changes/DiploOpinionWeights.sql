@@ -653,7 +653,7 @@ WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL';
 
 -- -20
 UPDATE Defines
-SET Value = '20'
+SET Value = '-20'
 WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING';
 
 -- AI spam message reduction
