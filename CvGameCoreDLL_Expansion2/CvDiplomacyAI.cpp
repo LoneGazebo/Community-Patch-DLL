@@ -5485,37 +5485,40 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (iTradeDelta > 0)
 	{
 		// Strategic diplomacy improvement - conquerors and diplomats value trade more, if the player isn't otherwise harming their strategic interests.
-		if ((iEra >= 2 && IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || (iEra >= 3 && (IsGoingForDiploVictory() || IsCloseToDiploVictory())))
+		if (GetNumTimesTheyPlottedAgainstUs(ePlayer) <= 0)
 		{
-			bool bApplicable = false;
-			
-			if ((!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()) && GetVictoryDisputeLevel(ePlayer) < DISPUTE_LEVEL_FIERCE && GetVictoryBlockLevel(ePlayer) < BLOCK_LEVEL_FIERCE)
+			if ((iEra >= 2 && IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || (iEra >= 3 && (IsGoingForDiploVictory() || IsCloseToDiploVictory())))
 			{
-				if (IsGoingForWorldConquest() && !IsCloseToDominationVictory())
+				bool bApplicable = false;
+				
+				if ((!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()) && GetVictoryDisputeLevel(ePlayer) < DISPUTE_LEVEL_FIERCE && GetVictoryBlockLevel(ePlayer) < BLOCK_LEVEL_FIERCE)
 				{
-					if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
-						bApplicable = true;
-				}
-			
-				if ((IsGoingForDiploVictory() || IsCloseToDiploVictory()))
-				{
-					if (GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK && GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
+					if (IsGoingForWorldConquest() && !IsCloseToDominationVictory())
 					{
-						if (GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL && !bPrimeLeagueCompetitor)
-						{
+						if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
 							bApplicable = true;
-						}
-						else
+					}
+				
+					if ((IsGoingForDiploVictory() || IsCloseToDiploVictory()))
+					{
+						if (GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK && GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
 						{
-							bApplicable = true;
+							if (GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL && !bPrimeLeagueCompetitor)
+							{
+								bApplicable = true;
+							}
+							else
+							{
+								bApplicable = true;
+							}
 						}
 					}
 				}
-			}
-			
-			if (bApplicable)
-			{
-				iTradeDelta *= 2;
+				
+				if (bApplicable)
+				{
+					iTradeDelta *= 2;
+				}
 			}
 		}
 
@@ -16604,72 +16607,75 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 			
 			// For conquest and diplo victories, let's add a check for trade value
-			if ((iEra >= 2 && IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || (iEra >= 3 && (IsGoingForDiploVictory() || IsCloseToDiploVictory())))
+			if (GetNumTimesTheyPlottedAgainstUs(ePlayer) <= 0)
 			{
-				bool bApplicable = false;
-				
-				if ((!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()) && GetVictoryDisputeLevel(ePlayer) < DISPUTE_LEVEL_FIERCE && GetVictoryBlockLevel(ePlayer) < BLOCK_LEVEL_FIERCE)
+				if ((iEra >= 2 && IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || (iEra >= 3 && (IsGoingForDiploVictory() || IsCloseToDiploVictory())))
 				{
-					if (IsGoingForWorldConquest() && !IsCloseToDominationVictory())
+					bool bApplicable = false;
+					
+					if ((!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()) && GetVictoryDisputeLevel(ePlayer) < DISPUTE_LEVEL_FIERCE && GetVictoryBlockLevel(ePlayer) < BLOCK_LEVEL_FIERCE)
 					{
-						if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
-							bApplicable = true;
-					}
-				
-					if ((IsGoingForDiploVictory() || IsCloseToDiploVictory()))
-					{
-						if (GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK && GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
+						if (IsGoingForWorldConquest() && !IsCloseToDominationVictory())
 						{
-							if (GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL && !bPrimeLeagueCompetitor)
-							{
+							if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
 								bApplicable = true;
-							}
-							else
+						}
+					
+						if ((IsGoingForDiploVictory() || IsCloseToDiploVictory()))
+						{
+							if (GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK && GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
 							{
-								bApplicable = true;
+								if (GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL && !bPrimeLeagueCompetitor)
+								{
+									bApplicable = true;
+								}
+								else
+								{
+									bApplicable = true;
+								}
 							}
 						}
-					}
-					
-					if (bApplicable)
-					{
-						////////////////////////////////////
-						// Are we getting yields from trade with them?
-						////////////////////////////////////
-						int iCurrentGoldIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer);
-						int iCurrentGoldOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID());
 						
-						int iCurrentScienceIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
-						int iCurrentScienceOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
-						
-						int iCurrentCultureIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer);
-						int iCurrentCultureOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID());
-						
-						int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100(false);
-						int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100(false);
-						int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100(false) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
-						
-						// Scale factor is hard to guess ...
-						int iGoldDelta = (3 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
-						int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
-						int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
-
-						// Now add in value from ongoing trade deals
-						int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), ePlayer);
-
-						// Scale based on personality - how much do we care about trade loyalty?
-						iTradeDealValue *= GetLoyalty() + GetDiploBalance();
-						iTradeDealValue /= 20;
-
-						// 20% of that passes on...
-						iTradeDealValue /= 5;
-						
-						int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
-						if (iTradeDelta > 0)
+						if (bApplicable)
 						{
-							iEnemyWeight -= iTradeDelta;
-							iDPWeight += iTradeDelta;
-							iDoFWeight += iTradeDelta;
+							////////////////////////////////////
+							// Are we getting yields from trade with them?
+							////////////////////////////////////
+							int iCurrentGoldIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer);
+							int iCurrentGoldOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID());
+							
+							int iCurrentScienceIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
+							int iCurrentScienceOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
+							
+							int iCurrentCultureIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer);
+							int iCurrentCultureOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID());
+							
+							int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100(false);
+							int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100(false);
+							int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100(false) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
+							
+							// Scale factor is hard to guess ...
+							int iGoldDelta = (3 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
+							int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
+							int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
+
+							// Now add in value from ongoing trade deals
+							int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), ePlayer);
+
+							// Scale based on personality - how much do we care about trade loyalty?
+							iTradeDealValue *= GetLoyalty() + GetDiploBalance();
+							iTradeDealValue /= 20;
+
+							// 20% of that passes on...
+							iTradeDealValue /= 5;
+							
+							int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
+							if (iTradeDelta > 0)
+							{
+								iEnemyWeight -= iTradeDelta;
+								iDPWeight += iTradeDelta;
+								iDoFWeight += iTradeDelta;
+							}
 						}
 					}
 				}
