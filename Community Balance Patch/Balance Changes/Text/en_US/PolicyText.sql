@@ -234,7 +234,7 @@ WHERE Tag = 'TXT_KEY_POLICY_VOLUNTEER_ARMY' AND EXISTS (SELECT * FROM COMMUNITY 
 -- Space Procurements
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Space Procurements[ENDCOLOR]: May buy Spaceship parts with [ICON_GOLD] Gold. Build Spaceship Factories in half the usual time. +10% [ICON_RESEARCH] Science from Research Labs.'
+SET Text = '[COLOR_POSITIVE_TEXT]Space Procurements[ENDCOLOR]: May invest in Spaceship parts with [ICON_GOLD] Gold. Build Spaceship Factories in half the usual time. +10% [ICON_RESEARCH] Science from Research Labs.'
 WHERE Tag = 'TXT_KEY_POLICY_SPACE_PROCUREMENTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --------------------
@@ -244,7 +244,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SPACE_PROCUREMENTS_HELP' AND EXISTS (SELECT * FROM C
 -- Academy of Sciences
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Academy of Sciences[ENDCOLOR]: Reduces [ICON_HAPPINESS_3] Needs Modifier for [ICON_RESEARCH] Illiteracy by 20% in all cities. +100% [ICON_PRODUCTION] Production towards Research Labs, and receive 5 free Research Labs in your Empire. Research Labs generate an additional +5 [ICON_RESEARCH] Science.'
+SET Text = '[COLOR_POSITIVE_TEXT]Academy of Sciences[ENDCOLOR]: -20% [ICON_HAPPINESS_3] Unhappiness Needs Modifier for [ICON_RESEARCH] Illiteracy in all Cities. +100% [ICON_PRODUCTION] Production towards Research Labs, and receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Labs in your Empire. Research Labs generate an additional +5 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_ACADEMY_SCIENCES_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Cultural Revolution
@@ -323,7 +323,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Socialist Realism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]People''s Army[ENDCOLOR]: +100% [ICON_PRODUCTION] Production towards Military Academies, and receive five free Military Academies in your Empire. Public Schools produce +5 [ICON_CULTURE] Culture and +2 [ICON_HAPPINESS_1] Happiness.'
+SET Text = '[COLOR_POSITIVE_TEXT]People''s Army[ENDCOLOR]: +100% [ICON_PRODUCTION] Production towards Military Academies, and receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Military Academies in your Empire. Public Schools produce +5 [ICON_CULTURE] Culture and +2 [ICON_HAPPINESS_1] Happiness.'
 WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -337,7 +337,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM' AND EXISTS (SELECT * FROM COMMUNI
 -- Worker's Faculties
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Worker Faculties[ENDCOLOR]: Factories increase City [ICON_RESEARCH] Science output by 10%. Receive 5 free Factories immediately, and build all other Factories in half the usual time.'
+SET Text = '[COLOR_POSITIVE_TEXT]Worker Faculties[ENDCOLOR]: Factories increase City [ICON_RESEARCH] Science output by 10%. Receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factories immediately, and build all other Factories in half the usual time.'
 WHERE Tag = 'TXT_KEY_POLICY_WORKERS_FACULTIES_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Young Pioneers

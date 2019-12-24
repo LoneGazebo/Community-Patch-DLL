@@ -294,14 +294,14 @@
 			<Text>Major General</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2_HELP">
-			<Text>Receive a +25% attack bonus to all Military Units for the next 30 turns and 4 of your military units will be maintenance-free..</Text>
+			<Text>Receive a +25% attack bonus to all Military Units for the next 30 turns and 4 of your military units will be maintenance-free.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3">
 			<Text>Field Marshal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP">
-			<Text>Receive a free Great General, +5 [ICON_HAPPINESS_1] Happiness, and 5 of your military units will be maintenance-free..</Text>
+			<Text>Receive a free Great General, +5 [ICON_HAPPINESS_1] Happiness, and 5 of your military units will be maintenance-free.</Text>
 		</Row>
 		<!-- UNITED_NATIONS -->
 		

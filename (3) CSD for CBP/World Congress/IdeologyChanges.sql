@@ -84,7 +84,7 @@ WHERE Tag = 'TXT_KEY_RESOLUTION_WORLD_RELIGION_HELP' AND EXISTS (SELECT * FROM C
 -- World Ideology
 
 UPDATE Language_en_US
-SET Text = 'Designate an Ideology as the official World Ideology.  Civilizations following the Ideology get an additional Delegate, plus 1 Delegate for every other Civilization that follows the Ideology.  Public opinion in favor of that Ideology is increased for all Civilizations. Enables the [COLOR_POSITIVE_TEXT]Diplomatic Victory[ENDCOLOR] if the United Nations has been constructed. [NEWLINE][NEWLINE]Available once any Civilization discovers Telecommunications.'
+SET Text = 'Designate an Ideology as the official World Ideology.  Civilizations following the Ideology get an additional Delegate, plus 1 Delegate for every other Civilization that follows the Ideology.  Public opinion in favor of that Ideology is increased for all Civilizations. Enables the [COLOR_POSITIVE_TEXT]Diplomatic Victory[ENDCOLOR] if the United Nations has been constructed. [NEWLINE][NEWLINE]Available once any Civilization discovers Nuclear Fission.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_WORLD_IDEOLOGY_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- Scholars in Residence
