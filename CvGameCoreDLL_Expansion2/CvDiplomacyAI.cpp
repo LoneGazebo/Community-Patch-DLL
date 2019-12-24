@@ -3859,7 +3859,8 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches()
 	PlayerTypes eLoopPlayer;
 
 	// Performance optimization - the shadow AI behind the human player skips all this code
-	if (GetPlayer()->isHuman())
+	// So do players with no capital city (possible at game start or with Complete Kills enabled)
+	if (GetPlayer()->isHuman() || GetPlayer()->getCapitalCity() == NULL)
 	{
 		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -6760,12 +6761,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 	}
 #endif
-
-	// No point in being AFRAID if we don't have a capital city (also fixes an early game bug).
-	if (GetPlayer()->getCapitalCity() == NULL)
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] = 0;
-	}
 
 	////////////////////////////////////
 	// BACKSTABBING IS BAD
