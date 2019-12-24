@@ -12527,9 +12527,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
 	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = 0;
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
 		
 		switch (iVisibleApproach)
 		{
@@ -12547,8 +12547,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			break;
 		}
 		
-			aOpinions.push_back(kOpinion);
-		}
+		aOpinions.push_back(kOpinion);
+	}
 
 	// Base opinion score?
 	iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
@@ -12585,7 +12585,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
+	// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
 #else
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || pDiploAI->IsAlwaysShowTrueApproaches())
@@ -12690,7 +12690,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		if (!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()))
+		if (!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(pkPlayer->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 5;
 			if (iValue > 0)
@@ -12749,21 +12749,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			else
 			{
 #endif
-			if (pDiploAI->GetWarmongerHate() >= 7)
-			{
-				str += " ";
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
-			}
-			else if (pDiploAI->GetWarmongerHate() >= 5)
-			{
-				str += " ";
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
-			}
-			else 
-			{
-				str += " ";
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
-			}
+				if (pDiploAI->GetWarmongerHate() >= 7)
+				{
+					str += " ";
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
+				}
+				else if (pDiploAI->GetWarmongerHate() >= 5)
+				{
+					str += " ";
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
+				}
+				else 
+				{
+					str += " ";
+					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
+				}
 #if defined(MOD_BALANCE_CORE)
 			}
 #endif
@@ -12832,7 +12832,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
-		
+
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)	
 		// Timer to avoid backstabbing penalties
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -13057,7 +13057,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		else
 		{
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND");
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND");
 		}
 		
 		aOpinions.push_back(kOpinion);
@@ -13171,7 +13171,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 #endif
-	
+
 	iValue = pDiploAI->GetTimesIntrigueSharedScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13785,7 +13785,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	*/
 
 	// World Congress >>> United Nations
-	if(GC.getGame().IsUnitedNationsActive())
+	if (GC.getGame().IsUnitedNationsActive())
 	{
 		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
 		if (iValue != 0)
@@ -13994,13 +13994,13 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 #else
 			if (pDiploAI->IsAlwaysShowTrueApproaches())
-		{
-			CvString strTemp;
-			// Reverse the value of the opinion so as to not confuse players
-			strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+			{
+				CvString strTemp;
+				// Reverse the value of the opinion so as to not confuse players
+				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
 
-			strOutput += strTemp;
-		}
+				strOutput += strTemp;
+			}
 #endif
 		}
 

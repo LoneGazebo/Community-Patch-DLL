@@ -5429,8 +5429,8 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 		// add to list!
 		m_aaPlayerStealableTechList[ePlayer].push_back(eTech);
-		}
 	}
+}
 
 /// IsTechStealable - Check to see if you can steal this tech from an opponent
 bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)

@@ -9823,19 +9823,19 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 			{
 				// Don't provide yield if tile is pillaged
 				if (pOwningCity->plot()->IsImprovementPillaged() == false)
-			{
-				// If there are any Units here, meet their owners
-				for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
 				{
-					// If the AI spots a human Unit, don't meet - wait for the human to find the AI
-					CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
-					if (!loopUnit)
-						continue;
-
-					if (loopUnit->GetFortificationYieldChange(eYield) > 0)
+					// If there are any Units here, meet their owners
+					for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
 					{
-						int iUnitStrength = loopUnit->GetBaseCombatStrength();
-						iYield += ((loopUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
+						// If the AI spots a human Unit, don't meet - wait for the human to find the AI
+						CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
+						if (!loopUnit)
+							continue;
+
+						if (loopUnit->GetFortificationYieldChange(eYield) > 0)
+						{
+							int iUnitStrength = loopUnit->GetBaseCombatStrength();
+							iYield += ((loopUnit->GetFortificationYieldChange(eYield) * iUnitStrength) / 8);
 						}
 					}
 				}
