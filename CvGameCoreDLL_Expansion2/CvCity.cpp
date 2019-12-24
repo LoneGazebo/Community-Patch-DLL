@@ -27733,8 +27733,8 @@ void CvCity::updateStrengthValue()
 	if (iStrengthValue != m_iStrengthValue)
 	{
 		m_iStrengthValue = iStrengthValue;
-	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-}
+		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+	}
 }
 
 //	--------------------------------------------------------------------------------

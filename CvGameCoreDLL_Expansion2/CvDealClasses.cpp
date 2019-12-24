@@ -3318,9 +3318,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 			bool bTargetTeamIsMinor = GET_TEAM(eTargetTeam).isMinorCiv();
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
+			GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
 #else
-					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor);
+			GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor);
 #endif
 			GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, true);
 			GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
@@ -3473,21 +3473,21 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								}
 							}
 							else if (!bTargetTeamIsMinor && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(eTargetTeam))
-									{
+							{
 								//If human attacked, send notification with info.
 								if (GET_PLAYER(eLoopPlayer).isHuman() && bAnySurveillanceEstablished)
-										{
-											CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-											if (pNotifications)
-											{
-												Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
-												strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-												strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
-												Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
-												strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-												pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-											}
-										}
+								{
+									CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
+										strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
+										strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+										pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+									}
+								}
 								//If AI, bump down their opinion of the broker and the warrior a bit.
 								else if (bAnySurveillanceEstablished)
 								{
@@ -3495,8 +3495,8 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_WAR);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
-									}
 								}
+							}
 							// If the brokering was detected, run a second loop for diplo purposes
 							if (!bTargetTeamIsMinor && bAnySurveillanceEstablished && eSpyingPlayer != NO_PLAYER)
 							{
@@ -3526,12 +3526,12 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 									else if (!GET_PLAYER(eLoopPlayer2).isHuman() && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
 									{
 										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
-								{
+										{
 											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
 										}
 										
 										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedFromPlayer))
-									{
+										{
 											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
 										}
 									}
@@ -4166,16 +4166,16 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
-							//AI go to war now.
-							if(!GET_PLAYER(eAcceptedFromPlayer).isHuman())
-							{
-								GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
-								GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
-							}
+								//AI go to war now.
+								if (!GET_PLAYER(eAcceptedFromPlayer).isHuman())
+								{
+									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
+									GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
+								}
 
-							//If human attacked, send notification with info.
+								//If human attacked, send notification with info.
 								if (GET_PLAYER(eLoopPlayer).isHuman() && bAnySurveillanceEstablished)
-							{
+								{
 									CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 									if (pNotifications)
 									{
@@ -4200,18 +4200,18 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							{
 								//If human attacked, send notification with info.
 								if (GET_PLAYER(eLoopPlayer).isHuman() && bAnySurveillanceEstablished)
+								{
+									CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotifications)
 									{
-										CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-										if (pNotifications)
-										{
-											Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
-											strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-											strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
-											Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
-											strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-											pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-										}
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
+										strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+										strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
+										strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+										pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 									}
+								}
 								//If AI, bump down their opinion of the broker and the warrior a bit.
 								else if (bAnySurveillanceEstablished)
 								{
@@ -4243,19 +4243,19 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 											if (GET_PLAYER(eLoopPlayer2).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer2).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 											{
 												GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eLoopPlayer2, 1);
-								}
-							}
+											}
+										}
 									}
 									// Penalty to recent assistance for friends of the target(s)
 									else if (!GET_PLAYER(eLoopPlayer2).isHuman() && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
-							{
+									{
 										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedToPlayer))
 										{
 											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 300);
 										}
 										
 										if (GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eAcceptedFromPlayer))
-								{
+										{
 											GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 300);
 										}
 									}

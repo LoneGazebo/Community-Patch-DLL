@@ -4082,7 +4082,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
 		
 		if (isMajorCiv())
-		GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
 	}
 
 
@@ -4096,7 +4096,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			GET_PLAYER(eOldOwner).SetLostHolyCityXY(pNewCity->getX(), pNewCity->getY());
 			
 			if (isMajorCiv())
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
 		}
 	}
 
@@ -20661,15 +20661,15 @@ void CvPlayer::DoUpdateUprisings()
 		return;
 		
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
+	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if(GetUprisingCounter() > 0)
+		if (GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if(GetUprisingCounter() == 0)
+			if (GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -20683,15 +20683,15 @@ void CvPlayer::DoUpdateUprisings()
 	}
 	else
 #endif
-	if(IsEmpireSuperUnhappy())
+	if (IsEmpireSuperUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if(GetUprisingCounter() > 0)
+		if (GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if(GetUprisingCounter() == 0)
+			if (GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -47406,7 +47406,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent)
 		{
 			if (!pPlot->isCoastalLand())
-			iScale = 1;
+				iScale = 1;
 		}
 		else
 		{
