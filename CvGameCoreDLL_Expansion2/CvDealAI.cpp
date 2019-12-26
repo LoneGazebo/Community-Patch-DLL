@@ -3492,7 +3492,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 
-	// How much does this AI like to go to war? If it's a 6 or less, never accept
+	// How much does this AI like to go to war?
 	int iWarApproachWeight = pDiploAI->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	if (bFromMe)
 		iItemValue *= max(1, (10 - iWarApproachWeight));
@@ -3880,7 +3880,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
 							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
-							if (eWarState <= WAR_STATE_DEFENSIVE)
+							if (eWarState <= WAR_STATE_STALEMATE)
+							{
+								return INT_MAX;
+							}
+							else if (eWarState == WAR_STATE_CALM && pDiploAI->GetWarProjection(eWarPlayer) <= WAR_PROJECTION_STALEMATE)
 							{
 								return INT_MAX;
 							}
