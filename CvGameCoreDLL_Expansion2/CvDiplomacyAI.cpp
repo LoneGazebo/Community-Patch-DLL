@@ -14398,7 +14398,7 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 	if (ePlayer != GetPlayer()->GetID() && iNumWonders <= GetPlayer()->GetNumWonders())
 		return false;
 
-	int iAverageNumWonders = 0;
+	double fAverageNumWonders = 0;
 	int iNumPlayers = 0;
 
 	// Find out what the average is (minus the player we're looking at)
@@ -14423,13 +14423,13 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 			continue;
 
 		iNumPlayers++;
-		iAverageNumWonders += pPlayer->GetNumWonders();
+		fAverageNumWonders += pPlayer->GetNumWonders();
 	}
 
-	iAverageNumWonders /= max(1,iNumPlayers);
+	fAverageNumWonders /= max(1,iNumPlayers);
 
 	// Must have built at least 3 more Wonders than the average player in the game
-	if (iNumWonders < (iAverageNumWonders + 3))
+	if (iNumWonders < (fAverageNumWonders + 3))
 		return false;
 
 	return true;
