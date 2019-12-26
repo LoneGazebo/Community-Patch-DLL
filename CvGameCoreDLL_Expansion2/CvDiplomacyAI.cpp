@@ -4728,13 +4728,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 
-#if defined(MOD_BALANCE_CORE)
-				if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-				}
-#endif
 				// Easy target?
 				if (bEasyTarget)
 				{
@@ -4748,13 +4741,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 
-#if defined(MOD_BALANCE_CORE)
-				if (GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsTourism())
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-				}
-#endif
 				// Easy target?
 				if (bEasyTarget)
 				{
@@ -5992,6 +5978,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 
+#if defined(MOD_BALANCE_CORE)
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		}
+#endif
+
 		if (bEasyTarget)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6007,6 +6001,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+
+#if defined(MOD_BALANCE_CORE)
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsTourism())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		}
+#endif
 
 		if (bEasyTarget)
 		{
