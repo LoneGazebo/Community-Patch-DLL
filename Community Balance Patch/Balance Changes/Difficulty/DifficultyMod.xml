@@ -37,6 +37,7 @@
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<AttitudeChange>-15</AttitudeChange>
 			<AIDeclareWarProb>50</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -79,7 +80,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -121,6 +121,7 @@
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<AttitudeChange>-10</AttitudeChange>
 			<AIDeclareWarProb>75</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -163,7 +164,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -205,6 +205,7 @@
 			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<AttitudeChange>-5</AttitudeChange>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -247,7 +248,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -289,6 +289,7 @@
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>125</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -331,7 +332,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -373,6 +373,7 @@
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>150</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -415,7 +416,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -457,6 +457,7 @@
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>175</AIDeclareWarProb>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -499,7 +500,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -541,6 +541,7 @@
 			<CityProductionNumOptionsConsidered>1</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
+			<AttitudeChange>5</AttitudeChange>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -583,7 +584,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -625,6 +625,7 @@
 			<CityProductionNumOptionsConsidered>1</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
+			<AttitudeChange>10</AttitudeChange>
 			<AIDeclareWarProb>225</AIDeclareWarProb>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -667,7 +668,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
@@ -709,6 +709,7 @@
 			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>100</AIDeclareWarProb>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
@@ -751,7 +752,6 @@
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
 			<AIAdvancedStartPercent>0</AIAdvancedStartPercent>
 			<NumCitiesUnhappinessMod>100</NumCitiesUnhappinessMod>
-			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>

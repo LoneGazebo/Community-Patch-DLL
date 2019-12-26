@@ -39932,6 +39932,12 @@ int CvDiplomacyAI::GetBaseOpinionScore(PlayerTypes ePlayer)
 		iOpinionWeight += /*0*/ GC.getOPINION_WEIGHT_BASE_AI();
 	}
 	
+	// Bonus/penalty to humans from difficulty level
+	if (MOD_BALANCE_CORE_DIFFICULTY && GET_PLAYER(ePlayer).isHuman())
+	{
+		iOpinionWeight += GC.getGame().getHandicapInfo().getAttitudeChange();
+	}
+	
 	return iOpinionWeight;
 }
 
