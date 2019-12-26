@@ -40018,7 +40018,7 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_WONDER_CULTURAL();
 		}
-		else
+		else if (!IsPlayerWonderSpammer(ePlayer))
 		{
 			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
 		}
@@ -41366,7 +41366,7 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if(IsPlayerRecklessExpander(ePlayer))
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
+		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
 	return iOpinionWeight;
 }
 
@@ -41374,7 +41374,18 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if (IsPlayerWonderSpammer(ePlayer))
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER();
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER();
+	
+#if defined(MOD_BALANCE_CORE)	
+	if (GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsTourism())
+	{
+		if (iOpinionWeight > 0)
+		{
+			iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_THREAT();
+		}
+	}
+#endif
+
 	return iOpinionWeight;
 }
 
