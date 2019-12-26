@@ -594,6 +594,11 @@ UPDATE Defines
 SET Value = '35'
 WHERE Name = 'OPINION_WEIGHT_RECKLESS_EXPANDER';
 
+-- Weight for spamming World Wonders
+INSERT INTO Defines (Name, Value)
+SET Value = '35'
+WHERE Name = 'OPINION_WEIGHT_WONDER_SPAMMER';
+
 -- 15
 UPDATE Defines
 SET Value = '18'

@@ -13677,6 +13677,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RECKLESS_EXPANDER");
 		aOpinions.push_back(kOpinion);
 	}
+	
+	iValue = pDiploAI->GetWonderSpammerScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WONDER_SPAMMER");
+		aOpinions.push_back(kOpinion);
+	}
 
 	iValue = pDiploAI->GetRecentTradeScore(eWithPlayer);
 	if (iValue != 0)

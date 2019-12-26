@@ -5937,6 +5937,17 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 	}
+	
+	////////////////////////////////////
+	// Is this player spamming Wonders?
+	////////////////////////////////////
+	
+	if (IsPlayerWonderSpammer(ePlayer))
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+	}
 
 	////////////////////////////////////
 	// Is this player already in a war with someone who isn't us?
@@ -14363,6 +14374,62 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 
 	// Must have way more cities than the average player in the game
 	if (iNumCities < fAverageNumCities * 1.5)
+		return false;
+
+	return true;
+}
+
+/// Is ePlayer spamming wonders?
+bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
+{
+	if (!IsPlayerValid(ePlayer, true))
+		return false;
+	
+	// We don't care what our teammates do.
+	if (ePlayer != GetPlayer()->GetID() && GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+		return false;
+
+    // One or two Wonders is okay.
+	int iNumWonders = GET_PLAYER(ePlayer).GetNumWonders();
+	if (iNumWonders <= 2)
+		return false;
+	
+	// If the player hasn't built more Wonders than we have, don't worry about it
+	if (ePlayer != GetPlayer()->GetID() && iNumWonders <= GetPlayer()->GetNumWonders())
+		return false;
+
+	int iAverageNumWonders = 0;
+	int iNumPlayers = 0;
+
+	// Find out what the average is (minus the player we're looking at)
+	// We can count unmet/dead players here, since the human can technically do the same by watching the single player scoreboard
+	PlayerTypes eLoopPlayer;
+	CvPlayer* pPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		pPlayer = &GET_PLAYER(eLoopPlayer);
+		
+		// No Barbs or City-States!
+		if (!pPlayer->isMajorCiv())
+			continue;
+		
+		// Only count players who have built Wonders
+		if (pPlayer->GetNumWonders() <= 0)
+			continue;
+
+		// Not the guy we're looking at
+		if (eLoopPlayer == ePlayer)
+			continue;
+
+		iNumPlayers++;
+		iAverageNumWonders += pPlayer->GetNumWonders();
+	}
+
+	iAverageNumWonders /= max(1,iNumPlayers);
+
+	// Must have built at least 3 more Wonders than the average player in the game
+	if (iNumWonders < (iAverageNumWonders + 3))
 		return false;
 
 	return true;
@@ -34312,6 +34379,12 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	{
 		iWeight += 4;
 	}
+	
+	// Weight for spamming Wonders
+	if (IsPlayerWonderSpammer(eTargetPlayer))
+	{
+		iWeight += 6;
+	}
 
 	// Weight for warmonger threat
 	switch(GetWarmongerThreat(eTargetPlayer))
@@ -41195,6 +41268,14 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(IsPlayerRecklessExpander(ePlayer))
 		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	if (IsPlayerWonderSpammer(ePlayer))
+		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER();
 	return iOpinionWeight;
 }
 

@@ -450,6 +450,7 @@ public:
 	void DoUpdateEstimateOtherPlayerLandDisputeLevels();
 
 	bool IsPlayerRecklessExpander(PlayerTypes ePlayer);
+	bool IsPlayerWonderSpammer(PlayerTypes ePlayer);
 
 	int GetBrokenExpansionPromiseValue(PlayerTypes ePlayer);
 	void SetBrokenExpansionPromiseValue(PlayerTypes ePlayer, int iValue);
@@ -1498,6 +1499,7 @@ public:
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
 	int GetRecklessExpanderScore(PlayerTypes ePlayer);
+	int GetWonderSpammerScore(PlayerTypes ePlayer);
 	int GetRecentTradeScore(PlayerTypes ePlayer);
 	int GetCommonFoeScore(PlayerTypes ePlayer);
 	int GetRecentAssistScore(PlayerTypes ePlayer);
