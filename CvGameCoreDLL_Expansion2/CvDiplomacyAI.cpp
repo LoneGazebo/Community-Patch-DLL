@@ -6510,6 +6510,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*200*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
 		}
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= /*200*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS();
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] /= 100;
 		break;
 	case PLAYER_PROXIMITY_CLOSE:
 		if (!bWantsConquest)
@@ -6538,6 +6540,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 100;
 		}
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= /*150*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_CLOSE();
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] /= 100;
 		break;
 	case PLAYER_PROXIMITY_FAR:
 		if (bWantsConquest && bCanCrossOcean)
@@ -6560,6 +6564,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] /= 100;
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] *= /*100*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_FAR();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] /= 100;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= /*100*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_FAR();
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] /= 100;
 		break;
 	case PLAYER_PROXIMITY_DISTANT:
 		if (bWantsConquest && bCanCrossOcean)
@@ -6582,6 +6588,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] /= 100;
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] *= /*50*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_DISTANT();
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] /= 100;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= /*50*/ GC.getAPPROACH_MULTIPLIER_PROXIMITY_DISTANT();
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] /= 100;
 		break;
 	}
 	
