@@ -15382,7 +15382,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 			{
 				MajorCivOpinionTypes eOpinion;
 				eOpinion = GetMajorCivOpinion(ePlayer);
-				if (eOpinion == MAJOR_CIV_OPINION_ALLY)
+				if (eOpinion >= MAJOR_CIV_OPINION_FRIEND)
 				{
 					continue;
 				}
@@ -39931,10 +39931,6 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 {
-	// If we're friends, let's not count this
-	if (GetMajorCivOpinion(ePlayer) >= MAJOR_CIV_OPINION_FRIEND)
-		return 0;
-	
 	int iOpinionWeight = 0;
 	
 	// Look at Victory Block

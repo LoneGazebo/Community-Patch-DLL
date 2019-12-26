@@ -46,16 +46,16 @@ UPDATE Eras
 SET DiploEmphasisReligion = '1' WHERE Type = 'ERA_FUTURE';
 
 UPDATE Eras
-SET DiploEmphasisLatePolicies = '2' WHERE Type = 'ERA_ANCIENT';
+SET DiploEmphasisLatePolicies = '7' WHERE Type = 'ERA_ANCIENT';
 
 UPDATE Eras
-SET DiploEmphasisLatePolicies = '2' WHERE Type = 'ERA_CLASSICAL';
+SET DiploEmphasisLatePolicies = '7' WHERE Type = 'ERA_CLASSICAL';
 
 UPDATE Eras
-SET DiploEmphasisLatePolicies = '2' WHERE Type = 'ERA_MEDIEVAL';
+SET DiploEmphasisLatePolicies = '7' WHERE Type = 'ERA_MEDIEVAL';
 
 UPDATE Eras
-SET DiploEmphasisLatePolicies = '2' WHERE Type = 'ERA_RENAISSANCE';
+SET DiploEmphasisLatePolicies = '7' WHERE Type = 'ERA_RENAISSANCE';
 
 UPDATE Eras
 SET DiploEmphasisLatePolicies = '7' WHERE Type = 'ERA_INDUSTRIAL';
