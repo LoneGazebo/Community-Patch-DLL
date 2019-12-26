@@ -130,5 +130,5 @@ WHERE Name = 'APPROACH_WAR_PROXIMITY_DISTANT';
 -- Dissuades the AI from declaring war for a certain amount of time after a peace treaty has been signed.
 -- 25
 UPDATE Defines
-Set Value = '20'
+SET Value = '20'
 WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
