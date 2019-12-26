@@ -40,6 +40,26 @@ struct MayaBonusChoice
 	int m_iBaktunJustFinished;
 };
 
+struct TradeRouteProductionSiphon
+{
+	TradeRouteProductionSiphon() :
+		m_iSiphonPercent(0),
+		m_iPercentIncreaseWithOpenBorders(0)
+	{};
+
+	bool IsHaveProductionSiphon()
+	{
+		if (m_iSiphonPercent != 0 || m_iPercentIncreaseWithOpenBorders != 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	int m_iSiphonPercent;
+	int m_iPercentIncreaseWithOpenBorders;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTraitEntry
 //!  \brief		A single entry in the trait XML file
@@ -396,6 +416,9 @@ public:
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
+#endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
 #if defined(MOD_TRAITS_OTHER_PREREQS)
@@ -744,6 +767,9 @@ protected:
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_piDomainProductionModifiersPerSpecialist;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1874,6 +1900,10 @@ public:
 	bool IsNoBuild(const BuildTypes eBuild) const;
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(bool bInternationalOnly) const;
+	bool IsTradeRouteProductionSiphon() const;
+#endif
 
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
@@ -2255,6 +2285,9 @@ private:
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

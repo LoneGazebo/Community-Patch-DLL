@@ -26928,6 +26928,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue += iPassYield;
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -27793,6 +27802,24 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED");
 				localizedText << totalyieldString;
 				break;
+			}
+			case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
 			}
 		}
 		if(pCity == NULL)
@@ -30171,6 +30198,40 @@ void CvPlayer::SetNullifyInfluenceModifier(bool bValue)
 bool CvPlayer::IsNullifyInfluenceModifier() const
 {
 	return m_bNullifyInfluenceModifier;
+}
+#endif
+//	--------------------------------------------------------------------------------
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+int CvPlayer::GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPlayer* pOtherPlayer) const
+{
+	if (GetPlayerTraits()->IsTradeRouteProductionSiphon() == false || MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON == false)
+	{
+		return 0;
+	}
+	
+	int iSiphonPercent;
+	int iOpenBorderPercentIncrease;
+	int iReturn;
+
+	iSiphonPercent = GetPlayerTraits()->GetTradeRouteProductionSiphon(bInternationalOnly).m_iSiphonPercent;
+	iOpenBorderPercentIncrease = GetPlayerTraits()->GetTradeRouteProductionSiphon(bInternationalOnly).m_iPercentIncreaseWithOpenBorders;
+
+	iReturn = iSiphonPercent;
+	if (getTeam() != NO_TEAM && pOtherPlayer->getTeam() != NO_TEAM)
+	{
+		CvTeam* pTeam = &GET_TEAM(getTeam());
+		CvTeam* pOtherTeam = &GET_TEAM(pOtherPlayer->getTeam());
+		if (pTeam->IsAllowsOpenBordersToTeam(pOtherTeam->GetID()))
+		{
+			iReturn += iOpenBorderPercentIncrease;
+		}
+		if (pOtherTeam->IsAllowsOpenBordersToTeam(pTeam->GetID()))
+		{
+			iReturn += iOpenBorderPercentIncrease;
+		}
+	}
+
+	return iReturn;
 }
 #endif
 //	--------------------------------------------------------------------------------

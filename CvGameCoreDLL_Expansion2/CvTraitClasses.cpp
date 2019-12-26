@@ -2085,6 +2085,21 @@ int CvTraitEntry::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain)
 	return 0;
 }
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+/// Accessor:: If linked with trade routes, does the origin city gain a percent of the target city's production towards that specific thing
+TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
+{
+	std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_biiTradeRouteProductionSiphon.find(bInternationalOnly);
+	if (it != m_biiTradeRouteProductionSiphon.end()) // find returns the iterator to map::end if the key bInternationalOnly is not present
+	{
+		return it->second;
+	}
+
+	TradeRouteProductionSiphon sDefault;
+
+	return sDefault;
+}
+#endif
 
 /// Has this trait become obsolete?
 bool CvTraitEntry::IsObsoleteByTech(TeamTypes eTeam)
@@ -3012,6 +3027,36 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piDomainProductionModifiersPerSpecialist).swap(m_piDomainProductionModifiersPerSpecialist);
+	}
+#endif
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	//Populate m_iibTradeRouteProductionSiphon
+	{
+		std::string sqlKey = "Trait_TradeRouteProductionSiphon";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select SiphonPercent, PercentIncreaseWithOpenBorders, IsInternationalOnly from Trait_TradeRouteProductionSiphon where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iSiphonPercent = pResults->GetInt(0);
+			const int iPercentIncreaseWithOpenBorders = pResults->GetInt(1);
+			const bool bInternationalOnly = pResults->GetBool(2);
+
+			m_biiTradeRouteProductionSiphon[bInternationalOnly].m_iSiphonPercent += iSiphonPercent;
+			m_biiTradeRouteProductionSiphon[bInternationalOnly].m_iPercentIncreaseWithOpenBorders += iPercentIncreaseWithOpenBorders;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<bool, TradeRouteProductionSiphon>(m_biiTradeRouteProductionSiphon).swap(m_biiTradeRouteProductionSiphon);
 	}
 #endif
 
@@ -4260,6 +4305,21 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
 			m_iNonSpecialistFoodChange += trait->GetNonSpecialistFoodChange();
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+			if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+			{
+				if (trait->GetTradeRouteProductionSiphon(true).IsHaveProductionSiphon())
+				{
+					m_aiiTradeRouteProductionSiphon[true].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(true).m_iSiphonPercent;
+					m_aiiTradeRouteProductionSiphon[true].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders;
+				}
+				if (trait->GetTradeRouteProductionSiphon(false).IsHaveProductionSiphon())
+				{
+					m_aiiTradeRouteProductionSiphon[false].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(false).m_iSiphonPercent;
+					m_aiiTradeRouteProductionSiphon[false].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders;
+				}
+			}
+#endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 			if(trait->IsBullyAnnex())
 			{
@@ -5307,6 +5367,9 @@ void CvPlayerTraits::Reset()
 	m_aiNoBuilds.clear();
 	m_aiDomainProductionModifiersPerSpecialist.clear();
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	m_aiiTradeRouteProductionSiphon.clear();
+#endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -5848,6 +5911,27 @@ int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomai
 	}
 
 	return 0;
+}
+#endif
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+/// What is the percent if the origin city gains a percent of the target city's production towards that specific thing
+TradeRouteProductionSiphon CvPlayerTraits::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
+{
+	std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_aiiTradeRouteProductionSiphon.find(bInternationalOnly);
+	if (it != m_aiiTradeRouteProductionSiphon.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+
+	TradeRouteProductionSiphon sBlank;
+	return sBlank;
+}
+
+bool CvPlayerTraits::IsTradeRouteProductionSiphon() const
+{
+	return !m_aiiTradeRouteProductionSiphon.empty();
 }
 #endif
 
@@ -7430,6 +7514,23 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		m_abTerrainClaimBoost.push_back(bValue);
 	}
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	kStream >> iNumEntries;
+	m_aiiTradeRouteProductionSiphon.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		bool bSiphonInternationalOnly;
+		int iSiphonPercent;
+		int iPercentIncreaseWithOpenBorders;
+
+		kStream >> bSiphonInternationalOnly;
+		kStream >> iSiphonPercent;
+		kStream >> iPercentIncreaseWithOpenBorders;
+
+		m_aiiTradeRouteProductionSiphon[bSiphonInternationalOnly].m_iSiphonPercent = iSiphonPercent;
+		m_aiiTradeRouteProductionSiphon[bSiphonInternationalOnly].m_iPercentIncreaseWithOpenBorders = iPercentIncreaseWithOpenBorders;
+	}
+#endif
 
 	kStream >> iNumEntries;
 	for(int iI = 0; iI < iNumEntries; iI++)
@@ -7872,6 +7973,15 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	for (uint ui = 0; ui < m_abTerrainClaimBoost.size(); ui++)
 	{
 		kStream << m_abTerrainClaimBoost[ui];
+	}
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	kStream << m_aiiTradeRouteProductionSiphon.size();
+	for (std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_aiiTradeRouteProductionSiphon.begin(); it != m_aiiTradeRouteProductionSiphon.end(); ++it)
+	{
+		kStream << it->first;
+		kStream << it->second.m_iSiphonPercent;
+		kStream << it->second.m_iPercentIncreaseWithOpenBorders;
 	}
 #endif
 	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();

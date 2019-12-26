@@ -954,6 +954,14 @@
 		<Column name="DomainType" type="text" reference="Domains(Type)"/>
 		<Column name="Modifier" type="integer" default="0"/>
 	</Table>
+
+	<!-- TRAIT: If linked with trade routes, the origin city gains a percent of the target city's production towards that specific thing. Requires TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON to be enabled in CustomModOptions. -->
+	<Table name="Trait_TradeRouteProductionSiphon">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="SiphonPercent" type="integer" default="0"/>
+		<Column name="PercentIncreaseWithOpenBorders" type="integer" default="0"/>
+		<Column name="IsInternationalOnly" type="boolean" default="false"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
