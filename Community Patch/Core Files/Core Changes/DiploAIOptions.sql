@@ -1,6 +1,10 @@
 -- Advanced Diplo AI Options
 -- These options are savegame compatible (enabling/disabling them and then loading the game will activate/deactivate them with no issues).
 
+-- !! NOTE TO PLAYERS !!
+-- If you are using any of these advanced settings (except Nuclear Gandhi, which is enabled by default),
+-- please be sure to INDICATE IT when posting feedback or bug reports!
+
 -- [SHOW TRUE APPROACHES]
 -- If set to 1, the AI's true Approach (FRIENDLY, HOSTILE, WAR, etc.) towards human players will be visible at all times in the AI's opinion table.
 -- You can view the opinion table by mousing over the AI's visible Approach.

@@ -450,6 +450,7 @@ public:
 	void DoUpdateEstimateOtherPlayerLandDisputeLevels();
 
 	bool IsPlayerRecklessExpander(PlayerTypes ePlayer);
+	bool IsPlayerWonderSpammer(PlayerTypes ePlayer);
 
 	int GetBrokenExpansionPromiseValue(PlayerTypes ePlayer);
 	void SetBrokenExpansionPromiseValue(PlayerTypes ePlayer, int iValue);
@@ -1498,6 +1499,7 @@ public:
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
 	int GetRecklessExpanderScore(PlayerTypes ePlayer);
+	int GetWonderSpammerScore(PlayerTypes ePlayer);
 	int GetRecentTradeScore(PlayerTypes ePlayer);
 	int GetCommonFoeScore(PlayerTypes ePlayer);
 	int GetRecentAssistScore(PlayerTypes ePlayer);
@@ -1932,8 +1934,8 @@ private:
 		char* m_apaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS];
 		DiploLogData* m_apaDiploStatementsLog[MAX_MAJOR_CIVS];
 
-		bool* m_apabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS];
-		short* m_apaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS];
+		//bool* m_apabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS];
+		//short* m_apaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS];
 
 		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
@@ -1950,8 +1952,8 @@ private:
 		char m_aaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		DiploLogData m_aaDiploStatementsLog[MAX_MAJOR_CIVS* MAX_DIPLO_LOG_STATEMENTS];
 
-		bool m_aabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		short m_aaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		//bool m_aabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		//short m_aaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 
 		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -2190,8 +2192,8 @@ private:
 	bool* m_pabPlayerLiberatedCapital;
 	short* m_paiNumCitiesLiberated;
 
-	bool** m_ppaabWorkingAgainstPlayerAccepted;
-	short** m_ppaaiWorkingAgainstPlayerCounter;
+	//bool** m_ppaabWorkingAgainstPlayerAccepted;
+	//short** m_ppaaiWorkingAgainstPlayerCounter;
 
 	char** m_ppaacCoopWarAcceptedState;
 	short** m_ppaaiCoopWarCounter;
