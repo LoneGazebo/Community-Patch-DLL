@@ -34332,6 +34332,10 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 					{
 						return 0;
 					}
+					else if (eWarState == WAR_STATE_CALM && GetWarProjection(eWarPlayer) <= WAR_PROJECTION_STALEMATE)
+					{
+						return 0;
+					}
 				}
 			}
 		}
