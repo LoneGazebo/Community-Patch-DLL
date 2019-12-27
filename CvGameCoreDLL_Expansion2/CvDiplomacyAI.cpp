@@ -4327,18 +4327,22 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// CAPTURED CITIES
 	////////////////////////////////////
+	int iNumCitiesWeCaptured = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCaptured(eMyPlayer);
+	int iNumCitiesTheyCaptured = GetNumCitiesCaptured(ePlayer);
+	int iCityDifference = iNumCitiesWeCaptured - iNumCitiesTheyCaptured;
+	
 	// If we've captured cities from them before, we're more likely to finish the job.
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCaptured(eMyPlayer) > 0)
+	if (iCityDifference > 0)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCaptured(eMyPlayer));
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCaptured(eMyPlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iCityDifference);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iCityDifference);
 	}
 	// If they've captured cities from us before, they're more likely to finish the job (plus, we want our cities back).
-	if (GetNumCitiesCaptured(ePlayer) > 0)
+	else if (iCityDifference < 0)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + GetNumCitiesCaptured(ePlayer));
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + GetNumCitiesCaptured(ePlayer));
-		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] + GetNumCitiesCaptured(ePlayer));
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - iCityDifference);
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] - iCityDifference);
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID] - iCityDifference);
 	}
 
 	////////////////////////////////////
@@ -6372,11 +6376,17 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 		}
 		
-		// Aztecs - More likely to declare war than any other civ, everything else equal
+		// Aztecs - More likely to declare war than any other civ, everything else equal, plus a bonus for early war
 		else if (GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			
+			if (iEra <= 2)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			}
 		}
 		
 		// India - More likely to be friendly than any other civ, everything else equal, plus an extra bonus for players with no warmongering penalty
@@ -6538,7 +6548,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	
 	if (bValidAttackTarget)
 	{
-		if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || bUntrustworthyFriend)
+		if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || IsLockedIntoCoopWar(ePlayer) || bUntrustworthyFriend)
 		{
 			bWantsConquest = true;
 		}
