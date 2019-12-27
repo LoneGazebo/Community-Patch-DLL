@@ -438,6 +438,8 @@
 #define MOD_TRAITS_EXTRA_SUPPLY                     gCustomMods.isTRAITS_EXTRA_SUPPLY()
 // Enables trait for trade route production siphon, intended for Colonialist Legacies' - Phillipine Republic for VP (Trait_TradeRouteProductionSiphon)
 #define MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON	gCustomMods.isTRAITS_TRADE_ROUTE_PRODUCTION_SIPHON()
+// Enables trait for yield from route movement in foreign territory, intended for Colonialist Legacies' - Phillipine Republic for VP (Trait_YieldFromRouteMovementInForeignTerritory)
+#define MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY	gCustomMods.isTRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY()
 
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
@@ -1539,6 +1541,7 @@ public:
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_BONUSES);
 	MOD_OPT_DECL(TRAITS_EXTRA_SUPPLY);
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON);
+	MOD_OPT_DECL(TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY);
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
 	MOD_OPT_DECL(ERA_RESTRICTION);

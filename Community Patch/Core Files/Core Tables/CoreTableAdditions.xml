@@ -962,6 +962,14 @@
 		<Column name="PercentIncreaseWithOpenBorders" type="integer" default="0"/>
 		<Column name="IsInternationalOnly" type="boolean" default="false"/>
 	</Table>
+
+	<!-- TRAIT: Allows you to define a yield that is gained every turn a trade unit moves within the borders of either players.-->
+	<Table name="Trait_YieldFromRouteMovementInForeignTerritory">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsGrantedToTradePartner" type="boolean" default="true"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">

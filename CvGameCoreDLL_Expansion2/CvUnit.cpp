@@ -21105,6 +21105,29 @@ bool CvUnit::IsUnderEnemyRangedAttack() const
 	return false;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Is this Unit in foreign territory?
+bool CvUnit::IsInForeignOwnedTerritory() const
+{
+	VALIDATE_OBJECT
+		
+	if (plot()->isOwned() && plot()->getOwner() != getOwner())
+	{
+		return true;
+	}
+	return false;
+}
+//	--------------------------------------------------------------------------------
+/// Is this Unit in the specified player's territory?
+bool CvUnit::IsInPlayerTerritory(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+
+	return plot()->getOwner() == ePlayer;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 #if defined(MOD_UNITS_XP_TIMES_100)
 int CvUnit::getExperienceTimes100() const

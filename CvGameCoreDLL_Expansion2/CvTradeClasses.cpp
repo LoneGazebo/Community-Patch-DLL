@@ -1922,6 +1922,30 @@ bool CvGameTrade::MoveUnit (int iIndex)
 						GET_PLAYER(pCity->getOwner()).doInstantYield(
 							INSTANT_YIELD_TYPE_TR_MOVEMENT, false, NO_GREATPERSON, NO_BUILDING, 0, true, 
 							NO_PLAYER, NULL, true, pCity, (pTradeConnection->m_eDomain == DOMAIN_SEA));
+
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+						if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY && pkUnit->IsInForeignOwnedTerritory())
+						{
+							GET_PLAYER(pCity->getOwner()).doInstantYield(
+								INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN, false, NO_GREATPERSON, NO_BUILDING, 0, true,
+								NO_PLAYER, NULL, false, pCity, (pTradeConnection->m_eDomain == DOMAIN_SEA), true, false, NO_YIELD, pkUnit);
+
+							CvPlot* pDestPlot = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY);
+
+							if (pDestPlot && pDestPlot->isCity())
+							{
+								CvCity* pDestCity = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY)->getPlotCity();
+								PlayerTypes eDestPlayer = pDestCity->getOwner();
+
+								if (eDestPlayer != NO_PLAYER && pDestCity != NULL)
+								{
+									GET_PLAYER(eDestPlayer).doInstantYield(
+										INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN, false, NO_GREATPERSON, NO_BUILDING, 0, true,
+										NO_PLAYER, NULL, false, pDestCity, (pTradeConnection->m_eDomain == DOMAIN_SEA), true, false, NO_YIELD, pkUnit);
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -6401,6 +6425,23 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	int iPlayerEra = MAX((int)m_pPlayer->GetCurrentEra(), 1);
+	int iOtherPlayerEra = MAX((int)GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra(), 1);
+
+	if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	{
+		int iTraitGold = 0;
+		
+		iTraitGold += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_GOLD, true) * iPlayerEra;
+		iTraitGold += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_GOLD, false) * iPlayerEra;
+		iTraitGold += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_GOLD, true) * iPlayerEra;
+
+		// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+		iGoldAmount += iTraitGold / 2;
+	}
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	//emphasize gold if we're in the red
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
@@ -6472,6 +6513,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 #endif
 	int iOtherGoldAmount = pOtherPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, false);
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	{
+		int iTraitGold = 0;
+
+		iTraitGold += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_GOLD, true) * iOtherPlayerEra;
+		iTraitGold += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_GOLD, false) * iOtherPlayerEra;
+
+		// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+		iOtherGoldAmount += iTraitGold / 2;
+	}
+#endif
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 	if (bIsToMinor)
 		iOtherGoldAmount = 0;
@@ -6508,6 +6561,20 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 		iAdjustedTechDifferenceP1fromP2 = max(iCeilTechDifference, 1);
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		//if we get extra yields from sending trade routes to foreign territory, let's consider that
+		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		{
+			int iTraitScience = 0;
+
+			iTraitScience += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_SCIENCE, true); // no era scaling here, because it is done below
+			iTraitScience += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_SCIENCE, false);
+			iTraitScience += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_SCIENCE, true) * iPlayerEra;
+
+			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+			iAdjustedTechDifferenceP1fromP2 += iTraitScience / 2;
+		}
+#endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		if (iAdjustedTechDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -6540,6 +6607,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 		iAdjustedTechDifferenceP2fromP1 = max(iCeilTechDifference, 1);
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		{
+			int iTraitScience = 0;
+
+			iTraitScience += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_SCIENCE, true); // no era scaling here, because it is done below
+			iTraitScience += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_SCIENCE, false);
+
+			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+			iAdjustedTechDifferenceP2fromP1 += iTraitScience / 2;
+		}
+#endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		if (iTechDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra() > 0))
 		{
@@ -6578,6 +6657,20 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 		iAdjustedCultureDifferenceP1fromP2 = max(iCeilCultureDifference, 1);
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		//if we get extra yields from sending trade routes to foreign territory, let's consider that
+		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		{
+			int iTraitCulture = 0;
+
+			iTraitCulture += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_CULTURE, true); // no era scaling here, because it is done below
+			iTraitCulture += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_CULTURE, false);
+			iTraitCulture += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_CULTURE, true) * iPlayerEra;
+
+			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+			iAdjustedCultureDifferenceP1fromP2 += iTraitCulture / 2;
+		}
+#endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		if (iAdjustedCultureDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -6610,6 +6703,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
 		iAdjustedCultureDifferenceP2fromP1 = max(iCeilCultureDifference, 1);
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		{
+			int iTraitCulture = 0;
+
+			iTraitCulture += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_CULTURE, true); // no era scaling here, because it is done below
+			iTraitCulture += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(YIELD_CULTURE, false);
+
+			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+			iAdjustedCultureDifferenceP2fromP1 += iTraitCulture / 2;
+		}
+#endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 		if (iAdjustedCultureDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -6736,7 +6841,37 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 			}
 			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		//If we get a bonus from sending trade routes to foreign territory, let's send an international route!
+		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+		{
+			YieldTypes eYieldLoop = (YieldTypes)iJ;
+			if (eYieldLoop != YIELD_GOLD && eYieldLoop != YIELD_SCIENCE && eYieldLoop != YIELD_CULTURE) // We already checked these yield types above with a more sophisticated routine
+			{
+				int iTempScore = 0;
+				iTempScore += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYieldLoop, true);
+				iTempScore += m_pPlayer->GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYieldLoop, false);
+
+				// Era scaler here because the instant yield scales with era
+				// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
+				iScore += iTempScore * iPlayerEra / 2;
+			}
+		}
+#endif
 	}
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	//Check if we can siphon production from the target city
+	if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && m_pPlayer->GetPlayerTraits()->IsTradeRouteProductionSiphon())
+	{
+		int iSiphonPercent = m_pPlayer->GetTradeRouteProductionSiphonPercent(false, &GET_PLAYER(kTradeConnection.m_eDestOwner));
+		iSiphonPercent += m_pPlayer->GetTradeRouteProductionSiphonPercent(true, &GET_PLAYER(kTradeConnection.m_eDestOwner));
+
+		//Choose cities with high production
+		//AI cheats here, because they can directly check the target city's production
+		//Multiply with 2 for a bit more weight here
+		iScore += pToCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
+	}
+#endif
 	int iDistance = (kTradeConnection.m_aPlotList.size() / 3);
 	iDistance += iDangerSum;
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
@@ -7010,6 +7145,18 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	if(iGPT <= 0)
 	{
 		iScore += (iGPT * 10);
+	}
+#endif
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	//Check if we can siphon production from the target city
+	if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && m_pPlayer->GetPlayerTraits()->IsTradeRouteProductionSiphon())
+	{
+		int iSiphonPercent = m_pPlayer->GetTradeRouteProductionSiphonPercent(false, &GET_PLAYER(kTradeConnection.m_eDestOwner));
+
+		//Choose cities with high production
+		//Multiply with 2 for a bit more weight here
+		iScore += pDestCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
 	}
 #endif
 

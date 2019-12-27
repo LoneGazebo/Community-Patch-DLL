@@ -1031,6 +1031,11 @@ public:
 	bool IsInFriendlyTerritory() const;
 	bool IsUnderEnemyRangedAttack() const;
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsInForeignOwnedTerritory() const;
+	bool IsInPlayerTerritory(PlayerTypes ePlayer) const;
+#endif
+
 #if defined(MOD_UNITS_XP_TIMES_100)
 	int getExperienceTimes100() const;
 	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1);

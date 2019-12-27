@@ -283,6 +283,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiYieldChangePerImprovementBuilt(NULL),
 	m_pbiYieldFromBarbarianCampClear(),
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	m_pbiYieldFromRouteMovementInForeignTerritory(),
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piCapitalYieldChanges(NULL),
@@ -1644,6 +1647,25 @@ int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	CvAssertMsg((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg((int)eUnitClass > -1, "Index out of bounds");
 	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
+}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
+{
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
+	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bTradePartner);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+
+	return 0;
 }
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -3027,6 +3049,35 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piDomainProductionModifiersPerSpecialist).swap(m_piDomainProductionModifiersPerSpecialist);
+	}
+#endif
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	//Populate m_pbiYieldFromRouteMovementInForeignTerritory
+	{
+		std::string sqlKey = "Trait_YieldFromRouteMovementInForeignTerritory";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, Yield, IsGrantedToTradePartner from Trait_YieldFromRouteMovementInForeignTerritory inner join Yields on Yields.Type = YieldType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iYieldType = pResults->GetInt(0);
+			const int iYield = pResults->GetInt(1);
+			const bool bGrantedToTradePartner = pResults->GetBool(2);
+
+			m_pbiYieldFromRouteMovementInForeignTerritory[iYieldType][bGrantedToTradePartner] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<bool, int>>(m_pbiYieldFromRouteMovementInForeignTerritory).swap(m_pbiYieldFromRouteMovementInForeignTerritory);
 	}
 #endif
 
@@ -4611,6 +4662,10 @@ void CvPlayerTraits::InitPlayerTraits()
 					m_bCombatBoostNearNaturalWonder= true;
 				}
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][true] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, true);
+				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][false] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, false);
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 				{
@@ -5126,6 +5181,9 @@ void CvPlayerTraits::Reset()
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
 	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	m_pbiYieldFromRouteMovementInForeignTerritory.clear();
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChange.clear();
 	m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
@@ -5605,6 +5663,25 @@ int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraS
 		}
 
 		return 0;
+	}
+
+	return 0;
+}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
+{
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
+	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bTradePartner);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
 	}
 
 	return 0;
@@ -7514,6 +7591,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		m_abTerrainClaimBoost.push_back(bValue);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	kStream >> m_pbiYieldFromRouteMovementInForeignTerritory;
+#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	kStream >> iNumEntries;
 	m_aiiTradeRouteProductionSiphon.clear();
@@ -7974,6 +8054,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	{
 		kStream << m_abTerrainClaimBoost[ui];
 	}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	kStream << m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	kStream << m_aiiTradeRouteProductionSiphon.size();

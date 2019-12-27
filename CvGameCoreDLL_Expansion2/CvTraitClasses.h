@@ -367,6 +367,9 @@ public:
 	EraTypes GetGPFaithPurchaseEra() const;
 	int GetFaithCostModifier() const;
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	int GetCapitalYieldChanges(int i) const;
@@ -719,6 +722,9 @@ protected:
 	int* m_piDomainFreeExperienceModifier;
 	int* m_piGreatPersonProgressFromPolicyUnlock;
 	int* m_piFreeUnitClassesDOW;
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
@@ -1818,6 +1824,9 @@ public:
 		return m_iMountainRangeYield[(int)eYield];
 	};
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eYield, bool bTradePartner) const;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
@@ -2285,6 +2294,9 @@ private:
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;

@@ -26937,6 +26937,33 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:
+				{
+					if (pUnit == NULL)
+						continue;
+					if (eYield == YIELD_GREAT_ADMIRAL_POINTS && !bDomainSea)
+					{
+						continue;
+					}
+					if (eYield == YIELD_GREAT_GENERAL_POINTS && bDomainSea)
+					{
+						continue;
+					}
+					if (pUnit->IsInForeignOwnedTerritory())
+					{
+						iValue += GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, false);
+						iValue += GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, true);
+
+						PlayerTypes eOtherPlayer = pUnit->plot()->getOwner();
+
+						if (eOtherPlayer != NO_PLAYER && eOtherPlayer != GetID())
+						{
+							iValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, true);
+						}
+					}
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -26944,7 +26971,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				//Exclusions
 				if(eYield != YIELD_POPULATION)
 				{
-					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD)
+					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN)
 					{
 						if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
 						{
@@ -27808,6 +27835,24 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+			case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_MOVEMENT_IN_FOREIGN");
 					localizedText << totalyieldString;
 					//We do this at the player level once per turn.
 					addInstantYieldText(iType, localizedText.toUTF8());

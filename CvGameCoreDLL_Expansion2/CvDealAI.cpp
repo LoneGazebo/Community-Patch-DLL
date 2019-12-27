@@ -2696,6 +2696,14 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		{
 			iItemValue += (pDiploAI->GetNumArtifactsEverDugUp(eOtherPlayer) * 200);
 		}
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+		// Does open borders make their production siphon trait stronger?
+		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsTradeRouteProductionSiphon())
+		{
+			iItemValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders * 20;
+			iItemValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
+		}
+#endif
 	}
 	// Other guy giving me Open Borders
 	else
@@ -2804,6 +2812,14 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		{
 			iItemValue *= 115;
 			iItemValue /= 100;
+		}
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+		// Does open borders make our production siphon trait stronger?
+		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GetPlayer()->GetPlayerTraits()->IsTradeRouteProductionSiphon())
+		{
+			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders * 20;
+			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
 		}
 #endif
 		// Boost value greatly if we are going for a culture win
