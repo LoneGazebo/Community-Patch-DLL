@@ -37248,6 +37248,19 @@ bool CvDiplomacyAI::IsUntrustworthyFriend(PlayerTypes ePlayer) const
 	{
 		return true;
 	}
+
+	// Stole our capital/Holy City? Unless we're your capitulated vassal, we don't care about anything you have to say...
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (!IsVassal(ePlayer) || GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+	{
+#endif
+		if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer))
+		{
+			return true;
+		}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	}
+#endif
 	
 	return false;
 	
