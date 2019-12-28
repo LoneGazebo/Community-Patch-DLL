@@ -963,7 +963,7 @@
 		<Column name="IsInternationalOnly" type="boolean" default="false"/>
 	</Table>
 
-	<!-- TRAIT: Allows you to define a yield that is gained every turn a trade unit moves within the borders of either players.-->
+	<!-- TRAIT: Allows you to define a yield that is gained every turn a trade unit moves in foreign territory. Can be enabled so that anyone who sends a trade route to you gains the same bonus when their trade units are in your foreign territory. Requires TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY to be enabled in CustomModOptions.-->
 	<Table name="Trait_YieldFromRouteMovementInForeignTerritory">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
