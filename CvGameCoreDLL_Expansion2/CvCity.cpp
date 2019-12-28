@@ -9860,7 +9860,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE) + GetID());
+		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -10016,7 +10016,7 @@ void CvCity::DoSeedResourceDemandedCountdown()
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
+	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
 #else
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
 #endif
@@ -14267,7 +14267,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if (vPossibleResources.size() > 0)
 						{
 							//choose one
-							int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
+							int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
 							ResourceTypes eResourceToGive = vPossibleResources[iChoice];
 
 							int iNumResourceGiven = 0;
@@ -20108,7 +20108,7 @@ void CvCity::setFoodTimes100(int iNewValue)
 		
 	if(getFoodTimes100() != iNewValue)
 	{
-		m_iFood = iNewValue;
+		m_iFood = max(0,iNewValue);
 	}
 }
 
@@ -20641,21 +20641,13 @@ bool CvCity::DoRazingTurn()
 				return false;
 			}
 
-			// In hundreds
-			int iNumRebels = (getPopulation() * 5); //Based on city size.
-			int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE)) * 3 * getPopulation();
-			iNumRebels /= 100;		
-	
-			if(iNumRebels <= 0)
-			{
-				return false;
-			}
-			if(iNumRebels > getPopulation())
-			{
-				iNumRebels = getPopulation();
-			}
-			int iStatic = iNumRebels;
+			//Based on city size
+			int iNumRebels = GC.getGame().getSmallFakeRandNum( sqrti(getPopulation()), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+
+			//But min number scaling with era
+			if (iNumRebels < GC.getGame().getCurrentEra())
+				iNumRebels = GC.getGame().getCurrentEra();
+
 			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
 			
 			if(GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
@@ -20686,7 +20678,7 @@ bool CvCity::DoRazingTurn()
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iStatic);
+						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
 						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
@@ -20715,7 +20707,7 @@ bool CvCity::DoRazingTurn()
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iStatic);
+						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
 						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
@@ -26202,44 +26194,92 @@ void CvCity::DoBarbIncursion()
 		if(GET_PLAYER(getOwner()).isBarbarian())
 			return;
 
-		int iCityStrength = getStrengthValue(true);
-		iCityStrength *= GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
-		iCityStrength /= 100;
-
-		CvPlot* pLoopPlot;
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
-				{			
-					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
-					//this can happen multiple times per turn, be sure to include the unit id or similar
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(100, pLoopPlot->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE) + pUnit->GetID()) * 5;
-					if(iBarbStrength > iCityStrength)
+				{
+					//pretend the unit attacks this city
+					int iAttackerDamage = 0;
+					int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
+
+					//we pay them off so they don't do damage
+					if (iDefenderDamage > 0)
 					{
-						int iTheft = (iBarbStrength - iCityStrength);
+						//they get x turns worth of yields
+						int iTheftTurns = max(1, iDefenderDamage / 23 + GC.getGame().getSmallFakeRandNum(1, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 
-						if(iTheft > 0)
+						//but they lose some health in exchange
+						pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+
+						//which yield is affected?
+						int iYield = GC.getGame().getSmallFakeRandNum(10, pLoopPlot->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+						if(iYield <= 2)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, pLoopPlot->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE) + pUnit->GetID());
-							if(iYield <= 2)
+							int iGold = getBaseYieldRate(YIELD_GOLD) * iTheftTurns;
+							if(iGold > 0)
 							{
-								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
-								iGold /= 4;
-								if(iGold > 0)
-								{
-									changeDamage(iGold);
-									pUnit->changeDamage(iGold);
-									GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGold);
+								GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGold);
 
-									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
-									strMessage << iGold;
+								Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
+								strMessage << iGold;
+								strMessage << getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY");
+								strSummary << getNameKey();
+
+								CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+								if(pNotification)
+								{
+									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
+								}
+
+								CvString strLog;
+								strLog.Format("Barbarians stole %d gold from %s", iGold, getNameKey());
+								GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+							}
+						}
+						else if(iYield <= 4)
+						{
+							int iCulture = getJONSCulturePerTurn() * iTheftTurns;
+							if(iCulture > 0)
+							{
+								GET_PLAYER(getOwner()).changeJONSCulture(-iCulture);
+
+								Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
+								strMessage << iCulture;
+								strMessage << getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY");
+								strSummary << getNameKey();
+
+								CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+								if(pNotification)
+								{
+									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
+								}
+								CvString strLog;
+								strLog.Format("Barbarians stole %d culture from %s", iCulture, getNameKey());
+								GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+							}
+						}
+						else if(iYield <= 6)
+						{
+							TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+							int iScience = 0;
+							if(eCurrentTech != NO_TECH)
+							{
+								iScience = getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns;
+								if(iScience > 0)
+								{
+									GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, getOwner());
+
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
+									strMessage << iScience;
 									strMessage << getNameKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY");
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY");
 									strSummary << getNameKey();
 
 									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
@@ -26249,89 +26289,48 @@ void CvCity::DoBarbIncursion()
 									}
 
 									CvString strLog;
-									strLog.Format("Barbarians stole %d gold from %s", iGold, getNameKey());
+									strLog.Format("Barbarians stole %d science from %s", iScience, getNameKey());
 									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 								}
 							}
-							else if(iYield <= 4)
+						}
+						else if(iYield <= 8)
+						{
+							int iFood = getBaseYieldRate(YIELD_FOOD) * iTheftTurns;
+							if(iFood > 0)
 							{
-								int iCulture = ((getJONSCulturePerTurn() * iTheft) / 100);
-								iCulture /= 2;
-								if(iCulture > 0)
+								changeFood(-iFood);
+
+								Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
+								strMessage << iFood;
+								strMessage << getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY");
+								strSummary << getNameKey();
+
+								CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+								if(pNotification)
 								{
-									changeDamage(iCulture);
-									pUnit->changeDamage(iTheft / 8);
-									GET_PLAYER(getOwner()).changeJONSCulture(-iCulture);
-
-									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
-									strMessage << iCulture;
-									strMessage << getNameKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY");
-									strSummary << getNameKey();
-
-									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-									if(pNotification)
-									{
-										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-									}
-									CvString strLog;
-									strLog.Format("Barbarians stole %d culture from %s", iCulture, getNameKey());
-									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
 								}
+
+								CvString strLog;
+								strLog.Format("Barbarians stole %d food from %s", iFood, getNameKey());
+								GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 							}
-							else if(iYield <= 6)
+						}
+						else
+						{
+							if((getProduction() > 0) && (getProductionTurnsLeft() >= 2) && (getProductionTurnsLeft() != INT_MAX))
 							{
-								TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-								int iScience = 0;
-								if(eCurrentTech != NO_TECH)
+								int iProduction = getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns;
+								if(iProduction > 0)
 								{
-									iScience = ((getBaseYieldRate(YIELD_SCIENCE) * iTheft) / 100);
-									iScience /= 2;
-									if(iScience > 0)
-									{
-										changeDamage(iScience);
-										pUnit->changeDamage(iScience);
-										GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, getOwner());
+									changeProduction(-iProduction);
 
-										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
-										strMessage << iScience;
-										strMessage << getNameKey();
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY");
-										strSummary << getNameKey();
-
-										CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-										if(pNotification)
-										{
-											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-										}
-
-										CvString strLog;
-										strLog.Format("Barbarians stole %d science from %s", iScience, getNameKey());
-										GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
-									}
-								}
-							}
-							else if(iYield <= 8)
-							{
-								int iFood = ((getBaseYieldRate(YIELD_FOOD) * iTheft) / 100);
-								iFood /= 4;
-								if(iFood > 0)
-								{
-									if(iFood > getFood())
-									{
-										setFood(0);
-									}
-									else
-									{
-										changeFood(-iFood);
-									}
-
-									changeDamage(iFood);
-									pUnit->changeDamage(iFood);
-									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
-									strMessage << iFood;
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
+									strMessage << iProduction;
 									strMessage << getNameKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY");
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY");
 									strSummary << getNameKey();
 
 									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
@@ -26341,45 +26340,8 @@ void CvCity::DoBarbIncursion()
 									}
 
 									CvString strLog;
-									strLog.Format("Barbarians stole %d food from %s", iFood, getNameKey());
+									strLog.Format("Barbarians stole %d production from %s", iProduction, getNameKey());
 									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
-								}
-							}
-							else
-							{
-								if((getProduction() > 0) && (getProductionTurnsLeft() >= 2) && (getProductionTurnsLeft() != INT_MAX))
-								{
-									int iProduction = ((getBaseYieldRate(YIELD_PRODUCTION) * iTheft) / 100);
-									iProduction /= 4;
-									if(iProduction > 0)
-									{
-										if(iProduction > getProduction())
-										{
-											setProduction(0);
-										}
-										else
-										{
-											changeProduction(-iProduction);
-										}
-
-										changeDamage(iProduction);
-										pUnit->changeDamage(iProduction);
-										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
-										strMessage << iProduction;
-										strMessage << getNameKey();
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY");
-										strSummary << getNameKey();
-
-										CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-										if(pNotification)
-										{
-											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-										}
-
-										CvString strLog;
-										strLog.Format("Barbarians stole %d production from %s", iProduction, getNameKey());
-										GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
-									}
 								}
 							}
 						}
@@ -27225,7 +27187,7 @@ void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 
 	if(getProjectProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiProjectProduction.setAt(eIndex, iNewValue);
+		m_paiProjectProduction.setAt(eIndex, max(0,iNewValue));
 		CvAssert(getProjectProductionTimes100(eIndex) >= 0);
 
 		if((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -27390,7 +27352,7 @@ void CvCity::setUnitProductionTimes100(UnitTypes eIndex, int iNewValue)
 
 	if(getUnitProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiUnitProduction.setAt(eIndex, iNewValue);
+		m_paiUnitProduction.setAt(eIndex, max(0,iNewValue));
 		CvAssert(getUnitProductionTimes100(eIndex) >= 0);
 
 		if((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -33003,7 +32965,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* /*pAttacker*/, bool bInclude
 		iBaseValue = GetCityAirStrikeDefense();
 
 	if (bIncludeRand)
-		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
+		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
 	else
 		return iBaseValue;
 }

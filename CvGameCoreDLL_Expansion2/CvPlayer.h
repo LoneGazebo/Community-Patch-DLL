@@ -2751,6 +2751,7 @@ public:
 	bool HasActiveDiplomacyRequests() const;
 
 	CvTreasury* GetTreasury() const;
+	int GetPseudoRandomSeed() const;
 
 	int GetCityDistanceHighwaterMark() const;
 	void SetCityDistanceHighwaterMark(int iNewValue);

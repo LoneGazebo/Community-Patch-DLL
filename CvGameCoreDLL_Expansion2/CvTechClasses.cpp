@@ -2528,7 +2528,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 #endif
 	if(GetResearchProgressTimes100(eIndex) != iNewValue)
 	{
-		m_paiResearchProgress[eIndex] = iNewValue;
+		m_paiResearchProgress[eIndex] = max(0,iNewValue);
 		CvAssert(GetResearchProgressTimes100(eIndex) >= 0);
 
 		if(m_pTeam->GetID() == GC.getGame().getActiveTeam())

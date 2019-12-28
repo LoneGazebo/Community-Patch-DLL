@@ -19035,7 +19035,7 @@ void CvPlayer::setJONSCulture(int iNewValue)
 			ChangeJONSCultureEverGenerated(iNewValue - m_iJONSCulture);
 		}
 
-		m_iJONSCulture = iNewValue;
+		m_iJONSCulture = max(0,iNewValue);
 
 		if(GC.getGame().getActivePlayer() == GetID())
 		{
@@ -20475,7 +20475,7 @@ void CvPlayer::SetFaith(int iNewValue)
 			ChangeFaithEverGenerated(iNewValue - m_iFaith);
 		}
 
-		m_iFaith = iNewValue;
+		m_iFaith = max(0,iNewValue);
 
 		if(GC.getGame().getActivePlayer() == GetID())
 		{
@@ -45252,6 +45252,12 @@ int CvPlayer::AddNotification(NotificationTypes eNotificationType, const char* s
 CvTreasury* CvPlayer::GetTreasury() const
 {
 	return m_pTreasury;
+}
+
+int CvPlayer::GetPseudoRandomSeed() const
+{
+	//this should return a different number for each turn (each call would be even better ...)
+	return GetID() + m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : 0 + getGlobalAverage(YIELD_CULTURE);
 }
 
 //	--------------------------------------------------------------------------------
