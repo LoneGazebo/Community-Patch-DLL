@@ -8777,7 +8777,7 @@ bool CvDiplomacyAI::IsMakeRequest(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRan
 		if(bWantsSomething)
 		{
 			// Random element
-			int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+			int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 			iRand += iWeightBias;
 
@@ -9602,7 +9602,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE)
 	if (!GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 + GC.getGame().getSmallFakeRandNum(3, m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
+		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 + GC.getGame().getSmallFakeRandNum(3, m_pPlayer->GetPseudoRandomSeed()+ePlayer))
 			return true;
 	}
 
@@ -20588,7 +20588,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer) < GetWarmongerHate())
 						{
 							bValid = true;
 						}
@@ -20613,7 +20613,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer) < GetWarmongerHate())
 						{
 							bValid = true;
 						}
@@ -20672,7 +20672,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer) < GetWarmongerHate())
 						{
 							bValid = true;
 						}
@@ -20697,7 +20697,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer) < GetWarmongerHate())
 						{
 							bValid = true;
 						}
@@ -21540,7 +21540,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 #endif
 			{
-				if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
+				if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 				{
 					bValid = true;
 				}
@@ -23462,7 +23462,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		else
 		{
 			int iThreshold = iExpansionFlavor; //antonjs: todo: xml
-			int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iExpansionFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+			int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iExpansionFlavor + m_pPlayer->GetPseudoRandomSeed());
 
 			if(iRandRoll < iThreshold)
 				bWantsToBuyout = true;
@@ -23495,7 +23495,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	else
 	{
 		int iThreshold = iDiplomacyFlavor;
-		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iDiplomacyFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iDiplomacyFlavor + m_pPlayer->GetPseudoRandomSeed());
 
 		// Threshold will be 15 for a player (3 flavor * 5)
 		// Threshold will be 5 for non-diplomatic player (2 flavor * 5)
@@ -23535,7 +23535,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						iThreshold = 10;
 					}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iScienceFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iScienceFlavor+ m_pPlayer->GetPseudoRandomSeed()+eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -23549,7 +23549,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						iThreshold = 10;
 					}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iProductionFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iProductionFlavor+ m_pPlayer->GetPseudoRandomSeed()+eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -23563,7 +23563,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						iThreshold = 10;
 					}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iCultureFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iCultureFlavor+ m_pPlayer->GetPseudoRandomSeed()+eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -23577,7 +23577,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						iThreshold = 10;
 					}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iFaithFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iFaithFlavor+ m_pPlayer->GetPseudoRandomSeed()+eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -23591,7 +23591,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						iThreshold = 10;
 					}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGrowthFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGrowthFlavor+ m_pPlayer->GetPseudoRandomSeed()+eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -23608,7 +23608,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					else
 					{
 						int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->GetPseudoRandomSeed()+eMinor);
 
 						if(iRandRoll < iThreshold)
 							bWantsToBullyUnit = true;
@@ -23629,7 +23629,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	else
 	{
 		int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
-		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->GetPseudoRandomSeed());
 
 		if(iRandRoll < iThreshold)
 			bWantsToBullyUnit = true;
@@ -23658,7 +23658,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	else
 	{
 		int iThreshold = iGoldFlavor; //antonjs: todo: XML
-		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGoldFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGoldFlavor+ m_pPlayer->GetPseudoRandomSeed());
 
 		if(iRandRoll < iThreshold)
 			bWantsToBullyGold = true;
@@ -24174,7 +24174,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FOOD) * iGrowthFlavor);
 							}
-							iValue += GC.getGame().getSmallFakeRandNum(GetBoldness(), eID+m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+							iValue += GC.getGame().getSmallFakeRandNum(GetBoldness(), eID+m_pPlayer->GetPseudoRandomSeed());
 						}
 						else
 						{
@@ -25705,7 +25705,7 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 						bSendStatement = true;
 
 					// 1 in 2 chance we don't actually send the message (don't want full predictability)
-					if (5 < GC.getGame().getSmallFakeRandNum(10, ePlayer+m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
+					if (5 < GC.getGame().getSmallFakeRandNum(10, ePlayer+m_pPlayer->GetPseudoRandomSeed()+ePlayer))
 						bSendStatement = false;
 
 					if(bSendStatement)
@@ -26704,7 +26704,7 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 				bSendStatement = false;
 
 			// 2 in 3 chance we don't actually send the message (don't want to bombard the player from all sides)
-			if (4 < GC.getGame().getSmallFakeRandNum(10, ePlayer + m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
+			if (4 < GC.getGame().getSmallFakeRandNum(10, ePlayer + m_pPlayer->GetPseudoRandomSeed()+ePlayer))
 				bSendStatement = false;
 
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_WARMONGER;
@@ -26833,7 +26833,7 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 
 				// Found a match!
 				int iWeight = GetMeanness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're mean enough to say something
 				if(iWeight >= 10)
@@ -26901,7 +26901,7 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 
 				// Found a match!
 				int iWeight = GetMeanness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're mean enough to say something
 				if(iWeight >= 10)
@@ -26970,7 +26970,7 @@ void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTyp
 				// Found a match!
 
 				int iWeight = GetChattiness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're chatty enough to say something
 				if(iWeight >= 10)
@@ -27039,7 +27039,7 @@ void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementT
 				// Found a match!
 
 				int iWeight = GetChattiness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're chatty enough to say something
 				if(iWeight >= 10)
@@ -27166,7 +27166,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 					iWeight += 10;
 
 				iWeight += GetMeanness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're mean enough to say something
 				if(iWeight >= 10)
@@ -27251,7 +27251,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 					iWeight += 10;
 
 				iWeight += GetMeanness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're mean enough to say something
 				if(iWeight >= 10)
@@ -27343,7 +27343,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatement
 					iWeight += 3;
 
 				iWeight += GetChattiness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're mean enough to say something
 				if(iWeight >= 10)
@@ -27452,7 +27452,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 					iWeight += 2;
 
 				iWeight += GetChattiness();		// Usually ranges from 3 to 7
-				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+				iWeight += GC.getGame().getSmallFakeRandNum(10, iWeight + m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 				// We're mean enough to say something
 				if(iWeight >= 10)
@@ -27499,7 +27499,7 @@ void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTyp
 				bSkip = true;
 
 			// Check chattiness to see if we send the message this turn
-			if (!bSkip && GetChattiness() > GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
+			if (!bSkip && GetChattiness() > GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer))
 			{
 				DiploStatementTypes eOtherStatementToCheck = NO_DIPLO_STATEMENT_TYPE;
 
@@ -27895,7 +27895,7 @@ void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTy
 				bSkip = true;
 			if(eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_HOSTILE)
 				bSkip = true;
-			if (!bSkip && GetChattiness() > GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
+			if (!bSkip && GetChattiness() > GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer))
 			{
 				eTempStatement = DIPLO_STATEMENT_WE_LIKED_THEIR_PROPOSAL;
 				int iTurnsBetweenStatements = GC.getOPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS();
@@ -27945,7 +27945,7 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 				bSkip = true;
 			if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 				bSkip = true;
-			if (!bSkip && GetChattiness() > GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)))
+			if (!bSkip && GetChattiness() > GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer))
 			{
 				eTempStatement = DIPLO_STATEMENT_WE_DISLIKED_THEIR_PROPOSAL;
 				int iTurnsBetweenStatements = GC.getOPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS();
@@ -30218,7 +30218,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		bool bDeclareWar = false;
 		
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < ((GetMeanness() + GetBoldness()) / 2))
+		if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+eFromPlayer) < ((GetMeanness() + GetBoldness()) / 2))
 #else
 		if(GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
@@ -30460,7 +30460,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			bool bDeclareWar = false;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-			if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < ((GetMeanness() + GetBoldness()) / 2))
+			if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+eFromPlayer) < ((GetMeanness() + GetBoldness()) / 2))
 #else
 			if (GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
@@ -30541,7 +30541,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			bool bDeclareWar = false;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-			if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) < ((GetMeanness() + GetBoldness()) / 2))
+			if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+eFromPlayer) < ((GetMeanness() + GetBoldness()) / 2))
 #else
 			if (GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
@@ -30983,7 +30983,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					iChance += 20;
 				}
-				if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE)) > (iChance - GetMeanness() - GetBoldness()))
+				if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+eFromPlayer) > (iChance - GetMeanness() - GetBoldness()))
 				{
 					bDeclareWar = true;
 				}
@@ -47841,7 +47841,7 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 		iChanceToGiveIn = 3;
 	}
 
-	int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+	int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 	if(iRand < iChanceToGiveIn)
 		return true;
@@ -48151,7 +48151,7 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 		if(bWantsToOfferSomething)
 		{
 			// Random element
-			int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+			int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 			// modifier based on AI loyalty
 			int iModifier = (GetLoyalty() - 5);	// +20 for 7 Loyalty, +0 for 5 Loyalty, -30 for 2 Loyalty, +50 for 10 Loyalty
@@ -48465,7 +48465,7 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 		iThreshold = 3;
 	}
 
-	int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+	int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 
 	if(iRand < iThreshold)
 		return true;
@@ -50174,7 +50174,7 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 						if(iVassalCurrentGPT * 150 < iMyCurrentGPT * 100)
 							iThreshold = 7;
 
-						int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+						int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed()+ePlayer);
 						if(iRand < iThreshold)
 						{
 							iScoreForLower *= 150;

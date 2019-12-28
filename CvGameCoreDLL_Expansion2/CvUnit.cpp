@@ -1123,7 +1123,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed()) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1154,7 +1154,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed()) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{

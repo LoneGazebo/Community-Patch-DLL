@@ -3284,7 +3284,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		iCaptureGold += GC.getBASE_CAPTURE_GOLD();
 		iCaptureGold += (pOldCity->getPopulation() * GC.getCAPTURE_GOLD_PER_POPULATION());
 		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND1(), pOldCity->plot()->GetPlotIndex()) * 2;
-		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND2(), GET_PLAYER(pOldCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) * 2;
+		iCaptureGold += GC.getGame().getSmallFakeRandNum(GC.getCAPTURE_GOLD_RAND2(), GET_PLAYER(pOldCity->getOwner()).GetPseudoRandomSeed()) * 2;
 
 		if(GC.getCAPTURE_GOLD_MAX_TURNS() > 0)
 		{
@@ -19840,7 +19840,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 
 	if (!vePossibleTechs.empty())
 	{
-		int iRoll = GC.getGame().getSmallFakeRandNum((int)vePossibleTechs.size(), GET_PLAYER(pConqueredCity->getOwner()).getGlobalAverage(YIELD_CULTURE));
+		int iRoll = GC.getGame().getSmallFakeRandNum((int)vePossibleTechs.size(), GET_PLAYER(pConqueredCity->getOwner()).GetPseudoRandomSeed());
 		TechTypes eFreeTech = vePossibleTechs[iRoll];
 		CvAssert(eFreeTech != NO_TECH)
 		if (eFreeTech != NO_TECH)
@@ -19967,7 +19967,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			int iNotificationArtwork = -1;
 			if (artChoices.size() > 0)
 			{
-				int iPlunder = GC.getGame().getSmallFakeRandNum(max(1, (iOpenSlots / 5)), GET_PLAYER(pCity->getOwner()).getGlobalAverage(YIELD_CULTURE));
+				int iPlunder = GC.getGame().getSmallFakeRandNum(max(1, (iOpenSlots / 5)), GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
 				if (iPlunder <= 2)
 				{
 					iPlunder = 2;
@@ -21053,13 +21053,10 @@ void CvPlayer::ChangeUprisingCounter(int iChange)
 /// Uprising countdown - seed
 void CvPlayer::DoResetUprisingCounter(bool bFirstTime)
 {
-	int iTurns = /*4*/ GC.getUPRISING_COUNTER_MIN();
-	CvGame& theGame = GC.getGame();
-	int iExtra = theGame.getSmallFakeRandNum(/*3*/ GC.getUPRISING_COUNTER_POSSIBLE(), getGlobalAverage(YIELD_CULTURE));
-	iTurns += iExtra;
+	int iTurns = /*4*/ GC.getUPRISING_COUNTER_MIN() + GC.getGame().getSmallFakeRandNum(/*3*/ GC.getUPRISING_COUNTER_POSSIBLE(), GetPseudoRandomSeed());
 
 	// Game speed mod
-	int iMod = theGame.getGameSpeedInfo().getTrainPercent();
+	int iMod = GC.getGame().getGameSpeedInfo().getTrainPercent();
 	// Only LENGTHEN time between rebels
 	if(iMod > 100)
 	{
@@ -21087,9 +21084,9 @@ void CvPlayer::DoUprising()
 {
 	// In hundreds
 	int iNumRebels = /*100*/ GC.getUPRISING_NUM_BASE();
-	int iExtraRoll = getNumCities() - 1;
-	iExtraRoll += GC.getGame().getSmallFakeRandNum(iExtraRoll, getGlobalAverage(YIELD_CULTURE)) * /*20*/ GC.getUPRISING_NUM_CITY_COUNT();
-	iNumRebels += iExtraRoll;
+	int iExtra = getNumCities() + GC.getGame().getSmallFakeRandNum(getNumCities(), GetPseudoRandomSeed());
+		
+	iNumRebels += iExtra * /*20*/ GC.getUPRISING_NUM_CITY_COUNT();
 	iNumRebels /= 100;
 
 	// Find a random city to pop up a bad man
@@ -21102,7 +21099,7 @@ void CvPlayer::DoUprising()
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		int iTempWeight = pLoopCity->getPopulation();
-		iTempWeight += theGame.getSmallFakeRandNum(10, getGlobalAverage(YIELD_CULTURE) + pLoopCity->plot()->GetPlotIndex());
+		iTempWeight += theGame.getSmallFakeRandNum(10, GetPseudoRandomSeed() + pLoopCity->plot()->GetPlotIndex());
 
 		if(iTempWeight > iBestWeight)
 		{
@@ -21145,7 +21142,7 @@ void CvPlayer::DoUprising()
 			if(pPlot->getNumUnits() > 0)
 				continue;
 
-			int iTempWeight = theGame.getSmallFakeRandNum(10, getGlobalAverage(YIELD_CULTURE) + iPlotLoop);
+			int iTempWeight = theGame.getSmallFakeRandNum(10, GetPseudoRandomSeed() + iPlotLoop);
 
 			// Add weight if there's an improvement here!
 			if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -28102,10 +28099,10 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 	{
 		iEra = 1;
 	}
-	int iValue = iPolicyGEorGM * iEra;
-	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+	int iValue = iPolicyGEorGM * iEra * GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-	int iRandom = GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE));
+	int iRandom = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed()+iPolicyGEorGM);
 	if (iRandom <= 33)
 	{
 		eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
@@ -28995,7 +28992,7 @@ void CvPlayer::DoSeedGreatPeopleSpawnCounter()
 	}
 
 	int iRand = /*7*/ GC.getMINOR_TURNS_GREAT_PEOPLE_SPAWN_RAND();
-	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, getGlobalAverage(YIELD_CULTURE));
+	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, GetPseudoRandomSeed());
 
 	// If we're biasing the result then decrease the number of turns
 	if(!IsAlliesGreatPersonBiasApplied())
@@ -29103,7 +29100,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			// No prophets
 			if(!pkUnitEntry->IsFoundReligion())
 			{
-				int iScore = GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE) + iX + iY);
+				int iScore = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed() + iX + iY);
 
 				if(iScore > iBestScore)
 				{
@@ -29391,7 +29388,7 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 				if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != GetID())
 					continue;
 
-				iScore = GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE) + iMinorLoop);
+				iScore = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed() + iMinorLoop);
 
 				// Best ally yet?
 				if(eBestMinor == NO_PLAYER || iScore > iBestScore)
@@ -29431,7 +29428,7 @@ CvCity* CvPlayer::GetGreatPersonSpawnCity(UnitTypes eUnit)
 				continue;
 			}
 
-			int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), getGlobalAverage(YIELD_CULTURE) + iLoop);
+			int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetPseudoRandomSeed() + iLoop);
 
 			for(int i = 0; i < NUM_YIELD_TYPES; i++)
 			{
@@ -31508,7 +31505,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 
 		//choose one
-		int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleSpecialists.size(), getGlobalAverage(YIELD_CULTURE) + GC.getGame().getNumCities() + m_iNumHistoricEvent);
+		int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleSpecialists.size(), GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iNumHistoricEvent);
 		SpecialistTypes eBestSpecialist = vPossibleSpecialists.empty() ? NO_SPECIALIST : vPossibleSpecialists[iChoice];
 		if(eBestSpecialist != NO_SPECIALIST)
 		{
@@ -33214,7 +33211,7 @@ void CvPlayer::setCombatExperience(int iExperience)
 					int iLoop;
 					for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), getGlobalAverage(YIELD_CULTURE) + iLoop);
+						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetPseudoRandomSeed() + iLoop);
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -33426,7 +33423,7 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 							continue;
 						}
 
-						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), getGlobalAverage(YIELD_CULTURE) + iLoop);
+						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetPseudoRandomSeed() + iLoop);
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -36632,7 +36629,7 @@ void CvPlayer::DoDeficit()
 	if(iNumMilitaryUnits > getNumCities())
 #endif
 	{
-		int iRand = GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE));
+		int iRand = GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed());
 		if (iRand < 50)
 		{
 			CvUnit* pLandUnit = NULL;
@@ -37124,7 +37121,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				iPercent = iPercent * std::min(150, std::max(75, iSmileRatio)) / 100;
 				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetMajorCivApproach(eToPlayer, false), GetDiplomacyAI()->GetMajorCivOpinion(eToPlayer));
 
-				if (GC.getGame().getSmallFakeRandNum(100, getGlobalAverage(YIELD_CULTURE)) < iPercent) {
+				if (GC.getGame().getSmallFakeRandNum(100, GetPseudoRandomSeed()) < iPercent) {
 					if (GC.getGame().getActivePlayer() == GetID()) {
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_TEXT);
 						strcpy_s(kPopupInfo.szText, "TXT_KEY_GRATEFUL_SETTLERS");
