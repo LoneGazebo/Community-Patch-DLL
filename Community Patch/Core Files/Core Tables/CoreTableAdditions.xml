@@ -967,6 +967,15 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
+	<!-- RESOURCES: Allows Resources to grant combat modifiers if you control a monopoly of the resource. Can be configured to require strategic or global monopoly. Must have DEALS functions enabled to use. -->
+	<Table name="Resource_MonopolyCombatModifiers">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Attack" type="integer" default="0"/>
+		<Column name="Defense" type="integer" default="0"/>
+	</Table>
 	
 	<!-- BUILDINGS: Allows you to define a building class requirement where the building class can be in any city. Does not return a tooltip (unlike buildingclass required test)-->
 	<Table name="Building_ClassNeededAnywhere">

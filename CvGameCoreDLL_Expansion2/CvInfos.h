@@ -24,6 +24,28 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 #pragma warning( disable: 4127 )
 
+struct ResourceMonopolySettings
+{
+	ResourceMonopolySettings() :
+		m_bGlobalMonopoly(false),
+		m_bStrategicMonopoly(false)
+	{};
+
+	bool m_bGlobalMonopoly;
+	bool m_bStrategicMonopoly;
+};
+
+struct CombatModifiers
+{
+	CombatModifiers() :
+		m_iAttackMod(0),
+		m_iDefenseMod(0)
+	{};
+
+	int m_iAttackMod;
+	int m_iDefenseMod;
+};
+
 class CvDatabaseUtility;
 
 //------------------------------------------------------------------------------
@@ -1555,6 +1577,9 @@ public:
 
 	int getCityYieldModFromMonopoly(int i) const;
 	int* getCityYieldModFromMonopolyArray();
+
+	int getMonopolyAttackBonus(bool bGlobalMonopoly, bool bStrategicMonopoly) const;
+	int getMonopolyDefenseBonus(bool bGlobalMonopoly, bool bStrategicMonopoly) const;
 #endif
 
 	int getResourceQuantityType(int i) const;
@@ -1630,6 +1655,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
+	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
 #endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;
