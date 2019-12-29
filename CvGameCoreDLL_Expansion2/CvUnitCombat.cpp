@@ -1896,7 +1896,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 #endif
 		}
 
-		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
+		iDefenderTotalDamageInflicted = std::max(kAttacker.GetCurrHitPoints(), kAttacker.getDamage() + iDefenderDamageInflicted);
 
 #if !defined(NO_ACHIEVEMENTS)
 		//Achievement for Washington

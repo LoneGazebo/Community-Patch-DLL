@@ -9176,61 +9176,61 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	int iMiscScore = 0;
 
 	//check how much damage we can do to the enemies around this plot
-	std::vector<int> vDamageRatios;
-	std::vector<CvPlot*> vAttackPlots;
-
-	//works for both melee and ranged
-	int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
-	//ranged attacks are cross-domain
-	for (int iRange = 1; iRange < iMaxRange + 1; iRange++)
+	//we only care about attacks in this turn, the rest is handled by the plot type score
+	int iMaxAttacks = NumAttacksForUnit(movePlot.iMovesLeft, unit.iAttacksLeft);
+	if (iMaxAttacks > 0)
 	{
-		//performance optimization
-		if (iRange == 1 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE)
-			continue;
-		if (iRange == 2 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_SECONDLINE)
-			continue;
+		std::vector<int> vDamageRatios;
 
-		vAttackPlots = GC.getMap().GetPlotsAtRange(pTestPlot, iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
-		for (size_t iCount = 0; iCount < vAttackPlots.size(); iCount++)
+		//works for both melee and ranged
+		int iMaxRange = pUnit->isRanged() ? pUnit->GetRange() : 1;
+		//ranged attacks are cross-domain
+		for (int iRange = 1; iRange < iMaxRange + 1; iRange++)
 		{
-			CvPlot* pLoopPlot = vAttackPlots[iCount];
-			if (!pLoopPlot)
+			//performance optimization
+			if (iRange == 1 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE)
+				continue;
+			if (iRange == 2 && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_FRONTLINE && testPlot.getType(eRelevantDomain) != CvTacticalPlot::TP_SECONDLINE)
 				continue;
 
-			const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
-			if (enemyPlot.isValid() && enemyPlot.isEnemy())
+			std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pTestPlot, iRange, true, !pUnit->IsRangeAttackIgnoreLOS());
+			for (size_t iCount = 0; iCount < vAttackPlots.size(); iCount++)
 			{
-				//don't attack cities if the real target is something else
-				if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot)
+				CvPlot* pLoopPlot = vAttackPlots[iCount];
+				if (!pLoopPlot)
 					continue;
 
-				//we don't care for damage here but let's reuse the scoring function
-				STacticalAssignment temp;
-				ScoreAttack(enemyPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), temp);
-
-				if (temp.iScore > 0)
+				const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
+				if (enemyPlot.isValid() && enemyPlot.isEnemy())
 				{
-					//don't break formation if there are many enemies around
-					if (temp.eAssignmentType == A_MELEEKILL && enemyPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3)
+					//don't attack cities if the real target is something else
+					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot)
 						continue;
 
-					vDamageRatios.push_back(temp.iScore);
+					//we don't care for damage here but let's reuse the scoring function
+					STacticalAssignment temp;
+					ScoreAttack(enemyPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), temp);
+
+					if (temp.iScore > 0)
+					{
+						//don't break formation if there are many enemies around
+						if (temp.eAssignmentType == A_MELEEKILL && enemyPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3)
+							continue;
+
+						vDamageRatios.push_back(temp.iScore);
+					}
 				}
 			}
 		}
-	}
 
-	if (gTacticalCombatDebugOutput > 1)
-	{
-		OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
-			assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), movePlot.iPlotIndex).c_str());
-	}
+		if (gTacticalCombatDebugOutput > 1)
+		{
+			OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
+				assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), movePlot.iPlotIndex).c_str());
+		}
 
-	//how often can we attack this turn (depending on moves left on the plot)
-	if (!vDamageRatios.empty())
-	{
-		int iMaxAttacks = NumAttacksForUnit(movePlot.iMovesLeft, unit.iAttacksLeft);
-		if (iMaxAttacks > 0)
+		//pick the best target
+		if (!vDamageRatios.empty())
 		{
 			//the best target comes last
 			std::sort(vDamageRatios.begin(), vDamageRatios.end());
@@ -9252,6 +9252,11 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		{ -1,-1, 1, 8,  8 }, //support (should not occur)
 	};
 	iMiscScore += iPlotTypeScores[unit.eStrategy][testPlot.getType(eRelevantDomain)];
+
+	//it might happen we call this and all enemies are killed
+	//in that case FARAWAY is ok
+	if (assumedPosition.isComplete() && bEndTurn)
+		iMiscScore = max(iMiscScore, 1);
 
 	//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
 	if (pTestPlot->isHills() || pTestPlot->isMountain())
@@ -9363,7 +9368,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 
 		//unseen enemies might be hiding behind the edge, so assume danger there
 		if (testPlot.isEdgePlot())
-			iDanger = max(pUnit->GetCurrHitPoints()+1,iDanger);
+			iDanger = max( pUnit->GetMaxHitPoints()/2, iDanger);
 
 		if (iDanger > 0)
 		{
@@ -10051,6 +10056,7 @@ void CvTacticalPlot::findType(eTactPlotDomain eDomain, const CvTacticalPosition&
 					bEdgeOfTheKnownWorld = true;
 			}
 
+			//hack ... really we should check if it's been pillaged in the sim
 			if (IsEnemyCitadel(pNeighbor, currentPosition.getPlayer()))
 				bAdjacentToEnemyCitadel = true;
 		}
@@ -10137,7 +10143,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 		return vector<STacticalAssignment>();
 
 	//what is the score for simply staying put
-	STacticalAssignment refAssignment(ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex), *this, true));
+	//important not to pass zero moves left, otherwise we might ignore possible attacks
+	STacticalAssignment refAssignment(ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex,0,unit.iMovesLeft,0), *this, true));
 
 	//check moves and melee attacks first
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit.iUnitID);
@@ -10523,6 +10530,7 @@ bool STacticalAssignment::isOffensive() const
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
 bool CvTacticalPosition::addFinishMovesIfAcceptable()
 { 
+	//only units we have moved can be in this array
 	while (!unfinishedUnits.empty())
 	{
 		SUnitStats unit = unfinishedUnits.back();
@@ -10877,11 +10885,38 @@ bool CvTacticalPosition::isEquivalent(const CvTacticalPosition & rhs) const
 	}
 }
 
+pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& newAssignment)
+{
+	vector<int> newlyVisiblePlots;
+	int nNewEnemies = 0;
+
+	//may need to add some new tactical plots - ideally we should reconsider all queued assignments afterwards
+	//the next round of assignments will take into account the new plots in any case
+	getPlotsWithChangedVisibility(newAssignment, newlyVisiblePlots);
+	for (size_t i=0; i<newlyVisiblePlots.size(); i++)
+	{
+		//since it was invisible before, we know there are no friendly units around
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisiblePlots[i]);
+		if (pPlot) //also create plots for neutral units - otherwise edgeOfTheKnownWorld is not correct
+		{
+			addTacticalPlot(pPlot,set<CvUnit*>()); //can pass empty set of units - the plot was invisible before so we know there is none of our units there
+			updateTacticalPlotTypes(pPlot->GetPlotIndex());
+
+			//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
+			if (pPlot->isEnemyUnit(ePlayer, true, false))
+				nNewEnemies++;
+		}
+	}
+
+	return make_pair<int, int>( (int)newlyVisiblePlots.size(), nNewEnemies);
+}
+
 bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 {
 	//if we killed an enemy ZOC will change
 	bool bRecomputeAllMoves = false;
-	bool bVisibilityChange = false;
+	//newly visible plots, newly visible enemies
+	std::pair<int, int> visibilityResult(0, 0);
 	
 	vector<SUnitStats>::iterator itUnit = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(newAssignment.iUnitID));
 	if (itUnit == availableUnits.end())
@@ -10936,9 +10971,13 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	{
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
-		bVisibilityChange = true;
 		getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment);
 		getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment);
+
+		visibilityResult = doVisibilityUpdate(newAssignment);
+		//in case this was a move which revealed new plots, pretend it was a forced move so we can move again
+		if (visibilityResult.first > 0 && newAssignment.eAssignmentType == A_MOVE)
+			itUnit->eLastAssignment = A_MOVE_FORCED;
 		break;
 	}
 	case A_RANGEATTACK:
@@ -10975,22 +11014,29 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		if (newAssignment.eAssignmentType == A_MELEEKILL)
 		{
 			itUnit->iPlotIndex = newAssignment.iToPlotIndex; //this is because we're advancing
-			bVisibilityChange = true; //this is because we're advancing
 			getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment); //this is because we're advancing
 			getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment); //this implicitly removes the enemyUnit flag
+
+			visibilityResult = doVisibilityUpdate(newAssignment);
 		}
 		else
 			getTactPlotMutable(newAssignment.iToPlotIndex).enemyUnitKilled();
 
-		CvUnit* pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
-		if (getTactPlotMutable(newAssignment.iToPlotIndex).isEnemyCity() && !pEnemy)
-			killedEnemies.push_back(0); //put an invalid unit ID as a placeholder so that isComplete() works
-		else if (pEnemy) //should always be true, else we wouldn't be here
+		CvPlot* pFutureExEnemyPlot = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex);
+		CvUnit* pEnemy = pFutureExEnemyPlot->getVisibleEnemyDefender(ePlayer);
+		if (pEnemy)
 		{
-			freedPlots.push_back(newAssignment.iToPlotIndex);
+			//killing a unit or a garrisoned city
 			killedEnemies.push_back(pEnemy->GetID());
 		}
+		else if (pFutureExEnemyPlot->isCity())
+		{
+			//put an invalid unit ID as a placeholder so that isComplete() works
+			killedEnemies.push_back(0);
+		}
 
+		freedPlots.push_back(newAssignment.iToPlotIndex);
+		//important that we do the visibility update first!
 		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
 		bRecomputeAllMoves = true; //ZOC changed
 		break;
@@ -11004,33 +11050,6 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		itUnit->iMovesLeft = 0;
 		//todo: mark end turn plot? as opposed to transient blocks
 		break;
-	}
-
-	bool bRestartRequired = false;
-	vector<int> newlyVisiblePlots;
-	if (bVisibilityChange)
-	{
-		//may need to add some new tactical plots - ideally we should reconsider all queued assignments afterwards
-		//the next round of assignments will take into account the new plots in any case
-		getPlotsWithChangedVisibility(newAssignment, newlyVisiblePlots);
-		for (size_t i=0; i<newlyVisiblePlots.size(); i++)
-		{
-			//since it was invisible before, we know there are no friendly units around
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisiblePlots[i]);
-			if (pPlot && !pPlot->isNeutralUnit(ePlayer,true,false)) //can't use the official visiblity here 
-			{
-				addTacticalPlot(pPlot,set<CvUnit*>()); //can pass empty set of units - the plot was invisible before so we know there is none of our units there
-				updateTacticalPlotTypes(pPlot->GetPlotIndex());
-
-				//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
-				if (pPlot->isEnemyUnit(ePlayer, true, false))
-					bRestartRequired = true;
-			}
-		}
-
-		//in case this was a move which revealed new plots, pretend it was a forced move so we can move again
-		if (!newlyVisiblePlots.empty() && itUnit->eLastAssignment == A_MOVE)
-			itUnit->eLastAssignment = A_MOVE_FORCED;
 	}
 
 	//we don't update the moves plots lazily because it takes a while and we don't know yet if we will ever follow up on this position
@@ -11063,9 +11082,9 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		iTotalScore += newAssignment.iScore;
 	}
 
-	//increasing our visibility is good
-	iScoreOverParent += newlyVisiblePlots.size();
-	iTotalScore += newlyVisiblePlots.size();
+	//when in doubt, increasing our visibility is good
+	iScoreOverParent += visibilityResult.first;
+	iTotalScore += visibilityResult.first;
 
 	//are we done or can we do further moves with this unit?
 	if (newAssignment.iRemainingMoves == 0)
@@ -11079,6 +11098,8 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//todo: should we stop the simulation? how to include this in position scoring?
 	//don't do restarts if we have a lot of units, the simulation can take very long then
 	//also don't do a restart if this was the last unit
+	//any new enemies in sight?
+	bool bRestartRequired = (visibilityResult.second > 0);
 	if (bRestartRequired && availableUnits.size()<8 && availableUnits.size()>0)
 		assignedMoves.push_back(STacticalAssignment( -1, -1, newAssignment.iUnitID, 0, newAssignment.eMoveType, 0, A_RESTART));
 

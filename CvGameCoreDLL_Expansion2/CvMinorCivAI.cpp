@@ -5353,7 +5353,7 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 {
 	if(eNewAlly == NO_PLAYER)
 	{
-		GetPlayer()->GetMinorCivAI()->GetAlly();
+		eNewAlly = GetPlayer()->GetMinorCivAI()->GetAlly();
 	}
 	if(eNewAlly != NO_PLAYER)
 	{
