@@ -31,6 +31,16 @@ struct ResourceMonopolySettings
 		m_bStrategicMonopoly(false)
 	{};
 
+	bool operator<(const ResourceMonopolySettings& t) const
+	{
+		return this->m_bGlobalMonopoly < t.m_bGlobalMonopoly || (this->m_bGlobalMonopoly == t.m_bGlobalMonopoly && this->m_bStrategicMonopoly < t.m_bStrategicMonopoly);
+	}
+
+	bool operator==(const ResourceMonopolySettings& t) const
+	{
+		return this->m_bGlobalMonopoly == t.m_bGlobalMonopoly && this->m_bGlobalMonopoly == t.m_bGlobalMonopoly;
+	}
+
 	bool m_bGlobalMonopoly;
 	bool m_bStrategicMonopoly;
 };
