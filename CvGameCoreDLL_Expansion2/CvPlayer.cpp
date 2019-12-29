@@ -26956,7 +26956,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 						PlayerTypes eOtherPlayer = pUnit->plot()->getOwner();
 
-						if (eOtherPlayer != NO_PLAYER && eOtherPlayer != GetID())
+						if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isBarbarian() == false && eOtherPlayer != GetID())
 						{
 							iValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, true);
 						}

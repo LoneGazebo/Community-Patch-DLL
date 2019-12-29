@@ -1937,7 +1937,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 								CvCity* pDestCity = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY)->getPlotCity();
 								PlayerTypes eDestPlayer = pDestCity->getOwner();
 
-								if (eDestPlayer != NO_PLAYER && pDestCity != NULL)
+								if (pDestCity != NULL && eDestPlayer != NO_PLAYER && GET_PLAYER(eDestPlayer).isBarbarian() == false && pkUnit->plot()->getOwner() == eDestPlayer)
 								{
 									GET_PLAYER(eDestPlayer).doInstantYield(
 										INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN, false, NO_GREATPERSON, NO_BUILDING, 0, true,
