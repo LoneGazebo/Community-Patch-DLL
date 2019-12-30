@@ -4464,7 +4464,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 	
 	// Weight for victory issues
-	if (!IsNoVictoryCompetition() && (GC.getGame().getGameTurn() <= 150))
+	if (!IsNoVictoryCompetition() && (GC.getGame().getGameTurn() > 150))
 	{
 		switch (GetVictoryDisputeLevel(ePlayer))
 		{
@@ -16186,7 +16186,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			// Weight for victory issues
-			if (!IsNoVictoryCompetition() && (GC.getGame().getGameTurn() <= 150))
+			if (!IsNoVictoryCompetition() && (GC.getGame().getGameTurn() > 150))
 			{
 				switch (GetVictoryDisputeLevel(ePlayer))
 				{
@@ -16377,6 +16377,38 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					{
 						iEnemyWeight += -30;
 						iDoFWeight += 30;
+					}
+
+					// Are they expanding recklessly?
+					if (IsPlayerRecklessExpander(ePlayer))
+					{
+						iEnemyWeight += 10;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+
+						// Easy target?
+						if (bEasyTarget)
+						{
+							iEnemyWeight += 10;
+							iDPWeight += -10;
+							iDoFWeight += -10;
+						}
+					}		
+					
+					// Are they spamming Wonders?
+					if (IsPlayerWonderSpammer(ePlayer))
+					{
+						iEnemyWeight += 10;
+						iDPWeight += -10;
+						iDoFWeight += -10;
+
+						// Easy target?
+						if (bEasyTarget)
+						{
+							iEnemyWeight += 10;
+							iDPWeight += -10;
+							iDoFWeight += -10;
+						}
 					}
 					
 					// Value coop wars
@@ -16778,6 +16810,22 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						iDPWeight += -20;
 						iDoFWeight += -20;
 						break;
+					}
+
+					// Are they spamming Wonders?
+					if (IsPlayerWonderSpammer(ePlayer))
+					{
+						iEnemyWeight += 15;
+						iDPWeight += -15;
+						iDoFWeight += -15;
+
+						// Easy target?
+						if (bEasyTarget)
+						{
+							iEnemyWeight += 15;
+							iDPWeight += -15;
+							iDoFWeight += -15;
+						}
 					}
 				
 					// They have influence over us
@@ -37552,10 +37600,7 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return;
 
-	if (bValue != IsFriendDenouncedUs(ePlayer))
-	{
-		m_pabFriendDenouncedUs[ePlayer] = bValue;
-	}
+	m_pabFriendDenouncedUs[ePlayer] = bValue;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (bValue)
@@ -37631,10 +37676,7 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return;
 
-	if (bValue != IsFriendDeclaredWarOnUs(ePlayer))
-	{
-		m_pabFriendDeclaredWarOnUs[ePlayer] = bValue;
-	}
+	m_pabFriendDeclaredWarOnUs[ePlayer] = bValue;
 	
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (bValue)
@@ -40129,7 +40171,7 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 			{
 				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MINOR_CIV_DIPLOMAT();
 			}
-			else
+			else if (GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
 			{
 				iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
 			}
