@@ -9,10 +9,6 @@ UPDATE Language_en_US
 SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
 
-UPDATE Language_en_US
-SET Text = 'Barbarians and their Encampments do not appear on the map. Rebel (barbarian) uprisings from [ICON_HAPPINESS_4] Unhappiness do not occur.'
-WHERE Tag = 'TXT_KEY_GAME_OPTION_NO_BARBARIANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
 -- Leaders
 
 -- Assyria UA
@@ -459,7 +455,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 
 -- Tooltip fix for Open Borders
 UPDATE Language_en_US
-SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Allowing another civilization to pass through one''s own territory increases the [ICON_TOURISM] Tourism modifier towards that civilization.[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
+SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
 WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
 
 -- Tooltip fix for Defensive Pact

@@ -1,3 +1,13 @@
+-- No Barbarians Game Option Change
+UPDATE Language_en_US
+SET Text = 'Barbarians and their Encampments do not appear on the map. Rebel (barbarian) uprisings from [ICON_HAPPINESS_4] Unhappiness do not occur.'
+WHERE Tag = 'TXT_KEY_GAME_OPTION_NO_BARBARIANS_HELP';
+
+-- Tooltip fix for Open Borders
+UPDATE Language_en_US
+SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Allowing another civilization to pass through one''s own territory increases the [ICON_TOURISM] Tourism modifier towards that civilization.[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
+
 UPDATE Language_en_US
 SET Text = '[ICON_TOURISM] Tourism increases by 50% for 20 Turns.  Free Social Policy.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
