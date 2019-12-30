@@ -9138,7 +9138,7 @@ bool IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer)
 	return false;
 }
 
-STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bCheckPlacementOnly)
+STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bAllowPillage)
 {
 	//default action is do nothing and invalid score
 	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,-INT_MAX,A_FINISH);
@@ -9154,10 +9154,11 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	//is this actual movement or a finish move
 	if (unit.iPlotIndex != movePlot.iPlotIndex)
 	{
-		result.eAssignmentType = A_MOVE;
 		//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
-		if (unit.eLastAssignment == A_MOVE)
+		if (unit.eLastAssignment == A_MOVE || unit.eLastAssignment == A_MOVE_SWAP)
 			return result;
+
+		result.eAssignmentType = A_MOVE;
 	}
 
 	//stay on target. hard cutoff!
@@ -9253,10 +9254,8 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	};
 	iMiscScore += iPlotTypeScores[unit.eStrategy][testPlot.getType(eRelevantDomain)];
 
-	//it might happen we call this and all enemies are killed
-	//in that case FARAWAY is ok
-	if (assumedPosition.isComplete() && bCheckPlacementOnly)
-		iMiscScore = max(iMiscScore, 1);
+	//note: it might happen we call this when all enemies are killed. 
+	//in that case plot type FARAWAY is ok. score will still be positive because of bias.
 
 	//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
 	if (pTestPlot->isHills() || pTestPlot->isMountain())
@@ -9277,7 +9276,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	}
 
 	//may instead of a plain finish we can pillage?
-	if (movePlot.iPlotIndex == unit.iPlotIndex && !bCheckPlacementOnly)
+	if (bAllowPillage && movePlot.iPlotIndex == unit.iPlotIndex)
 	{
 		//would it make sense to pillage here?
 		if (pUnit->shouldPillage(pTestPlot, false, movePlot.iMovesLeft) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
@@ -9435,12 +9434,11 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	//check if this is actual movement or whether we simply end the turn
 	if (movePlot.iPlotIndex != unit.iPlotIndex)
 	{
-		result.eAssignmentType = A_MOVE;
-
 		//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
-		//we only consider plots which can be reached in one turn anyway
-		if (unit.eLastAssignment == A_MOVE)
+		if (unit.eLastAssignment == A_MOVE || unit.eLastAssignment == A_MOVE_SWAP)
 			return result;
+
+		result.eAssignmentType = A_MOVE;
 	}
 
 	//simplification: don't embark if there is another embarked unit there, stacking is too complex to take care of then
@@ -10120,10 +10118,10 @@ const ReachablePlots& CvTacticalPosition::getReachablePlotsForUnit(int iUnit) co
 		return emptyResult;
 }
 
-const STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bCheckPlacementOnly)
+const STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition, bool bAllowPillage)
 {
 	return (assumedPosition.getAggressionLevel() > AL_NONE) ? 
-		ScorePlotForCombatUnitOffensiveMove(unit, testPlot, movePlot, assumedPosition, bCheckPlacementOnly) : 
+		ScorePlotForCombatUnitOffensiveMove(unit, testPlot, movePlot, assumedPosition, bAllowPillage) : 
 		ScorePlotForCombatUnitDefensiveMove(unit, testPlot, movePlot, assumedPosition);
 }
 
@@ -10152,7 +10150,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 
 	//what is the score for simply staying put
 	//important not to pass zero moves left, otherwise we might ignore possible attacks
-	STacticalAssignment refAssignment(ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex,0,unit.iMovesLeft,0), *this, true));
+	STacticalAssignment refAssignment(ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex,0,unit.iMovesLeft,0), *this, false));
 
 	//check moves and melee attacks first
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit.iUnitID);
@@ -10184,7 +10182,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			}
 			else
 			{
-				newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, false);
+				newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, true);
 				//may be invalid
 				if (newAssignment.iScore < 0)
 					continue;
@@ -10533,7 +10531,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		SUnitStats unit = unfinishedUnits.back();
 
 		const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
-		int iScore = ScorePlotForMove(unit, tactPlot, SMovePlot( unit.iPlotIndex ), *this, true).iScore;
+		int iScore = ScorePlotForMove(unit, tactPlot, SMovePlot( unit.iPlotIndex ), *this, false).iScore;
 		if (iScore >= 0)
 		{
 			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iScore, A_FINISH));
@@ -11043,7 +11041,6 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		break;
 	case A_FINISH:
 	case A_BLOCKED:
-		//do not set iUnitEndTurnPlot!
 		itUnit->iMovesLeft = 0;
 		//todo: mark end turn plot? as opposed to transient blocks
 		break;
@@ -11084,7 +11081,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	iTotalScore += visibilityResult.first;
 
 	//are we done or can we do further moves with this unit?
-	if (newAssignment.iRemainingMoves == 0)
+	if (itUnit->iMovesLeft == 0)
 	{
 		if (newAssignment.eAssignmentType != A_BLOCKED && newAssignment.eAssignmentType != A_FINISH)
 			unfinishedUnits.push_back(*itUnit);

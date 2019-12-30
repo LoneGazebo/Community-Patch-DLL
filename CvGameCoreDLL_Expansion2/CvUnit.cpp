@@ -4648,13 +4648,12 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 {
 	VALIDATE_OBJECT
 
-	if(eTeam == NO_TEAM)
+	if(eTeam == NO_TEAM || bIgnoreRightOfPassage)
 	{
 		return true;
 	}
 
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
-
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
@@ -4671,18 +4670,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 	if(isRivalTerritory())
 	{
 		return true;
-	}
-
-	if(bIgnoreRightOfPassage)
-	{
-		return true;
-	}
-	else
-	{
-		if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
-		{
-			return true;
-		}
 	}
 
 	if(kTheirTeam.isMinorCiv())
@@ -4717,24 +4704,16 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 					return true;
 
 				// Is this an excluded unit that doesn't cause anger?
-				bool bAngerFreeUnit = IsAngerFreeUnit();
-				// Player can earn Open Borders with enough Friendship
-				bool bHasOpenBorders = pMinorAI->IsPlayerHasOpenBorders(getOwner());
-				// If already intruding on this minor, okay to do it some more
-				bool bIntruding = pMinorAI->IsMajorIntruding(getOwner());
-
-				if(bAngerFreeUnit || bHasOpenBorders || bIntruding)
-				{
+				if (IsAngerFreeUnit())
 					return true;
-				}
 
-#if defined(MOD_BALANCE_CORE)
+				// If already intruding on this minor, okay to do it some more
+				if (pMinorAI->IsMajorIntruding(getOwner()))
+					return true;
+
 				//Let's let scouts in.
 				if(getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
-				{
 					return true;
-				}
-#endif
 			}
 		}
 	}

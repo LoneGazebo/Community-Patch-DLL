@@ -1634,6 +1634,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 
 	PlayerTypes ePlayer = data.ePlayer;
 	PlayerTypes eEnemy = (PlayerTypes)data.iTypeParameter; //we pretend we can enter this player's plots even if we're not at war
+	TeamTypes eMyTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
@@ -1643,7 +1644,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		return FALSE;
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
-	if (ePlayer!=NO_PLAYER && !pToPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()))
+	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
 		return FALSE;
 #endif
 
@@ -1684,21 +1685,15 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		return FALSE;
 
 	//territory check
-	PlayerTypes ePlotOwnerPlayer = pToPlot->getOwner();
-	if (ePlotOwnerPlayer != NO_PLAYER && ePlayer != NO_PLAYER && ePlotOwnerPlayer != eEnemy && !pToPlot->IsFriendlyTerritory(ePlayer))
+	if (ePlayer != NO_PLAYER && pToPlot->isOwned())
 	{
-		CvPlayer& plotOwnerPlayer = GET_PLAYER(ePlotOwnerPlayer);
-		bool bPlotOwnerIsMinor = plotOwnerPlayer.isMinorCiv();
-
-		if(!bPlotOwnerIsMinor)
+		if (pToPlot->getOwner() != eEnemy)
 		{
-			TeamTypes eMyTeam = GET_PLAYER(ePlayer).getTeam();
-			TeamTypes ePlotOwnerTeam = plotOwnerPlayer.getTeam();
-
-			if(!atWar(eMyTeam, ePlotOwnerTeam))
-			{
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY) && GET_TEAM(pToPlot->getTeam()).isAtWar(eMyTeam))
 				return FALSE;
-			}
+
+			if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) && !pToPlot->IsFriendlyTerritory(ePlayer))
+				return FALSE;
 		}
 	}
 
