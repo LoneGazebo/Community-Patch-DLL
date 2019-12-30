@@ -161,7 +161,7 @@ void CvDistanceMapByTurns::Update()
 	majorPlayers = vector<CvDistanceMap>(MAX_MAJOR_CIVS);
 
 	//in principle for all players but we filter later
-	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++) //include the barbarians!
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)i);
 		if (!thisPlayer.isAlive())
@@ -204,7 +204,7 @@ void CvDistanceMapByPlots::Update()
 
 	// since we know there are very few cities compared to the number of plots,
 	// we don't need to do the full distance transform
-	for (int i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++) //include the barbarians!
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)i);
 		if (!thisPlayer.isAlive())

@@ -108,7 +108,7 @@ void CvHomelandAI::RecruitUnits()
 	{
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>99)
-			OutputDebugString("undefended general found!\n");
+			OutputDebugString( CvString::format("undefended general found at %d:%d!\n",pLoopUnit->getX(),pLoopUnit->getY()).c_str());
 
 		// Never want units that have already moved or zombies
 		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())

@@ -11741,7 +11741,7 @@ void CvPlayer::DoUnitReset()
 
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)
-			OutputDebugString("ouch, general about to be captured\n");
+			OutputDebugString( CvString::format("ouch, general about to be captured at %d:%d!\n",pLoopUnit->getX(),pLoopUnit->getY()).c_str());
 
 		// then damage it again
 		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromAdjacentPlots(pLoopUnit->getOwner());

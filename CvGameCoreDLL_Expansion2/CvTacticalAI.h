@@ -1158,6 +1158,7 @@ public:
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 	const int getNumEnemies() const { return nTheirUnits - killedEnemies.size(); }
+	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }
