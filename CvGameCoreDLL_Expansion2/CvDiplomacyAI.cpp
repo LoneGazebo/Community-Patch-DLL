@@ -16382,32 +16382,32 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					// Are they expanding recklessly?
 					if (IsPlayerRecklessExpander(ePlayer))
 					{
-						iEnemyWeight += 10;
-						iDPWeight += -10;
-						iDoFWeight += -10;
+						iEnemyWeight += 15;
+						iDPWeight += -15;
+						iDoFWeight += -15;
 
 						// Easy target?
 						if (bEasyTarget)
 						{
-							iEnemyWeight += 10;
-							iDPWeight += -10;
-							iDoFWeight += -10;
+							iEnemyWeight += 15;
+							iDPWeight += -15;
+							iDoFWeight += -15;
 						}
 					}		
 					
 					// Are they spamming Wonders?
 					if (IsPlayerWonderSpammer(ePlayer))
 					{
-						iEnemyWeight += 10;
-						iDPWeight += -10;
-						iDoFWeight += -10;
+						iEnemyWeight += 15;
+						iDPWeight += -15;
+						iDoFWeight += -15;
 
 						// Easy target?
 						if (bEasyTarget)
 						{
-							iEnemyWeight += 10;
-							iDPWeight += -10;
-							iDoFWeight += -10;
+							iEnemyWeight += 15;
+							iDPWeight += -15;
+							iDoFWeight += -15;
 						}
 					}
 					

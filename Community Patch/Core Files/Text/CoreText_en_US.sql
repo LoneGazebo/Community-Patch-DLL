@@ -457,6 +457,11 @@ UPDATE Language_en_US
 SET Text = 'City-State is permanently at war.'
 WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 
+-- Tooltip fix for Open Borders
+UPDATE Language_en_US
+SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Allowing another civilization to pass through one''s own territory increases the [ICON_TOURISM] Tourism modifier towards that civilization.[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
+
 -- Tooltip fix for Defensive Pact
 UPDATE Language_en_US
 SET Text = 'If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.'
