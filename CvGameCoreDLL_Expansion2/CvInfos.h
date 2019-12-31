@@ -45,6 +45,7 @@ struct ResourceMonopolySettings
 	bool m_bStrategicMonopoly;
 };
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 struct CombatModifiers
 {
 	CombatModifiers() :
@@ -55,6 +56,22 @@ struct CombatModifiers
 	int m_iAttackMod;
 	int m_iDefenseMod;
 };
+#endif
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+struct ProductionCostModifiers
+{
+	ProductionCostModifiers() :
+		m_iRequiredEra(-1),
+		m_iObsoleteEra(-1),
+		m_iCostModifier(0)
+	{};
+
+	int m_iRequiredEra;
+	int m_iObsoleteEra;
+	int m_iCostModifier;
+};
+#endif
 
 class CvDatabaseUtility;
 
@@ -1591,6 +1608,11 @@ public:
 	int getMonopolyAttackBonus(bool bGlobalMonopoly, bool bStrategicMonopoly) const;
 	int getMonopolyDefenseBonus(bool bGlobalMonopoly, bool bStrategicMonopoly) const;
 #endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	bool isHasUnitCombatProductionCostModifiersLocal() const;
+	int getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const;
+	std::vector<ProductionCostModifiers> getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const;
+#endif
 
 	int getResourceQuantityType(int i) const;
 
@@ -1666,6 +1688,9 @@ protected:
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
 	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
+#endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
 #endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;

@@ -523,6 +523,9 @@
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
 
+// Enables the various tables related to production cost modifiers triggered by access to resources
+#define MOD_RESOURCES_PRODUCTION_COST_MODIFIERS		gCustomMods.isRESOURCES_PRODUCTION_COST_MODIFIERS()
+
 // Fixes the AI's inability to use combat units as secondary workers (v26)
 #define MOD_AI_SECONDARY_WORKERS                    gCustomMods.isAI_SECONDARY_WORKERS()
 // Fixes the AI's inability to use combat units for founding cities (v26)
@@ -1582,6 +1585,8 @@ public:
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
+
+	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
 
 	MOD_OPT_DECL(AI_SECONDARY_WORKERS);
 	MOD_OPT_DECL(AI_SECONDARY_SETTLERS);

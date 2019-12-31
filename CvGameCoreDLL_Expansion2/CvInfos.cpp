@@ -4793,6 +4793,9 @@ CvResourceInfo::CvResourceInfo() :
 	m_piCityYieldModFromMonopoly(NULL),
 	m_piiMonopolyCombatModifiers(),
 #endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	m_piiiUnitCombatProductionCostModifiersLocal(),
+#endif
 	m_piResourceQuantityTypes(NULL),
 	m_piFlavor(NULL),
 	m_piImprovementChange(NULL),
@@ -4809,6 +4812,9 @@ CvResourceInfo::~CvResourceInfo()
 	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
 	m_piiMonopolyCombatModifiers.clear();
+#endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	m_piiiUnitCombatProductionCostModifiersLocal.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piFlavor);
@@ -5235,6 +5241,72 @@ int CvResourceInfo::getMonopolyDefenseBonus(bool bGlobalMonopoly, bool bStrategi
 	return iMod;
 }
 #endif
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+//------------------------------------------------------------------------------
+bool CvResourceInfo::isHasUnitCombatProductionCostModifiersLocal() const
+{
+	return m_piiiUnitCombatProductionCostModifiersLocal.size() > 0;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const
+{
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitCombat > -1, "Index out of bounds");
+
+	CvAssertMsg(eUnitEra < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitEra > -1, "Index out of bounds");
+
+	int iUnitCombat = (int)eUnitCombat;
+	int iUnitEra = (int)eUnitEra;
+	int iMod = 0;
+
+	std::map<int, std::vector<ProductionCostModifiers>>::const_iterator itMap = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
+	if (itMap != m_piiiUnitCombatProductionCostModifiersLocal.end()) // find returns the iterator to map::end if the key iUnitCombat is not present in the map
+	{
+		for (std::vector<ProductionCostModifiers>::const_iterator itVector = itMap->second.begin(); itVector != itMap->second.end(); ++itVector)
+		{
+			EraTypes eRequiredEra = (EraTypes)itVector->m_iRequiredEra;
+			EraTypes eObsoleteEra = (EraTypes)itVector->m_iObsoleteEra;
+
+			if (eUnitEra != NO_ERA)
+			{
+				// Our unit's era needs to be greater than or equal to the required era
+				if (eRequiredEra != NO_ERA && iUnitEra < itVector->m_iRequiredEra)
+				{
+					continue;
+				}
+
+				// Our unit's era needs to be less than the obsolete era
+				if (eObsoleteEra != NO_ERA && iUnitEra >= itVector->m_iObsoleteEra)
+				{
+					continue;
+				}
+			}
+
+			iMod += itVector->m_iCostModifier;
+		}
+	}
+
+	return iMod;
+}
+//------------------------------------------------------------------------------
+std::vector<ProductionCostModifiers> CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const
+{
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitCombat > -1, "Index out of bounds");
+
+	int iUnitCombat = (int)eUnitCombat;
+
+	std::map<int, std::vector<ProductionCostModifiers>>::const_iterator it = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
+	if (it != m_piiiUnitCombatProductionCostModifiersLocal.end()) // find returns the iterator to map::end if the key iUnitCombat is not present in the map
+	{
+		return it->second;
+	}
+
+	return std::vector<ProductionCostModifiers>();
+}
+#endif
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
 {
@@ -5443,6 +5515,42 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<ResourceMonopolySettings, CombatModifiers>(m_piiMonopolyCombatModifiers).swap(m_piiMonopolyCombatModifiers);
+	}
+#endif
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	//Resource_UnitCombatProductionCostModifiersLocal
+	{
+
+		std::string sqlKey = "Resource_UnitCombatProductionCostModifiersLocal";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitCombatInfos.ID as UnitCombatInfosID, RequiredEra, ObsoleteEra, CostModifier from Resource_UnitCombatProductionCostModifiersLocal inner join UnitCombatInfos on UnitCombatType = UnitCombatInfos.Type where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const int iUnitCombat = pResults->GetInt(0);
+			const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(1), true);
+			const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(2), true);
+			const int iCostMod = pResults->GetInt(3);
+
+			ProductionCostModifiers sElement;
+			sElement.m_iRequiredEra = iRequiredEra;
+			sElement.m_iObsoleteEra = iObsoleteEra;
+			sElement.m_iCostModifier = iCostMod;
+
+			m_piiiUnitCombatProductionCostModifiersLocal[iUnitCombat].push_back(sElement);
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::vector<ProductionCostModifiers>>(m_piiiUnitCombatProductionCostModifiersLocal).swap(m_piiiUnitCombatProductionCostModifiersLocal);
 	}
 #endif
 

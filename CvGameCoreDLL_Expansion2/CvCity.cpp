@@ -9348,12 +9348,14 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 			{
 				processResource(eResource, 1);
 
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+
 				// Notification letting player know his city gets a bonus for wonders
-				int iWonderMod = GC.getResourceInfo(eResource)->getWonderProductionMod();
+				int iWonderMod = pkResource->getWonderProductionMod();
 				if(iWonderMod != 0)
 				{
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
-					if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+					if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 					{
 						if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 						{
@@ -9361,14 +9363,14 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 							if(pNotifications)
 							{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
-								strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+								strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-								strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+								strSummary << getNameKey() << pkResource->GetTextKey();
 								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 							}
 						}
 					}
-					else if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+					else if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 					{
 						if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 						{
@@ -9376,9 +9378,9 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 							if(pNotifications)
 							{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
-								strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+								strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-								strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+								strSummary << getNameKey() << pkResource->GetTextKey();
 								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 							}
 						}
@@ -9390,15 +9392,75 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					if(pNotifications)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
-						strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+						strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-						strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+						strSummary << getNameKey() << pkResource->GetTextKey();
 						pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 					}
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
 					}
 #endif
 				}
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+				
+				// Notification letting player know his city gets a bonus for unit production
+				if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS && pkResource->isHasUnitCombatProductionCostModifiersLocal())
+				{
+
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+					strSummary << getNameKey() << pkResource->GetTextKey();
+
+					CvString strList = "";
+					
+					for (int iUnitCombat = 0; iUnitCombat < GC.getNumUnitCombatClassInfos(); iUnitCombat++)
+					{
+						UnitCombatTypes eUnitCombat = (UnitCombatTypes)iUnitCombat;
+						CvBaseInfo* pkUnitCombat = GC.getUnitCombatClassInfo(eUnitCombat);
+
+						if (eUnitCombat == NO_UNITCOMBAT)
+						{
+							continue;
+						}
+						std::vector<ProductionCostModifiers> aiiiUnitCostMod = pkResource->getUnitCombatProductionCostModifiersLocal(eUnitCombat);
+						for (std::vector<ProductionCostModifiers>::const_iterator it = aiiiUnitCostMod.begin(); it != aiiiUnitCostMod.end(); ++it)
+						{
+							EraTypes eRequiredEra = (EraTypes)it->m_iRequiredEra;
+							EraTypes eObsoleteEra = (EraTypes)it->m_iObsoleteEra;
+							int iCostModifier = it->m_iCostModifier;
+
+							CvString strEraText = "";
+
+							if (iCostModifier != 0)
+							{
+								if (eRequiredEra != NO_ERA)
+								{
+									strEraText += " ";
+									strEraText += GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE", GC.getEraInfo(eRequiredEra)->getShortDesc());
+								}
+
+								if (eObsoleteEra != NO_ERA)
+								{
+									strEraText += " ";
+									strEraText += GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE", GC.getEraInfo(eObsoleteEra)->getShortDesc());
+								}
+
+								strList += "[NEWLINE]" + GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST", pkUnitCombat->GetDescriptionKey(), iCostModifier, strEraText);
+							}
+						}
+					}
+
+
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD");
+					strText << getNameKey() << pkResource->GetTextKey() << strList;
+
+					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+					if (pNotifications)
+					{
+						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES"), strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+					}
+				}
+#endif
 			}
 			else
 			{
@@ -11048,10 +11110,40 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+
 	if (eUnit != NO_UNIT)
 	{
 		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+		int iCostMod = 0;
+
+		UnitCombatTypes eUnitCombat = (UnitCombatTypes)pGameUnit->GetUnitCombatType();
+		EraTypes eUnitEra = (EraTypes)pGameUnit->GetEra();
+
+		if (eUnitEra == NO_ERA)
+		{
+			eUnitEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		}
+
+		if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS && eUnitCombat != NO_UNITCOMBAT && eUnitEra != NO_ERA)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource && pkResource->isHasUnitCombatProductionCostModifiersLocal() && IsHasResourceLocal(eResource, false))
+				{
+					iCostMod += pkResource->getUnitCombatProductionCostModifiersLocal(eUnitCombat, eUnitEra);
+				}
+			}
+		}
+
+		// Cost modifiers must be applied before the investment code
+		iNumProductionNeeded *= (iCostMod + 100);
+		iNumProductionNeeded /= 100;
+#endif
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
 		{
 			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
@@ -11062,8 +11154,8 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 				iNumProductionNeeded /= 100;
 			}
 		}
-	}
 #endif
+	}
 
 	return max(1,iNumProductionNeeded);
 }

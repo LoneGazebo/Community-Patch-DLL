@@ -237,6 +237,8 @@ g_NameTable[ NotificationTypes.NOTIFICATION_LEAGUE_PROJECT_PROGRESS ] = "LeagueP
 g_NameTable[ NotificationTypes.NOTIFICATION_INSTANT_YIELD ] = "InstantYield";
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE_CITY ] = "CityEventChoice";
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE ] = "EventChoice";
+
+g_NameTable[ NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES ] = "BonusResource";
 --END
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
@@ -334,7 +336,8 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 		or type == NotificationTypes.NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE 
 		or type == NotificationTypes.NOTIFICATION_DISCOVERED_BONUS_RESOURCE 
 		or type == NotificationTypes.NOTIFICATION_DEMAND_RESOURCE
-		or type == NotificationTypes.NOTIFICATION_REQUEST_RESOURCE then
+		or type == NotificationTypes.NOTIFICATION_REQUEST_RESOURCE
+		or type == NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES then
 			local thisResourceInfo = GameInfo.Resources[iGameValue];
 			local portraitIndex = thisResourceInfo.PortraitIndex;
 			if portraitIndex ~= -1 then
