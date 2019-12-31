@@ -6560,6 +6560,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			bWantsConquest = true;
 		}
+		else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer)))
+		{
+			bWantsConquest = true;
+		}
+		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+		{
+			bWantsConquest = true;
+		}
 	}
 	
 	// Factor in distance
@@ -6872,6 +6880,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	
 	int iWarScratchValueOverride = -1;
 	int iHostileScratchValueOverride = -1;
+	
+	if (!bValidAttackTarget)
+	{
+		iWarScratchValueOverride = 0;
+		iHostileScratchValueOverride = 0;
+	}
 	
 	////////////////////////////////////
 	// PEACE TREATY - have we made peace with this player recently?  If so, reduce war weight
@@ -10243,6 +10257,10 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			
 			bool bWantsConquest = false;
 			if (GetWarGoal(ePlayer) == WAR_GOAL_CONQUEST || IsGoingForWorldConquest() || IsCloseToDominationVictory())
+			{
+				bWantsConquest = true;
+			}
+			else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && (GetPlayer()->GetDiplomacyAI()->IsPlayerRecklessExpander(ePlayer) || GetPlayer()->GetDiplomacyAI()->IsPlayerWonderSpammer(ePlayer)))
 			{
 				bWantsConquest = true;
 			}
@@ -18028,6 +18046,10 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 		bWantsConquest = true;
 	}
 	else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
+	{
+		bWantsConquest = true;
+	}
+	else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer)))
 	{
 		bWantsConquest = true;
 	}
