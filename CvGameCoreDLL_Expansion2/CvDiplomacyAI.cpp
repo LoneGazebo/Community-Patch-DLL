@@ -3899,71 +3899,76 @@ void CvDiplomacyAI::DoEstimateOtherPlayerApproaches()
 				SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 			}
 		}
-		
-		if (GET_PLAYER(ePlayer).isHuman())
-			continue;
-		
-		if (IsAtWar(ePlayer))
-			continue;
-		
-		bShareOpinionAccepted = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAccepted(GetPlayer()->GetID());
-		bShareOpinionAcceptable = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAcceptable(GetPlayer()->GetID());
-		
-		if (bShareOpinionAccepted)
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
-			bAcceptable = true;
-		}
-		// Already accepted the ability to share opinion?
-		else if ((bShareOpinionAccepted && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(GetPlayer()->GetID()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend(GetPlayer()->GetID())))
-		{
-			bAcceptable = true;
-		}
-		else
-		{
-			bAcceptable = false;
-		}
-		
-		if (bAcceptable)
-		{
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionAccepted(GetPlayer()->GetID(), true);
+			if (GET_PLAYER(ePlayer).isHuman())
+				continue;
 			
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivOpinion(GetPlayer()->GetID()) >= MAJOR_CIV_OPINION_FRIEND && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(GetPlayer()->GetID(), /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+			if (IsAtWar(ePlayer))
+				continue;
+			
+			bShareOpinionAccepted = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAccepted(GetPlayer()->GetID());
+			bShareOpinionAcceptable = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAcceptable(GetPlayer()->GetID());
+			
+			if (bShareOpinionAccepted)
 			{
-				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
-					
-					if (!IsPlayerValid(eLoopPlayer, true))
-						continue;
-					
-					if (eLoopPlayer == GetPlayer()->GetID())
-						continue;
-					
-					if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-					{
-						SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false));
-					}
-				}
+				bAcceptable = true;
+			}
+			// Already accepted the ability to share opinion?
+			else if ((bShareOpinionAccepted && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(GetPlayer()->GetID()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend(GetPlayer()->GetID())))
+			{
+				bAcceptable = true;
 			}
 			else
 			{
-				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+				bAcceptable = false;
+			}
+			
+			if (bAcceptable)
+			{
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionAccepted(GetPlayer()->GetID(), true);
+				
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivOpinion(GetPlayer()->GetID()) >= MAJOR_CIV_OPINION_FRIEND && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(GetPlayer()->GetID(), /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
 				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
-					
-					if (!IsPlayerValid(eLoopPlayer, true))
-						continue;
-					
-					if (eLoopPlayer == GetPlayer()->GetID())
-						continue;
-					
-					if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 					{
-						SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true));
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
+						
+						if (!IsPlayerValid(eLoopPlayer, true))
+							continue;
+						
+						if (eLoopPlayer == GetPlayer()->GetID())
+							continue;
+						
+						if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false));
+						}
+					}
+				}
+				else
+				{
+					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
+						
+						if (!IsPlayerValid(eLoopPlayer, true))
+							continue;
+						
+						if (eLoopPlayer == GetPlayer()->GetID())
+							continue;
+						
+						if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true));
+						}
 					}
 				}
 			}
 		}
+#endif
 	}
 }
 
