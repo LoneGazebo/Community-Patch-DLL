@@ -2714,7 +2714,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	//DoUpdateOpinionTowardsUsGuesses();
 	DoUpdateTrueApproachTowardsUsGuesses();
 	DoEstimateOtherPlayerOpinions();
-	//DoEstimateOtherPlayerApproaches();
+	DoEstimateOtherPlayerApproaches();
 	LogOtherPlayerGuessStatus();
 	
 	/*
@@ -3861,6 +3861,110 @@ void CvDiplomacyAI::SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTyp
 	CvAssertMsg(ePlayerOpinion >= 0, "DIPLOMACY_AI: Invalid MajorCivOpinionType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayerOpinion < NUM_MAJOR_CIV_OPINION_TYPES, "DIPLOMACY_AI: Invalid MajorCivOpinionType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_ppaaeOtherPlayerMajorCivOpinion[ePlayer][eWithPlayer] = ePlayerOpinion;
+}
+
+/// What is our guess as to other players' Approaches towards everyone else?
+void CvDiplomacyAI::DoEstimateOtherPlayerApproaches()
+{
+	// Make share opinion requests of the other AI
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		bool bShareOpinionAccepted = false;
+		bool bShareOpinionAcceptable = false;
+		bool bAcceptable = false;
+		
+		if (!IsPlayerValid(ePlayer, true))
+			continue;
+		
+		if (ePlayer == GetPlayer()->GetID())
+			continue;
+		
+		for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
+			
+			if (!IsPlayerValid(eLoopPlayer, true))
+				continue;
+			
+			if (eLoopPlayer == GetPlayer()->GetID())
+				continue;
+			
+			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			{
+				SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
+			}
+			else
+			{
+				SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+			}
+		}
+		
+		if (GET_PLAYER(ePlayer).isHuman())
+			continue;
+		
+		if (IsAtWar(ePlayer))
+			continue;
+		
+		bShareOpinionAccepted = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAccepted(GetPlayer()->GetID());
+		bShareOpinionAcceptable = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsShareOpinionAcceptable(GetPlayer()->GetID());
+		
+		if (bShareOpinionAccepted)
+		{
+			bAcceptable = true;
+		}
+		// Already accepted the ability to share opinion?
+		else if ((bShareOpinionAccepted && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsActHostileTowardsHuman(GetPlayer()->GetID()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend(GetPlayer()->GetID())))
+		{
+			bAcceptable = true;
+		}
+		else
+		{
+			bAcceptable = false;
+		}
+		
+		if (bAcceptable)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionAccepted(GetPlayer()->GetID(), true);
+			
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivOpinion(GetPlayer()->GetID()) >= MAJOR_CIV_OPINION_FRIEND && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(GetPlayer()->GetID(), /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+			{
+				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
+					
+					if (!IsPlayerValid(eLoopPlayer, true))
+						continue;
+					
+					if (eLoopPlayer == GetPlayer()->GetID())
+						continue;
+					
+					if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					{
+						SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false));
+					}
+				}
+			}
+			else
+			{
+				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop2;
+					
+					if (!IsPlayerValid(eLoopPlayer, true))
+						continue;
+					
+					if (eLoopPlayer == GetPlayer()->GetID())
+						continue;
+					
+					if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					{
+						SetMajorCivOtherPlayerApproach(ePlayer, eLoopPlayer, GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ true));
+					}
+				}
+			}
+		}
+	}
 }
 
 /// Determine our general Approach towards each player we've met
@@ -12876,7 +12980,7 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 		}
 		else
 		{
-			if (GetDefensivePactValue(ePlayer) > 0 && GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE)
+			if (GetDefensivePactValue(ePlayer) > 0 && GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE/* && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE*/)
 			{
 				return true;
 			}
@@ -19210,7 +19314,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	}
 	
 	// We have a Defensive Pact and we don't think they're plotting against us, so don't worry about it
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()) && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE)
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam())/* && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE*/)
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
@@ -32665,7 +32769,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				bool bAcceptable = false;
 
 				// Already accepted the ability to share opinion? Good, then continue onward.
-				if ((IsShareOpinionAccepted(eFromPlayer) && !IsActHostileTowardsHuman(eFromPlayer) && !IsUntrustworthyFriend(eFromPlayer) && GetTrueApproachTowardsUsGuess(eFromPlayer) > MAJOR_CIV_APPROACH_DECEPTIVE) || bDebug)
+				if ((IsShareOpinionAccepted(eFromPlayer) && !IsActHostileTowardsHuman(eFromPlayer) && !IsUntrustworthyFriend(eFromPlayer)/* && GetTrueApproachTowardsUsGuess(eFromPlayer) > MAJOR_CIV_APPROACH_DECEPTIVE*/) || bDebug)
 				{
 					bAcceptable = true;
 				}
@@ -34371,8 +34475,10 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		return 0;
 	
 	// If we think our "friend" is planning something sneaky, don't fall for the bait.
+	/*
 	if (GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 		return 0;
+	*/
 	
 	// Let's not go to war if we're very unhappy or losing all our wars
 	if (GetPlayer()->IsEmpireVeryUnhappy() || GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -35603,7 +35709,7 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer) const
 		return false;
 	
 	// If player is plotting against us, always say no
-	if (GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE || GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
+	if (/*GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE ||*/GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
 		return false;
 	
 	// If player has broken or ignored a spying promise, always say no
@@ -35766,7 +35872,7 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 			bCancel = true;
 
 		// No DoFs if they're untrustworthy
-		if (IsUntrustworthyFriend(ePlayer) || GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+		if (IsUntrustworthyFriend(ePlayer)/* || GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE*/)
 			bCancel = true;
 	
 		// No DoFs if we're hostile or want war
@@ -35795,8 +35901,10 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
 					bCancel = true;
 
+				/*
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 					bCancel = true;
+				*/
 
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend(ePlayer))
 					bCancel = true;
@@ -49535,8 +49643,10 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 		return false;
 	
 	// Plotting against us? Don't give them strategic information.
+	/*
 	if (GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_DECEPTIVE)
 		return false;
+	*/
 
 	// If we act hostile, it's not acceptable
 	if (IsActHostileTowardsHuman(ePlayer))
@@ -49572,67 +49682,15 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 		return false;
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 		return false;
-
-	int iDiplomacyBalance = GetDiploBalance();
-
-	/// For some reason it's missing
-	if(GetDiploBalance() == 0)
-	{
-		iDiplomacyBalance = 5;
-	}
-
-	int iThreshold = (iDiplomacyBalance - /*2*/ GC.getSHARE_OPINION_FLAVOR_BASE()) * /*10*/ GC.getSHARE_OPINION_FLAVOR_MULTIPLIER();
-	int iModifier = 0;
-
-	// Modifier based on opinion
-	switch(eOpinion)
-	{
-		case MAJOR_CIV_OPINION_COMPETITOR:
-			iModifier = 25;
-			break;
-		case MAJOR_CIV_OPINION_NEUTRAL:
-			iModifier = 75;
-			break;
-		case MAJOR_CIV_OPINION_FAVORABLE:
-			iModifier = 120;
-			break;
-		case MAJOR_CIV_OPINION_FRIEND:
-			iModifier = 150;
-			break;
-		case MAJOR_CIV_OPINION_ALLY:
-			iModifier = 200;
-			break;
-	}
 	
-	// Modifier based on Approach
-	switch(eApproach)
-	{
-		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iModifier += 100;
-			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iModifier += 75;
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			iModifier += 150;
-			break;
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iModifier += 200;
-			break;
-	}
-
-	iThreshold *= iModifier;
-	iThreshold /= 2000;	// 200 because adding two multipliers together
-	if (iThreshold <= 3)
-	{
-		iThreshold = 3;
-	}
-
-	int iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
-
-	if(iRand < iThreshold)
+	// If they're Friends or better, say yes
+	if (eOpinion >= MAJOR_CIV_OPINION_FRIEND)
 		return true;
-		
+	
+	// If they're Favorable and our approach is Friendly, say yes
+	if (eApproach == MAJOR_CIV_APPROACH_FRIENDLY && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+		return true;
+	
 	return false;
 }
 

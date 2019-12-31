@@ -158,7 +158,7 @@ public:
 	void ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
 
 	void DoUpdateTrueApproachTowardsUsGuesses(bool bNoIncrement = false);
-	//void DoEstimateOtherPlayerApproaches();
+	void DoEstimateOtherPlayerApproaches();
 
 	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
 	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
