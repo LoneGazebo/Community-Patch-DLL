@@ -6148,7 +6148,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		}
 #endif
-#endif
 		if (bEasyTarget)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -13660,21 +13659,21 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 
 				int iDecayValue = GC.getWARMONGER_THREAT_PER_TURN_DECAY() * 100;
 
-				//Protect against positives.
-				if (iDecayValue > 0)
-					iDecayValue *= -1;
-
 				if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
 				{
-					iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED();
+					iDecayModifier += (GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED() * 2);
 				}
 				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
 				{
-					iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_DECREASED();
+					iDecayModifier += (GC.getWARMONGER_THREAT_PER_TURN_DECAY_DECREASED() * 2);
 				}
 
 				iDecayValue *= iDecayModifier;
 				iDecayValue /= 100;
+
+				//Protect against positives.
+				if (iDecayValue > 0)
+					iDecayValue *= -1;
 
 				LogMajorCivWarmongerUpdate(eLoopPlayer, iDecayValue, bUpdateLogsSpecial);
 
