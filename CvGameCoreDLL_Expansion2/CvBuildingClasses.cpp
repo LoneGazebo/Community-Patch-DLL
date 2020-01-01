@@ -1627,6 +1627,21 @@ int CvBuildingEntry::GetPrereqAndTech() const
 	return m_iPrereqAndTech;
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// Era this building belongs to
+int CvBuildingEntry::GetEra() const
+{
+	TechTypes eTech = (TechTypes)GetPrereqAndTech();
+	if (eTech != NO_TECH)
+	{
+		CvTechEntry* pTech = GC.getTechInfo((TechTypes)GetPrereqAndTech());
+		return pTech->GetEra();
+	}
+
+	return -1;
+}
+#endif
+
 /// Policy branch required for this building
 int CvBuildingEntry::GetPolicyBranchType() const
 {

@@ -6108,6 +6108,10 @@
 			<Text>(Obsoletes: {1_ObsoleteEra})</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_BUILDING">
+			<Text>Buildings</Text>
+		</Row>
+
 		<!-- Great Work Gold (LUA)-->
 		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
 			<Text>{1_Num} {2_IconString} from Great Works and Themes</Text>

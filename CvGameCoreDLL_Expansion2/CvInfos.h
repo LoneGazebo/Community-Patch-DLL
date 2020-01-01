@@ -1612,6 +1612,10 @@ public:
 	bool isHasUnitCombatProductionCostModifiersLocal() const;
 	int getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const;
 	std::vector<ProductionCostModifiers> getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const;
+
+	bool isHasBuildingProductionCostModifiersLocal() const;
+	int getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const;
+	std::vector<ProductionCostModifiers> getBuildingProductionCostModifiersLocal() const;
 #endif
 
 	int getResourceQuantityType(int i) const;
@@ -1691,6 +1695,7 @@ protected:
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
+	std::vector<ProductionCostModifiers> m_aiiiBuildingProductionCostModifiersLocal;
 #endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;

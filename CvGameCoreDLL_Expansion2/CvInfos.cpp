@@ -4795,6 +4795,7 @@ CvResourceInfo::CvResourceInfo() :
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal(),
+	m_aiiiBuildingProductionCostModifiersLocal(),
 #endif
 	m_piResourceQuantityTypes(NULL),
 	m_piFlavor(NULL),
@@ -4815,6 +4816,7 @@ CvResourceInfo::~CvResourceInfo()
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal.clear();
+	m_aiiiBuildingProductionCostModifiersLocal.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piFlavor);
@@ -5306,6 +5308,51 @@ std::vector<ProductionCostModifiers> CvResourceInfo::getUnitCombatProductionCost
 
 	return std::vector<ProductionCostModifiers>();
 }
+//------------------------------------------------------------------------------
+bool CvResourceInfo::isHasBuildingProductionCostModifiersLocal() const
+{
+	return m_aiiiBuildingProductionCostModifiersLocal.size() > 0;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const
+{
+	CvAssertMsg(eBuildingEra < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingEra > -1, "Index out of bounds");
+
+	int iBuildingEra = (int)eBuildingEra;
+	int iMod = 0;
+
+	for (std::vector<ProductionCostModifiers>::const_iterator it = m_aiiiBuildingProductionCostModifiersLocal.begin(); it != m_aiiiBuildingProductionCostModifiersLocal.end(); ++it)
+	{
+		EraTypes eRequiredEra = (EraTypes)it->m_iRequiredEra;
+		EraTypes eObsoleteEra = (EraTypes)it->m_iObsoleteEra;
+
+		if (eBuildingEra != NO_ERA)
+		{
+			// Our building's era needs to be greater than or equal to the required era
+			if (eRequiredEra != NO_ERA && iBuildingEra < it->m_iRequiredEra)
+			{
+				continue;
+			}
+
+			// Our building's era needs to be less than the obsolete era
+			if (eObsoleteEra != NO_ERA && iBuildingEra >= it->m_iObsoleteEra)
+			{
+				continue;
+			}
+		}
+
+		iMod += it->m_iCostModifier;
+	}
+
+	return iMod;
+}
+
+//------------------------------------------------------------------------------
+std::vector<ProductionCostModifiers> CvResourceInfo::getBuildingProductionCostModifiersLocal() const
+{
+	return m_aiiiBuildingProductionCostModifiersLocal;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
@@ -5552,6 +5599,36 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::vector<ProductionCostModifiers>>(m_piiiUnitCombatProductionCostModifiersLocal).swap(m_piiiUnitCombatProductionCostModifiersLocal);
 	}
+
+	//Resource_BuildingProductionCostModifiersLocal
+		{
+
+			std::string sqlKey = "Resource_BuildingProductionCostModifiersLocal";
+			Database::Results* pResults = kUtility.GetResults(sqlKey);
+			if (pResults == NULL)
+			{
+				const char* szSQL = "select RequiredEra, ObsoleteEra, CostModifier from Resource_BuildingProductionCostModifiersLocal where ResourceType = ?";
+				pResults = kUtility.PrepareResults(sqlKey, szSQL);
+			}
+
+			pResults->Bind(1, szResourceType);
+
+			while (pResults->Step())
+			{
+				const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(0), true);
+				const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(1), true);
+				const int iCostMod = pResults->GetInt(2);
+
+				ProductionCostModifiers sElement;
+				sElement.m_iRequiredEra = iRequiredEra;
+				sElement.m_iObsoleteEra = iObsoleteEra;
+				sElement.m_iCostModifier = iCostMod;
+
+				m_aiiiBuildingProductionCostModifiersLocal.push_back(sElement);
+			}
+
+			pResults->Reset();
+		}
 #endif
 
 

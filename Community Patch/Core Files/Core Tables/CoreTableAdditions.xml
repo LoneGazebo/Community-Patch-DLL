@@ -985,6 +985,14 @@
 		<Column name="ObsoleteEra" type="text" reference="Eras(Type)"/>
 		<Column name="CostModifier" type="integer" default="0"/>
 	</Table>
+
+	<!-- RESOURCES: Resources grant production cost modifiers to the city which own them. Era refers to the era of the building, not the current era of the player. Requires RESOURCES_PRODUCTION_COST_MODIFIERS to be enabled in CustomModOptions -->
+	<Table name="Resource_BuildingProductionCostModifiersLocal">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)"/>
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)"/>
+		<Column name="CostModifier" type="integer" default="0"/>
+	</Table>
 	
 	<!-- BUILDINGS: Allows you to define a building class requirement where the building class can be in any city. Does not return a tooltip (unlike buildingclass required test)-->
 	<Table name="Building_ClassNeededAnywhere">

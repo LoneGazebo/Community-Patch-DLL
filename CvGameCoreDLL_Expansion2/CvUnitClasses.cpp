@@ -1173,6 +1173,7 @@ int CvUnitEntry::GetObsoleteTech() const
 }
 
 #if defined(MOD_BALANCE_CORE)
+/// Era this unit belongs to
 int CvUnitEntry::GetEra() const
 {
 	TechTypes eTech = (TechTypes)GetPrereqAndTech();
