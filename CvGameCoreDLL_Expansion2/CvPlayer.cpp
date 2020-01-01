@@ -9850,10 +9850,15 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetRecentAssistValue(eMePlayer, 0);
 			}
 			
+			// Forget war history
 			pDiploAI->SetNumWarsDeclaredOnUs(eMePlayer, 0);
 			pDiploAI->SetNumCitiesCaptured(eMePlayer, 0);
 			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
 			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
+			GetDiplomacyAI()->SetNumWarsDeclaredOnUs(ePlayer, 0);
+			GetDiplomacyAI()->SetNumCitiesCaptured(ePlayer, 0);
+			GetDiplomacyAI()->SetNumTimesRazed(ePlayer, 0);
+			GetDiplomacyAI()->SetNumTradeRoutesPlundered(ePlayer, 0);
 			
 			pDiploAI->SetNumArtifactsEverDugUp(eMePlayer, 0);
 			pDiploAI->SetPlayerEverConvertedCity(eMePlayer, false);
@@ -9924,14 +9929,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
 			
 			// Update diplo stuff.
-			pDiploAI->DoUpdateTrueApproachTowardsUsGuesses();
+			pDiploAI->DoUpdateTrueApproachTowardsUsGuesses(true);
 			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
 			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
 			pDiploAI->DoUpdateOpinions();
 			pDiploAI->DoUpdateMajorCivApproaches();
 			if (!isHuman())
 			{
-				GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+				GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 				GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
 				GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
 				GetDiplomacyAI()->DoUpdateOpinions();

@@ -2885,6 +2885,19 @@
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
 			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Non-Competition Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_NO_WONDER_DISPUTE">
+			<Text>[COLOR_POSITIVE_TEXT]You are not competing for World Wonders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
+			<Text>[COLOR_POSITIVE_TEXT]You are not competing for the favor of the same City-States.</Text>
+		</Row>
+		
+		<!-- Wonder Spammer Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_WONDER_SPAMMER">
+			<Text>[COLOR_NEGATIVE_TEXT]They believe we are building World Wonders too aggressively!</Text>
+		</Row>
 
 		<!-- Social Policies Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_POLICIES">
