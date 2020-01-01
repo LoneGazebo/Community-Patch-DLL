@@ -2868,6 +2868,7 @@ void CvDiplomacyAI::DoCounters()
 				}
 				
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
+				// Forgive backstabbing penalties after a time.
 				int iDealDuration = GC.getGame().GetDealDuration();
 				int iPenaltyTurns;
 				int iTurn = GC.getGame().getGameTurn();
@@ -2883,7 +2884,37 @@ void CvDiplomacyAI::DoCounters()
 						SetDoFBroken(eLoopPlayer, false);
 					}
 				}
-#endif	
+				if (m_pabFriendDenouncedUs[eLoopPlayer])
+				{
+					// If it's been long enough (deal duration x 2; 100 turns on Standard), forget the betrayal
+					iPenaltyTurns = (iDealDuration * 2);
+					
+					if ((iTurn - GetFriendDenouncedUsTurn(eLoopPlayer)) >= iPenaltyTurns)
+					{
+						SetFriendDenouncedUs(eLoopPlayer, false);
+					}
+				}
+				if (m_pabFriendDeclaredWarOnUs[eLoopPlayer])
+				{
+					// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+					iPenaltyTurns = (iDealDuration * 3);
+					
+					if ((iTurn - GetFriendDeclaredWarOnUsTurn(eLoopPlayer)) >= iPenaltyTurns)
+					{
+						SetFriendDeclaredWarOnUs(eLoopPlayer, false);
+					}
+				}
+				if (m_pabPlayerBrokenVassalAgreement[(int)eLoopPlayer])
+				{
+					// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+					iPenaltyTurns = (iDealDuration * 3);
+					
+					if ((iTurn - GetPlayerBrokenVassalAgreementTurn(eLoopPlayer)) >= iPenaltyTurns)
+					{
+						SetPlayerBrokenVassalAgreement(eLoopPlayer, false);
+					}
+				}
+#endif
 				int iBrokenPromisePreValue = GetBrokenExpansionPromiseValue(eLoopPlayer);
 				ChangeBrokenExpansionPromiseValue(eLoopPlayer, -GC.getEXPANSION_PROMISE_BROKEN_PER_TURN_DECAY());
 				int iIgnoredPromisePreValue = GetIgnoredExpansionPromiseValue(eLoopPlayer);
@@ -2994,10 +3025,6 @@ void CvDiplomacyAI::DoCounters()
 					{
 						ChangePlayerBackstabCounter(eLoopPlayer, 1);
 					}
-					else if(IsFriendDenouncedUs(eLoopPlayer))
-					{
-						ChangePlayerBackstabCounter(eLoopPlayer, 1);
-					}		
 					if(GetPlayerBackstabCounter(eLoopPlayer) >= 150)
 					{
 						SetPlayerBackstabCounter(eLoopPlayer, -666);
@@ -37696,24 +37723,6 @@ bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 	if (ePlayer == BARBARIAN_PLAYER || GetPlayer()->isBarbarian())
 		return false;
 	
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	int iDealDuration = GC.getGame().GetDealDuration();
-	int iPenaltyTurns;
-	int iTurn = GC.getGame().getGameTurn();
-
-	if (m_pabFriendDenouncedUs[ePlayer])
-	{
-		// If it's been long enough (deal duration x 2; 100 turns on Standard), forget the betrayal
-		iPenaltyTurns = (iDealDuration * 2);
-		
-		if ((iTurn - GetFriendDenouncedUsTurn(ePlayer)) >= iPenaltyTurns)
-		{
-			GetPlayer()->GetDiplomacyAI()->SetFriendDenouncedUs(ePlayer, false);
-			return false;
-		}
-	}
-#endif
-	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
 
@@ -37771,24 +37780,6 @@ bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 {
 	if (ePlayer == BARBARIAN_PLAYER || GetPlayer()->isBarbarian())
 		return false;
-	
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	int iDealDuration = GC.getGame().GetDealDuration();
-	int iPenaltyTurns;
-	int iTurn = GC.getGame().getGameTurn();
-
-	if (m_pabFriendDeclaredWarOnUs[ePlayer])
-	{
-		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
-		iPenaltyTurns = (iDealDuration * 3);
-		
-		if ((iTurn - GetFriendDeclaredWarOnUsTurn(ePlayer)) >= iPenaltyTurns)
-		{
-			GetPlayer()->GetDiplomacyAI()->SetFriendDeclaredWarOnUs(ePlayer, false);
-			return false;
-		}
-	}
-#endif
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
@@ -50358,27 +50349,7 @@ bool CvDiplomacyAI::IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
-	{
 		return false;
-	}
-	
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	int iDealDuration = GC.getGame().GetDealDuration();
-	int iPenaltyTurns;
-	int iTurn = GC.getGame().getGameTurn();
-
-	if (m_pabPlayerBrokenVassalAgreement[(int)ePlayer])
-	{
-		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
-		iPenaltyTurns = (iDealDuration * 3);
-		
-		if ((iTurn - GetPlayerBrokenVassalAgreementTurn(ePlayer)) >= iPenaltyTurns)
-		{
-			GetPlayer()->GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(ePlayer, false);
-			return false;
-		}
-	}
-#endif
 	
 	return m_pabPlayerBrokenVassalAgreement[(int)ePlayer];
 }
