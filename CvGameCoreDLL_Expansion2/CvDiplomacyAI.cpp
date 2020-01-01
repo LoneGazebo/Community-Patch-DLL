@@ -32382,26 +32382,28 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human agrees
 		else if (iArg1 == 4)
 		{
-			if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer))
+			// AI declaration
+			if (DeclareWar(eAgainstPlayer))
 			{
-				SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_ACCEPTED);
-
-				if (bActivePlayer)
-				{
-					strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
-					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
-				}
-
-				// AI declaration
-				if (DeclareWar(eAgainstPlayer))
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
-
+				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+			
 				// Human declaration
-				TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
+				if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer))
+				{
+					SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, COOP_WAR_STATE_ACCEPTED);
 
-				int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
-				GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
-				GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
+					if (bActivePlayer)
+					{
+						strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
+					}
+
+					TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
+
+					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
+					GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
+					GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
+				}
 			}
 		}
 
