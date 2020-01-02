@@ -992,7 +992,8 @@ class CvTactPosStorage;
 class CvTacticalPlot
 {
 public:
-	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
+	//order is important - distance to enemy is increasing!
+	enum eTactPlotType { TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_FARAWAY, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
 	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
 	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
@@ -1140,7 +1141,8 @@ public:
 	void countPlotTypes();
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
-	bool unitHasAssignmentOfType(int iUnit, eUnitAssignmentType assignmentType) const;
+	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
+	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool isEquivalent(const CvTacticalPosition& rhs) const;
 	bool addAssignment(const STacticalAssignment& newAssignment);
 

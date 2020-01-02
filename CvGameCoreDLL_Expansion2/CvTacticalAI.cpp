@@ -5450,7 +5450,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					if (pBestPlot != NULL)
 					{
 						//pillage before retreat, if we have movement points to spare
-						if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
+						if (pUnit->getMoves()>GC.getMOVE_DENOMINATOR() && pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 							if (GC.getLogging() && GC.getAILogging())
@@ -9161,14 +9161,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		result.eAssignmentType = A_MOVE;
 	}
 
-	//stay on target. hard cutoff!
-	if (unit.eLastAssignment != A_INITIAL)
-	{
-		int iPlotDistance = plotDistance(*assumedPosition.getTarget(), *pTestPlot);
-		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
-			return result;
-	}
-
 	CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pTestPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
 
 	//different contributions
@@ -10062,8 +10054,7 @@ void CvTacticalPlot::findType(eTactPlotDomain eDomain, const CvTacticalPosition&
 					bEdgeOfTheKnownWorld = true;
 			}
 
-			//hack ... really we should check if it's been pillaged in the sim
-			if (IsEnemyCitadel(pNeighbor, currentPosition.getPlayer()))
+			if (IsEnemyCitadel(pNeighbor, currentPosition.getPlayer()) && !currentPosition.plotHasAssignmentOfType(pNeighbor->GetPlotIndex(),A_PILLAGE))
 				bAdjacentToEnemyCitadel = true;
 		}
 	}
@@ -10284,7 +10275,11 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 void CvTacticalPosition::addInitialAssignments()
 {
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
-		addAssignment( STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, 0, A_INITIAL) );
+	{
+		const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
+		int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot( itUnit->iPlotIndex ), *this, false).iScore;
+		addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, max(-1000,iScore), A_INITIAL));
+	}
 }
 
 bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage)
@@ -10529,12 +10524,35 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 	while (!unfinishedUnits.empty())
 	{
 		SUnitStats unit = unfinishedUnits.back();
-
 		const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
-		int iScore = ScorePlotForMove(unit, tactPlot, SMovePlot( unit.iPlotIndex ), *this, false).iScore;
-		if (iScore >= 0)
+
+		//the new score for the next turn of combat (assuming the enemy doesn't move ...)
+		//note: to make sure we take into account the damage from attacks in the next turn, pretend we have some movement points again
+		unit.iMovesLeft = 60;
+		unit.iAttacksLeft = 1;
+		int iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex, 0, unit.iMovesLeft, 0), *this, false).iScore;
+
+		//note that the score may well be lower than the initial score if we killed an enemy!
+		//so as long as it's positive, no problem. if it's negative, check if we're better than before
+		if (iNextTurnScore < 0)
 		{
-			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iScore, A_FINISH));
+			//first the reference
+			int iInitialScore = 0;
+			for (size_t i = 0; i < assignedMoves.size(); i++)
+			{
+				if (assignedMoves[i].iUnitID == unit.iUnitID && assignedMoves[i].eAssignmentType == A_INITIAL)
+				{
+					iInitialScore = assignedMoves[i].iScore;
+					break;
+				}
+			}
+
+			iNextTurnScore -= iInitialScore;
+		}
+
+		if (iNextTurnScore >= 0)
+		{
+			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
 			unfinishedUnits.pop_back();
 		}
 		else
@@ -10552,7 +10570,7 @@ const CvTacticalPosition* CvTacticalPosition::findAncestorWithoutExtraMoves() co
 	if (assignedMoves.empty())
 		return NULL;
 
-	if (assignedMoves.back().isOffensive())
+	if (assignedMoves.back().isOffensive() || assignedMoves.back().eAssignmentType == A_RESTART)
 		return this;
 
 	if (!parentPosition)
@@ -10793,10 +10811,19 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 	rangeAttackPlotLookup[unit.iUnitID] = rangeAttackPlots;
 }
 
-bool CvTacticalPosition::unitHasAssignmentOfType(int iUnit, eUnitAssignmentType assignmentType) const
+bool CvTacticalPosition::unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const
 {
 	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
-		if (it->iUnitID == iUnit && it->eAssignmentType == assignmentType)
+		if (it->iUnitID == iUnitID && it->eAssignmentType == assignmentType)
+			return true;
+
+	return false;
+}
+
+bool CvTacticalPosition::plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const
+{
+	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
+		if (it->iToPlotIndex == iToPlotIndex && it->eAssignmentType == assignmentType)
 			return true;
 
 	return false;
@@ -11680,6 +11707,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 	vector<CvTacticalPosition*> openPositionsHeap;
 	vector<CvTacticalPosition*> completedPositions;
+	vector<CvTacticalPosition*> blockedPositions;
 	int iDiscardedPositions = 0;
 	int iUsedPositions = 0;
 	int iTopScore = 0;
@@ -11710,15 +11738,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 				{
 					//finally a good usecase for const-casting
 					CvTacticalPosition* positionWithoutExtraMoves = const_cast<CvTacticalPosition*>(newPos->findAncestorWithoutExtraMoves());
-					if (positionWithoutExtraMoves)
+					if (positionWithoutExtraMoves && positionWithoutExtraMoves->addFinishMovesIfAcceptable())
 					{
-						if (positionWithoutExtraMoves->addFinishMovesIfAcceptable())
-						{
-							completedPositions.push_back(positionWithoutExtraMoves);
-							iTopScore = max(iTopScore, positionWithoutExtraMoves->getScore());
-						}
-						else
-							iDiscardedPositions++;
+						completedPositions.push_back(positionWithoutExtraMoves);
+						iTopScore = max(iTopScore, positionWithoutExtraMoves->getScore());
 					}
 					else
 						iDiscardedPositions++;
@@ -11732,10 +11755,21 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			}
 		}
 		else
-			iDiscardedPositions++;
+		{
+			//apparently we're blocked from making further assignments, but maybe this position is still useful
+
+			CvTacticalPosition* positionWithoutExtraMoves = const_cast<CvTacticalPosition*>(current->findAncestorWithoutExtraMoves());
+			if (positionWithoutExtraMoves && positionWithoutExtraMoves->addFinishMovesIfAcceptable())
+			{
+				blockedPositions.push_back(positionWithoutExtraMoves);
+				iTopScore = max(iTopScore, positionWithoutExtraMoves->getScore());
+			}
+			else
+				iDiscardedPositions++;
+		}
 
 		//at some point we have seen enough good positions to pick one
-		if (completedPositions.size() >= (size_t)iMaxCompletedPositions)
+		if (completedPositions.size() + blockedPositions.size() >= (size_t)iMaxCompletedPositions)
 			break;
 
 		//don't use up too much memory
@@ -11764,7 +11798,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	}
 	else if (!openPositionsHeap.empty())
 	{
-		//last chance - take the best open position
+		//second chance - take the best open position
 		//sort again with different predicate
 		sort(openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetter());
 		const CvTacticalPosition* lastResort = openPositionsHeap.front()->findAncestorWithoutExtraMoves();
@@ -11773,6 +11807,15 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 		if (gTacticalCombatDebugOutput>10)
 			lastResort->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+	}
+	else if (!blockedPositions.empty())
+	{
+		//last chance - take the best blocked position
+		sort(blockedPositions.begin(), blockedPositions.end(), PrPositionIsBetter());
+		result = blockedPositions.front()->getAssignments();
+
+		if (gTacticalCombatDebugOutput>10)
+			blockedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
 
 	//debugging
