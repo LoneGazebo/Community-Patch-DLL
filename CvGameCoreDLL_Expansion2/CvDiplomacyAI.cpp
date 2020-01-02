@@ -4467,48 +4467,52 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	int iNumCitiesTheyCaptured = GetNumCitiesCaptured(ePlayer);
 	int iCityDifference = iNumCitiesWeCaptured - iNumCitiesTheyCaptured;
 
-	// If we've captured cities from them before, we're more likely to finish the job.
-	if (iCityDifference > 0)
+	// Only apply weight for this if they're nearby (if we conquered a city far away from the rest of their empire, adding weight here is not helpful).
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
 	{
-		// As strong as them or stronger? Let's continue our conquest, especially if they're an easy target.
-		if (bEasyTarget)
+		// If we've captured cities from them before, we're more likely to finish the job.
+		if (iCityDifference > 0)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iCityDifference * 2));
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iCityDifference * 2));
+			// As strong as them or stronger? Let's continue our conquest, especially if they're an easy target.
+			if (bEasyTarget)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iCityDifference * 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iCityDifference * 2));
+			}
+			else if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iCityDifference);
+			}
+			// If they're stronger than us, they're going to want revenge...
+			else
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iCityDifference);
+			}
 		}
-		else if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+		// If they've captured cities from us before, they're more likely to finish the job.
+		else if (iCityDifference < 0)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iCityDifference);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iCityDifference);
+			// Easy target? Get our cities back!
+			if (bEasyTarget)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - (iCityDifference * 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - (iCityDifference * 2));
+			}
+			// As strong as us or stronger? Decrease desire for war, they've proven their might.
+			else if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] - iCityDifference);
+			}
+			// Weaker than us? Let's get revenge!
+			else
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference);
+			}				
 		}
-		// If they're stronger than us, they're going to want revenge...
-		else
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iCityDifference);
-		}
-	}
-	// If they've captured cities from us before, they're more likely to finish the job.
-	else if (iCityDifference < 0)
-	{
-		// Easy target? Get our cities back!
-		if (bEasyTarget)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - (iCityDifference * 2));
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - (iCityDifference * 2));
-		}
-		// As strong as us or stronger? Decrease desire for war, they've proven their might.
-		else if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - iCityDifference);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] - iCityDifference);
-		}
-		// Weaker than us? Let's get revenge!
-		else
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - iCityDifference);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference);
-		}				
 	}
 
 	////////////////////////////////////
