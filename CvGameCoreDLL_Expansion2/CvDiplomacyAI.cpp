@@ -4485,13 +4485,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iCityDifference);
 			}
 			// If they're stronger than us, they're going to want revenge...
-			else
+			else if (GET_TEAM(eTeam).GetMaster() != eMyTeam)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iCityDifference);
 			}
 		}
 		// If they've captured cities from us before, they're more likely to finish the job.
-		else if (iCityDifference < 0)
+		else if ((iCityDifference < 0) && (GET_TEAM(eMyTeam).GetMaster() != eTeam || IsPlayerBrokenVassalAgreement(ePlayer)))
 		{
 			// Easy target? Get our cities back!
 			if (bEasyTarget)
@@ -50580,9 +50580,7 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						{
 							SetRecentAssistValue(eOtherTeamPlayer, 0);
 						}
-						
-						SetNumWarsDeclaredOnUs(eOtherTeamPlayer, 0);
-						SetNumCitiesCaptured(eOtherTeamPlayer, 0);
+
 						SetNumTimesRazed(eOtherTeamPlayer, 0);
 						SetNumTradeRoutesPlundered(eOtherTeamPlayer, 0);
 						
@@ -50652,8 +50650,6 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 						
 						// Master should also clear some war-related penalties
 #if defined(MOD_BALANCE_CORE)
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetNumWarsDeclaredOnUs(GetPlayer()->GetID(), 0);
-						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetNumCitiesCaptured(GetPlayer()->GetID(), 0);
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetNumTimesRazed(GetPlayer()->GetID(), 0);
 						GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetNumTradeRoutesPlundered(GetPlayer()->GetID(), 0);
 #endif
