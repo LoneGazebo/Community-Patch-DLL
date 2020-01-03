@@ -2435,7 +2435,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
+			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
+			{
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)
@@ -2452,7 +2456,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
 				CvCity* pLoopCity;
 				int iCityLoop;
-				bool bNearLoserCity = false;
+				//bool bNearLoserCity = false;
 				bool bInMyTerritory = false;
 				PlayerTypes eLoopPlayer;
 
@@ -2464,6 +2468,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					if(plot()->getOwner() == getOwner()) {
 						bInMyTerritory = true;
 					}
+					/*
 					// Unit killed near one of my cities
 					else if(plot()->getOwner() != ePlayer) {
 						// Loop through loser's cities.
@@ -2476,9 +2481,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							}
 						}
 					}
+					*/
 
 					// Something actually happened to warrant this check
-					if(bInMyTerritory || bNearLoserCity) {
+					if(bInMyTerritory/* || bNearLoserCity*/) {
 						for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;

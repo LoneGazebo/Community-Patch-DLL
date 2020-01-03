@@ -36918,7 +36918,41 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		// Returned to major power
 		else if(!GET_PLAYER(eToPlayer).isHuman())
 		{
-			GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			// Additional diplo bonus for returning civilians in the early game, especially Settlers
+			int iTheirEra = GET_PLAYER(eToPlayer).GetCurrentEra();
+			if (iTheirEra <= 1)
+			{
+				if (pNewUnit->isFound())
+				{
+					if (iTheirEra == 0)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 5);
+					}
+					else if (iTheirEra == 1)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 4);
+					}
+				}
+				else
+				{
+					if (iTheirEra == 0)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 3);
+					}
+					else if (iTheirEra == 1)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 2);
+					}
+				}
+			}
+			else
+			{
+#endif
+				GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		else if(GET_PLAYER(eToPlayer).isHuman() && pNewUnit)
