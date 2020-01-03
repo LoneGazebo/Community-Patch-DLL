@@ -1351,7 +1351,7 @@ public:
 	int GetMilitarySeaMight() const;
 	int GetMilitaryAirMight() const;
 	int GetMilitaryLandMight() const;
-	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain);
+	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain = NO_DOMAIN);
 #else
 	void changeNumMilitaryUnits(int iChange);
 #endif

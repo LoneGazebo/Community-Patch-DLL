@@ -4272,10 +4272,13 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 {
 	int iVotes = 0;
 #if defined(MOD_BATTLE_ROYALE)
-	if (CanEverVote(ePlayer) && !GET_PLAYER(ePlayer).isHuman())
-#else
-	if (CanEverVote(ePlayer))
+	// if battle royale is enabled, the human player is the observer, and should not be allowed votes
+	if (MOD_BATTLE_ROYALE && GET_PLAYER(ePlayer).isHuman())
+	{
+		return 0;
+	}
 #endif
+	if (CanEverVote(ePlayer))
 	{
 		LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 		if (GetCurrentSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)

@@ -50,7 +50,7 @@
 //////////////////////
 
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
-//#define MOD_BATTLE_ROYALE
+#define MOD_BATTLE_ROYALE							gCustomMods.isBATTLE_ROYALE()
 
 //If you enable this, the CS AI can settle more cities.
 //#define MOD_MINOR_CAN_SETTLE
@@ -1703,6 +1703,8 @@ public:
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
+
+	MOD_OPT_DECL(BATTLE_ROYALE);
 
 protected:
 	bool m_bInit;

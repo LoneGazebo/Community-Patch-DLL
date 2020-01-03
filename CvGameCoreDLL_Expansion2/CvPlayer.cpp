@@ -32812,9 +32812,12 @@ void CvPlayer::updateMightStatistics()
 	m_iProductionMight = calculateProductionMight();
 
 #if defined(MOD_BATTLE_ROYALE)
-	m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-	m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-	m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+	if (MOD_BATTLE_ROYALE)
+	{
+		m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+	}
 #endif
 }
 
