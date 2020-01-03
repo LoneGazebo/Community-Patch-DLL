@@ -582,6 +582,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPolicyGreatDiplomatRateModifier);
 #endif
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetMonopolyGreatPersonRateModifier);
+#endif
+
 	Method(GetProductionModifier);
 	Method(GetUnitProductionModifier);
 	Method(GetBuildingProductionModifier);
@@ -7410,6 +7414,25 @@ int CvLuaPlayer::lGetPolicyGreatDiplomatRateModifier(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	lua_pushinteger(L, pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	return 1;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+// int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, bool bGlobalMonopoly, bool bStrategicMonopoly) const;
+int CvLuaPlayer::lGetMonopolyGreatPersonRateModifier(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	int iModifier = 0;
+	// Do we get increased great person rate from a resource monopoly?
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iModifier = pkPlayer->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+	}
+
+	lua_pushinteger(L, iModifier);
 	return 1;
 }
 #endif

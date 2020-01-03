@@ -646,6 +646,10 @@ protected:
 	LUAAPIEXTN(GetPolicyGreatDiplomatRateModifier, int);
 #endif
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetMonopolyGreatPersonRateModifier, int);
+#endif
+
 	static int lGetProductionModifier(lua_State* L);
 	static int lGetUnitProductionModifier(lua_State* L);
 	static int lGetBuildingProductionModifier(lua_State* L);

@@ -977,6 +977,15 @@
 		<Column name="Defense" type="integer" default="0"/>
 	</Table>
 
+	<!-- RESOURCES: Allows Resources to grant great person rate modifiers if you control a monopoly of the resource. Can be configured to require strategic or global monopoly. Must have DEALS functions enabled to use. -->
+	<Table name="Resource_MonopolyGreatPersonRateModifiers">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Modifier" type="integer" default="0"/>
+	</Table>
+
 	<!-- RESOURCES: Resources grant production cost modifiers to the city which own them. Era refers to the era of the unit, not the current era of the player. Requires RESOURCES_PRODUCTION_COST_MODIFIERS to be enabled in CustomModOptions -->
 	<Table name="Resource_UnitCombatProductionCostModifiersLocal">
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>

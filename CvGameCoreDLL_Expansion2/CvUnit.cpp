@@ -16166,10 +16166,10 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(false, true) > 0))
+			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyAttackBonus();
-				iModifier += pInfo->getMonopolyAttackBonus(false, true);
+				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
 			}
 		}
 
@@ -16179,9 +16179,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		{
 			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus(true, false) > 0)
+			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
 			{
-				int iTempMod = pInfo->getMonopolyAttackBonus(true, false);
+				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
 				if (iTempMod != 0)
 				{
 					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
@@ -16387,10 +16387,10 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(false, true) > 0))
+			if (pInfo && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyDefenseBonus();
-				iModifier += pInfo->getMonopolyDefenseBonus(false, true);
+				iModifier += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
 			}
 		}
 
@@ -16400,9 +16400,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		{
 			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyDefenseBonus(true, false) > 0)
+			if (pInfo && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
 			{
-				int iTempMod = pInfo->getMonopolyDefenseBonus(true, false);
+				int iTempMod = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
 				if (iTempMod != 0)
 				{
 					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
@@ -16707,10 +16707,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(false, true) > 0))
+			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyAttackBonus();
-				iModifier += pInfo->getMonopolyAttackBonus(false, true);
+				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
 			}
 		}
 
@@ -16720,9 +16720,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus(true, false) > 0)
+			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
 			{
-				int iTempMod = pInfo->getMonopolyAttackBonus(true, false);
+				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
 				if (iTempMod != 0)
 				{
 					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.

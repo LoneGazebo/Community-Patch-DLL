@@ -24,6 +24,7 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 #pragma warning( disable: 4127 )
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 struct ResourceMonopolySettings
 {
 	ResourceMonopolySettings() :
@@ -45,7 +46,27 @@ struct ResourceMonopolySettings
 	bool m_bStrategicMonopoly;
 };
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+struct MonopolyGreatPersonRateModifierKey
+{
+	MonopolyGreatPersonRateModifierKey() :
+		m_iSpecialist(0),
+		m_sMonopoly()
+	{};
+
+	bool operator<(const MonopolyGreatPersonRateModifierKey& t) const
+	{
+		return this->m_iSpecialist < t.m_iSpecialist || (this->m_iSpecialist == t.m_iSpecialist && this->m_sMonopoly < t.m_sMonopoly);
+	}
+
+	bool operator==(const MonopolyGreatPersonRateModifierKey& t) const
+	{
+		return this->m_iSpecialist == t.m_iSpecialist && this->m_sMonopoly == t.m_sMonopoly;
+	}
+
+	int m_iSpecialist;
+	ResourceMonopolySettings m_sMonopoly;
+};
+
 struct CombatModifiers
 {
 	CombatModifiers() :
@@ -1605,8 +1626,10 @@ public:
 	int getCityYieldModFromMonopoly(int i) const;
 	int* getCityYieldModFromMonopolyArray();
 
-	int getMonopolyAttackBonus(bool bGlobalMonopoly, bool bStrategicMonopoly) const;
-	int getMonopolyDefenseBonus(bool bGlobalMonopoly, bool bStrategicMonopoly) const;
+	int getMonopolyAttackBonus(MonopolyTypes eMonopoly) const;
+	int getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const;
+
+	int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	bool isHasUnitCombatProductionCostModifiersLocal() const;
@@ -1692,6 +1715,7 @@ protected:
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
 	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
+	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateModifiers;
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
