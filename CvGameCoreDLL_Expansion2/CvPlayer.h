@@ -2556,7 +2556,7 @@ public:
 	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
-	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);
 	void AddKnownAttacker(const CvUnit* pAttacker);

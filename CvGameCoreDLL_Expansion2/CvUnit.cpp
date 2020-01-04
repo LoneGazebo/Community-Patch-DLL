@@ -5886,7 +5886,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 
 	//prevent an exploit where players disband units to deny kill yields to their enemies
-	if (getDomainType()!=DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot()).empty() && !plot()->isCity()) 
+	if (getDomainType()!=DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot(),getTeam()).empty() && !plot()->isCity()) 
 		return false;
 
 	if(!bTestVisible)
@@ -28819,7 +28819,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 
 	vector<CvUnit*> attackersBeforeMove;
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
-		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot);
+		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
@@ -28827,7 +28827,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 	vector<CvUnit*> attackersAfterMove;
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
 	{
-		attackersAfterMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot);
+		attackersAfterMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
 
 		if (attackersAfterMove.size() > attackersBeforeMove.size() && GetDanger(pPathPlot) > GetCurrHitPoints())
 		{

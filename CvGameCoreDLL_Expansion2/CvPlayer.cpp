@@ -46673,12 +46673,12 @@ void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 	m_pDangerPlots->ResetDangerCache(&Plot, iRange);
 }
 
-std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
+std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetPossibleAttackers(Plot);
+	return m_pDangerPlots->GetPossibleAttackers(Plot, eTeamForVisibilityCheck);
 }
 
 bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)

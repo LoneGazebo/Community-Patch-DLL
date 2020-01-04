@@ -67,7 +67,7 @@ struct CvDangerPlotContents
 
 	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
-	std::vector<CvUnit*> GetPossibleAttackers() const;
+	std::vector<CvUnit*> GetPossibleAttackers(TeamTypes eTeamForVisibilityCheck) const;
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
@@ -158,7 +158,7 @@ public:
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer); //deprecated
 
-	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const;
 	void ResetDangerCache(const CvPlot* pCenterPlot, int iRange);
 	bool IsKnownAttacker(const CvUnit* pUnit) const;
 	void AddKnownAttacker(const CvUnit* pUnit);

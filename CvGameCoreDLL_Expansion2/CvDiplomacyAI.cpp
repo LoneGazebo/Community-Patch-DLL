@@ -36622,10 +36622,7 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return;
 
-	if (bValue != IsFriendDenouncedUs(ePlayer))
-	{
-		m_pabFriendDenouncedUs[ePlayer] = bValue;
-	}
+	m_pabFriendDenouncedUs[ePlayer] = bValue;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (bValue)
@@ -36701,10 +36698,7 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return;
 
-	if (bValue != IsFriendDeclaredWarOnUs(ePlayer))
-	{
-		m_pabFriendDeclaredWarOnUs[ePlayer] = bValue;
-	}
+	m_pabFriendDeclaredWarOnUs[ePlayer] = bValue;
 	
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (bValue)

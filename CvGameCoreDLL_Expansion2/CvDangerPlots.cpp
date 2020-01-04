@@ -395,12 +395,12 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const Unit
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
 }
 
-std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) const
+std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const
 {
 	if(m_DangerPlots.empty())
 		return std::vector<CvUnit*>();
 
-	return m_DangerPlots[Plot.GetPlotIndex()].GetPossibleAttackers();
+	return m_DangerPlots[Plot.GetPlotIndex()].GetPossibleAttackers(eTeamForVisibilityCheck);
 }
 
 void CvDangerPlots::ResetDangerCache(const CvPlot* pCenterPlot, int iRange)
@@ -1073,7 +1073,7 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 	return iPlotDamage;
 }
 
-std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
+std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers(TeamTypes eTeamForVisibilityCheck) const
 {
 	//ignore cities
 	std::vector<CvUnit*> vResult;
@@ -1081,7 +1081,10 @@ std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
 	{
 		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
 		if (pAttacker)
-			vResult.push_back(pAttacker);
+		{
+			if (eTeamForVisibilityCheck == NO_TEAM || pAttacker->plot()->isVisible(eTeamForVisibilityCheck))
+				vResult.push_back(pAttacker);
+		}
 	}
 
 	return vResult;

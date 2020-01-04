@@ -9976,16 +9976,12 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
 
 	PlayerProximityTypes eClosestProximity = PLAYER_PROXIMITY_CLOSE;
+	int iMinDistance = INT_MAX;
+	CvCity* pBestCity = 0;
 
-	// First, loop through the Majors in the game to what the closest proximity is to any of the players
-	PlayerTypes eTarget;
-
-	FStaticVector<PlayerTypes, MAX_MAJOR_CIVS, true, c_eCiv5GameplayDLL, 0> veValidTargets;
-
-	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(int iTargetLoop = 0; iTargetLoop < MAX_MAJOR_CIVS; iTargetLoop++)
 	{
-		eTarget = (PlayerTypes) iTargetLoop;
+		PlayerTypes eTarget = (PlayerTypes) iTargetLoop;
 
 		if(eTarget == NO_PLAYER)
 			continue;
@@ -10002,9 +9998,6 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eTarget))
 			continue;
 
-		if (GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eTarget).getTeam())
-			continue;
-
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(eTarget).getTeam()))
 			continue;
 
@@ -10014,77 +10007,53 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eTarget).getTeam()))
 			continue;
 
-		if(GET_PLAYER(ePlayer).GetProximityToPlayer(eTarget) >= eClosestProximity)
-		{
-			veValidTargets.push_back(eTarget);
-		}
-	}
+		if (GET_PLAYER(ePlayer).GetProximityToPlayer(eTarget) < eClosestProximity)
+			continue;
 
-	// Didn't find any valid Target players
-	if(veValidTargets.size() == 0)
-		return NULL;
-
-	int iBestValue = 0;
-	CvCity* pBestCity = 0;
-	for(uint iTargetLoop = 0; iTargetLoop < veValidTargets.size(); iTargetLoop++)
-	{
-		PlayerTypes eBestCityStateTarget = veValidTargets[iTargetLoop];
-	
-		if(eBestCityStateTarget != NO_PLAYER)
+		int iLoopCity;
+		for (CvCity* pLoopCity = GET_PLAYER(eTarget).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTarget).nextCity(&iLoopCity, true))
 		{
-			int iLoopCity;
-			for (CvCity* pLoopCity = GET_PLAYER(eBestCityStateTarget).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBestCityStateTarget).nextCity(&iLoopCity, true))
+			if(!pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
 			{
-				if(pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
+				if (pLoopCity->getPreviousOwner() == ePlayer)
+					continue;
+
+				bool bBad = false;
+				//Check for other minors that are currently targeting this city
+				for(int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 				{
-					if (pLoopCity->getPreviousOwner() == ePlayer)
+					PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
+
+					if(!GET_PLAYER(eMinor).isAlive())
 						continue;
 
-					bool bBad = false;
-					//Check for other minors that are currently targeting this city
-					for(int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
-					{
-						PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
-
-						if(!GET_PLAYER(eMinor).isAlive())
-							continue;
-
-						if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
-							continue;
-
-						if(!GET_PLAYER(eMinor).isMinorCiv())
-							continue;
-
-						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityX(ePlayer) == pLoopCity->getX() && GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityY(ePlayer) == pLoopCity->getY())
-						{
-							bBad = true;
-							break;
-						}
-					}
-					if(bBad)
-					{
+					if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
 						continue;
-					}
 
-					int iValue = pLoopCity->getPopulation();
-					iValue += pLoopCity->getNumWorldWonders();
-					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
-					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue += GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + iLoopCity);
-					iValue -= pLoopCity->getStrengthValue() / 100;
-					if(iValue <= 0)
+					if(!GET_PLAYER(eMinor).isMinorCiv())
+						continue;
+
+					if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityX(ePlayer) == pLoopCity->getX() && GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityY(ePlayer) == pLoopCity->getY())
 					{
-						iValue = 1;
+						bBad = true;
+						break;
 					}
-					if(iValue > iBestValue)
-					{
-						iBestValue = iValue;
-						pBestCity = pLoopCity;
-					}
+				}
+				if(bBad)
+				{
+					continue;
+				}
+
+				int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(pLoopCity->plot()) + m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot());
+				if(iDistance < iMinDistance)
+				{
+					iMinDistance = iDistance;
+					pBestCity = pLoopCity;
 				}
 			}
 		}
 	}
+
 	return pBestCity;
 }
 
