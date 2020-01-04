@@ -5038,7 +5038,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 					if (GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE &&
 						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasEverBackstabbedBy(ePreviousAlly) &&
 						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasTeammateEverBackstabbedBy(ePreviousAlly) &&
-						!GET_TEAM(GET_PLAYER((PlayerTypes)ui)).isAtWar(GET_PLAYER(ePreviousAlly).getTeam()))
+						!GET_TEAM(GET_PLAYER((PlayerTypes)ui).getTeam()).isAtWar(GET_PLAYER(ePreviousAlly).getTeam()))
 					{
 						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
 						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);

@@ -4202,7 +4202,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			
-			if (IsPlayerValid(eLoopPlayer, true) && GET_TEAM(eTeam) != GET_PLAYER(eLoopPlayer).getTeam())
+			if (IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).getTeam() != eTeam)
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
 				{

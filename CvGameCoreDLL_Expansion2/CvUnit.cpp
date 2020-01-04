@@ -2454,8 +2454,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				CvCity* pLoopCity;
-				int iCityLoop;
+				//CvCity* pLoopCity;
+				//int iCityLoop;
 				//bool bNearLoserCity = false;
 				bool bInMyTerritory = false;
 				PlayerTypes eLoopPlayer;
