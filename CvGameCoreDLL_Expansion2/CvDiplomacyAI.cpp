@@ -4207,6 +4207,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
 				{
 					bAttackedOwnVassal = true;
+					break;
 				}
 			}
 		}
