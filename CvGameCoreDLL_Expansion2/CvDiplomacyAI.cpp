@@ -36276,6 +36276,10 @@ bool CvDiplomacyAI::IsDoFBroken(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
+	// Vassals can't be untrustworthy, they have no rights.
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+		return false;
+	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 	{
 		return false;
@@ -36347,9 +36351,13 @@ void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue)
 			}
 		}
 		
-		if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
+		if (bValue)
 		{
-			return;
+			if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+				return;
+			
+			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+				return;
 		}
 		
 		m_pabDoFBroken[ePlayer] = bValue;
@@ -37969,8 +37977,14 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
-		return;
+	if (bValue)
+	{
+		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+			return;
+		
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
 
 	m_pabFriendDenouncedUs[ePlayer] = bValue;
 
@@ -38045,8 +38059,14 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
-		return;
+	if (bValue)
+	{
+		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+			return;
+		
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
 
 	m_pabFriendDeclaredWarOnUs[ePlayer] = bValue;
 	
@@ -38548,6 +38568,10 @@ bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	// Vassals can't be untrustworthy, they have no rights.
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+		return false;
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
@@ -38579,8 +38603,14 @@ void CvDiplomacyAI::SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bVa
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
-		return;
+	if (bValue)
+	{
+		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+			return;
+		
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
 	
 	m_pabPlayerBrokenMilitaryPromise[ePlayer] = bValue;
 
@@ -39061,6 +39091,10 @@ bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) co
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	// Vassals can't be untrustworthy, they have no rights.
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+		return false;
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
@@ -39092,8 +39126,14 @@ void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, b
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
-		return;
+	if (bValue)
+	{
+		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+			return;
+		
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
 	
 	m_pabPlayerBrokenAttackCityStatePromise[ePlayer] = bValue;
 
@@ -50705,6 +50745,10 @@ bool CvDiplomacyAI::IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+		return false;
+
+	// Vassals can't be untrustworthy, they have no rights.
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
