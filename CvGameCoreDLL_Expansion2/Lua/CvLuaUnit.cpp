@@ -4352,7 +4352,7 @@ int CvLuaUnit::lGetArea(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	CvLuaArea::Push(L, pkUnit->area());
+	CvLuaArea::Push(L, pkUnit->plot()->area());
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -27,12 +27,8 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
 class CvPlot;
-class CvArea;
-class CvAStarNode;
-class CvArtInfoUnit;
 class CvUnitEntry;
 class CvUnitReligion;
-class CvPathNode;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 class CvTacticalMove;
@@ -977,7 +973,6 @@ public:
 	bool atPlot(const CvPlot& plot) const;
 	inline CvPlot* plot() const;
 	int getArea() const;
-	CvArea* area() const;
 	bool onMap() const;
 
 #if defined(MOD_BALANCE_CORE)

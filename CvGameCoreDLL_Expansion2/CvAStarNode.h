@@ -326,7 +326,11 @@ public:
 struct PrNodeIsBetter
 {
 	//greater than is intended! the lowest cost should be first
-	bool operator()(const CvAStarNode* lhs, const CvAStarNode* rhs) const { return lhs->m_iTotalCost > rhs->m_iTotalCost; }
+	bool operator()(const CvAStarNode* lhs, const CvAStarNode* rhs) const
+	{ 
+		//apparently there's a rule, when total cost is equal, prefer lower g (known cost)
+		return lhs->m_iTotalCost > rhs->m_iTotalCost || (lhs->m_iTotalCost == rhs->m_iTotalCost && lhs->m_iKnownCost > rhs->m_iKnownCost); 
+	}
 };
 
 #endif	//CVASTARNODE_H

@@ -18345,9 +18345,10 @@ int CvCity::GetJONSCultureThreshold() const
 	}
 
 	int iAdditionalCost = GetJONSCultureLevel() * /*8*/ GC.getCULTURE_COST_LATER_PLOT_MULTIPLIER();
-	iAdditionalCost = (int) pow((double) iAdditionalCost, (double)fExponent);
-
-	iCultureThreshold += iAdditionalCost;
+	double dAdditionalCost = pow((double) iAdditionalCost, (double)fExponent);
+	
+	//watch out for overflow ...
+	iCultureThreshold += (dAdditionalCost<INT_MAX/256 ? int(dAdditionalCost) : INT_MAX/256);
 
 	// More expensive for Minors to claim territory
 	if(GET_PLAYER(getOwner()).isMinorCiv())

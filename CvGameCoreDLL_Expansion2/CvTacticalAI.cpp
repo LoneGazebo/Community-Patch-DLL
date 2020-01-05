@@ -2814,8 +2814,7 @@ void CvTacticalAI::PlotHealMoves()
 /// Assigns a barbarian to go protect an undefended camp
 void CvTacticalAI::PlotCampDefenseMoves()
 {
-	CvTacticalTarget* pTarget;
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 	while(pTarget != NULL)
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -7467,7 +7466,7 @@ CvPlot* CvTacticalAI::FindBarbarianGankTradeRouteTarget(CvUnit* pUnit)
 				continue;
 			}
 
-			if(pPlot->area() != pUnit->area())
+			if(pPlot->getArea() != pUnit->getArea())
 			{
 				continue;
 			}
@@ -9269,13 +9268,13 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 
 	//lookup desirability by unit strategy / plot type
 	//even for intermediate plots, so as not to bias against them
-	//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
+	//TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_FARAWAY
 	int iPlotTypeScores[5][5] = {
 		{ -1,-1,-1,-1,-1 }, //none (should not occur)
-		{ -1, 1, 10, 5, 1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
-		{ -1,-1, 3, 10, 2 }, //secondline
-		{ -1,-1, 1, 8, 10 }, //thirdline
-		{ -1,-1, 1, 8,  8 }, //support (should not occur)
+		{  1, 10, 5, 1, -1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
+		{ -1, 3, 10, 2, -1 }, //secondline
+		{ -1, 1, 8, 10, -1 }, //thirdline
+		{ -1, 1, 8,  8, -1 }, //support (should not occur here)
 	};
 	iMiscScore += iPlotTypeScores[unit.eStrategy][testPlot.getType(eRelevantDomain)];
 
@@ -9474,13 +9473,13 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->isRanged() ? CvTacticalPlot::TD_BOTH : pTestPlot->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
 
 	//lookup score by unit strategy / plot type
-	//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
+	//TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_FARAWAY
 	int iPlotTypeScores[5][5] = {
 		{ -1,-1,-1,-1,-1 }, //none (should not occur)
-		{  1,-1, 20, 6, 4 }, //firstline
-		{  1,-1, 1, 20, 8 }, //secondline
-		{  1,-1, 1, 8, 20 }, //thirdline
-		{  1,-1, 1, 4, 4 }, //support (should not occur)
+		{ -1, 20, 6, 4, 1 }, //firstline
+		{ -1, 1, 20, 8, 1 }, //secondline
+		{ -1, 1, 8, 20, 1 }, //thirdline
+		{ -1, 1, 4, 4, 1 }, //support (should not occur)
 	};
 	result.iScore = iPlotTypeScores[unit.eStrategy][testPlot.getType(eRelevantDomain)];
 

@@ -8,7 +8,6 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "CvUnit.h"
-#include "CvArea.h"
 #include "CvPlot.h"
 #include "CvCity.h"
 #include "CvGlobals.h"
@@ -5641,7 +5640,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 					iValue += 6;
 
 				//try to stay within the same area
-				if(pLoopPlot->area() != area())
+				if(pLoopPlot->getArea() != getArea())
 					iValue += 5;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
@@ -20556,15 +20555,6 @@ int CvUnit::getArea() const
 	VALIDATE_OBJECT
 	return GC.getMap().plotCheckInvalid(getX(), getY())->getArea();
 }
-
-
-//	--------------------------------------------------------------------------------
-CvArea* CvUnit::area() const
-{
-	VALIDATE_OBJECT
-	return GC.getMap().plotCheckInvalid(getX(), getY())->area();
-}
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::onMap() const
