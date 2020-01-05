@@ -26902,6 +26902,42 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue += iPassYield;
+
+					break;
+				}
+				case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:
+				{
+					if (pUnit == NULL)
+						continue;
+					if (eYield == YIELD_GREAT_ADMIRAL_POINTS && !bDomainSea)
+					{
+						continue;
+					}
+					if (eYield == YIELD_GREAT_GENERAL_POINTS && bDomainSea)
+					{
+						continue;
+					}
+					if (pUnit->IsInForeignOwnedTerritory())
+					{
+						iValue += GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, false);
+						iValue += GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, true);
+
+						PlayerTypes eOtherPlayer = pUnit->plot()->getOwner();
+
+						if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isBarbarian() == false && eOtherPlayer != GetID())
+						{
+							iValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, true);
+						}
+					}
+
+					break;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -26909,7 +26945,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				//Exclusions
 				if(eYield != YIELD_POPULATION)
 				{
-					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD)
+					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN)
 					{
 						if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
 						{
@@ -27767,6 +27803,42 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED");
 				localizedText << totalyieldString;
 				break;
+			}
+			case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+			case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_MOVEMENT_IN_FOREIGN");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
 			}
 		}
 		if(pCity == NULL)
@@ -30145,6 +30217,40 @@ void CvPlayer::SetNullifyInfluenceModifier(bool bValue)
 bool CvPlayer::IsNullifyInfluenceModifier() const
 {
 	return m_bNullifyInfluenceModifier;
+}
+#endif
+//	--------------------------------------------------------------------------------
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+int CvPlayer::GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPlayer* pOtherPlayer) const
+{
+	if (GetPlayerTraits()->IsTradeRouteProductionSiphon() == false || MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON == false)
+	{
+		return 0;
+	}
+	
+	int iSiphonPercent;
+	int iOpenBorderPercentIncrease;
+	int iReturn;
+
+	iSiphonPercent = GetPlayerTraits()->GetTradeRouteProductionSiphon(bInternationalOnly).m_iSiphonPercent;
+	iOpenBorderPercentIncrease = GetPlayerTraits()->GetTradeRouteProductionSiphon(bInternationalOnly).m_iPercentIncreaseWithOpenBorders;
+
+	iReturn = iSiphonPercent;
+	if (getTeam() != NO_TEAM && pOtherPlayer->getTeam() != NO_TEAM)
+	{
+		CvTeam* pTeam = &GET_TEAM(getTeam());
+		CvTeam* pOtherTeam = &GET_TEAM(pOtherPlayer->getTeam());
+		if (pTeam->IsAllowsOpenBordersToTeam(pOtherTeam->GetID()))
+		{
+			iReturn += iOpenBorderPercentIncrease;
+		}
+		if (pOtherTeam->IsAllowsOpenBordersToTeam(pTeam->GetID()))
+		{
+			iReturn += iOpenBorderPercentIncrease;
+		}
+	}
+
+	return iReturn;
 }
 #endif
 //	--------------------------------------------------------------------------------

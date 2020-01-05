@@ -292,6 +292,12 @@
     <!-- Enables additional trade route related traits (v52) -->
     <Row Class="6" Name="TRAITS_TRADE_ROUTE_BONUSES" Value="0" DbUpdates="1"/>
 
+	<!-- Enables the trait table Trait_TradeRouteProductionSiphon -->
+	<Row Class="6" Name="TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON" Value="0"/>
+
+	<!-- Enables the trait table Trait_YieldFromRouteMovementInForeignTerritory -->
+	<Row Class="6" Name="TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY" Value="0"/>
+
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="POLICIES_CITY_WORKING" Value="0"/>

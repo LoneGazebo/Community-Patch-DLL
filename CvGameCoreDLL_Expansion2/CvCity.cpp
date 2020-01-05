@@ -12131,6 +12131,85 @@ void CvCity::changeProductionTimes100(int iChange)
 	{
 		doProcess();
 	}
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	{
+		PlayerTypes iPlayer = getOwner();
+		if (iPlayer != NO_PLAYER)
+		{
+			CvPlayer* pPlayer = &GET_PLAYER(iPlayer);
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+
+			for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+			{
+				if (pTrade->IsTradeRouteIndexEmpty(ui))
+				{
+					continue;
+				}
+
+				const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+				CvCity* pOriginCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
+				CvCity* pDestCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
+
+				if (pDestCity == this && pOriginCity != NULL)
+				{
+					if (pConnection->m_eOriginOwner != NO_PLAYER)
+					{
+						CvPlayer* pOtherPlayer = &GET_PLAYER(pConnection->m_eOriginOwner);
+						if (pOtherPlayer->GetPlayerTraits()->IsTradeRouteProductionSiphon())
+						{
+							int iSiphonPercent = pOtherPlayer->GetTradeRouteProductionSiphonPercent(false, pPlayer);
+							if (pPlayer->GetID() != pOtherPlayer->GetID())
+							{
+								iSiphonPercent += pOtherPlayer->GetTradeRouteProductionSiphonPercent(true, pPlayer);
+							}
+
+							int iSiphonAmount = iChange * iSiphonPercent / 100;
+							
+							if (iSiphonAmount > 0)
+							{
+								if (this->isProductionUnit())
+								{
+									pOriginCity->changeUnitProductionTimes100(this->getProductionUnit(), iSiphonAmount);
+								}
+								else if (this->isProductionBuilding())
+								{
+									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(this->getProductionBuilding(), iSiphonAmount);
+								}
+								else if (isProductionProject())
+								{
+									pOriginCity->changeProjectProductionTimes100(this->getProductionProject(), iSiphonAmount);
+								}
+								else if (isProductionSpecialist())
+								{
+									pOriginCity->changeSpecialistProductionTimes100(this->getProductionSpecialist(), iSiphonAmount);
+								}
+#if defined(MOD_BALANCE_CORE)
+								else if (isProductionProcess())
+								{
+									if (pOriginCity->getProductionProcess() != NO_PROCESS)
+									{
+										int iI;
+										int iYield;
+										for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+										{
+											iYield = (this->getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * this->getProductionToYieldModifier((YieldTypes)iI) / 100;
+
+											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
+										}
+									}
+								}
+#endif
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 }
 
 

@@ -40,6 +40,26 @@ struct MayaBonusChoice
 	int m_iBaktunJustFinished;
 };
 
+struct TradeRouteProductionSiphon
+{
+	TradeRouteProductionSiphon() :
+		m_iSiphonPercent(0),
+		m_iPercentIncreaseWithOpenBorders(0)
+	{};
+
+	bool IsHaveProductionSiphon()
+	{
+		if (m_iSiphonPercent != 0 || m_iPercentIncreaseWithOpenBorders != 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	int m_iSiphonPercent;
+	int m_iPercentIncreaseWithOpenBorders;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTraitEntry
 //!  \brief		A single entry in the trait XML file
@@ -347,6 +367,9 @@ public:
 	EraTypes GetGPFaithPurchaseEra() const;
 	int GetFaithCostModifier() const;
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	int GetCapitalYieldChanges(int i) const;
@@ -395,6 +418,9 @@ public:
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
@@ -697,6 +723,9 @@ protected:
 	int* m_piGreatPersonProgressFromPolicyUnlock;
 	int* m_piFreeUnitClassesDOW;
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piCapitalYieldChanges;
@@ -744,6 +773,9 @@ protected:
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_piDomainProductionModifiersPerSpecialist;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1792,6 +1824,9 @@ public:
 		return m_iMountainRangeYield[(int)eYield];
 	};
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eYield, bool bTradePartner) const;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
@@ -1873,6 +1908,10 @@ public:
 	}
 	bool IsNoBuild(const BuildTypes eBuild) const;
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(bool bInternationalOnly) const;
+	bool IsTradeRouteProductionSiphon() const;
 #endif
 
 	// Public functions to make trait-based game state changes
@@ -2255,6 +2294,12 @@ private:
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

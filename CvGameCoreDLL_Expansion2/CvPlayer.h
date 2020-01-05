@@ -1394,6 +1394,10 @@ public:
 	bool IsNullifyInfluenceModifier() const;
 #endif
 
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	int GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPlayer* pOtherPlayer) const;
+#endif
+
 	int getMilitaryFoodProductionCount() const;
 	bool isMilitaryFoodProduction() const;
 	void changeMilitaryFoodProductionCount(int iChange);
