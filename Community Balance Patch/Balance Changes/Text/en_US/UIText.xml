@@ -420,7 +420,7 @@
 		<Row Tag ="TXT_KEY_EO_LOCAL_RESOURCES_FOREIGN_STRATEGIC">
 			<Text>Foreign Strategic Monopolies</Text>
 		</Row>
-		
+
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
 			<Text>Resource Monopoly</Text>
 		</Row>

@@ -422,7 +422,16 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 
 			//much harder if vassalage on the table.
 			if (pDeal->IsVassalageTrade(eFromPlayer) || pDeal->IsVassalageTrade(eMyPlayer))
-				iOddsOfGivingIn -= 100;
+			{
+				if (GetPlayer()->IsAITeammateOfHuman())
+				{
+					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+				}
+				else
+				{
+					iOddsOfGivingIn -= 100;
+				}
+			}
 
 			//no third party war, that's weird.
 			if (pDeal->ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR, eFromPlayer) || pDeal->ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR, eMyPlayer))
@@ -669,26 +678,60 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 					break;
 				}
 
-				// Open Borders
-				case TRADE_ITEM_OPEN_BORDERS:
+				// Embassy
+				case TRADE_ITEM_ALLOW_EMBASSY:
 				{
-					iValueDemanded += 25;
+					if (GetPlayer()->IsAITeammateOfHuman())
+					{
+						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+					}
+					else
+					{
+						iValueDemanded += 10;
+					}
 					break;
 				}
 
+				// Open Borders
+				case TRADE_ITEM_OPEN_BORDERS:
+				{
+					if (GetPlayer()->IsAITeammateOfHuman())
+					{
+						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+					}
+					else
+					{
+						iValueDemanded += 25;
+					}
+					break;
+				}
+
+				// Other stuff
+				case TRADE_ITEM_TECHS:
+				case TRADE_ITEM_MAPS:
+				case TRADE_ITEM_THIRD_PARTY_PEACE:
+				case TRADE_ITEM_VASSALAGE_REVOKE:
+				{
+					if (GetPlayer()->IsAITeammateOfHuman())
+					{
+						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+					}
+					else
+					{
+						iValueDemanded += 75;
+					}
+					break;
+				}
+				
+				// AI will never agree to give these up
 				case TRADE_ITEM_CITIES:
 				case TRADE_ITEM_DEFENSIVE_PACT:
 				case TRADE_ITEM_RESEARCH_AGREEMENT:
-				{
-					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-					break;
-				}
 				case TRADE_ITEM_PERMANENT_ALLIANCE:
-				case TRADE_ITEM_THIRD_PARTY_PEACE:
 				case TRADE_ITEM_THIRD_PARTY_WAR:
 				case TRADE_ITEM_THIRD_PARTY_EMBARGO:
 				default:
-					iValueDemanded += 75;
+					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
 					break;
 				}
 			}
@@ -2451,6 +2494,9 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 	int iItemValue = 50;
 
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
+
 	// Scale up or down by deal duration at this game speed
 	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GC.getSTANDARD_GAMESPEED());
 	if (pkStdSpeedInfo)
@@ -2467,12 +2513,6 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 	if (bFromMe)  // giving the other player an embassy in my capital
 	{
-		// If we consider them untrustworthy, we don't want to give them an embassy.
-		if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eOtherPlayer))
-		{
-			return INT_MAX;
-		}
-		
 		// Approach is important
 		switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -2553,12 +2593,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	MajorCivApproachTypes eApproach = pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 
 	int iItemValue = 100;
-	
-	// Are they planning a trap for us? Don't fall for it!
-	if (pDiploAI->IsUntrustworthyFriend(eOtherPlayer) || pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-	{
+
+	if (GetPlayer()->IsAITeammateOfHuman())
 		return INT_MAX;
-	}
 	
 	// Me giving Open Borders to the other guy
 	if (bFromMe)
@@ -2852,7 +2889,6 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	int iItemValue = 500;
 	bool bCancel = false;
 	
-	// AI teammates of humans should never do this on their own.
 	if (GetPlayer()->IsAITeammateOfHuman())
 	{
 		return INT_MAX;
@@ -2873,32 +2909,6 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
 	if (iNumMajorsLeft <= 2)
 		bCancel = true;
-	
-	// No DPs if we're hostile or want war
-	if (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-		bCancel = true;
-	
-	// No DPs if they're untrustworthy
-	if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthyFriend(eOtherPlayer) || GetPlayer()->GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-		bCancel = true;
-	
-	// Make sure none of our AI teammates find them untrustworthy or hostile, either
-	PlayerTypes eLoopPlayer;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer, true) && !GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
-		{
-			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_HOSTILE)
-				bCancel = true;
-			
-			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetTrueApproachTowardsUsGuess(eOtherPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
-				bCancel = true;
-			
-			if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsUntrustworthyFriend(eOtherPlayer))
-				bCancel = true;
-		}
-	}
 	
 	if (bCancel)
 	{
@@ -2967,6 +2977,9 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Research Agreement with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 100;
+
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
 
 	if(bFromMe)
 	{
@@ -3106,6 +3119,9 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party Peace with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 100; //just some base value
+	
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
 
 	if (bLogging)
 		return iItemValue;
@@ -3467,13 +3483,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 300; //just some base value
+	
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
 
 	if (bLogging)
 		return iItemValue;
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 
-	// How much does this AI like to go to war? If it's a 6 or less, never accept
+	// How much does this AI like to go to war?
 	int iWarApproachWeight = pDiploAI->GetPersonalityMajorCivApproachBias(MAJOR_CIV_APPROACH_WAR);
 	if (bFromMe)
 		iItemValue *= max(1, (10 - iWarApproachWeight));
@@ -3671,18 +3690,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
-		// AI teammates of humans should never accept this.
-		if (GetPlayer()->IsAITeammateOfHuman())
-		{
-			return INT_MAX;
-		}
 		// Don't accept if we don't like the asker, unless the target's our biggest competitor
 		if (eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_AFRAID && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
-		{
-			return INT_MAX;
-		}
-		//tricksy players wanting us to DoW so they can get the drop on us...don't fall for it!
-		if (pDiploAI->IsUntrustworthyFriend(eOtherPlayer) || pDiploAI->GetTrueApproachTowardsUsGuess(eOtherPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			return INT_MAX;
 		}
@@ -3871,7 +3880,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
 							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
-							if (eWarState <= WAR_STATE_DEFENSIVE)
+							if (eWarState <= WAR_STATE_STALEMATE)
+							{
+								return INT_MAX;
+							}
+							else if (eWarState == WAR_STATE_CALM && pDiploAI->GetWarProjection(eWarPlayer) <= WAR_PROJECTION_STALEMATE)
 							{
 								return INT_MAX;
 							}
@@ -8004,13 +8017,25 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 					}
 					case TRADE_ITEM_TECHS:
 					{
-						iTechsRequested++;
+						if (GetPlayer()->IsAITeammateOfHuman())
+						{
+							eResponse = DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
+						}
+						else
+						{
+							iTechsRequested++;
+						}
 						break;
 					}
+					case TRADE_ITEM_ALLOW_EMBASSY:
 					case TRADE_ITEM_OPEN_BORDERS:
 					case TRADE_ITEM_MAPS:
 					{
-						break;				// skip over open borders and maps, don't care about them.
+						if (GetPlayer()->IsAITeammateOfHuman())
+						{
+							eResponse = DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
+						}
+						break;				// skip over embassy, open borders and maps, don't care about them.
 					}
 					case TRADE_ITEM_CITIES:
 					case TRADE_ITEM_DEFENSIVE_PACT:
@@ -8065,6 +8090,10 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Map with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 500;
+	
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
+	
 	CvPlayer* pSeller = bFromMe ? GetPlayer() : &GET_PLAYER(eOtherPlayer);	// Who is selling this map?
 	CvPlayer* pBuyer = bFromMe ? &GET_PLAYER(eOtherPlayer) : GetPlayer();	// Who is buying this map?
 
@@ -8164,10 +8193,10 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false))
 		{
 			case MAJOR_CIV_APPROACH_WAR:
-				iItemValue *= 300;
+				return INT_MAX;
 				break;
 			case MAJOR_CIV_APPROACH_HOSTILE:
-				iItemValue *= 250;
+				return INT_MAX;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
 				iItemValue *= 130;
@@ -8278,6 +8307,9 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 {
 	int iItemValue = 100;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
 
 	if (pkTechInfo == NULL)
 		return INT_MAX;
@@ -8427,6 +8459,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	if(bFromMe)
 	{
 		iItemValue *= 2;
+
 		// Approach is important
 #if defined(MOD_BALANCE_CORE)
 		if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
@@ -8525,6 +8558,9 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 0;
+
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
 
 	CvDiplomacyAI* m_pDiploAI = GetPlayer()->GetDiplomacyAI();
 
@@ -8768,6 +8804,9 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Vassalage Agreement with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iItemValue = 0;
+
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return INT_MAX;
 
 	CvDiplomacyAI* m_pDiploAI = GetPlayer()->GetDiplomacyAI();
 

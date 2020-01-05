@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -174,7 +174,8 @@ CvUnit::CvUnit() :
 	, m_iHillsDoubleMoveCount("CvUnit::m_iHillsDoubleMoveCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
-	, m_iFreeEmbarkMoveCount("CvUnit::m_iFreeEmbarkMoveCount", m_syncArchive)
+	, m_iEmbarkFlatCostCount("CvUnit::m_iEmbarkFlatCostCount", m_syncArchive)
+	, m_iDisembarkFlatCostCount("CvUnit::m_iDisembarkFlatCostCount", m_syncArchive)
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 	, m_iAoEDamageOnMove("CvUnit::m_iAoEDamageOnMove", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
@@ -406,7 +407,6 @@ CvUnit::CvUnit() :
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
-	, m_iDummy("CvUnit::m_iDummy", m_syncArchive) // <------------------------------------- reuse me
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -1458,7 +1458,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iHillsDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
-	m_iFreeEmbarkMoveCount = 0;
+	m_iEmbarkFlatCostCount = 0;
+	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
 	m_iAoEDamageOnMove = 0;
 	m_iSplashDamage = 0;
@@ -1615,7 +1616,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
-	m_iDummy = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -17099,18 +17099,31 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 {
 	pAttacker;  pTargetPlot; //unused
 
+	int iVal = 4;
+
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
 		int iBaseValue = getUnitInfo().GetBaseLandAirDefense();
+		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
+		{
+			iVal = iVal * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
+			iVal /= 100;
+		}
 		if (iBaseValue == 0)
 			if (bIncludeRand && !IsCivilianUnit())
-				return GC.getGame().getSmallFakeRandNum(3, *plot());
+				return GC.getGame().getSmallFakeRandNum(iVal, *plot());
 			else
 				return 0;
 		else
 		{
 			iBaseValue += getLandAirDefenseValue();
+
+			if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
+			{
+				iBaseValue = iBaseValue * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
+				iBaseValue /= 100;
+			}
 
 			if (bIncludeRand)
 				return iBaseValue + GC.getGame().getSmallFakeRandNum(5, *plot());
@@ -17120,10 +17133,17 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	}
 	else
 	{
+		iVal *= 2;
+		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
+		{
+			iVal = iVal * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
+			iVal /= 100;
+		}
+
 		if (bIncludeRand)
-			return 8 + GC.getGame().getSmallFakeRandNum(5, *plot());
+			return iVal + GC.getGame().getSmallFakeRandNum(iVal/2, *plot());
 		else
-			return 10;
+			return iVal+2;
 	}	
 }
 
@@ -19437,11 +19457,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 									}
 									else
 									{
-#if defined(MOD_API_UNIFIED_YIELDS)
-										kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY);
-#else
-										kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian());
-#endif
+										kPlayer.DoYieldsFromKill(this, pLoopUnit);
 										pLoopUnit->kill(false, getOwner());
 									}
 								}
@@ -19532,11 +19548,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
 											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-											kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY);
-#else
-											kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian());
-#endif
+											kPlayer.DoYieldsFromKill(this, pLoopUnit);
 #if defined(MOD_API_EXTENSIONS)
 											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
 #else
@@ -21851,23 +21863,43 @@ void CvUnit::changeMountainsDoubleMoveCount(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getFreeEmbarkMoveCount() const
+int CvUnit::getEmbarkFlatCostCount() const
 {
 	VALIDATE_OBJECT
-		return m_iFreeEmbarkMoveCount;
+		return m_iEmbarkFlatCostCount;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::isFreeEmbark() const
+bool CvUnit::isEmbarkFlatCost() const
 {
 	VALIDATE_OBJECT
-		return (getFreeEmbarkMoveCount() > 0);
+		return (getEmbarkFlatCostCount() > 0);
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::changeFreeEmbarkMoveCount(int iChange)
+void CvUnit::changeEmbarkFlatCostCount(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iFreeEmbarkMoveCount = (m_iFreeEmbarkMoveCount + iChange);
-	CvAssert(getFreeEmbarkMoveCount() >= 0);
+		m_iEmbarkFlatCostCount = (m_iEmbarkFlatCostCount + iChange);
+	CvAssert(getEmbarkFlatCostCount() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getDisembarkFlatCostCount() const
+{
+	VALIDATE_OBJECT
+		return m_iDisembarkFlatCostCount;
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::isDisembarkFlatCost() const
+{
+	VALIDATE_OBJECT
+		return (getDisembarkFlatCostCount() > 0);
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeDisembarkFlatCostCount(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iDisembarkFlatCostCount = (m_iDisembarkFlatCostCount + iChange);
+	CvAssert(getDisembarkFlatCostCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -24659,7 +24691,6 @@ bool CvUnit::isPromotionReady() const
 	return m_bPromotionReady;
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvUnit::setPromotionReady(bool bNewValue)
 {
@@ -26733,7 +26764,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
-		changeFreeEmbarkMoveCount((thisPromotion.IsFreeEmbark()) ? iChange : 0);
+		changeEmbarkFlatCostCount((thisPromotion.IsEmbarkFlatCost()) ? iChange : 0);
+		changeDisembarkFlatCostCount((thisPromotion.IsDisembarkFlatCost()) ? iChange : 0);
 		ChangeCaptureDefeatedEnemyChance((thisPromotion.GetCaptureDefeatedEnemyChance()) * iChange);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);

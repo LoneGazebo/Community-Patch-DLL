@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -594,6 +594,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 #endif
+			// Can't trade resource if either player does not have the city trade tech
+			TechTypes eCityTradeTech = (TechTypes)GC.getResourceInfo(eResource)->getTechCityTrade();
+			if (eCityTradeTech != NO_TECH)
+			{
+				if (!pFromPlayer->HasTech(eCityTradeTech))
+				{
+					return false;
+				}
+			}
 		}
 	}
 	// City
@@ -3326,7 +3335,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				{
 					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 					{
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 					}
@@ -4043,7 +4052,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 							}
@@ -4336,7 +4345,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses();
+								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 							}

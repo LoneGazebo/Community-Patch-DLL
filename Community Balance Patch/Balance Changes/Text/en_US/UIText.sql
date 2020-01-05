@@ -347,6 +347,10 @@ SET Text = 'The village increases output of a tile by 3 gold and 1 culture. It d
 WHERE Tag = 'TXT_KEY_WORKERS_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US
+SET Text = 'If there is a road between your capital and another of your cities, those cities have a "city connection." City connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. (Lighthouses can also create city connections between coastal cities.) See the section on City Connections for details.'
+WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_BODY';
+
+UPDATE Language_en_US
 SET Text = 'The Village'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_TITLE';
 
@@ -727,3 +731,12 @@ WHERE Tag = 'TXT_KEY_TP_GOLD_EXPLANATION';
 UPDATE Language_en_US
 SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another civ''s territory will give you a temporary diplomatic boost with that nation.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MAJOR_CIV';
+
+
+UPDATE Language_en_US
+SET Text = 'Alternative Energy'
+WHERE Tag = 'TXT_KEY_TECH_ECOLOGY_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Renewable, or alternative energy is energy that is collected from renewable resources, which are naturally replenished on a human timescale, such as sunlight, wind, rain, tides, waves, and geothermal heat. Renewable energy often provides energy in four important areas: electricity generation, air and water heating/cooling, transportation, and rural (off-grid) energy services.'
+WHERE Tag = 'TXT_KEY_TECH_ECOLOGY_DESC';

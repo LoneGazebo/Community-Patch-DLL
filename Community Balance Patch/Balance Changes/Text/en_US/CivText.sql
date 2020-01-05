@@ -439,7 +439,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CHATEAU_TEXT' AND EXISTS (SELECT * FROM C
 -- Germany
 --------------------
 UPDATE Language_en_US
-SET Text = '10% of the City''s [ICON_GOLD] Gold output is added to the City''s [ICON_RESEARCH] Science every turn. +4% [ICON_PRODUCTION] Production in this City for each [ICON_INTERNATIONAL_TRADE] Trade Route your Civilization has with a [ICON_CITY_STATE] City-State.[NEWLINE][NEWLINE]When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for the [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
+SET Text = '10% of the City''s [ICON_GOLD] Gold output is added to the City''s [ICON_RESEARCH] Science every turn. +5% [ICON_PRODUCTION] Production in this City for each [ICON_INTERNATIONAL_TRADE] Trade Route your Civilization has with a [ICON_CITY_STATE] City-State.[NEWLINE][NEWLINE]When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for the [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -447,7 +447,7 @@ SET Text = 'In addition to the regular abilities of the Customs House (additiona
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Ally, and +2 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points per Friend, scaling with Era. 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in World Congress for every 3 [ICON_CITY_STATE] City-State Allies.'
+SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Ally, and +3 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points per Friend, scaling with Era. 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in World Congress for every 3 [ICON_CITY_STATE] City-State Allies.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

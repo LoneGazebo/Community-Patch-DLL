@@ -5132,9 +5132,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		}
 	}
 
-
-	if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(m_pPlayer->getTeam()))
-		GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).makePeace(m_pPlayer->getTeam(), false);
+	if (bAttemptSuccess)
+	{
+		if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(m_pPlayer->getTeam()))
+			GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).makePeace(m_pPlayer->getTeam(), false);
+	}
 
 	pMinorCivAI->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), aiNewInfluenceValueTimes100[m_pPlayer->GetID()]);
 
@@ -5190,6 +5192,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	if (bAttemptSuccess)
 	{
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 	}
 
 	// Update City banners and game info

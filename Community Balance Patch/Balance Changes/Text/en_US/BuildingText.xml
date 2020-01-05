@@ -282,7 +282,7 @@
 			<Text>Well</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT">
-			<Text>Wind Plant</Text>
+			<Text>Wind Power</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD">
 			<Text>Agribusiness</Text>
@@ -306,7 +306,7 @@
 			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Production based on the city's population, but less efficiently than the Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city not on a river. The Wind Plant increases the Production, Science, and Gold output of every Grassland and Plains tile the city works.</Text>
+			<Text>Wind Power is a modern electrical system. Wind Power increases the Production, Science, and Gold output of land tiles the city works. [NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron to be built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_STRATEGY">
 			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, combats Poverty, and improves the tile yield of Bananas.</Text>
@@ -336,7 +336,7 @@
 			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty, and +1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+4 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains Tile.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not be built next to a River. City must not contain another energy-producing Plant.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on all Land Tiles (except Mountains).[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron to be built. City must not contain another energy-producing Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Farms and Pastures worked by the City. 10% of [ICON_FOOD] Food created by the City counts as [ICON_GOLD] Gold Per Turn.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>

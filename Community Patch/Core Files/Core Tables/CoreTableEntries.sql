@@ -265,8 +265,8 @@ ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 -- Improvement grants extra moves when unit is on this plot
 ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
--- Improvement requires any body of water adjacent to it in order to be built
-ALTER TABLE Improvements ADD COLUMN 'AnyBodyOfWaterMakesValid' BOOLEAN DEFAULT 0;
+-- Improvement requires fresh water, coast, or river adjacency to make valid.
+ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0;
 
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
@@ -941,8 +941,11 @@ ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFA
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
 
--- No Movement Points Used On Embark
-ALTER TABLE UnitPromotions ADD COLUMN 'FreeEmbark' BOOLEAN DEFAULT 0;
+-- Embarking Costs One Movement Point
+ALTER TABLE UnitPromotions ADD COLUMN 'EmbarkFlatCost' BOOLEAN DEFAULT 0;
+
+-- Disembarking Costs One Movement Point
+ALTER TABLE UnitPromotions ADD COLUMN 'DisembarkFlatCost' BOOLEAN DEFAULT 0;
 
 -- Admirals can use their repair fleet action multiple times before expending.
 ALTER TABLE UnitPromotions ADD COLUMN 'NumRepairCharges' INTEGER DEFAULT 0;

@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1255,7 +1255,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 				// Message slightly different for founder player
 				if(newReligion.m_eFounder == eNotifyPlayer)
 				{
-					Localization::String localizedText = GetLocalizedText("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER").c_str();
+					Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER");
 					localizedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
 
 #if defined(MOD_API_EXTENSIONS)
@@ -6004,7 +6004,7 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 		ReligionTypes eLoopReligion = it->m_eReligion;
 		if (eLoopReligion > RELIGION_PANTHEON && eLoopReligion != eReligion)
 		{
-			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eLoopReligion, NO_PLAYER);
+			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eLoopReligion, m_pCity->getOwner());
 			if (pReligion)
 			{
 				iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0

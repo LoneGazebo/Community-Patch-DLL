@@ -12549,7 +12549,31 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		
 		aOpinions.push_back(kOpinion);
 	}
-	
+	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
+	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
+		
+		switch (iVisibleApproach)
+		{
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY");
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED");
+			break;
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE");
+			break;
+		}
+		
+		aOpinions.push_back(kOpinion);
+	}
+
 	// Base opinion score?
 	iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
 	if (iValue != 0)
@@ -12563,7 +12587,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			
-			if (iValue >= /*20*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
 			}
@@ -12571,7 +12595,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
 			}
-			else if (iValue <= /*-20*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+			else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
 			}
@@ -12610,7 +12634,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		// wonder dispute
 		iValue = pDiploAI->GetWonderDisputeLevelScore(eWithPlayer);
-		if (iValue != 0)
+		if (iValue < 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_WONDER_DISPUTE");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
@@ -12620,7 +12651,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		// minor civ dispute
 		iValue = pDiploAI->GetMinorCivDisputeLevelScore(eWithPlayer);
-		if (iValue != 0)
+		if (iValue < 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
@@ -12629,15 +12667,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 #if defined(MOD_BALANCE_CORE)
-		//Religion
-		iValue = pDiploAI->GetDifferentMajorityReligionScore(eWithPlayer);
-		if(iValue > 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS", iValue);
-			aOpinions.push_back(kOpinion);
-		}
 		// victory dispute
 		iValue = pDiploAI->GetVictoryDisputeLevelScore(eWithPlayer);
 		if (iValue > 0)
@@ -12690,7 +12719,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Aggressive Posture
-		if (!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()))
+		if (!GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(pkPlayer->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 5;
 			if (iValue > 0)
@@ -12772,17 +12801,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			aOpinions.push_back(kOpinion);
 		}
-
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			iValue = pDiploAI->GetTooManyVassalsScore(eWithPlayer);
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
-				aOpinions.push_back(kOpinion);
-			}
 			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
 			if (iValue != 0)
 			{
@@ -12791,8 +12809,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
 				aOpinions.push_back(kOpinion);
 			}
-		}
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_DEALS)
@@ -12840,6 +12856,49 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)	
+		// Timer to avoid backstabbing penalties
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (pDiploAI->IsDoFBroken(eWithPlayer) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassalOfSomeone())
+#else
+		if (pDiploAI->IsDoFBroken(eWithPlayer) && !GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).isAtWar(pkPlayer->getTeam()))
+#endif
+		{
+			if (!pDiploAI->IsFriendDenouncedUs(eWithPlayer) && !pDiploAI->IsFriendDeclaredWarOnUs(eWithPlayer))
+			{
+				int iTurn = GC.getGame().getGameTurn();
+				iTurn -= pDiploAI->GetDoFBrokenTurn(eWithPlayer);
+				if (iTurn < 10)
+				{	
+					iValue = (10 - iTurn);
+					Opinion kOpinion;
+					kOpinion.m_iValue = 0;
+					
+					if (!pDiploAI->IsFriendDeclaredWarOnUs(eWithPlayer))
+					{
+						if (!pDiploAI->IsFriendDenouncedUs(eWithPlayer))
+						{
+							kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS", iValue);
+						}
+						else
+						{
+							kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_WAR_ONLY_TURNS", iValue);
+						}
+					}
+					else
+					{
+						if (!pDiploAI->IsFriendDenouncedUs(eWithPlayer))
+						{
+							kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS", iValue);
+						}
+					}
+					
+					aOpinions.push_back(kOpinion);
+				}
+			}
+		}
+#endif
 		
 		iValue = pDiploAI->GetResearchAgreementScore(eWithPlayer);
 		if (iValue != 0)
@@ -13063,6 +13122,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION");
 		aOpinions.push_back(kOpinion);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	iValue = pDiploAI->GetDifferentMajorityReligionScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_DIFFERENT_MAJORITY_RELIGIONS", iValue);
+		aOpinions.push_back(kOpinion);
+	}
+#endif
 	
 	iValue = pDiploAI->GetSameLatePoliciesScore(eWithPlayer);
 	if (iValue != 0)
@@ -13136,15 +13206,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 #endif
-	
-	iValue = pDiploAI->GetDugUpMyYardScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_STOLEN_ARTIFACTS");
-		aOpinions.push_back(kOpinion);
-	}
 
 	iValue = pDiploAI->GetTimesIntrigueSharedScore(eWithPlayer);
 	if (iValue != 0)
@@ -13437,6 +13498,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 			aOpinions.push_back(kOpinion);
 		}
+		else
+		{
+			iValue = pDiploAI->GetTooManyVassalsScore(eWithPlayer);
+			if (iValue != 0)
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TOO_MANY_VASSALS");
+				aOpinions.push_back(kOpinion);
+			}
+		}
 
 		// They are my master
 		if (GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsVassal(pDiploAI->GetTeam()))
@@ -13633,6 +13705,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RECKLESS_EXPANDER");
+		aOpinions.push_back(kOpinion);
+	}
+	
+	iValue = pDiploAI->GetWonderSpammerScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WONDER_SPAMMER");
 		aOpinions.push_back(kOpinion);
 	}
 

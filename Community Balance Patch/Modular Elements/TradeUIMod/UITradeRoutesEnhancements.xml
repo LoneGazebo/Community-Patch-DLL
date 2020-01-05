@@ -38,25 +38,19 @@
 			<Text>[COLOR_POSITIVE_TEXT]Relevant [ICON_HAPPINESS_3] Local Unhappiness:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TRADE_BUILDINGS">
-			<Text>[COLOR_POSITIVE_TEXT]Local Trade Building Classes:[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Local Trade Attributes:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CARAVANSARY">
-			<Text>Caravansary</Text>
+			<Text>[ICON_BULLET] Allows Food Routes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HARBOR">
-			<Text>Harbor</Text>
+			<Text>[ICON_BULLET] Connected to Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATE_OFFICE">
-			<Text>Corporate Office</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GRANARY">
-			<Text>Granary</Text>
+			<Text>[ICON_BULLET] Has Corporate Office</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WORKSHOP">
-			<Text>Workshop</Text>
-		</Row>
-		<Row Tag="TXT_KEY_STONE_WORKS">
-			<Text>Stone Works</Text>
+			<Text>[ICON_BULLET] Allows Production Routes</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -1093,7 +1093,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	//Special rule for venice - focus on OCC!
 	if (pPlayer->GetPlayerTraits()->IsNoAnnexing())
 	{
-		iNumCities = 1;
+		iNumCities = 4;
 	}
 	else
 	{
@@ -1101,14 +1101,16 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			iNumCities++;
 		else if (pPlayerTraits->IsSmaller())
 			iNumCities--;
+		if (GC.getGame().getGameTurn() <= 125)
+		{
+			//Estimation, because early game we assume we'll expand.
+			iNumCities = (4 + iNumCities);
+			iNumCities *= 100;
+			iNumCities /= max(50, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 
-		//Estimation, because early game we assume we'll expand.
-		iNumCities = (3 + iNumCities) - pPlayer->GetCurrentEra();
-		iNumCities *= 100;
-		iNumCities /= max(75, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
-
-		if (iNumCities <= 1)
-			iNumCities = 1;
+			if (iNumCities <= 1)
+				iNumCities = 1;
+		}
 	}
 
 	int iPopulation = (int)(pPlayer->getAveragePopulation() + 0.5f) * max(1, (iNumCities / 2));
@@ -1120,7 +1122,9 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 	int iNumWonders = pPlayer->GetNumWonders() + (pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() /2);
 	
-
+	//Capital pop estimate forearly game.
+	int iCapitalPop = max(10, pPlayer->getCapitalCity()->getPopulation());
+	
 	if (PolicyInfo->GetPolicyCostModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())
@@ -1175,7 +1179,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetCultureFromKills() * 2;
+			yield[YIELD_CULTURE] += PolicyInfo->GetCultureFromKills() * 5;
 		}
 		else
 		{
@@ -1186,7 +1190,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_CULTURE] += PolicyInfo->GetCultureFromBarbarianKills() * 2;
+			yield[YIELD_CULTURE] += PolicyInfo->GetCultureFromBarbarianKills() * 5;
 		}
 		else
 		{
@@ -1198,7 +1202,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetGoldFromKills() * 2;
+			yield[YIELD_GOLD] += PolicyInfo->GetGoldFromKills() * 5;
 		}
 		else
 		{
@@ -1320,11 +1324,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetBuildingProductionModifier() * 5;
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetBuildingProductionModifier() * 10;
 		}
 		else
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetBuildingProductionModifier() * 2;
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetBuildingProductionModifier() * 5;
 		}
 	}
 	if (PolicyInfo->GetConquestPerEraBuildingProductionMod() != 0)
@@ -1755,13 +1759,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_SCIENCE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 50;
-			yield[YIELD_CULTURE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 50;
+			yield[YIELD_SCIENCE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 30;
+			yield[YIELD_CULTURE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 30;
 		}
 		else
 		{
-			yield[YIELD_SCIENCE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 25;
-			yield[YIELD_CULTURE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 25;
+			yield[YIELD_SCIENCE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 15;
+			yield[YIELD_CULTURE] += PolicyInfo->GetExtraCultureandScienceTradeRoutes() * 15;
 		}
 	}
 	if (PolicyInfo->GetTradeRouteLandDistanceModifier() != 0)
@@ -2355,7 +2359,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 		else
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetTradeRouteYieldModifierCapital() / 2;
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetTradeRouteYieldModifierCapital();
 		}
 	}
 	if (PolicyInfo->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
@@ -2369,7 +2373,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if (pkBuildingInfo)
 				{
-					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 30, 10, 10, 10, false, true, true);
+					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 5, 10, 10, 10, false, true, true);
 					if (iValue > 0)
 					{
 						iValue -= pPlayer->GetCurrentEra() * 25;
@@ -2855,7 +2859,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
 			if (pkBuildingClassInfo)
 			{
-				int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(PolicyInfo->GetFreeBuildingOnConquest(), 25, 10, 10, 10, false, true, true);
+				int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(PolicyInfo->GetFreeBuildingOnConquest(), 5, 10, 10, 10, false, true, true);
 				if (iValue > 0)
 				{
 					if (pPlayerTraits->IsWarmonger())
@@ -3302,7 +3306,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeTradeRoute() * 250;
+			yield[YIELD_GOLD] += PolicyInfo->GetFreeTradeRoute() * 200;
 		}
 		else
 		{
@@ -3441,7 +3445,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if (pkBuildingInfo && pkBuildingInfo->GetPolicyType() == ePolicy)
 				{
-					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 25, 10, 10, 10, false, true, true);
+					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 5, 10, 10, 10, false, true, true);
 					if (iValue > 0)
 					{
 						if (pkBuildingInfo->GetFaithCost() != 0)
@@ -3523,7 +3527,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkBuildingInfo)
 					{
-						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 100, 10, 10, 10, false, true, true);
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, (10 * PolicyInfo->GetFreeChosenBuilding(eBuildingClass)), 10, 10, 10, false, true, true);
 						if (iValue > 0)
 						{
 							if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
@@ -3553,7 +3557,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkBuildingInfo)
 					{
-						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 25, 10, 10, 10, false, true, true);
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 15, 10, 10, 10, false, true, true);
 						if (iValue > 0)
 						{
 							if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
@@ -3642,12 +3646,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (bCombat ? pPlayerTraits->IsWarmonger() : pPlayerTraits->IsExpansionist())
 			{
-				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 15;
+				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 25;
 			}
+			if (pUnitEntry->IsFound())
+				yield[YIELD_FOOD] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * (50 - (pPlayer->getNumCities() * 5));
+			else if (pUnitEntry->GetWorkRate() > 0)
+				yield[YIELD_FOOD] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 50 * pPlayer->getNumCities();
 			else
-			{
-				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 5;
-			}
+				yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetNumFreeUnitsByClass(eUnitClass) * 25;
+
 		}
 		if (PolicyInfo->GetTourismByUnitClassCreated(eUnitClass) != 0)
 		{
@@ -3767,11 +3774,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsDiplomat())
 			{
-				yield[YIELD_GOLD] += PolicyInfo->GetResourceFromCSAlly(eResource) / 5;
+				yield[YIELD_GOLD] += PolicyInfo->GetResourceFromCSAlly(eResource) / 10;
 			}
 			else
 			{
-				yield[YIELD_GOLD] += PolicyInfo->GetResourceFromCSAlly(eResource) / 10;
+				yield[YIELD_GOLD] += PolicyInfo->GetResourceFromCSAlly(eResource) / 15;
 			}
 		}
 
@@ -3917,11 +3924,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			{
 				if (pPlayerTraits->IsExpansionist())
 				{
-					yield[eYield] += PolicyInfo->GetTradeRouteYieldChange(eDomain, eYield) * 4;
+					yield[eYield] += PolicyInfo->GetTradeRouteYieldChange(eDomain, eYield) * 3;
 				}
 				else
 				{
-					yield[eYield] += PolicyInfo->GetTradeRouteYieldChange(eDomain, eYield) * 2;
+					yield[eYield] += PolicyInfo->GetTradeRouteYieldChange(eDomain, eYield);
 				}
 			}
 		}
@@ -4042,44 +4049,44 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetCityYieldChange(eYield) * 12 * iNumCities;
+				yield[eYield] += PolicyInfo->GetCityYieldChange(eYield) * 15 * iNumCities;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetCityYieldChange(eYield) * 6 * iNumCities;
+				yield[eYield] += PolicyInfo->GetCityYieldChange(eYield) * 10 * iNumCities;
 			}
 		}
 		if (PolicyInfo->GetCoastalCityYieldChange(eYield) != 0)
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetCoastalCityYieldChange(eYield) * 8 * iNumCities;
+				yield[eYield] += PolicyInfo->GetCoastalCityYieldChange(eYield) * 10 * iNumCities;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetCoastalCityYieldChange(eYield) * 4 * iNumCities;
+				yield[eYield] += PolicyInfo->GetCoastalCityYieldChange(eYield) * 5 * iNumCities;
 			}
 		}
 		if (PolicyInfo->GetCapitalYieldChange(eYield) != 0)
 		{
 			if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetCapitalYieldChange(eYield) * 15 * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetCapitalYieldChange(eYield) * 10 * iCapitalPop;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetCapitalYieldChange(eYield) * 10 * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetCapitalYieldChange(eYield) * 5 * iCapitalPop;
 			}
 		}
 		if (PolicyInfo->GetCapitalYieldPerPopChange(eYield) != 0)
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += (pPlayer->getCapitalCity()->getPopulation() * 100) / PolicyInfo->GetCapitalYieldPerPopChange(eYield);
+				yield[eYield] += (iCapitalPop * 100) / PolicyInfo->GetCapitalYieldPerPopChange(eYield);
 			}
 			else
 			{
-				yield[eYield] += (pPlayer->getCapitalCity()->getPopulation() * 50) / PolicyInfo->GetCapitalYieldPerPopChange(eYield);
+				yield[eYield] += (iCapitalPop * 50) / PolicyInfo->GetCapitalYieldPerPopChange(eYield);
 			}
 		}
 		if (PolicyInfo->GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
@@ -4097,11 +4104,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetCapitalYieldModifier(eYield) * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetCapitalYieldModifier(eYield) * iCapitalPop;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetCapitalYieldModifier(eYield) * pPlayer->getCapitalCity()->getPopulation() / 2;
+				yield[eYield] += PolicyInfo->GetCapitalYieldModifier(eYield) * iCapitalPop / 2;
 			}
 		}
 		if (PolicyInfo->GetGreatWorkYieldChange(eYield) != 0)
@@ -4141,11 +4148,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapital(eYield) * 3 * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapital(eYield) * 3 * iCapitalPop;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapital(eYield) * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapital(eYield) * iCapitalPop;
 			}
 		}
 		if (PolicyInfo->GetYieldFromBirthRetroactive(eYield) != 0)
@@ -4163,11 +4170,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 4 * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 4 * iCapitalPop;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 2 * pPlayer->getCapitalCity()->getPopulation();
+				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * 2 * iCapitalPop;
 			}
 		}
 		if (PolicyInfo->GetYieldFromConstruction(eYield) != 0)
@@ -4273,7 +4280,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsWarmonger())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromKills(eYield) * 3;
+				yield[eYield] += PolicyInfo->GetYieldFromKills(eYield) * 5;
 			}
 			else
 			{
@@ -4284,7 +4291,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsWarmonger())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromBarbarianKills(eYield) * 3;
+				yield[eYield] += PolicyInfo->GetYieldFromBarbarianKills(eYield) * 5;
 			}
 			else
 			{
@@ -4295,11 +4302,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangeTradeRoute(eYield) * 6 * iNumCities;
+				yield[eYield] += PolicyInfo->GetYieldChangeTradeRoute(eYield) * 5 * iNumCities;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangeTradeRoute(eYield) * 3 * iNumCities;
+				yield[eYield] += PolicyInfo->GetYieldChangeTradeRoute(eYield) * 2 * iNumCities;
 			}
 		}
 		if (PolicyInfo->GetYieldChangesNaturalWonder(eYield) != 0)

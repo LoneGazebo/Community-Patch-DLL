@@ -730,6 +730,9 @@ protected:
 
 	static int lGetAdditionalFood(lua_State* L);
 	static int lSetAdditionalFood(lua_State* L);
+
+	LUAAPIEXTN(IsProductionRoutes, bool);
+	LUAAPIEXTN(IsFoodRoutes, bool);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip(lua_State* L);

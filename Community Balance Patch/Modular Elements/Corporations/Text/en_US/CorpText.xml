@@ -817,7 +817,7 @@
 			<Text>Firaxite Materials, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_HELP">
-			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and Trade Units cannot be pillaged (except as a result of a Declaration of War).[NEWLINE][NEWLINE]Factories and Universities in all Cities produce +3 [ICON_RESEARCH] Science. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
+			<Text>Generates large amounts of [ICON_RESEARCH] Science and boosts infrastructural development in your empire. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two, and Trade Units cannot be plundered.[NEWLINE][NEWLINE]Factories and Universities in all Cities produce +3 [ICON_RESEARCH] Science. Every Franchise in a foreign Civilization's Cities increases your [ICON_TOURISM] Tourism with them by 2%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_FIRAXITE_MATERIALS">
 			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Franchise.</Text>

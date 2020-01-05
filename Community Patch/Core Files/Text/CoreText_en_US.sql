@@ -1,4 +1,4 @@
-ï»¿-- Game Options
+-- Game Options
 
 INSERT INTO Language_en_US
 			(Tag,											Text)
@@ -8,10 +8,6 @@ VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
 UPDATE Language_en_US
 SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Barbarians and their Encampments do not appear on the map. Rebel (barbarian) uprisings from [ICON_HAPPINESS_4] Unhappiness do not occur.'
-WHERE Tag = 'TXT_KEY_GAME_OPTION_NO_BARBARIANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Leaders
 
@@ -405,19 +401,19 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 -- Fixed diacritics for spy names.
 UPDATE Language_en_US
-SET Text = 'Antï¿½nio'
+SET Text = 'Antônio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estï¿½vï¿½o'
+SET Text = 'Estêvão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernï¿½o'
+SET Text = 'Fernão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomï¿½'
+SET Text = 'Tomé'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 
@@ -456,6 +452,16 @@ WHERE Tag = 'TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR';
 UPDATE Language_en_US
 SET Text = 'City-State is permanently at war.'
 WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
+
+-- Tooltip fix for Open Borders
+UPDATE Language_en_US
+SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
+
+-- Tooltip fix for Defensive Pact
+UPDATE Language_en_US
+SET Text = 'If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.'
+WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_TT';
 
 -- Lua for Cities
 UPDATE Language_en_US
@@ -498,7 +504,7 @@ SET Text = 'War Score is ever-shifting status of a war between players. War Scor
 WHERE Tag = 'TXT_KEY_DIPLOMACY_PEACE_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Once you have acquired the Chivalry tech, you may engage in a Defensive Pact. Defensive Pacts are always mutual. If a signatory to a Defensive Pact is attacked, the other partner is automatically at war with the attacker.[NEWLINE][NEWLINE]A Defensive Pact lasts for 30 turns (on standard speed). When that time has elapsed, the pact lapses unless it is renegotiated.'
+SET Text = 'Once you have acquired the Chivalry tech, you may engage in a Defensive Pact. Defensive Pacts are always mutual. If a signatory to a Defensive Pact is attacked, the other partner is automatically at war with the attacker.[NEWLINE][NEWLINE]A Defensive Pact lasts for 50 turns (on standard speed). When that time has elapsed, the pact lapses unless it is renegotiated.'
 WHERE Tag = 'TXT_KEY_DIPLOMACY_DEFENSIVEPACT_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -609,10 +615,6 @@ SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught stealing from them.[ENDC
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Promises
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise to stop excavating their artifacts, and then broke it![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_NO_DIG_PROMISE_BROKEN';
-
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to conquer a City-State protected by them, and then broke it![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_CITY_STATE_PROMISE';
@@ -887,13 +889,19 @@ SET Text = 'The following tribute would improve my black humor, greatly increasi
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEMANDTRIBUTE_NEUTRAL';
 
 
+-- Accept Demand (Friendly)
+UPDATE Language_en_US
+SET Text = 'Here. I am nothing but the nightmare of a mad god; what good are such things to me?'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_HAPPY';
+
+
 -- Accept Demand (Neutral)
 UPDATE Language_en_US
 SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
 WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
-SET Text = 'I agree - if only to confound my advisors, who urge me to refuse.'
+SET Text = 'I agree; if only to confound my advisors, who urge me to refuse.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
@@ -909,6 +917,14 @@ WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRIBUTE_YES_NEUTRAL';
 UPDATE Language_en_US
 SET Text = 'Very well. It appears as if I have no choice. But someday, you will pay for this.'
 WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY';
+
+UPDATE Language_en_US
+SET Text = 'I will agree to your reprehensible demands.'
+WHERE Tag = 'TXT_KEY_LEADER_MARIA_I_TRIBUTE_YES_ANGRY';
+
+UPDATE Language_en_US
+SET Text = 'Your fetid breath chokes the life from me! Take what you would and be gone.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_ANGRY';
 
 UPDATE Language_en_US
 SET Text = 'Very well. I hope you may choke on it!'
@@ -1081,6 +1097,10 @@ WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU';
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
 WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US';
+
+UPDATE Language_en_US
+SET Text = 'Your actions are unforgivable. There can never be reconciliation between our two nations.[NEWLINE][NEWLINE](You are no longer friends with them. If you denounce this player or declare war on them within the next [COLOR_WARNING_TEXT]10[ENDCOLOR] turns, you will receive a diplomatic penalty for backstabbing them.)'
+WHERE Tag = 'TXT_KEY_NOW_UNFORGIVABLE_1';
 
 UPDATE Language_en_US
 SET Text = 'I did not want things to end up like this, but I cannot overlook your warmongering. Consider our Declaration of Friendship ended.'

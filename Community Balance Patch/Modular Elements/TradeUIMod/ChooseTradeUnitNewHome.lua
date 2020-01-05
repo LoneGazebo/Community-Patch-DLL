@@ -139,11 +139,8 @@ function RefreshList()
 		local sTTTradeHeader = Locale.Lookup("TXT_KEY_TRADE_BUILDINGS");
 		local sTTTrade = "";
 		local sCityDetails = Locale.Lookup("TXT_KEY_CHANGE_TRADE_UNIT_HOME_CITY_ITEM_CITY", pTargetCity:GetName());
-		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_CARAVANSARY)) then
-		  sCityDetails = sCityDetails .. " [ICON_MOVES]";
-		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_CARAVANSARY");
-		end
-		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_HARBOR)) then
+
+		if (pTargetCity:IsConnectedToCapital()) then
 		  sCityDetails = sCityDetails .. " [ICON_TRADE_WHITE]";
 		  if(sTTTrade ~= "") then
 			sTTTrade = sTTTrade .. ", ";
@@ -151,26 +148,20 @@ function RefreshList()
 		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_HARBOR");
 		end
 
-		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_GRANARY)) then
+		if (pTargetCity:IsFoodRoutes()) then
 		  sCityDetails = sCityDetails .. " [ICON_FOOD]";
-		  if(sTTTrade ~= "") then
+		   if(sTTTrade ~= "") then
 			sTTTrade = sTTTrade .. ", ";
 		  end
-		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_GRANARY");
+		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_CARAVANSARY");
 		end
 
-		if (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_WORKSHOP)) then
+		if (pTargetCity:IsProductionRoutes()) then
 		  sCityDetails = sCityDetails .. " [ICON_PRODUCTION]";
 		  if(sTTTrade ~= "") then
 			sTTTrade = sTTTrade .. ", ";
 		  end
 		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_WORKSHOP");
-		elseif (pTargetCity.IsHasBuildingClass and pTargetCity:IsHasBuildingClass(GameInfoTypes.BUILDINGCLASS_STONE_WORKS)) then
-		  sCityDetails = sCityDetails .. " [ICON_PRODUCTION]";
-		  if(sTTTrade ~= "") then
-			sTTTrade = sTTTrade .. ", ";
-		  end
-		  sTTTrade = sTTTrade .. Locale.Lookup("TXT_KEY_STONE_WORKS");
 		end
 
 		if (pTargetCity.IsHasBuildingClass and pTargetCity:HasOffice()) then

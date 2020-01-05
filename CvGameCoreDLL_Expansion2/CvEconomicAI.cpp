@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2037,7 +2037,7 @@ void CvEconomicAI::DoHurry()
 					m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 					//and train it!
-					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)))
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);

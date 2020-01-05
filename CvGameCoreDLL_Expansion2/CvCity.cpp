@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3122,7 +3122,7 @@ void CvCity::doTurn()
 				{
 					SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
 				}
-				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
 				{
 					SetBaseYieldRateFromCSFriendship(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
 				}
@@ -9927,6 +9927,9 @@ void CvCity::DoTestResourceDemanded()
 	VALIDATE_OBJECT
 	ResourceTypes eResource = GetResourceDemanded();
 
+	if (eResource == NO_RESOURCE)
+		DoPickResourceDemanded();
+
 	if(GetWeLoveTheKingDayCounter() > 0)
 	{
 		ChangeWeLoveTheKingDayCounter(-1);
@@ -11046,15 +11049,18 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
+	if (eUnit != NO_UNIT)
 	{
 		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
-		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
-		if(IsUnitInvestment(eUnitClass))
+		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
 		{
-			int iTotalDiscount = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
-			iNumProductionNeeded *= (iTotalDiscount + 100);
-			iNumProductionNeeded /= 100;
+			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+			if (IsUnitInvestment(eUnitClass))
+			{
+				int iTotalDiscount = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+				iNumProductionNeeded *= (iTotalDiscount + 100);
+				iNumProductionNeeded /= 100;
+			}
 		}
 	}
 #endif
@@ -13479,6 +13485,20 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								{
 #endif
 									pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
+										addProductionExperience(pFreeUnit);
+										if (getFirstUnitOrder(eUnit) == 0)
+										{
+											clearOrderQueue();
+											chooseProduction();
+										}
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 #if defined(MOD_BALANCE_CORE)
 								}
 								if(pFreeUnit->IsGreatPerson())
@@ -16179,22 +16199,50 @@ void CvCity::CheckForOperationUnits()
 							//take the money...
 							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-							//and train it!
-							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-							int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
-							CvAssertMsg(iResult != -1, "Unable to create unit");
-							if (iResult != -1)
+							bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitEntry->GetSpaceshipProject() != NO_PROJECT));
+							if (bInvest)
 							{
-								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+								const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
+								if (eUnitClass != NO_UNITCLASS)
 								{
-									pUnit->finishMoves();
+									SetUnitInvestment(eUnitClass, true);
+									if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+									{
+										if (getProductionProcess() != NO_PROCESS)
+										{
+											clearOrderQueue();
+										}
+										pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+									}
+									else if (!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+									{
+										if (getProductionProcess() != NO_PROCESS)
+										{
+											clearOrderQueue();
+										}
+										pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+									}
 								}
+							}
+							else
+							{
+								//and train it!
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+								int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+									if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+									{
+										pUnit->finishMoves();
+									}
 
-								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+									kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 
-								CleanUpQueue();
-								return;
+									CleanUpQueue();
+									return;
+								}
 							}
 						}
 					}
@@ -16274,20 +16322,48 @@ void CvCity::CheckForOperationUnits()
 				//take the money...
 				kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-				//and train it!
-				UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-				int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
-				CvAssertMsg(iResult != -1, "Unable to create unit");
-				if (iResult != -1)
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pkUnitEntry->GetSpaceshipProject() != NO_PROJECT));
+				if (bInvest)
 				{
-					CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-					if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+					const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
+					if (eUnitClass != NO_UNITCLASS)
 					{
-						pUnit->finishMoves();
+						SetUnitInvestment(eUnitClass, true);
+						if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+						{
+							if (getProductionProcess() != NO_PROCESS)
+							{
+								clearOrderQueue();
+							}
+							pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+						}
+						else if (!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+						{
+							if (getProductionProcess() != NO_PROCESS)
+							{
+								clearOrderQueue();
+							}
+							pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
+						}
 					}
-					CleanUpQueue();
+				}
+				else
+				{
+					//and train it!
+					UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+					int iResult = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
+					CvAssertMsg(iResult != -1, "Unable to create unit");
+					if (iResult != -1)
+					{
+						CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+						{
+							pUnit->finishMoves();
+						}
+						CleanUpQueue();
 
-					kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+						kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+					}
 				}
 				return;
 			}
@@ -30234,19 +30310,29 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			{
 				return false;
 			}
+			//Have we already invested here?
+			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
+			{
+				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+				if (IsUnitInvestment(eUnitClass))
+				{
+					return false;
+				}
+			}
 #endif
 		}
 		// Building
-		else if(eBuildingType != NO_BUILDING)
+		else if (eBuildingType != NO_BUILDING)
 		{
 #if defined(MOD_API_EXTENSIONS)
-			if(!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 #else
 			if(!canConstruct(eBuildingType, false, !bTestTrainable))
 #endif
 			{
 				bool bAlreadyUnderConstruction = canConstruct(eBuildingType, true, !bTestTrainable) && getFirstBuildingOrder(eBuildingType) != -1;
-				if(!bAlreadyUnderConstruction)
+				if (!bAlreadyUnderConstruction)
 				{
 					return false;
 				}
@@ -30254,7 +30340,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 
 			iGoldCost = GetPurchaseCost(eBuildingType);
 #if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
-			if(MOD_BALANCE_CORE_PUPPET_PURCHASE && bIsPuppet && !bPuppetExceptionBuilding && !bAllowsPuppetPurchase && !bVenetianException)
+			if (MOD_BALANCE_CORE_PUPPET_PURCHASE && bIsPuppet && !bPuppetExceptionBuilding && !bAllowsPuppetPurchase && !bVenetianException)
 			{
 				return false;
 			}
@@ -30265,7 +30351,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				//Have we already invested here?
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-				if(IsBuildingInvestment(eBuildingClass))
+				if (IsBuildingInvestment(eBuildingClass))
 				{
 					return false;
 				}
@@ -30289,20 +30375,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						return false;
 				}
 			}
-#endif
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-			if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && (NO_UNIT != eUnitType))
-			{
-				//Have we already invested here?
-				CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
-				if(IsUnitInvestment(eUnitClass))
-				{
-					return false;
-				}
-			}
-#endif		
 		}
+#endif	
 		// Project
 		else if(eProjectType != NO_PROJECT)
 		{
@@ -30767,12 +30841,12 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		bool bResult = false;
 		if(eUnitType >= 0)
 		{
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-			if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+			if (pGameUnit)
 			{
-				CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-				if(pGameUnit)
-				{
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT));
+				if (bInvest)
+				{	
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 					if(eUnitClass != NO_UNITCLASS)
 					{
@@ -30795,77 +30869,75 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 						}
 					}
 				}
-			}
-			else
-			{
-#endif
-			int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
-			CvAssertMsg(iResult != -1, "Unable to create unit");
-			if (iResult != -1)
-			{
-				CvUnit* pUnit = kPlayer.getUnit(iResult);
-				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+				else
 				{
-					pUnit->finishMoves();
-				}
-#if defined(MOD_BALANCE_CORE)
-				if(pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
-				{
-					UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
-					if(eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+					int iResult = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
+					CvAssertMsg(iResult != -1, "Unable to create unit");
+					if (iResult != -1)
 					{
-						pUnit->DoUpgrade(true);
-					}
-				}
-				if(kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
-				{
-					UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
-					UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-					if(pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
-					{
-						CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
-						if(pkcUnitEntry)
+						CvUnit* pUnit = kPlayer.getUnit(iResult);
+						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 						{
-							UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
-							CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
-							pZuluImpi->convert(pUnit, true);
+							pUnit->finishMoves();
 						}
-					}
-				}
-				if(pUnit && pUnit->isTrade())
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
-						CvString strLogString;
-						strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY() );
-						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-				}
-#endif
+						if (pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+						{
+							UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
+							if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+							{
+								pUnit->DoUpgrade(true);
+							}
+						}
+						if (kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+						{
+							UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
+							UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
+							if (pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
+							{
+								CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
+								if (pkcUnitEntry)
+								{
+									UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
+									CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
+									pZuluImpi->convert(pUnit, true);
+								}
+							}
+						}
+						if (pUnit && pUnit->isTrade())
+						{
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
+								CvString strLogString;
+								strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
+								GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+							}
+						}
 
 #if defined(MOD_EVENTS_CITY)
-				if (MOD_EVENTS_CITY) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), true, false);
-				} else {
+						if (MOD_EVENTS_CITY) {
+							GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), true, false);
+						}
+						else {
 #endif
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem) 
-				{
-					CvLuaArgsHandle args;
-					args->Push(getOwner());
-					args->Push(GetID());
-					args->Push(pUnit->GetID());
-					args->Push(true); // bGold
-					args->Push(false); // bFaith/bCulture
+							ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+							if (pkScriptSystem)
+							{
+								CvLuaArgsHandle args;
+								args->Push(getOwner());
+								args->Push(GetID());
+								args->Push(pUnit->GetID());
+								args->Push(true); // bGold
+								args->Push(false); // bFaith/bCulture
 
-					bool bScriptResult;
-					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
-				}
+								bool bScriptResult;
+								LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
+							}
 #if defined(MOD_EVENTS_CITY)
-			}
+						}
 #endif
-			}
+					}
+				}
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 			}
 #endif
@@ -32956,13 +33028,19 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetAirStrikeDefenseDamage(const CvUnit* /*pAttacker*/, bool bIncludeRand) const
+int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
 	//base value
 	int iBaseValue = 15;
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		iBaseValue = GetCityAirStrikeDefense();
+
+	if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
+	{
+		iBaseValue = iBaseValue * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
+		iBaseValue /= 100;
+	}
 
 	if (bIncludeRand)
 		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());

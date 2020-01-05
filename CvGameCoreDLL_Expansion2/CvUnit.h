@@ -1103,9 +1103,13 @@ public:
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
 
-	int getFreeEmbarkMoveCount() const;
-	bool isFreeEmbark() const;
-	void changeFreeEmbarkMoveCount(int iChange);
+	int getEmbarkFlatCostCount() const;
+	bool isEmbarkFlatCost() const;
+	void changeEmbarkFlatCostCount(int iChange);
+
+	int getDisembarkFlatCostCount() const;
+	bool isDisembarkFlatCost() const;
+	void changeDisembarkFlatCostCount(int iChange);
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
@@ -1993,7 +1997,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
-	FAutoVariable<int, CvUnit> m_iFreeEmbarkMoveCount;
+	FAutoVariable<int, CvUnit> m_iEmbarkFlatCostCount;
+	FAutoVariable<int, CvUnit> m_iDisembarkFlatCostCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iAoEDamageOnMove;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
@@ -2211,7 +2216,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
-	FAutoVariable<int, CvUnit> m_iDummy;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;

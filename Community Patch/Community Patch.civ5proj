@@ -552,6 +552,21 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Tables/CoreTableAdditions2HH.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/DiploAIOptions.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/DiploApproachWeights.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/DiploOpinionWeights.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -818,6 +833,18 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Changes\CommunityPatchDLLChanges.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\DiploAIOptions.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\DiploApproachWeights.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\DiploOpinionWeights.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

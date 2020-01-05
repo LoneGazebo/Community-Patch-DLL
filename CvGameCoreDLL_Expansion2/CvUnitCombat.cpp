@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1448,11 +1448,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 
 						// Earn bonuses for kills?
 						CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
-#if defined(MOD_API_UNIFIED_YIELDS)
-						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender, pkDefender->getX(), pkDefender->getY());
-#else
-						kAttackingPlayer.DoYieldsFromKill(NO_UNIT, pkDefender->getUnitType(), pkDefender->getX(), pkDefender->getY(), pkDefender->isBarbarian());
-#endif
+						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender);
 					}
 
 					//set damage but don't update entity damage visibility
@@ -4565,11 +4561,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	}
 
 	// Earn bonuses for kills?
-#if defined(MOD_API_UNIFIED_YIELDS)
-	kPlayer.DoYieldsFromKill(pkWinner, pkLoser, pkLoser->getX(), pkLoser->getY());
-#else
-	kPlayer.DoYieldsFromKill(pkWinner->getUnitType(), pkLoser->getUnitType(), pkLoser->getX(), pkLoser->getY(), pkLoser->isBarbarian());
-#endif
+	kPlayer.DoYieldsFromKill(pkWinner, pkLoser);
 #if defined(MOD_BALANCE_CORE)
 	if(pkLoser->getOwner() == BARBARIAN_PLAYER && pkLoser->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 	{

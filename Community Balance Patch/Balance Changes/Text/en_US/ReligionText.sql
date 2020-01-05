@@ -98,7 +98,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Oral Tradition (Now Goddess of Springtime)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_GOLD] Gold and +1 [ICON_FOOD] Food from Plantations. +1 [ICON_RESEARCH] Science and +2 [ICON_PEACE] Faith from Herbalists'
+SET Text = '+1 [ICON_GOLD] Gold, +1 [ICON_FOOD] Food, and [ICON_PEACE] Faith from Plantations. +1 [ICON_RESEARCH] Science and +2 [ICON_PEACE] Faith from Herbalists'
 WHERE Tag = 'TXT_KEY_BELIEF_ORAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

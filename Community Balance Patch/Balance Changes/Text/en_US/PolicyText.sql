@@ -207,7 +207,7 @@ WHERE Tag = 'TXT_KEY_POLICY_UNIVERSAL_SUFFRAGE_HELP' AND EXISTS (SELECT * FROM C
 -- Urbanization
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Urbanization[ENDCOLOR]: Farms, Plantations, Camps, and all Unique Improvements produce +2 [ICON_FOOD] Food.'
+SET Text = '[COLOR_POSITIVE_TEXT]Urbanization[ENDCOLOR]: Farms, Plantations, Camps, and all Unique Improvements produce +4 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- New Deal
@@ -244,13 +244,13 @@ WHERE Tag = 'TXT_KEY_POLICY_SPACE_PROCUREMENTS_HELP' AND EXISTS (SELECT * FROM C
 -- Academy of Sciences
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Academy of Sciences[ENDCOLOR]: Reduces [ICON_HAPPINESS_3] Needs Modifier for [ICON_RESEARCH] Illiteracy by 20% in all cities. +100% [ICON_PRODUCTION] Production towards Research Labs, and receive a free Research Lab in your [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Academy of Sciences[ENDCOLOR]: Reduces [ICON_HAPPINESS_3] Needs Modifier for [ICON_RESEARCH] Illiteracy by 20% in all cities. +100% [ICON_PRODUCTION] Production towards Research Labs, and receive 5 free Research Labs in your Empire. Research Labs generate an additional +5 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_ACADEMY_SCIENCES_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Cultural Revolution
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +34% Tourism [ICON_TOURISM] to other Order civilizations. Spies steal technologies at double the normal rate.'
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +34% Tourism [ICON_TOURISM] to other Order civilizations, and +5 [ICON_TOURISM] Tourism from all [ICON_GREAT_WORK] Great Works. Spies steal technologies at double the normal rate.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Dictatorship of the Proletariat
@@ -280,7 +280,7 @@ WHERE Tag = 'TXT_KEY_POLICY_IRON_CURTAIN_HELP' AND EXISTS (SELECT * FROM COMMUNI
 -- Spaceflight Pioneers
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Spaceflight Pioneers[ENDCOLOR]: Gain a free Great Engineer and Great Scientist. May finish Spaceship parts with Great Engineers, and expending a [ICON_GREAT_PERSON] Great Person grants 100 [ICON_RESEARCH] Science, scaling with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Spaceflight Pioneers[ENDCOLOR]: Gain a free Great Engineer and Great Scientist. May finish Spaceship parts with Great Engineers, and expending a [ICON_GREAT_PERSON] Great Person grants 100 [ICON_RESEARCH] Science, scaling with Era. Hurrying [ICON_PRODUCTION] Production with Great Engineers now 50% more effective.'
 WHERE Tag = 'TXT_KEY_POLICY_SPACEFLIGHT_PIONEERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Party Leadership
@@ -323,7 +323,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Socialist Realism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]People''s Army[ENDCOLOR]: +100% [ICON_PRODUCTION] Production towards Military Academies, and receive a free Military Academy in your [ICON_CAPITAL] Capital. Public Schools produce +3 [ICON_CULTURE] Culture and +1 [ICON_HAPPINESS_1] Happiness.'
+SET Text = '[COLOR_POSITIVE_TEXT]People''s Army[ENDCOLOR]: +100% [ICON_PRODUCTION] Production towards Military Academies, and receive five free Military Academies in your Empire. Public Schools produce +5 [ICON_CULTURE] Culture and +2 [ICON_HAPPINESS_1] Happiness.'
 WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -337,7 +337,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM' AND EXISTS (SELECT * FROM COMMUNI
 -- Worker's Faculties
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Worker Faculties[ENDCOLOR]: Factories increase City [ICON_RESEARCH] Science output by 10%. Build Factories in half the usual time.'
+SET Text = '[COLOR_POSITIVE_TEXT]Worker Faculties[ENDCOLOR]: Factories increase City [ICON_RESEARCH] Science output by 10%. Receive 5 free Factories immediately, and build all other Factories in half the usual time.'
 WHERE Tag = 'TXT_KEY_POLICY_WORKERS_FACULTIES_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Young Pioneers
@@ -356,7 +356,7 @@ WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_TEXT' AND EXISTS (SELECT * FROM COMMU
 -- Five Year Plan
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR]: +20% [ICON_PRODUCTION] Production towards Buildings in all Cities. +1 [ICON_PRODUCTION] Production on every Mine, Quarry, Lumbermill, and Unique Improvement.'
+SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR]: +20% [ICON_PRODUCTION] Production towards Buildings in all Cities. +3 [ICON_PRODUCTION] Production on every Mine, Quarry, Lumbermill, and Unique Improvement.'
 WHERE Tag = 'TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --------------------
