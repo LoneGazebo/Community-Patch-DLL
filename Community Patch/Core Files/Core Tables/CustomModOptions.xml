@@ -215,6 +215,9 @@
     <!-- Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61) -->
     <Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="0"/>
 
+    <!-- Allows faith purchase of buildings in puppets -->
+    <Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
+
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
     <Row Class="6" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>

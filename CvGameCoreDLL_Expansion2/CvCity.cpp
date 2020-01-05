@@ -30299,12 +30299,23 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		}
 	}
 #endif
+#if defined(MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS)
+	bool bPuppetExceptionFaithBuilding = false;
+	if (MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS && bIsPuppet && eBuildingType >= 0 && ePurchaseYield == YIELD_FAITH)
+	{
+		bPuppetExceptionFaithBuilding = true;
+	}
+#endif
 	if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && bIsPuppet)
 	{
 		bVenetianException = true;
 	}
-#if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
+#if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE) && defined(MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS)
+	if (bIsPuppet && !bVenetianException && !bPuppetExceptionBuilding && !bPuppetExceptionUnit && !bAllowsPuppetPurchase && !bPuppetExceptionFaithBuilding)
+#elif defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
 	if (bIsPuppet && !bVenetianException && !bPuppetExceptionBuilding && !bPuppetExceptionUnit && !bAllowsPuppetPurchase)
+#elif defined(MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS)
+	if (bIsPuppet && !bVenetianException && !bPuppetExceptionFaithBuilding)
 #else
 	if (bIsPuppet && !bVenetianException)
 #endif
@@ -30773,12 +30784,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 #endif
 			iFaithCost = GetFaithPurchaseCost(eBuildingType);
 			if(iFaithCost < 1) return false;
-#if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
-			if(MOD_BALANCE_CORE_PUPPET_PURCHASE && bIsPuppet && !bPuppetExceptionBuilding && !bAllowsPuppetPurchase && !bVenetianException)
-			{
-				return false;
-			}
-#endif
 		}
 
 		if(iFaithCost > 0)
