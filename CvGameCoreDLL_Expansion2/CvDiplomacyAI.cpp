@@ -460,6 +460,8 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiNumTimesCoopWarDenied(NULL),
 	m_pabDoFBroken(NULL),
 	m_pabEverBackstabbedBy(NULL),
+	m_paiBrokenMilitaryPromiseTurn(NULL),
+	m_paiBrokenAttackCityStatePromiseTurn(NULL),
 	m_paiDoFBrokenTurn(NULL),
 	m_paiFriendDenouncedUsTurn(NULL),
 	m_paiFriendDeclaredWarOnUsTurn(NULL),
@@ -715,6 +717,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paNoExpansionPromise = &m_pDiploData->m_paNoExpansionPromise[0];
 	m_paLastTurnEmpireDistance = &m_pDiploData->m_paLastTurnEmpireDistance[0];
 	m_pabDoFBroken = &m_pDiploData->m_abDoFBroken[0];
+	m_paiBrokenMilitaryPromiseTurn = &m_pDiploData->m_aiBrokenMilitaryPromiseTurn[0];
+	m_paiBrokenAttackCityStatePromiseTurn = &m_pDiploData->m_aiBrokenAttackCityStatePromiseTurn[0];
 	m_paiDoFBrokenTurn = &m_pDiploData->m_aiDoFBrokenTurn[0];
 	m_pabEverBackstabbedBy = &m_pDiploData->m_abEverBackstabbedBy[0];
 	m_paiFriendDenouncedUsTurn = &m_pDiploData->m_aiFriendDenouncedUsTurn[0];
@@ -1070,6 +1074,8 @@ void CvDiplomacyAI::Uninit()
 	m_paNoExpansionPromise = NULL;
 	m_paLastTurnEmpireDistance = NULL;
 	m_pabDoFBroken = NULL;
+	m_paiBrokenMilitaryPromiseTurn = NULL;
+	m_paiBrokenAttackCityStatePromiseTurn = NULL;
 	m_paiDoFBrokenTurn = NULL;
 	m_pabEverBackstabbedBy = NULL;
 	m_paiFriendDenouncedUsTurn = NULL;
@@ -1300,6 +1306,8 @@ void CvDiplomacyAI::Reset()
 		m_paNoExpansionPromise[iI] = make_pair(-1, -1);
 		m_paLastTurnEmpireDistance[iI] = make_pair(-1, -1);
 		m_pabDoFBroken[iI] = false;
+		m_paiBrokenMilitaryPromiseTurn[iI] = 0;
+		m_paiBrokenAttackCityStatePromiseTurn[iI] = 0;
 		m_paiDoFBrokenTurn[iI] = 0;
 		m_pabEverBackstabbedBy[iI] = false;
 		m_paiFriendDenouncedUsTurn[iI] = 0;
@@ -2048,6 +2056,12 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<bool> wrapm_pabDoFBroken(MAX_MAJOR_CIVS, m_pabDoFBroken);
 	kStream >> wrapm_pabDoFBroken;
+
+	ArrayWrapper<short> wrapm_paiBrokenMilitaryPromiseTurn(MAX_MAJOR_CIVS, m_paiBrokenMilitaryPromiseTurn);
+	kStream >> wrapm_paiBrokenMilitaryPromiseTurn;
+
+	ArrayWrapper<short> wrapm_paiBrokenAttackCityStatePromiseTurn(MAX_MAJOR_CIVS, m_paiBrokenAttackCityStatePromiseTurn);
+	kStream >> wrapm_paiBrokenAttackCityStatePromiseTurn;
 	
 	ArrayWrapper<short> wrapm_paiDoFBrokenTurn(MAX_MAJOR_CIVS, m_paiDoFBrokenTurn);
 	kStream >> wrapm_paiDoFBrokenTurn;
@@ -2433,6 +2447,8 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<pair<int,int>>(MAX_MAJOR_CIVS, m_paNoExpansionPromise);
 	kStream << ArrayWrapper<pair<int,int>>(MAX_MAJOR_CIVS, m_paLastTurnEmpireDistance);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFBroken);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiBrokenMilitaryPromiseTurn);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiBrokenAttackCityStatePromiseTurn);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDoFBrokenTurn);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabEverBackstabbedBy);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiFriendDenouncedUsTurn);
@@ -2873,7 +2889,27 @@ void CvDiplomacyAI::DoCounters()
 				int iPenaltyTurns;
 				int iTurn = GC.getGame().getGameTurn();
 
-				if (IsDoFBroken(eLoopPlayer))
+				if (m_pabPlayerBrokenMilitaryPromise[eLoopPlayer])
+				{
+					// If it's been long enough (deal duration x 3; 150 turns on Standard), forgive the betrayal
+					iPenaltyTurns = (iDealDuration * 3);
+					
+					if ((iTurn - GetBrokenMilitaryPromiseTurn(eLoopPlayer)) >= iPenaltyTurns)
+					{
+						SetPlayerBrokenMilitaryPromise(eLoopPlayer, false);
+					}
+				}
+				if (m_pabPlayerBrokenAttackCityStatePromise[eLoopPlayer])
+				{
+					// If it's been long enough (deal duration x 3; 150 turns on Standard), forgive the betrayal
+					iPenaltyTurns = (iDealDuration * 3);
+					
+					if ((iTurn - GetBrokenAttackCityStatePromiseTurn(eLoopPlayer)) >= iPenaltyTurns)
+					{
+						SetPlayerBrokenAttackCityStatePromise(eLoopPlayer, false);
+					}
+				}
+				if (m_pabDoFBroken[eLoopPlayer])
 				{
 					// If it's been long enough (deal duration x 1.5; 75 turns on Standard), forgive the DoF malus
 					iPenaltyTurns = (iDealDuration * 150);
@@ -2904,16 +2940,21 @@ void CvDiplomacyAI::DoCounters()
 						SetFriendDeclaredWarOnUs(eLoopPlayer, false);
 					}
 				}
-				if (m_pabPlayerBrokenVassalAgreement[(int)eLoopPlayer])
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if (MOD_DIPLOMACY_CIV4_FEATURES)
 				{
-					// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
-					iPenaltyTurns = (iDealDuration * 3);
-					
-					if ((iTurn - GetPlayerBrokenVassalAgreementTurn(eLoopPlayer)) >= iPenaltyTurns)
+					if (m_pabPlayerBrokenVassalAgreement[(int)eLoopPlayer])
 					{
-						SetPlayerBrokenVassalAgreement(eLoopPlayer, false);
+						// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+						iPenaltyTurns = (iDealDuration * 3);
+						
+						if ((iTurn - GetPlayerBrokenVassalAgreementTurn(eLoopPlayer)) >= iPenaltyTurns)
+						{
+							SetPlayerBrokenVassalAgreement(eLoopPlayer, false);
+						}
 					}
 				}
+#endif
 #endif
 				int iBrokenPromisePreValue = GetBrokenExpansionPromiseValue(eLoopPlayer);
 				ChangeBrokenExpansionPromiseValue(eLoopPlayer, -GC.getEXPANSION_PROMISE_BROKEN_PER_TURN_DECAY());
@@ -3028,18 +3069,6 @@ void CvDiplomacyAI::DoCounters()
 					if(GetPlayerBackstabCounter(eLoopPlayer) >= 150)
 					{
 						SetPlayerBackstabCounter(eLoopPlayer, -666);
-						if(IsPlayerBrokenMilitaryPromise(eLoopPlayer))
-						{
-							SetPlayerBrokenMilitaryPromise(eLoopPlayer, false);
-						}
-						if(IsPlayerBrokenAttackCityStatePromise(eLoopPlayer))
-						{
-							SetPlayerBrokenAttackCityStatePromise(eLoopPlayer, false);
-						}
-						if(IsPlayerBrokenAttackCityStatePromise(eLoopPlayer))
-						{
-							SetPlayerBrokenAttackCityStatePromise(eLoopPlayer, false);
-						}
 						if(IsPlayerBrokenBullyCityStatePromise(eLoopPlayer))
 						{
 							SetPlayerBrokenBullyCityStatePromise(eLoopPlayer, false);
@@ -3150,7 +3179,6 @@ void CvDiplomacyAI::DoCounters()
 
 					// They no longer hate us either
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
-					//GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetFriendDenouncedUs(GetPlayer()->GetID(), false);
 
 					for(iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_MAJOR_CIVS; iThirdPlayerLoop++){
 						eThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
@@ -36252,6 +36280,24 @@ bool CvDiplomacyAI::IsDoFBroken(PlayerTypes ePlayer) const
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (m_pabDoFBroken[ePlayer])
+	{
+		// If it's been long enough (deal duration x 1.5; 75 turns on Standard), forgive the DoF malus
+		iPenaltyTurns = (iDealDuration * 150);
+		iPenaltyTurns /= 100;
+		
+		if ((iTurn - GetDoFBrokenTurn(ePlayer)) >= iPenaltyTurns)
+		{
+			return false;
+		}
+	}
+#endif
 	
 	return m_pabDoFBroken[ePlayer];
 }
@@ -36301,14 +36347,50 @@ void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue)
 			}
 		}
 		
-		if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+		if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 		{
 			return;
 		}
 		
 		m_pabDoFBroken[ePlayer] = bValue;
-		SetDoFBrokenTurn(ePlayer, GC.getGame().getGameTurn());
+		
+		if (bValue)
+		{
+			SetDoFBrokenTurn(ePlayer, GC.getGame().getGameTurn());
+		}
 	}
+}
+
+int CvDiplomacyAI::GetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	return m_paiBrokenMilitaryPromiseTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	m_paiBrokenMilitaryPromiseTurn[ePlayer] = iValue;
+}
+
+int CvDiplomacyAI::GetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	return m_paiBrokenAttackCityStatePromiseTurn[ePlayer];
+}
+
+void CvDiplomacyAI::SetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	
+	m_paiBrokenAttackCityStatePromiseTurn[ePlayer] = iValue;
 }
 
 int CvDiplomacyAI::GetDoFBrokenTurn(PlayerTypes ePlayer) const
@@ -37858,6 +37940,24 @@ bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// Forgive backstabbing penalties after a time.
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (m_pabFriendDenouncedUs[ePlayer])
+	{
+		// If it's been long enough (deal duration x 2; 100 turns on Standard), forget the betrayal
+		iPenaltyTurns = (iDealDuration * 2);
+		
+		if ((iTurn - GetFriendDenouncedUsTurn(ePlayer)) >= iPenaltyTurns)
+		{
+			return false;
+		}
+	}
+#endif
+
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabFriendDenouncedUs[ePlayer];
@@ -37869,7 +37969,7 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 		return;
 
 	m_pabFriendDenouncedUs[ePlayer] = bValue;
@@ -37916,6 +38016,24 @@ bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 		return false;
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// Forgive backstabbing penalties after a time.
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (m_pabFriendDeclaredWarOnUs[ePlayer])
+	{
+		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+		iPenaltyTurns = (iDealDuration * 3);
+		
+		if ((iTurn - GetFriendDeclaredWarOnUsTurn(ePlayer)) >= iPenaltyTurns)
+		{
+			return false;
+		}
+	}
+#endif
+
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabFriendDeclaredWarOnUs[ePlayer];
@@ -37927,7 +38045,7 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 		return;
 
 	m_pabFriendDeclaredWarOnUs[ePlayer] = bValue;
@@ -38433,6 +38551,24 @@ bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// Forgive backstabbing penalties after a time.
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (m_pabPlayerBrokenMilitaryPromise[ePlayer])
+	{
+		// If it's been long enough (deal duration x 3; 150 turns on Standard), forgive the betrayal
+		iPenaltyTurns = (iDealDuration * 3);
+		
+		if ((iTurn - GetBrokenMilitaryPromiseTurn(ePlayer)) >= iPenaltyTurns)
+		{
+			return false;
+		}
+	}
+#endif
 	
 	return m_pabPlayerBrokenMilitaryPromise[ePlayer];
 }
@@ -38443,7 +38579,7 @@ void CvDiplomacyAI::SetPlayerBrokenMilitaryPromise(PlayerTypes ePlayer, bool bVa
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 		return;
 	
 	m_pabPlayerBrokenMilitaryPromise[ePlayer] = bValue;
@@ -38928,6 +39064,24 @@ bool CvDiplomacyAI::IsPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer) co
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// Forgive backstabbing penalties after a time.
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (m_pabPlayerBrokenAttackCityStatePromise[ePlayer])
+	{
+		// If it's been long enough (deal duration x 3; 150 turns on Standard), forgive the betrayal
+		iPenaltyTurns = (iDealDuration * 3);
+		
+		if ((iTurn - GetBrokenAttackCityStatePromiseTurn(ePlayer)) >= iPenaltyTurns)
+		{
+			return false;
+		}
+	}
+#endif
 	
 	return m_pabPlayerBrokenAttackCityStatePromise[ePlayer];
 }
@@ -38938,7 +39092,7 @@ void CvDiplomacyAI::SetPlayerBrokenAttackCityStatePromise(PlayerTypes ePlayer, b
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 		return;
 	
 	m_pabPlayerBrokenAttackCityStatePromise[ePlayer] = bValue;
@@ -43557,25 +43711,23 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetArmyInPlaceForAttack(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetWantsSneakAttack(GetPlayer()->GetID(), false);
 	
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	// Forget about broken DoFs
-	SetDoFBroken(eKilledPlayer, false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), false);
-#endif
-	
-	// Clear certain promises
-	SetPlayerBrokenMilitaryPromise(eKilledPlayer, false);
-	SetPlayerIgnoredMilitaryPromise(eKilledPlayer, false);
+	// Clear certain promise values
+	SetPlayerMadeExpansionPromise(eKilledPlayer, false);
+	SetPlayerIgnoredExpansionPromise(eKilledPlayer, false);
+	SetPlayerMadeBorderPromise(eKilledPlayer, false);
+	SetPlayerIgnoredBorderPromise(eKilledPlayer, false);
 	SetPlayerMadeMilitaryPromise(eKilledPlayer, false);
-	SetPlayerBrokenAttackCityStatePromise(eKilledPlayer, false);
-	SetPlayerIgnoredAttackCityStatePromise(eKilledPlayer, false);
+	SetPlayerIgnoredMilitaryPromise(eKilledPlayer, false);
 	SetPlayerMadeAttackCityStatePromise(eKilledPlayer, false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerBrokenMilitaryPromise(GetPlayer()->GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredMilitaryPromise(GetPlayer()->GetID(), false);
+	SetPlayerIgnoredAttackCityStatePromise(eKilledPlayer, false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerMadeExpansionPromise(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredExpansionPromise(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerMadeBorderPromise(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredBorderPromise(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerMadeMilitaryPromise(GetPlayer()->GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerBrokenAttackCityStatePromise(GetPlayer()->GetID(), false);
-	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredAttackCityStatePromise(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredMilitaryPromise(GetPlayer()->GetID(), false);
 	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerMadeAttackCityStatePromise(GetPlayer()->GetID(), false);
+	GET_PLAYER(eKilledPlayer).GetDiplomacyAI()->SetPlayerIgnoredAttackCityStatePromise(GetPlayer()->GetID(), false);
 	
 	SetWarmongerThreat(eKilledPlayer, THREAT_NONE);
 	SetOtherPlayerWarmongerAmountTimes100(eKilledPlayer, 0);
@@ -50554,6 +50706,24 @@ bool CvDiplomacyAI::IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const
 	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 		return false;
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// Forgive backstabbing penalties after a time.
+	int iDealDuration = GC.getGame().GetDealDuration();
+	int iPenaltyTurns;
+	int iTurn = GC.getGame().getGameTurn();
+
+	if (m_pabPlayerBrokenVassalAgreement[(int)ePlayer])
+	{
+		// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+		iPenaltyTurns = (iDealDuration * 3);
+		
+		if ((iTurn - GetPlayerBrokenVassalAgreementTurn(ePlayer)) >= iPenaltyTurns)
+		{
+			return false;
+		}
+	}
+#endif
 	
 	return m_pabPlayerBrokenVassalAgreement[(int)ePlayer];
 }
@@ -50563,7 +50733,7 @@ void CvDiplomacyAI::SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bVa
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
+	if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 	{
 		return;
 	}

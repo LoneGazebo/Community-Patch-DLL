@@ -955,6 +955,12 @@ public:
 
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
+	
+	int GetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer) const;
+	void SetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer, int iValue);
+	
+	int GetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer) const;
+	void SetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iValue);
 
 	int GetDoFBrokenTurn(PlayerTypes ePlayer) const;
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
@@ -1772,6 +1778,8 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
+		short m_aiBrokenMilitaryPromiseTurn[MAX_MAJOR_CIVS];
+		short m_aiBrokenAttackCityStatePromiseTurn[MAX_MAJOR_CIVS];
 		short m_aiDoFBrokenTurn[MAX_MAJOR_CIVS];
 		bool m_abEverBackstabbedBy[MAX_MAJOR_CIVS];
 		short m_aiFriendDenouncedUsTurn[MAX_MAJOR_CIVS];
@@ -2133,6 +2141,8 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
+	short* m_paiBrokenMilitaryPromiseTurn;
+	short* m_paiBrokenAttackCityStatePromiseTurn;
 	short* m_paiDoFBrokenTurn;
 	bool* m_pabEverBackstabbedBy;
 	short* m_paiFriendDenouncedUsTurn;
