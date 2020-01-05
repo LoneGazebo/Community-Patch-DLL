@@ -7090,6 +7090,7 @@ int CvTacticalAI::GetRecruitRange() const
 int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* pTargetPlot)
 {
 	int rtnValue = 0;
+	int iMeleeCount = 0;
 
 	// Loop through all units who can reach the target
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -7113,7 +7114,16 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 				{
 					m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iDamage);
 					m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iSelfDamage);
-					rtnValue += iDamage;
+
+					//if we have a lot of melee units, don't assume they all can be executed at once
+					if (!pAttacker->isRanged() && !pAttacker->canMoveAfterAttacking())
+					{
+						if (iMeleeCount<3)
+							rtnValue += iDamage;
+						iMeleeCount++;
+					}
+					else
+						rtnValue += iDamage;
 				}
 			}
 		}
