@@ -4171,9 +4171,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 					iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
+#if defined(MOD_API_LUA_EXTENSIONS)
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 					if(eGreatPerson != NO_GREATPERSON)
 					{
+						iMod += pCity->GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 						if(pCity->GetPlayer()->isGoldenAge())
 						{
 							GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
@@ -4214,6 +4216,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
 						}
 					}
+#endif
 					if (pCity->isCapital() && GET_PLAYER(pCity->getOwner()).IsDiplomaticMarriage())
 					{
 						int iNumMarried = 0;

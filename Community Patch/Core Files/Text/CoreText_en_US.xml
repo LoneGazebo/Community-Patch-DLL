@@ -6103,6 +6103,27 @@
 		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Production cost reduction from resources at city level -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">
+			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! [ICON_PRODUCTION] Production Cost reduced for:{3_Details}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_UnitCombat}[ENDCOLOR]: {2_CostModifier}%{3_EraInfo}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE">
+			<Text>(Prerequisite: {1_RequiredEra})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE">
+			<Text>(Obsoletes: {1_ObsoleteEra})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_BUILDING">
+			<Text>Buildings</Text>
+		</Row>
 
 		<!-- Great Work Gold (LUA)-->
 		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
@@ -7509,6 +7530,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Great person rate modifiers -->
+		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
+			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

@@ -136,6 +136,9 @@ public:
 	int GetMutuallyExclusiveGroup() const;
 	int GetReplacementBuildingClass() const;
 	int GetPrereqAndTech() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetEra() const;
+#endif
 	int GetPolicyBranchType() const;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetPolicyType() const;

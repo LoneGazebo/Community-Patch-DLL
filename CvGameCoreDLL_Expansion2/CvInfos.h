@@ -24,6 +24,76 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 #pragma warning( disable: 4127 )
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+struct ResourceMonopolySettings
+{
+	ResourceMonopolySettings() :
+		m_bGlobalMonopoly(false),
+		m_bStrategicMonopoly(false)
+	{};
+
+	bool operator<(const ResourceMonopolySettings& t) const
+	{
+		return this->m_bGlobalMonopoly < t.m_bGlobalMonopoly || (this->m_bGlobalMonopoly == t.m_bGlobalMonopoly && this->m_bStrategicMonopoly < t.m_bStrategicMonopoly);
+	}
+
+	bool operator==(const ResourceMonopolySettings& t) const
+	{
+		return this->m_bGlobalMonopoly == t.m_bGlobalMonopoly && this->m_bGlobalMonopoly == t.m_bGlobalMonopoly;
+	}
+
+	bool m_bGlobalMonopoly;
+	bool m_bStrategicMonopoly;
+};
+
+struct MonopolyGreatPersonRateModifierKey
+{
+	MonopolyGreatPersonRateModifierKey() :
+		m_iSpecialist(0),
+		m_sMonopoly()
+	{};
+
+	bool operator<(const MonopolyGreatPersonRateModifierKey& t) const
+	{
+		return this->m_iSpecialist < t.m_iSpecialist || (this->m_iSpecialist == t.m_iSpecialist && this->m_sMonopoly < t.m_sMonopoly);
+	}
+
+	bool operator==(const MonopolyGreatPersonRateModifierKey& t) const
+	{
+		return this->m_iSpecialist == t.m_iSpecialist && this->m_sMonopoly == t.m_sMonopoly;
+	}
+
+	int m_iSpecialist;
+	ResourceMonopolySettings m_sMonopoly;
+};
+
+struct CombatModifiers
+{
+	CombatModifiers() :
+		m_iAttackMod(0),
+		m_iDefenseMod(0)
+	{};
+
+	int m_iAttackMod;
+	int m_iDefenseMod;
+};
+#endif
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+struct ProductionCostModifiers
+{
+	ProductionCostModifiers() :
+		m_iRequiredEra(-1),
+		m_iObsoleteEra(-1),
+		m_iCostModifier(0)
+	{};
+
+	int m_iRequiredEra;
+	int m_iObsoleteEra;
+	int m_iCostModifier;
+};
+#endif
+
 class CvDatabaseUtility;
 
 //------------------------------------------------------------------------------
@@ -1555,6 +1625,20 @@ public:
 
 	int getCityYieldModFromMonopoly(int i) const;
 	int* getCityYieldModFromMonopolyArray();
+
+	int getMonopolyAttackBonus(MonopolyTypes eMonopoly) const;
+	int getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const;
+
+	int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
+#endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	bool isHasUnitCombatProductionCostModifiersLocal() const;
+	int getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const;
+	std::vector<ProductionCostModifiers> getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const;
+
+	bool isHasBuildingProductionCostModifiersLocal() const;
+	int getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const;
+	std::vector<ProductionCostModifiers> getBuildingProductionCostModifiersLocal() const;
 #endif
 
 	int getResourceQuantityType(int i) const;
@@ -1630,6 +1714,12 @@ protected:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
+	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
+	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateModifiers;
+#endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
+	std::vector<ProductionCostModifiers> m_aiiiBuildingProductionCostModifiersLocal;
 #endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;

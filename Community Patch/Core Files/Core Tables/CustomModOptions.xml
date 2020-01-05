@@ -433,6 +433,9 @@
     <!-- See also: "Buildings - Storage Yard and Stockpile" -->
     <Row Class="6" Name="PROCESS_STOCKPILE" Value="0"/>
     <!-- Row Class="0" Name="PROCESS_STOCKPILE_PER_ERA" Value="30"/ -->
+	
+	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
+	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
 
     <!-- Fixes the AI's inability to use combat units as secondary workers (v26) -->
     <!-- See also: "AI - Secondary Workers And Settlers" -->

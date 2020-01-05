@@ -2028,9 +2028,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 #endif
 
+#if defined(MOD_API_LUA_EXTENSIONS)
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 	if (eGreatPerson != NO_GREATPERSON)
 	{
+		iMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 		if (GetPlayer()->isGoldenAge())
 		{
 			iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
@@ -2057,6 +2059,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 		}
 	}
+#endif
 	if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
@@ -3493,10 +3496,11 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-				if (GetPlayer()->isGoldenAge())
+				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+				if (eGreatPerson != NO_GREATPERSON)
 				{
-					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-					if (eGreatPerson != NO_GREATPERSON)
+					iMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+					if (GetPlayer()->isGoldenAge())
 					{
 						iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);

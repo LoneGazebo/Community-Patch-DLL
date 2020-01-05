@@ -983,6 +983,41 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
+	<!-- RESOURCES: Allows Resources to grant combat modifiers if you control a monopoly of the resource. Can be configured to require strategic or global monopoly. Must have DEALS functions enabled to use. -->
+	<Table name="Resource_MonopolyCombatModifiers">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Attack" type="integer" default="0"/>
+		<Column name="Defense" type="integer" default="0"/>
+	</Table>
+
+	<!-- RESOURCES: Allows Resources to grant great person rate modifiers if you control a monopoly of the resource. Can be configured to require strategic or global monopoly. Must have DEALS functions enabled to use. -->
+	<Table name="Resource_MonopolyGreatPersonRateModifiers">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Modifier" type="integer" default="0"/>
+	</Table>
+
+	<!-- RESOURCES: Resources grant production cost modifiers to the city which own them. Era refers to the era of the unit, not the current era of the player. Requires RESOURCES_PRODUCTION_COST_MODIFIERS to be enabled in CustomModOptions -->
+	<Table name="Resource_UnitCombatProductionCostModifiersLocal">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)"/>
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)"/>
+		<Column name="CostModifier" type="integer" default="0"/>
+	</Table>
+
+	<!-- RESOURCES: Resources grant production cost modifiers to the city which own them. Era refers to the era of the building, not the current era of the player. Requires RESOURCES_PRODUCTION_COST_MODIFIERS to be enabled in CustomModOptions -->
+	<Table name="Resource_BuildingProductionCostModifiersLocal">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)"/>
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)"/>
+		<Column name="CostModifier" type="integer" default="0"/>
+	</Table>
 	
 	<!-- BUILDINGS: Allows you to define a building class requirement where the building class can be in any city. Does not return a tooltip (unlike buildingclass required test)-->
 	<Table name="Building_ClassNeededAnywhere">
@@ -1509,6 +1544,9 @@
 		</Row>
 		<Row>
 			<NotificationType>NOTIFICATION_INSTANT_YIELD</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES</NotificationType>
 		</Row>
 	</Notifications>
 </GameData>

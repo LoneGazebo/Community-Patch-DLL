@@ -322,6 +322,8 @@ for k, v, w in ([[
 	NOTIFICATION_INSTANT_YIELD			InstantYieldItem
 	NOTIFICATION_EVENT_CHOICE			ChooseEvent
 	NOTIFICATION_EVENT_CHOICE_CITY		ChooseCityEvent
+	
+	NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES		BonusResource
 
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
@@ -452,6 +454,7 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 		or type == NotificationTypes.NOTIFICATION_DISCOVERED_BONUS_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_DEMAND_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_REQUEST_RESOURCE
+		or type == NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES
 		then
 			itemInfo = GameInfo.Resources[ iGameValue ]
 			itemImage = instance.ResourceImage

@@ -1172,6 +1172,21 @@ int CvUnitEntry::GetObsoleteTech() const
 	return m_iObsoleteTech;
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// Era this unit belongs to
+int CvUnitEntry::GetEra() const
+{
+	TechTypes eTech = (TechTypes)GetPrereqAndTech();
+	if (eTech != NO_TECH)
+	{
+		CvTechEntry* pTech = GC.getTechInfo((TechTypes)GetPrereqAndTech());
+		return pTech->GetEra();
+	}
+
+	return -1;
+}
+#endif
+
 /// Policy required for this unit
 int CvUnitEntry::GetPolicyType() const
 {

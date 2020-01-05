@@ -1873,6 +1873,7 @@ local function UpdateCityViewNow()
 					local gpChangeCityMod = city:GetGreatPeopleRateModifier()
 					-- CBP
 					gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
+					local gpChangeMonopolyMod = cityOwner:GetMonopolyGreatPersonRateModifier(specialist.ID);
 					--END
 					local gpChangePolicyMod = 0
 					local gpChangeWorldCongressMod = 0
@@ -1967,7 +1968,7 @@ local function UpdateCityViewNow()
 
 					end
 
-					local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod
+					local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod
 					gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 					if gpProgress > 0 or gpChange > 0 then
@@ -1989,6 +1990,9 @@ local function UpdateCityViewNow()
 						if gk_mode then
 							if gpChangePlayerMod ~= 0 then
 								tips:insert( L( "TXT_KEY_PLAYER_GP_MOD", gpChangePlayerMod ) )
+							end
+							if gpChangeMonopolyMod ~= 0 then
+								tips:insert( L( "TXT_KEY_MONOPOLY_GP_MOD", gpChangeMonopolyMod ) )
 							end
 							if gpChangePolicyMod ~= 0 then
 								tips:insert( L( "TXT_KEY_POLICY_GP_MOD", gpChangePolicyMod ) )
