@@ -3156,6 +3156,16 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pOldOwnerDiploAI->SetNumCitiesLiberated(GetID(), 0);
 			pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
 			pOldOwnerDiploAI->SetTurnsSinceVassalagePeacefullyRevoked(GetID(), -1);
+			
+			// clear positive diplomatic values
+			pOldOwnerDiploAI->SetNumCiviliansReturnedToMe(GetID(), 0);
+			pOldOwnerDiploAI->SetNumLandmarksBuiltForMe(GetID(), 0);
+			pOldOwnerDiploAI->SetNumTimesIntrigueSharedBy(GetID(), 0);
+			pOldOwnerDiploAI->SetCommonFoeValue(GetID(), 0);
+			if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
+				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
+			
+			// increment captured city counter
 			pOldOwnerDiploAI->ChangeNumCitiesCaptured(GetID(), 1);
 
 			iValue = iDefaultCityValue;
@@ -9938,6 +9948,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
 			
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			// Clear certain penalties with third parties
+			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+			{
+				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+				
+				if (GET_PLAYER(eThirdParty).isMajorCiv())
+				{
+					// forget any denouncing
+					pDiploAI->SetDenouncedPlayer(eThirdParty, false);
+					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false);
+				}
+			}
+#endif
 			// Update diplo stuff.
 			pDiploAI->DoUpdateTrueApproachTowardsUsGuesses(true);
 			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
