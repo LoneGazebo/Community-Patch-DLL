@@ -6738,6 +6738,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
 			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT_IN_FOREIGN">
+			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route in Foreign Territory:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SCOUTING">
 			<Text>[ICON_MOVES] Exploration:[NEWLINE]{1_YieldString}</Text>
 		</Row>
