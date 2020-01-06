@@ -14327,7 +14327,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 #endif
 
 	//Capped, and not our most valuable DoF?
-	if (GetMostValuableDoF(/*bIgnoreDoFs*/ false) != ePlayer && (iDoFWillingness <= (GetNumDoF() + iNumDoFsAlreadyWanted)))
+	if (iDoFWillingness <= (GetNumDoF() + iNumDoFsAlreadyWanted))
 		return false;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
@@ -14518,7 +14518,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 #endif
 
 	//Capped, and not our most valuable DP?
-	if (GetMostValuableDefensivePact(/*bIgnoreDPs*/ false) != ePlayer && (iLoyalty <= (GetNumDefensePacts() + iNumDPsAlreadyWanted)))
+	if (iLoyalty <= (GetNumDefensePacts() + iNumDPsAlreadyWanted))
 		return false;
 
 	iValue = GetDefensivePactValue(ePlayer);
@@ -36276,10 +36276,6 @@ bool CvDiplomacyAI::IsDoFBroken(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
-	// Vassals can't be untrustworthy, they have no rights.
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
-		return false;
-	
 	if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
 	{
 		return false;
@@ -36351,13 +36347,9 @@ void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue)
 			}
 		}
 		
-		if (bValue)
+		if (bValue && (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman()))
 		{
-			if (GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman())
-				return;
-			
-			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
-				return;
+			return;
 		}
 		
 		m_pabDoFBroken[ePlayer] = bValue;
