@@ -12338,21 +12338,153 @@ void CvCity::changeProductionTimes100(int iChange)
 							
 							if (iSiphonAmount > 0)
 							{
+								int iOverflow = 0;
+								int iMaxOverflow = 0;
+								int iProductionNeeded = 0;
+								int iLostProduction = 0;
+
 								if (this->isProductionUnit())
 								{
-									pOriginCity->changeUnitProductionTimes100(this->getProductionUnit(), iSiphonAmount);
+									// siphon production to the required unit in the origin
+									UnitTypes eUnit = getProductionUnit();
+									pOriginCity->changeUnitProductionTimes100(eUnit, iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eUnit) * 100;
+									iOverflow = pOriginCity->getUnitProductionTimes100(eUnit) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										int iResult = pOriginCity->CreateUnit(eUnit, GC.getUnitInfo(eUnit)->GetDefaultUnitAIType(), REASON_TRAIN);
+
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->setUnitProduction(eUnit, 0);
+										int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+										if (iProductionGold > 0)
+										{
+											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+										}
+									}
 								}
 								else if (this->isProductionBuilding())
 								{
-									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(this->getProductionBuilding(), iSiphonAmount);
+									// siphon production to the required building
+									BuildingTypes eBuilding = getProductionBuilding();
+									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(eBuilding, iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
+									iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										bool bResult = pOriginCity->CreateBuilding(eBuilding);
+
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->m_pCityBuildings->SetBuildingProduction(eBuilding, 0);
+										int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+										if (iProductionGold > 0)
+										{
+											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+										}
+
+										if (GC.getLogging() && GC.getAILogging())
+										{
+											CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+											if (pkBuildingInfo)
+											{
+												if (pOtherPlayer->GetWonderProductionAI()->IsWonder(*pkBuildingInfo))
+												{
+													CvString playerName;
+													FILogFile* pLog;
+													CvString strBaseString;
+													CvString strOutBuf;
+													playerName = pOtherPlayer->getCivilizationShortDescription();
+													pLog = LOGFILEMGR.GetLog(pOtherPlayer->GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+													strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+													strBaseString += playerName + ", ";
+													strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkBuildingInfo->GetDescription());
+													strBaseString += strOutBuf;
+													pLog->Msg(strBaseString);
+												}
+											}
+										}
+									}
 								}
 								else if (isProductionProject())
 								{
-									pOriginCity->changeProjectProductionTimes100(this->getProductionProject(), iSiphonAmount);
+									// siphon production to the required project in the origin
+									ProjectTypes eProject = getProductionProject();
+									pOriginCity->changeProjectProductionTimes100(eProject, iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eProject) * 100;
+									iOverflow = pOriginCity->getProjectProductionTimes100(eProject) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										bool bResult = CreateProject(eProject);
+
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->setProjectProduction(eProject, 0);
+										int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+										if (iProductionGold > 0)
+										{
+											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+										}
+									}
 								}
 								else if (isProductionSpecialist())
 								{
+									// siphon production to the required specialist in the origin
+									SpecialistTypes eSpecialist = getProductionSpecialist();
 									pOriginCity->changeSpecialistProductionTimes100(this->getProductionSpecialist(), iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eSpecialist) * 100;
+									iOverflow = pOriginCity->getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->setSpecialistProduction(eSpecialist, 0);
+									}
 								}
 #if defined(MOD_BALANCE_CORE)
 								else if (isProductionProcess())
