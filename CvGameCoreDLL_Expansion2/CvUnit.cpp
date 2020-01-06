@@ -2434,7 +2434,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
+			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
+			{
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)
@@ -2449,9 +2453,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				CvCity* pLoopCity;
-				int iCityLoop;
-				bool bNearLoserCity = false;
+				//CvCity* pLoopCity;
+				//int iCityLoop;
+				//bool bNearLoserCity = false;
 				bool bInMyTerritory = false;
 				PlayerTypes eLoopPlayer;
 
@@ -2463,6 +2467,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					if(plot()->getOwner() == getOwner()) {
 						bInMyTerritory = true;
 					}
+					/*
 					// Unit killed near one of my cities
 					else if(plot()->getOwner() != ePlayer) {
 						// Loop through loser's cities.
@@ -2475,9 +2480,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							}
 						}
 					}
+					*/
 
 					// Something actually happened to warrant this check
-					if(bInMyTerritory || bNearLoserCity) {
+					if(bInMyTerritory/* || bNearLoserCity*/) {
 						for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -16138,14 +16144,33 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
+		// Strategic monopoly of resources
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus() > 0)
+			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyAttackBonus();
+				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+			}
+		}
+
+		// Global monopoly of resources
+		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
+			{
+				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
+				if (iTempMod != 0)
+				{
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+				}
+				iModifier += iTempMod;
 			}
 		}
 	}
@@ -16340,14 +16365,33 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
+		// Strategic monopoly of resources
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyDefenseBonus() > 0)
+			if (pInfo && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyDefenseBonus();
+				iModifier += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
+			}
+		}
+
+		// Global monopoly of resources
+		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
+			{
+				int iTempMod = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
+				if (iTempMod != 0)
+				{
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+				}
+				iModifier += iTempMod;
 			}
 		}
 	}
@@ -16641,14 +16685,33 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
+		// Strategic monopoly of resources
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus() > 0)
+			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyAttackBonus();
+				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+			}
+		}
+
+		// Global monopoly of resources
+		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
+			{
+				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
+				if (iTempMod != 0)
+				{
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+				}
+				iModifier += iTempMod;
 			}
 		}
 	}

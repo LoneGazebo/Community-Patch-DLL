@@ -1351,7 +1351,7 @@ public:
 	int GetMilitarySeaMight() const;
 	int GetMilitaryAirMight() const;
 	int GetMilitaryLandMight() const;
-	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain);
+	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain = NO_DOMAIN);
 #else
 	void changeNumMilitaryUnits(int iChange);
 #endif
@@ -2354,6 +2354,12 @@ public:
 
 	int getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	void changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
+	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1) const;
+	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
 #endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -3591,6 +3597,9 @@ protected:
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly; // Note that m_ppiSpecificGreatPersonRateModifierFromMonopoly does not have to be saved in kStream because setHasGlobalMonopoly and setHasStrategicMonopoly are called on game load
 #endif
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 

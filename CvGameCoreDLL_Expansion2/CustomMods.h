@@ -50,7 +50,7 @@
 //////////////////////
 
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
-//#define MOD_BATTLE_ROYALE
+#define MOD_BATTLE_ROYALE							gCustomMods.isBATTLE_ROYALE()
 
 //If you enable this, the CS AI can settle more cities.
 //#define MOD_MINOR_CAN_SETTLE
@@ -526,6 +526,9 @@
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
+
+// Enables the various tables related to production cost modifiers triggered by access to resources
+#define MOD_RESOURCES_PRODUCTION_COST_MODIFIERS		gCustomMods.isRESOURCES_PRODUCTION_COST_MODIFIERS()
 
 // Fixes the AI's inability to use combat units as secondary workers (v26)
 #define MOD_AI_SECONDARY_WORKERS                    gCustomMods.isAI_SECONDARY_WORKERS()
@@ -1589,6 +1592,8 @@ public:
 
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
+	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
+
 	MOD_OPT_DECL(AI_SECONDARY_WORKERS);
 	MOD_OPT_DECL(AI_SECONDARY_SETTLERS);
 	MOD_OPT_DECL(AI_SMART_V3);
@@ -1709,6 +1714,8 @@ public:
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
+
+	MOD_OPT_DECL(BATTLE_ROYALE);
 
 protected:
 	bool m_bInit;

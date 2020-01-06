@@ -6163,9 +6163,22 @@ int CvLuaUnit::lGetMonopolyAttackBonus(lua_State* L)
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 			if (pInfo && pInfo->isMonopoly())
 			{
-				if(GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
+				// Strategic monopolies
+				if (GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 				{
-					iAttackBonus +=  pInfo->getMonopolyAttackBonus();
+					iAttackBonus += pInfo->getMonopolyAttackBonus();
+					iAttackBonus += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+				}
+				// Global monopolies
+				if (GET_PLAYER(pkUnit->getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
+				{
+					int iTempBonus = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
+					if (iTempBonus != 0)
+					{
+						iTempBonus += GET_PLAYER(pkUnit->getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+					}
+
+					iAttackBonus += iTempBonus;
 				}
 			}
 		}
@@ -6187,9 +6200,22 @@ int CvLuaUnit::lGetMonopolyDefenseBonus(lua_State* L)
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 			if (pInfo && pInfo->isMonopoly())
 			{
-				if(GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus() > 0)
+				// Strategic monopolies
+				if (GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
 				{
-					iDefenseBonus +=  pInfo->getMonopolyDefenseBonus();
+					iDefenseBonus += pInfo->getMonopolyDefenseBonus();
+					iDefenseBonus += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+				}
+				// Global monopolies
+				if (GET_PLAYER(pkUnit->getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
+				{
+					int iTempBonus = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
+					if (iTempBonus != 0)
+					{
+						iTempBonus += GET_PLAYER(pkUnit->getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+					}
+
+					iDefenseBonus += iTempBonus;
 				}
 			}
 		}

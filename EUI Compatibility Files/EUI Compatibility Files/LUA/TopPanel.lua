@@ -191,6 +191,7 @@ local function ScanGP( player )
 				local gpChangeCityMod = city:GetGreatPeopleRateModifier()
 				-- CBP
 				gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
+				local gpChangeMonopolyMod = player:GetMonopolyGreatPersonRateModifier(specialist.ID);
 				--END
 				local gpChangePolicyMod = 0
 				local gpChangeWorldCongressMod = 0
@@ -285,7 +286,7 @@ local function ScanGP( player )
 
 				end
 
-				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod
+				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod
 				gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 				if gpChange > 0 then

@@ -747,6 +747,9 @@ CvPlayer::CvPlayer() :
 	, m_piNumBuildingsInPuppets(NULL)
 	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppiBuildingClassYieldChange", m_syncArchive)
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_bVassalLevy("CvPlayer::m_bVassalLevy", m_syncArchive)
 	, m_iVassalGoldMaintenanceMod("CvPlayer::m_iVassalGoldMaintenanceMod", m_syncArchive)
@@ -1207,6 +1210,9 @@ void CvPlayer::uninit()
 	m_piYieldFromBarbarianKills.clear();
 	m_ppiBuildingClassYieldChange.clear();
 	m_ppiApproachScratchValue.clear();
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
 #endif
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiBuildingClassYieldMod.clear();
@@ -2270,6 +2276,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		}
 #endif
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
+#endif
+
 		m_ppaaiImprovementYieldChange.clear();
 		m_ppaaiImprovementYieldChange.resize(GC.getNumImprovementInfos());
 		for(unsigned int i = 0; i < m_ppaaiImprovementYieldChange.size(); ++i)
@@ -3123,6 +3133,16 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pOldOwnerDiploAI->SetNumCitiesLiberated(GetID(), 0);
 			pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
 			pOldOwnerDiploAI->SetTurnsSinceVassalagePeacefullyRevoked(GetID(), -1);
+			
+			// clear positive diplomatic values
+			pOldOwnerDiploAI->SetNumCiviliansReturnedToMe(GetID(), 0);
+			pOldOwnerDiploAI->SetNumLandmarksBuiltForMe(GetID(), 0);
+			pOldOwnerDiploAI->SetNumTimesIntrigueSharedBy(GetID(), 0);
+			pOldOwnerDiploAI->SetCommonFoeValue(GetID(), 0);
+			if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
+				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
+			
+			// increment captured city counter
 			pOldOwnerDiploAI->ChangeNumCitiesCaptured(GetID(), 1);
 
 			iValue = iDefaultCityValue;
@@ -9905,6 +9925,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			pDiploAI->SetEverBackstabbedBy(eMePlayer, false);
 			GetDiplomacyAI()->SetEverBackstabbedBy(ePlayer, false);
 			
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			// Clear certain penalties with third parties
+			for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+			{
+				PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
+				
+				if (GET_PLAYER(eThirdParty).isMajorCiv())
+				{
+					// forget any denouncing
+					pDiploAI->SetDenouncedPlayer(eThirdParty, false);
+					GET_PLAYER(eThirdParty).GetDiplomacyAI()->SetDenouncedPlayer(ePlayer, false);
+				}
+			}
+#endif
 			// Update diplo stuff.
 			pDiploAI->DoUpdateTrueApproachTowardsUsGuesses(true);
 			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
@@ -32892,9 +32926,12 @@ void CvPlayer::updateMightStatistics()
 	m_iProductionMight = calculateProductionMight();
 
 #if defined(MOD_BATTLE_ROYALE)
-	m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-	m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-	m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+	if (MOD_BATTLE_ROYALE)
+	{
+		m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+	}
 #endif
 }
 
@@ -36887,7 +36924,41 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		// Returned to major power
 		else if(!GET_PLAYER(eToPlayer).isHuman())
 		{
-			GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			// Additional diplo bonus for returning civilians in the early game, especially Settlers
+			int iTheirEra = GET_PLAYER(eToPlayer).GetCurrentEra();
+			if (iTheirEra <= 1)
+			{
+				if (pNewUnit->isFound())
+				{
+					if (iTheirEra == 0)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 5);
+					}
+					else if (iTheirEra == 1)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 4);
+					}
+				}
+				else
+				{
+					if (iTheirEra == 0)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 3);
+					}
+					else if (iTheirEra == 1)
+					{
+						GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 2);
+					}
+				}
+			}
+			else
+			{
+#endif
+				GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		else if(GET_PLAYER(eToPlayer).isHuman() && pNewUnit)
@@ -38123,6 +38194,29 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 					}
 				}
 			}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+			{
+				SpecialistTypes eSpecialist = (SpecialistTypes)iI;
+				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+				if (eSpecialist != NO_SPECIALIST && eGreatPerson != NO_GREATPERSON)
+				{
+					int iModValue = pResource->getMonopolyGreatPersonRateModifier(eSpecialist, MONOPOLY_GLOBAL);
+					if (iModValue > 0)
+					{
+						if (bNewValue)
+						{
+							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue);
+						}
+						else
+						{
+							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue * -1);
+						}
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -38146,6 +38240,33 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 	if(bNewValue != m_pabHasStrategicMonopoly[eResource])
 	{
 		m_pabHasStrategicMonopoly.setAt(eResource, bNewValue);
+
+		CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+		if (pResource)
+		{
+#if defined(MOD_API_UNIFIED_YIELDS)
+			for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+			{
+				SpecialistTypes eSpecialist = (SpecialistTypes)iI;
+				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+				if (eSpecialist != NO_SPECIALIST && eGreatPerson != NO_GREATPERSON)
+				{
+					int iModValue = pResource->getMonopolyGreatPersonRateModifier(eSpecialist, MONOPOLY_STRATEGIC);
+					if (iModValue > 0)
+					{
+						if (bNewValue)
+						{
+							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue);
+						}
+						else
+						{
+							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue * -1);
+						}
+					}
+				}
+			}
+#endif
+		}
 	}
 
 	std::vector<ResourceTypes>::iterator it = std::find(m_vResourcesWStrategicMonopoly.begin(),m_vResourcesWStrategicMonopoly.end(),eResource);
@@ -39935,6 +40056,76 @@ void CvPlayer::changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldT
 		CvAssert(getBuildingClassYieldChange(eIndex1, eIndex2) >= 0);
 
 		updateYield();
+	}
+}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+/// Does the player get a great person rate modifier from having a monopoly?
+//	--------------------------------------------------------------------------------
+int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
+	{
+		std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.find(eGreatPerson);
+		if (itGreatPerson != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end())
+		{
+			std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.find(eMonopoly);
+			if (itMonopoly != itGreatPerson->second.end())
+			{
+				return itMonopoly->second;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/// Overload to sum up modifiers from both global (including global monopoly mod percent) and strategic monopolies, for convenience
+//	--------------------------------------------------------------------------------
+int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	int iMod = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		for (int iI = 0; iI < NUM_MONOPOLY_TYPES; iI++)
+		{
+			MonopolyTypes eMonopoly = (MonopolyTypes)iI;
+			if (eMonopoly != NO_MONOPOLY)
+			{
+				iMod += getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, eMonopoly);
+				if (eMonopoly == MONOPOLY_GLOBAL)
+				{
+					iMod += GetMonopolyModPercent();
+				}
+			}
+		}
+	}
+
+	return iMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange)
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
+	{
+		m_ppiSpecificGreatPersonRateModifierFromMonopoly[eGreatPerson][eMonopoly] += iChange;
 	}
 }
 #endif
@@ -45378,6 +45569,25 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piNumBuildingsInPuppets;
 	kStream >> m_ppiApproachScratchValue;
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		int iNumEntries;
+		kStream >> iNumEntries;
+		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
+		for (int iI = 0; iI < iNumEntries; iI++)
+		{
+			int iGreatPerson;
+			int iMonopoly;
+			int iModifier;
+
+			kStream >> iGreatPerson;
+			kStream >> iMonopoly;
+			kStream >> iModifier;
+
+			m_ppiSpecificGreatPersonRateModifierFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
 	kStream >> m_piDomainFreeExperience;
@@ -45546,6 +45756,28 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piNumBuildings;
 	kStream << m_piNumBuildingsInPuppets;
 	kStream << m_ppiApproachScratchValue;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		int iSize = 0;
+		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator it = m_ppiSpecificGreatPersonRateModifierFromMonopoly.begin(); it != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end(); ++it)
+		{
+			iSize += it->second.size();
+		}
+		kStream << iSize;
+		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end(); ++itGreatPerson)
+		{
+			int iGreatPerson = (int)itGreatPerson->first;
+			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)
+			{
+				int iMonopoly = (int)itMonopoly->first;
+				int iModifier = itMonopoly->second;
+				kStream << iGreatPerson;
+				kStream << iMonopoly;
+				kStream << iModifier;
+			}
+		}
+	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_aistrInstantGreatPersonProgress;

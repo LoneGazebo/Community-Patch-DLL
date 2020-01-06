@@ -475,6 +475,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(PROCESS_STOCKPILE);
 
+		MOD_OPT_CACHE(RESOURCES_PRODUCTION_COST_MODIFIERS);
+
 		MOD_OPT_CACHE(AI_SECONDARY_WORKERS);
 		MOD_OPT_CACHE(AI_SECONDARY_SETTLERS);
 		MOD_OPT_CACHE(AI_SMART_V3);
@@ -595,6 +597,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(ISKA_HERITAGE);
 		MOD_OPT_CACHE(ISKA_PANTHEONS);
+
+		MOD_OPT_CACHE(BATTLE_ROYALE);
 
 		m_bInit = true;
 	}

@@ -9348,12 +9348,14 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 			{
 				processResource(eResource, 1);
 
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+
 				// Notification letting player know his city gets a bonus for wonders
-				int iWonderMod = GC.getResourceInfo(eResource)->getWonderProductionMod();
+				int iWonderMod = pkResource->getWonderProductionMod();
 				if(iWonderMod != 0)
 				{
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
-					if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+					if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 					{
 						if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 						{
@@ -9361,14 +9363,14 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 							if(pNotifications)
 							{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
-								strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+								strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-								strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+								strSummary << getNameKey() << pkResource->GetTextKey();
 								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 							}
 						}
 					}
-					else if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+					else if (MOD_BALANCE_CORE_RESOURCE_FLAVORS && pkResource->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 					{
 						if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 						{
@@ -9376,9 +9378,9 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 							if(pNotifications)
 							{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
-								strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+								strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-								strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+								strSummary << getNameKey() << pkResource->GetTextKey();
 								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 							}
 						}
@@ -9390,15 +9392,113 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					if(pNotifications)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
-						strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+						strText << getNameKey() << pkResource->GetTextKey() << iWonderMod;
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-						strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+						strSummary << getNameKey() << pkResource->GetTextKey();
 						pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 					}
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
 					}
 #endif
 				}
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+				
+				// Notification letting player know his city gets a production cost modifier
+				if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+				{
+
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+					strSummary << getNameKey() << pkResource->GetTextKey();
+
+					CvString strList = "";
+					
+					// Unit combat cost modifier
+					if (pkResource->isHasUnitCombatProductionCostModifiersLocal())
+					{
+						for (int iUnitCombat = 0; iUnitCombat < GC.getNumUnitCombatClassInfos(); iUnitCombat++)
+						{
+							UnitCombatTypes eUnitCombat = (UnitCombatTypes)iUnitCombat;
+							CvBaseInfo* pkUnitCombat = GC.getUnitCombatClassInfo(eUnitCombat);
+
+							if (eUnitCombat == NO_UNITCOMBAT)
+							{
+								continue;
+							}
+							std::vector<ProductionCostModifiers> aiiiUnitCostMod = pkResource->getUnitCombatProductionCostModifiersLocal(eUnitCombat);
+							for (std::vector<ProductionCostModifiers>::const_iterator it = aiiiUnitCostMod.begin(); it != aiiiUnitCostMod.end(); ++it)
+							{
+								EraTypes eRequiredEra = (EraTypes)it->m_iRequiredEra;
+								EraTypes eObsoleteEra = (EraTypes)it->m_iObsoleteEra;
+								int iCostModifier = it->m_iCostModifier;
+
+								CvString strEraText = "";
+
+								if (iCostModifier != 0)
+								{
+									if (eRequiredEra != NO_ERA)
+									{
+										strEraText += " ";
+										strEraText += GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE", GC.getEraInfo(eRequiredEra)->getShortDesc());
+									}
+
+									if (eObsoleteEra != NO_ERA)
+									{
+										strEraText += " ";
+										strEraText += GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE", GC.getEraInfo(eObsoleteEra)->getShortDesc());
+									}
+
+									strList += "[NEWLINE]" + GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST", pkUnitCombat->GetDescriptionKey(), iCostModifier, strEraText);
+								}
+							}
+						}
+					}
+
+					// Building cost modifier
+					if (pkResource->isHasBuildingProductionCostModifiersLocal())
+					{
+						std::vector<ProductionCostModifiers> aiiiBuildingCostMod = pkResource->getBuildingProductionCostModifiersLocal();
+						for (std::vector<ProductionCostModifiers>::const_iterator it = aiiiBuildingCostMod.begin(); it != aiiiBuildingCostMod.end(); ++it)
+						{
+							EraTypes eRequiredEra = (EraTypes)it->m_iRequiredEra;
+							EraTypes eObsoleteEra = (EraTypes)it->m_iObsoleteEra;
+							int iCostModifier = it->m_iCostModifier;
+
+							CvString strEraText = "";
+
+							if (iCostModifier != 0)
+							{
+								if (eRequiredEra != NO_ERA)
+								{
+									strEraText += " ";
+									strEraText += GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE", GC.getEraInfo(eRequiredEra)->getShortDesc());
+								}
+
+								if (eObsoleteEra != NO_ERA)
+								{
+									strEraText += " ";
+									strEraText += GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE", GC.getEraInfo(eObsoleteEra)->getShortDesc());
+								}
+
+								strList += "[NEWLINE]" + GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST", "TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_BUILDING", iCostModifier, strEraText);
+							}
+						}
+					}
+
+					// Combine the list we just made with the header text
+					if (strList != "")
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD");
+						strText << getNameKey() << pkResource->GetTextKey() << strList;
+
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if (pNotifications)
+						{
+							pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES"), strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+						}
+					}
+				}
+#endif
 			}
 			else
 			{
@@ -11048,10 +11148,40 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+
 	if (eUnit != NO_UNIT)
 	{
 		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+		int iCostMod = 0;
+
+		UnitCombatTypes eUnitCombat = (UnitCombatTypes)pGameUnit->GetUnitCombatType();
+		EraTypes eUnitEra = (EraTypes)pGameUnit->GetEra();
+
+		if (eUnitEra == NO_ERA)
+		{
+			eUnitEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		}
+
+		if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS && eUnitCombat != NO_UNITCOMBAT && eUnitEra != NO_ERA)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource && pkResource->isHasUnitCombatProductionCostModifiersLocal() && IsHasResourceLocal(eResource, false))
+				{
+					iCostMod += pkResource->getUnitCombatProductionCostModifiersLocal(eUnitCombat, eUnitEra);
+				}
+			}
+		}
+
+		// Cost modifiers must be applied before the investment code
+		iNumProductionNeeded *= (iCostMod + 100);
+		iNumProductionNeeded /= 100;
+#endif
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 		if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (pGameUnit->GetSpaceshipProject() != NO_PROJECT)))
 		{
 			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
@@ -11062,8 +11192,8 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 				iNumProductionNeeded /= 100;
 			}
 		}
-	}
 #endif
+	}
 
 	return max(1,iNumProductionNeeded);
 }
@@ -11073,14 +11203,52 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 {
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eBuilding);
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
+
+	if(eBuilding != NO_BUILDING)
 	{
 		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
 		if(pGameBuilding)
 		{
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-			if(eBuildingClass != NO_BUILDINGCLASS && IsBuildingInvestment(eBuildingClass))
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+			int iCostMod = 0;
+			EraTypes eBuildingEra = (EraTypes)pGameBuilding->GetEra();
+
+			bool bWonder = false;
+			if (eBuildingClass != NO_BUILDINGCLASS)
+			{
+				const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+				if (pkBuildingClassInfo)
+				{
+					bWonder = isWorldWonderClass(*pkBuildingClassInfo) || isTeamWonderClass(*pkBuildingClassInfo) || isNationalWonderClass(*pkBuildingClassInfo);
+				}
+			}
+
+			if (eBuildingEra == NO_ERA)
+			{
+				eBuildingEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			}
+
+			if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS && bWonder == false && eBuildingEra != NO_ERA)
+			{
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+					CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+					if (pkResource && pkResource->isHasBuildingProductionCostModifiersLocal() && IsHasResourceLocal(eResource, false))
+					{
+						iCostMod += pkResource->getBuildingProductionCostModifiersLocal(eBuildingEra);
+					}
+				}
+			}
+
+			// Cost modifiers must be applied before the investment code
+			iNumProductionNeeded *= (iCostMod + 100);
+			iNumProductionNeeded /= 100;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuildingClass != NO_BUILDINGCLASS && IsBuildingInvestment(eBuildingClass))
 			{
 				int iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
 				const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
@@ -11092,9 +11260,9 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 				iNumProductionNeeded *= (iTotalDiscount + 100);
 				iNumProductionNeeded /= 100;
 			}
+#endif
 		}
 	}
-#endif
 
 	return max(1,iNumProductionNeeded);
 }
@@ -12170,21 +12338,153 @@ void CvCity::changeProductionTimes100(int iChange)
 							
 							if (iSiphonAmount > 0)
 							{
+								int iOverflow = 0;
+								int iMaxOverflow = 0;
+								int iProductionNeeded = 0;
+								int iLostProduction = 0;
+
 								if (this->isProductionUnit())
 								{
-									pOriginCity->changeUnitProductionTimes100(this->getProductionUnit(), iSiphonAmount);
+									// siphon production to the required unit in the origin
+									UnitTypes eUnit = getProductionUnit();
+									pOriginCity->changeUnitProductionTimes100(eUnit, iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eUnit) * 100;
+									iOverflow = pOriginCity->getUnitProductionTimes100(eUnit) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										int iResult = pOriginCity->CreateUnit(eUnit, GC.getUnitInfo(eUnit)->GetDefaultUnitAIType(), REASON_TRAIN);
+
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->setUnitProduction(eUnit, 0);
+										int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+										if (iProductionGold > 0)
+										{
+											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+										}
+									}
 								}
 								else if (this->isProductionBuilding())
 								{
-									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(this->getProductionBuilding(), iSiphonAmount);
+									// siphon production to the required building
+									BuildingTypes eBuilding = getProductionBuilding();
+									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(eBuilding, iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
+									iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										bool bResult = pOriginCity->CreateBuilding(eBuilding);
+
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->m_pCityBuildings->SetBuildingProduction(eBuilding, 0);
+										int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+										if (iProductionGold > 0)
+										{
+											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+										}
+
+										if (GC.getLogging() && GC.getAILogging())
+										{
+											CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+											if (pkBuildingInfo)
+											{
+												if (pOtherPlayer->GetWonderProductionAI()->IsWonder(*pkBuildingInfo))
+												{
+													CvString playerName;
+													FILogFile* pLog;
+													CvString strBaseString;
+													CvString strOutBuf;
+													playerName = pOtherPlayer->getCivilizationShortDescription();
+													pLog = LOGFILEMGR.GetLog(pOtherPlayer->GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+													strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+													strBaseString += playerName + ", ";
+													strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkBuildingInfo->GetDescription());
+													strBaseString += strOutBuf;
+													pLog->Msg(strBaseString);
+												}
+											}
+										}
+									}
 								}
 								else if (isProductionProject())
 								{
-									pOriginCity->changeProjectProductionTimes100(this->getProductionProject(), iSiphonAmount);
+									// siphon production to the required project in the origin
+									ProjectTypes eProject = getProductionProject();
+									pOriginCity->changeProjectProductionTimes100(eProject, iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eProject) * 100;
+									iOverflow = pOriginCity->getProjectProductionTimes100(eProject) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										bool bResult = CreateProject(eProject);
+
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->setProjectProduction(eProject, 0);
+										int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+										if (iProductionGold > 0)
+										{
+											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+										}
+									}
 								}
 								else if (isProductionSpecialist())
 								{
+									// siphon production to the required specialist in the origin
+									SpecialistTypes eSpecialist = getProductionSpecialist();
 									pOriginCity->changeSpecialistProductionTimes100(this->getProductionSpecialist(), iSiphonAmount);
+
+									// check if the origin have completed production
+									iProductionNeeded = pOriginCity->getProductionNeeded(eSpecialist) * 100;
+									iOverflow = pOriginCity->getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
+
+									// if origin has completed production (code below is a brief version of popOrder())
+									if (iOverflow >= 0)
+									{
+										pOriginCity->m_iThingsProduced++;
+										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
+										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+
+										if (iOverflow > 0)
+										{
+											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+										}
+
+										pOriginCity->setSpecialistProduction(eSpecialist, 0);
+									}
 								}
 #if defined(MOD_BALANCE_CORE)
 								else if (isProductionProcess())

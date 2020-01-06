@@ -133,6 +133,9 @@ public:
 	int GetPrereqPillageTech() const;
 	int GetPrereqAndTech() const;
 	int GetObsoleteTech() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetEra() const;
+#endif
 	int GetPolicyType() const;
 	int GetGoodyHutUpgradeUnitClass() const;
 	int GetGroupSize() const;			// the initial number of individuals in the unit group
