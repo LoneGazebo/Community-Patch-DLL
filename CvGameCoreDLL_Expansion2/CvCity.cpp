@@ -12191,11 +12191,9 @@ void CvCity::changeProductionTimes100(int iChange)
 								{
 									if (pOriginCity->getProductionProcess() != NO_PROCESS)
 									{
-										int iI;
-										int iYield;
-										for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+										for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 										{
-											iYield = (this->getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * this->getProductionToYieldModifier((YieldTypes)iI) / 100;
+											int iYield = (this->getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * this->getProductionToYieldModifier((YieldTypes)iI) / 100;
 
 											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
 										}
@@ -18514,7 +18512,8 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// Process production into culture
-	iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(YIELD_CULTURE) / 100;
+	if (getProductionToYieldModifier(YIELD_CULTURE)>0)
+		iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
 
 	// Culture from having trade routes
 	iCulturePerTurn += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
@@ -18649,30 +18648,35 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 {
+	//todo: avoid iterating over ALL improvement types ...
 	int iYield = 0;
-	for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
-	{
-		ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
-		if (eImprovement != NULL)
-		{
-			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
-			if (iYieldChangePerImprovementBuilt == 0 || (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly() && !isCapital()))
-				continue;
 
-			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
+	if (isCapital() || !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly())
+	{
+		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
+			if (eImprovement != NULL)
 			{
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
+				int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
+				if (iYieldChangePerImprovementBuilt == 0)
+					continue;
+
+				iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
 				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
+					{
+						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+					}
+					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+					{
+						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+					}
+					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
+					{
+						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+					}
 				}
 			}
 		}
@@ -18801,7 +18805,8 @@ int CvCity::GetFaithPerTurn() const
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// Process production into faith
-	iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(YIELD_FAITH) / 100;
+	if (getProductionToYieldModifier(YIELD_FAITH)>0)
+		iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
 
 	// Faith from having trade routes
 	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
@@ -24477,7 +24482,7 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 	{
 #if defined(MOD_PROCESS_STOCKPILE)
 		// We want to process production to production and call it stockpiling!
-		iProcessYield = getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex) / 100;
+		iProcessYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex)) / 100;
 #else
 		CvAssertMsg(eIndex != YIELD_PRODUCTION, "GAMEPLAY: should not be trying to convert Production into Production via process.");
 
@@ -24628,7 +24633,8 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	//Update Yields from yields (this is tricky, avoid recursion, pooh!)
+	//Update Yields from yields ... need to sidestep constness
+	CvCity* pThisCity = const_cast<CvCity*>(this);
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eIndex2 = (YieldTypes)iI;
@@ -24637,11 +24643,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		if (eIndex == eIndex2)
 			continue;
 
-		CvCity* pCity = this->plot()->getPlotCity();
-		if (pCity)
-		{
-			pCity->UpdateCityYieldFromYield(eIndex, eIndex2, iValue);
-		}
+		pThisCity->UpdateCityYieldFromYield(eIndex, eIndex2, iValue);
 
 		//NOTE! We flip it here, because we want the OUT yield
 		iValue += GetRealYieldFromYield(eIndex2, eIndex);
@@ -24830,8 +24832,9 @@ int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	// Process production into specific yield
-	return (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(eIndex) / 100;
+	return (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex)) / 10000;
 }
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvCity::GetBaseYieldRateFromLeague(YieldTypes eIndex) const
@@ -28206,7 +28209,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 #endif			
 
 				ReachablePlots::iterator it = influencePlots.find( pLoopPlot->GetPlotIndex() );
-				int iInfluenceCost = ( it != influencePlots.end() ) ? it->iNormalizedDistance : -1;
+				int iInfluenceCost = ( it != influencePlots.end() ) ? it->iNormalizedDistanceRaw : -1;
 
 				if (iInfluenceCost >= 0)
 				{
@@ -28359,8 +28362,7 @@ int CvCity::calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const
 	if (!path)
 		return -1; // no passable path exists
 	else
-		return (path.iNormalizedDistance<INT_MAX) ? path.iNormalizedDistance : -1;
-
+		return (path.iNormalizedDistanceRaw * GC.getPLOT_INFLUENCE_DISTANCE_MULTIPLIER()) / SPath::getNormalizedDistanceBase();
 }
 
 //	--------------------------------------------------------------------------------
@@ -28386,8 +28388,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	if(plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return 9999; // Critical hit!
 
-	int iPLOT_INFLUENCE_BASE_MULTIPLIER = /*100*/ GC.getPLOT_INFLUENCE_BASE_MULTIPLIER();
-	int iPLOT_INFLUENCE_DISTANCE_MULTIPLIER = /*100*/ GC.getPLOT_INFLUENCE_DISTANCE_MULTIPLIER();
+	int iPLOT_INFLUENCE_BASE = /*100*/ GC.getPLOT_INFLUENCE_BASE_MULTIPLIER();
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GC.getPLOT_INFLUENCE_DISTANCE_DIVISOR();
 	int iPLOT_BUY_RESOURCE_COST = /*-100*/ GC.getPLOT_BUY_RESOURCE_COST();
 
@@ -28396,8 +28397,8 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	if (iRefDistance==INT_MAX)
 		iRefDistance = 0;
 
-	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE_MULTIPLIER;
-	iInfluenceCostFactor += (iDistance-iRefDistance) * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER / iPLOT_INFLUENCE_DISTANCE_DIVISOR;
+	//note: we don't use getPLOT_INFLUENCE_DISTANCE_MULTIPLIER() here because the influence distance is already pre-multiplied
+	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE + (iDistance-iRefDistance) / iPLOT_INFLUENCE_DISTANCE_DIVISOR;
 	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 		iInfluenceCostFactor += iPLOT_BUY_RESOURCE_COST;
 
@@ -28960,8 +28961,7 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 
 	if (!plots.empty())
 	{
-		int iRefDistance = calculateInfluenceDistance( GC.getMap().plotByIndex(plots.front()), getBuyPlotDistance() );
-		SetCheapestPlotInfluenceDistance( iRefDistance);
+		SetCheapestPlotInfluenceDistance( calculateInfluenceDistance( GC.getMap().plotByIndex(plots.front()), getBuyPlotDistance() ) );
 	}
 	else
 		SetCheapestPlotInfluenceDistance(INT_MAX);

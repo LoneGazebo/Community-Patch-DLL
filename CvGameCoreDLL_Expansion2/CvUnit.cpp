@@ -5532,16 +5532,16 @@ bool CvUnit::jumpToNearestValidPlot()
 			//need to check for everything, including invisible units
 			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				int iValue = it->iNormalizedDistance * 10 + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+				int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
 				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 				if (getDomainType() == DOMAIN_SEA)
 					if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-						iValue += 200;
+						iValue += 2000;
 
 				//avoid embarkation
 				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 40;
+					iValue += 400;
 
 				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 			}

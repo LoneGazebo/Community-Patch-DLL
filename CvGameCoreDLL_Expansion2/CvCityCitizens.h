@@ -10,6 +10,19 @@
 #ifndef CIV5_CITY_CITIZENS_H
 #define CIV5_CITY_CITIZENS_H
 
+struct SPrecomputedExpensiveNumbers
+{
+	int iExcessFoodTimes100;
+	int iFoodCorpMod;
+	int iUnhappinessFromGold;
+	int iUnhappinessFromScience;
+	int iUnhappinessFromCulture;
+	int iUnhappinessFromReligion;
+	int iUnhappinessFromDistress;
+
+	SPrecomputedExpensiveNumbers(CvCity* pCity);
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvCityCitizens
 //!  \brief		Keeps track of Citizens and Specialists in a City
@@ -38,7 +51,7 @@ public:
 	void DoTurn();
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
-	int GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFoodCorpMod); //precompute some expensive constants ...
+	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers store);
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;
@@ -107,16 +120,8 @@ public:
 	bool IsForcedWorkingPlot(const CvPlot* pPlot) const;
 	void SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue);
 
-#if defined(MOD_BALANCE_CORE)
 	bool DoValidateForcedWorkingPlots();
-#else
-	void DoValidateForcedWorkingPlots();
-#endif
-#if defined(MOD_BALANCE_CORE)
 	bool DoDemoteWorstForcedWorkingPlot();
-#else
-	void DoDemoteWorstForcedWorkingPlot();
-#endif
 
 	int GetNumForcedWorkingPlots() const;
 	void ChangeNumForcedWorkingPlots(int iChange);

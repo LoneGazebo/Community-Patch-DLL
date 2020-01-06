@@ -40,6 +40,7 @@
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*310)	//don't make it even so we don't get ties
 #define PATH_ASSUMED_MAX_DEFENSE								(100)	//MAX_DEFENSE * DEFENSE_WEIGHT + END_TURN_FOREIGN_TERRITORY + END_TURN_NO_ROUTE should be smaller than END_TURN_WATER
+#define NORM_COST_BASE											(100)	//we use a fixed point format for normalized path cost
 
 #include <xmmintrin.h>
 #include "LintFree.h"
@@ -679,7 +680,6 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 {
 	SPath ret;
-	ret.iNormalizedDistance = INT_MAX;
 	ret.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 	ret.sConfig = m_sData;
 
@@ -690,7 +690,7 @@ SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 	}
 
 	ret.iTotalCost = pNode->m_iKnownCost;
-	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
+	ret.iNormalizedDistanceRaw = (pNode->m_iKnownCost * NORM_COST_BASE) / m_iBasicPlotCost + 1;
 	//switch counting convention. if zero moves left, consider this as plus one turns
 	ret.iTotalTurns = pNode->m_iTurns + (pNode->m_iMoves==0 ? 1 : 0);
 
@@ -2678,7 +2678,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 				path.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 				path.sConfig = m_sData;
 				path.iTotalCost = temp->m_iKnownCost;
-				path.iNormalizedDistance = temp->m_iKnownCost / m_iBasicPlotCost + 1;
+				path.iNormalizedDistanceRaw = (temp->m_iKnownCost * NORM_COST_BASE)  / m_iBasicPlotCost + 1;
 				path.iTotalTurns = temp->m_iTurns;
 
 				CvAStarNode* node = temp;
@@ -3191,12 +3191,17 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iStartMoves = 0;
 }
 
-inline CvPlot * SPath::get(int i) const
+CvPlot * SPath::get(int i) const
 {
 	if (i<(int)vPlots.size())
 		return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
 
 	return NULL;
+}
+
+int SPath::getNormalizedDistanceBase()
+{
+	return NORM_COST_BASE;
 }
 
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)

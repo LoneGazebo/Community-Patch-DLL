@@ -4830,8 +4830,7 @@ int CvLuaPlayer::lGetTradeConnectionDistance(lua_State* L)
 	if (!bTradeAvailable)
 		return 0;
 
-	int iLength = path.iNormalizedDistance;
-
+	int iLength = path.iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
 	lua_pushinteger(L, iLength);
 	return 1;
 }

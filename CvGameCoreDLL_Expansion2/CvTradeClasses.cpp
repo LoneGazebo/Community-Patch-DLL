@@ -510,7 +510,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	CopyPathIntoTradeConnection(path, &(m_aTradeConnections[iNewTradeRouteIndex]));
 
 	// try to make the trade units move faster on "faster" routes
-	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * path.length()) / path.iNormalizedDistance;
+	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / path.iNormalizedDistanceRaw;
 
 	// reveal all plots to the player who created the trade route
 	TeamTypes eOriginTeam = GET_PLAYER(eOriginPlayer).getTeam();
@@ -706,8 +706,8 @@ bool CvGameTrade::IsValidTradeRoutePath(CvCity* pOriginCity, CvCity* pDestCity, 
 		// check if beyond the origin player's trade range
 		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
-		int iNormDist = pPath->iNormalizedDistance;
-		if (iNormDist>0 && iNormDist<=iMaxNormDist)
+		int iNormDist = pPath->iNormalizedDistanceRaw;
+		if (iNormDist>0 && iNormDist<=iMaxNormDist*SPath::getNormalizedDistanceBase())
 			return true;
 	}
 
@@ -730,8 +730,8 @@ int CvGameTrade::GetValidTradeRoutePathLength(CvCity* pOriginCity, CvCity* pDest
 		// check if beyond the origin player's trade range
 		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
-		int iNormDist = pPath->iNormalizedDistance;
-		if (iNormDist>0 && iNormDist <= iMaxNormDist)
+		int iNormDist = pPath->iNormalizedDistanceRaw;
+		if (iNormDist>0 && iNormDist <= iMaxNormDist*SPath::getNormalizedDistanceBase())
 			return iNormDist;
 	}
 
@@ -1145,7 +1145,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 
 	// calculate turns per circuit
 	int iRawSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
-	int iSpeedFactor = (100 * path.length() / path.iNormalizedDistance);
+	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / path.iNormalizedDistanceRaw;
 	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
 
 	float fTurnsPerCircuit = 1;

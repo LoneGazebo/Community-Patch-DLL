@@ -883,6 +883,7 @@ public:
 	int getUnhappinessFromScienceNeeded(int iMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromScience(int iPopMod = 0, bool bForceGlobal = false) const;
+	//new name should be distress instead of defense, but it's a hassle to change now
 	int getUnhappinessFromDefenseYield(int iPopMod = 0) const;
 	int getUnhappinessFromDefenseNeeded(int iMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;

@@ -8369,11 +8369,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		// plot danger is a bit unreliable, so we need extra checks
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
-
-		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot);
-		//when in doubt, prefer to move, even in the wrong direction - being stuck looks stupid
-		if (pUnit->atPlot(*pPlot) && iDanger>GC.getENEMY_HEAL_RATE())
-			iCityDistance+=2;
+		//use both measures here because estimated turns often isn't granular enough
+		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot) + kPlayer.GetCityDistanceInPlots(pPlot);
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
@@ -8389,36 +8386,35 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
 		if (pPlot != pUnit->plot() && pUnit->canHeal(pUnit->plot()))
-			iDanger++;
+			iDanger += 11;
+
+		//heal rate is higher here and danger lower
+		if (!bIsInTerritory)
+			iDanger += 12;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
 		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
 		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
-			iDanger+=10;
+			iDanger += 9;
+
+		//try to go avoid borders
+		if (pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+			iDanger += 7;
 
 		//don't stay here, try to get away even if it means temporarily moving to a higher danger plot
 		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
-			iDanger+=20;
+			iDanger += 23;
 
 		//naval units should avoid enemy coast, never know what's hiding there
 		if (pUnit->getDomainType() == DOMAIN_SEA)
-			iDanger += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 2;
-
-		//heal rate is higher here and danger lower
-		if (bIsInTerritory)
-		{
-			iDanger -= 5;
-			if (!pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
-				iDanger -= 5;
-		}
+			iDanger += pPlot->countMatchingAdjacentPlots(DOMAIN_LAND, NO_PLAYER, pUnit->getOwner(), NO_PLAYER) * 7;
 
 		//try to go where our friends are
 		int iFriendlyUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN);
-		iDanger -= (iFriendlyUnitsAdjacent * 5);
-
 		//don't go where our foes are
 		int iEnemyUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), NULL, true);
-		iDanger += (iEnemyUnitsAdjacent * 5);
+
+		iDanger += (iEnemyUnitsAdjacent-iFriendlyUnitsAdjacent) * 9;
 		
 		//use city distance as tiebreaker
 		int iScore = iDanger * 10 + iCityDistance;
@@ -8439,9 +8435,9 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			//idea: could also look at number of plots reachable from pPlot to avoid dead ends
 			aZeroDangerList.push_back(pPlot, bIsInTerritory ? iCityDistance : iCityDistance*2 );
 		}
-		else if(bIsInCover) //mostly relevant for civilians - when in doubt go home
+		else if(bIsInCover) //mostly relevant for civilians
 		{
-			aCoverList.push_back(pPlot, iScore - iCityDistance);
+			aCoverList.push_back(pPlot, iScore);
 		}
 		else if( (!bLowDangerOnly || iDanger<pUnit->GetCurrHitPoints()) && (!bWouldEmbark || bAllowEmbark) )
 		{
@@ -10646,14 +10642,22 @@ void CvTacticalPosition::updateTacticalPlotTypes(CvTacticalPlot::eTactPlotDomain
 	}
 
 	//now this one update may cause neighbors to switch as well
+	size_t initialCount = outstanding.size();
+	size_t updateCount = 0;
 	while (!outstanding.empty())
 	{
 		int index = *outstanding.begin();
 		outstanding.erase(outstanding.begin());
 		CvTacticalPlot& tactPlot = getTactPlotMutable(index);
 		if (tactPlot.isValid())
-			tactPlot.findType(eDomain,*this,outstanding);
+		{
+			tactPlot.findType(eDomain, *this, outstanding);
+			updateCount++;
+		}
 	}
+
+	if (updateCount > 23 * initialCount)
+		OutputDebugString("ouch, inefficient plot type update\n");
 }
 
 CvTacticalPosition::CvTacticalPosition()
