@@ -11289,10 +11289,9 @@ void CvPlayer::doTurn()
 		{
 			if(GetPlayerTraits()->IsBullyAnnex() && !IsEmpireVeryUnhappy() && !isHuman())
 			{
-				PlayerTypes eLoopPlayer;
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 					if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
 					{
 						if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->CanMajorBullyUnit(GetID()))
@@ -46789,12 +46788,12 @@ int CvPlayer::GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, bool bFixedDamageOnly)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
+	return m_pDangerPlots->GetDanger(pPlot, bFixedDamageOnly);
 }
 
 void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)

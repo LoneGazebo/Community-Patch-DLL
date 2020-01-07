@@ -14328,12 +14328,7 @@ bool CvPlot::HasWrittenArtifact() const
 	}
 	return bRtnValue;
 }
-// Citadel
-bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer) const
-{
-	VALIDATE_OBJECT
-	return (GetDamageFromAdjacentPlots(ePlayer) > 0);
-}
+
 //	--------------------------------------------------------------------------------
 // Citadel
 int CvPlot::GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const
@@ -15715,12 +15710,9 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		}
 
 		// Get score for this sentry point (defense and danger)
-		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this);
-
-		iScore += defenseModifier(eTeam, true, true);
+		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this,false) + defenseModifier(eTeam, true, true);
 
 		ImprovementTypes eCurrentImprovement = getImprovementType();
-
 		if (eCurrentImprovement != NO_IMPROVEMENT)
 		{
 			if (GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() > 0)

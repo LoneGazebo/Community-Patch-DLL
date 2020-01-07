@@ -4102,8 +4102,9 @@ void CvMinorCivAI::Reset()
 	m_iTurnAllied = -1;
 	m_eMajorBoughtOutBy = NO_PLAYER;
 	m_bDisableNotifications = false;
+	m_iBullyPlotsBuilt = 0;
+	m_bullyRelevantPlots.clear();
 
-	int iI, iJ;
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_bIsSacked = false;
 	m_bIsRebellion = false;
@@ -4118,11 +4119,11 @@ void CvMinorCivAI::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iTurnLiberated = 0;
 #endif
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_abWarQuestAgainstMajor[iI] = false;
 
-		for(iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+		for(int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 		{
 			m_aaiNumEnemyUnitsLeftToKillByMajor[iI][iJ] = -1;
 		}
@@ -4160,7 +4161,7 @@ void CvMinorCivAI::Reset()
 #endif
 	}
 
-	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
+	for(int iI = 0; iI < REALLY_MAX_TEAMS; iI++)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		m_aiJerk[iI] = 0;
@@ -11005,9 +11006,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE);
 			iShift += kPlayer.GetPlayerTraits()->GetAfraidMinorPerTurnInfluence();
 		}
-		if(CanMajorBullyUnit(ePlayer))
-		{
-		}
 		
 		if (iShift != 0)
 		{
@@ -15153,6 +15151,23 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 // ***** Bullying *****
 // ******************************
 
+const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
+{
+	if (m_iBullyPlotsBuilt != GC.getGame().getGameTurn())
+	{
+		if (GetPlayer()->getCapitalCity())
+		{
+			//do not set a player - that way we can traverse unrevealed plots and foreign territory
+			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
+			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
+		}
+		else
+			m_bullyRelevantPlots.clear();
+	}
+
+	return m_bullyRelevantPlots;
+}
+
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
@@ -15267,7 +15282,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(pMinorCapital == NULL)
 		return iFailScore;
 
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pMinorCapital->plot(), MINOR_POWER_COMPARISON_RADIUS, GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower( GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
 	//don't forget the city itself
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
 	iScore += iLocalPowerRatio;

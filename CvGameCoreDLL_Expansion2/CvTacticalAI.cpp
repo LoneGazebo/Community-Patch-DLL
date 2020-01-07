@@ -8891,19 +8891,15 @@ CvPlot* TacticalAIHelpers::GetFirstTargetInRange(const CvUnit * pUnit, bool bMus
 	return NULL;
 }
 
-pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth)
+pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth)
 {
-	if (!pOrigin)
+	if (plotsToCheck.empty())
 		return make_pair(0, 0);
-
-	//do not set a player - that way we can traverse unrevealed plots and foreign territory
-	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iRangeInTurns);
-	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pOrigin, data);
 
 	int iTeamAPower = 0;
 	int iTeamBPower = 0;
 
-	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
+	for (ReachablePlots::const_iterator it = plotsToCheck.begin(); it != plotsToCheck.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if (!pLoopPlot)
@@ -11645,8 +11641,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
-		if (vUnits.size() > 5 && completedPositions.empty() && openPositionsHeap.empty())
-			OutputDebugString("warning, no useful moves found\n");
 	}
 
 	return result;
@@ -11886,8 +11880,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
-		if (vUnits.size() > 5 && completedPositions.empty() && openPositionsHeap.empty())
-			OutputDebugString("warning, no useful moves found\n");
 	}
 
 	return result;

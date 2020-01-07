@@ -1812,7 +1812,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 			{
 				CvString strLog;
-				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
+				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, true));
 				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 			}
 			return false;
@@ -1822,7 +1822,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 			{
 				CvString strLog;
-				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
+				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, false));
 				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 			}
 			return false;

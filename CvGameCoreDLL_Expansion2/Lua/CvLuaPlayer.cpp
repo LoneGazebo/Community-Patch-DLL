@@ -10063,7 +10063,7 @@ int CvLuaPlayer::lGetPlotDanger(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 
-	lua_pushinteger(L, pkPlayer->GetPlotDanger(*pkPlot));
+	lua_pushinteger(L, pkPlayer->GetPlotDanger(*pkPlot,false));
 	return 1;
 }
 #if defined(MOD_API_LUA_EXTENSIONS)
@@ -11379,7 +11379,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 
 				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
 				iValue = iValue * (100 - iDistanceDropoff) / 100;
-				iDanger = pkPlayer->GetPlotDanger(*pPlot);
+				iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
 				if(iDanger < 1000)
 				{
 					iValue = ((1000 - iDanger) * iValue) / 1000;

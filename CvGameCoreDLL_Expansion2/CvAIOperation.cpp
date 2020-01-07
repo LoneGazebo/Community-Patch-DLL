@@ -2989,8 +2989,12 @@ bool CvAIOperationBullyCityState::DoTurn()
 
 	if (GetTargetPlot()->isCity() && GET_PLAYER(m_eEnemy).isMinorCiv())
 	{
+		//do not set a player - that way we can traverse unrevealed plots and foreign territory
+		SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
+		ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(GetTargetPlot(), data);
+
 		//taken from CalculateBullyMetric
-		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetTargetPlot(), MINOR_POWER_COMPARISON_RADIUS, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
+		pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(m_eEnemy).getTeam(), GET_PLAYER(m_eOwner).getTeam(), false);
 		int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + GetTargetPlot()->getPlotCity()->GetPower()));
 
 		CvString strMsg;

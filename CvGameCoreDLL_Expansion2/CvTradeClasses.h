@@ -343,6 +343,21 @@ public:
 	TradeConnectionWasPlunderedList m_aTradeConnectionWasPlundered;
 
 	CvPlayer* m_pPlayer;
+
+	struct SPlayerTradeStats
+	{
+		int iTurnSliceBuilt;
+		int iInternationalTRsOut;
+		int iInternationalTRsIn;
+		int iInternalTRs;
+		int iMinorTRs;
+
+		void reset() { memset(this, 0, sizeof(SPlayerTradeStats)); }
+	};
+
+	//some precomputed numbers for performance
+	SPlayerTradeStats m_tradeStats;
+	void UpdateTradeStats();
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerTrade&);

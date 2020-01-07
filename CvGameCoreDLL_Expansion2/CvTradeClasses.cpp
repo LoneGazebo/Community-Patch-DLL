@@ -4652,25 +4652,39 @@ const TradeConnection* CvPlayerTrade::GetTradeConnection(CvCity* pOriginCity, Cv
 	return NULL;
 }
 
+void CvPlayerTrade::UpdateTradeStats()
+{
+	if (m_tradeStats.iTurnSliceBuilt == GC.getGame().getTurnSlice())
+		return;
+
+	m_tradeStats.reset();
+
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection& connection = pTrade->GetTradeConnection(ui);
+
+		if (GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
+			m_tradeStats.iMinorTRs++;
+
+		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
+			m_tradeStats.iInternalTRs++;
+
+		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner != m_pPlayer->GetID())
+			m_tradeStats.iInternationalTRsOut++;
+
+		if (connection.m_eOriginOwner != m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
+			m_tradeStats.iInternationalTRsIn++;
+	}
+
+	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
+}
+
 //Returns the number of city state trade routes connected to a city
 int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 {
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iNumConnections = 0;
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
-
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			if(GET_PLAYER(pConnection->m_eDestOwner).isMinorCiv())
-			{
-				iNumConnections++;
-			}
-		}
-	}
-
-	return iNumConnections;
+	UpdateTradeStats();
+	return m_tradeStats.iMinorTRs;
 }
 
 int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
@@ -4740,66 +4754,22 @@ bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)
 //Returns the number of internal trade routes in your empire
 int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
 {
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iNumConnections = 0;
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
-
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			if(pConnection->m_eDestOwner == m_pPlayer->GetID())
-			{
-				iNumConnections++;
-			}
-		}
-	}
-	return iNumConnections;
+	UpdateTradeStats();
+	return m_tradeStats.iInternalTRs;
 }
 
 //Returns the number of international trade routes to other empires
 int CvPlayerTrade::GetNumberOfInternationalTradeRoutes(bool bOutgoing)
 {
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iNumConnections = 0;
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
-
-		if (bOutgoing && pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			if(pConnection->m_eDestOwner != m_pPlayer->GetID())
-			{
-				iNumConnections++;
-			}
-		}
-
-		if (!bOutgoing && pConnection->m_eDestOwner == m_pPlayer->GetID())
-		{
-			if(pConnection->m_eOriginOwner != m_pPlayer->GetID())
-			{
-				iNumConnections++;
-			}
-		}
-	}
-	return iNumConnections;
+	UpdateTradeStats();
+	return bOutgoing ? m_tradeStats.iInternationalTRsOut : m_tradeStats.iInternationalTRsIn;
 }
 
 //Returns the number of trade routes in your empire
 int CvPlayerTrade::GetNumberOfTradeRoutes()
 {
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iNumConnections = 0;
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
-
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			iNumConnections++;
-		}
-	}
-	return iNumConnections;
+	UpdateTradeStats();
+	return m_tradeStats.iInternalTRs + m_tradeStats.iInternationalTRsOut;
 }
 #endif
 
@@ -7182,7 +7152,8 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 			break;
 		}
 
-		if (m_pPlayer->GetPlotDanger(*pPlot)>0)
+		//avoid fallout etc
+		if (m_pPlayer->GetPlotDanger(*pPlot,true)>0)
 			iDangerSum++;
 	}
 

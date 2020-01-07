@@ -4773,7 +4773,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 		if(ePlayer != NO_PLAYER)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			const int iValue = kPlayer.GetPlotDanger(*pkPlot);
+			const int iValue = kPlayer.GetPlotDanger(*pkPlot, false);
 
 			sprintf_s(szBuffer, uiBufferLength, "%d", iValue);
 		}

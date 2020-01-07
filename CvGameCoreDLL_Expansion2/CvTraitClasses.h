@@ -1715,6 +1715,8 @@ public:
 	int GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	vector<ImprovementTypes> GetImprovementTypesWithYieldChange() const;
+	void UpdateYieldChangeImprovementTypes();
 	int GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
@@ -2256,6 +2258,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileStealCultureBomb;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileSettle;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
+	vector<ImprovementTypes> m_vYieldChangeImprovementTypes; //not serialized, built on the fly
 	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
 #endif
 

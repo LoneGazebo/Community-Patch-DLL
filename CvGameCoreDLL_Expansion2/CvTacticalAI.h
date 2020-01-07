@@ -1218,7 +1218,7 @@ namespace TacticalAIHelpers
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	bool IsSuicideMeleeAttack(CvUnit* pAttacker, CvPlot* pTarget);
 	CvPlot* GetFirstTargetInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
-	pair<int, int> EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
+	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)

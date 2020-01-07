@@ -23023,17 +23023,6 @@ void CvUnit::changeExtraAttacks(int iChange)
 	}
 }
 
-//	--------------------------------------------------------------------------------
-// Citadel (no longer used)
-bool CvUnit::IsNearEnemyCitadel(const CvPlot* pInPlot) const
-{
-	VALIDATE_OBJECT
-
-	if (pInPlot == NULL)
-		pInPlot = plot();
-
-	return pInPlot->IsNearEnemyCitadel(getOwner());
-}
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 // Golden Age? And have a general near us that gives us additional Exp?

@@ -1020,8 +1020,12 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (!pMusterCity)
 		return false;
 
+	//do not set a player - that way we can traverse unrevealed plots and foreign territory
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
+	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
+
 	//taken from CalculateBullyMetric
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pTargetCity->plot(), MINOR_POWER_COMPARISON_RADIUS, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
 
 	//check if we have a chance ...
@@ -2349,7 +2353,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam( pLoopPlot->getTeam() );
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID()))
+			if (GetPlayer()->GetPlotDanger(*pLoopPlot, true) > 9)
 				bTough = true;
 
 			//makes us slow

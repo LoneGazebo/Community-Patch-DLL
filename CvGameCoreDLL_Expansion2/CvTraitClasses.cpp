@@ -4560,6 +4560,7 @@ void CvPlayerTraits::InitPlayerTraits()
 						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop];
 						yields[iYield] = (m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop][iYield] + iChange);
 						m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop] = yields;
+						UpdateYieldChangeImprovementTypes();
 					}
 #endif
 				}
@@ -4899,6 +4900,7 @@ void CvPlayerTraits::Uninit()
 	m_ppiYieldFromTileStealCultureBomb.clear();
 	m_ppiYieldFromTileSettle.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
+	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
@@ -5179,6 +5181,7 @@ void CvPlayerTraits::Reset()
 	m_ppiYieldFromTileSettle.resize(GC.getNumTerrainInfos());
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
+	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -5236,6 +5239,8 @@ void CvPlayerTraits::Reset()
 			m_ppaaiYieldChangePerImprovementBuilt[iImprovement] = yield;
 #endif
 		}
+		UpdateYieldChangeImprovementTypes();
+
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 		for(int iPlot = 0; iPlot < GC.getNumPlotInfos(); iPlot++)
 		{
@@ -5649,6 +5654,30 @@ int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovem
 	}
 	return m_ppaaiYieldChangePerImprovementBuilt[(int)eImprovement][(int)eYield];
 }
+
+vector<ImprovementTypes> CvPlayerTraits::GetImprovementTypesWithYieldChange() const
+{
+	return m_vYieldChangeImprovementTypes;
+}
+
+void CvPlayerTraits::UpdateYieldChangeImprovementTypes()
+{
+	m_vYieldChangeImprovementTypes.clear();
+
+	for (size_t iImprovement = 0; iImprovement < m_ppaaiYieldChangePerImprovementBuilt.size(); iImprovement++)
+	{
+		for (size_t iYield = 0; iYield < m_ppaaiYieldChangePerImprovementBuilt[iImprovement].size(); iYield++)
+		{
+			//remember the improvement type if there's one or more yields it affects
+			if (m_ppaaiYieldChangePerImprovementBuilt[iImprovement][iYield] != 0)
+			{
+				m_vYieldChangeImprovementTypes.push_back((ImprovementTypes)iImprovement);
+				continue;
+			}
+		}
+	}
+}
+
 int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldFromBarbarianCampClear()");
@@ -7568,6 +7597,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiYieldFromTileStealCultureBomb;
 	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
+	UpdateYieldChangeImprovementTypes();
 	kStream >> m_pbiYieldFromBarbarianCampClear;
 	kStream >> m_aiGoldenAgeYieldModifier;
 	kStream >> m_aibUnitCombatProductionCostModifier;

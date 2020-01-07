@@ -12357,7 +12357,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									if (iOverflow >= 0)
 									{
 										pOriginCity->m_iThingsProduced++;
-										int iResult = pOriginCity->CreateUnit(eUnit, GC.getUnitInfo(eUnit)->GetDefaultUnitAIType(), REASON_TRAIN);
+										pOriginCity->CreateUnit(eUnit, GC.getUnitInfo(eUnit)->GetDefaultUnitAIType(), REASON_TRAIN);
 
 										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
 										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
@@ -12389,7 +12389,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									if (iOverflow >= 0)
 									{
 										pOriginCity->m_iThingsProduced++;
-										bool bResult = pOriginCity->CreateBuilding(eBuilding);
+										pOriginCity->CreateBuilding(eBuilding);
 
 										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
 										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
@@ -12443,7 +12443,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									if (iOverflow >= 0)
 									{
 										pOriginCity->m_iThingsProduced++;
-										bool bResult = CreateProject(eProject);
+										CreateProject(eProject);
 
 										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
 										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
@@ -18953,30 +18953,28 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 
 	if (isCapital() || !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly())
 	{
-		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+		vector<ImprovementTypes> relevantTypes = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetImprovementTypesWithYieldChange();
+		for (size_t i=0; i<relevantTypes.size(); i++)
 		{
-			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
-			if (eImprovement != NULL)
-			{
-				int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
-				if (iYieldChangePerImprovementBuilt == 0)
-					continue;
+			ImprovementTypes eImprovement = relevantTypes[i];
+			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
+			if (iYieldChangePerImprovementBuilt == 0)
+				continue;
 
-				iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
+			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
+			{
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
 				{
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				}
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+				{
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				}
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
+				{
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
 				}
 			}
 		}

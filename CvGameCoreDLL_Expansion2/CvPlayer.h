@@ -2540,7 +2540,7 @@ public:
 
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
-	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
+	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
 

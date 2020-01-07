@@ -2241,14 +2241,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	//re-use the gold value as a general unit and penalize unhappy citizens
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot * 3;
 
-	//consider strategic (defensive) value
-	CityAttackApproaches landApproach = buyingPlayer.GetMilitaryAI()->EvaluateMilitaryApproaches(pCity,true,false);
-	CityAttackApproaches seaApproach = buyingPlayer.GetMilitaryAI()->EvaluateMilitaryApproaches(pCity,false,true);
-	if (landApproach > ATTACK_APPROACH_NEUTRAL)
-		iItemValue += goldPerPlot * 8;
-	if (seaApproach > ATTACK_APPROACH_NEUTRAL)
-		iItemValue += goldPerPlot * 8;
-
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{
 		//Not good? Offer much less.

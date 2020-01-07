@@ -363,36 +363,30 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 }
 
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot
-int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, bool bFixedDamageOnly)
 {
 	if(m_DangerPlots.empty())
 		return 0;
 
-	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(bFixedDamageOnly);
 }
 
 /// Return the maximum amount of damage a city could take at this plot
 int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 {
-	if(m_DangerPlots.empty())
+	if(m_DangerPlots.empty() || !pCity)
 		return 0;
 
-	if (pCity != NULL)
-		return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
-
-	return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(NO_PLAYER);
+	return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
 int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
-	if(m_DangerPlots.empty())
+	if(m_DangerPlots.empty() || !pUnit)
 		return 0;
 
-	if (pUnit)
-		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
-
-	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
 }
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const
@@ -622,15 +616,22 @@ void CvDangerPlots::SetDirty()
 	m_bDirty = true;
 }
 
-// Get the maximum damage unit could receive at this plot in the next turn
-int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
+// Get the maximum damage a non-specified unit could receive at this plot in the next turn
+int CvDangerPlotContents::GetDanger(bool bFixedDamageOnly)
 {
 	if (!m_pPlot)
 		return 0;
 
-	// Damage from terrain - since we don't know the unit, just assume 20
-	int iPlotDamage = m_bFlatPlotDamage ? 20 : 0;
+	int iPlotDamage = m_iImprovementDamage;
+	
+	// Damage from terrain & features (eg fallout) - since we don't know the unit, just assume 20
+	if (m_bFlatPlotDamage)
+		iPlotDamage += 20;
 
+	if (bFixedDamageOnly)
+		return iPlotDamage;
+
+	//now add the contribution from units, ignore cities & fog, this is just an estimation anyway
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
@@ -669,22 +670,8 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			}
 		}
 	}
-	
-	// Damage from cities
-	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
-	{
-		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
-
-		if (pCity && pCity->getTeam() != GET_PLAYER(ePlayer).getTeam())
-			iPlotDamage += pCity->rangeCombatDamage(NULL, NULL, false, m_pPlot);
-	}
-
-	// Damage from fog (check visibility again, might have changed ...)
-	for (size_t i = 0; i<m_fogDanger.size(); i++)
-		if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(GET_PLAYER(ePlayer).getTeam()))
-			iPlotDamage += FOG_DEFAULT_DANGER;
-
-	return iPlotDamage + m_iImprovementDamage;
+		
+	return iPlotDamage;
 }
 
 int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction)
