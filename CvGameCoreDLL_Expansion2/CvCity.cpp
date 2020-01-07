@@ -12328,6 +12328,7 @@ void CvCity::changeProductionTimes100(int iChange)
 						CvPlayer* pOtherPlayer = &GET_PLAYER(pConnection->m_eOriginOwner);
 						if (pOtherPlayer->GetPlayerTraits()->IsTradeRouteProductionSiphon())
 						{
+							Localization::String localizedText;
 							int iSiphonPercent = pOtherPlayer->GetTradeRouteProductionSiphonPercent(false, pPlayer);
 							if (pPlayer->GetID() != pOtherPlayer->GetID())
 							{
@@ -12335,96 +12336,140 @@ void CvCity::changeProductionTimes100(int iChange)
 							}
 
 							int iSiphonAmount = iChange * iSiphonPercent / 100;
-							
+
 							if (iSiphonAmount > 0)
 							{
 								int iOverflow = 0;
-								int iMaxOverflow = 0;
 								int iProductionNeeded = 0;
-								int iLostProduction = 0;
 
 								if (this->isProductionUnit())
 								{
-									// siphon production to the required unit in the origin
 									UnitTypes eUnit = getProductionUnit();
-									pOriginCity->changeUnitProductionTimes100(eUnit, iSiphonAmount);
+									CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+									UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
 
-									// check if the origin have completed production
-									iProductionNeeded = pOriginCity->getProductionNeeded(eUnit) * 100;
-									iOverflow = pOriginCity->getUnitProductionTimes100(eUnit) - iProductionNeeded;
+									// check if this unit is valid in the origin city
+									// we are going very light on restrictions, so we are not using CanTrain()
+									bool bValid = true;
 
-									// if origin has completed production (code below is a brief version of popOrder())
-									if (iOverflow >= 0)
+									// no ships in land-locked cities
+									if (!pOriginCity->isCoastal() && (DomainTypes)pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 									{
-										pOriginCity->m_iThingsProduced++;
-										pOriginCity->CreateUnit(eUnit, GC.getUnitInfo(eUnit)->GetDefaultUnitAIType(), REASON_TRAIN);
-
-										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
-										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-
-										if (iOverflow > 0)
+										bValid = false;
+									}
+									// no trade units if our trade route slots are maxed
+									else if (pkUnitInfo->IsTrade() && pOtherPlayer->GetTrade()->GetNumTradeUnitsRemaining(false) <= 0)
+									{
+										bValid = false;
+									}
+									// settler related
+									else if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad())
+									{
+										// require certain city population
+										int iSizeRequirement = /*2*/ GC.getCITY_MIN_SIZE_FOR_SETTLERS();
+										if (pOriginCity->getPopulation() < iSizeRequirement)
 										{
-											pOriginCity->changeOverflowProductionTimes100(iOverflow);
+											bValid = false;
 										}
-
-										pOriginCity->setUnitProduction(eUnit, 0);
-										int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-										if (iProductionGold > 0)
+										// one city challenge
+										else if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pOtherPlayer->isHuman())
 										{
-											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
+											bValid = false;
+										}
+									}
+									// air units can't be built above capacity
+									else if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+									{
+										int iNumAirUnits = pOriginCity->plot()->countNumAirUnits(pOriginCity->getTeam());
+										if (iNumAirUnits >= pOriginCity->GetMaxAirUnits())
+										{
+											bValid = false;
+										}
+									}
+									// cannot exceed max instance
+									else if (GC.getGame().isUnitClassMaxedOut(eUnitClass) || GET_TEAM(pOtherPlayer->getTeam()).isUnitClassMaxedOut(eUnitClass) || pOtherPlayer->isUnitClassMaxedOut(eUnitClass))
+									{
+										bValid = false;
+									}
+
+									//proceed only if valid
+									if (bValid)
+									{
+										// siphon production to the required unit in the origin
+										pOriginCity->changeUnitProductionTimes100(eUnit, iSiphonAmount);
+
+										// check if the origin have completed production
+										iProductionNeeded = pOriginCity->getProductionNeeded(eUnit) * 100;
+										iOverflow = pOriginCity->getUnitProductionTimes100(eUnit) - iProductionNeeded;
+
+										// if origin has completed production
+										if (iOverflow >= 0)
+										{
+											pOriginCity->produce(eUnit);
+
+											if (pkUnitInfo)
+											{
+												localizedText = Localization::Lookup(((isLimitedUnitClass(eUnitClass)) ? "TXT_KEY_MISC_TRAINED_UNIT_IN_LIMITED" : "TXT_KEY_MISC_TRAINED_UNIT_IN"));
+												localizedText << pkUnitInfo->GetTextKey() << getNameKey();
+											}
 										}
 									}
 								}
 								else if (this->isProductionBuilding())
 								{
-									// siphon production to the required building
+									// what building is the destination city making?
 									BuildingTypes eBuilding = getProductionBuilding();
-									pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(eBuilding, iSiphonAmount);
+									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+									BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetBuildingClassType();
 
-									// check if the origin have completed production
-									iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
-									iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
+									// check if this building is valid in the origin city
+									// we are going very light on restrictions, so we are not using CanConstruct()
+									bool bValid = true;
 
-									// if origin has completed production (code below is a brief version of popOrder())
-									if (iOverflow >= 0)
+									// cannot build if city already has the exact building
+									if (pOriginCity->m_pCityBuildings->GetNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS())
 									{
-										pOriginCity->m_iThingsProduced++;
-										pOriginCity->CreateBuilding(eBuilding);
+										bValid = false;
+									}
+									// cannot exceed max instance
+									else if (pOtherPlayer->isBuildingClassMaxedOut(eBuildingClass))
+									{
+										bValid = false;
+									}
+									// If the building class exists in the city, but the default building in the city doesn't, that means we already managed to siphon a unique building. Do not replace in this case.
+									else if (pOriginCity->HasBuildingClass(eBuildingClass) && pOriginCity->m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex()) == 0)
+									{
+										bValid = false;
+									}
 
-										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
-										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+									// proceed only if valid
+									if (bValid)
+									{
+										// siphon production to the required building
+										pOriginCity->m_pCityBuildings->ChangeBuildingProductionTimes100(eBuilding, iSiphonAmount);
 
-										if (iOverflow > 0)
+										// check if the origin have completed production
+										iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
+										iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
+
+										// if origin has completed production (code below is a brief version of popOrder())
+										if (iOverflow >= 0)
 										{
-											pOriginCity->changeOverflowProductionTimes100(iOverflow);
-										}
+											// due to above check, if building class already exists, it means we are replacing the default building with a unique building
+											if (pOriginCity->HasBuildingClass(eBuildingClass))
+											{
+												BuildingTypes eClassDefault = (BuildingTypes)GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex();
+												pOriginCity->m_pCityBuildings->SetNumRealBuilding(eClassDefault, 0);
+												pOriginCity->m_pCityBuildings->SetNumFreeBuilding(eClassDefault, 0);
+											}
 
-										pOriginCity->m_pCityBuildings->SetBuildingProduction(eBuilding, 0);
-										int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
-										if (iProductionGold > 0)
-										{
-											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
-										}
+											pOriginCity->produce(eBuilding);
 
-										if (GC.getLogging() && GC.getAILogging())
-										{
 											CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 											if (pkBuildingInfo)
 											{
-												if (pOtherPlayer->GetWonderProductionAI()->IsWonder(*pkBuildingInfo))
-												{
-													CvString playerName;
-													FILogFile* pLog;
-													CvString strBaseString;
-													CvString strOutBuf;
-													playerName = pOtherPlayer->getCivilizationShortDescription();
-													pLog = LOGFILEMGR.GetLog(pOtherPlayer->GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-													strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-													strBaseString += playerName + ", ";
-													strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkBuildingInfo->GetDescription());
-													strBaseString += strOutBuf;
-													pLog->Msg(strBaseString);
-												}
+												localizedText = Localization::Lookup(((isLimitedWonderClass(pkBuildingInfo->GetBuildingClassInfo())) ? "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN_LIMITED" : "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN"));
+												localizedText << pkBuildingInfo->GetTextKey() << getNameKey();
 											}
 										}
 									}
@@ -12442,23 +12487,10 @@ void CvCity::changeProductionTimes100(int iChange)
 									// if origin has completed production (code below is a brief version of popOrder())
 									if (iOverflow >= 0)
 									{
-										pOriginCity->m_iThingsProduced++;
-										CreateProject(eProject);
+										pOriginCity->produce(eProject);
 
-										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
-										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-
-										if (iOverflow > 0)
-										{
-											pOriginCity->changeOverflowProductionTimes100(iOverflow);
-										}
-
-										pOriginCity->setProjectProduction(eProject, 0);
-										int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
-										if (iProductionGold > 0)
-										{
-											pOtherPlayer->GetTreasury()->ChangeGoldTimes100(iProductionGold);
-										}
+										localizedText = Localization::Lookup(((isLimitedProject(eProject)) ? "TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED" : "TXT_KEY_MISC_CREATED_PROJECT_IN"));
+										localizedText << GC.getProjectInfo(eProject)->GetTextKey() << getNameKey();
 									}
 								}
 								else if (isProductionSpecialist())
@@ -12474,16 +12506,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									// if origin has completed production (code below is a brief version of popOrder())
 									if (iOverflow >= 0)
 									{
-										pOriginCity->m_iThingsProduced++;
-										iMaxOverflow = std::max(iProductionNeeded, pOriginCity->getCurrentProductionDifferenceTimes100(false, false));
-										iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-
-										if (iOverflow > 0)
-										{
-											pOriginCity->changeOverflowProductionTimes100(iOverflow);
-										}
-
-										pOriginCity->setSpecialistProduction(eSpecialist, 0);
+										pOriginCity->produce(eSpecialist);
 									}
 								}
 #if defined(MOD_BALANCE_CORE)
@@ -12500,6 +12523,10 @@ void CvCity::changeProductionTimes100(int iChange)
 									}
 								}
 #endif
+								if (!localizedText.IsEmpty())
+								{
+									DLLUI->AddCityMessage(0, pOriginCity->GetIDInfo(), pOriginCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8()/*, szSound, MESSAGE_TYPE_MINOR_EVENT, szIcon, (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
+								}
 							}
 						}
 					}
@@ -29468,11 +29495,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		return;
 	}
 
-	if(bFinish)
-	{
-		m_iThingsProduced++;
-	}
-
 	if(bFinish && pOrderNode->bSave)
 	{
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
@@ -29498,211 +29520,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 		if(bFinish)
 		{
-			int iResult = CreateUnit(eTrainUnit, eTrainAIUnit, REASON_TRAIN);
-			if(iResult != -1)
-			{
-#if defined(MOD_BALANCE_CORE)
-				CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-				if(pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
-				{
-					UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
-					if(eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
-					{
-						pUnit->DoUpgrade(true);
-					}
-				}
-				if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsConquestOfTheWorld())
-				{
-					if(pUnit && (pUnit->isFound() || pUnit->IsFoundMid()))
-					{
-						UnitTypes eBestLandUnit = NO_UNIT;
-						int iStrengthBestLandCombat = 0;
-						for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-						{
-							const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-							CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-							if(pkUnitClassInfo)
-							{
-								const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
-								CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-								if(pUnitEntry)
-								{
-									if(!canTrain(eUnit))
-									{
-										continue;
-									}
-									if(pUnitEntry->GetRangedCombat() > 0)
-									{
-										continue;
-									}
-									if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
-									{
-										bool bBad = false;
-										ResourceTypes eResource;
-										for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-										{
-											eResource = (ResourceTypes) iResourceLoop;
-											int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
-											if (iNumResource > 0)
-											{
-												if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < iNumResource)
-												{
-													bBad = true;
-													break;
-												}
-											}
-										}
-										if(bBad)
-										{
-											continue;
-										}
-										int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
-										if(iCombatLandStrength > iStrengthBestLandCombat)
-										{
-											iStrengthBestLandCombat = iCombatLandStrength;
-											eBestLandUnit = eUnit;
-										}
-									}
-								}
-							}
-						}
-						if(eBestLandUnit != NO_UNIT)
-						{
-							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
-							if(pkbUnitEntry)
-							{
-								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
-								{
-									CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
-									if (!pUnit2->jumpToNearestValidPlot())
-									{
-										pUnit2->kill(false);	// Could not find a valid spot!
-									}
-									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-									if (pNotifications)
-									{
-										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
-										strText << pUnit2->getNameKey() << getNameKey();
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
-										strSummary << getNameKey();
-										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
-									}
-								}
-							}
-						}
-						else
-						{
-							UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
-							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
-							if(pkbUnitEntry)
-							{
-								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-								if (iResult != -1)
-								{
-									CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
-									if (!pUnit2->jumpToNearestValidPlot())
-									{
-										pUnit2->kill(false);	// Could not find a valid spot!
-									}
-									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-									if (pNotifications)
-									{
-										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
-										strText << pUnit2->getNameKey() << getNameKey();
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
-										strSummary << getNameKey();
-										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
-									}
-								}
-							}
-						}
-					}
-				}
-				if(kOwner.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
-				{
-					UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
-					UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-					if(pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
-					{
-						CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
-						if(pkcUnitEntry)
-						{
-							UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
-							CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
-							pZuluImpi->convert(pUnit, true);
-						}
-					}
-				}
-#endif
-#if defined(MOD_EVENTS_CITY)
-				if (MOD_EVENTS_CITY)
-				{
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
-				}
-				else
-				{
-#endif
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem) 
-				{
-					CvLuaArgsHandle args;
-					args->Push(getOwner());
-					args->Push(GetID());
-					args->Push(GET_PLAYER(getOwner()).getUnit(iResult)->GetID()); // This is probably just iResult
-					args->Push(false); // bGold
-					args->Push(false); // bFaith/bCulture
-
-					bool bResult;
-					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
-				}
-#if defined(MOD_EVENTS_CITY)
-				}
-#endif
-
-				iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
-#if defined(MOD_BALANCE_CORE)
-				if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
-				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
-				}
-#endif
-				// max overflow is the value of the item produced (to eliminate prebuild exploits)
-				int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-				int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-				iOverflow = std::min(iMaxOverflow, iOverflow);
-				if (iOverflow > 0)
-				{
-					changeOverflowProductionTimes100(iOverflow);
-				}
-				setUnitProduction(eTrainUnit, 0);
-
-				int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-				if(iProductionGold > 0)
-				{
-					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-				}
-			}
-			else
-			{
-				// create notification
-				setUnitProduction(eTrainUnit, getProductionNeeded(eTrainUnit) - 1);
-
-				CvNotifications* pNotifications = kOwner.GetNotifications();
-				if(pNotifications)
-				{
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_REMOVED_UNIT");
-					strText << getNameKey();
-					strText << GC.getUnitInfo(eTrainUnit)->GetDescription();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_REMOVED_UNIT");
-					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-				}
-			}
+			produce(eTrainUnit);
 		}
 		break;
 
@@ -29718,71 +29536,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 			if(bFinish)
 			{
-				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
-				bool bResult = CreateBuilding(eConstructBuilding);
-				DEBUG_VARIABLE(bResult);
-				CvAssertMsg(bResult, "CreateBuilding failed");
-
-#if defined(MOD_EVENTS_CITY)
-				if (MOD_EVENTS_CITY) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eConstructBuilding, false, false);
-				} else {
-#endif
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem) 
-				{
-					CvLuaArgsHandle args;
-					args->Push(getOwner());
-					args->Push(GetID());
-					args->Push(eConstructBuilding);
-					args->Push(false); // bGold
-					args->Push(false); // bFaith/bCulture
-
-					bool bScriptResult;
-					LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
-				}
-#if defined(MOD_EVENTS_CITY)
-				}
-#endif		
-				// max overflow is the value of the item produced (to eliminate prebuild exploits)
-				int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
-				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-				int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-				iOverflow = std::min(iMaxOverflow, iOverflow);
-				if (iOverflow > 0)
-				{
-					changeOverflowProductionTimes100(iOverflow);
-				}
-				m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
-
-				int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
-				if(iProductionGold > 0)
-				{
-					kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-				}
-				
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvBuildingEntry* pkConstructBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
-					if(pkConstructBuildingInfo)
-					{
-						if(kOwner.GetWonderProductionAI()->IsWonder(*pkConstructBuildingInfo))
-						{
-							CvString playerName;
-							FILogFile* pLog;
-							CvString strBaseString;
-							CvString strOutBuf;
-							playerName = kOwner.getCivilizationShortDescription();
-							pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-							strBaseString += playerName + ", ";
-							strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkConstructBuildingInfo->GetDescription());
-							strBaseString += strOutBuf;
-							pLog->Msg(strBaseString);
-						}
-					}
-
-				}
+				produce(eConstructBuilding);
 			}
 		}
 		break;
@@ -29796,49 +29550,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 		if(bFinish)
 		{
-			bool bResult = CreateProject(eCreateProject);
-			DEBUG_VARIABLE(bResult);
-			CvAssertMsg(bResult, "Failed to create project");
-
-#if defined(MOD_EVENTS_CITY)
-			if (MOD_EVENTS_CITY) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityCreated, getOwner(), GetID(), eCreateProject, false, false);
-			} else {
-#endif
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem) 
-			{
-				CvLuaArgsHandle args;
-				args->Push(getOwner());
-				args->Push(GetID());
-				args->Push(eCreateProject);
-				args->Push(false); // bGold
-				args->Push(false); // bFaith/bCulture
-
-				bool bScriptResult;
-				LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
-			}
-#if defined(MOD_EVENTS_CITY)
-			}
-#endif
-
-			iProductionNeeded = getProductionNeeded(eCreateProject) * 100;
-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
-			int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-			iOverflow = std::min(iMaxOverflow, iOverflow);
-			if (iOverflow > 0)
-			{
-				changeOverflowProductionTimes100(iOverflow);
-			}
-			setProjectProduction(eCreateProject, 0);
-
-			int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
-			if(iProductionGold > 0)
-			{
-				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-			}
+			produce(eCreateProject);
 		}
 		break;
 
@@ -29846,20 +29558,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 		if(bFinish)
 		{
-			eSpecialist = ((SpecialistTypes)(pOrderNode->iData1));
-
-			iProductionNeeded = getProductionNeeded(eSpecialist) * 100;
-
-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
-			int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-			iOverflow = std::min(iMaxOverflow, iOverflow);
-			if (iOverflow > 0)
-			{
-				changeOverflowProductionTimes100(iOverflow);
-			}
-
-			setSpecialistProduction(eSpecialist, 0);
+			eSpecialist = (SpecialistTypes)(pOrderNode->iData1);
+			produce(eSpecialist);
 		}
 
 		break;
@@ -30143,6 +29843,371 @@ bool CvCity::CleanUpQueue(void)
 	}
 
 	return bOK;
+}
+
+//	--------------------------------------------------------------------------------
+/// Create unit by completing production in city, separated out from popOrder() so other functions can call this
+void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit)
+{
+	m_iThingsProduced++;
+
+	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+
+	int iResult = CreateUnit(eTrainUnit, eTrainAIUnit, REASON_TRAIN);
+	if (iResult != -1)
+	{
+#if defined(MOD_BALANCE_CORE)
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+		if (pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+		{
+			UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
+			if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+			{
+				pUnit->DoUpgrade(true);
+			}
+		}
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsConquestOfTheWorld())
+		{
+			if (pUnit && (pUnit->isFound() || pUnit->IsFoundMid()))
+			{
+				UnitTypes eBestLandUnit = NO_UNIT;
+				int iStrengthBestLandCombat = 0;
+				for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+				{
+					const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+					if (pkUnitClassInfo)
+					{
+						const UnitTypes eUnit = (UnitTypes)getCivilizationInfo().getCivilizationUnits(eUnitClass);
+						CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+						if (pUnitEntry)
+						{
+							if (!canTrain(eUnit))
+							{
+								continue;
+							}
+							if (pUnitEntry->GetRangedCombat() > 0)
+							{
+								continue;
+							}
+							if (pUnitEntry->GetDomainType() == DOMAIN_LAND)
+							{
+								bool bBad = false;
+								ResourceTypes eResource;
+								for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+								{
+									eResource = (ResourceTypes)iResourceLoop;
+									int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+									if (iNumResource > 0)
+									{
+										if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < iNumResource)
+										{
+											bBad = true;
+											break;
+										}
+									}
+								}
+								if (bBad)
+								{
+									continue;
+								}
+								int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+								if (iCombatLandStrength > iStrengthBestLandCombat)
+								{
+									iStrengthBestLandCombat = iCombatLandStrength;
+									eBestLandUnit = eUnit;
+								}
+							}
+						}
+					}
+				}
+				if (eBestLandUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
+					if (pkbUnitEntry)
+					{
+						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+						int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
+						CvAssertMsg(iResult != -1, "Unable to create unit");
+						if (iResult != -1)
+						{
+							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
+							if (!pUnit2->jumpToNearestValidPlot())
+							{
+								pUnit2->kill(false);	// Could not find a valid spot!
+							}
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
+								strText << pUnit2->getNameKey() << getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
+								strSummary << getNameKey();
+								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
+							}
+						}
+					}
+				}
+				else
+				{
+					UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+					if (pkbUnitEntry)
+					{
+						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+						int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
+						CvAssertMsg(iResult != -1, "Unable to create unit");
+						if (iResult != -1)
+						{
+							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
+							if (!pUnit2->jumpToNearestValidPlot())
+							{
+								pUnit2->kill(false);	// Could not find a valid spot!
+							}
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
+								strText << pUnit2->getNameKey() << getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
+								strSummary << getNameKey();
+								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (kOwner.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+		{
+			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
+			UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
+			if (pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
+			{
+				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
+				if (pkcUnitEntry)
+				{
+					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
+					CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
+					pZuluImpi->convert(pUnit, true);
+				}
+			}
+		}
+#endif
+#if defined(MOD_EVENTS_CITY)
+		if (MOD_EVENTS_CITY)
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
+		}
+		else
+		{
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(GET_PLAYER(getOwner()).getUnit(iResult)->GetID()); // This is probably just iResult
+				args->Push(false); // bGold
+				args->Push(false); // bFaith/bCulture
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
+			}
+#if defined(MOD_EVENTS_CITY)
+		}
+#endif
+
+		int iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
+#if defined(MOD_BALANCE_CORE)
+		if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
+		}
+#endif
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+		iOverflow = std::min(iMaxOverflow, iOverflow);
+		if (iOverflow > 0)
+		{
+			changeOverflowProductionTimes100(iOverflow);
+		}
+		setUnitProduction(eTrainUnit, 0);
+
+		int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+		if (iProductionGold > 0)
+		{
+			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+		}
+	}
+	else
+	{
+		// create notification
+		setUnitProduction(eTrainUnit, getProductionNeeded(eTrainUnit) - 1);
+
+		CvNotifications* pNotifications = kOwner.GetNotifications();
+		if (pNotifications)
+		{
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_REMOVED_UNIT");
+			strText << getNameKey();
+			strText << GC.getUnitInfo(eTrainUnit)->GetDescription();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_REMOVED_UNIT");
+			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Create building by completing production in city, separated out from popOrder() so other functions can call this
+void CvCity::produce(BuildingTypes eConstructBuilding)
+{
+	m_iThingsProduced++;
+
+	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+
+	int iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
+	bool bResult = CreateBuilding(eConstructBuilding);
+	DEBUG_VARIABLE(bResult);
+	CvAssertMsg(bResult, "CreateBuilding failed");
+
+#if defined(MOD_EVENTS_CITY)
+	if (MOD_EVENTS_CITY) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eConstructBuilding, false, false);
+	}
+	else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(getOwner());
+			args->Push(GetID());
+			args->Push(eConstructBuilding);
+			args->Push(false); // bGold
+			args->Push(false); // bFaith/bCulture
+
+			bool bScriptResult;
+			LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
+		}
+#if defined(MOD_EVENTS_CITY)
+	}
+#endif		
+	// max overflow is the value of the item produced (to eliminate prebuild exploits)
+	int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
+	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+	int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+	iOverflow = std::min(iMaxOverflow, iOverflow);
+	if (iOverflow > 0)
+	{
+		changeOverflowProductionTimes100(iOverflow);
+	}
+	m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
+
+	int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+	if (iProductionGold > 0)
+	{
+		kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+	}
+
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvBuildingEntry* pkConstructBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
+		if (pkConstructBuildingInfo)
+		{
+			if (kOwner.GetWonderProductionAI()->IsWonder(*pkConstructBuildingInfo))
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				playerName = kOwner.getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkConstructBuildingInfo->GetDescription());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+		}
+
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Create project by completing production in city, separated out from popOrder() so other functions can call this
+void CvCity::produce(ProjectTypes eCreateProject)
+{
+	m_iThingsProduced++;
+
+	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+
+	bool bResult = CreateProject(eCreateProject);
+	DEBUG_VARIABLE(bResult);
+	CvAssertMsg(bResult, "Failed to create project");
+
+#if defined(MOD_EVENTS_CITY)
+	if (MOD_EVENTS_CITY) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityCreated, getOwner(), GetID(), eCreateProject, false, false);
+	}
+	else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(getOwner());
+			args->Push(GetID());
+			args->Push(eCreateProject);
+			args->Push(false); // bGold
+			args->Push(false); // bFaith/bCulture
+
+			bool bScriptResult;
+			LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
+		}
+#if defined(MOD_EVENTS_CITY)
+	}
+#endif
+
+	int iProductionNeeded = getProductionNeeded(eCreateProject) * 100;
+	// max overflow is the value of the item produced (to eliminate prebuild exploits)
+	int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
+	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+	int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+	iOverflow = std::min(iMaxOverflow, iOverflow);
+	if (iOverflow > 0)
+	{
+		changeOverflowProductionTimes100(iOverflow);
+	}
+	setProjectProduction(eCreateProject, 0);
+
+	int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+	if (iProductionGold > 0)
+	{
+		kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Create specialist by completing production in city, separated out from popOrder() so other functions can call this
+void CvCity::produce(SpecialistTypes eSpecialist)
+{
+	m_iThingsProduced++;
+
+	int iProductionNeeded = getProductionNeeded(eSpecialist) * 100;
+
+	// max overflow is the value of the item produced (to eliminate prebuild exploits)
+	int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
+	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+	iOverflow = std::min(iMaxOverflow, iOverflow);
+	if (iOverflow > 0)
+	{
+		changeOverflowProductionTimes100(iOverflow);
+	}
+
+	setSpecialistProduction(eSpecialist, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -30640,12 +30705,23 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		}
 	}
 #endif
+#if defined(MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS)
+	bool bPuppetExceptionFaithBuilding = false;
+	if (MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS && bIsPuppet && eBuildingType >= 0 && ePurchaseYield == YIELD_FAITH)
+	{
+		bPuppetExceptionFaithBuilding = true;
+	}
+#endif
 	if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && bIsPuppet)
 	{
 		bVenetianException = true;
 	}
-#if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
+#if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE) && defined(MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS)
+	if (bIsPuppet && !bVenetianException && !bPuppetExceptionBuilding && !bPuppetExceptionUnit && !bAllowsPuppetPurchase && !bPuppetExceptionFaithBuilding)
+#elif defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
 	if (bIsPuppet && !bVenetianException && !bPuppetExceptionBuilding && !bPuppetExceptionUnit && !bAllowsPuppetPurchase)
+#elif defined(MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS)
+	if (bIsPuppet && !bVenetianException && !bPuppetExceptionFaithBuilding)
 #else
 	if (bIsPuppet && !bVenetianException)
 #endif
@@ -31114,12 +31190,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 #endif
 			iFaithCost = GetFaithPurchaseCost(eBuildingType);
 			if(iFaithCost < 1) return false;
-#if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
-			if(MOD_BALANCE_CORE_PUPPET_PURCHASE && bIsPuppet && !bPuppetExceptionBuilding && !bAllowsPuppetPurchase && !bVenetianException)
-			{
-				return false;
-			}
-#endif
 		}
 
 		if(iFaithCost > 0)
