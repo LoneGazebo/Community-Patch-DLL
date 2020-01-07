@@ -53,6 +53,11 @@ struct TradeConnection
 		}
 	}
 
+	bool isValid() const
+	{
+		return m_iDestID != -1 && m_eDestOwner != NO_PLAYER && m_iOriginID != -1 && m_eOriginOwner != NO_PLAYER;
+	}
+
 	void SetCities(const CvCity* pOriginCity, const CvCity* pDestCity)
 	{
 		m_iOriginID = pOriginCity->GetID();

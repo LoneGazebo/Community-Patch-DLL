@@ -29461,13 +29461,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	BuildingTypes eConstructBuilding;
 	UnitTypes eTrainUnit;
 	UnitAITypes eTrainAIUnit;
-	bool bWasFoodProduction;
 	bool bStart;
 	bool bMessage;
 	int iCount;
-	int iProductionNeeded;
-
-	bWasFoodProduction = isFoodProduction();
 
 	if(iNum == -1)
 	{

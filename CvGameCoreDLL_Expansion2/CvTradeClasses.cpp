@@ -4663,6 +4663,8 @@ void CvPlayerTrade::UpdateTradeStats()
 	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
 	{
 		const TradeConnection& connection = pTrade->GetTradeConnection(ui);
+		if (!connection.isValid())
+			continue;
 
 		if (GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
 			m_tradeStats.iMinorTRs++;
