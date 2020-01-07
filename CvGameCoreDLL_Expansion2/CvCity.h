@@ -1538,6 +1538,11 @@ public:
 	const OrderData* tailOrderQueueNode() const;
 	bool CleanUpQueue(void);  // remove items in the queue that are no longer valid
 
+	void produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit = NO_UNITAI);
+	void produce(BuildingTypes eConstructBuilding);
+	void produce(ProjectTypes eCreateProject);
+	void produce(SpecialistTypes eSpecialist);
+
 	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bUseToSatisfyOperation=true, bool bIsPurchase = false);
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);

@@ -30301,10 +30301,13 @@ int CvPlayer::GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPl
 	iOpenBorderPercentIncrease = GetPlayerTraits()->GetTradeRouteProductionSiphon(bInternationalOnly).m_iPercentIncreaseWithOpenBorders;
 
 	iReturn = iSiphonPercent;
-	if (getTeam() != NO_TEAM && pOtherPlayer->getTeam() != NO_TEAM)
+	TeamTypes eTeam = getTeam();
+	TeamTypes eOtherTeam = pOtherPlayer->getTeam();
+
+	if (eTeam != NO_TEAM && eOtherTeam != NO_TEAM && eTeam != eOtherTeam)
 	{
-		CvTeam* pTeam = &GET_TEAM(getTeam());
-		CvTeam* pOtherTeam = &GET_TEAM(pOtherPlayer->getTeam());
+		CvTeam* pTeam = &GET_TEAM(eTeam);
+		CvTeam* pOtherTeam = &GET_TEAM(eOtherTeam);
 		if (pTeam->IsAllowsOpenBordersToTeam(pOtherTeam->GetID()))
 		{
 			iReturn += iOpenBorderPercentIncrease;
