@@ -7258,7 +7258,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// BACKSTABBING IS BAD
 	////////////////////////////////////
 	// REALLY shouldn't backstab friends = major diplo penalties
-	if (IsWarWouldBackstabFriendTeamCheck(ePlayer))
+	if (IsDoFAccepted(ePlayer) || IsWarWouldBackstabFriendTeamCheck(ePlayer))
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 		iWarScratchValueOverride = 0;
