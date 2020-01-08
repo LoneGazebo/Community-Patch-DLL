@@ -6273,6 +6273,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	int iBonus = 0;
 	bool bThinkingAboutDogpiling = false;
+	bool bOtherWarPlayerCloseToTarget;
 	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -6282,17 +6283,19 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(eTeam))
 			{
+				bOtherWarPlayerCloseToTarget = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE ? true : false;
+				
 				if (IsMajorCompetitor(ePlayer))
 				{
 					bThinkingAboutDogpiling = true;
 				}
-				else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
+				else if (bOtherWarPlayerCloseToTarget && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
 				{
 					bThinkingAboutDogpiling = true;
 				}
 				
 				// If we can't take them, we don't want them attacking us after finishing with this guy
-				if (bThinkingAboutDogpiling && GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_STALEMATE)
+				if (bThinkingAboutDogpiling && bOtherWarPlayerCloseToTarget && GetWarProjection(eLoopPlayer) <= WAR_PROJECTION_STALEMATE)
 				{
 					bThinkingAboutDogpiling = false;
 					break;
