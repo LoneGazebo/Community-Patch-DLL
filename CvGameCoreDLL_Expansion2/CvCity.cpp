@@ -12405,7 +12405,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										// if origin has completed production
 										if (iOverflow >= 0)
 										{
-											pOriginCity->produce(eUnit);
+											pOriginCity->produce(eUnit, NO_UNITAI, false);
 
 											if (pkUnitInfo)
 											{
@@ -12432,7 +12432,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										bValid = false;
 									}
 									// cannot exceed max instance
-									else if (pOtherPlayer->isBuildingClassMaxedOut(eBuildingClass))
+									else if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(pOtherPlayer->getTeam()).isBuildingClassMaxedOut(eBuildingClass) || pOtherPlayer->isBuildingClassMaxedOut(eBuildingClass))
 									{
 										bValid = false;
 									}
@@ -12440,6 +12440,29 @@ void CvCity::changeProductionTimes100(int iChange)
 									else if (pOriginCity->HasBuildingClass(eBuildingClass) && pOriginCity->m_pCityBuildings->GetNumBuilding((BuildingTypes)GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex()) == 0)
 									{
 										bValid = false;
+									}
+									// Mutually Exclusive Buildings
+									else if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+									{
+										int iNumBuildingInfos = GC.getNumBuildingInfos();
+										for (int iI = 0; iI < iNumBuildingInfos; iI++)
+										{
+											const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+
+											CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+											if (pkLoopBuilding)
+											{
+												// Buildings are in a Mutually Exclusive Group, so only one is allowed
+												if (pkLoopBuilding->GetMutuallyExclusiveGroup() == pkBuildingInfo->GetMutuallyExclusiveGroup())
+												{
+													if (m_pCityBuildings->GetNumBuilding(eBuildingLoop) > 0)
+													{
+														bValid = false;
+														break;
+													}
+												}
+											}
+										}
 									}
 
 									// proceed only if valid
@@ -12452,7 +12475,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										iProductionNeeded = pOriginCity->getProductionNeeded(eBuilding) * 100;
 										iOverflow = pOriginCity->m_pCityBuildings->GetBuildingProductionTimes100(eBuilding) - iProductionNeeded;
 
-										// if origin has completed production (code below is a brief version of popOrder())
+										// if origin has completed production
 										if (iOverflow >= 0)
 										{
 											// due to above check, if building class already exists, it means we are replacing the default building with a unique building
@@ -12463,7 +12486,7 @@ void CvCity::changeProductionTimes100(int iChange)
 												pOriginCity->m_pCityBuildings->SetNumFreeBuilding(eClassDefault, 0);
 											}
 
-											pOriginCity->produce(eBuilding);
+											pOriginCity->produce(eBuilding, false);
 
 											CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 											if (pkBuildingInfo)
@@ -12487,7 +12510,7 @@ void CvCity::changeProductionTimes100(int iChange)
 									// if origin has completed production (code below is a brief version of popOrder())
 									if (iOverflow >= 0)
 									{
-										pOriginCity->produce(eProject);
+										pOriginCity->produce(eProject, false);
 
 										localizedText = Localization::Lookup(((isLimitedProject(eProject)) ? "TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED" : "TXT_KEY_MISC_CREATED_PROJECT_IN"));
 										localizedText << GC.getProjectInfo(eProject)->GetTextKey() << getNameKey();
@@ -12506,13 +12529,13 @@ void CvCity::changeProductionTimes100(int iChange)
 									// if origin has completed production (code below is a brief version of popOrder())
 									if (iOverflow >= 0)
 									{
-										pOriginCity->produce(eSpecialist);
+										pOriginCity->produce(eSpecialist, false);
 									}
 								}
 #if defined(MOD_BALANCE_CORE)
 								else if (isProductionProcess())
 								{
-									if (pOriginCity->getProductionProcess() != NO_PROCESS)
+									if (getProductionProcess() != NO_PROCESS)
 									{
 										int iI;
 										int iYield;
@@ -29503,7 +29526,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	bool bStart;
 	bool bMessage;
 	int iCount;
-	int iProductionNeeded;
 
 	bWasFoodProduction = isFoodProduction();
 
@@ -29885,7 +29907,7 @@ bool CvCity::CleanUpQueue(void)
 
 //	--------------------------------------------------------------------------------
 /// Create unit by completing production in city, separated out from popOrder() so other functions can call this
-void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit)
+void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOverflow)
 {
 	m_iThingsProduced++;
 
@@ -30064,21 +30086,29 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit)
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 		}
 #endif
-		// max overflow is the value of the item produced (to eliminate prebuild exploits)
-		int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-		iOverflow = std::min(iMaxOverflow, iOverflow);
-		if (iOverflow > 0)
+		if (bCanOverflow)
 		{
-			changeOverflowProductionTimes100(iOverflow);
-		}
-		setUnitProduction(eTrainUnit, 0);
+			// max overflow is the value of the item produced (to eliminate prebuild exploits)
+			int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
+			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+			iOverflow = std::min(iMaxOverflow, iOverflow);
 
-		int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-		if (iProductionGold > 0)
+			if (iOverflow > 0)
+			{
+				changeOverflowProductionTimes100(iOverflow);
+			}
+			setUnitProduction(eTrainUnit, 0);
+
+			int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+			if (iProductionGold > 0)
+			{
+				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+			}
+		}
+		else
 		{
-			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+			changeUnitProductionTimes100(eTrainUnit, -iProductionNeeded);
 		}
 	}
 	else
@@ -30100,7 +30130,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit)
 
 //	--------------------------------------------------------------------------------
 /// Create building by completing production in city, separated out from popOrder() so other functions can call this
-void CvCity::produce(BuildingTypes eConstructBuilding)
+void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 {
 	m_iThingsProduced++;
 
@@ -30132,22 +30162,29 @@ void CvCity::produce(BuildingTypes eConstructBuilding)
 		}
 #if defined(MOD_EVENTS_CITY)
 	}
-#endif		
-	// max overflow is the value of the item produced (to eliminate prebuild exploits)
-	int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
-	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-	int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-	iOverflow = std::min(iMaxOverflow, iOverflow);
-	if (iOverflow > 0)
+#endif
+	if (bCanOverflow)
 	{
-		changeOverflowProductionTimes100(iOverflow);
-	}
-	m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+		iOverflow = std::min(iMaxOverflow, iOverflow);
+		if (iOverflow > 0)
+		{
+			changeOverflowProductionTimes100(iOverflow);
+		}
+		m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
 
-	int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
-	if (iProductionGold > 0)
+		int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+		if (iProductionGold > 0)
+		{
+			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+		}
+	}
+	else
 	{
-		kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+		m_pCityBuildings->ChangeBuildingProduction(eConstructBuilding, -iProductionNeeded);
 	}
 
 	if (GC.getLogging() && GC.getAILogging())
@@ -30176,7 +30213,7 @@ void CvCity::produce(BuildingTypes eConstructBuilding)
 
 //	--------------------------------------------------------------------------------
 /// Create project by completing production in city, separated out from popOrder() so other functions can call this
-void CvCity::produce(ProjectTypes eCreateProject)
+void CvCity::produce(ProjectTypes eCreateProject, bool bCanOverflow)
 {
 	m_iThingsProduced++;
 
@@ -30210,42 +30247,57 @@ void CvCity::produce(ProjectTypes eCreateProject)
 #endif
 
 	int iProductionNeeded = getProductionNeeded(eCreateProject) * 100;
-	// max overflow is the value of the item produced (to eliminate prebuild exploits)
-	int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
-	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-	int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-	iOverflow = std::min(iMaxOverflow, iOverflow);
-	if (iOverflow > 0)
+	if (bCanOverflow)
 	{
-		changeOverflowProductionTimes100(iOverflow);
-	}
-	setProjectProduction(eCreateProject, 0);
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+		iOverflow = std::min(iMaxOverflow, iOverflow);
 
-	int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
-	if (iProductionGold > 0)
+		if (iOverflow > 0)
+		{
+			changeOverflowProductionTimes100(iOverflow);
+		}
+		setProjectProduction(eCreateProject, 0);
+
+		int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+		if (iProductionGold > 0)
+		{
+			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+		}
+	}
+	else
 	{
-		kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+		changeProjectProductionTimes100(eCreateProject, -iProductionNeeded);
 	}
 }
 
 //	--------------------------------------------------------------------------------
 /// Create specialist by completing production in city, separated out from popOrder() so other functions can call this
-void CvCity::produce(SpecialistTypes eSpecialist)
+void CvCity::produce(SpecialistTypes eSpecialist, bool bCanOverflow)
 {
 	m_iThingsProduced++;
 
 	int iProductionNeeded = getProductionNeeded(eSpecialist) * 100;
 
-	// max overflow is the value of the item produced (to eliminate prebuild exploits)
-	int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
-	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-	iOverflow = std::min(iMaxOverflow, iOverflow);
-	if (iOverflow > 0)
+	if (bCanOverflow)
 	{
-		changeOverflowProductionTimes100(iOverflow);
-	}
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		iOverflow = std::min(iMaxOverflow, iOverflow);
+		if (iOverflow > 0)
+		{
+			changeOverflowProductionTimes100(iOverflow);
+		}
 
-	setSpecialistProduction(eSpecialist, 0);
+		setSpecialistProduction(eSpecialist, 0);
+	}
+	else
+	{
+		changeSpecialistProductionTimes100(eSpecialist, -iProductionNeeded);
+	}
 }
 
 //	--------------------------------------------------------------------------------
