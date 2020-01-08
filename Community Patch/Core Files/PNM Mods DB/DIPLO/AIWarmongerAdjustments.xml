@@ -82,7 +82,7 @@
 
 		<Update>
 			<Where Name="WARMONGER_THREAT_PER_TURN_DECAY" />
-			<Set Value="-5" />
+			<Set Value="-10" />
 		</Update>
 		<!-- Default -5 -->
 		<!--

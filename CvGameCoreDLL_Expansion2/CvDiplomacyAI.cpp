@@ -13812,19 +13812,19 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 
 				if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
 				{
-					iDecayModifier += (GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED() * 2);
+					iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_INCREASED();
 				}
 				else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
 				{
-					iDecayModifier += (GC.getWARMONGER_THREAT_PER_TURN_DECAY_DECREASED() * 2);
+					iDecayModifier += GC.getWARMONGER_THREAT_PER_TURN_DECAY_DECREASED();
 				}
 
 				iDecayValue *= iDecayModifier;
 				iDecayValue /= 100;
 
 				//Protect against positives.
-				if (iDecayValue > 0)
-					iDecayValue *= -1;
+				if (iDecayValue >= 0)
+					iDecayValue = -1;
 
 				LogMajorCivWarmongerUpdate(eLoopPlayer, iDecayValue, bUpdateLogsSpecial);
 
@@ -14326,7 +14326,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 	}
 #endif
 
-	//Capped, and not our most valuable DoF?
+	//Capped?
 	if (iDoFWillingness <= (GetNumDoF() + iNumDoFsAlreadyWanted))
 		return false;
 
@@ -14517,7 +14517,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	}
 #endif
 
-	//Capped, and not our most valuable DP?
+	//Capped?
 	if (iLoyalty <= (GetNumDefensePacts() + iNumDPsAlreadyWanted))
 		return false;
 
