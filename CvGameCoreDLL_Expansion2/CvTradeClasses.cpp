@@ -1030,15 +1030,16 @@ bool CvGameTrade::IsTradeRouteIndexEmpty(int iIndex)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::EmptyTradeRoute(int iIndex)
+bool CvGameTrade::ClearTradeRoute(int iIndex)
 {
 	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
-	{
 		return false;
-	}
 
 	TradeConnection& kTradeConnection = m_aTradeConnections[iIndex];
+	if (!kTradeConnection.isValid())
+		return false;
+
 	PlayerTypes eOriginPlayer = kTradeConnection.m_eOriginOwner;
 	PlayerTypes eDestPlayer = kTradeConnection.m_eDestOwner;
 
@@ -1061,24 +1062,8 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 #if defined(MOD_BALANCE_CORE)
 	if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
-		int iDestX = kTradeConnection.m_iDestX;
-		int iDestY = kTradeConnection.m_iDestY;
-		int iOriginX = kTradeConnection.m_iOriginX;
-		int iOriginY = kTradeConnection.m_iOriginY;
-		//Free lump resource when you complete an international trade route.
-		CvPlot* pOriginPlot = GC.getMap().plot(iOriginX, iOriginY);
-		CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
-
-		CvCity* pOriginCity = NULL;
-		CvCity* pDestCity = NULL;
-		if (pOriginPlot != NULL)
-		{
-			pOriginCity = pOriginPlot->getPlotCity();
-		}
-		if (pDestPlot != NULL)
-		{
-			pDestCity = pDestPlot->getPlotCity();
-		}
+		CvCity* pOriginCity = GET_PLAYER(eOriginPlayer).getCity(kTradeConnection.m_iOriginID);
+		CvCity* pDestCity = GET_PLAYER(eDestPlayer).getCity(kTradeConnection.m_iDestID);
 		if (pOriginCity != NULL && pDestCity != NULL)
 		{
 			if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
@@ -1100,6 +1085,7 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
+
 #if defined(MOD_BALANCE_CORE)
 	UpdateTradePlots();
 #endif
@@ -1213,7 +1199,7 @@ void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot)
 					}
 				}
 
-				EmptyTradeRoute(ui);
+				ClearTradeRoute(ui);
 			}		
 			
 #if defined(MOD_BUGFIX_MINOR)
@@ -1274,7 +1260,7 @@ void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer)
 					}
 				}
 
-				EmptyTradeRoute(ui);
+				ClearTradeRoute(ui);
 			}
 		}
 	}
@@ -1310,7 +1296,7 @@ void CvGameTrade::ClearAllCityStateTradeRoutes (void)
 				}
 			}
 
-			EmptyTradeRoute(ui);
+			ClearTradeRoute(ui);
 		}		
 	}
 }
@@ -1351,7 +1337,7 @@ void CvGameTrade::ClearAllCityStateTradeRoutesSpecial (void)
 				}
 			}
 
-			EmptyTradeRoute(ui);
+			ClearTradeRoute(ui);
 		}		
 	}
 }
@@ -1398,7 +1384,7 @@ void CvGameTrade::ClearTradePlayerToPlayer(PlayerTypes ePlayer, PlayerTypes eToP
 					}
 				}
 
-				EmptyTradeRoute(ui);
+				ClearTradeRoute(ui);
 			}
 		}
 	}
@@ -1426,7 +1412,7 @@ void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
 		TeamTypes eDestTeam = GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam();
 		if ((eOriginTeam == eTeam1 && eDestTeam == eTeam2) || (eOriginTeam == eTeam2 && eDestTeam == eTeam1)) 
 		{
-			EmptyTradeRoute(ui);
+			ClearTradeRoute(ui);
 		}
 	}
 }
@@ -2668,7 +2654,7 @@ void CvPlayerTrade::MoveUnits (void)
 #endif
 
 				// wipe trade route
-				pTrade->EmptyTradeRoute(ui);
+				pTrade->ClearTradeRoute(ui);
 
 				// create new unit
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
@@ -5077,11 +5063,12 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 
 	CvAssertMsg(iTradeConnectionIndex >= 0, "iTradeConnectionIndex < 0");
 	if (iTradeConnectionIndex < 0)
-	{
 		return false;
-	}
 
 	const TradeConnection* pTradeConnection = &(pTrade->GetTradeConnection(iTradeConnectionIndex));
+	if (!pTradeConnection->isValid())
+		return false;
+
 #if defined(MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
 	TradeConnectionType eConnectionType = pTradeConnection->m_eConnectionType;
 #endif
@@ -5096,28 +5083,15 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	// add trade connnection to broken list
 	GET_PLAYER(eOwningPlayer).GetTrade()->AddTradeConnectionWasPlundered(*pTradeConnection);
 
-	CvCity* pOriginCity = NULL;
-	CvCity* pDestCity = NULL;
-	CvPlot* pPlot = GC.getMap().plot(pTradeConnection->m_iOriginX, pTradeConnection->m_iOriginY);
-	if (pPlot)
-	{
-		pOriginCity = pPlot->getPlotCity();
-	}
-	pPlot = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY);
-	if (pPlot)
-	{
-		pDestCity = pPlot->getPlotCity();
-	}
+	CvCity* pOriginCity = GET_PLAYER(eOwningPlayer).getCity(pTradeConnection->m_iOriginID);
+	CvCity* pDestCity = GET_PLAYER(eDestPlayer).getCity(pTradeConnection->m_iDestID);
 	CvAssertMsg(pOriginCity, "pOriginCity doesn't exist");
 	CvAssertMsg(pDestCity, "pDestCity doesn't exist");
 
-	bool bEmptyResult = pTrade->EmptyTradeRoute(iTradeConnectionIndex);
-
 	// if the trade route was not broken
-	if (!bEmptyResult)
-	{
+	if (!pTrade->ClearTradeRoute(iTradeConnectionIndex))
 		return false;
-	}
+
 #if defined(MOD_BALANCE_CORE)
 	if(pOriginCity != NULL && pDestCity != NULL)
 	{
@@ -5191,7 +5165,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	}
 
 	// barbarians get a bonus unit out of the deal!
-	if (m_pPlayer->isBarbarian() && pPlot)
+	if (m_pPlayer->isBarbarian())
 	{
 		int iLoop = 0;
 		for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))

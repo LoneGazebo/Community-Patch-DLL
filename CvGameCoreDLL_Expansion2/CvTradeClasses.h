@@ -136,7 +136,7 @@ public:
 
 	int GetEmptyTradeRouteIndex (void);
 	bool IsTradeRouteIndexEmpty (int iIndex);
-	bool EmptyTradeRoute (int iIndex);
+	bool ClearTradeRoute (int iIndex);
 #if defined(MOD_BALANCE_CORE)
 	void UpdateTradePlots();
 	int GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete = NULL);

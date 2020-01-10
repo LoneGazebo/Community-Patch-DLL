@@ -992,8 +992,6 @@ class CvTactPosStorage;
 class CvTacticalPlot
 {
 public:
-	//order is important - distance to enemy is increasing!
-	enum eTactPlotType { TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_FARAWAY, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
 	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
 	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
@@ -1002,20 +1000,24 @@ public:
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
 	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
 	bool isAdjacent(const CvTacticalPlot& other) const { return pPlot ? pPlot->isAdjacent(other.pPlot) : false; }
-	int getNumAdjacentEnemies(eTactPlotDomain eDomain) const { return nEnemyCombatUnitsAdjacent[eDomain]; }
+	int getNumAdjacentEnemies(eTactPlotDomain eDomain) const { return aiEnemyCombatUnitsAdjacent[eDomain]; }
+	void setNumAdjacentEnemies(eTactPlotDomain eDomain, int iValue) { aiEnemyCombatUnitsAdjacent[eDomain]=static_cast<unsigned char>(iValue); }
 	int getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
 	int getNumAdjacentFirstlineFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
 	const vector<STacticalAssignment>& getUnitsAtPlot() const { return vUnits; }
 
-	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
-	bool isEnemyCity() const { return bBlockedByEnemyCity; }
+	bool isEnemy(eTactPlotDomain eDomain = TD_BOTH) const { return aiEnemyDistance[eDomain]==0; }
+	bool isEnemyCity() const { return isEnemy() && pPlot->isCity(); }
+	bool isEnemyCombatUnit() const { return isEnemy() && !pPlot->isCity(); } //garrisons are ignored ...
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
-	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
+
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
+	void setNextToCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isOtherEmbarkedUnit() const { return bIsOtherEmbarkedUnit; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
+	bool isBlockedByFriendlyCombatUnit() const { return bBlockedByFriendly; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -1024,39 +1026,45 @@ public:
 	void changeDamage(int iDamage) { iDamageDealt += iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
-	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits); //set initial state depending on current plot status
+	void resetVolatileProperties();
 	//update fictional state
 	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment);
 	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment);
-	void enemyUnitKilled();
+	bool removeEnemyUnitIfPresent();
 
-	eTactPlotType getType(eTactPlotDomain eDomain = TD_BOTH) const { return eType[eDomain]; }
-	void setType(eTactPlotDomain eDomain, eTactPlotType newType) { eType[eDomain] = newType; }
-	void findType(eTactPlotDomain eDomain, const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
+	unsigned char getEnemyDistance(eTactPlotDomain eDomain = TD_BOTH) const;
+	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
+	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
-	bool isRelevant() const { return eType[TD_BOTH] != TP_BLOCKED_FRIENDLY && eType[TD_BOTH] != TP_BLOCKED_NEUTRAL; }
+	bool isRelevantForCombatUnit() const { return !bBlockedByFriendly && !bBlockedByNeutral; }
 
 protected:
 	const CvPlot* pPlot; //null if invalid
 	vector<STacticalAssignment> vUnits; //which (simulated) units are in this plot?
-	unsigned char nEnemyCombatUnitsAdjacent[3]; //for figuring out the frontline
-	unsigned char nFriendlyCombatUnitsAdjacent[3]; //for flanking
-	unsigned char nFriendlyFirstlineUnitsAdjacent[3]; //ranged units need cover
+
+	unsigned char aiEnemyDistance[3]; //distance to attack targets, not civilians. recomputed every time an enemy is killed or discovered
+	unsigned char aiEnemyCombatUnitsAdjacent[3]; //recomputed every time an enemy is killed or discovered
+
+	unsigned char aiFriendlyCombatUnitsAdjacent[3]; //for flanking. set initially and updated every time a unit moves
+	unsigned char aiFriendlyFirstlineUnitsAdjacent[3]; //ranged units need cover. updated every time a unit moves
 	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
 
-	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
-	bool bBlockedByEnemyCity:1;
-	bool bBlockedByEnemyCombatUnit:1;
-	bool bEnemyCivilianPresent:1;
-	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
-	bool bAdjacentToEnemyCitadel:1;
-	bool bHasAirCover:1;
-	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
+	//set once and not changed afterwards
 	bool bIsVisibleToEnemy:1;
+	bool bHasAirCover:1;
+	bool bBlockedByFriendly:1; //units not part of our simulation
+	bool bBlockedByNeutral:1;
+	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
 
-	eTactPlotType eType[3]; //land, sea, both
-	unsigned char iDamageDealt;
+	//this is updated if the civilian is captured
+	bool bEnemyCivilianPresent:1; 
+
+	//updated if an enemy is killed, after pillage or after adding a newly visible plot
+	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
+	bool bAdjacentToEnemyCitadel:1;
+
+	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
 };
 
 class CvTacticalPosition
@@ -1127,8 +1135,8 @@ public:
 	bool isComplete() const;
 	const CvTacticalPosition* findAncestorWithoutExtraMoves() const;
 	bool addFinishMovesIfAcceptable();
-	void updateTacticalPlotTypes(CvTacticalPlot::eTactPlotDomain eDomain, int iStartPlot = -1);
-	void updateTacticalPlotTypes(int iStartPlot = -1);
+	void countEnemies();
+	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	void addInitialAssignments();
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
@@ -1138,7 +1146,6 @@ public:
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 	float getAggressionBias() const;
-	void countPlotTypes();
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
