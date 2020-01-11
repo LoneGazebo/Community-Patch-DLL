@@ -690,7 +690,7 @@ SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 	}
 
 	ret.iTotalCost = pNode->m_iKnownCost;
-	ret.iNormalizedDistanceRaw = (pNode->m_iKnownCost * NORM_COST_BASE) / m_iBasicPlotCost + 1;
+	ret.iNormalizedDistanceRaw = (pNode->m_iKnownCost * SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
 	//switch counting convention. if zero moves left, consider this as plus one turns
 	ret.iTotalTurns = pNode->m_iTurns + (pNode->m_iMoves==0 ? 1 : 0);
 
@@ -2611,8 +2611,8 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 
 		if (bValid)
 		{
-			int iEffectiveDistance = temp->m_iKnownCost / m_iBasicPlotCost + 1;
-			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iEffectiveDistance) );
+			int iNormalizedDistanceRaw = (temp->m_iKnownCost*SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
+			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
 		}
 	}
 
@@ -2678,7 +2678,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 				path.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 				path.sConfig = m_sData;
 				path.iTotalCost = temp->m_iKnownCost;
-				path.iNormalizedDistanceRaw = (temp->m_iKnownCost * NORM_COST_BASE)  / m_iBasicPlotCost + 1;
+				path.iNormalizedDistanceRaw = (temp->m_iKnownCost * SPath::getNormalizedDistanceBase())  / m_iBasicPlotCost + 1;
 				path.iTotalTurns = temp->m_iTurns;
 
 				CvAStarNode* node = temp;
