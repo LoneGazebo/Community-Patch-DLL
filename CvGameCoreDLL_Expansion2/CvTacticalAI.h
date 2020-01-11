@@ -1015,9 +1015,7 @@ public:
 	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
 	void setNextToCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
-	bool isOtherEmbarkedUnit() const { return bIsOtherEmbarkedUnit; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
-	bool isBlockedByFriendlyCombatUnit() const { return bBlockedByFriendly; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -1037,7 +1035,6 @@ public:
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
-	bool isRelevantForCombatUnit() const { return !bBlockedByFriendly && !bBlockedByNeutral; }
 
 protected:
 	const CvPlot* pPlot; //null if invalid
@@ -1053,9 +1050,6 @@ protected:
 	//set once and not changed afterwards
 	bool bIsVisibleToEnemy:1;
 	bool bHasAirCover:1;
-	bool bBlockedByFriendly:1; //units not part of our simulation
-	bool bBlockedByNeutral:1;
-	bool bIsOtherEmbarkedUnit:1; //can we put an embarked unit there?
 
 	//this is updated if the civilian is captured
 	bool bEnemyCivilianPresent:1; 
@@ -1097,8 +1091,8 @@ protected:
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
-	unsigned char nOurUnits;
-	unsigned char nTheirUnits; //also counts enemy cities ...
+	unsigned char nOurUnits; //movable units included in sim. only valid for root position.
+	unsigned char nEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
 	CvPlot* pTargetPlot;
 	bool isIsolatedTarget;
 
@@ -1166,7 +1160,7 @@ public:
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
-	const int getNumEnemies() const { return nTheirUnits - killedEnemies.size(); }
+	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
