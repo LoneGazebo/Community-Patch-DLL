@@ -1343,7 +1343,7 @@ ALTER TABLE Buildings ADD COLUMN 'AnyWater' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'PillageBonusStrength' INTEGER DEFAULT 0;
 
 -- Improvement can create a feature. Best implemented on Tiles that don't have features.
-ALTER TABLE Improvements ADD COLUMN 'CreatesFeature' INTEGER DEFAULT 0;
+ALTER TABLE Improvements ADD COLUMN 'CreatesFeature' TEXT DEFAULT NULL REFERENCES Features(Type);
 
 -- Start a WLTKD when this unit is born or gained. GP's only.
 ALTER TABLE Units ADD COLUMN 'WLTKDFromBirth' BOOLEAN DEFAULT 0;

@@ -3721,6 +3721,8 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 {
 	bool bLaunchNuke = false;
+	WarProjectionTypes eCurrentWarProjection = m_pPlayer->GetDiplomacyAI()->GetWarProjection(ePlayer);
+	WarStateTypes eCurrentWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
 	// only evaluate nukes when we have nukes and we've declared war on someone
 	if (m_pPlayer->getNumNukeUnits() > 0) 
 	{
@@ -3734,27 +3736,37 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 		{
 			bLaunchNuke = true;
 		}
+		// if we will surely lose this war anyway, we might as well nuke them!
+		else if (eCurrentWarProjection == WAR_PROJECTION_DESTRUCTION || eCurrentWarState == WAR_STATE_NEARLY_DEFEATED)
+		{
+			bLaunchNuke = true;
+		}
 		else 
 		{
 			bool bRollForNuke = false;
-			WarProjectionTypes eCurrentWarProjection = m_pPlayer->GetDiplomacyAI()->GetWarProjection(ePlayer);
 			if(GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				MajorCivOpinionTypes eMajorCivOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
-				if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT)
+				if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT || eCurrentWarState == WAR_STATE_DEFENSIVE)
 				{
 					// roll every turn
 					bRollForNuke = true;
 				}
-				else if(eMajorCivOpinion <= MAJOR_CIV_OPINION_ENEMY)
+				else if (eMajorCivOpinion <= MAJOR_CIV_OPINION_ENEMY)
 				{
 					bRollForNuke = true;
 				}
-				else if(m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 				{
 					bRollForNuke = true;
 				}
-				else if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
+#if defined(MOD_BALANCE_CORE)
+				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+				{
+					bRollForNuke = true;
+				}
+#endif
+				else if (m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
 				{
 					bRollForNuke = true;
 				}
