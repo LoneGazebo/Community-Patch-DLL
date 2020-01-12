@@ -89,8 +89,6 @@ typedef wchar_t          wchar;
 #include <FireWorks/FAssert.h>
 #include <Fireworks/FILogFile.h>
 #include <Fireworks/FDataStream.h>
-#include <Fireworks/Win32/FKBInputDevice.h>
-#include <Fireworks/FFastList.h>
 
 #include "TContainer.h"
 #include "CustomMods.h"
@@ -98,12 +96,12 @@ typedef wchar_t          wchar;
 
 #include "CvGameDatabase.h"
 #include "CvGameCoreDLLUtil.h"
-#include "CvPoint.h"
 #include "CvDefines.h"
 #include "CvGameCoreEnums.h"
 #include "CvStructs.h"
 #include "ICvDLLUtility.h"
 #include "ICvDllUserInterface.h"
+#include "ICvDLLScriptSystem.h"
 #include "Lua/CvLuaSupport.h"
 
 #include "CvPlayerAI.h"
@@ -128,9 +126,7 @@ typedef wchar_t          wchar;
 #include "CvRandom.h"
 #include "CvArea.h"
 #include "CvDealClasses.h"
-#include "ICvDLLScriptSystem.h"
 #include "CvCityAI.h"
-#include "CvUnit.h"
 #include "CvFlavorManager.h"
 #include "CvTechClasses.h"
 #include "CvPolicyClasses.h"

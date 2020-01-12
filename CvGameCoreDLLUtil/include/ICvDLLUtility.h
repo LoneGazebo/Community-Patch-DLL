@@ -6,6 +6,7 @@
 #include "LinkedList.h"
 #include <string>
 #include <FireWorks/FMemoryStream.h>
+#include <FireWorks/FFastList.h>
 
 #include "CvDllInterfaces.h"
 //

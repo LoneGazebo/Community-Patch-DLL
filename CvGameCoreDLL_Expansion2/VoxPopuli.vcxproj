@@ -840,7 +840,6 @@
     <ClInclude Include="CvPlot.h" />
     <ClInclude Include="CvPlotInfo.h" />
     <ClInclude Include="CvPlotManager.h" />
-    <ClInclude Include="CvPoint.h" />
     <ClInclude Include="CvPolicyAI.h" />
     <ClInclude Include="CvPolicyClasses.h" />
     <ClInclude Include="CvPopupInfoSerialization.h" />

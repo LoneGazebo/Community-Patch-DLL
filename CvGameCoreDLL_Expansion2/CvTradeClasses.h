@@ -136,7 +136,7 @@ public:
 
 	int GetEmptyTradeRouteIndex (void);
 	bool IsTradeRouteIndexEmpty (int iIndex);
-	bool EmptyTradeRoute (int iIndex);
+	bool ClearTradeRoute (int iIndex);
 #if defined(MOD_BALANCE_CORE)
 	void UpdateTradePlots();
 	int GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete = NULL);
@@ -356,8 +356,9 @@ public:
 		int iInternationalTRsIn;
 		int iInternalTRs;
 		int iMinorTRs;
+		map<int, int> nRoutesFromCity; //city id, n outgoing routes
 
-		void reset() { memset(this, 0, sizeof(SPlayerTradeStats)); }
+		void reset() { iTurnSliceBuilt = 0; iInternationalTRsOut = 0; iInternationalTRsIn = 0; iInternalTRs = 0; iMinorTRs = 0; nRoutesFromCity.clear(); }
 	};
 
 	//some precomputed numbers for performance

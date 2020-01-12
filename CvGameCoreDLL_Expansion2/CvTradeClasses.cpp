@@ -1030,15 +1030,16 @@ bool CvGameTrade::IsTradeRouteIndexEmpty(int iIndex)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::EmptyTradeRoute(int iIndex)
+bool CvGameTrade::ClearTradeRoute(int iIndex)
 {
 	CvAssertMsg(iIndex >= 0 && iIndex < (int)m_aTradeConnections.size(), "iIndex out of bounds");
 	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
-	{
 		return false;
-	}
 
 	TradeConnection& kTradeConnection = m_aTradeConnections[iIndex];
+	if (!kTradeConnection.isValid())
+		return false;
+
 	PlayerTypes eOriginPlayer = kTradeConnection.m_eOriginOwner;
 	PlayerTypes eDestPlayer = kTradeConnection.m_eDestOwner;
 
@@ -1061,24 +1062,8 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 #if defined(MOD_BALANCE_CORE)
 	if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 	{
-		int iDestX = kTradeConnection.m_iDestX;
-		int iDestY = kTradeConnection.m_iDestY;
-		int iOriginX = kTradeConnection.m_iOriginX;
-		int iOriginY = kTradeConnection.m_iOriginY;
-		//Free lump resource when you complete an international trade route.
-		CvPlot* pOriginPlot = GC.getMap().plot(iOriginX, iOriginY);
-		CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
-
-		CvCity* pOriginCity = NULL;
-		CvCity* pDestCity = NULL;
-		if (pOriginPlot != NULL)
-		{
-			pOriginCity = pOriginPlot->getPlotCity();
-		}
-		if (pDestPlot != NULL)
-		{
-			pDestCity = pDestPlot->getPlotCity();
-		}
+		CvCity* pOriginCity = GET_PLAYER(eOriginPlayer).getCity(kTradeConnection.m_iOriginID);
+		CvCity* pDestCity = GET_PLAYER(eDestPlayer).getCity(kTradeConnection.m_iDestID);
 		if (pOriginCity != NULL && pDestCity != NULL)
 		{
 			if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
@@ -1100,6 +1085,7 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
+
 #if defined(MOD_BALANCE_CORE)
 	UpdateTradePlots();
 #endif
@@ -1213,7 +1199,7 @@ void CvGameTrade::ClearAllCityTradeRoutes (CvPlot* pPlot)
 					}
 				}
 
-				EmptyTradeRoute(ui);
+				ClearTradeRoute(ui);
 			}		
 			
 #if defined(MOD_BUGFIX_MINOR)
@@ -1274,7 +1260,7 @@ void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer)
 					}
 				}
 
-				EmptyTradeRoute(ui);
+				ClearTradeRoute(ui);
 			}
 		}
 	}
@@ -1310,7 +1296,7 @@ void CvGameTrade::ClearAllCityStateTradeRoutes (void)
 				}
 			}
 
-			EmptyTradeRoute(ui);
+			ClearTradeRoute(ui);
 		}		
 	}
 }
@@ -1351,7 +1337,7 @@ void CvGameTrade::ClearAllCityStateTradeRoutesSpecial (void)
 				}
 			}
 
-			EmptyTradeRoute(ui);
+			ClearTradeRoute(ui);
 		}		
 	}
 }
@@ -1398,7 +1384,7 @@ void CvGameTrade::ClearTradePlayerToPlayer(PlayerTypes ePlayer, PlayerTypes eToP
 					}
 				}
 
-				EmptyTradeRoute(ui);
+				ClearTradeRoute(ui);
 			}
 		}
 	}
@@ -1426,7 +1412,7 @@ void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
 		TeamTypes eDestTeam = GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam();
 		if ((eOriginTeam == eTeam1 && eDestTeam == eTeam2) || (eOriginTeam == eTeam2 && eDestTeam == eTeam1)) 
 		{
-			EmptyTradeRoute(ui);
+			ClearTradeRoute(ui);
 		}
 	}
 }
@@ -2668,7 +2654,7 @@ void CvPlayerTrade::MoveUnits (void)
 #endif
 
 				// wipe trade route
-				pTrade->EmptyTradeRoute(ui);
+				pTrade->ClearTradeRoute(ui);
 
 				// create new unit
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
@@ -4677,6 +4663,9 @@ void CvPlayerTrade::UpdateTradeStats()
 
 		if (connection.m_eOriginOwner != m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
 			m_tradeStats.iInternationalTRsIn++;
+
+		if (connection.m_eOriginOwner == m_pPlayer->GetID())
+			m_tradeStats.nRoutesFromCity[connection.m_iOriginID]++;
 	}
 
 	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
@@ -4714,24 +4703,12 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
 
 int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
 {
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iNumConnections = 0;
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+	if (!pCity)
+		return 0;
 
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			if (pConnection->m_iOriginX == pCity->getX() && pConnection->m_iOriginY == pCity->getY())
-			{
-				iNumConnections++;
-			}
-		}
-	}
-
-	return iNumConnections;
+	UpdateTradeStats();
+	return m_tradeStats.nRoutesFromCity[pCity->GetID()];
 }
-
 
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)
 {
@@ -5077,11 +5054,12 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 
 	CvAssertMsg(iTradeConnectionIndex >= 0, "iTradeConnectionIndex < 0");
 	if (iTradeConnectionIndex < 0)
-	{
 		return false;
-	}
 
 	const TradeConnection* pTradeConnection = &(pTrade->GetTradeConnection(iTradeConnectionIndex));
+	if (!pTradeConnection->isValid())
+		return false;
+
 #if defined(MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
 	TradeConnectionType eConnectionType = pTradeConnection->m_eConnectionType;
 #endif
@@ -5096,28 +5074,15 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	// add trade connnection to broken list
 	GET_PLAYER(eOwningPlayer).GetTrade()->AddTradeConnectionWasPlundered(*pTradeConnection);
 
-	CvCity* pOriginCity = NULL;
-	CvCity* pDestCity = NULL;
-	CvPlot* pPlot = GC.getMap().plot(pTradeConnection->m_iOriginX, pTradeConnection->m_iOriginY);
-	if (pPlot)
-	{
-		pOriginCity = pPlot->getPlotCity();
-	}
-	pPlot = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY);
-	if (pPlot)
-	{
-		pDestCity = pPlot->getPlotCity();
-	}
+	CvCity* pOriginCity = GET_PLAYER(eOwningPlayer).getCity(pTradeConnection->m_iOriginID);
+	CvCity* pDestCity = GET_PLAYER(eDestPlayer).getCity(pTradeConnection->m_iDestID);
 	CvAssertMsg(pOriginCity, "pOriginCity doesn't exist");
 	CvAssertMsg(pDestCity, "pDestCity doesn't exist");
 
-	bool bEmptyResult = pTrade->EmptyTradeRoute(iTradeConnectionIndex);
-
 	// if the trade route was not broken
-	if (!bEmptyResult)
-	{
+	if (!pTrade->ClearTradeRoute(iTradeConnectionIndex))
 		return false;
-	}
+
 #if defined(MOD_BALANCE_CORE)
 	if(pOriginCity != NULL && pDestCity != NULL)
 	{
@@ -5191,7 +5156,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	}
 
 	// barbarians get a bonus unit out of the deal!
-	if (m_pPlayer->isBarbarian() && pPlot)
+	if (m_pPlayer->isBarbarian())
 	{
 		int iLoop = 0;
 		for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
@@ -6337,62 +6302,6 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
-	int iDangerSum = 1; // can't be zero because we divide by it!
-	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-	{
-		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-		CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
-		if (pPlot == NULL)
-		{
-			break;
-		}
-
-		//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
-		int iDangerValue = 0;
-
-#ifdef AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER
-		iDangerValue += AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER;
-#endif // AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER
-
-		if (!pPlot->isVisible(m_pPlayer->getTeam()))
-		{
-			iDangerValue += 1;
-		}
-#if defined(MOD_BALANCE_CORE)
-		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
-		{
-			iDangerValue += 1;
-		}
-#endif
-
-		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
-		{
-			iDangerValue += 1000;
-		}
-
-#if defined(MOD_BALANCE_CORE)
-		//AI cheating here. no visibility check!
-		int iRange = 3;
-		for(int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for(int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-
-				if(pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit && pUnit->IsCombatUnit() && GET_TEAM(pUnit->getTeam()).isAtWar(m_pPlayer->getTeam()))
-					{
-						iDangerValue += 100;
-					}
-				}
-			}
-		}
-#endif
-
-		iDangerSum += iDangerValue;
-	}
 
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
@@ -6767,8 +6676,6 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		}
 	}
 
-	int iScore = 0;
-#if defined(MOD_BALANCE_CORE)
 	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
@@ -6777,7 +6684,9 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	int iScienceScore = (iTechDelta *  iFlavorScience);
 	int iCultureScore = (iCultureDelta * iFlavorCulture);
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
-	iScore += iGoldScore + iScienceScore + iCultureScore + iReligionScore;
+
+	//add it all up
+	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
 	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 	{
@@ -6787,12 +6696,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	//abort if we're negative
 	if(iScore <= 0)
 		return ValuesVector;
-#else
-	iScore += iGoldDelta;
-	iScore += iTechDelta * 3; // 3 science = 1 gold
-	iScore += iReligionDelta * 2; // 2 religion = 1 gold
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
@@ -6844,13 +6748,34 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		iScore += pToCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
 	}
 #endif
-	int iDistance = (kTradeConnection.m_aPlotList.size() / 3);
-	iDistance += iDangerSum;
+
+	int iDangerSum = 1; // can't be zero because we divide by it!
+	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
+	{
+		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+		CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
+		if (pPlot == NULL)
+		{
+			break;
+		}
+
+		//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
+		if (!pPlot->isVisible(m_pPlayer->getTeam()))
+			iDangerSum += 1;
+
+		if (pPlot->getTeam() && m_pPlayer->getTeam())
+			iDangerSum += 10;
+
+		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
+			iDangerSum += 100;
+
+		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
+			iDangerSum += 100;
+	}
+
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
-	iScore = ((iScore * (iEra)) / max(1, (iDistance)));
-#else
-	iScore = (iScore * 10) / iDangerSum;
-#endif
+	iScore = (iScore * iEra) / iDangerSum;
+
 #if defined(MOD_BALANCE_CORE)
 	//Let's encourage TRs to feitorias.
 	if (MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
@@ -6859,11 +6784,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 	}
 #endif
 	// if we have any tourism and the destination owner is not a minor civ
-#if defined(MOD_BALANCE_CORE)
 	if (bHaveTourism && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
-#else
-	if (m_pPlayer->GetCulture()->GetTourism() > 0 && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
-#endif
 	{
 		// if we're not connected to a player, double the value to that player
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
@@ -7261,62 +7182,6 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 		return ValuesVector;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
-	int iDangerSum = 1; // can't be zero because we divide by it!
-	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-	{
-		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-		CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
-		if (pPlot == NULL)
-		{
-			break;
-		}
-
-		//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
-		int iDangerValue = 0;
-
-#ifdef AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER
-		iDangerValue += AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER;
-#endif // AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER
-
-		if (!pPlot->isVisible(m_pPlayer->getTeam()))
-		{
-			iDangerValue += 1;
-		}
-#if defined(MOD_BALANCE_CORE)
-		if (!pPlot->isRevealed(m_pPlayer->getTeam()))
-		{
-			iDangerValue += 1;
-		}
-#endif
-
-		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
-		{
-			iDangerValue += 1000;
-		}
-
-#if defined(MOD_BALANCE_CORE)
-		//AI cheating here. no visibility check!
-		int iRange = 3;
-		for (int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for (int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-
-				if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if (pUnit && pUnit->IsCombatUnit() && GET_TEAM(pUnit->getTeam()).isAtWar(m_pPlayer->getTeam()))
-					{
-						iDangerValue += 100;
-					}
-				}
-			}
-		}
-#endif
-
-		iDangerSum += iDangerValue;
-	}
 
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
@@ -7456,7 +7321,6 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 		}
 	}
 
-	int iScore = 0;
 	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
@@ -7465,7 +7329,9 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 	int iScienceScore = (iAdjustedScienceAmount *  iFlavorScience);
 	int iCultureScore = (iAdjustedCultureAmount * iFlavorCulture);
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
-	iScore += iGoldScore + iScienceScore + iCultureScore + iReligionScore;
+
+	//add it all up
+	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
 	//abort if we're negative
 	if (iScore <= 0)
@@ -7492,10 +7358,33 @@ std::vector<int> CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeCon
 			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
 	}
-	int iDistance = (kTradeConnection.m_aPlotList.size() / 3);
-	iDistance += iDangerSum;
+
+	int iDangerSum = 1; // can't be zero because we divide by it!
+	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
+	{
+		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
+		CvAssertMsg(pPlot, "pPlot is null when trying to evaluate the list");
+		if (pPlot == NULL)
+		{
+			break;
+		}
+
+		//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
+		if (!pPlot->isVisible(m_pPlayer->getTeam()))
+			iDangerSum += 1;
+
+		if (pPlot->getTeam() && m_pPlayer->getTeam())
+			iDangerSum += 10;
+
+		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
+			iDangerSum += 100;
+
+		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
+			iDangerSum += 100;
+	}
+
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
-	iScore = ((iScore * (iEra)) / max(1, (iDistance)));
+	iScore = (iScore * iEra) / iDangerSum;
 
 	ValuesVector.push_back(iScore);
 	ValuesVector.push_back(iCultureScore);

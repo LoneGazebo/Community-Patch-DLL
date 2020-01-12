@@ -8407,14 +8407,14 @@ void CvTeam::cancelDefensivePacts()
 
 
 //	--------------------------------------------------------------------------------
-bool CvTeam::isFriendlyTerritory(TeamTypes eTeam) const
+bool CvTeam::isFriendlyTerritory(TeamTypes eOtherTeam) const
 {
-	if(eTeam == NO_TEAM)
+	if(eOtherTeam == NO_TEAM)
 	{
 		return false;
 	}
 
-	if(eTeam == GetID())
+	if(eOtherTeam == GetID())
 	{
 		return true;
 	}

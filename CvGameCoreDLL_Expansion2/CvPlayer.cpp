@@ -47079,7 +47079,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
-		if (pLoopUnit->isNearbyPromotion())
+		if (pLoopUnit->isNearbyPromotion() || pLoopUnit->getAdjacentTileHeal()>0)
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
 		if (pLoopUnit->canIntercept())

@@ -795,7 +795,7 @@ void CvPlot::verifyUnitValidPlot()
 							
 							if (pLoopUnit != NULL)
 							{
-								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/)))
+								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam())))
 								{
 									if (!pLoopUnit->jumpToNearestValidPlot())
 										pLoopUnit->kill(true);

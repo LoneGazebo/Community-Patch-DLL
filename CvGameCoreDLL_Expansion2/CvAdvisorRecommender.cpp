@@ -55,7 +55,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	ResetCity();
 
 	CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
-
+	//important: use async generator so a player doesn't taint the gamestate for others
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
 
 	CvCityBuildable buildable;
@@ -204,16 +204,11 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 	CvPlayerTechs* pPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	CvTechAI* pPlayerTechAI = pPlayerTechs->GetTechAI();
 
-	RandomNumberDelegate fcn;
-	int iTechLoop;
-
-	// Use the synchronous random number generate
-	// Asynchronous one would be:
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
-	//fcn = MakeDelegate (&GC.getGame(), &CvGame::getJonRandNum);
+	//important: use async generator so a player doesn't taint the gamestate for others
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
 
 	// Loop through adding the researchable techs
-	for(iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
+	for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;
 		if(pPlayerTechs->CanResearch(eTech))
