@@ -6400,12 +6400,13 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 					continue;
 
 				//don't run away if there's other work to do (will eventually be handled by ExecuteAttackWithUnits)
-				if (TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false) != pTargetPlot)
+				CvPlot* pAlternativeTarget = TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false);
+				if (pAlternativeTarget && plotDistance(*pAlternativeTarget,*pTargetPlot)>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 					continue;
 
 				//finally detailed pathfinding
 				int iTurns = 0;
-				if (pUnit->GeneratePath(pTargetPlot, 0, iMaxTurns, &iTurns, true))
+				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2, iMaxTurns, &iTurns, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())
