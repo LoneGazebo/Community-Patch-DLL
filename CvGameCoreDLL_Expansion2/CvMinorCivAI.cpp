@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -15474,9 +15474,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if (iLastBullyTurn + 17 >= GC.getGame().getGameTurn())
+		else if (iLastBullyTurn + 15 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedRecentlyScore = (((iLastBullyTurn + 17) - (GC.getGame().getGameTurn())) * -25);
+			int iBulliedRecentlyScore = (((iLastBullyTurn + 16) - (GC.getGame().getGameTurn())) * -25);
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
 			{
