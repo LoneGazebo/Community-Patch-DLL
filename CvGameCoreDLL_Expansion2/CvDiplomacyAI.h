@@ -1030,6 +1030,9 @@ public:
 
 	// Problems between friends
 	bool IsUntrustworthyFriend(PlayerTypes ePlayer) const;
+	void SetUntrustworthyFriend(PlayerTypes ePlayer, bool bValue);
+	void DoTestUntrustworthyFriends();
+	bool DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
 	int GetNumFriendsDenouncedBy();
 
 	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
@@ -1791,6 +1794,7 @@ private:
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
 		bool m_abDenouncedPlayer[MAX_MAJOR_CIVS];
+		bool m_abUntrustworthyFriend[MAX_MAJOR_CIVS];
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		bool m_abOfferingGift[MAX_MAJOR_CIVS];
@@ -2154,6 +2158,7 @@ private:
 	short* m_paiDoFCounter;
 
 	bool* m_pabDenouncedPlayer;
+	bool* m_pabUntrustworthyFriend;
 	bool* m_pabFriendDenouncedUs;
 	bool* m_pabFriendDeclaredWarOnUs;
 	short* m_paiDenouncedPlayerCounter;
