@@ -4075,7 +4075,7 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches()
 				{
 					SetMajorCivApproach(eLoopPlayer, MAJOR_CIV_APPROACH_FRIENDLY);
 				}
-				else if (GetNumCitiesCaptured(eLoopPlayer) > 0)
+				else if (GetNumCitiesCapturedBy(eLoopPlayer) > 0)
 				{
 					SetMajorCivApproach(eLoopPlayer, MAJOR_CIV_APPROACH_GUARDED);
 				}
@@ -4450,9 +4450,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	
 	if (!bUntrustworthyFriend && !IsCapitalCapturedBy(ePlayer) && !IsHolyCityCapturedBy(ePlayer))
 	{
-		if (GetNumCitiesLiberated(ePlayer) > 0)
+		if (GetNumCitiesLiberatedBy(ePlayer) > 0)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + GetNumCitiesLiberated(ePlayer));
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + GetNumCitiesLiberatedBy(ePlayer));
 			
 			if (viApproachWeights[MAJOR_CIV_APPROACH_WAR] >= 0)
 			{
@@ -4579,8 +4579,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// CAPTURED CITIES
 	////////////////////////////////////
-	int iNumCitiesWeCaptured = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCaptured(eMyPlayer);
-	int iNumCitiesTheyCaptured = GetNumCitiesCaptured(ePlayer);
+	int iNumCitiesWeCaptured = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eMyPlayer);
+	int iNumCitiesTheyCaptured = GetNumCitiesCapturedBy(ePlayer);
 	int iCityDifference = iNumCitiesWeCaptured - iNumCitiesTheyCaptured;
 
 	// Only apply weight for this if they're nearby (if we conquered a city far away from the rest of their empire, adding weight here is not helpful).
@@ -7223,7 +7223,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	bool bRecentLiberation = false;
 	
-	if ((GetNumCitiesLiberated(ePlayer) > 0) && ((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER()))
+	if ((GetNumCitiesLiberatedBy(ePlayer) > 0) && ((GC.getGame().getGameTurn() - GetLiberatedCitiesTurn(ePlayer)) < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER()))
 	{
 		if (!bUntrustworthyFriend && !IsCapitalCapturedBy(ePlayer) && !IsHolyCityCapturedBy(ePlayer) && (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()))
 		{
@@ -13233,7 +13233,7 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 	}
 	
 	// Recently liberated one of our cities
-	if ((GetNumCitiesLiberated(ePlayer) > 0) && ((iTurn - GetLiberatedCitiesTurn(ePlayer)) < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER()))
+	if ((GetNumCitiesLiberatedBy(ePlayer) > 0) && ((iTurn - GetLiberatedCitiesTurn(ePlayer)) < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER()))
 	{
 		return true;
 	}
@@ -13311,7 +13311,7 @@ bool CvDiplomacyAI::IsWarWouldBackstabFriend(PlayerTypes ePlayer)
 				}
 				
 				// Recently liberated one of our cities
-				if ((GetNumCitiesLiberated(eLoopPlayer) > 0) && ((iTurn - GetLiberatedCitiesTurn(eLoopPlayer)) < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER()))
+				if ((GetNumCitiesLiberatedBy(eLoopPlayer) > 0) && ((iTurn - GetLiberatedCitiesTurn(eLoopPlayer)) < /*20*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER()))
 				{
 					return true;
 				}
@@ -15072,13 +15072,13 @@ void CvDiplomacyAI::SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Returns the number of cities liberated by ePlayer
-int CvDiplomacyAI::GetNumCitiesLiberated(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetNumCitiesLiberatedBy(PlayerTypes ePlayer)
 {
 	return m_paiNumCitiesLiberated[(int)ePlayer];
 }
 
 /// Changes the number of cities liberated by ePlayer
-void CvDiplomacyAI::ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeNumCitiesLiberatedBy(PlayerTypes ePlayer, int iChange)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -15090,7 +15090,7 @@ void CvDiplomacyAI::ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange)
 }
 
 /// Sets the number of cities liberated by ePlayer
-void CvDiplomacyAI::SetNumCitiesLiberated(PlayerTypes ePlayer, int iValue)
+void CvDiplomacyAI::SetNumCitiesLiberatedBy(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
@@ -20241,7 +20241,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 #endif
 						// Forget any of that liberation crud!
 						SetPlayerLiberatedCapital(ePlayer, false);
-						SetNumCitiesLiberated(ePlayer, 0);
+						SetNumCitiesLiberatedBy(ePlayer, 0);
 						SetMasterLiberatedMeFromVassalage(ePlayer, false);
 						SetTurnsSinceVassalagePeacefullyRevoked(ePlayer, -1);
 						
@@ -20719,19 +20719,9 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 
 	if (iChange > 0)
 	{
-		PlayerTypes eAttackedPlayer;
-		for (int iAttackedPlayerLoop = MAX_MAJOR_CIVS; iAttackedPlayerLoop < MAX_CIV_PLAYERS; iAttackedPlayerLoop++)
-		{
-			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
-
-			// Player must be on this team
-			if (GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
-				continue;
-
-			// Don't ACTUALLY count this if we're at war with the guy also
-			if (IsAtWar(eAttackedPlayer))
-				return;
-		}
+		// Don't ACTUALLY count this if we're also at war with this team
+		if (GET_TEAM(GetTeam()).isAtWar(eAttackedTeam))
+			return;
 	}
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
@@ -20814,19 +20804,9 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 	
 	if (iChange > 0)
 	{
-		PlayerTypes eAttackedPlayer;
-		for (int iAttackedPlayerLoop = 0; iAttackedPlayerLoop < MAX_MAJOR_CIVS; iAttackedPlayerLoop++)
-		{
-			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
-
-			// Player must be on this team
-			if (GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
-				continue;
-
-			// Don't ACTUALLY count this if we're at war with the guy also
-			if (IsAtWar(eAttackedPlayer))
-				return;
-		}
+		// Don't ACTUALLY count this if we're also at war with this team
+		if (GET_TEAM(GetTeam()).isAtWar(eAttackedTeam))
+			return;
 	}
 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
@@ -40059,7 +40039,7 @@ void CvDiplomacyAI::SetPlayerEverConvertedCity(PlayerTypes ePlayer, bool bValue)
 }
 
 /// How many times has this player captured one of our cities?
-int CvDiplomacyAI::GetNumCitiesCaptured(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetNumCitiesCapturedBy(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -40068,7 +40048,7 @@ int CvDiplomacyAI::GetNumCitiesCaptured(PlayerTypes ePlayer) const
 }
 
 /// Changes how many times this player has captured one of our cities
-void CvDiplomacyAI::ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange)
 {
 	if (iChange != 0)
 	{
@@ -40081,7 +40061,7 @@ void CvDiplomacyAI::ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange)
 }
 
 /// Sets how many times this player has razed one of our cities
-void CvDiplomacyAI::SetNumCitiesCaptured(PlayerTypes ePlayer, int iValue)
+void CvDiplomacyAI::SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue)
 {
 	if (iValue != 0)
 	{
@@ -40654,7 +40634,7 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 		return 0;
 	
 	int iOpinionWeight = 0;
-	int iNumCitiesLiberated = GetNumCitiesLiberated(ePlayer);
+	int iNumCitiesLiberated = GetNumCitiesLiberatedBy(ePlayer);
 	if (iNumCitiesLiberated >= 3)
 	{
 		iOpinionWeight = /*-60*/ GC.getOPINION_WEIGHT_LIBERATED_THREE_CITIES();

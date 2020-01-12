@@ -471,9 +471,9 @@ public:
 	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
 
-	int GetNumCitiesLiberated(PlayerTypes ePlayer);
-	void ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange);
-	void SetNumCitiesLiberated(PlayerTypes ePlayer, int iValue);
+	int GetNumCitiesLiberatedBy(PlayerTypes ePlayer);
+	void ChangeNumCitiesLiberatedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesLiberatedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetRecentTradeValue(PlayerTypes ePlayer);
 	void ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange);
@@ -1401,9 +1401,9 @@ public:
 	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
 
-	int GetNumCitiesCaptured(PlayerTypes ePlayer) const;
-	void ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange);
-	void SetNumCitiesCaptured(PlayerTypes ePlayer, int iValue);
+	int GetNumCitiesCapturedBy(PlayerTypes ePlayer) const;
+	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
