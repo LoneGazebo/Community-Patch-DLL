@@ -62,9 +62,6 @@
 /// ships on land tiles (city, fort) cannot attack
 #define MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN
 
-/// radical rewrite
-#define MOD_CORE_NEW_DEPLOYMENT_LOGIC
-
 //this needs a reassignment of move priorities to work properly, especially concerning global moves
 //#define MOD_CORE_TACTICAL_MOVE_DELAY_SORT
 

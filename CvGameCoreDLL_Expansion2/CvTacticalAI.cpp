@@ -4997,7 +4997,6 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 #endif
 }
 
-#ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 {
 	if (pTargetPlot->isVisible(m_pPlayer->getTeam()))
@@ -5262,7 +5261,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 
 	//note that it's possible some units were not moved because of conflicts
 }
-#endif
+
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, bool bWater)
@@ -7999,13 +7998,6 @@ CvString CvTacticalAI::GetLogFileName(CvString& playerName) const
 }
 
 // HELPER FUNCTIONS
-
-/// Sort CvBlockingUnit by a non-standard criteria
-bool TacticalAIHelpers::SortBlockingUnitByDistanceAscending(const CvBlockingUnit& obj1, const CvBlockingUnit& obj2)
-{
-	return obj1.GetDistanceToTarget() < obj2.GetDistanceToTarget();
-}
-
 bool TacticalAIHelpers::SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2)
 {
 	return obj1.GetExpectedTargetDamage()*2-obj1.GetExpectedSelfDamage() > obj2.GetExpectedTargetDamage()*2-obj2.GetExpectedSelfDamage();
@@ -8961,8 +8953,6 @@ int TacticalAIHelpers::CountAdditionallyVisiblePlots(CvUnit * pUnit, CvPlot * pT
 	
 	return iCount;
 }
-
-#if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC) 
 
 //Unbelievable bad logic but taken like this from CvUnitCombat
 bool AttackEndsTurn(const CvUnit* pUnit, int iNumAttacksLeft)
@@ -12017,7 +12007,6 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 
 	return true;
 }
-#endif
 
 const char* barbarianMoveNames[] =
 {

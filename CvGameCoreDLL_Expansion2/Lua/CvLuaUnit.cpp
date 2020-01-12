@@ -874,19 +874,26 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 }
 #endif
 //------------------------------------------------------------------------------
-//bool canEnterTerritory(int /*TeamTypes*/ eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false);
+//bool canEnterTerritory(int /*TeamTypes*/ eTeam);
 int CvLuaUnit::lCanEnterTerritory(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const TeamTypes eTeam				= (TeamTypes)lua_tointeger(L, 2);
+	//this parameter is useless
 	const bool bIgnoreRightOfPassage	= luaL_optint(L, 3, 0);
-
 	//this parameter is ignored ...
 	//const bool bIsCity				= luaL_optint(L, 4, 0);
 
-	const bool bResult = pkUnit->canEnterTerritory(eTeam, bIgnoreRightOfPassage);
+	if (bIgnoreRightOfPassage)
+	{
+		lua_pushboolean(L, true);
+	}
+	else
+	{
+		const bool bResult = pkUnit->canEnterTerritory(eTeam);
+		lua_pushboolean(L, bResult);
+	}
 
-	lua_pushboolean(L, bResult);
 	return 1;
 }
 //------------------------------------------------------------------------------

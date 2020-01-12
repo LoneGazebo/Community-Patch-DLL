@@ -453,8 +453,6 @@ private:
 	AITacticalPosture m_ePosture;
 };
 
-#define SAFE_ESTIMATE_NUM_TEMP_ZONES 10
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTemporaryZone
 //!  \brief		Location of a temporary dominance zone (like around a barbarian camp)
@@ -509,103 +507,6 @@ private:
 
 FDataStream& operator<<(FDataStream&, const CvTemporaryZone&);
 FDataStream& operator>>(FDataStream&, CvTemporaryZone&);
-
-#define SAFE_ESTIMATE_NUM_BLOCKING_UNITS 25
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvBlockingUnit
-//!  \brief		Potential move of a unit to a hex to form a block keeping enemy away
-//
-//!  Key Attributes:
-//!  - Used by CanCoverFromEnemy() to track moves we may want to make to block enemy
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvBlockingUnit
-{
-public:
-	CvBlockingUnit()
-	{
-		m_pPlot = NULL;
-		m_iUnitID = 0;
-		m_iNumChoices = 0;
-		m_iDistanceToTarget = 0;
-	};
-	bool operator<(const CvBlockingUnit& rhs) const
-	{
-		return (m_iUnitID < rhs.m_iUnitID);
-	};
-	CvPlot* GetPlot() const
-	{
-		return m_pPlot;
-	};
-	void SetPlot(CvPlot* pPlot)
-	{
-		m_pPlot = pPlot;
-	};
-	int GetUnitID() const
-	{
-		return m_iUnitID;
-	};
-	void SetUnitID(int iID)
-	{
-		m_iUnitID = iID;
-	};
-	int GetNumChoices() const
-	{
-		return m_iNumChoices;
-	};
-	void SetNumChoices(int iChoices)
-	{
-		m_iNumChoices = iChoices;
-	};
-	int GetDistanceToTarget() const
-	{
-		return m_iDistanceToTarget;
-	};
-	void SetDistanceToTarget(int iDistanceToTarget)
-	{
-		m_iDistanceToTarget = iDistanceToTarget;
-	};
-
-private:
-	CvPlot* m_pPlot;
-	int m_iUnitID;
-	int m_iNumChoices;
-	int m_iDistanceToTarget;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvOperationUnit
-//!  \brief		One unit moving with operational army currently being processed
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvOperationUnit
-{
-public:
-	CvOperationUnit()
-	{
-		m_iUnitID = 0;
-		m_ePosition = NO_MUPOSITION;
-	};
-	int GetUnitID() const
-	{
-		return m_iUnitID;
-	};
-	void SetUnitID(int iID)
-	{
-		m_iUnitID = iID;
-	};
-	int GetPosition() const
-	{
-		return m_ePosition;
-	};
-	void SetPosition(MultiunitPositionTypes eType)
-	{
-		m_ePosition = eType;
-	};
-
-private:
-	int m_iUnitID;
-	MultiunitPositionTypes m_ePosition;
-};
 
 enum TacticalAIInfoTypes
 {
@@ -824,11 +725,9 @@ private:
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
-#ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 	bool ExecuteSpotterMove(CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 	bool PositionUnitsAroundTarget(CvPlot* pTargetPlot);
-#endif
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
@@ -929,7 +828,6 @@ private:
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
 
-#if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_ESCORTED_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 enum eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, 
 							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE };
@@ -1211,11 +1109,9 @@ protected:
 	CvTacticalPosition* aPositions; //preallocated block of N positions
 };
 
-#endif
 
 namespace TacticalAIHelpers
 {
-	bool SortBlockingUnitByDistanceAscending(const CvBlockingUnit& obj1, const CvBlockingUnit& obj2);
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
 	ReachablePlots GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const PlotIndexContainer& plotsToIgnoreForZOC=PlotIndexContainer());
@@ -1239,12 +1135,9 @@ namespace TacticalAIHelpers
 	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 
-#if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);
 	vector<STacticalAssignment> FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
-#endif
-
 }
 
 extern const char* barbarianMoveNames[];
