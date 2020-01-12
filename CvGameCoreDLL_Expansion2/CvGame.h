@@ -216,6 +216,9 @@ public:
 	int getTotalEconomicValue() const;
 	void setTotalEconomicValue(int iValue);
 
+	int getHighestEconomicValue() const;
+	void setHighestEconomicValue(int iValue);
+
 	int getNoNukesCount() const;
 	bool isNoNukes() const;
 	void changeNoNukesCount(int iChange);
@@ -684,11 +687,15 @@ public:
 
 	void SetClosestCityMapDirty();
 	//assuming a typical unit with baseMoves==2
-	int GetClosestCityDistanceInTurns( const CvPlot* pPlot );
-	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot );
-	int GetClosestCityDistanceInPlots(const CvPlot* pPlot);
-	CvCity* GetClosestCityByPlots(const CvPlot* pPlot);
+	int GetClosestCityDistanceInTurns(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	CvCity* GetClosestCityByEstimatedTurns(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	int GetClosestCityDistanceInTurns(  const CvPlot* pPlot, PlayerTypes ePlayer );
+	CvCity* GetClosestCityByEstimatedTurns(  const CvPlot* pPlot, PlayerTypes ePlayer );
 
+	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
+	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
 
 	PlayerTypes GetPotentialFreeCityPlayer(CvCity* pCity = NULL);
 	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
@@ -726,6 +733,7 @@ protected:
 	int m_iNumCities;
 	int m_iTotalPopulation;
 	int m_iTotalEconomicValue;
+	int m_iHighestEconomicValue;
 	int m_iNoNukesCount;
 	int m_iNukesExploded;
 	int m_iMaxPopulation;
@@ -888,8 +896,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int		m_iLargestBasePotential;
 #endif
-	CvDistanceMapTurns m_globalCityDistanceTurns;
-	CvDistanceMapPlots m_globalCityDistancePlots;
+	CvDistanceMapByTurns m_cityDistanceTurns;
+	CvDistanceMapByPlots m_cityDistancePlots;
 
 	//----------------------------------------------------------------
 

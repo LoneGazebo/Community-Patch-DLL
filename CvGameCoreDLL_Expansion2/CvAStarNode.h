@@ -196,24 +196,25 @@ struct SPath
 {
 	std::vector<SPathNode> vPlots;
 	int iTotalCost;
-	int iNormalizedDistance;
+	int iNormalizedDistanceRaw; //fixed point float!
 	int iTotalTurns;
 	int iTurnSliceGenerated;
 	SPathFinderUserData sConfig;
 
 	//constructor
-	SPath() : iTotalCost(-1),iNormalizedDistance(-1),iTotalTurns(-1),iTurnSliceGenerated(-1) {}
+	SPath() : iTotalCost(-1),iNormalizedDistanceRaw(-1),iTotalTurns(-1),iTurnSliceGenerated(-1) {}
 
 	//not quite a safe-bool, but good enough
 	inline bool operator!() const { return vPlots.empty(); }
 
 	//convenience
 	inline int length() const { return vPlots.size(); }
-	inline CvPlot* get(int i) const;
+	CvPlot* get(int i) const;
+	static int getNormalizedDistanceBase();
 
 	bool operator==(const SPath& other)
 	{
-		return iTotalCost==other.iTotalCost && iNormalizedDistance==other.iNormalizedDistance && 
+		return iTotalCost==other.iTotalCost && iNormalizedDistanceRaw==other.iNormalizedDistanceRaw && 
 				iTotalTurns==other.iTotalTurns && vPlots.size()==other.vPlots.size();
 	}
 };
@@ -223,11 +224,11 @@ struct SMovePlot
 	int iPlotIndex;
 	int iTurns;
 	int iMovesLeft;
-	int iNormalizedDistance;
+	int iNormalizedDistanceRaw; //fixed point float
 
-	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0), iNormalizedDistance(0) {}
+	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0), iNormalizedDistanceRaw(0) {}
 	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_, int iNormalizedDistance_) : 
-		iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_), iNormalizedDistance(iNormalizedDistance_) {}
+		iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_), iNormalizedDistanceRaw(iNormalizedDistance_) {}
 
 	//this ignores the turns/moves so std::find with just a plot index should work
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
@@ -326,7 +327,11 @@ public:
 struct PrNodeIsBetter
 {
 	//greater than is intended! the lowest cost should be first
-	bool operator()(const CvAStarNode* lhs, const CvAStarNode* rhs) const { return lhs->m_iTotalCost > rhs->m_iTotalCost; }
+	bool operator()(const CvAStarNode* lhs, const CvAStarNode* rhs) const
+	{ 
+		//apparently there's a rule, when total cost is equal, prefer lower h (heuristic cost)
+		return lhs->m_iTotalCost > rhs->m_iTotalCost || (lhs->m_iTotalCost == rhs->m_iTotalCost && lhs->m_iHeuristicCost > rhs->m_iHeuristicCost); 
+	}
 };
 
 #endif	//CVASTARNODE_H

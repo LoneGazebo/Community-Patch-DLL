@@ -3024,6 +3024,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iResistanceCap(0),
 	m_iDifficultyBonusBase(0),
 	m_iDifficultyBonusEarly(0),
 	m_iDifficultyBonusMid(0),
@@ -3356,6 +3357,11 @@ int CvHandicapInfo::getNumGoodies() const
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAIResistanceCap() const
+{
+	return m_iResistanceCap;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIDifficultyBonusBase() const
 {
 	return m_iDifficultyBonusBase;
@@ -3470,6 +3476,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
 #if defined(MOD_BALANCE_CORE)
+	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iDifficultyBonusBase = kResults.GetInt("DifficultyBonusBase");
 	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
@@ -4791,6 +4798,12 @@ CvResourceInfo::CvResourceInfo() :
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_piYieldChangeFromMonopoly(NULL),
 	m_piCityYieldModFromMonopoly(NULL),
+	m_piiMonopolyCombatModifiers(),
+	m_piMonopolyGreatPersonRateModifiers(),
+#endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	m_piiiUnitCombatProductionCostModifiersLocal(),
+	m_aiiiBuildingProductionCostModifiersLocal(),
 #endif
 	m_piResourceQuantityTypes(NULL),
 	m_piFlavor(NULL),
@@ -4807,6 +4820,12 @@ CvResourceInfo::~CvResourceInfo()
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
+	m_piiMonopolyCombatModifiers.clear();
+	m_piMonopolyGreatPersonRateModifiers.clear();
+#endif
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	m_piiiUnitCombatProductionCostModifiersLocal.clear();
+	m_aiiiBuildingProductionCostModifiersLocal.clear();
 #endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piFlavor);
@@ -5126,6 +5145,278 @@ int* CvResourceInfo::getCityYieldModFromMonopolyArray()
 {
 	return m_piCityYieldModFromMonopoly ;
 }
+//------------------------------------------------------------------------------
+int CvResourceInfo::getMonopolyAttackBonus(MonopolyTypes eMonopoly) const
+{
+	ResourceMonopolySettings sKey;
+	int iMod = 0;
+	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
+
+	if (eMonopoly == MONOPOLY_STRATEGIC)
+	{
+		sKey.m_bGlobalMonopoly = true;
+		sKey.m_bStrategicMonopoly = true;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iAttackMod;
+		}
+
+		sKey.m_bGlobalMonopoly = false;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iAttackMod;
+		}
+	}
+
+	else if (eMonopoly == MONOPOLY_GLOBAL)
+	{
+		sKey.m_bGlobalMonopoly = true;
+		sKey.m_bStrategicMonopoly = false;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iAttackMod;
+		}
+
+		sKey.m_bStrategicMonopoly = true;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iAttackMod;
+		}
+	}
+
+	return iMod;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const
+{
+	ResourceMonopolySettings sKey;
+	int iMod = 0;
+	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
+
+	if (eMonopoly == MONOPOLY_STRATEGIC)
+	{
+		sKey.m_bGlobalMonopoly = true;
+		sKey.m_bStrategicMonopoly = true;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iDefenseMod;
+		}
+
+		sKey.m_bGlobalMonopoly = false;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iDefenseMod;
+		}
+	}
+
+	if (eMonopoly == MONOPOLY_GLOBAL)
+	{
+		sKey.m_bGlobalMonopoly = true;
+		sKey.m_bStrategicMonopoly = false;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iDefenseMod;
+		}
+
+		sKey.m_bStrategicMonopoly = true;
+
+		it = m_piiMonopolyCombatModifiers.find(sKey);
+
+		if (it != m_piiMonopolyCombatModifiers.end())
+		{
+			iMod += it->second.m_iDefenseMod;
+		}
+	}
+
+	return iMod;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
+{
+	MonopolyGreatPersonRateModifierKey sKey;
+	sKey.m_iSpecialist = (int)eSpecialist;
+	int iMod = 0;
+
+	std::map<MonopolyGreatPersonRateModifierKey, int>::const_iterator it;
+
+	if (eMonopoly == MONOPOLY_STRATEGIC)
+	{
+		sKey.m_sMonopoly.m_bGlobalMonopoly = true;
+		sKey.m_sMonopoly.m_bStrategicMonopoly = true;
+
+		it = m_piMonopolyGreatPersonRateModifiers.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateModifiers.end())
+		{
+			iMod += it->second;
+		}
+
+		sKey.m_sMonopoly.m_bGlobalMonopoly = false;
+
+		it = m_piMonopolyGreatPersonRateModifiers.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateModifiers.end())
+		{
+			iMod += it->second;
+		}
+	}
+
+	if (eMonopoly == MONOPOLY_GLOBAL)
+	{
+		sKey.m_sMonopoly.m_bGlobalMonopoly = true;
+		sKey.m_sMonopoly.m_bStrategicMonopoly = false;
+
+		it = m_piMonopolyGreatPersonRateModifiers.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateModifiers.end())
+		{
+			iMod += it->second;
+		}
+
+		sKey.m_sMonopoly.m_bStrategicMonopoly = true;
+
+		it = m_piMonopolyGreatPersonRateModifiers.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateModifiers.end())
+		{
+			iMod += it->second;
+		}
+	}
+
+	return iMod;
+}
+#endif
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+//------------------------------------------------------------------------------
+bool CvResourceInfo::isHasUnitCombatProductionCostModifiersLocal() const
+{
+	return m_piiiUnitCombatProductionCostModifiersLocal.size() > 0;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const
+{
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitCombat > -1, "Index out of bounds");
+
+	CvAssertMsg(eUnitEra < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitEra > -1, "Index out of bounds");
+
+	int iUnitCombat = (int)eUnitCombat;
+	int iUnitEra = (int)eUnitEra;
+	int iMod = 0;
+
+	std::map<int, std::vector<ProductionCostModifiers>>::const_iterator itMap = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
+	if (itMap != m_piiiUnitCombatProductionCostModifiersLocal.end()) // find returns the iterator to map::end if the key iUnitCombat is not present in the map
+	{
+		for (std::vector<ProductionCostModifiers>::const_iterator itVector = itMap->second.begin(); itVector != itMap->second.end(); ++itVector)
+		{
+			EraTypes eRequiredEra = (EraTypes)itVector->m_iRequiredEra;
+			EraTypes eObsoleteEra = (EraTypes)itVector->m_iObsoleteEra;
+
+			if (eUnitEra != NO_ERA)
+			{
+				// Our unit's era needs to be greater than or equal to the required era
+				if (eRequiredEra != NO_ERA && iUnitEra < itVector->m_iRequiredEra)
+				{
+					continue;
+				}
+
+				// Our unit's era needs to be less than the obsolete era
+				if (eObsoleteEra != NO_ERA && iUnitEra >= itVector->m_iObsoleteEra)
+				{
+					continue;
+				}
+			}
+
+			iMod += itVector->m_iCostModifier;
+		}
+	}
+
+	return iMod;
+}
+//------------------------------------------------------------------------------
+std::vector<ProductionCostModifiers> CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const
+{
+	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitCombat > -1, "Index out of bounds");
+
+	int iUnitCombat = (int)eUnitCombat;
+
+	std::map<int, std::vector<ProductionCostModifiers>>::const_iterator it = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
+	if (it != m_piiiUnitCombatProductionCostModifiersLocal.end()) // find returns the iterator to map::end if the key iUnitCombat is not present in the map
+	{
+		return it->second;
+	}
+
+	return std::vector<ProductionCostModifiers>();
+}
+//------------------------------------------------------------------------------
+bool CvResourceInfo::isHasBuildingProductionCostModifiersLocal() const
+{
+	return m_aiiiBuildingProductionCostModifiersLocal.size() > 0;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const
+{
+	CvAssertMsg(eBuildingEra < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingEra > -1, "Index out of bounds");
+
+	int iBuildingEra = (int)eBuildingEra;
+	int iMod = 0;
+
+	for (std::vector<ProductionCostModifiers>::const_iterator it = m_aiiiBuildingProductionCostModifiersLocal.begin(); it != m_aiiiBuildingProductionCostModifiersLocal.end(); ++it)
+	{
+		EraTypes eRequiredEra = (EraTypes)it->m_iRequiredEra;
+		EraTypes eObsoleteEra = (EraTypes)it->m_iObsoleteEra;
+
+		if (eBuildingEra != NO_ERA)
+		{
+			// Our building's era needs to be greater than or equal to the required era
+			if (eRequiredEra != NO_ERA && iBuildingEra < it->m_iRequiredEra)
+			{
+				continue;
+			}
+
+			// Our building's era needs to be less than the obsolete era
+			if (eObsoleteEra != NO_ERA && iBuildingEra >= it->m_iObsoleteEra)
+			{
+				continue;
+			}
+		}
+
+		iMod += it->m_iCostModifier;
+	}
+
+	return iMod;
+}
+
+//------------------------------------------------------------------------------
+std::vector<ProductionCostModifiers> CvResourceInfo::getBuildingProductionCostModifiersLocal() const
+{
+	return m_aiiiBuildingProductionCostModifiersLocal;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
@@ -5301,6 +5592,142 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		}
 
 	}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	//Resource_MonopolyCombatModifiers
+	{
+
+		std::string sqlKey = "Resource_MonopolyCombatModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select IsGlobalMonopoly, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const bool bGlobalMonopoly = pResults->GetBool(0);
+			const bool bStrategicMonopoly = pResults->GetBool(1);
+			const int iAttackMod = pResults->GetInt(2);
+			const int iDefenseMod = pResults->GetInt(3);
+
+			ResourceMonopolySettings sKey;
+			sKey.m_bGlobalMonopoly = bGlobalMonopoly;
+			sKey.m_bStrategicMonopoly = bStrategicMonopoly;
+
+			m_piiMonopolyCombatModifiers[sKey].m_iAttackMod += iAttackMod;
+			m_piiMonopolyCombatModifiers[sKey].m_iDefenseMod += iDefenseMod;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<ResourceMonopolySettings, CombatModifiers>(m_piiMonopolyCombatModifiers).swap(m_piiMonopolyCombatModifiers);
+	}
+
+	//Resource_GreatPersonRateModifiers
+	{
+
+		std::string sqlKey = "Resource_MonopolyGreatPersonRateModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Specialists.ID as SpecialistID, IsGlobalMonopoly, IsStrategicMonopoly, Modifier from Resource_MonopolyGreatPersonRateModifiers inner join Specialists on Specialists.Type = SpecialistType where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const int iSpecialist = pResults->GetInt(0);
+			const bool bGlobalMonopoly = pResults->GetBool(1);
+			const bool bStrategicMonopoly = pResults->GetBool(2);
+			const int iModifier = pResults->GetInt(3);
+
+			MonopolyGreatPersonRateModifierKey sKey;
+			sKey.m_iSpecialist = iSpecialist;
+			sKey.m_sMonopoly.m_bGlobalMonopoly = bGlobalMonopoly;
+			sKey.m_sMonopoly.m_bStrategicMonopoly = bStrategicMonopoly;
+
+			m_piMonopolyGreatPersonRateModifiers[sKey] += iModifier;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<MonopolyGreatPersonRateModifierKey, int>(m_piMonopolyGreatPersonRateModifiers).swap(m_piMonopolyGreatPersonRateModifiers);
+	}
+#endif
+
+#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+	//Resource_UnitCombatProductionCostModifiersLocal
+	{
+
+		std::string sqlKey = "Resource_UnitCombatProductionCostModifiersLocal";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitCombatInfos.ID as UnitCombatInfosID, RequiredEra, ObsoleteEra, CostModifier from Resource_UnitCombatProductionCostModifiersLocal inner join UnitCombatInfos on UnitCombatType = UnitCombatInfos.Type where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const int iUnitCombat = pResults->GetInt(0);
+			const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(1), true);
+			const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(2), true);
+			const int iCostMod = pResults->GetInt(3);
+
+			ProductionCostModifiers sElement;
+			sElement.m_iRequiredEra = iRequiredEra;
+			sElement.m_iObsoleteEra = iObsoleteEra;
+			sElement.m_iCostModifier = iCostMod;
+
+			m_piiiUnitCombatProductionCostModifiersLocal[iUnitCombat].push_back(sElement);
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::vector<ProductionCostModifiers>>(m_piiiUnitCombatProductionCostModifiersLocal).swap(m_piiiUnitCombatProductionCostModifiersLocal);
+	}
+
+	//Resource_BuildingProductionCostModifiersLocal
+		{
+
+			std::string sqlKey = "Resource_BuildingProductionCostModifiersLocal";
+			Database::Results* pResults = kUtility.GetResults(sqlKey);
+			if (pResults == NULL)
+			{
+				const char* szSQL = "select RequiredEra, ObsoleteEra, CostModifier from Resource_BuildingProductionCostModifiersLocal where ResourceType = ?";
+				pResults = kUtility.PrepareResults(sqlKey, szSQL);
+			}
+
+			pResults->Bind(1, szResourceType);
+
+			while (pResults->Step())
+			{
+				const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(0), true);
+				const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(1), true);
+				const int iCostMod = pResults->GetInt(2);
+
+				ProductionCostModifiers sElement;
+				sElement.m_iRequiredEra = iRequiredEra;
+				sElement.m_iObsoleteEra = iObsoleteEra;
+				sElement.m_iCostModifier = iCostMod;
+
+				m_aiiiBuildingProductionCostModifiersLocal.push_back(sElement);
+			}
+
+			pResults->Reset();
+		}
+#endif
 
 
 	return true;

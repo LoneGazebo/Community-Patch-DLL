@@ -15,7 +15,6 @@ public:
 	static int GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot);
 	static int GetMovementCostAdderFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot);
 
-protected:
 	static int GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iTerrainFeatureCostMultiplierFromPromotions = -1, int iTerrainFeatureCostAdderFromPromotions = -1);
 	static bool IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot);
 	static bool IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const PlotIndexContainer& plotsToIgnore);

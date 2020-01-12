@@ -1182,6 +1182,7 @@ function OnCityViewUpdate()
 						local iCityMod = pCity:GetGreatPeopleRateModifier();
 						-- CBP
 						iCityMod = iCityMod + pCity:GetSpecialistCityModifier(pSpecialistInfo.ID);
+						local iMonopolyMod = pPlayer:GetMonopolyGreatPersonRateModifier(pSpecialistInfo.ID);
 						--END
 						local iGoldenAgeMod = 0;
 						local bGoldenAge = (pPlayer:GetGoldenAgeTurns() > 0);
@@ -1262,7 +1263,7 @@ function OnCityViewUpdate()
 						-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
 						iPlayerMod = iPlayerMod - iPolicyMod - iWorldCongressMod;
 						
-						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod;
+						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod + iMonopolyMod;
 						iGPPChange = (iGPPChange * (100 + iMod)) / 100;
 -- Vox Populi
 						local iProgress100 = pCity:GetSpecialistGreatPersonProgressTimes100(iSpecialistIndex);
@@ -1272,6 +1273,9 @@ function OnCityViewUpdate()
 -- Vox Populi end
 						if (iPlayerMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PLAYER_GP_MOD", iPlayerMod);
+						end
+						if (iMonopolyMod > 0) then
+							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_MONOPOLY_GP_MOD", iMonopolyMod);
 						end
 						if (iPolicyMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_GP_MOD", iPolicyMod);

@@ -40,6 +40,7 @@
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*310)	//don't make it even so we don't get ties
 #define PATH_ASSUMED_MAX_DEFENSE								(100)	//MAX_DEFENSE * DEFENSE_WEIGHT + END_TURN_FOREIGN_TERRITORY + END_TURN_NO_ROUTE should be smaller than END_TURN_WATER
+#define NORM_COST_BASE											(100)	//we use a fixed point format for normalized path cost
 
 #include <xmmintrin.h>
 #include "LintFree.h"
@@ -679,7 +680,6 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 {
 	SPath ret;
-	ret.iNormalizedDistance = INT_MAX;
 	ret.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 	ret.sConfig = m_sData;
 
@@ -690,7 +690,7 @@ SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 	}
 
 	ret.iTotalCost = pNode->m_iKnownCost;
-	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
+	ret.iNormalizedDistanceRaw = (pNode->m_iKnownCost * SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
 	//switch counting convention. if zero moves left, consider this as plus one turns
 	ret.iTotalTurns = pNode->m_iTurns + (pNode->m_iMoves==0 ? 1 : 0);
 
@@ -1634,6 +1634,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 
 	PlayerTypes ePlayer = data.ePlayer;
 	PlayerTypes eEnemy = (PlayerTypes)data.iTypeParameter; //we pretend we can enter this player's plots even if we're not at war
+	TeamTypes eMyTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
@@ -1643,7 +1644,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		return FALSE;
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
-	if (ePlayer!=NO_PLAYER && !pToPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()))
+	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
 		return FALSE;
 #endif
 
@@ -1684,21 +1685,15 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		return FALSE;
 
 	//territory check
-	PlayerTypes ePlotOwnerPlayer = pToPlot->getOwner();
-	if (ePlotOwnerPlayer != NO_PLAYER && ePlayer != NO_PLAYER && ePlotOwnerPlayer != eEnemy && !pToPlot->IsFriendlyTerritory(ePlayer))
+	if (ePlayer != NO_PLAYER && pToPlot->isOwned())
 	{
-		CvPlayer& plotOwnerPlayer = GET_PLAYER(ePlotOwnerPlayer);
-		bool bPlotOwnerIsMinor = plotOwnerPlayer.isMinorCiv();
-
-		if(!bPlotOwnerIsMinor)
+		if (pToPlot->getOwner() != eEnemy)
 		{
-			TeamTypes eMyTeam = GET_PLAYER(ePlayer).getTeam();
-			TeamTypes ePlotOwnerTeam = plotOwnerPlayer.getTeam();
-
-			if(!atWar(eMyTeam, ePlotOwnerTeam))
-			{
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY) && GET_TEAM(pToPlot->getTeam()).isAtWar(eMyTeam))
 				return FALSE;
-			}
+
+			if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) && !pToPlot->IsFriendlyTerritory(ePlayer))
+				return FALSE;
 		}
 	}
 
@@ -2616,8 +2611,8 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 
 		if (bValid)
 		{
-			int iEffectiveDistance = temp->m_iKnownCost / m_iBasicPlotCost + 1;
-			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iEffectiveDistance) );
+			int iNormalizedDistanceRaw = (temp->m_iKnownCost*SPath::getNormalizedDistanceBase()) / m_iBasicPlotCost + 1;
+			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iNormalizedDistanceRaw) );
 		}
 	}
 
@@ -2683,7 +2678,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 				path.iTurnSliceGenerated = GC.getGame().getTurnSlice();
 				path.sConfig = m_sData;
 				path.iTotalCost = temp->m_iKnownCost;
-				path.iNormalizedDistance = temp->m_iKnownCost / m_iBasicPlotCost + 1;
+				path.iNormalizedDistanceRaw = (temp->m_iKnownCost * SPath::getNormalizedDistanceBase())  / m_iBasicPlotCost + 1;
 				path.iTotalTurns = temp->m_iTurns;
 
 				CvAStarNode* node = temp;
@@ -3196,12 +3191,17 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iStartMoves = 0;
 }
 
-inline CvPlot * SPath::get(int i) const
+CvPlot * SPath::get(int i) const
 {
 	if (i<(int)vPlots.size())
 		return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
 
 	return NULL;
+}
+
+int SPath::getNormalizedDistanceBase()
+{
+	return NORM_COST_BASE;
 }
 
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)

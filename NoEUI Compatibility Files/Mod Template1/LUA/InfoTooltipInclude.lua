@@ -527,6 +527,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 			table.insert(lines, localizedText);
 		end
+
+		iTourism = pCity:GetBuildingClassTourism(buildingClassID)
+		if iTourism ~= 0 then
+			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
+			table.insert(lines, localizedText);
+		end
 	end
 	-- CBP
 	if (pCity ~= nil) then

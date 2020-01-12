@@ -215,6 +215,9 @@
     <!-- Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61) -->
     <Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="0"/>
 
+    <!-- Allows faith purchase of buildings in puppets -->
+    <Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
+
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
     <Row Class="6" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>
@@ -291,6 +294,12 @@
 
     <!-- Enables additional trade route related traits (v52) -->
     <Row Class="6" Name="TRAITS_TRADE_ROUTE_BONUSES" Value="0" DbUpdates="1"/>
+
+	<!-- Enables the trait table Trait_TradeRouteProductionSiphon -->
+	<Row Class="6" Name="TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON" Value="0"/>
+
+	<!-- Enables the trait table Trait_YieldFromRouteMovementInForeignTerritory -->
+	<Row Class="6" Name="TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY" Value="0"/>
 
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
@@ -427,6 +436,9 @@
     <!-- See also: "Buildings - Storage Yard and Stockpile" -->
     <Row Class="6" Name="PROCESS_STOCKPILE" Value="0"/>
     <!-- Row Class="0" Name="PROCESS_STOCKPILE_PER_ERA" Value="30"/ -->
+
+	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
+	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
 
     <!-- Fixes the AI's inability to use combat units as secondary workers (v26) -->
     <!-- See also: "AI - Secondary Workers And Settlers" -->
@@ -1081,6 +1093,8 @@
 	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
 
 	<Row Class="6" Name="ISKA_HERITAGE" Value="0"/>
+	<!-- If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Also game to calculate the military might for each domain. -->
+	<Row Class="6" Name="BATTLE_ROYALE" Value="0"/>
 
   </CustomModOptions>
 

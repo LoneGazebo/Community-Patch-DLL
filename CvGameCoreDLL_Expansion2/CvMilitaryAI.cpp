@@ -1020,8 +1020,12 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 	if (!pMusterCity)
 		return false;
 
+	//do not set a player - that way we can traverse unrevealed plots and foreign territory
+	SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
+	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetCity->plot(), data);
+
 	//taken from CalculateBullyMetric
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(pTargetCity->plot(), MINOR_POWER_COMPARISON_RADIUS, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(relevantPlots, GET_PLAYER(eEnemy).getTeam(), m_pPlayer->getTeam(), false);
 	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pTargetCity->GetPower()));
 
 	//check if we have a chance ...
@@ -2349,7 +2353,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam( pLoopPlot->getTeam() );
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID()))
+			if (GetPlayer()->GetPlotDanger(*pLoopPlot, true) > 9)
 				bTough = true;
 
 			//makes us slow
@@ -3717,6 +3721,8 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 {
 	bool bLaunchNuke = false;
+	WarProjectionTypes eCurrentWarProjection = m_pPlayer->GetDiplomacyAI()->GetWarProjection(ePlayer);
+	WarStateTypes eCurrentWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
 	// only evaluate nukes when we have nukes and we've declared war on someone
 	if (m_pPlayer->getNumNukeUnits() > 0) 
 	{
@@ -3730,14 +3736,18 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 		{
 			bLaunchNuke = true;
 		}
+		// if we will surely lose this war anyway, we might as well nuke them!
+		else if (eCurrentWarProjection == WAR_PROJECTION_DESTRUCTION || eCurrentWarState == WAR_STATE_NEARLY_DEFEATED)
+		{
+			bLaunchNuke = true;
+		}
 		else 
 		{
 			bool bRollForNuke = false;
-			WarProjectionTypes eCurrentWarProjection = m_pPlayer->GetDiplomacyAI()->GetWarProjection(ePlayer);
 			if(GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				MajorCivOpinionTypes eMajorCivOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
-				if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT)
+				if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT || eCurrentWarState == WAR_STATE_DEFENSIVE)
 				{
 					// roll every turn
 					bRollForNuke = true;
@@ -3750,6 +3760,12 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				{
 					bRollForNuke = true;
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition())
+				{
+					bRollForNuke = true;
+				}
+#endif
 				else if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
 				{
 					bRollForNuke = true;
@@ -3757,8 +3773,8 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				if (bRollForNuke)
 				{
 					int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-					int iRoll = GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(ePlayer).getGlobalAverage(YIELD_CULTURE));
-					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+					int iRoll = GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(ePlayer).GetPseudoRandomSeed());
+					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed());
 					if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
 					{
 						bLaunchNuke = true;

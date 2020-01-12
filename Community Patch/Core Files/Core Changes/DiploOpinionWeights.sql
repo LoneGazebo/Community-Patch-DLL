@@ -1,6 +1,38 @@
 -- Diplo Opinion Weights
 -- All opinion weights are listed here, even the unmodified ones, for easier modding.
 
+-- Opinion Thresholds
+-- Defines how much positive or negative Opinion is required for a specific opinion rating.
+-- 80
+UPDATE Defines
+SET Value = '160'
+WHERE Name = 'OPINION_THRESHOLD_UNFORGIVABLE';
+
+-- 40
+UPDATE Defines
+SET Value = '80'
+WHERE Name = 'OPINION_THRESHOLD_ENEMY';
+
+-- 15
+UPDATE Defines
+SET Value = '30'
+WHERE Name = 'OPINION_THRESHOLD_COMPETITOR';
+
+-- -15
+UPDATE Defines
+SET Value = '-30'
+WHERE Name = 'OPINION_THRESHOLD_FAVORABLE';
+
+-- -40
+UPDATE Defines
+SET Value = '-80'
+WHERE Name = 'OPINION_THRESHOLD_FRIEND';
+
+-- -80
+UPDATE Defines
+SET Value = '-160'
+WHERE Name = 'OPINION_THRESHOLD_ALLY';
+
 -- Base Opinion Weight (affects all AI players)
 -- Can be used to add an opinion bonus or penalty to human and/or AI players.
 -- Negative values add good opinion, positive values add bad opinion.
@@ -30,6 +62,22 @@ UPDATE Defines
 SET Value = '-10'
 WHERE Name = 'OPINION_WEIGHT_LAND_NONE';
 
+-- Mods for Land Dispute Weight
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LAND_ANCIENT_ERA', '10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LAND_CLASSICAL_ERA', '5';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LAND_NONE_EARLY_GAME', '-5';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LAND_WARMONGER', '10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_LAND_NONE_WARMONGER', '-5';
+
 -- 20 (unchanged)
 UPDATE Defines
 SET Value = '20'
@@ -49,6 +97,13 @@ WHERE Name = 'OPINION_WEIGHT_WONDER_WEAK';
 UPDATE Defines
 SET Value = '0'
 WHERE Name = 'OPINION_WEIGHT_WONDER_NONE';
+
+-- Mods for Wonder Dispute Weight
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_WONDER_CULTURAL', '10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_WONDER_NONE_CULTURAL', '-10';
 
 -- 30 (unchanged)
 UPDATE Defines
@@ -70,19 +125,26 @@ UPDATE Defines
 SET Value = '0'
 WHERE Name = 'OPINION_WEIGHT_MINOR_CIV_NONE';
 
+-- Mods for Minor Civ Dispute Weight
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_MINOR_CIV_DIPLOMAT', '10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT', '-10';
+
 -- 30
 UPDATE Defines
-SET Value = '40'
+SET Value = '45'
 WHERE Name = 'OPINION_WEIGHT_VICTORY_FIERCE';
 
 -- 20
 UPDATE Defines
-SET Value = '30'
+SET Value = '35'
 WHERE Name = 'OPINION_WEIGHT_VICTORY_STRONG';
 
 -- 10
 UPDATE Defines
-SET Value = '20'
+SET Value = '25'
 WHERE Name = 'OPINION_WEIGHT_VICTORY_WEAK';
 
 -- -6
@@ -92,23 +154,27 @@ WHERE Name = 'OPINION_WEIGHT_VICTORY_NONE';
 
 -- Per-era increase to victory dispute
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_PER_ERA', '1';
+SELECT 'OPINION_WEIGHT_VICTORY_PER_ERA', '3';
 
 -- Victory Block Opinion Weights
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '30';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', '35';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', '20';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_STRONG', '25';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_WEAK', '10';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_WEAK', '15';
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_NONE', '0';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', '1';
+SELECT 'OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', '3';
+
+-- Endgame Victory Opinion Weight Increase
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_VICTORY_ENDGAME_MULTIPLIER', '2';
 
 -- -20
 UPDATE Defines
@@ -188,6 +254,12 @@ UPDATE Defines
 SET Value = '2'
 WHERE Name = 'OPINION_WEIGHT_PER_NEGATIVE_CONVERSION';
 
+-- 5 (unchanged)
+-- Religious conversion points are reduced to this number minus 1 when player makes a promise to stop converting AI's cities.
+UPDATE Defines
+SET Value = '5'
+WHERE Name = 'RELIGION_DIPLO_HIT_THRESHOLD';
+
 -- -5
 -- This is multiplied by the current game era's Diplo Emphasis for Religion.
 UPDATE Defines
@@ -203,7 +275,7 @@ WHERE Name = 'OPINION_WEIGHT_ADOPTING_MY_RELIGION';
 -- Different Majority Religions Opinion Weight
 -- This is multiplied by the current game era's Diplo Emphasis for Religion.
 INSERT INTO Defines (Name, Value)
-SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '6';
+SELECT 'OPINION_WEIGHT_DIFFERENT_MAJORITY_RELIGIONS', '5';
 
 -- 5
 -- This is multiplied by the current game era's Diplo Emphasis for Late Game Policies.
@@ -522,6 +594,19 @@ UPDATE Defines
 SET Value = '35'
 WHERE Name = 'OPINION_WEIGHT_RECKLESS_EXPANDER';
 
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD', '15';
+
+-- Weight for spamming World Wonders
+INSERT INTO Defines (Name, Value)
+SELECT 'WONDER_SPAMMER_THRESHOLD', '3';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_WONDER_SPAMMER', '35';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD', '15';
+
 -- 15
 UPDATE Defines
 SET Value = '18'
@@ -536,7 +621,7 @@ WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ENEMY';
 -- Makes trade partnerships and trade deals last a bit longer
 -- 3
 UPDATE Defines
-SET Value = '1'
+SET Value = '2'
 WHERE Name = 'DEAL_VALUE_PER_TURN_DECAY';
 
 -- 10
@@ -546,7 +631,7 @@ WHERE Name = 'DEAL_VALUE_PER_OPINION_WEIGHT';
 
 -- -30
 UPDATE Defines
-SET Value = '-35'
+SET Value = '-40'
 WHERE Name = 'OPINION_WEIGHT_TRADE_MAX';
 
 -- Common Foe Values
@@ -651,9 +736,9 @@ UPDATE Defines
 SET Value = '15'
 WHERE Name = 'OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL';
 
--- -20
+-- -20 (unchanged)
 UPDATE Defines
-SET Value = '20'
+SET Value = '-20'
 WHERE Name = 'OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING';
 
 -- AI spam message reduction

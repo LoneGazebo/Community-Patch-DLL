@@ -711,11 +711,17 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 							// Start the swap
 							hUnit->ClearPathCache(); //make sure there's no stale path
 							pUnit2->ClearPathCache(); //make sure there's no stale path
-							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))
+							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0, NULL, true) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0, NULL, true))
 							{
+								//move the new unit in
 								int iResult = 0;
 								while (iResult >= 0)
 									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
+
+								//make sure to delete any previous missions, there's a check later for conflicts
+								pUnit2->ClearMissionQueue(true);
+
+								//move the old unit out
 								int iResult2 = 0;
 								while (iResult2 >= 0)
 									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);

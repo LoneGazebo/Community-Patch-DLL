@@ -108,7 +108,7 @@ void CvHomelandAI::RecruitUnits()
 	{
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>99)
-			OutputDebugString("undefended general found!\n");
+			OutputDebugString( CvString::format("undefended general found at %d:%d!\n",pLoopUnit->getX(),pLoopUnit->getY()).c_str());
 
 		// Never want units that have already moved or zombies
 		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
@@ -957,7 +957,7 @@ void CvHomelandAI::FindHomelandTargets()
 			{
 				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
 				int iWeight = pLoopPlot->defenseModifier(eTeam, false, false);
-				iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot);
+				iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot, false);
 				if(iWeight > 0)
 				{
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);

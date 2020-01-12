@@ -883,6 +883,7 @@ public:
 	int getUnhappinessFromScienceNeeded(int iMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromScience(int iPopMod = 0, bool bForceGlobal = false) const;
+	//new name should be distress instead of defense, but it's a hassle to change now
 	int getUnhappinessFromDefenseYield(int iPopMod = 0) const;
 	int getUnhappinessFromDefenseNeeded(int iMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
@@ -1449,7 +1450,7 @@ public:
 	void changeSpecialistFreeExperience(int iChange);
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildingDefense = false) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildingDefense = false, const CvUnit* pDefender = NULL) const;
 	int GetPower() const;
 
 	int getDamage() const;
@@ -1537,6 +1538,11 @@ public:
 	OrderData* headOrderQueueNode();
 	const OrderData* tailOrderQueueNode() const;
 	bool CleanUpQueue(void);  // remove items in the queue that are no longer valid
+
+	void produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit = NO_UNITAI, bool bCanOverflow = true);
+	void produce(BuildingTypes eConstructBuilding, bool bCanOverflow = true);
+	void produce(ProjectTypes eCreateProject, bool bCanOverflow = true);
+	void produce(SpecialistTypes eSpecialist, bool bCanOverflow = true);
 
 	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bUseToSatisfyOperation=true, bool bIsPurchase = false);
 	bool CreateBuilding(BuildingTypes eBuildType);

@@ -31,7 +31,7 @@
 			<Text>Epona, the Great Mare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +2 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. +5 [ICON_GOLD] Gold from Ceilidh Hall</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, capped at half the number of Followers in the City. +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +2 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. +5 [ICON_GOLD] Gold from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
@@ -80,7 +80,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR]: [ICON_HAPPINESS_3] Poverty reduced by 20% and [ICON_FOOD] Growth increased by 20% in all cities. -20% building maintenance modifier.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR]: [ICON_GOLD] Poverty reduced by 20% and [ICON_FOOD] Growth increased by 20% in all cities. -20% building maintenance modifier.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O">
 			<Text>Peace, Land, Bread</Text>

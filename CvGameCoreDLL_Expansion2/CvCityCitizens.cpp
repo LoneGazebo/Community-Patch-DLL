@@ -5,6 +5,7 @@ and their respective logos are all trademarks of Take-Two interactive Software, 
 All other marks and trademarks are the property of their respective owners.
 All rights reserved.
 ------------------------------------------------------------------------------------------------------- */
+
 #include "CvGameCoreDLLPCH.h"
 #include "ICvDLLUserInterface.h"
 #include "CvGameCoreUtils.h"
@@ -853,7 +854,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 	return iBonus;
 }
 /// What is the overall value of the current Plot?
-int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFoodCorpMod)
+int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers store)
 {
 	int iValue = 0;
 
@@ -900,7 +901,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				bool bAvoidGrowth = IsAvoidGrowth();
 
 				// Food can be worth less if we don't want to grow
-				if (iExcessFoodTimes100 > 0 && bAvoidGrowth)
+				if (store.iExcessFoodTimes100 > 0 && bAvoidGrowth)
 				{
 					// If we at least have enough Food to feed everyone, zero out the value of additional food
 					iYield = 1;
@@ -908,15 +909,15 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iMultiplier = iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() * 2 : GC.getAI_CITIZEN_VALUE_FOOD();
-					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(iFoodCorpMod);
+					int iMultiplier = store.iExcessFoodTimes100 <= 0 ? GC.getAI_CITIZEN_VALUE_FOOD() * 2 : GC.getAI_CITIZEN_VALUE_FOOD();
+					int iFoodTurnsRemaining = bCityFoodProduction ? iMultiplier : m_pCity->getFoodTurnsLeft(store.iFoodCorpMod);
 					int iPopulation = m_pCity->getPopulation();
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
 					iFoodEmphasisModifier = (int)sqrt((float)iMultiplier * iFoodTurnsRemaining * iPopulation);
 				}
 
-				if (iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
+				if (store.iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
 					iFoodEmphasisModifier /= 100;
 
 				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
@@ -991,32 +992,32 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100, int iFo
 				switch (eYield)
 				{
 				case YIELD_GOLD:
-					if (m_pCity->getUnhappinessFromGold() > 0)
+					if (store.iUnhappinessFromGold > 0)
 					{
 						iYield *= 2;
 					}
 					break;
 				case YIELD_SCIENCE:
-					if (m_pCity->getUnhappinessFromScience() > 0)
+					if (store.iUnhappinessFromScience > 0)
 					{
 						iYield *= 2;
 					}
 					break;
 				case YIELD_CULTURE:
-					if (m_pCity->getUnhappinessFromScience() > 0)
+					if (store.iUnhappinessFromCulture> 0)
 					{
 						iYield *= 2;
 					}
 					break;
 				case YIELD_FAITH:
-					if (m_pCity->getUnhappinessFromReligion() > 0)
+					if (store.iUnhappinessFromReligion > 0)
 					{
 						iYield *= 2;
 					}
 					break;
 				case YIELD_PRODUCTION:
 				case YIELD_FOOD:
-					if (m_pCity->getUnhappinessFromDefense() > 0)
+					if (store.iUnhappinessFromDistress > 0)
 					{
 						iYield *= 2;
 					}
@@ -2027,9 +2028,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 #endif
 
+#if defined(MOD_API_LUA_EXTENSIONS)
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 	if (eGreatPerson != NO_GREATPERSON)
 	{
+		iMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 		if (GetPlayer()->isGoldenAge())
 		{
 			iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
@@ -2056,6 +2059,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 		}
 	}
+#endif
 	if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
@@ -2557,18 +2561,14 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 	int iBestPlotValue = -1;
 	int iBestPlotID = -1;
 
-	CvPlot* pLoopPlot;
-
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
+	SPrecomputedExpensiveNumbers store(m_pCity);
 
 	// Look at all workable Plots
-
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
 		if (iPlotLoop != CITY_HOME_PLOT)
 		{
-			pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
+			CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
 
 			if (pLoopPlot != NULL)
 			{
@@ -2582,7 +2582,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 						// Working the Plot or CAN work the Plot?
 						if (bWantWorked || IsCanWork(pLoopPlot))
 						{
-							iValue = GetPlotValue(pLoopPlot, iExcessFoodTimes100, iFoodCorpMod);
+							iValue = GetPlotValue(pLoopPlot, store);
 
 							if (bLogging && (GC.getLogging() && GC.getAILogging()))
 							{
@@ -3192,66 +3192,43 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 }
 
 /// Make sure we don't have more forced working plots than we have citizens to work
-#if defined(MOD_BALANCE_CORE)
 bool CvCityCitizens::DoValidateForcedWorkingPlots()
-#else
-void CvCityCitizens::DoValidateForcedWorkingPlots()
-#endif
 {
-#if defined(MOD_BALANCE_CORE)
 	bool bValue = false;
-#endif
 	int iNumForcedWorkingPlotsToDemote = GetNumForcedWorkingPlots() - GetNumCitizensWorkingPlots();
 
 	if (iNumForcedWorkingPlotsToDemote > 0)
 	{
 		for (int iLoop = 0; iLoop < iNumForcedWorkingPlotsToDemote; iLoop++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			bValue = DoDemoteWorstForcedWorkingPlot();
-#else
-			DoDemoteWorstForcedWorkingPlot();
-#endif
 
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	return bValue;
-#endif
 }
 
 /// Remove the Forced status from the worst ForcedWorking plot
-#if defined(MOD_BALANCE_CORE)
 bool CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
-#else
-void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
-#endif
 {
-	int iValue;
-
 	int iBestPlotValue = -1;
 	int iBestPlotID = -1;
 
-	CvPlot* pLoopPlot;
-
-#if defined(MOD_BALANCE_CORE)
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-	int iFoodCorpMod = m_pCity->GetTradeRouteCityMod(YIELD_FOOD);
-#endif
+	SPrecomputedExpensiveNumbers store(m_pCity);
 
 	// Look at all workable Plots
-
 	for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 	{
 		if (iPlotLoop != CITY_HOME_PLOT)
 		{
-			pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
+			CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
 
 			if (pLoopPlot != NULL)
 			{
 				if (IsForcedWorkingPlot(pLoopPlot))
 				{
-					iValue = GetPlotValue(pLoopPlot, iExcessFoodTimes100, iFoodCorpMod);
+					int iValue = GetPlotValue(pLoopPlot, store);
 
 					// First, or worst yet?
 					if (iBestPlotValue == -1 || iValue < iBestPlotValue)
@@ -3266,15 +3243,12 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 
 	if (iBestPlotID > -1)
 	{
-		pLoopPlot = GetCityPlotFromIndex(iBestPlotID);
+		CvPlot* pLoopPlot = GetCityPlotFromIndex(iBestPlotID);
 		SetForcedWorkingPlot(pLoopPlot, false);
-#if defined(MOD_BALANCE_CORE)
 		return true;
-#endif
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	return false;
-#endif
 }
 
 /// How many plots have we forced to be worked?
@@ -3492,10 +3466,11 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-				if (GetPlayer()->isGoldenAge())
-				{
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 					if (eGreatPerson != NO_GREATPERSON)
+				{
+					iMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+					if (GetPlayer()->isGoldenAge())
 					{
 						iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
@@ -4716,4 +4691,16 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 	}
 
 	return eTargetYield;
+}
+
+SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers(CvCity * pCity)
+{
+	iUnhappinessFromGold = pCity->getUnhappinessFromGold();
+	iUnhappinessFromScience = pCity->getUnhappinessFromScience();
+	iUnhappinessFromCulture = pCity->getUnhappinessFromCulture();
+	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
+	iUnhappinessFromDistress = pCity->getUnhappinessFromDefense();
+
+	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumption() * 100);
+	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
 }

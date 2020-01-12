@@ -601,24 +601,22 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pFromCity, pToCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pToCity, pFromCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pFromCity, pToCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pToCity, pFromCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 
-	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
-	
-
+	bool bWithinDistance = (iApparentDistance <= iMaxDistance*SPath::getNormalizedDistanceBase());
 	return bWithinDistance;
 }
 
@@ -3697,7 +3695,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getSmallFakeRandNum(100, kPlayer.getGlobalAverage(YIELD_CULTURE));
+	int iRand = GC.getGame().getSmallFakeRandNum(100, kPlayer.GetPseudoRandomSeed());
 	if(iRand >= iChance)
 	{
 		return false;
@@ -3810,7 +3808,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.getGlobalAverage(YIELD_CULTURE) + iLoop);
+				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetPseudoRandomSeed() + iLoop);
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -6107,22 +6105,22 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pOtherCity, m_pCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, m_pCity, pOtherCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOtherCity, m_pCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, m_pCity, pOtherCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 
-	bool bWithinDistance = (iApparentDistance <= iDistance);
+	bool bWithinDistance = (iApparentDistance <= iDistance*SPath::getNormalizedDistanceBase());
 
 	// if not within distance, then we're using a trade route
 	if (!bWithinDistance) 
@@ -8587,7 +8585,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iRand = 0;
 	if (iRtnValue > 0)
 	{
-		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), m_pPlayer->GetPseudoRandomSeed());
 		iRtnValue += iRand;
 	}
 

@@ -1627,6 +1627,21 @@ int CvBuildingEntry::GetPrereqAndTech() const
 	return m_iPrereqAndTech;
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// Era this building belongs to
+int CvBuildingEntry::GetEra() const
+{
+	TechTypes eTech = (TechTypes)GetPrereqAndTech();
+	if (eTech != NO_TECH)
+	{
+		CvTechEntry* pTech = GC.getTechInfo((TechTypes)GetPrereqAndTech());
+		return pTech->GetEra();
+	}
+
+	return -1;
+}
+#endif
+
 /// Policy branch required for this building
 int CvBuildingEntry::GetPolicyBranchType() const
 {
@@ -4703,7 +4718,7 @@ void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iN
 			NotifyNewBuildingStarted(eIndex);
 		}
 
-		m_paiBuildingProduction[eIndex] = iNewValue;
+		m_paiBuildingProduction[eIndex] = max(0,iNewValue);
 		CvAssert(GetBuildingProductionTimes100(eIndex) >= 0);
 
 		if((m_pCity->getOwner() == GC.getGame().getActivePlayer()) && m_pCity->isCitySelected())
@@ -5921,6 +5936,7 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 {
 	int iRtnValue = 0;
+	//todo: this call is kind of expensive ... maybe cache the result?
 	int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
 	if (iCityStates==0)
 		return 0;

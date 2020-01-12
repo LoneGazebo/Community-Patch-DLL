@@ -683,6 +683,7 @@ public:
 	// ***** Bullying *****
 	// ************************************
 
+	const ReachablePlots& GetBullyRelevantPlots();
 	int GetBullyGoldAmount(PlayerTypes eBullyPlayer);
 
 	int CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
@@ -690,6 +691,7 @@ public:
 	bool CanMajorBullyGold(PlayerTypes ePlayer);
 	bool CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMetric);
 	CvString GetMajorBullyGoldDetails(PlayerTypes ePlayer);
+
 	bool CanMajorBullyUnit(PlayerTypes ePlayer);
 	bool CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMetric);
 	CvString GetMajorBullyUnitDetails(PlayerTypes ePlayer);
@@ -867,6 +869,10 @@ private:
 
 	int m_aiMajorScratchPad[MAX_MAJOR_CIVS];
 	bool m_bDisableNotifications;
+
+	//not serialized, generated and cached on demand
+	int m_iBullyPlotsBuilt;
+	ReachablePlots m_bullyRelevantPlots;
 };
 
 

@@ -4031,7 +4031,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>1</PortraitIndex>
-			<MovesChange>-3</MovesChange>
+			<MovesChange>-4</MovesChange>
 			<PromotionDuration>1</PromotionDuration>
 			<PlagueID>1</PlagueID>
 			<PlaguePriority>1</PlaguePriority>
@@ -4236,8 +4236,8 @@
 			<Help>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<OpenFromMod>50</OpenFromMod>
-			<RoughFromMod>-25</RoughFromMod>
+			<OpenFromMod>40</OpenFromMod>
+			<RoughFromMod>-20</RoughFromMod>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>

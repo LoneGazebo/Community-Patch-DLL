@@ -53,6 +53,11 @@ struct TradeConnection
 		}
 	}
 
+	bool isValid() const
+	{
+		return m_iDestID != -1 && m_eDestOwner != NO_PLAYER && m_iOriginID != -1 && m_eOriginOwner != NO_PLAYER;
+	}
+
 	void SetCities(const CvCity* pOriginCity, const CvCity* pDestCity)
 	{
 		m_iOriginID = pOriginCity->GetID();
@@ -343,6 +348,21 @@ public:
 	TradeConnectionWasPlunderedList m_aTradeConnectionWasPlundered;
 
 	CvPlayer* m_pPlayer;
+
+	struct SPlayerTradeStats
+	{
+		int iTurnSliceBuilt;
+		int iInternationalTRsOut;
+		int iInternationalTRsIn;
+		int iInternalTRs;
+		int iMinorTRs;
+
+		void reset() { memset(this, 0, sizeof(SPlayerTradeStats)); }
+	};
+
+	//some precomputed numbers for performance
+	SPlayerTradeStats m_tradeStats;
+	void UpdateTradeStats();
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerTrade&);

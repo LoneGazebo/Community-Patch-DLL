@@ -309,6 +309,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetTotalSlotsTooltip);
 	Method(ClearGreatWorks);
 	Method(GetFaithBuildingTourism);
+	Method(GetBuildingClassTourism);
 
 	Method(IsThemingBonusPossible);
 	Method(GetThemingBonus);
@@ -570,6 +571,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetMaxHitPoints);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_EVENTS_CITY_BOMBARD)
 	Method(GetBombardRange);
+	Method(GetCityBuildingRangeStrikeModifier);
 #endif
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeNow);
@@ -3290,6 +3292,23 @@ int CvLuaCity::lGetFaithBuildingTourism(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+// int GetBuildingClassTourism()
+int CvLuaCity::lGetBuildingClassTourism(lua_State* L)
+{
+	int iRtnValue = 0;
+	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+	if (pReligion)
+	{
+		iRtnValue = pReligion->m_Beliefs.GetBuildingClassTourism(iIndex, pkCity->getOwner(), pkCity);
+	}
+	lua_pushinteger(L, iRtnValue);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 //bool IsThemingBonusPossible(BuildingClassTypes eBuildingClass);
 int CvLuaCity::lIsThemingBonusPossible(lua_State* L)
 {
@@ -5171,7 +5190,8 @@ int CvLuaCity::lGetStrengthValue(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	bool bForRangeStrike = luaL_optbool(L, 2, false);
 	bool bIgnoreBuildingDefense = luaL_optbool(L, 3, false);
-	const int iResult = pkCity->getStrengthValue(bForRangeStrike,bIgnoreBuildingDefense);
+	CvUnit* pkOther = CvLuaUnit::GetInstance(L, 4, false);
+	const int iResult = pkCity->getStrengthValue(bForRangeStrike, bIgnoreBuildingDefense, pkOther);
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5220,6 +5240,14 @@ int CvLuaCity::lGetBombardRange(lua_State* L)
 	lua_pushinteger(L, bIndirectFireAllowed);
 	return 2;
 }
+int CvLuaCity::lGetCityBuildingRangeStrikeModifier(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->getCityBuildingRangeStrikeModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //bool CanRangeStrike()

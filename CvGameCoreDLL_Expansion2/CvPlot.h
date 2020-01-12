@@ -896,7 +896,6 @@ public:
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
 
-	bool IsNearEnemyCitadel(PlayerTypes ePlayer) const;
 	int GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const;
 
 #if defined(MOD_API_EXTENSIONS)

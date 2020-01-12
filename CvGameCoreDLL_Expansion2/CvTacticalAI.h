@@ -958,6 +958,7 @@ struct STacticalAssignment
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_ESCORTED_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
+	bool isOffensive() const;
 };
 
 struct SUnitStats
@@ -991,7 +992,8 @@ class CvTactPosStorage;
 class CvTacticalPlot
 {
 public:
-	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
+	//order is important - distance to enemy is increasing!
+	enum eTactPlotType { TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_FARAWAY, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
 	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
 	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
@@ -1074,7 +1076,8 @@ protected:
 	//so we can look up stuff we haven't cached locally
 	const CvTacticalPosition* parentPosition;
 
-	vector<SUnitStats> availableUnits; //which units do still need an assignment
+	vector<SUnitStats> availableUnits; //units which still need an assignment
+	vector<SUnitStats> unfinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
 	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
@@ -1122,7 +1125,8 @@ public:
 	void initFromParent(const CvTacticalPosition& parent); 
 
 	bool isComplete() const;
-	bool isOffensive() const;
+	const CvTacticalPosition* findAncestorWithoutExtraMoves() const;
+	bool addFinishMovesIfAcceptable();
 	void updateTacticalPlotTypes(CvTacticalPlot::eTactPlotDomain eDomain, int iStartPlot = -1);
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
@@ -1136,7 +1140,9 @@ public:
 	float getAggressionBias() const;
 	void countPlotTypes();
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
-	bool unitHasAssignmentOfType(int iUnit, eUnitAssignmentType assignmentType) const;
+	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
+	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
+	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool isEquivalent(const CvTacticalPosition& rhs) const;
 	bool addAssignment(const STacticalAssignment& newAssignment);
 
@@ -1154,6 +1160,7 @@ public:
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 	const int getNumEnemies() const { return nTheirUnits - killedEnemies.size(); }
+	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }
@@ -1209,8 +1216,9 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
+	bool IsSuicideMeleeAttack(CvUnit* pAttacker, CvPlot* pTarget);
 	CvPlot* GetFirstTargetInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
-	pair<int, int> EstimateLocalUnitPower(CvPlot* pOrigin, int iRangeInTurns, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
+	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)

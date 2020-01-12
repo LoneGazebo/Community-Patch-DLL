@@ -1534,12 +1534,8 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
 	}
 
-	bool bCityConquered = false;
-
 	if(pkDefender)
 		pkDefender->clearCombat();
-	else
-		bCityConquered = true;
 
 	if(pkAttacker)
 	{
@@ -1589,9 +1585,6 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			// Barb goes away after ransom
 			pkAttacker->kill(true, NO_PLAYER);
-
-			// Treat this as a conquest
-			bCityConquered = true;
 		}
 		// Attacker died
 		else if(pkAttacker->IsDead())
@@ -1626,8 +1619,6 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				}
 
 				pkAttacker->UnitMove(pkPlot, true, pkAttacker);
-
-				bCityConquered = true;
 			}
 		}
 		// Neither side lost
@@ -1901,7 +1892,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 #endif
 		}
 
-		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
+		iDefenderTotalDamageInflicted = std::max(kAttacker.GetCurrHitPoints(), kAttacker.getDamage() + iDefenderDamageInflicted);
 
 #if !defined(NO_ACHIEVEMENTS)
 		//Achievement for Washington
@@ -2877,6 +2868,8 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	uint uiOpposingDamageCount = 0;
 	PlayerTypes eAttackerOwner = pkAttacker?pkAttacker->getOwner():NO_PLAYER;
 
+	std::vector<int> affectedPlayers;
+
 	// Do all the units first
 	for(int i = 0; i < iDamageMembers; ++i)
 	{
@@ -2903,7 +2896,13 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					pkUnit->kill(false, eAttackerOwner);
 				}
 
-				GET_PLAYER(kEntry.GetPlayer()).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+				for (uint j = 0; j < affectedPlayers.size(); j++)
+				{
+					if (affectedPlayers[j] == kEntry.GetPlayer())
+						continue;
+
+					affectedPlayers.push_back(kEntry.GetPlayer());
+				}
 			}
 		}
 	}
@@ -3020,11 +3019,26 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					// Add damage to the city
 					pkCity->setDamage(kEntry.GetFinalDamage());
 
-					GET_PLAYER(pkCity->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+					for (uint j = 0; j < affectedPlayers.size(); j++)
+					{
+						if (affectedPlayers[j] == pkCity->getOwner())
+							continue;
+
+						affectedPlayers.push_back(pkCity->getOwner());
+					}
 				}
 			}
 		}
 	}
+
+	for (uint j = 0; j < affectedPlayers.size(); j++)
+	{
+		if ((PlayerTypes)affectedPlayers[j] == NO_PLAYER)
+			continue;
+
+		GET_PLAYER((PlayerTypes)affectedPlayers[j]).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+	}
+
 	return uiOpposingDamageCount;
 }
 

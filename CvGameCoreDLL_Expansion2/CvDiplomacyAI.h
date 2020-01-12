@@ -158,7 +158,7 @@ public:
 	void ChangeTrueApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
 
 	void DoUpdateTrueApproachTowardsUsGuesses(bool bNoIncrement = false);
-	//void DoEstimateOtherPlayerApproaches();
+	void DoEstimateOtherPlayerApproaches();
 
 	MajorCivApproachTypes GetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer) const;
 	void SetMajorCivOtherPlayerApproach(PlayerTypes ePlayer, PlayerTypes eWithPlayer, MajorCivApproachTypes ePlayerApproach);
@@ -450,6 +450,7 @@ public:
 	void DoUpdateEstimateOtherPlayerLandDisputeLevels();
 
 	bool IsPlayerRecklessExpander(PlayerTypes ePlayer);
+	bool IsPlayerWonderSpammer(PlayerTypes ePlayer);
 
 	int GetBrokenExpansionPromiseValue(PlayerTypes ePlayer);
 	void SetBrokenExpansionPromiseValue(PlayerTypes ePlayer, int iValue);
@@ -954,6 +955,12 @@ public:
 
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
+
+	int GetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer) const;
+	void SetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer, int iValue);
+	
+	int GetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer) const;
+	void SetBrokenAttackCityStatePromiseTurn(PlayerTypes ePlayer, int iValue);
 
 	int GetDoFBrokenTurn(PlayerTypes ePlayer) const;
 	void SetDoFBrokenTurn(PlayerTypes ePlayer, int iValue);
@@ -1498,6 +1505,7 @@ public:
 	int GetDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
 	int GetRecklessExpanderScore(PlayerTypes ePlayer);
+	int GetWonderSpammerScore(PlayerTypes ePlayer);
 	int GetRecentTradeScore(PlayerTypes ePlayer);
 	int GetCommonFoeScore(PlayerTypes ePlayer);
 	int GetRecentAssistScore(PlayerTypes ePlayer);
@@ -1770,6 +1778,8 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 		char m_aeDoFType[MAX_MAJOR_CIVS];
+		short m_aiBrokenMilitaryPromiseTurn[MAX_MAJOR_CIVS];
+		short m_aiBrokenAttackCityStatePromiseTurn[MAX_MAJOR_CIVS];
 		short m_aiDoFBrokenTurn[MAX_MAJOR_CIVS];
 		bool m_abEverBackstabbedBy[MAX_MAJOR_CIVS];
 		short m_aiFriendDenouncedUsTurn[MAX_MAJOR_CIVS];
@@ -1932,8 +1942,8 @@ private:
 		char* m_apaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS];
 		DiploLogData* m_apaDiploStatementsLog[MAX_MAJOR_CIVS];
 
-		bool* m_apabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS];
-		short* m_apaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS];
+		//bool* m_apabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS];
+		//short* m_apaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS];
 
 		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
@@ -1950,8 +1960,8 @@ private:
 		char m_aaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		DiploLogData m_aaDiploStatementsLog[MAX_MAJOR_CIVS* MAX_DIPLO_LOG_STATEMENTS];
 
-		bool m_aabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		short m_aaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		//bool m_aabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+		//short m_aaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 
 		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -2131,6 +2141,8 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
 	char* m_paeDoFType;
+	short* m_paiBrokenMilitaryPromiseTurn;
+	short* m_paiBrokenAttackCityStatePromiseTurn;
 	short* m_paiDoFBrokenTurn;
 	bool* m_pabEverBackstabbedBy;
 	short* m_paiFriendDenouncedUsTurn;
@@ -2190,8 +2202,8 @@ private:
 	bool* m_pabPlayerLiberatedCapital;
 	short* m_paiNumCitiesLiberated;
 
-	bool** m_ppaabWorkingAgainstPlayerAccepted;
-	short** m_ppaaiWorkingAgainstPlayerCounter;
+	//bool** m_ppaabWorkingAgainstPlayerAccepted;
+	//short** m_ppaaiWorkingAgainstPlayerCounter;
 
 	char** m_ppaacCoopWarAcceptedState;
 	short** m_ppaaiCoopWarCounter;
@@ -2330,11 +2342,11 @@ private:
 namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
-	int GetWarmongerOffset(bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
-	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity);
-	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
+	int GetWarmongerOffset(CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER, PlayerTypes ePlayer = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
+	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
+	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
 #else
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);

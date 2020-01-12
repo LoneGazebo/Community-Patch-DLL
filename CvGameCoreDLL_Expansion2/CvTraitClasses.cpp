@@ -283,6 +283,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiYieldChangePerImprovementBuilt(NULL),
 	m_pbiYieldFromBarbarianCampClear(),
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	m_pbiYieldFromRouteMovementInForeignTerritory(),
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piCapitalYieldChanges(NULL),
@@ -1646,6 +1649,25 @@ int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
 }
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
+{
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
+	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bTradePartner);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
+	}
+
+	return 0;
+}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -2083,6 +2105,21 @@ int CvTraitEntry::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain)
 	}
 
 	return 0;
+}
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+/// Accessor:: If linked with trade routes, does the origin city gain a percent of the target city's production towards that specific thing
+TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
+{
+	std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_biiTradeRouteProductionSiphon.find(bInternationalOnly);
+	if (it != m_biiTradeRouteProductionSiphon.end()) // find returns the iterator to map::end if the key bInternationalOnly is not present
+	{
+		return it->second;
+	}
+
+	TradeRouteProductionSiphon sDefault;
+
+	return sDefault;
 }
 #endif
 
@@ -3012,6 +3049,65 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piDomainProductionModifiersPerSpecialist).swap(m_piDomainProductionModifiersPerSpecialist);
+	}
+#endif
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	//Populate m_pbiYieldFromRouteMovementInForeignTerritory
+	{
+		std::string sqlKey = "Trait_YieldFromRouteMovementInForeignTerritory";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, Yield, IsGrantedToTradePartner from Trait_YieldFromRouteMovementInForeignTerritory inner join Yields on Yields.Type = YieldType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iYieldType = pResults->GetInt(0);
+			const int iYield = pResults->GetInt(1);
+			const bool bGrantedToTradePartner = pResults->GetBool(2);
+
+			m_pbiYieldFromRouteMovementInForeignTerritory[iYieldType][bGrantedToTradePartner] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<bool, int>>(m_pbiYieldFromRouteMovementInForeignTerritory).swap(m_pbiYieldFromRouteMovementInForeignTerritory);
+	}
+#endif
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	//Populate m_iibTradeRouteProductionSiphon
+	{
+		std::string sqlKey = "Trait_TradeRouteProductionSiphon";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select SiphonPercent, PercentIncreaseWithOpenBorders, IsInternationalOnly from Trait_TradeRouteProductionSiphon where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iSiphonPercent = pResults->GetInt(0);
+			const int iPercentIncreaseWithOpenBorders = pResults->GetInt(1);
+			const bool bInternationalOnly = pResults->GetBool(2);
+
+			m_biiTradeRouteProductionSiphon[bInternationalOnly].m_iSiphonPercent += iSiphonPercent;
+			m_biiTradeRouteProductionSiphon[bInternationalOnly].m_iPercentIncreaseWithOpenBorders += iPercentIncreaseWithOpenBorders;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<bool, TradeRouteProductionSiphon>(m_biiTradeRouteProductionSiphon).swap(m_biiTradeRouteProductionSiphon);
 	}
 #endif
 
@@ -4260,6 +4356,21 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
 			m_iNonSpecialistFoodChange += trait->GetNonSpecialistFoodChange();
 #endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+			if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+			{
+				if (trait->GetTradeRouteProductionSiphon(true).IsHaveProductionSiphon())
+				{
+					m_aiiTradeRouteProductionSiphon[true].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(true).m_iSiphonPercent;
+					m_aiiTradeRouteProductionSiphon[true].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders;
+				}
+				if (trait->GetTradeRouteProductionSiphon(false).IsHaveProductionSiphon())
+				{
+					m_aiiTradeRouteProductionSiphon[false].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(false).m_iSiphonPercent;
+					m_aiiTradeRouteProductionSiphon[false].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders;
+				}
+			}
+#endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 			if(trait->IsBullyAnnex())
 			{
@@ -4449,6 +4560,7 @@ void CvPlayerTraits::InitPlayerTraits()
 						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop];
 						yields[iYield] = (m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop][iYield] + iChange);
 						m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop] = yields;
+						UpdateYieldChangeImprovementTypes();
 					}
 #endif
 				}
@@ -4550,6 +4662,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_bCombatBoostNearNaturalWonder= true;
 				}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][true] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, true);
+				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][false] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, false);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -4784,6 +4900,7 @@ void CvPlayerTraits::Uninit()
 	m_ppiYieldFromTileStealCultureBomb.clear();
 	m_ppiYieldFromTileSettle.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
+	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
@@ -5064,7 +5181,11 @@ void CvPlayerTraits::Reset()
 	m_ppiYieldFromTileSettle.resize(GC.getNumTerrainInfos());
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
+	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	m_pbiYieldFromRouteMovementInForeignTerritory.clear();
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChange.clear();
@@ -5118,6 +5239,8 @@ void CvPlayerTraits::Reset()
 			m_ppaaiYieldChangePerImprovementBuilt[iImprovement] = yield;
 #endif
 		}
+		UpdateYieldChangeImprovementTypes();
+
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 		for(int iPlot = 0; iPlot < GC.getNumPlotInfos(); iPlot++)
 		{
@@ -5306,6 +5429,9 @@ void CvPlayerTraits::Reset()
 	}
 	m_aiNoBuilds.clear();
 	m_aiDomainProductionModifiersPerSpecialist.clear();
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	m_aiiTradeRouteProductionSiphon.clear();
 #endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5528,6 +5654,30 @@ int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovem
 	}
 	return m_ppaaiYieldChangePerImprovementBuilt[(int)eImprovement][(int)eYield];
 }
+
+vector<ImprovementTypes> CvPlayerTraits::GetImprovementTypesWithYieldChange() const
+{
+	return m_vYieldChangeImprovementTypes;
+}
+
+void CvPlayerTraits::UpdateYieldChangeImprovementTypes()
+{
+	m_vYieldChangeImprovementTypes.clear();
+
+	for (size_t iImprovement = 0; iImprovement < m_ppaaiYieldChangePerImprovementBuilt.size(); iImprovement++)
+	{
+		for (size_t iYield = 0; iYield < m_ppaaiYieldChangePerImprovementBuilt[iImprovement].size(); iYield++)
+		{
+			//remember the improvement type if there's one or more yields it affects
+			if (m_ppaaiYieldChangePerImprovementBuilt[iImprovement][iYield] != 0)
+			{
+				m_vYieldChangeImprovementTypes.push_back((ImprovementTypes)iImprovement);
+				continue;
+			}
+		}
+	}
+}
+
 int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldFromBarbarianCampClear()");
@@ -5542,6 +5692,25 @@ int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraS
 		}
 
 		return 0;
+	}
+
+	return 0;
+}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
+{
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex > -1, "Index out of bounds");
+
+	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
+	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
+	{
+		std::map<bool, int>::const_iterator itBool = itYield->second.find(bTradePartner);
+		if (itBool != itYield->second.end())
+		{
+			return itBool->second;
+		}
 	}
 
 	return 0;
@@ -5848,6 +6017,27 @@ int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomai
 	}
 
 	return 0;
+}
+#endif
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+/// What is the percent if the origin city gains a percent of the target city's production towards that specific thing
+TradeRouteProductionSiphon CvPlayerTraits::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
+{
+	std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_aiiTradeRouteProductionSiphon.find(bInternationalOnly);
+	if (it != m_aiiTradeRouteProductionSiphon.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+
+	TradeRouteProductionSiphon sBlank;
+	return sBlank;
+}
+
+bool CvPlayerTraits::IsTradeRouteProductionSiphon() const
+{
+	return !m_aiiTradeRouteProductionSiphon.empty();
 }
 #endif
 
@@ -7407,6 +7597,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiYieldFromTileStealCultureBomb;
 	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
+	UpdateYieldChangeImprovementTypes();
 	kStream >> m_pbiYieldFromBarbarianCampClear;
 	kStream >> m_aiGoldenAgeYieldModifier;
 	kStream >> m_aibUnitCombatProductionCostModifier;
@@ -7428,6 +7619,26 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		bool bValue;
 		kStream >> bValue;
 		m_abTerrainClaimBoost.push_back(bValue);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	kStream >> m_pbiYieldFromRouteMovementInForeignTerritory;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	kStream >> iNumEntries;
+	m_aiiTradeRouteProductionSiphon.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		bool bSiphonInternationalOnly;
+		int iSiphonPercent;
+		int iPercentIncreaseWithOpenBorders;
+
+		kStream >> bSiphonInternationalOnly;
+		kStream >> iSiphonPercent;
+		kStream >> iPercentIncreaseWithOpenBorders;
+
+		m_aiiTradeRouteProductionSiphon[bSiphonInternationalOnly].m_iSiphonPercent = iSiphonPercent;
+		m_aiiTradeRouteProductionSiphon[bSiphonInternationalOnly].m_iPercentIncreaseWithOpenBorders = iPercentIncreaseWithOpenBorders;
 	}
 #endif
 
@@ -7872,6 +8083,18 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	for (uint ui = 0; ui < m_abTerrainClaimBoost.size(); ui++)
 	{
 		kStream << m_abTerrainClaimBoost[ui];
+	}
+#endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	kStream << m_pbiYieldFromRouteMovementInForeignTerritory;
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	kStream << m_aiiTradeRouteProductionSiphon.size();
+	for (std::map<bool, TradeRouteProductionSiphon>::const_iterator it = m_aiiTradeRouteProductionSiphon.begin(); it != m_aiiTradeRouteProductionSiphon.end(); ++it)
+	{
+		kStream << it->first;
+		kStream << it->second.m_iSiphonPercent;
+		kStream << it->second.m_iPercentIncreaseWithOpenBorders;
 	}
 #endif
 	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();

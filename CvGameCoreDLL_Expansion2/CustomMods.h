@@ -50,7 +50,7 @@
 //////////////////////
 
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
-//#define MOD_BATTLE_ROYALE
+#define MOD_BATTLE_ROYALE							gCustomMods.isBATTLE_ROYALE()
 
 //If you enable this, the CS AI can settle more cities.
 //#define MOD_MINOR_CAN_SETTLE
@@ -284,6 +284,8 @@
 #define MOD_GLOBAL_SEPARATE_GP_COUNTERS             gCustomMods.isGLOBAL_SEPARATE_GP_COUNTERS()
 // Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61)
 #define MOD_GLOBAL_TRULY_FREE_GP                    gCustomMods.isGLOBAL_TRULY_FREE_GP()
+// Allows faith purchase of buildings in puppets
+#define MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS	gCustomMods.isGLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS()
 // No auto spawn great prophets for human players, must select pulldown menu in Lua when you are ready to spawn one, only pre-Industrial era
 #define MOD_NO_AUTO_SPAWN_PROPHET					gCustomMods.isNO_AUTO_SPAWN_PROPHET()
 // Change Assyria's trait to choosing a free tech upon city conquest
@@ -436,6 +438,10 @@
 #define MOD_TRAITS_TRADE_ROUTE_BONUSES              gCustomMods.isTRAITS_TRADE_ROUTE_BONUSES()
 // Enables additional unit supply from traits (v78)
 #define MOD_TRAITS_EXTRA_SUPPLY                     gCustomMods.isTRAITS_EXTRA_SUPPLY()
+// Enables trait for trade route production siphon, intended for Colonialist Legacies' - Phillipine Republic for VP (Trait_TradeRouteProductionSiphon)
+#define MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON	gCustomMods.isTRAITS_TRADE_ROUTE_PRODUCTION_SIPHON()
+// Enables trait for yield from route movement in foreign territory, intended for Colonialist Legacies' - Phillipine Republic for VP (Trait_YieldFromRouteMovementInForeignTerritory)
+#define MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY	gCustomMods.isTRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY()
 
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
@@ -522,6 +528,9 @@
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
+
+// Enables the various tables related to production cost modifiers triggered by access to resources
+#define MOD_RESOURCES_PRODUCTION_COST_MODIFIERS		gCustomMods.isRESOURCES_PRODUCTION_COST_MODIFIERS()
 
 // Fixes the AI's inability to use combat units as secondary workers (v26)
 #define MOD_AI_SECONDARY_WORKERS                    gCustomMods.isAI_SECONDARY_WORKERS()
@@ -1426,6 +1435,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_CANNOT_EMBARK);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
 	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
+	MOD_OPT_DECL(GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS);
 	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
@@ -1536,6 +1546,8 @@ public:
 	MOD_OPT_DECL(TRAITS_ANY_BELIEF);
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_BONUSES);
 	MOD_OPT_DECL(TRAITS_EXTRA_SUPPLY);
+	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON);
+	MOD_OPT_DECL(TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY);
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
 	MOD_OPT_DECL(ERA_RESTRICTION);
@@ -1582,6 +1594,8 @@ public:
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
+
+	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);
 
 	MOD_OPT_DECL(AI_SECONDARY_WORKERS);
 	MOD_OPT_DECL(AI_SECONDARY_SETTLERS);
@@ -1703,6 +1717,8 @@ public:
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
+
+	MOD_OPT_DECL(BATTLE_ROYALE);
 
 protected:
 	bool m_bInit;

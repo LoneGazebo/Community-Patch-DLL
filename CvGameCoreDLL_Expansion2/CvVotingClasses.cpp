@@ -4272,10 +4272,13 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 {
 	int iVotes = 0;
 #if defined(MOD_BATTLE_ROYALE)
-	if (CanEverVote(ePlayer) && !GET_PLAYER(ePlayer).isHuman())
-#else
-	if (CanEverVote(ePlayer))
+	// if battle royale is enabled, the human player is the observer, and should not be allowed votes
+	if (MOD_BATTLE_ROYALE && GET_PLAYER(ePlayer).isHuman())
+	{
+		return 0;
+	}
 #endif
+	if (CanEverVote(ePlayer))
 	{
 		LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 		if (GetCurrentSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)
@@ -5773,7 +5776,7 @@ CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutio
 
 	if (bIncludePrefix)
 	{
-		s += sPrefix;
+		s = sPrefix + s;
 	}
 	s += Localization::Lookup(pInfo->GetDescriptionKey()).toUTF8();
 	s += sSuffix;
@@ -12026,7 +12029,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTempScore = -50;
 		if (iNumWonders > 0)
 		{
-			int iFactor = bSeekingCultureVictory ? 20 : 15;
+			int iFactor = bSeekingCultureVictory ? 5 : 2;
 			iTempScore += iNumWonders * iFactor;
 		}
 		iScore += iTempScore;

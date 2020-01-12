@@ -1447,6 +1447,10 @@
 		<Row Tag="TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT">
 			<Text>[ICON_CITIZEN] Urbanization per new Specialist</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_RANGE_STRIKE_CITY">
+			<Text>Ranged Strike Modifier</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>

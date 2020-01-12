@@ -438,7 +438,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				iBase += m_pPlayer->GetPlayerTraits()->GetSpyMoveRateBonus();
 			}
 
-			pSpy->ChangeAdvancedActionsCooldown(-1 * GC.getGame().getSmallFakeRandNum(iBase, m_pPlayer->getGlobalAverage(YIELD_CULTURE)));
+			pSpy->ChangeAdvancedActionsCooldown(-1 * GC.getGame().getSmallFakeRandNum(iBase, m_pPlayer->GetPseudoRandomSeed() + pSpy->m_iCityX + pSpy->m_iCityY));
 		}
 	}
 #endif
@@ -1036,7 +1036,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
 					}
-
+#if defined(MOD_BALANCE_CORE)
+					m_aiNumSpyActionsDone[eCityOwner]++;
+#endif
 					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 				}
 				else
@@ -1448,6 +1450,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 							pNotifications->Add(NOTIFICATION_SPY_PROMOTION, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, 0);
 						}
+#if defined(MOD_BALANCE_CORE)
+						m_aiNumSpyActionsDone[eCityOwner]++;
+#endif
 						m_pPlayer->GetEspionageAI()->StealGreatWork();
 					}
 					else
@@ -3762,7 +3767,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 
 	// Try to locate a spy name not in use by a civ not in the game
 	int iMaxCivs = GC.getNumCivilizationInfos();
-	int iCivOffset = GC.getGame().getSmallFakeRandNum(iMaxCivs, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+	int iCivOffset = GC.getGame().getSmallFakeRandNum(iMaxCivs, m_pPlayer->GetPseudoRandomSeed());
 	for (int i = 0; i < GC.getNumCivilizationInfos(); i++) {
 		const CivilizationTypes eCiv = static_cast<CivilizationTypes>((i + iCivOffset) % iMaxCivs);
 		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
@@ -3779,7 +3784,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 	}
 
 	// Try to locate a spy name not in use by a civ in the game
-	int iPlayerOffset = GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+	int iPlayerOffset = GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, m_pPlayer->GetPseudoRandomSeed());
 
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
@@ -5026,16 +5031,23 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				iNewInfluence = max(iNewInfluence, 0);
 				aiNewInfluenceValueTimes100[ui] = iNewInfluence;
 
-				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
-				//GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_pPlayer->GetID(), 1);
-				
+				// Update diplomacy
 				if (ui == ePreviousAlly)
 				{
 					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 2);
+					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 2);
 				}
 				else
 				{
+					// Don't apply the diplo penalty if this player hates the previous ally (or they're at war).
+					if (GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->GetMajorCivOpinion(ePreviousAlly) != MAJOR_CIV_OPINION_UNFORGIVABLE &&
+						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasEverBackstabbedBy(ePreviousAlly) &&
+						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasTeammateEverBackstabbedBy(ePreviousAlly) &&
+						!GET_TEAM(GET_PLAYER((PlayerTypes)ui).getTeam()).isAtWar(GET_PLAYER(ePreviousAlly).getTeam()))
+					{
 					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
+						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
+					}
 				}
 			}
 		}
@@ -9069,7 +9081,7 @@ void CvEspionageAI::StealGreatWork()
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0, "pEspionage->m_aPlayerStealableGWList[uiPlayer] list is empty. Not good");
 			
-			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->getGlobalAverage(YIELD_CULTURE) + uiDefendingPlayer);
+			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->GetPseudoRandomSeed() + uiDefendingPlayer);
 			int iCityLoop;
 			CvCity* pPlayerCity = NULL;
 			int iGreatWorkIndex;
@@ -9309,7 +9321,7 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->getGlobalAverage(YIELD_CULTURE) + uiSpy);
+		int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + uiSpy);
 		if (iRoll < iChanceOfSuccess)
 		{
 			pEspionage->AttemptCoup(uiSpy);

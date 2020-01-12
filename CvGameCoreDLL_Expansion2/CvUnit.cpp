@@ -8,7 +8,6 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "CvUnit.h"
-#include "CvArea.h"
 #include "CvPlot.h"
 #include "CvCity.h"
 #include "CvGlobals.h"
@@ -1123,7 +1122,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed()) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1154,7 +1153,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed()) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1484,7 +1483,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraWithdrawal = 0;
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = 0;
-	m_iIsPlagued = 0;
+	m_iIsPlagued = -1;
 	m_iPlagueID = 0;
 	m_iPlaguePriority = 0;
 	m_iPlagueIDImmunity = -1;
@@ -2435,7 +2434,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
+			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
+			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
+			{
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)
@@ -2450,9 +2453,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				CvCity* pLoopCity;
-				int iCityLoop;
-				bool bNearLoserCity = false;
+				//CvCity* pLoopCity;
+				//int iCityLoop;
+				//bool bNearLoserCity = false;
 				bool bInMyTerritory = false;
 				PlayerTypes eLoopPlayer;
 
@@ -2464,6 +2467,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					if(plot()->getOwner() == getOwner()) {
 						bInMyTerritory = true;
 					}
+					/*
 					// Unit killed near one of my cities
 					else if(plot()->getOwner() != ePlayer) {
 						// Loop through loser's cities.
@@ -2476,9 +2480,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 							}
 						}
 					}
+					*/
 
 					// Something actually happened to warrant this check
-					if(bInMyTerritory || bNearLoserCity) {
+					if(bInMyTerritory/* || bNearLoserCity*/) {
 						for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -4648,13 +4653,12 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 {
 	VALIDATE_OBJECT
 
-	if(eTeam == NO_TEAM)
+	if(eTeam == NO_TEAM || bIgnoreRightOfPassage)
 	{
 		return true;
 	}
 
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
-
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
@@ -4671,18 +4675,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 	if(isRivalTerritory())
 	{
 		return true;
-	}
-
-	if(bIgnoreRightOfPassage)
-	{
-		return true;
-	}
-	else
-	{
-		if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
-		{
-			return true;
-		}
 	}
 
 	if(kTheirTeam.isMinorCiv())
@@ -4717,25 +4709,17 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 					return true;
 
 				// Is this an excluded unit that doesn't cause anger?
-				bool bAngerFreeUnit = IsAngerFreeUnit();
-				// Player can earn Open Borders with enough Friendship
-				bool bHasOpenBorders = pMinorAI->IsPlayerHasOpenBorders(getOwner());
-				// If already intruding on this minor, okay to do it some more
-				bool bIntruding = pMinorAI->IsMajorIntruding(getOwner());
-
-				if(bAngerFreeUnit || bHasOpenBorders || bIntruding)
-				{
+				if (IsAngerFreeUnit())
 					return true;
-				}
 
-#if defined(MOD_BALANCE_CORE)
+				// If already intruding on this minor, okay to do it some more
+				if (pMinorAI->IsMajorIntruding(getOwner()))
+					return true;
+
 				//Let's let scouts in.
 				if(getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
-				{
 					return true;
 				}
-#endif
-			}
 		}
 	}
 
@@ -5554,16 +5538,16 @@ bool CvUnit::jumpToNearestValidPlot()
 			//need to check for everything, including invisible units
 			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				int iValue = it->iNormalizedDistance * 10 + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+				int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
 				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 				if (getDomainType() == DOMAIN_SEA)
 					if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-						iValue += 200;
+						iValue += 2000;
 
 				//avoid embarkation
 				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 40;
+					iValue += 400;
 
 				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 			}
@@ -5662,7 +5646,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 					iValue += 6;
 
 				//try to stay within the same area
-				if(pLoopPlot->area() != area())
+				if(pLoopPlot->getArea() != getArea())
 					iValue += 5;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
@@ -5907,7 +5891,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 
 	//prevent an exploit where players disband units to deny kill yields to their enemies
-	if (getDomainType()!=DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot()).empty() && !plot()->isCity()) 
+	if (getDomainType()!=DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot(),getTeam()).empty() && !plot()->isCity()) 
 		return false;
 
 	if(!bTestVisible)
@@ -15713,7 +15697,7 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	int iDamageValueToUse = (iAssumedDamage > 0) ? iAssumedDamage : getDamage();
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
-	if (bForDefenseAgainstRanged && !MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+	if (bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
 		return iRtnValue;
 
 	// How much does damage weaken the effectiveness of the Unit?
@@ -16160,14 +16144,33 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
+		// Strategic monopoly of resources
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus() > 0)
+			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyAttackBonus();
+				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+			}
+		}
+
+		// Global monopoly of resources
+		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
+			{
+				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
+				if (iTempMod != 0)
+				{
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+				}
+				iModifier += iTempMod;
 			}
 		}
 	}
@@ -16362,14 +16365,33 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
+		// Strategic monopoly of resources
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyDefenseBonus() > 0)
+			if (pInfo && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyDefenseBonus();
+				iModifier += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
+			}
+		}
+
+		// Global monopoly of resources
+		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
+			{
+				int iTempMod = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
+				if (iTempMod != 0)
+				{
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+				}
+				iModifier += iTempMod;
 			}
 		}
 	}
@@ -16663,14 +16685,33 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
+		// Strategic monopoly of resources
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->getMonopolyAttackBonus() > 0)
+			if (pInfo && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 			{
 				iModifier += pInfo->getMonopolyAttackBonus();
+				iModifier += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
+			}
+		}
+
+		// Global monopoly of resources
+		const std::vector<ResourceTypes>& vGlobalMonopolies = GET_PLAYER(getOwner()).GetGlobalMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
+			{
+				int iTempMod = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
+				if (iTempMod != 0)
+				{
+					iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
+				}
+				iModifier += iTempMod;
 			}
 		}
 	}
@@ -20578,15 +20619,6 @@ int CvUnit::getArea() const
 	return GC.getMap().plotCheckInvalid(getX(), getY())->getArea();
 }
 
-
-//	--------------------------------------------------------------------------------
-CvArea* CvUnit::area() const
-{
-	VALIDATE_OBJECT
-	return GC.getMap().plotCheckInvalid(getX(), getY())->area();
-}
-
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::onMap() const
 {
@@ -21104,6 +21136,29 @@ bool CvUnit::IsUnderEnemyRangedAttack() const
 
 	return false;
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Is this Unit in foreign territory?
+bool CvUnit::IsInForeignOwnedTerritory() const
+{
+	VALIDATE_OBJECT
+		
+	if (plot()->isOwned() && plot()->getOwner() != getOwner())
+	{
+		return true;
+	}
+	return false;
+}
+//	--------------------------------------------------------------------------------
+/// Is this Unit in the specified player's territory?
+bool CvUnit::IsInPlayerTerritory(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+
+	return plot()->getOwner() == ePlayer;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -22243,20 +22298,19 @@ void CvUnit::changePlagueChance(int iChange)
 bool CvUnit::isPlagued() const
 {
 	VALIDATE_OBJECT
-	return getPlaguedCount() > 0;
+	return getPlaguePromotion() != -1;
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::changePlagued(int iChange)
+void CvUnit::setPlagued(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iIsPlagued = (m_iIsPlagued + iChange);
-	CvAssert(getPlaguedCount() >= 0);
+	m_iIsPlagued = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getPlaguedCount() const
+int CvUnit::getPlaguePromotionID() const
 {
 	VALIDATE_OBJECT
-		return m_iIsPlagued;
+	return m_iIsPlagued;
 }
 
 void CvUnit::setPlagueID(int iValue)
@@ -22968,17 +23022,6 @@ void CvUnit::changeExtraAttacks(int iChange)
 	}
 }
 
-//	--------------------------------------------------------------------------------
-// Citadel (no longer used)
-bool CvUnit::IsNearEnemyCitadel(const CvPlot* pInPlot) const
-{
-	VALIDATE_OBJECT
-
-	if (pInPlot == NULL)
-		pInPlot = plot();
-
-	return pInPlot->IsNearEnemyCitadel(getOwner());
-}
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 // Golden Age? And have a general near us that gives us additional Exp?
@@ -23215,6 +23258,7 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 	}
 	return iHeal;
 }
+
 int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -23230,7 +23274,8 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 			return 0;
 	}
 
-	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot);
+	//this is not 100% accurate in case of ties ... but good enough
+	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot,false);
 	if (!pCity || plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) > iRange)
 		return 0;
 
@@ -23249,6 +23294,7 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 
 	return 0;
 }
+
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -24708,7 +24754,6 @@ bool CvUnit::isPromotionReady() const
 	VALIDATE_OBJECT
 	return m_bPromotionReady;
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::setPromotionReady(bool bNewValue)
@@ -26852,7 +26897,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraWithdrawal(thisPromotion.GetExtraWithdrawal() * iChange);
 #if defined(MOD_BALANCE_CORE_JFD)
 		changePlagueChance(thisPromotion.GetPlagueChance() * iChange);
-		changePlagued((thisPromotion.IsPlague()) ? iChange: 0);
 		if (thisPromotion.GetPlagueIDImmunity() > 0)
 		{
 			setPlagueIDImmunity(iChange > 0 ? thisPromotion.GetPlagueIDImmunity() : -1);
@@ -28870,7 +28914,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 
 	vector<CvUnit*> attackersBeforeMove;
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
-		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot);
+		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
@@ -28878,7 +28922,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 	vector<CvUnit*> attackersAfterMove;
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
 	{
-		attackersAfterMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot);
+		attackersAfterMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
 
 		if (attackersAfterMove.size() > attackersBeforeMove.size() && GetDanger(pPathPlot) > GetCurrHitPoints())
 		{
@@ -29943,19 +29987,24 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 			if (pkPlaguePromotionInfo->GetPlaguePriority() <= defender.getPlaguePriority())
 				return;
 
-			PromotionTypes eCurrentPlague = (PromotionTypes)defender.getPlaguePromotion();			
+			//what are we plagued with?
+			PromotionTypes eCurrentPlague = (PromotionTypes)defender.getPlaguePromotionID();
 
 			//remove the weaker one.
 			if (eCurrentPlague != NO_PROMOTION)
 			{
 				defender.setHasPromotion(eCurrentPlague, false);
-				defender.restoreFullMoves();
 			}
 		}
 
 		defender.setHasPromotion(ePlague, true);
-		defender.restoreFullMoves();
+		if (defender.getMoves() > defender.maxMoves())
+		{
+			defender.setMoves(defender.maxMoves());
+		}
 
+
+		defender.setPlagued((int)ePlague);
 		defender.setPlagueID(pkPlaguePromotionInfo->GetPlagueID());
 		defender.setPlaguePriority(pkPlaguePromotionInfo->GetPlaguePriority());
 

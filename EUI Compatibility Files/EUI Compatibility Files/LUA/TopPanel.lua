@@ -191,6 +191,7 @@ local function ScanGP( player )
 				local gpChangeCityMod = city:GetGreatPeopleRateModifier()
 				-- CBP
 				gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
+				local gpChangeMonopolyMod = player:GetMonopolyGreatPersonRateModifier(specialist.ID);
 				--END
 				local gpChangePolicyMod = 0
 				local gpChangeWorldCongressMod = 0
@@ -285,7 +286,7 @@ local function ScanGP( player )
 
 				end
 
-				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod
+				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod
 				gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 				if gpChange > 0 then
@@ -949,12 +950,12 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local tips = table()
 
 	local goldPerTurnFromDiplomacy = g_activePlayer:GetGoldPerTurnFromDiplomacy()
-	local goldPerTurnFromOtherPlayers = math_max(0,goldPerTurnFromDiplomacy) * 100
+	local goldPerTurnFromOtherPlayers = math_max(0,goldPerTurnFromDiplomacy)
 	local goldPerTurnToOtherPlayers = -math_min(0,goldPerTurnFromDiplomacy)
 
-	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() * 100 or 0
-	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
-	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100()
+	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() or 0
+	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100() / 100;
+	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100() / 100;
 -- C4DF
 	-- Gold from Vassals
 	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
@@ -976,9 +977,9 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local beaconEnergyDelta = 0
 
 	if bnw_mode then
-		tradeRouteGold = g_activePlayer:GetGoldFromCitiesMinusTradeRoutesTimes100()
+		tradeRouteGold = g_activePlayer:GetGoldFromCitiesMinusTradeRoutesTimes100() / 100;
 		goldPerTurnFromCities, tradeRouteGold = tradeRouteGold, goldPerTurnFromCities - tradeRouteGold
-		playerTraitGold = g_activePlayer:GetGoldPerTurnFromTraits() * 100
+		playerTraitGold = g_activePlayer:GetGoldPerTurnFromTraits()
 		if g_activePlayer:IsAnarchy() then
 			tips:insert( L("TXT_KEY_TP_ANARCHY", g_activePlayer:GetAnarchyNumTurns() ) )
 			tips:insert( "" )
@@ -1036,17 +1037,17 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 
 	tips:insert( "[COLOR_WHITE]" )
 
-	-- EDIT CBP (make two decimal)
-	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", Locale.ToNumber( (totalIncome / 100), "#.##") ) )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_CITY_OUTPUT", goldPerTurnFromCities / 100 )
+	-- EDIT CBP
+	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", math.floor(totalIncome) ) )
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_CITY_OUTPUT", math.floor(goldPerTurnFromCities) )
 
 	if bnw_mode then
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_CITY_CONNECTIONS", g_currencyString), cityConnectionGold / 100 )
-		tips:insertLocalizedBulletIfNonZero( civ5_mode and "TXT_KEY_TP_GOLD_FROM_ITR" or "TXT_KEY_TP_ENERGY_FROM_TRADE_ROUTES", tradeRouteGold / 100 )
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TRAITS", g_currencyString), playerTraitGold / 100 )
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_FROM_POLICIES", goldPerTurnFromPolicies / 100 )
+		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_CITY_CONNECTIONS", g_currencyString), math.floor(cityConnectionGold) )
+		tips:insertLocalizedBulletIfNonZero( civ5_mode and "TXT_KEY_TP_GOLD_FROM_ITR" or "TXT_KEY_TP_ENERGY_FROM_TRADE_ROUTES", math.floor(tradeRouteGold) )
+		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TRAITS", g_currencyString), playerTraitGold )
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_FROM_POLICIES", goldPerTurnFromPolicies )
 	else
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), cityConnectionGold / 100 )
+		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), math.floor(cityConnectionGold) )
 	end
 -- C4DF
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
@@ -1055,9 +1056,9 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 -- END
 --CBP
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers )
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion )
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", math.floor(totalIncome - explicitIncome) )
 -- CBP
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
 --END

@@ -67,10 +67,10 @@ struct CvDangerPlotContents
 
 	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
-	std::vector<CvUnit*> GetPossibleAttackers() const;
+	std::vector<CvUnit*> GetPossibleAttackers(TeamTypes eTeamForVisibilityCheck) const;
 
-	// should not normally be used, primarily for compatibility
-	int GetDanger(PlayerTypes ePlayer);
+	// should not normally be used if a city or unit is known, primarily for compatibility
+	int GetDanger(bool bFixedDamageOnly);
 
 	// just for internal use
 	int GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
@@ -156,9 +156,9 @@ public:
 	void UpdateDanger(bool bKeepKnownUnits=true);
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
-	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer); //deprecated
+	int GetDanger(const CvPlot& pPlot, bool bFixedDamageOnly);
 
-	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const;
 	void ResetDangerCache(const CvPlot* pCenterPlot, int iRange);
 	bool IsKnownAttacker(const CvUnit* pUnit) const;
 	void AddKnownAttacker(const CvUnit* pUnit);

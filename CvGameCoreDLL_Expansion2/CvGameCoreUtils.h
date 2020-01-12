@@ -15,6 +15,11 @@
 
 #undef min
 
+inline int sqrti(int input)
+{
+	return int(sqrt((float)abs(input)));
+}
+
 inline int range(int iNum, int iLow, int iHigh)
 {
 	CvAssertMsg(iHigh >= iLow, "High should be higher than low");

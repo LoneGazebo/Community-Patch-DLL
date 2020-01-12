@@ -671,7 +671,7 @@ end
 function NumericSortFunction(field, direction)
 	if(direction == "asc") then
 		return function(a,b)
-			return a[field] <= b[field];
+			return a[field] < b[field];
 		end
 	elseif(direction == "desc") then
 		return function(a,b)
@@ -706,7 +706,7 @@ function GetSortFunction(sortOptions)
 	local orderBy = nil;
 	for i,v in ipairs(sortOptions) do
 		if(v.CurrentDirection ~= nil) then
-			if(v.SortType == "Numeric") then
+			if(v.SortType == "numeric") then
 				return NumericSortFunction(v.Column, v.CurrentDirection);
 			else
 				return AlphabeticalSortFunction(v.Column, v.CurrentDirection);

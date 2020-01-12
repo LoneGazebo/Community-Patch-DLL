@@ -2435,15 +2435,25 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (pMyUnit:GetUnitCombatType() ~= -1) then
 					iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
 
-					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
-						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-						bonusCount = bonusCount + 1;
-					elseif (iModifier ~= 0) then
-						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+					if(pMyUnit:IsMounted()) then
+						iModifier = (iModifier + pTheirUnit:UnitCombatModifier(GameInfo.UnitCombatInfos["UNITCOMBAT_MOUNTED"].ID));
+					end
+
+					if (iModifier ~= 0) then
+						if(pTheirUnit:IsMounted() and bonusCount < maxBonusDisplay) then
+							controlTable = g_TheirCombatDataIM:GetInstance();
+							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP", unitClassType );
+							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						elseif(bonusCount < maxBonusDisplay) then
+							controlTable = g_TheirCombatDataIM:GetInstance();
+							local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
+							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+							bonusCount = bonusCount + 1;
+						elseif (iModifier ~= 0) then
+							bonusSum = bonusSum + iModifier;
+							bonusCount = bonusCount + 1;					
+						end
 					end
 				end
 
@@ -2739,7 +2749,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local myCityMaxHP = myCity:GetMaxHitPoints();
 	local myCityCurHP = myCity:GetDamage();
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
-	local myCityStrength = myCity:GetStrengthValue(true);
+	local myCityStrength = myCity:GetStrengthValue(true, false, theirUnit);
 	
 	local theirUnitMaxHP = theirUnit:GetMaxHitPoints();
 	local theirUnitCurHP = theirUnit:GetDamage();
@@ -2820,6 +2830,18 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+			bonusCount = bonusCount + 1;
+		elseif (iModifier ~= 0) then
+			bonusSum = bonusSum + iModifier;
+			bonusCount = bonusCount + 1;
+		end
+
+		-- Range Strike Modifier
+		iModifier = myCity:GetCityBuildingRangeStrikeModifier();
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_MyCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_RANGE_STRIKE_CITY" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;

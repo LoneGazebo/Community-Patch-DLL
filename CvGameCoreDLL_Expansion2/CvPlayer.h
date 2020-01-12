@@ -1351,7 +1351,7 @@ public:
 	int GetMilitarySeaMight() const;
 	int GetMilitaryAirMight() const;
 	int GetMilitaryLandMight() const;
-	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain);
+	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain = NO_DOMAIN);
 #else
 	void changeNumMilitaryUnits(int iChange);
 #endif
@@ -1392,6 +1392,10 @@ public:
 
 	void SetNullifyInfluenceModifier(bool bValue);
 	bool IsNullifyInfluenceModifier() const;
+#endif
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+	int GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPlayer* pOtherPlayer) const;
 #endif
 
 	int getMilitaryFoodProductionCount() const;
@@ -1905,12 +1909,6 @@ public:
 	int getYieldFromBirthCapital(YieldTypes eIndex) const;
 	void changeYieldFromBirthCapital(YieldTypes eIndex, int iChange);
 
-	int getYieldFromBirthRetroactive(YieldTypes eIndex) const;
-	void changeYieldFromBirthRetroactive(YieldTypes eIndex, int iChange);
-
-	int getYieldFromBirthCapitalRetroactive(YieldTypes eIndex) const;
-	void changeYieldFromBirthCapitalRetroactive(YieldTypes eIndex, int iChange);
-
 	int getYieldFromDeath(YieldTypes eIndex) const;
 	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
 
@@ -2352,6 +2350,12 @@ public:
 	void changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
+	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1) const;
+	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
+#endif
+
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
@@ -2530,9 +2534,9 @@ public:
 
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
-	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
+	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
-	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);
 	void AddKnownAttacker(const CvUnit* pAttacker);
@@ -2727,6 +2731,7 @@ public:
 	bool HasActiveDiplomacyRequests() const;
 
 	CvTreasury* GetTreasury() const;
+	int GetPseudoRandomSeed() const;
 
 	int GetCityDistanceHighwaterMark() const;
 	void SetCityDistanceHighwaterMark(int iNewValue);
@@ -2880,14 +2885,11 @@ public:
 	void SetVassalLevy(bool bValue);
 #endif
 
-#if defined(MOD_BALANCE_CORE)
-	void SetClosestCityMapDirty();
 	//assuming a typical unit with baseMoves==2
 	int GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
-#endif
 
 protected:
 	class ConqueredByBoolField
@@ -3464,8 +3466,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthRetroactive;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapitalRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromPillage;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromVictory;
@@ -3590,6 +3590,9 @@ protected:
 	std::vector<int> m_piYieldFromWLTKD;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly; // Note that m_ppiSpecificGreatPersonRateModifierFromMonopoly does not have to be saved in kStream because setHasGlobalMonopoly and setHasStrategicMonopoly are called on game load
+#endif
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 
 	// Obsolete: only used to read old saves
@@ -3631,7 +3634,6 @@ protected:
 	CvDangerPlots* m_pDangerPlots;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	CvDistanceMap *m_pCityDistanceTurns, *m_pCityDistancePlots;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;

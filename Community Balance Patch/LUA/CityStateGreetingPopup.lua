@@ -318,7 +318,13 @@ print(string.format("City State: Need to add a message and a quest"))
           if (popupInfo.Data3 == 0) then
             strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
           else
+            -- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
+            local activePlayer = Players[iActivePlayer];
+	    if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
+                strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+            else
             strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
+            end
           end
 	else
 	  if (popupInfo.Text == "UNIT") then

@@ -27,12 +27,8 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
 class CvPlot;
-class CvArea;
-class CvAStarNode;
-class CvArtInfoUnit;
 class CvUnitEntry;
 class CvUnitReligion;
-class CvPathNode;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 class CvTacticalMove;
@@ -977,7 +973,6 @@ public:
 	bool atPlot(const CvPlot& plot) const;
 	inline CvPlot* plot() const;
 	int getArea() const;
-	CvArea* area() const;
 	bool onMap() const;
 
 #if defined(MOD_BALANCE_CORE)
@@ -1030,6 +1025,11 @@ public:
 
 	bool IsInFriendlyTerritory() const;
 	bool IsUnderEnemyRangedAttack() const;
+
+#if defined(MOD_BALANCE_CORE)
+	bool IsInForeignOwnedTerritory() const;
+	bool IsInPlayerTerritory(PlayerTypes ePlayer) const;
+#endif
 
 #if defined(MOD_UNITS_XP_TIMES_100)
 	int getExperienceTimes100() const;
@@ -1177,8 +1177,8 @@ public:
 	int getPlagueChance() const;
 	void changePlagueChance(int iChange);
 
-	int getPlaguedCount() const;
-	void changePlagued(int iChange);
+	int getPlaguePromotionID() const;
+	void setPlagued(int iChange);
 	bool isPlagued() const;
 
 	int getPlagueID() const;
@@ -1301,8 +1301,6 @@ public:
 	int getNumAttacksMadeThisTurn() const;
 	void changeExtraAttacks(int iChange);
 
-	// Citadel
-	bool IsNearEnemyCitadel(const CvPlot* pInPlot = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
