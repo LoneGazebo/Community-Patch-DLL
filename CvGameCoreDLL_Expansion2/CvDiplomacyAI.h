@@ -664,7 +664,7 @@ public:
 	// Num Minors Attacked
 	int GetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer) const;
 	void SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iValue);
-	void ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange);
+	void ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
 
 	// Num Minors Conquered
 	int GetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer) const;

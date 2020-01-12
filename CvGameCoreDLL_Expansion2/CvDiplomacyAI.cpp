@@ -20698,15 +20698,41 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iVa
 }
 
 /// Changes how many Minors we have seen this Player attack
-void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
 	// We don't care if it's us or a teammate
-	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return;
 	
 	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
-	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+	if (!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 		return;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		// Don't count this if the guy declaring war is a vassal because he can't declare war himself
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
+#endif
+
+	if (iChange > 0)
+	{
+		PlayerTypes eAttackedPlayer;
+		for (int iAttackedPlayerLoop = MAX_MAJOR_CIVS; iAttackedPlayerLoop < MAX_CIV_PLAYERS; iAttackedPlayerLoop++)
+		{
+			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
+
+			// Player must be on this team
+			if (GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
+				continue;
+
+			// Don't ACTUALLY count this if we're at war with the guy also
+			if (IsAtWar(eAttackedPlayer))
+				return;
+		}
+	}
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
@@ -20770,40 +20796,40 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iVa
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
 	// We don't care if it's us or a teammate
-	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return;
 	
 	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
-	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+	if (!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 		return;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		// Don't count this if the guy declaring war is a vassal because he can't declare war himself
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
+#endif
 	
-	if(iChange > 0)
+	if (iChange > 0)
 	{
 		PlayerTypes eAttackedPlayer;
-		for(int iAttackedPlayerLoop = 0; iAttackedPlayerLoop < MAX_MAJOR_CIVS; iAttackedPlayerLoop++)
+		for (int iAttackedPlayerLoop = 0; iAttackedPlayerLoop < MAX_MAJOR_CIVS; iAttackedPlayerLoop++)
 		{
 			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
 
 			// Player must be on this team
-			if(GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
+			if (GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
 				continue;
 
 			// Don't ACTUALLY count this if we're at war with the guy also
-			if(IsAtWar(eAttackedPlayer))
+			if (IsAtWar(eAttackedPlayer))
 				return;
 		}
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// Don't count this if the guy declaring war is a vassal because he can't declare war himself
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != NO_TEAM)
-			return;
-	}
-#endif
-
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
-
 
 	int iWarmongerValue = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetPlayer()->GetID(), WARMONGER_MAJOR_ATTACKED);
 
@@ -24554,7 +24580,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	bool bWantsToBullyUnit = false;
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	// Would we like to get Heavy Tribute by bullying this turn?
-	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
 		int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_SCIENCE"));
@@ -47763,7 +47789,7 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(PlayerTypes eConqueror, Playe
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && !GET_PLAYER(eMajor).isMinorCiv())
+		if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
 		{
 			int iWarmonger = GetPlayerCaresValue(eConqueror, eConquered, pCity, eMajor);
 			if (iWarmonger != 0)
@@ -47788,12 +47814,12 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 	CvPlayer &kConqueredPlayer = GET_PLAYER(eConquered);
 	
 	//Don't consider ourselves, teammates or dead dudes.
-	if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && !GET_PLAYER(eMajor).isMinorCiv())
+	if (GET_PLAYER(eMajor).getTeam() != GET_PLAYER(eConqueror).getTeam() && GET_PLAYER(eMajor).isAlive() && GET_PLAYER(eMajor).isMajorCiv())
 	{
 		CvTeam &kAffectedTeam = GET_TEAM(GET_PLAYER(eMajor).getTeam());
 		
 		// Don't apply warmongering if we haven't met the conqueror (otherwise that's cheating)
-		if(!kAffectedTeam.isHasMet(kConqueringPlayer.getTeam()))
+		if (!kAffectedTeam.isHasMet(kConqueringPlayer.getTeam()))
 			return 0;
 		
 		// Am I at war with the owner of the conquered city? How's the war going?
