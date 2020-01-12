@@ -106,10 +106,8 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 	if (iWeight==0)
 		return;
 
-	int* paiTempWeights;
-
 	// Create a temporary array of weights
-	paiTempWeights = (int*)_alloca(sizeof(int) * m_pCurrentTechs->GetTechs()->GetNumTechs());
+	int* paiTempWeights = (int*)_alloca(sizeof(int) * m_pCurrentTechs->GetTechs()->GetNumTechs());
 
 	// Loop through all our techs
 	for(int iTech = 0; iTech < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTech++)
@@ -336,10 +334,8 @@ float CvTechAI::GetTechRatio()
 /// Add weights to techs that are prereqs for the ones already weighted in this strategy
 void CvTechAI::WeightPrereqs(int* paiTempWeights, int iPropagationPercent)
 {
-	int iTechLoop;
-
 	// Loop through techs looking for ones that are just getting some new weight
-	for(iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
+	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		// If found one, call our recursive routine to weight everything to the left in the tree
 		if(paiTempWeights[iTechLoop] > 0)

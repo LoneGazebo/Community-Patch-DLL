@@ -356,8 +356,9 @@ public:
 		int iInternationalTRsIn;
 		int iInternalTRs;
 		int iMinorTRs;
+		map<int, int> nRoutesFromCity; //city id, n outgoing routes
 
-		void reset() { memset(this, 0, sizeof(SPlayerTradeStats)); }
+		void reset() { iTurnSliceBuilt = 0; iInternationalTRsOut = 0; iInternationalTRsIn = 0; iInternalTRs = 0; iMinorTRs = 0; nRoutesFromCity.clear(); }
 	};
 
 	//some precomputed numbers for performance

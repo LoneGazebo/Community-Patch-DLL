@@ -77,7 +77,7 @@ struct CvTradedItem
 FDataStream& OldLoad(FDataStream&, CvTradedItem&);
 FDataStream& operator>>(FDataStream&, CvTradedItem&);
 FDataStream& operator<<(FDataStream&, const CvTradedItem&);
-typedef FFastList< CvTradedItem, c_eMPoolTypeGame, 0 > TradedItemList;
+typedef vector<CvTradedItem> TradedItemList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS: CvDeal

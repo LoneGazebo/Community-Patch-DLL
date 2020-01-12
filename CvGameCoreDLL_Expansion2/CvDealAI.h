@@ -61,7 +61,7 @@ public:
 	// What is something worth? - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
 
 	int GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueTheyreOffering, bool bUseEvenValue, bool bLogging = false);
-	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bUseEvenValue, CvDeal* pDeal = NULL, bool bLogging = false);
+	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bUseEvenValue, bool bLogging = false);
 
 	int GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, ResourceTypes eResource, int iNumInTrade);
 	// Value of individual trade items - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
@@ -71,7 +71,7 @@ public:
 	int GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
 	int GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
 	int GetStrategicResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
-	int GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, CvDeal* pDeal, bool bSurrender = false);
+	int GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bSurrender = false);
 	int GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue);
 	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue);
 	int GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue);
@@ -187,6 +187,56 @@ protected:
 	//player to (turn,value)
 	std::vector<std::pair<int,int>> m_vResearchRates;
 
+	//some magic to enable memoization of calls to GetTradeItemValue
+	struct SDealItemValueParams
+	{
+		TradeableItems eItem;
+		bool bFromMe;
+		PlayerTypes eOtherPlayer;
+		int iData1;
+		int iData2;
+		int iData3;
+		bool bFlag1;
+		int iDuration;
+		bool bUseEvenValue;
+
+		SDealItemValueParams(TradeableItems eItem_, bool bFromMe_, PlayerTypes eOtherPlayer_, int iData1_, int iData2_, int iData3_, bool bFlag1_, int iDuration_, bool bUseEvenValue_) :
+			eItem(eItem_), bFromMe(bFromMe_), eOtherPlayer(eOtherPlayer_), iData1(iData1_), iData2(iData2_), iData3(iData3_), bFlag1(bFlag1_), iDuration(iDuration_), bUseEvenValue(bUseEvenValue_) { }
+
+		bool operator==(const SDealItemValueParams& rhs) const
+		{
+			return eItem == rhs.eItem && bFromMe == rhs.bFromMe && eOtherPlayer == rhs.eOtherPlayer && iData1 == rhs.iData1 && iData2 == rhs.iData2 && iData3 == rhs.iData3 && bFlag1 == rhs.bFlag1 && iDuration == rhs.iDuration && bUseEvenValue == rhs.bUseEvenValue;
+		}
+	};
+
+	// specialized hash function for unordered_map keys
+	struct SDealItemValueParamsHash
+	{
+		//obviously not portable ...
+		size_t rotl32 (size_t value, unsigned int count) const {
+			return value << count | value >> (32 - count);
+		}
+
+		std::size_t operator() (const SDealItemValueParams& key) const
+		{
+			std::size_t h1 = tr1::hash<int>()(key.eItem);
+			std::size_t h2 = tr1::hash<bool>()(key.bFromMe);
+			std::size_t h3 = tr1::hash<int>()(key.eOtherPlayer);
+			std::size_t h4 = tr1::hash<int>()(key.iData1);
+			std::size_t h5 = tr1::hash<int>()(key.iData2);
+			std::size_t h6 = tr1::hash<int>()(key.iData3);
+			std::size_t h7 = tr1::hash<bool>()(key.bFlag1);
+			std::size_t h8 = tr1::hash<int>()(key.iDuration);
+			std::size_t h9 = tr1::hash<bool>()(key.bUseEvenValue);
+ 
+			//rotate the bits so that XORing isn't quite as likely to collapse
+			return rotl32(h1,1) ^ rotl32(h2,2) ^ rotl32(h3,3) ^ rotl32(h4,4) ^ rotl32(h5,5) ^ rotl32(h6,6) ^ rotl32(h7,7) ^ rotl32(h8,8) ^ rotl32(h9,9);
+		}
+	};
+
+	//finally the cache itself
+	tr1::unordered_map<SDealItemValueParams, int, SDealItemValueParamsHash> m_dealItemValues;
+	int m_iDealItemValuesTurnSlice;
 };
 
 #endif //CIV5_DEALAI_H

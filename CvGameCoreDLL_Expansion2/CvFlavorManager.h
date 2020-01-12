@@ -102,8 +102,7 @@ private:
 	int* m_piPersonalityFlavor;
 	int* m_piActiveFlavor;
 	CvPlayer* m_pPlayer;
-	// std::list<CvFlavorRecipient *> m_FlavorTargetList;
-	typedef FFastList<CvFlavorRecipient*, c_eCiv5GameplayDLL, 0> Flavor_List;
+	typedef vector<CvFlavorRecipient*> Flavor_List;
 	Flavor_List m_FlavorTargetList;
 };
 

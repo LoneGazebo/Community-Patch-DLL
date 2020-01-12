@@ -6,6 +6,8 @@
 	All rights reserved. 
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
+#include "CvTacticalAI.h"
+#include "CvTacticalAnalysisMap.h"
 #include "FFastVector.h"
 #include "CvGameCoreUtils.h"
 #include "CvAStar.h"
@@ -33,7 +35,7 @@ int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller th
 #define TACTDEBUG
 #endif
 
-CvTactPosStorage gTactPosStorage(10000);
+CvTactPosStorage gTactPosStorage(7000);
 bool IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer);
 
 CvTacticalUnit::CvTacticalUnit() :
@@ -10588,6 +10590,7 @@ void CvTacticalPosition::countEnemies()
 	if (parentPosition != NULL)
 		OutputDebugString("countEnemies() should only be called for the root position\n");
 
+	//todo: should we count non-simulated friendlies as well?
 	nOurUnits = availableUnits.size();
 	nEnemies = 0;
 
@@ -10716,6 +10719,7 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	availableUnits.clear();
 	unfinishedUnits.clear();
 	assignedMoves.clear();
+	summary.clear();
 	freedPlots.clear();
 	killedEnemies.clear();
 }
@@ -10754,6 +10758,7 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	availableUnits = parent.availableUnits;
 	unfinishedUnits = parent.unfinishedUnits;
 	assignedMoves = parent.assignedMoves;
+	summary = parent.summary;
 	freedPlots = parent.freedPlots;
 	killedEnemies = parent.killedEnemies;
 }
@@ -10884,58 +10889,45 @@ bool CvTacticalPosition::plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignme
 	return false;
 }
 
-struct SAssignmentSummary
-{
-	//todo: use sorted vectors instead of maps for performance?
-	//todo: do we care about the order of attacks?
-	map<int, vector<int>> attackedPlots; 
-	map<int, int> unitPlots; 
-
-	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
-};
-
 //we should err on the side of caution here. better to allow two equivalent positions than to ignore a good one
-SAssignmentSummary getSummary(const vector<STacticalAssignment>& assignments)
+const SAssignmentSummary& CvTacticalPosition::updateSummary(const STacticalAssignment& newAssignment)
 {
-	SAssignmentSummary result;
-	for (size_t i = 0; i < assignments.size(); i++)
+	switch (newAssignment.eAssignmentType)
 	{
-		switch (assignments[i].eAssignmentType)
-		{
-		//these assigments change the unit's plot
-		case A_INITIAL:
-		case A_MOVE:
-		case A_CAPTURE:
-		case A_MOVE_FORCED:
-		case A_MOVE_SWAP:
-		case A_MOVE_SWAP_REVERSE:
-			result.unitPlots[assignments[i].iUnitID] = assignments[i].iToPlotIndex;
-			break;
+	//these assigments change the unit's plot
+	case A_INITIAL:
+	case A_MOVE:
+	case A_CAPTURE:
+	case A_MOVE_FORCED:
+	case A_MOVE_SWAP:
+	case A_MOVE_SWAP_REVERSE:
+		summary.unitPlots[newAssignment.iUnitID] = newAssignment.iToPlotIndex;
+		break;
 
-		//ignore those, they don't change the plot
-		case A_FINISH:
-		case A_BLOCKED:
-		case A_RESTART:
-		case A_PILLAGE:
-			break;
+	//ignore those, they don't change the plot
+	case A_FINISH:
+	case A_BLOCKED:
+	case A_RESTART:
+	case A_PILLAGE:
+		break;
 
-		//attacks without plot change
-		case A_MELEEATTACK:
-		case A_RANGEATTACK:
-		case A_RANGEKILL:
-		case A_MELEEKILL_NO_ADVANCE:
-			//note: the ordering between moves and attack is important for flanking bonuses. so we look at the damage here
-			result.attackedPlots[assignments[i].iToPlotIndex].push_back(assignments[i].iDamage);
-			break;
+	//attacks without plot change
+	case A_MELEEATTACK:
+	case A_RANGEATTACK:
+	case A_RANGEKILL:
+	case A_MELEEKILL_NO_ADVANCE:
+		//note: the ordering between moves and attack is important for flanking bonuses. so we look at the damage here
+		summary.attackedPlots[newAssignment.iToPlotIndex].push_back(newAssignment.iDamage);
+		break;
 
-		//attack with plot change
-		case A_MELEEKILL:
-			result.attackedPlots[assignments[i].iToPlotIndex].push_back(assignments[i].iDamage);
-			result.unitPlots[assignments[i].iUnitID] = assignments[i].iToPlotIndex;
-			break;
-		}
+	//attack with plot change
+	case A_MELEEKILL:
+		summary.attackedPlots[newAssignment.iToPlotIndex].push_back(newAssignment.iDamage);
+		summary.unitPlots[newAssignment.iUnitID] = newAssignment.iToPlotIndex;
+		break;
 	}
-	return result;
+
+	return summary;
 }
 
 static int giEquivalent = 0;
@@ -10950,7 +10942,7 @@ bool CvTacticalPosition::isEquivalent(const CvTacticalPosition & rhs) const
 	if (assignedMoves.size() < 3)
 		return false;
 
-	if (getSummary(assignedMoves) == getSummary(rhs.assignedMoves))
+	if (summary == rhs.summary)
 	{
 		giEquivalent++;
 		return true;
@@ -11017,6 +11009,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 
 	//store the assignment
 	assignedMoves.push_back(newAssignment);
+	updateSummary(newAssignment);
 
 	//now deal with the consequences
 	switch (newAssignment.eAssignmentType)
@@ -11370,7 +11363,7 @@ void CvTacticalPosition::dumpChildren(ofstream& out) const
 		size_t nAssignmentsChild = childPositions[i]->getAssignments().size();
 		for (size_t j = nAssignments; j < nAssignmentsChild; j++)
 		{
-			STacticalAssignment& assignment = childPositions[i]->getAssignments()[j];
+			const STacticalAssignment& assignment = childPositions[i]->getAssignments()[j];
 			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(assignment.iUnitID);
 			out << pUnit->getName().c_str() << " " << assignment << "\\n";
 		}
@@ -11568,6 +11561,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
+		iUsedPositions++;
 
 		//if we have a lot of open positions, don't waste time on candidates which looked good initially but are not anymore
 		if (openPositionsHeap.size() > 1000 && current->getScore() < iTopScore / 2)
@@ -11579,7 +11573,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		//here the magic happens
 		if (current->makeNextAssignments(iMaxBranches, iMaxChoicesPerUnit, storage))
 		{
-			iUsedPositions++;
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
 				CvTacticalPosition* newPos = *it;
@@ -11604,7 +11597,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			break;
 
 		//don't waste too much time/memory
-		if (openPositionsHeap.size() > 4000 || iDiscardedPositions > 4000)
+		if (iUsedPositions + openPositionsHeap.size() == storage.getSizeLimit()-1)
 			break;
 
 		//be a good citizen and let the UI run in between ... stupid design
@@ -11764,6 +11757,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
+		iUsedPositions++;
 
 		//if we have a lot of open positions, don't waste time on candidates which looked good initially but are not anymore
 		if (openPositionsHeap.size() > 1000 && current->getScore() < iTopScore / 2)
@@ -11775,7 +11769,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		//here the magic happens
 		if (current->makeNextAssignments(iMaxBranches, iMaxChoicesPerUnit, storage))
 		{
-			iUsedPositions++;
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
 				CvTacticalPosition* newPos = *it;
@@ -11816,8 +11809,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		if (completedPositions.size() >= (size_t)iMaxCompletedPositions)
 			break;
 
-		//don't use up too much memory
-		if (openPositionsHeap.size()>5000 || iDiscardedPositions>5000)
+		//don't waste too much time/memory
+		if (iUsedPositions + openPositionsHeap.size() == storage.getSizeLimit())
 			break;
 
 		//be a good citizen and let the UI run in between ... stupid design

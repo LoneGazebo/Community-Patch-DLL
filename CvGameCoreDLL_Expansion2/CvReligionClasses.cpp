@@ -16,6 +16,8 @@
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
 #include "cvStopWatch.h"
+#include "CvTacticalAI.h"
+#include "CvTacticalAnalysisMap.h"
 
 #include "LintFree.h"
  

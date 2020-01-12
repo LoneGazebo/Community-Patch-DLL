@@ -147,7 +147,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 	// Allocate memory
 	m_piPersonalityFlavor = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
 	m_piActiveFlavor = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
-	m_FlavorTargetList.get_allocator().Reserve((3*64)+100);
+	m_FlavorTargetList.reserve((3*64)+100);
 
 	// Clear variables
 	Reset();

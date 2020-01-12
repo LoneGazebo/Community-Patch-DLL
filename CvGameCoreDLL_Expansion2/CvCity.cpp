@@ -19477,6 +19477,10 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 	//Update yields
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		UpdateYieldPerXTerrain(((YieldTypes)iI), eTerrain);
 		UpdateYieldPerXTerrainFromReligion(((YieldTypes)iI), eTerrain);
 	}
@@ -19499,6 +19503,10 @@ void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChang
 	//Update yields
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		UpdateYieldPerXTerrain(((YieldTypes)iI), eTerrain);
 		UpdateYieldPerXTerrainFromReligion(((YieldTypes)iI), eTerrain);
 	}
@@ -19521,6 +19529,10 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 	//Update yields
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		UpdateYieldPerXFeature(((YieldTypes)iI), eFeature);
 	}
 }

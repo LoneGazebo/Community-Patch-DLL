@@ -961,6 +961,18 @@ struct STacticalAssignment
 	bool isOffensive() const;
 };
 
+struct SAssignmentSummary
+{
+	//todo: use sorted vectors instead of maps for performance?
+	//todo: do we care about the order of attacks?
+	map<int, vector<int>> attackedPlots; 
+	map<int, int> unitPlots; 
+
+	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
+
+	void clear() { attackedPlots.clear(); unitPlots.clear(); }
+};
+
 struct SUnitStats
 {
 	const CvUnit* pUnit;
@@ -1102,6 +1114,9 @@ protected:
 	//dummy to avoid returning temporaries
 	CvTacticalPlot dummyPlot;
 
+	//for avoiding duplicates
+	SAssignmentSummary summary;
+
 	//------------
 	const ReachablePlots& getReachablePlotsForUnit(int iUnit) const;
 	const set<int>& getRangeAttackPlotsForUnit(int iUnit) const;
@@ -1111,6 +1126,7 @@ protected:
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
+	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 
 	//finding a particular unit
 	struct PrMatchingUnit
@@ -1158,7 +1174,7 @@ public:
 
 	const CvTacticalPosition* getParent() const { return parentPosition; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
-	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
+	const vector<STacticalAssignment>& getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
@@ -1179,6 +1195,7 @@ public:
 	CvTactPosStorage(int iPreallocationSize) : iCount(0), iSize(iPreallocationSize), aPositions(new CvTacticalPosition[iPreallocationSize]) {}
 	~CvTactPosStorage() { delete[] aPositions; }
 	void reset() { iCount = 0; }
+	int getSizeLimit() const { return iSize; }
 	CvTacticalPosition* getNext()
 	{
 		if (iCount < iSize) 
