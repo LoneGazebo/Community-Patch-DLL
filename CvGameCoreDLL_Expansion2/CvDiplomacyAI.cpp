@@ -4854,6 +4854,33 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		break;
 	}
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	// DoF History
+	// Encourage long-term friendships and alliances
+	switch (GetDoFType(ePlayer))
+	{
+	case DOF_TYPE_UNTRUSTWORTHY:
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		break;
+	case DOF_TYPE_NEW:
+		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+		break;
+	case DOF_TYPE_FRIENDS:
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		break;
+	case DOF_TYPE_ALLIES:
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2);
+		break;
+	case DOF_TYPE_BATTLE_BROTHERS:
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 3);
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 3);
+		break;
+	}
+#endif
 	
 	////////////////////////////////////
 	// STRATEGIC DIPLOMACY IMPROVEMENTS
@@ -16340,6 +16367,39 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += 25;
 			}
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+			// DoF History
+			// Encourage long-term friendships and alliances
+			switch (GetDoFType(ePlayer))
+			{
+			case DOF_TYPE_UNTRUSTWORTHY:
+				iEnemyWeight += 5;
+				iDPWeight -= 5;
+				iDoFWeight -= 5;
+				break;
+			case DOF_TYPE_NEW:
+				iEnemyWeight -= 1;
+				iDPWeight -= 3;
+				iDoFWeight += 1;
+				break;
+			case DOF_TYPE_FRIENDS:
+				iEnemyWeight -= 5;
+				iDPWeight += 5;
+				iDoFWeight += 5;
+				break;
+			case DOF_TYPE_ALLIES:
+				iEnemyWeight -= 10;
+				iDPWeight += 10;
+				iDoFWeight += 10;
+				break;
+			case DOF_TYPE_BATTLE_BROTHERS:
+				iEnemyWeight -= 15;
+				iDPWeight += 15;
+				iDoFWeight += 15;
+				break;
+			}
+#endif
+
 			// We denounced them
 			if (IsDenouncedPlayer(ePlayer))
 			{
@@ -20687,15 +20747,28 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iVa
 }
 
 /// Changes how many Minors we have seen this Player attack
-void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
 	// We don't care if it's us or a teammate
-	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+	if (GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return;
 	
 	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
-	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+	if (!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 		return;
+
+	// Disregard if we're also at war with this team
+	if (GET_TEAM(GetTeam()).isAtWar(eAttackedTeam))
+		return;
+	
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Don't count this if the player declaring war is a vassal because he can't declare war himself
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+			return;
+	}
+#endif
 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
@@ -20766,33 +20839,20 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 	if(!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 		return;
 	
-	if(iChange > 0)
-	{
-		PlayerTypes eAttackedPlayer;
-		for(int iAttackedPlayerLoop = 0; iAttackedPlayerLoop < MAX_MAJOR_CIVS; iAttackedPlayerLoop++)
-		{
-			eAttackedPlayer = (PlayerTypes) iAttackedPlayerLoop;
-
-			// Player must be on this team
-			if(GET_PLAYER(eAttackedPlayer).getTeam() != eAttackedTeam)
-				continue;
-
-			// Don't ACTUALLY count this if we're at war with the guy also
-			if(IsAtWar(eAttackedPlayer))
-				return;
-		}
-	}
-
+	// Disregard if we're also at war with this team
+	if (GET_TEAM(GetTeam()).isAtWar(eAttackedTeam))
+		return;
+	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// Don't count this if the guy declaring war is a vassal because he can't declare war himself
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != NO_TEAM)
+	// Don't count this if the player declaring war is a vassal because he can't declare war himself
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 			return;
 	}
 #endif
 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
-
 
 	int iWarmongerValue = CvDiplomacyAIHelpers::GetWarmongerOffset(NULL, ePlayer, GetPlayer()->GetID(), WARMONGER_MAJOR_ATTACKED);
 
@@ -20969,8 +21029,15 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 
 	// Modify warmonger amount based on diplomatic view of this player
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	bool bUntrustworthy = (IsUntrustworthyFriend(ePlayer) || IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()));
+	bool bUntrustworthy = false;
 	bool bAtWar = GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam());
+	if (!bAtWar)
+	{
+		if (IsUntrustworthyFriend(ePlayer) || IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+		{
+			bUntrustworthy = true;
+		}
+	}
 
 	if (!bUntrustworthy && !bAtWar)
 	{
