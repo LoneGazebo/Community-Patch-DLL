@@ -523,6 +523,19 @@ UPDATE Language_en_US
 SET Text = 'If another civ has captured a City-State and you capture it from them, you have the option to "liberate" that city-state. If you do so, you will receive a large amount of [ICON_INFLUENCE] Influence from the City-State, usually enough to make you [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with it.'
 WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY';
 
+-- Lighthouses create city connections
+UPDATE Language_en_US
+SET Text = 'An enemy naval unit within 2 tiles of a port city will "blockade" that city, rendering its lighthouse city connection inoperative until the enemy unit is driven off or destroyed. Citizens cannot work naval tiles that are blockaded.'
+WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_BLOCKADE_HEADING4_BODY';
+
+UPDATE Language_en_US
+SET Text = 'If a city is connected by a road and/or lighthouse to your capital city, that city has a "city connection" with the capital. Each city connection is worth a certain amount of gold each turn (determined by the size of the two cities).'
+WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = 'If there is a road between your capital and another of your cities, those cities have a "city connection." City connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. (Lighthouses can also create city connections between coastal cities.) See the section on City Connections for details.'
+WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_BODY';
+
 
 -- Miscellaneous
 
