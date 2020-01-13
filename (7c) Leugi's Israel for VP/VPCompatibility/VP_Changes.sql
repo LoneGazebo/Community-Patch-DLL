@@ -124,7 +124,7 @@ VALUES	('ISRAEL_PROMOTION_ATLAS', 					16, 		'Israel_PI_016.dds',				4, 				1),
 		('ISRAEL_PROMOTION_ATLAS', 					32, 		'Israel_PI_032.dds',				4, 				1),
 		('ISRAEL_PROMOTION_ATLAS', 					45, 		'Israel_PI_045.dds',				4, 				1),
 		('ISRAEL_PROMOTION_ATLAS', 					64, 		'Israel_PI_064.dds',				4, 				1),
-		('ISRAEL_PROMOTION_ATLAS', 					256, 		'Israel_PI_0256.dds',				4, 				1);
+		('ISRAEL_PROMOTION_ATLAS', 					256, 		'Israel_PI_256.dds',				4, 				1);
 --------------------------------	
 -- UnitPromotions
 --------------------------------	
