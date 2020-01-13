@@ -31946,9 +31946,8 @@ void CvCity::doGrowth()
 		}
 	}
 	//starving
-	else if(getFood() < 0 && getPopulation() > 1)
+	else if(getFood()==0 && iFoodPerTurn100<0 && getPopulation()>1)
 	{
-		setFood(0);
 		changePopulation(-1);
 	}
 }
