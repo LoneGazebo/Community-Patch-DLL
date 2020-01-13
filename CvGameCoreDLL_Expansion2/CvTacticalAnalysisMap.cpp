@@ -518,12 +518,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
-		ReachablePlots turnsFromCity;
-		int iMaxTurns = GetTacticalRangeTurns();
-		if(pZone->GetZoneCity())
-		{
-			CvCity *pZoneCity = pZone->GetZoneCity();
+		//turns to plots is factor 2, distance to diameter is also factor 2
+		int iMaxDistance = GetTacticalRangeTurns();
+		CvCity *pZoneCity = pZone->GetZoneCity();
 
+		if(pZoneCity)
+		{
 			// Start with strength of the city itself
 			int iCityHitPoints = pZoneCity->GetMaxHitPoints() - pZoneCity->getDamage();
 			int iStrength = pZoneCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
@@ -542,10 +542,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 			{ 
 				pZone->AddNeutralStrength(iStrength);
 			}
-
-			//do not set a player - that way we can traverse unrevealed plots and foreign territory
-			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
-			turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pZoneCity->plot(), data);
 		}
 
 		// check all units in the world
@@ -577,15 +573,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
 				bool bReducedStrength = pLoopUnit->isEmbarked() || !bVisible;
 
-				int iTurnDistance = 0;
+				int iPlotDistance = 0;
 				//if there is a city, units in adjacent zones can also count
-				if (!turnsFromCity.empty())
+				if (pZoneCity)
 				{
-					ReachablePlots::iterator it = turnsFromCity.find(pPlot->GetPlotIndex());
-					if (it != turnsFromCity.end())
-						//unit is in range
-						iTurnDistance = it->iTurns;
-					else
+					iPlotDistance = plotDistance(*pPlot, *pZoneCity->plot());
+					if (iPlotDistance>iMaxDistance)
 						continue; //unit is too far away
 				}
 				else
@@ -595,7 +588,9 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						continue;
 				}
 
-				int iMultiplier = iMaxTurns - MAX(iTurnDistance-2, 0);  // bias of 2 because action may still be spread out over the zone
+				int iBias = 2; // some bias because action may still be spread out over the zone
+				int iEffectiveDistance = MAX(iPlotDistance - iBias,0); 
+				int iMultiplier = iMaxDistance - iBias - iEffectiveDistance;  
 				if(iMultiplier > 0)
 				{
 					int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true);
@@ -630,8 +625,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						}
 
 						//again only for enemies
-						if(pZone->GetDistanceOfClosestEnemyUnit()<0 || iTurnDistance<pZone->GetDistanceOfClosestEnemyUnit())
-							pZone->SetDistanceOfClosestEnemyUnit(iTurnDistance);
+						if(pZone->GetDistanceOfClosestEnemyUnit()<0 || iPlotDistance<pZone->GetDistanceOfClosestEnemyUnit())
+							pZone->SetDistanceOfClosestEnemyUnit(iPlotDistance);
 					}
 					else if (bFriendly)
 					{

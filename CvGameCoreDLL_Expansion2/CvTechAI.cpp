@@ -106,9 +106,6 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 	if (iWeight==0)
 		return;
 
-	// Create a temporary array of weights
-	int* paiTempWeights = (int*)_alloca(sizeof(int) * m_pCurrentTechs->GetTechs()->GetNumTechs());
-
 	// Loop through all our techs
 	for(int iTech = 0; iTech < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTech++)
 	{
@@ -117,16 +114,16 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 		if(entry)
 		{			
 			// Set its weight by looking at tech's weight for this flavor and using iWeight multiplier passed in
-			paiTempWeights[iTech] = entry->GetFlavorValue(eFlavor) * iWeight;
+			int iTechWeight = entry->GetFlavorValue(eFlavor) * iWeight;
 
 			// Multiply the weight by any special player-specific weighting (i.e. to prioritize civ unique bonuses)
-			paiTempWeights[iTech] += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech);
+			iTechWeight += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech);
 
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking resources)
-			paiTempWeights[iTech] += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech);
+			iTechWeight += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech);
 
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking grand strategy stuff)
-			paiTempWeights[iTech] += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetGSTechPriority(eTech);
+			iTechWeight += m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetGSTechPriority(eTech);
 
 			if(entry->IsAllowsEmbarking())
 			{
@@ -135,27 +132,13 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 				{
 					if(m_pCurrentTechs->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
 					{
-						paiTempWeights[iTech] += 10;
+						iTechWeight += 10;
 					}
 				}
 			}
-		}
-	}
 
-	// Propagate these values left in the tree so prereqs get bought
-	WeightPrereqs(paiTempWeights, iPropagationPercent);
-
-	// Add these weights over previous ones
-	for(int iTech = 0; iTech < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTech++)
-	{
-		CvTechEntry* entry = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
-		if(entry)
-		{
-#if defined(MOD_BUGFIX_MINOR)
-			// Adding zero is not going to achieve a lot!
-			if(paiTempWeights[iTech] != 0)
-#endif
-			m_TechAIWeights.IncreaseWeight(iTech, paiTempWeights[iTech]);
+			// Apply and propagate to prereqs
+			PropagateWeights(iTech, iTechWeight, iPropagationPercent, 0);
 		}
 	}
 }
@@ -167,20 +150,18 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	if (pPlayer->isMinorCiv())
 		return NO_TECH;
 
-	RandomNumberDelegate fcn;
 	TechTypes rtnValue = NO_TECH;
-	int iTechLoop;
 
 	// Use the synchronous random number generate
 	// Asynchronous one would be:
 	//	fcn = MakeDelegate (&GC.getGame(), &CvGame::getAsyncRandNum);
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Create a new vector holding only techs we can currently research
 	m_ResearchableTechs.clear();
 
 	// Loop through adding the researchable techs
-	for(iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
+	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		if(m_pCurrentTechs->CanResearch((TechTypes)iTechLoop))
 		{
@@ -233,13 +214,12 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /* = NO_TECH */)
 {
 	TechTypes rtnValue = NO_TECH;
-	int iTechLoop;
 
 	// Create a new vector holding only techs we can currently research
 	m_ResearchableTechs.clear();
 
 	// Loop through adding the researchable techs
-	for(iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
+	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		//if (m_pCurrentTechs->CanResearch((TechTypes) iTechLoop) &&
 		//	iTechLoop != eIgnoreTech &&
@@ -331,91 +311,48 @@ float CvTechAI::GetTechRatio()
 //=====================================
 // PRIVATE METHODS
 //=====================================
-/// Add weights to techs that are prereqs for the ones already weighted in this strategy
-void CvTechAI::WeightPrereqs(int* paiTempWeights, int iPropagationPercent)
-{
-	// Loop through techs looking for ones that are just getting some new weight
-	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
-	{
-		// If found one, call our recursive routine to weight everything to the left in the tree
-		if(paiTempWeights[iTechLoop] > 0)
-		{
-			PropagateWeights(iTechLoop, paiTempWeights[iTechLoop], iPropagationPercent, 0);
-		}
-	}
-}
 
 /// Recursive routine to weight all prerequisite techs
 void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent, int iPropagationLevel)
 {
+	if (iWeight == 0)
+		return;
+
+	//first apply the weight to the tech itself
+	m_TechAIWeights.IncreaseWeight(iTech, iWeight);
+
+	//then see if we have prerequites to take care of
+	if (iPropagationLevel >= GC.getTECH_WEIGHT_PROPAGATION_LEVELS())
+		return;
+
 	CvTechEntry* pkTechInfo = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
-	if(pkTechInfo)
+	if (!pkTechInfo)
+		return;
+
+	// Loop through all prerequisites
+	vector<int> prereqTechs;
+	for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
 	{
-		if(iPropagationLevel < GC.getTECH_WEIGHT_PROPAGATION_LEVELS())
-		{
-			int iPropagatedWeight = iWeight * iPropagationPercent / 100;
+		// Did we find a prereq?
+		int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
+		if (iPrereq == NO_TECH)
+			break;
 
-#if defined(MOD_AI_SMART_V3)
-			FFastVector<pair<int, int>> propagation_techs;
-#endif
-			// Loop through all prerequisites
-#if defined(MOD_BUGFIX_MINOR)
-			for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
-#else
-			for(int iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
-#endif
-			{
-// Did we find a prereq?
-int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
-if (iPrereq != NO_TECH)
-{
-#if defined(MOD_AI_SMART_V3)
-	if (MOD_AI_SMART_V3)
-	{
-		propagation_techs.push_back(pair<int, int>(iPrereq, iPropagatedWeight));
+		prereqTechs.push_back(iPrereq);
 	}
-	else
-	{
-#endif
-		// Apply reduced weight here.  Note that we apply these to the master weight array, not
-		// the temporary one.  The temporary one is just used to hold the newly weighted techs
-		// (from which this weight propagation must originate).
-		m_TechAIWeights.IncreaseWeight(iPrereq, iPropagatedWeight);
 
-		// Recurse to its prereqs (assuming we have any weight left)
-		if (iPropagatedWeight > 0)
-		{
-			PropagateWeights(iPrereq, iPropagatedWeight, iPropagationPercent, iPropagationLevel++);
-		}
-#if defined(MOD_AI_SMART_V3)
-	}
-#endif
-}
-else
-{
-	break;
-}
+	//nothing to do
+	if (prereqTechs.empty())
+		return;
 
-			}
+	//split it evenly
+	int iPropagatedWeight = (iWeight * iPropagationPercent) / 100;
+	if (!pkTechInfo->IsRepeat())
+		iPropagatedWeight /= prereqTechs.size();
 
-#if defined(MOD_AI_SMART_V3)
-			if (MOD_AI_SMART_V3 && !propagation_techs.empty())
-			{
-				for (unsigned int it = 0; it < propagation_techs.size(); it++)
-				{
-					if (propagation_techs[it].second > 0)
-					{
-						// Future tech propagation fix
-						int distributedWeight = pkTechInfo->IsRepeat() ? (propagation_techs[it].second * 2) : (propagation_techs[it].second / propagation_techs.size());
-
-						m_TechAIWeights.IncreaseWeight(propagation_techs[it].first, distributedWeight);
-						PropagateWeights(propagation_techs[it].first, distributedWeight, iPropagationPercent, iPropagationLevel++);
-					}
-				}
-			}
-#endif
-		}
-	}
+	//next level of recursion
+	for (size_t i = 0; i < prereqTechs.size(); i++)
+		PropagateWeights(prereqTechs[i], iPropagatedWeight, iPropagationPercent, iPropagationLevel++);
 }
 
 /// Recompute weights taking into account tech cost
