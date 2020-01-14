@@ -1450,7 +1450,7 @@ public:
 	void changeSpecialistFreeExperience(int iChange);
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildingDefense = false) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildingDefense = false, const CvUnit* pDefender = NULL) const;
 	int GetPower() const;
 
 	int getDamage() const;

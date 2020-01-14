@@ -440,6 +440,9 @@
 	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
 	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
 
+	<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
+	<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
+
     <!-- Fixes the AI's inability to use combat units as secondary workers (v26) -->
     <!-- See also: "AI - Secondary Workers And Settlers" -->
     <Row Class="6" Name="AI_SECONDARY_WORKERS" Value="1"/>

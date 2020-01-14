@@ -32,7 +32,7 @@
 		<!-- Multiplicative modifier for capturing a city from someone who declared war on you -->
 		<Row Name="WARMONGER_THREAT_AGGRIEVED_PERCENT">
 			<!-- Default 100 -->
-			<Value>90</Value>
+			<Value>100</Value>
 		</Row>
 		<!-- If enabled, a bystander with a DefPact with the defender will always receive the full amount of warmonger threat -->
 		<Row Name="WARMONGER_THREAT_DEF_PACT_ENABLED">
@@ -43,7 +43,7 @@
 		<!-- C is in a joint war with A against B, A captures B's city, C will get WARMONGER_THREAT_COOP_WAR_PERCENT of the warmonger threat -->
 		<Row Name="WARMONGER_THREAT_COOP_WAR_PERCENT">
 			<!-- Default 100 -->
-			<Value>50</Value>
+			<Value>10</Value>
 		</Row>
 
 		<!-- Additive modifiers for the warmonger threat based on the bystanders approach to the attacker and defender -->
@@ -52,23 +52,23 @@
 		<!-- If C is hostile to B they won't care so much about what A does to their enemy -->
 		<Row Name="WARMONGER_THREAT_MODIFIER_LARGE">
 			<!-- Default 0 -->
-			<Value>60</Value>
+			<Value>75</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_MODIFIER_MEDIUM">
 			<!-- Default 0 -->
-			<Value>40</Value>
+			<Value>50</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_MODIFIER_SMALL">
 			<!-- Default 0 -->
-			<Value>20</Value>
+			<Value>25</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL">
 			<!-- Default 0 -->
-			<Value>-15</Value>
+			<Value>-25</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM">
 			<!-- Default 0 -->
-			<Value>-30</Value>
+			<Value>-50</Value>
 		</Row>
 
 		<!-- If enabled, city size is taken into consideration as well as remaining cities in empire -->
@@ -82,9 +82,9 @@
 
 		<Update>
 			<Where Name="WARMONGER_THREAT_PER_TURN_DECAY" />
-			<Set Value="-5" />
+			<Set Value="-2" />
 		</Update>
-		<!-- Default -5 -->
+		<!-- Default -2 -->
 		<!--
 		<Row Name="WARMONGER_THREAT_PER_TURN_DECAY">
 

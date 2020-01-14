@@ -652,8 +652,6 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldFromMinors("CvPlayer::m_aiYieldFromMinors", m_syncArchive)
 	, m_aiYieldFromBirth("CvPlayer::m_aiYieldFromBirth", m_syncArchive)
 	, m_aiYieldFromBirthCapital("CvPlayer::m_aiYieldFromBirthCapital", m_syncArchive)
-	, m_aiYieldFromBirthRetroactive("CvPlayer::m_aiYieldFromBirthRetroactive", m_syncArchive)
-	, m_aiYieldFromBirthCapitalRetroactive("CvPlayer::m_aiYieldFromBirthCapitalRetroactive", m_syncArchive)
 	, m_aiYieldFromDeath("CvPlayer::m_aiYieldFromDeath", m_syncArchive)
 	, m_aiYieldFromPillage("CvPlayer::m_aiYieldFromPillage", m_syncArchive)
 	, m_aiYieldFromVictory("CvPlayer::m_aiYieldFromVictory", m_syncArchive)
@@ -1789,12 +1787,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldFromBirthCapital.clear();
 	m_aiYieldFromBirthCapital.resize(NUM_YIELD_TYPES, 0);
-
-	m_aiYieldFromBirthRetroactive.clear();
-	m_aiYieldFromBirthRetroactive.resize(NUM_YIELD_TYPES, 0);
-
-	m_aiYieldFromBirthCapitalRetroactive.clear();
-	m_aiYieldFromBirthCapitalRetroactive.resize(NUM_YIELD_TYPES, 0);
 	
 	m_aiYieldFromDeath.clear();
 	m_aiYieldFromDeath.resize(NUM_YIELD_TYPES, 0);
@@ -3130,7 +3122,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			PlayerTypes ePlayer;
 			CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI();
 			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
-			pOldOwnerDiploAI->SetNumCitiesLiberated(GetID(), 0);
+			pOldOwnerDiploAI->SetNumCitiesLiberatedBy(GetID(), 0);
 			pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
 			pOldOwnerDiploAI->SetTurnsSinceVassalagePeacefullyRevoked(GetID(), -1);
 			
@@ -3143,7 +3135,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
 			
 			// increment captured city counter
-			pOldOwnerDiploAI->ChangeNumCitiesCaptured(GetID(), 1);
+			pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
 
 			iValue = iDefaultCityValue;
 			iValue += pOldCity->getPopulation() * /*120*/ GC.getWAR_DAMAGE_LEVEL_UNINVOLVED_CITY_POP_MULTIPLIER();
@@ -3646,7 +3638,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 			if (bDoWarmonger)
 			{
-				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity->isCapital(), pOldCity);
+				CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), pOldCity->getOwner(), pOldCity);
 #if defined(MOD_BALANCE_CORE)
 				pOldCity->SetNoWarmonger(false);
 #endif
@@ -4079,7 +4071,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
 		
 		if (isMajorCiv())
-			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+		GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
 	}
 
 
@@ -4093,7 +4085,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			GET_PLAYER(eOldOwner).SetLostHolyCityXY(pNewCity->getX(), pNewCity->getY());
 			
 			if (isMajorCiv())
-				GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
+			GET_PLAYER(eOldOwner).GetDiplomacyAI()->SetEverBackstabbedBy(m_eID, true);
 		}
 	}
 
@@ -9797,7 +9789,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerLiberatedCapital(m_eID, true);
 		}
 				
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberatedBy(m_eID, 1);
 #if defined(MOD_BALANCE_CORE)
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
 #endif
@@ -9849,11 +9841,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			
 			// Forget war history
 			pDiploAI->SetNumWarsDeclaredOnUs(eMePlayer, 0);
-			pDiploAI->SetNumCitiesCaptured(eMePlayer, 0);
+			pDiploAI->SetNumCitiesCapturedBy(eMePlayer, 0);
 			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
 			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
 			GetDiplomacyAI()->SetNumWarsDeclaredOnUs(ePlayer, 0);
-			GetDiplomacyAI()->SetNumCitiesCaptured(ePlayer, 0);
+			GetDiplomacyAI()->SetNumCitiesCapturedBy(ePlayer, 0);
 			GetDiplomacyAI()->SetNumTimesRazed(ePlayer, 0);
 			GetDiplomacyAI()->SetNumTradeRoutesPlundered(ePlayer, 0);
 			
@@ -10002,7 +9994,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 				{
 #if defined(MOD_CONFIG_AI_IN_XML)
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital() ? true : false, pNewCity, GetID(), true);
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity, GetID(), true);
 					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
 #else
 					int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
@@ -12933,7 +12925,7 @@ void CvPlayer::raze(CvCity* pCity)
 		PlayerTypes eFormerOwner = pCity->getPreviousOwner();
 		if(eFormerOwner != NO_PLAYER)
 		{
-			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity->IsOriginalMajorCapital(), pCity);
+			CvDiplomacyAIHelpers::ApplyWarmongerPenalties(GetID(), eFormerOwner, pCity);
 			pCity->SetNoWarmonger(false);
 		}
 	}
@@ -20671,15 +20663,15 @@ void CvPlayer::DoUpdateUprisings()
 		return;
 		
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
+	if(MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if (GetUprisingCounter() > 0)
+		if(GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if (GetUprisingCounter() == 0)
+			if(GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -20693,15 +20685,15 @@ void CvPlayer::DoUpdateUprisings()
 	}
 	else
 #endif
-	if (IsEmpireSuperUnhappy())
+	if(IsEmpireSuperUnhappy())
 	{
 		// If we're very unhappy, make the counter wind down
-		if (GetUprisingCounter() > 0)
+		if(GetUprisingCounter() > 0)
 		{
 			ChangeUprisingCounter(-1);
 
 			// Time's up!
-			if (GetUprisingCounter() == 0)
+			if(GetUprisingCounter() == 0)
 			{
 				DoUprising();
 				DoResetUprisingCounter(/*bFirstTime*/ false);
@@ -20883,7 +20875,7 @@ void CvPlayer::DoUprising()
 			do
 			{
 				iNumRebels--;
-				
+
 				// Pick a new unit type (for variety)
 				UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 
@@ -26192,12 +26184,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE:
 				{
-					iValue += getYieldFromBirthRetroactive(eYield) * iPassYield;
-					
-					if (pLoopCity->isCapital())
-					{
-						iValue += getYieldFromBirthCapitalRetroactive(eYield) * iPassYield;
-					}
+					if (eYield != ePassYield)
+						continue;
+
+					iValue = iPassYield;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_ERA_UNLOCK:
@@ -31149,20 +31139,21 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (ePlayer == NO_PLAYER)
 		return 0;
 
-	int iHandicap = 5;
+	int iResistance = GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(ePlayer);
+	if (iResistance == 0)
+		return 0;
+
+	iResistance /= 10;
+
+	iResistance *= GetCurrentEra();
+
+	int iHandicapCap = 50;
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
-		iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase();
+		iHandicapCap = GC.getGame().getHandicapInfo().getAIResistanceCap();
 	}
 
-	int iMaxThreshold = GC.getWARMONGER_THREAT_CRITICAL_THRESHOLD() * 200;
-	iMaxThreshold /= max(1, iHandicap);
-
-	int iResistance = GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(ePlayer);
-	iResistance *= 100;
-	iResistance /= max(1, iMaxThreshold);
-
-	return min((iHandicap * iHandicap), iResistance);
+	return min(iHandicapCap, iResistance);
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetArchaeologicalDigTourism() const
@@ -31609,7 +31600,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 		}
 		if (pCity != NULL)
 		{
-			iTourism = pCity->GetSeaTourismBonus();
+			iTourism = pCity->GetLandTourismBonus();
 		}
 		break;
 	case HISTORIC_EVENT_TRADE_SEA:
@@ -31619,7 +31610,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 		}
 		if (pCity != NULL)
 		{
-			iTourism = pCity->GetLandTourismBonus();
+			iTourism = pCity->GetSeaTourismBonus();
 		}
 		break;
 	}
@@ -31630,7 +31621,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	int iPreviousTurnsToCount = iTourism;
 
 	// Calculate boost
-	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount / 2);
+	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount / 3);
 	iTotalBonus += GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 
 	// Mod for City Count
@@ -31650,7 +31641,36 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 
 	iTotalBonus -= iSubtraction;
 
-	iTotalBonus /= 10;
+	switch (eHistoricEvent)
+	{
+	case HISTORIC_EVENT_GP:
+		iTotalBonus /= 15;
+		break;
+	case HISTORIC_EVENT_ERA:
+		iTotalBonus /= 10;
+		break;
+	case HISTORIC_EVENT_WAR:
+		iTotalBonus /= 5;
+		break;
+	case HISTORIC_EVENT_WONDER:
+		iTotalBonus /= 5;
+		break;
+	case HISTORIC_EVENT_DIG:
+		iTotalBonus /= 10;
+		break;
+	case HISTORIC_EVENT_TRADE_CS:
+		iTotalBonus /= 5;
+		break;
+	case HISTORIC_EVENT_GA:
+		iTotalBonus /= 5;
+		break;
+	case HISTORIC_EVENT_TRADE_LAND:
+		iTotalBonus /= 15;
+		break;
+	case HISTORIC_EVENT_TRADE_SEA:
+		iTotalBonus /= 15;
+		break;
+	}
 
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -33744,6 +33764,21 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 						GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
 						GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
 #endif
+						if (GET_TEAM(getTeam()).isMinorCiv())
+						{
+							// Reset incoming units
+							for (int iLoop = 0; iLoop < MAX_PLAYERS; iLoop++)
+							{
+								PlayerTypes eLoopPlayer = (PlayerTypes)iLoop; 
+								if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isMinorCiv())
+									continue;
+
+								if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetPermanentAlly() == GetID())
+								{
+									GET_PLAYER(eLoopPlayer).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -34907,61 +34942,6 @@ void CvPlayer::changeYieldFromBirthCapital(YieldTypes eIndex, int iChange)
 		invalidateYieldRankCache(eIndex);
 
 		if(getTeam() == GC.getGame().getActiveTeam())
-		{
-			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
-		}
-	}
-}
-
-
-int CvPlayer::getYieldFromBirthRetroactive(YieldTypes eIndex) const
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiYieldFromBirthRetroactive[eIndex];
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeYieldFromBirthRetroactive(YieldTypes eIndex, int iChange)
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	if (iChange != 0)
-	{
-		m_aiYieldFromBirthRetroactive.setAt(eIndex, m_aiYieldFromBirthRetroactive[eIndex] + iChange);
-
-		invalidateYieldRankCache(eIndex);
-
-		if (getTeam() == GC.getGame().getActiveTeam())
-		{
-			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
-		}
-	}
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::getYieldFromBirthCapitalRetroactive(YieldTypes eIndex) const
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiYieldFromBirthCapitalRetroactive[eIndex];
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeYieldFromBirthCapitalRetroactive(YieldTypes eIndex, int iChange)
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	if (iChange != 0)
-	{
-		m_aiYieldFromBirthCapitalRetroactive.setAt(eIndex, m_aiYieldFromBirthCapitalRetroactive[eIndex] + iChange);
-
-		invalidateYieldRankCache(eIndex);
-
-		if (getTeam() == GC.getGame().getActiveTeam())
 		{
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
@@ -43606,9 +43586,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeFilmYieldBonus(eYield, (pPolicy->GetFilmYieldChanges(iI) * iChange));
 		changeRelicYieldBonus(eYield, (pPolicy->GetRelicYieldChanges(iI) * iChange));
 
-		changeYieldFromBirthRetroactive(eYield, (pPolicy->GetYieldFromBirthRetroactive(iI) * iChange));
-		changeYieldFromBirthCapitalRetroactive(eYield, (pPolicy->GetYieldFromBirthCapitalRetroactive(iI) * iChange));
-
 		changeYieldFromNonSpecialistCitizens(eYield, (pPolicy->GetYieldFromNonSpecialistCitizens(iI) * iChange));
 		changeYieldModifierFromGreatWorks(eYield, (pPolicy->GetYieldModifierFromGreatWorks(iI) * iChange));
 		changeYieldModifierFromActiveSpies(eYield, (pPolicy->GetYieldModifierFromActiveSpies(iI) * iChange));
@@ -43619,8 +43596,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			int iLoop;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				int iPop = pLoopCity->getPopulation();
-				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iPop, true, NO_PLAYER, NULL, false, pLoopCity);
+				int iVal = pLoopCity->getPopulation() * pPolicy->GetYieldFromBirthRetroactive(eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, pLoopCity, false, true, false, eYield);
 			}
 		}
 
@@ -43628,8 +43605,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			if (getCapitalCity() != NULL)
 			{
-				int iPop = getCapitalCity()->getPopulation();
-				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iPop, true, NO_PLAYER, NULL, false, getCapitalCity());
+				int iVal = getCapitalCity()->getPopulation() * pPolicy->GetYieldFromBirthCapitalRetroactive(eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, eYield);
 			}
 		}
 #endif
@@ -47684,10 +47661,10 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bWantOffshore && !bOffshore)
 			continue;
 
-		//take into account distance from existing cities (times 2 to convert to plots)
+		//take into account distance from existing cities
 		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
 
-		//however, if we ever have a settler very far away, don't wander around forever ... find something close to the settler
+		//however, if we ever have a settler very far away, don't wander around forever ...
 		if (pUnit && GetCityDistanceInEstimatedTurns(pUnit->plot()) * 2 > iMaxSettleDistance)
 			iRelevantDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 
@@ -47698,7 +47675,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent)
 		{
 			if (!pPlot->isCoastalLand())
-				iScale = 1;
+			iScale = 1;
 		}
 		else
 		{

@@ -874,13 +874,14 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 }
 #endif
 //------------------------------------------------------------------------------
-//bool canEnterTerritory(int /*TeamTypes*/ eTeam);
+//bool canEnterTerritory(int /*TeamTypes*/ eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false);
 int CvLuaUnit::lCanEnterTerritory(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const TeamTypes eTeam				= (TeamTypes)lua_tointeger(L, 2);
 	//this parameter is useless
 	const bool bIgnoreRightOfPassage	= luaL_optint(L, 3, 0);
+
 	//this parameter is ignored ...
 	//const bool bIsCity				= luaL_optint(L, 4, 0);
 
@@ -6173,7 +6174,7 @@ int CvLuaUnit::lGetMonopolyAttackBonus(lua_State* L)
 				// Strategic monopolies
 				if (GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
 				{
-					iAttackBonus += pInfo->getMonopolyAttackBonus();
+					iAttackBonus +=  pInfo->getMonopolyAttackBonus();
 					iAttackBonus += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
 				}
 				// Global monopolies
@@ -6210,7 +6211,7 @@ int CvLuaUnit::lGetMonopolyDefenseBonus(lua_State* L)
 				// Strategic monopolies
 				if (GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
 				{
-					iDefenseBonus += pInfo->getMonopolyDefenseBonus();
+					iDefenseBonus +=  pInfo->getMonopolyDefenseBonus();
 					iDefenseBonus += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
 				}
 				// Global monopolies

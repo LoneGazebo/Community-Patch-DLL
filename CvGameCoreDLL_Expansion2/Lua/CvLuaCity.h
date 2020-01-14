@@ -302,6 +302,7 @@ protected:
 	static int lGetTotalSlotsTooltip(lua_State* L);
 	static int lClearGreatWorks(lua_State* L);
 	static int lGetFaithBuildingTourism(lua_State* L);
+	static int lGetBuildingClassTourism(lua_State* L);
 
 	static int lIsThemingBonusPossible(lua_State* L);
 	static int lGetThemingBonus(lua_State* L);
@@ -562,6 +563,7 @@ protected:
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_EVENTS_CITY_BOMBARD)
 	LUAAPIEXTN(GetBombardRange, int); // returns iRange, bIndirectFire
+	LUAAPIEXTN(GetCityBuildingRangeStrikeModifier, int);
 #endif
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeNow(lua_State* L);

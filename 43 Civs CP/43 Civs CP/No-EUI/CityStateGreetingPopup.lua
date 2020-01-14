@@ -323,7 +323,7 @@ print(string.format("City State: Need to add a message and a quest"))
 	    if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
                 strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
             else
-                strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
+            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
             end
           end
 	else

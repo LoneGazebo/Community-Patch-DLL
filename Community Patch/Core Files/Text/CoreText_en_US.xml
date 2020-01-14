@@ -2899,6 +2899,19 @@
 			<Text>[COLOR_NEGATIVE_TEXT]They believe we are building World Wonders too aggressively!</Text>
 		</Row>
 
+		<!-- Non-Competition Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_NO_WONDER_DISPUTE">
+			<Text>[COLOR_POSITIVE_TEXT]You are not competing for World Wonders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
+			<Text>[COLOR_POSITIVE_TEXT]You are not competing for the favor of the same City-States.</Text>
+		</Row>
+		
+		<!-- Wonder Spammer Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_WONDER_SPAMMER">
+			<Text>[COLOR_NEGATIVE_TEXT]They believe we are building World Wonders too aggressively!</Text>
+		</Row>
+
 		<!-- Social Policies Diplo Mod -->
 		<Row Tag="TXT_KEY_DIPLO_SAME_POLICIES">
 			<Text>[COLOR_POSITIVE_TEXT]We have similar Social Policies.[ENDCOLOR]</Text>
@@ -6064,10 +6077,10 @@
 			<Text>Tourism and Trade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {1_Num} with all other known Civilizations (before Tourism modifiers)!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {1_Num} with all other known Civilizations (before Tourism modifiers)!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS">
@@ -6114,6 +6127,27 @@
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
 		
+		<!-- Production cost reduction from resources at city level -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">
+			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! [ICON_PRODUCTION] Production Cost reduced for:{3_Details}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_UnitCombat}[ENDCOLOR]: {2_CostModifier}%{3_EraInfo}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE">
+			<Text>(Prerequisite: {1_RequiredEra})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE">
+			<Text>(Obsoletes: {1_ObsoleteEra})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_BUILDING">
+			<Text>Buildings</Text>
+		</Row>
+
 		<!-- Production cost reduction from resources at city level -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! [ICON_PRODUCTION] Production Cost reduced for:{3_Details}</Text>

@@ -590,7 +590,7 @@
 			<Text>Skirmisher Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-      <Text>-25% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+50% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+      <Text>-20% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+40% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- New Slinger Promotion -->
@@ -691,7 +691,7 @@
 			<Text>Boarded (II)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II_HELP">
-			<Text>-3 [ICON_MOVES] Moves for 1 Turn.</Text>
+			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III">
 			<Text>Boarded (III)</Text>

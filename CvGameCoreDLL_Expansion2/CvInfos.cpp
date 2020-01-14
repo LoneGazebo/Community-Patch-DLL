@@ -3025,6 +3025,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iResistanceCap(0),
 	m_iDifficultyBonusBase(0),
 	m_iDifficultyBonusEarly(0),
 	m_iDifficultyBonusMid(0),
@@ -3357,6 +3358,11 @@ int CvHandicapInfo::getNumGoodies() const
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAIResistanceCap() const
+{
+	return m_iResistanceCap;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIDifficultyBonusBase() const
 {
 	return m_iDifficultyBonusBase;
@@ -3471,6 +3477,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
 #if defined(MOD_BALANCE_CORE)
+	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iDifficultyBonusBase = kResults.GetInt("DifficultyBonusBase");
 	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");

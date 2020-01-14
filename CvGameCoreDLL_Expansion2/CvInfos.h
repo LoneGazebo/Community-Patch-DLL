@@ -1013,6 +1013,7 @@ public:
 	int getAIFreeXPPercent() const;
 	int getNumGoodies() const;
 #if defined(MOD_BALANCE_CORE)
+	int getAIResistanceCap() const;
 	int getAIDifficultyBonusBase() const;
 	int getAIDifficultyBonusEarly() const;
 	int getAIDifficultyBonusMid() const;
@@ -1094,6 +1095,7 @@ protected:
 	int m_iAIFreeXPPercent;
 	int m_iNumGoodies;
 #if defined(MOD_BALANCE_CORE)
+	int m_iResistanceCap;
 	int m_iDifficultyBonusBase;
 	int m_iDifficultyBonusEarly;
 	int m_iDifficultyBonusMid;

@@ -325,6 +325,8 @@ for k, v, w in ([[
 	
 	NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES		BonusResource
 
+	NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES		BonusResource
+
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
 	if n then

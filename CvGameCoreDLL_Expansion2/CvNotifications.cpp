@@ -955,7 +955,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_PRODUCTION:
 	{
 		CvCity* pCity = GC.getMap().plot(notification.m_iX, notification.m_iY)->getPlotCity();//GET_PLAYER(m_ePlayer).getCity(notification.m_iGameDataIndex);
-		if(!pCity)
+		if(!pCity || (pCity->getOwner() != m_ePlayer))
 		{
 			return;
 		}
@@ -1784,7 +1784,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();//GET_PLAYER(m_ePlayer).getCity(notification.m_iGameDataIndex);
 
 		// if the city no longer exists
-		if(!pCity)
+		if(!pCity || (pCity->getOwner() != m_ePlayer))
 		{
 			return true;
 		}

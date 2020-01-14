@@ -9821,8 +9821,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 			}
 			if (pOwningCity->plot()->getImprovementType() == eFort || pOwningCity->plot()->getImprovementType() == eCitadel)
 			{
-				// Don't provide yield if tile is pillaged
-				if (pOwningCity->plot()->IsImprovementPillaged() == false)
+			// Don't provide yield if tile is pillaged
+				if (!pOwningCity->plot()->IsImprovementPillaged())
 				{
 					// If there are any Units here, meet their owners
 					for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
@@ -9831,7 +9831,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 						CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
 						if (!loopUnit)
 							continue;
-
+	
 						if (loopUnit->GetFortificationYieldChange(eYield) > 0)
 						{
 							int iUnitStrength = loopUnit->GetBaseCombatStrength();
@@ -15713,6 +15713,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this,false) + defenseModifier(eTeam, true, true);
 
 		ImprovementTypes eCurrentImprovement = getImprovementType();
+
 		if (eCurrentImprovement != NO_IMPROVEMENT)
 		{
 			if (GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() > 0)

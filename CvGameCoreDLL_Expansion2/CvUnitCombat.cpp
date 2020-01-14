@@ -2868,6 +2868,8 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	uint uiOpposingDamageCount = 0;
 	PlayerTypes eAttackerOwner = pkAttacker?pkAttacker->getOwner():NO_PLAYER;
 
+	std::vector<int> affectedPlayers;
+
 	// Do all the units first
 	for(int i = 0; i < iDamageMembers; ++i)
 	{
@@ -2894,7 +2896,13 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					pkUnit->kill(false, eAttackerOwner);
 				}
 
-				GET_PLAYER(kEntry.GetPlayer()).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+				for (uint j = 0; j < affectedPlayers.size(); j++)
+				{
+					if (affectedPlayers[j] == kEntry.GetPlayer())
+						continue;
+
+					affectedPlayers.push_back(kEntry.GetPlayer());
+				}
 			}
 		}
 	}
@@ -3011,11 +3019,26 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					// Add damage to the city
 					pkCity->setDamage(kEntry.GetFinalDamage());
 
-					GET_PLAYER(pkCity->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+					for (uint j = 0; j < affectedPlayers.size(); j++)
+					{
+						if (affectedPlayers[j] == pkCity->getOwner())
+							continue;
+
+						affectedPlayers.push_back(pkCity->getOwner());
+					}
 				}
 			}
 		}
 	}
+
+	for (uint j = 0; j < affectedPlayers.size(); j++)
+	{
+		if ((PlayerTypes)affectedPlayers[j] == NO_PLAYER)
+			continue;
+
+		GET_PLAYER((PlayerTypes)affectedPlayers[j]).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
+	}
+
 	return uiOpposingDamageCount;
 }
 

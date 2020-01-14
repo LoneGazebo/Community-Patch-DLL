@@ -71,21 +71,21 @@ WHERE Name = 'AI_GOLD_PRIORITY_MINIMUM_PLOT_BUY_VALUE';
 
 -- Warmonger Values
 UPDATE Defines
-SET Value = '175'
+SET Value = '5'
 WHERE Name = 'WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT';
 
 UPDATE Defines
-SET Value = '275'
+SET Value = '10'
 WHERE Name = 'WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT';
 
 -- 200
 UPDATE Defines
-SET Value = '160'
+SET Value = '80'
 WHERE Name = 'WARMONGER_THREAT_CRITICAL_THRESHOLD';
 
 -- 100
 UPDATE Defines
-SET Value = '80'
+SET Value = '60'
 WHERE Name = 'WARMONGER_THREAT_SEVERE_THRESHOLD';
 
 -- 50
@@ -95,7 +95,7 @@ WHERE Name = 'WARMONGER_THREAT_MAJOR_THRESHOLD';
 
 -- 20
 UPDATE Defines
-SET Value = '10'
+SET Value = '20'
 WHERE Name = 'WARMONGER_THREAT_MINOR_THRESHOLD';
 
 -- CS Buff to keep up with AI
@@ -114,6 +114,16 @@ WHERE Name = 'MINOR_CIV_GOLD_PERCENT';
 UPDATE AIEconomicStrategies
 SET NoMinorCivs = '1'
 WHERE Type = 'ECONOMICAISTRATEGY_LOSING_MONEY';
+
+-- Warmonger Percent
+UPDATE Eras Set WarmongerPercent = '60' WHERE Type = 'ERA_ANCIENT';
+UPDATE Eras Set WarmongerPercent = '70' WHERE Type = 'ERA_CLASSICAL';
+UPDATE Eras Set WarmongerPercent = '80' WHERE Type = 'ERA_MEDIEVAL';
+UPDATE Eras Set WarmongerPercent = '90' WHERE Type = 'ERA_RENAISSANCE';
+UPDATE Eras Set WarmongerPercent = '100' WHERE Type = 'ERA_INDUSTRIAL';
+UPDATE Eras Set WarmongerPercent = '110' WHERE Type = 'ERA_MODERN';
+UPDATE Eras Set WarmongerPercent = '120' WHERE Type = 'ERA_POSTMODERN';
+UPDATE Eras Set WarmongerPercent = '130' WHERE Type = 'ERA_FUTURE';
 
 -- Revolt Timer
 

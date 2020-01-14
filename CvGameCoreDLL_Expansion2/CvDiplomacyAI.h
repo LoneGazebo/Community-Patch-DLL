@@ -471,9 +471,9 @@ public:
 	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
 
-	int GetNumCitiesLiberated(PlayerTypes ePlayer);
-	void ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange);
-	void SetNumCitiesLiberated(PlayerTypes ePlayer, int iValue);
+	int GetNumCitiesLiberatedBy(PlayerTypes ePlayer);
+	void ChangeNumCitiesLiberatedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesLiberatedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetRecentTradeValue(PlayerTypes ePlayer);
 	void ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange);
@@ -664,7 +664,7 @@ public:
 	// Num Minors Attacked
 	int GetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer) const;
 	void SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iValue);
-	void ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange);
+	void ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
 
 	// Num Minors Conquered
 	int GetOtherPlayerNumMinorsConquered(PlayerTypes ePlayer) const;
@@ -1030,6 +1030,9 @@ public:
 
 	// Problems between friends
 	bool IsUntrustworthyFriend(PlayerTypes ePlayer) const;
+	void SetUntrustworthyFriend(PlayerTypes ePlayer, bool bValue);
+	void DoTestUntrustworthyFriends();
+	bool DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
 	int GetNumFriendsDenouncedBy();
 
 	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
@@ -1398,9 +1401,9 @@ public:
 	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
 
-	int GetNumCitiesCaptured(PlayerTypes ePlayer) const;
-	void ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange);
-	void SetNumCitiesCaptured(PlayerTypes ePlayer, int iValue);
+	int GetNumCitiesCapturedBy(PlayerTypes ePlayer) const;
+	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
@@ -1791,6 +1794,7 @@ private:
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
 		bool m_abDenouncedPlayer[MAX_MAJOR_CIVS];
+		bool m_abUntrustworthyFriend[MAX_MAJOR_CIVS];
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		bool m_abOfferingGift[MAX_MAJOR_CIVS];
@@ -2154,6 +2158,7 @@ private:
 	short* m_paiDoFCounter;
 
 	bool* m_pabDenouncedPlayer;
+	bool* m_pabUntrustworthyFriend;
 	bool* m_pabFriendDenouncedUs;
 	bool* m_pabFriendDeclaredWarOnUs;
 	short* m_paiDenouncedPlayerCounter;
@@ -2342,11 +2347,11 @@ private:
 namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
-	int GetWarmongerOffset(bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
-	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity);
-	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
+	int GetWarmongerOffset(CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER, PlayerTypes ePlayer = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
+	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity);
+	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
 #else
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);

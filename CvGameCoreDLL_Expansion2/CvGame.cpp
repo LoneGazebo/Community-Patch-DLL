@@ -1109,6 +1109,7 @@ void CvGame::uninit()
 	m_iNumCities = 0;
 	m_iTotalPopulation = 0;
 	m_iTotalEconomicValue = 0;
+	m_iHighestEconomicValue = 0;
 	m_iNoNukesCount = 0;
 	m_iNukesExploded = 0;
 	m_iMaxPopulation = 0;
@@ -5140,6 +5141,20 @@ void CvGame::setTotalEconomicValue(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvGame::getHighestEconomicValue() const
+{
+	return m_iHighestEconomicValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setHighestEconomicValue(int iChange)
+{
+	m_iHighestEconomicValue = iChange;
+	CvAssert(getHighestEconomicValue() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
 int CvGame::getNoNukesCount() const
 {
 	return m_iNoNukesCount;
@@ -8953,9 +8968,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 		if(!bCoastal)
 		{
-			// Must be land Unit
-			if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-				continue;
+		// Must be land Unit
+		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
+			continue;
 		}
 
 		if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
@@ -10589,6 +10604,7 @@ void CvGame::updateEconomicTotal()
 	PlayerTypes eLoopPlayer;
 
 	int iTotalEconomicValue = 0;
+	int iHighestVal = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -10598,12 +10614,17 @@ void CvGame::updateEconomicTotal()
 			{
 				if (pLoopCity != NULL)
 				{
-					iTotalEconomicValue += pLoopCity->getEconomicValue(pLoopCity->getOwner());
+					int iVal = pLoopCity->getEconomicValue(pLoopCity->getOwner());
+					if (iVal > iHighestVal)
+						iHighestVal = iVal;
+
+					iTotalEconomicValue += iVal;
 				}
 			}
 		}
 	}
 	setTotalEconomicValue(iTotalEconomicValue);
+	setHighestEconomicValue(iHighestVal);
 }
 //	--------------------------------------------------------------------------------
 void CvGame::updateGlobalAverage()
@@ -10967,6 +10988,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNumCities;
 	kStream >> m_iTotalPopulation;
 	kStream >> m_iTotalEconomicValue;
+	kStream >> m_iHighestEconomicValue;
 	kStream >> m_iNoNukesCount;
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
@@ -11235,6 +11257,7 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNumCities;
 	kStream << m_iTotalPopulation;
 	kStream << m_iTotalEconomicValue;
+	kStream << m_iHighestEconomicValue;
 	kStream << m_iNoNukesCount;
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;

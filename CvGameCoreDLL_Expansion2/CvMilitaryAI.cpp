@@ -1562,7 +1562,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 			CvMilitaryTarget newTarget;
 			if (bInvalidTarget || bWantNewTarget)
 			{
-				int iNewScore = 0;
+			int iNewScore = 0;
 				newTarget = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
 				//new target valid?
@@ -3752,11 +3752,11 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 					// roll every turn
 					bRollForNuke = true;
 				}
-				else if (eMajorCivOpinion <= MAJOR_CIV_OPINION_ENEMY)
+				else if(eMajorCivOpinion <= MAJOR_CIV_OPINION_ENEMY)
 				{
 					bRollForNuke = true;
 				}
-				else if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+				else if(m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
 				{
 					bRollForNuke = true;
 				}
@@ -6388,7 +6388,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirUnits(CvPlayer* pPlayer, int iNumA
 /// "Need A Nuke" Player Strategy: If a player has no nukes but he could
 bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 {
-	if (GC.getGame().isNoNukes())
+	if(GC.getGame().isNoNukes())
 	{
 		return false;
 	}

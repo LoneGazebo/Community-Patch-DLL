@@ -1909,12 +1909,6 @@ public:
 	int getYieldFromBirthCapital(YieldTypes eIndex) const;
 	void changeYieldFromBirthCapital(YieldTypes eIndex, int iChange);
 
-	int getYieldFromBirthRetroactive(YieldTypes eIndex) const;
-	void changeYieldFromBirthRetroactive(YieldTypes eIndex, int iChange);
-
-	int getYieldFromBirthCapitalRetroactive(YieldTypes eIndex) const;
-	void changeYieldFromBirthCapitalRetroactive(YieldTypes eIndex, int iChange);
-
 	int getYieldFromDeath(YieldTypes eIndex) const;
 	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
 
@@ -3472,8 +3466,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthRetroactive;
-	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapitalRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromPillage;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromVictory;

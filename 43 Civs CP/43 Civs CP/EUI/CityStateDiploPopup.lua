@@ -450,7 +450,7 @@ function OnDisplay()
                     			if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
                     			    strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
                     			else
-                    			    strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
+					strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
                     			end
 				  end
 			else

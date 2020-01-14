@@ -31,7 +31,7 @@
 			<Text>Epona, the Great Mare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +2 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. +5 [ICON_GOLD] Gold from Ceilidh Hall</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, capped at half the number of Followers in the City. +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +2 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. +5 [ICON_GOLD] Gold from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>

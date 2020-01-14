@@ -120,6 +120,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0;
 
 -- CBP Difficulty Bonus
+ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusA' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;

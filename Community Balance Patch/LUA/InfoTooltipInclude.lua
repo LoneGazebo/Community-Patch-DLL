@@ -527,6 +527,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 			table.insert(lines, localizedText);
 		end
+
+		iTourism = pCity:GetBuildingClassTourism(buildingClassID)
+		if iTourism ~= 0 then
+			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
+			table.insert(lines, localizedText);
+		end
 	end
 	-- CBP
 	if (pCity ~= nil) then
@@ -785,6 +791,13 @@ function GetProductionTooltip(pCity)
 		
 		iBaseProductionPT = iBaseProductionPT + iYieldPerPop;
 	end
+	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_PRODUCTION);
+	if (iYieldPerPopInEmpire ~= 0) then
+		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
+		iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
+		
+		iBaseProductionPT = iBaseProductionPT + iYieldPerPopInEmpire;
+	end
 	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
 	local strCodeToolTip = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_PRODUCTION);
 	
@@ -889,6 +902,20 @@ function GetCultureTooltip(pCity)
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			end
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POPULATION", iYieldPerPop);
+		end
+
+		-- Base Yield from Pop in Empire
+		local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_CULTURE);
+		if (iYieldPerPopInEmpire ~= 0) then
+			iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
+			iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION", iYieldPerPopInEmpire);
 		end
 
 		-- Base Yield from Misc
@@ -1167,6 +1194,14 @@ function GetFaithTooltip(pCity)
 			
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_POP", iYieldPerPop));
 		end
+		-- Base Yield from Pop in Empire
+		local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_FAITH);
+		if (iYieldPerPopInEmpire ~= 0) then
+			iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
+			iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
+			
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EMPIRE_POP", iYieldPerPopInEmpire));
+		end
 		-- Faith from Specialists
 		local iYieldFromSpecialists = pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH);
 		if (iYieldFromSpecialists ~= 0) then
@@ -1348,6 +1383,14 @@ function GetYieldTooltipHelper(pCity, iYieldType, strIcon)
 		iBaseYield = iBaseYield + iYieldPerPop;
 	end
 
+	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(iYieldType);
+	if (iYieldPerPopInEmpire ~= 0) then
+		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
+		iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
+		
+		iBaseYield = iBaseYield + iYieldPerPopInEmpire;
+	end
+
 	-- Total Yield
 	local iTotalYield;
 	
@@ -1449,6 +1492,16 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		iYieldFromPop = iYieldFromPop / 100;
 		
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_POP_EXTRA", iYieldFromPop, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+	
+	-- Base Yield from Pop in Empire
+	local iYieldPerPopInEmpire = pCity:GetYieldPerPopTimes100(iYieldType);
+	if (iYieldPerPopInEmpire ~= 0) then
+		local iYieldFromPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
+		iYieldFromPopInEmpire = iYieldFromPopInEmpire / 100;
+		
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA", iYieldFromPopInEmpire, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 	

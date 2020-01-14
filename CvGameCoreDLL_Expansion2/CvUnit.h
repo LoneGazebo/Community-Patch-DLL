@@ -1176,8 +1176,8 @@ public:
 	int getPlagueChance() const;
 	void changePlagueChance(int iChange);
 
-	int getPlaguedCount() const;
-	void changePlagued(int iChange);
+	int getPlaguePromotionID() const;
+	void setPlagued(int iChange);
 	bool isPlagued() const;
 
 	int getPlagueID() const;

@@ -686,7 +686,6 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
-
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
@@ -893,7 +892,6 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-
 			SetGP(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
@@ -918,7 +916,6 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-
 			SetGPGlobal(iBonus);
 		}
 		if(pkSmallAwardInfo->GetHappiness() > 0)
@@ -989,7 +986,6 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 
 			SetScience(iBonus);
 		}
-
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogName;
@@ -1796,6 +1792,32 @@ bool CvMinorCivQuest::IsExpired()
 	// Build a Route
 	if(m_eType == MINOR_CIV_QUEST_ROUTE)
 	{
+		CvCity* pMinorsCapital = GET_PLAYER(m_eMinor).getCapitalCity();
+		if (pMinorsCapital == NULL)
+			return true;
+		// Must have a city close to the minor in the same Area
+		const int iMaxRouteDistance = 12; //antonjs: todo: xml
+		CvPlot* pMinorsPlot = pMinorsCapital->plot();
+		if (pMinorsPlot == NULL)
+			return true;
+
+		int iLoop;
+		CvCity* pLoopCity;
+		bool bInRange = false;
+		for (pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iLoop))
+		{
+			if (bInRange)
+				break;
+
+			if (pMinorsPlot->getArea() != pLoopCity->getArea())
+				continue;
+			int iDistance = plotDistance(pMinorsPlot->getX(), pMinorsPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (iDistance < iMaxRouteDistance)
+				bInRange = true;
+		}
+
+		if (!bInRange)
+			return true;
 	}
 
 	// City-state wanted us to clear a camp
@@ -10023,31 +10045,31 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 				if (pLoopCity->getPreviousOwner() == ePlayer)
 					continue;
 
-				bool bBad = false;
-				//Check for other minors that are currently targeting this city
-				for(int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
-				{
-					PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
-
-					if(!GET_PLAYER(eMinor).isAlive())
-						continue;
-
-					if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
-						continue;
-
-					if(!GET_PLAYER(eMinor).isMinorCiv())
-						continue;
-
-					if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityX(ePlayer) == pLoopCity->getX() && GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityY(ePlayer) == pLoopCity->getY())
+					bool bBad = false;
+					//Check for other minors that are currently targeting this city
+					for(int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 					{
-						bBad = true;
-						break;
+						PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
+
+						if(!GET_PLAYER(eMinor).isAlive())
+							continue;
+
+						if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
+							continue;
+
+						if(!GET_PLAYER(eMinor).isMinorCiv())
+							continue;
+
+						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityX(ePlayer) == pLoopCity->getX() && GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityY(ePlayer) == pLoopCity->getY())
+						{
+							bBad = true;
+							break;
+						}
 					}
-				}
-				if(bBad)
-				{
-					continue;
-				}
+					if(bBad)
+					{
+						continue;
+					}
 
 				int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(pLoopCity->plot()) + m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot());
 				if(iDistance < iMinDistance)
@@ -10998,6 +11020,10 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, GetPlayer()->GetID()))
 			{
 				iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
+				if (iShift != 0 && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				{
+					iShift += kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes()-1;
+				}
 			}
 		}
 
@@ -15432,7 +15458,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
+		else if(iLastBullyTurn + 7 >= GC.getGame().getGameTurn())
 		{
 			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -75);
 			iScore += iBulliedVeryRecentlyScore;
@@ -15444,9 +15470,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if (iLastBullyTurn + 20 >= GC.getGame().getGameTurn())
+		else if (iLastBullyTurn + 17 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedRecentlyScore = (((iLastBullyTurn + 20) - (GC.getGame().getGameTurn())) * -25);
+			int iBulliedRecentlyScore = (((iLastBullyTurn + 17) - (GC.getGame().getGameTurn())) * -25);
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
 			{

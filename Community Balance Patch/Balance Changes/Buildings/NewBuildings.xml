@@ -239,7 +239,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
-			<Defense>1000</Defense>
+			<Defense>300</Defense>
 			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -299,7 +299,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>300</Defense>
 			<NeverCapture>true</NeverCapture>
-			<ExtraCityHitPoints>25</ExtraCityHitPoints>
+			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -420,7 +420,7 @@
 			<Strategy>TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY</Strategy>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<Defense>1500</Defense>
+			<Defense>500</Defense>
 			<FreeGreatWork>GREAT_WORK_THE_CROWN_JEWELS</FreeGreatWork>
 			<GreatWorkCount>1</GreatWorkCount>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
@@ -472,7 +472,7 @@
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
-			<Defense>1000</Defense>
+			<Defense>200</Defense>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>2</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
@@ -598,8 +598,8 @@
 			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<ConversionModifier>15</ConversionModifier>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
-			<Defense>1800</Defense>
-			<ExtraCityHitPoints>125</ExtraCityHitPoints>
+			<Defense>1200</Defense>
+			<ExtraCityHitPoints>100</ExtraCityHitPoints>
 			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
@@ -714,7 +714,7 @@
 			<CitySupplyModifier>25</CitySupplyModifier>
 			<CitySupplyFlat>5</CitySupplyFlat>
 			<MinAreaSize>-1</MinAreaSize>
-			<Defense>600</Defense>
+			<Defense>400</Defense>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<FreePromotion>PROMOTION_ARSENALE</FreePromotion>
 			<NationalPopRequired>15</NationalPopRequired>
@@ -937,8 +937,8 @@
 			<MinAreaSize>10</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<Water>true</Water>
-			<Defense>1500</Defense>
-			<ExtraCityHitPoints>300</ExtraCityHitPoints>
+			<Defense>500</Defense>
+			<ExtraCityHitPoints>100</ExtraCityHitPoints>
 			<BorderObstacleWater>1</BorderObstacleWater>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

@@ -1708,16 +1708,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//slight bump in value for ranged units, to counteract some other elements.
 			if (pkUnitEntry->GetRangedCombat() > 0)
 			{
-				iBonus += (pkUnitEntry->GetRangedCombat() / 2);
+				iBonus += pkUnitEntry->GetRangedCombat();
 			}
 
 			if (kPlayer.GetDiversity(eDomain) == (int)pkUnitEntry->GetDefaultUnitAIType())
 			{
 				//special case for paradroppers, we don't want too many
 				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_PARADROP)
-					iBonus += 50;
+					iBonus += 25;
 				else
-					iBonus += 100;
+					iBonus += 250;
 			}
 
 			if (eDomain == DOMAIN_LAND)

@@ -274,10 +274,10 @@ local g_cityToolTips = {
 
 				if bnw_mode and g_activeTeam:IsAtWar(cityTeamID) then
 					tipText = tipText .. "[NEWLINE]----------------[NEWLINE]"
-							.. cityOwner:GetWarmongerPreviewString(city:GetOwner(), city, city:IsCapital(), Game.GetActivePlayer())
+							.. cityOwner:GetWarmongerPreviewString(city:GetOwner(), city, Game.GetActivePlayer())
 					if city:GetOriginalOwner() ~= city:GetOwner() then
 						tipText = tipText .. "[NEWLINE]----------------[NEWLINE]"
-								.. cityOwner:GetLiberationPreviewString(city:GetOriginalOwner(), city, city:IsCapital(), Game.GetActivePlayer())
+								.. cityOwner:GetLiberationPreviewString(city:GetOriginalOwner(), city, Game.GetActivePlayer())
 					end
 				elseif Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_WAR ) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_ALWAYS_AT_WAR_WITH_CITY")

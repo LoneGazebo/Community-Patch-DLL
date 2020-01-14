@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1036,7 +1036,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
 					}
-
+#if defined(MOD_BALANCE_CORE)
+					m_aiNumSpyActionsDone[eCityOwner]++;
+#endif
 					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 				}
 				else
@@ -1448,6 +1450,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 							pNotifications->Add(NOTIFICATION_SPY_PROMOTION, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, 0);
 						}
+#if defined(MOD_BALANCE_CORE)
+						m_aiNumSpyActionsDone[eCityOwner]++;
+#endif
 						m_pPlayer->GetEspionageAI()->StealGreatWork();
 					}
 					else
@@ -5012,15 +5017,15 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		aiNewInfluenceValueTimes100[m_pPlayer->GetID()] = iInfluenceTemp;
 
 		// reduce the influence of all the other players
-		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
-			if (ui == m_pPlayer->GetID())
+			if(ui == m_pPlayer->GetID())
 			{
 				continue;
 			}
 
 			// only drop the influence if they have positive influence
-			if (aiNewInfluenceValueTimes100[ui] > 0)
+			if(aiNewInfluenceValueTimes100[ui] > 0)
 			{
 				int iNewInfluence = aiNewInfluenceValueTimes100[ui] - (GC.getESPIONAGE_COUP_OTHER_PLAYERS_INFLUENCE_DROP() * 100);
 				iNewInfluence = max(iNewInfluence, 0);
@@ -5436,8 +5441,8 @@ void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 
 		// add to list!
 		m_aaPlayerStealableTechList[ePlayer].push_back(eTech);
+		}
 	}
-}
 
 /// IsTechStealable - Check to see if you can steal this tech from an opponent
 bool CvPlayerEspionage::IsTechStealable(PlayerTypes ePlayer, TechTypes eTech)

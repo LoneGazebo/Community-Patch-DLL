@@ -171,7 +171,7 @@ void CvDistanceMapByTurns::Update()
 			majorPlayers[i].Reset(nPlots, iVeryFar);
 
 		int iCityIndex = 0;
-		for (CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
+		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
 			//do not set a player - that way we can traverse unrevealed plots and foreign territory
 			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
@@ -257,5 +257,6 @@ void CvDistanceMap::Dump(const char* filename)
 		}
 	}
 	out.close();
+
 }
 

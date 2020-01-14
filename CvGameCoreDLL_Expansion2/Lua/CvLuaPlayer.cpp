@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -4814,7 +4814,7 @@ int CvLuaPlayer::lGetTradeRouteTurns(lua_State* L)
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
 	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
 
-	int iTurns = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, NULL);
+	int iTurns = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, NULL)-1;
 	lua_pushinteger(L, iTurns);
 	return 1;
 }
@@ -12549,9 +12549,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
 	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = 0;
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
 		
 		switch (iVisibleApproach)
 		{
@@ -12609,7 +12609,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			
-			if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			if (iValue >= /*20*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
 			}
@@ -12617,7 +12617,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
 			}
-			else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+			else if (iValue <= /*-20*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
 			}
@@ -12631,7 +12631,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
+// Hide some modifiers if FRIENDLY (or pretending to be) unless Transparent Diplomacy is enabled
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || (MOD_DIPLOMACY_CIV4_FEATURES && GC.getGame().isOption(GAMEOPTION_ADVANCED_DIPLOMACY)) || pDiploAI->IsAlwaysShowTrueApproaches())
 #else
 	if (iVisibleApproach != MAJOR_CIV_APPROACH_FRIENDLY || pDiploAI->IsAlwaysShowTrueApproaches())
@@ -12789,7 +12789,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 			}
-			
+
 #if defined(MOD_BALANCE_CORE)
 			// Aztecs have a special message.
 			if (pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
@@ -12800,21 +12800,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			else
 			{
 #endif
-				if (pDiploAI->GetWarmongerHate() >= 7)
-				{
-					str += " ";
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
-				}
-				else if (pDiploAI->GetWarmongerHate() >= 5)
-				{
-					str += " ";
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
-				}
-				else 
-				{
-					str += " ";
-					str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
-				}
+			if (pDiploAI->GetWarmongerHate() >= 7)
+			{
+				str += " ";
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_HIGH").toUTF8();
+			}
+			else if (pDiploAI->GetWarmongerHate() >= 5)
+			{
+				str += " ";
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MID").toUTF8();
+			}
+			else 
+			{
+				str += " ";
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_LOW").toUTF8();
+			}
 #if defined(MOD_BALANCE_CORE)
 			}
 #endif
@@ -12823,14 +12823,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			aOpinions.push_back(kOpinion);
 		}
-			iValue = pDiploAI->GetSameMasterScore(eWithPlayer);
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = iValue;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
-				aOpinions.push_back(kOpinion);
-			}
 	}
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_DEALS)
@@ -12878,7 +12870,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
-
+		
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)	
 		// Timer to avoid backstabbing penalties
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -13103,7 +13095,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 		else
 		{
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND");
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TRADE_DEMAND");
 		}
 		
 		aOpinions.push_back(kOpinion);
@@ -13144,7 +13136,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ADOPTING_HIS_RELIGION");
 		aOpinions.push_back(kOpinion);
 	}
-
+	
 #if defined(MOD_BALANCE_CORE)
 	iValue = pDiploAI->GetDifferentMajorityReligionScore(eWithPlayer);
 	if (iValue != 0)
@@ -13228,7 +13220,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 #endif
-
+	
 	iValue = pDiploAI->GetTimesIntrigueSharedScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13729,7 +13721,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RECKLESS_EXPANDER");
 		aOpinions.push_back(kOpinion);
 	}
-	
+
 	iValue = pDiploAI->GetWonderSpammerScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -13862,7 +13854,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	*/
 
 	// World Congress >>> United Nations
-	if (GC.getGame().IsUnitedNationsActive())
+	if(GC.getGame().IsUnitedNationsActive())
 	{
 		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
 		if (iValue != 0)
@@ -14071,16 +14063,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 #else
 			if (pDiploAI->IsAlwaysShowTrueApproaches())
-			{
-				CvString strTemp;
-				// Reverse the value of the opinion so as to not confuse players
-				strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
+		{
+			CvString strTemp;
+			// Reverse the value of the opinion so as to not confuse players
+			strTemp.Format(" (%d)", -(aOpinions[ui].m_iValue));
 
-				strOutput += strTemp;
-			}
+			strOutput += strTemp;
+		}
 #endif
 		}
-		
+
 		strOutput += strEndColor;
 
 		lua_pushstring(L, strOutput.c_str());
@@ -14912,15 +14904,13 @@ int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	if(pkCity)
 	{
-		const bool bIsCapital = luaL_optbool(L, 4, false);
 		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
-		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital, pkCity, eToPlayer));
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, pkCity, eToPlayer));
 	}
 	else
 	{
-		const bool bIsCapital = luaL_optbool(L, 4, false);
 		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
-		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital, NULL, eToPlayer));
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, NULL, eToPlayer));
 	}
 #else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner));
@@ -14935,15 +14925,13 @@ int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
 	if(pkCity)
 	{
-		const bool bIsCapital = luaL_optbool(L, 4, false);
 		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
-		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital, pkCity, eToPlayer));
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, pkCity, eToPlayer));
 	}
 	else
 	{
-		const bool bIsCapital = luaL_optbool(L, 4, false);
 		const PlayerTypes eToPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
-		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital, NULL, eToPlayer));
+		lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, NULL, eToPlayer));
 	}
 #else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));

@@ -5776,7 +5776,7 @@ CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutio
 
 	if (bIncludePrefix)
 	{
-		s += sPrefix;
+		s = sPrefix + s;
 	}
 	s += Localization::Lookup(pInfo->GetDescriptionKey()).toUTF8();
 	s += sSuffix;
@@ -12029,7 +12029,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTempScore = -50;
 		if (iNumWonders > 0)
 		{
-			int iFactor = bSeekingCultureVictory ? 20 : 15;
+			int iFactor = bSeekingCultureVictory ? 5 : 2;
 			iTempScore += iNumWonders * iFactor;
 		}
 		iScore += iTempScore;

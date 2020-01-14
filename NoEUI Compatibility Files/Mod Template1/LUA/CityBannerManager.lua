@@ -219,10 +219,10 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		
 		if (Teams[Game.GetActiveTeam()]:IsAtWar(player:GetTeam())) then
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]"
-			strToolTip = strToolTip .. player:GetWarmongerPreviewString(city:GetOwner(), city, city:IsCapital(), Game.GetActivePlayer());
+			strToolTip = strToolTip .. player:GetWarmongerPreviewString(city:GetOwner(), city, Game.GetActivePlayer());
 			if (city:GetOriginalOwner() ~= city:GetOwner()) then
 				strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]"
-				strToolTip = strToolTip .. player:GetLiberationPreviewString(city:GetOwner(), city, city:IsCapital(), Game.GetActivePlayer());
+				strToolTip = strToolTip .. player:GetLiberationPreviewString(city:GetOwner(), city, Game.GetActivePlayer());
 			end
 		end
 		

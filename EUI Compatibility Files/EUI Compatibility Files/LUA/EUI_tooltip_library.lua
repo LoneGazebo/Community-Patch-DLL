@@ -1005,6 +1005,12 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				tip = S(" %+i[ICON_TOURISM]", city:GetFaithBuildingTourism() )
 			end
 		end
+		if city then
+			local faithtourism = city:GetBuildingClassTourism(buildingClassID)
+			if faithtourism ~= 0 then
+				tip = S(" %+i[ICON_TOURISM]", faithtourism )
+			end
+		end
 -- END
 		if enhancedYieldTechName and (building.TechEnhancedTourism or 0) ~= 0 then
 			tip = S("%s %s %+i[ICON_TOURISM]", tip, enhancedYieldTechName, building.TechEnhancedTourism )
@@ -1857,7 +1863,7 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	-- Base Yield from Specialists
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS", city:GetBaseYieldRateFromSpecialists( yieldID ), yieldIconString )
 
-	-- Base Yield from Misc
+	-- Base Yield from Misc-
 	tips:insertLocalizedBulletIfNonZero( yieldID == YieldTypes.YIELD_SCIENCE and "TXT_KEY_YIELD_FROM_POP" or "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc( yieldID ), yieldIconString )
 
 	-- Base Yield from Population

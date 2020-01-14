@@ -1085,7 +1085,6 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
-
 #if defined(MOD_BALANCE_CORE)
 	UpdateTradePlots();
 #endif
@@ -1467,7 +1466,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				}
 
 				// Recall trade units
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing())
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -2512,8 +2511,8 @@ void CvPlayerTrade::MoveUnits (void)
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_LAND, pOriginCity);
 										if (iTourism > 0)
 										{
-											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism / 2, true, true);
-											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism / 2);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsOtherCivWithModifiers(pDestCity->getOwner(), iTourism / 3);
 
 											// Show tourism spread
 											if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
@@ -2549,6 +2548,7 @@ void CvPlayerTrade::MoveUnits (void)
 													strMessage << pOriginCity->getNameKey();
 													strMessage << pDestCity->getNameKey();
 													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+													strMessage << (iTourism / 4);
 													if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(pDestCity->getOwner()).isHuman())
 													{
 														strMessage << GET_PLAYER(pDestCity->getOwner()).getNickName();
@@ -2568,8 +2568,8 @@ void CvPlayerTrade::MoveUnits (void)
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_SEA, pOriginCity);
 										if (iTourism > 0)
 										{
-											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism/2, true, true);
-											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism/2);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsOtherCivWithModifiers(pDestCity->getOwner(), iTourism / 3);
 
 											// Show tourism spread
 											if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
@@ -2605,6 +2605,7 @@ void CvPlayerTrade::MoveUnits (void)
 													strMessage << pOriginCity->getNameKey();
 													strMessage << pDestCity->getNameKey();
 													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+													strMessage << (iTourism / 4);
 													strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
 													pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
 												}

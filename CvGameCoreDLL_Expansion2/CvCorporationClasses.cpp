@@ -1271,7 +1271,7 @@ CvString CvPlayerCorporations::GetTradeRouteBenefit()
 	if (pkCorporationInfo == NULL)
 		return "";
 
-	return GetLocalizedText(pkCorporationInfo->GetOfficeBenefitHelper());
+	return GetCurrentOfficeBenefit();
 }
 
 // Wrapper function to quickly get the CorporationEntry of a player's corporation

@@ -1483,7 +1483,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraWithdrawal = 0;
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = 0;
-	m_iIsPlagued = 0;
+	m_iIsPlagued = -1;
 	m_iPlagueID = 0;
 	m_iPlaguePriority = 0;
 	m_iPlagueIDImmunity = -1;
@@ -4659,6 +4659,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	}
 
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
+
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
@@ -4673,11 +4674,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	}
 
 	if(isEnemy(eTeam))
-	{
-		return true;
-	}
-
-	if(isRivalTerritory())
 	{
 		return true;
 	}
@@ -15698,7 +15694,7 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	int iDamageValueToUse = (iAssumedDamage > 0) ? iAssumedDamage : getDamage();
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
-	if (bForDefenseAgainstRanged && !MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
+	if (bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
 		return iRtnValue;
 
 	// How much does damage weaken the effectiveness of the Unit?
@@ -20630,7 +20626,7 @@ bool CvUnit::onMap() const
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 CvCity* CvUnit::getOriginCity() const
-{ 
+{
 	VALIDATE_OBJECT
 	if(getOwner() == NO_PLAYER)
 		return NULL;
@@ -22299,17 +22295,16 @@ void CvUnit::changePlagueChance(int iChange)
 bool CvUnit::isPlagued() const
 {
 	VALIDATE_OBJECT
-	return getPlaguedCount() > 0;
+	return getPlaguePromotion() != -1;
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::changePlagued(int iChange)
+void CvUnit::setPlagued(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iIsPlagued = (m_iIsPlagued + iChange);
-	CvAssert(getPlaguedCount() >= 0);
+	m_iIsPlagued = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getPlaguedCount() const
+int CvUnit::getPlaguePromotionID() const
 {
 	VALIDATE_OBJECT
 		return m_iIsPlagued;
@@ -23260,7 +23255,6 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 	}
 	return iHeal;
 }
-
 int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -23296,7 +23290,6 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 
 	return 0;
 }
-
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -24762,15 +24755,15 @@ int CvUnit::getMadeInterceptionCount() const
 
 //	--------------------------------------------------------------------------------
 void CvUnit::increaseInterceptionCount()
-{
-	m_iMadeInterceptionCount++;
-	m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
-}
+	{
+		m_iMadeInterceptionCount++;
+		m_bMovedThisTurn = true; //failsafe: intercepting means no more healing, no matter what happens with the moves
+	}
 
 void CvUnit::resetInterceptionCount()
-{
-	m_iMadeInterceptionCount = 0;
-}
+	{
+		m_iMadeInterceptionCount = 0;
+	}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isPromotionReady() const
@@ -24778,6 +24771,7 @@ bool CvUnit::isPromotionReady() const
 	VALIDATE_OBJECT
 	return m_bPromotionReady;
 }
+
 
 //	--------------------------------------------------------------------------------
 void CvUnit::setPromotionReady(bool bNewValue)
@@ -26921,7 +26915,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraWithdrawal(thisPromotion.GetExtraWithdrawal() * iChange);
 #if defined(MOD_BALANCE_CORE_JFD)
 		changePlagueChance(thisPromotion.GetPlagueChance() * iChange);
-		changePlagued((thisPromotion.IsPlague()) ? iChange: 0);
 		if (thisPromotion.GetPlagueIDImmunity() > 0)
 		{
 			setPlagueIDImmunity(iChange > 0 ? thisPromotion.GetPlagueIDImmunity() : -1);
@@ -30012,19 +30005,24 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 			if (pkPlaguePromotionInfo->GetPlaguePriority() <= defender.getPlaguePriority())
 				return;
 
-			PromotionTypes eCurrentPlague = (PromotionTypes)defender.getPlaguePromotion();			
+			//what are we plagued with?
+			PromotionTypes eCurrentPlague = (PromotionTypes)defender.getPlaguePromotionID();
 
 			//remove the weaker one.
 			if (eCurrentPlague != NO_PROMOTION)
 			{
 				defender.setHasPromotion(eCurrentPlague, false);
-				defender.restoreFullMoves();
 			}
 		}
 
 		defender.setHasPromotion(ePlague, true);
-		defender.restoreFullMoves();
+		if (defender.getMoves() > defender.maxMoves())
+		{
+			defender.setMoves(defender.maxMoves());
+		}
 
+
+		defender.setPlagued((int)ePlague);
 		defender.setPlagueID(pkPlaguePromotionInfo->GetPlagueID());
 		defender.setPlaguePriority(pkPlaguePromotionInfo->GetPlaguePriority());
 
