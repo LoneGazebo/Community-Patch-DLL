@@ -47684,10 +47684,10 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bWantOffshore && !bOffshore)
 			continue;
 
-		//take into account distance from existing cities
+		//take into account distance from existing cities (times 2 to convert to plots)
 		int iRelevantDistance = GetCityDistanceInEstimatedTurns(pPlot)*2;
 
-		//however, if we ever have a settler very far away, don't wander around forever ...
+		//however, if we ever have a settler very far away, don't wander around forever ... find something close to the settler
 		if (pUnit && GetCityDistanceInEstimatedTurns(pUnit->plot()) * 2 > iMaxSettleDistance)
 			iRelevantDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 
@@ -47746,7 +47746,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			iValue = pPlot->getFoundValue(eOwner);
 		}
 
-		if (iValue==0)
+		if (iValue<=0)
 			continue;
 
 		//factor in the distance
