@@ -4649,11 +4649,11 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) const
+bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 {
 	VALIDATE_OBJECT
 
-	if(eTeam == NO_TEAM || bIgnoreRightOfPassage)
+	if(eTeam == NO_TEAM)
 	{
 		return true;
 	}
@@ -4663,6 +4663,11 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
 	if(kMyTeam.isFriendlyTerritory(eTeam))
+	{
+		return true;
+	}
+
+	if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
 	{
 		return true;
 	}
@@ -4708,11 +4713,15 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 				if (isHuman())
 					return true;
 
+				// Allow AI players to pass through minors' territory
+				if (!bEndTurn)
+					return true;
+
 				// Is this an excluded unit that doesn't cause anger?
 				if (IsAngerFreeUnit())
 					return true;
 
-				// If already intruding on this minor, okay to do it some more
+				// If already intruding on this minor, okay to do it some more (so we can leave!)
 				if (pMinorAI->IsMajorIntruding(getOwner()))
 					return true;
 
@@ -4909,7 +4918,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		{
 			if(!GET_TEAM(eRevealedTeam).isMinorCiv() || plot.isCity())
 			{
-				if(!canEnterTerritory(eRevealedTeam, false /*bIgnoreRightOfPassage*/))
+				if(!canEnterTerritory(eRevealedTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
@@ -5357,7 +5366,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 		ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
-		if(!canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
+		bool bCanEnterTerritory = (iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_DESTINATION);
+		if (!bCanEnterTerritory)
 		{
 			CvAssert(ePlotTeam != NO_TEAM);
 
@@ -5460,15 +5470,6 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeR
 		GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(),
 		iRandomSeed,
 		iModifier ) / 100;
-}
-
-//	--------------------------------------------------------------------------------
-void CvUnit::fightInterceptor(const CvPlot& pPlot)
-{
-	VALIDATE_OBJECT
-	CvAssert(getCombatTimer() == 0);
-
-	setAttackPlot(&pPlot, true);
 }
 
 //	--------------------------------------------------------------------------------
@@ -23427,6 +23428,28 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 		}
 	}
 	return iHP;
+}
+
+//a medic also affects itself!
+bool CvUnit::IsNearMedic(CvPlot* pAtPlot) const
+{
+	if (pAtPlot == NULL)
+		pAtPlot = plot();
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), pAtPlot->getX(), pAtPlot->getY()) > 1)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getAdjacentTileHeal() != 0)
+			return true;
+	}
+
+	return false;
 }
 #endif
 //	--------------------------------------------------------------------------------

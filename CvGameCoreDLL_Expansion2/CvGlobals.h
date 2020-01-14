@@ -9350,7 +9350,6 @@ protected:
 	bool m_bPostTurnAutosaves;
 	bool m_bOverwriteLogs;
 	bool m_bOutOfSyncDebuggingEnabled;
-	CvPoint3  m_pt3CameraDir;
 	int m_iNewPlayers;
 
 	bool m_bZoomOut;

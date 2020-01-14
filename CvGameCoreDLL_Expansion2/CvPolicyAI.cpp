@@ -116,36 +116,32 @@ void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropaga
 	if (iWeight==0)
 		return;
 
-	int iPolicy;
-	CvPolicyEntry* entry;
-	int* paiTempWeights;
-
 	CvPolicyXMLEntries* pkPolicyEntries = m_pCurrentPolicies->GetPolicies();
 	// Create a temporary array of weights
-	paiTempWeights = (int*)_alloca(sizeof(int*) * pkPolicyEntries->GetNumPolicies());
+	vector<int> vTempWeights(pkPolicyEntries->GetNumPolicies(),0);
 
 	// Loop through all our policies
-	for(iPolicy = 0; iPolicy < pkPolicyEntries->GetNumPolicies(); iPolicy++)
+	for(int iPolicy = 0; iPolicy < pkPolicyEntries->GetNumPolicies(); iPolicy++)
 	{
-		entry = pkPolicyEntries->GetPolicyEntry(iPolicy);
+		CvPolicyEntry* entry = pkPolicyEntries->GetPolicyEntry(iPolicy);
 
 		// Set its weight by looking at policy's weight for this flavor and using iWeight multiplier passed in
 		if(entry)
-			paiTempWeights[iPolicy] = entry->GetFlavorValue(eFlavor) * iWeight;
+			vTempWeights[iPolicy] = entry->GetFlavorValue(eFlavor) * iWeight;
 		else
-			paiTempWeights[iPolicy] = 0;
+			vTempWeights[iPolicy] = 0;
 	}
 
 	// Propagate these values left in the tree so prereqs get bought
 	if(iPropagationPercent > 0)
 	{
-		WeightPrereqs(paiTempWeights, iPropagationPercent);
+		WeightPrereqs(vTempWeights, iPropagationPercent);
 	}
 
 	// Add these weights over previous ones
-	for(iPolicy = 0; iPolicy < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicy++)
+	for(int iPolicy = 0; iPolicy < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicy++)
 	{
-		m_PolicyAIWeights.IncreaseWeight(iPolicy, paiTempWeights[iPolicy]);
+		m_PolicyAIWeights.IncreaseWeight(iPolicy, vTempWeights[iPolicy]);
 	}
 }
 
@@ -1020,17 +1016,15 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 // PRIVATE METHODS
 //=====================================
 /// Add weights to policies that are prereqs for the ones already weighted in this strategy
-void CvPolicyAI::WeightPrereqs(int* paiTempWeights, int iPropagationPercent)
+void CvPolicyAI::WeightPrereqs(const vector<int>& vTempWeights, int iPropagationPercent)
 {
-	int iPolicyLoop;
-
 	// Loop through policies looking for ones that are just getting some new weight
-	for(iPolicyLoop = 0; iPolicyLoop < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
+	for(int iPolicyLoop = 0; iPolicyLoop < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
 	{
 		// If found one, call our recursive routine to weight everything to the left in the tree
-		if(paiTempWeights[iPolicyLoop] > 0)
+		if(vTempWeights[iPolicyLoop] > 0)
 		{
-			PropagateWeights(iPolicyLoop, paiTempWeights[iPolicyLoop], iPropagationPercent, 0);
+			PropagateWeights(iPolicyLoop, vTempWeights[iPolicyLoop], iPropagationPercent, 0);
 		}
 	}
 }

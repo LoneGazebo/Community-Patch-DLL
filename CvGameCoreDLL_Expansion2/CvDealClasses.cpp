@@ -626,9 +626,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
 				return false;
 
+			//do not trade away our closest city in the same deal!
+			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCity->plot());
+			if (pClosestCity != NULL && IsCityInDeal(pClosestCity->getOwner(), pClosestCity->GetID()))
+				return false;
+
 			// Can't trade a city to a human in an OCC game
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;
+
 #if defined(MOD_BALANCE_CORE)
 			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
@@ -1570,9 +1576,7 @@ int CvDeal::GetNumCities(PlayerTypes ePlayer)
 		return 0;
 
 	int iNumCities = 0;
-	TradedItemList::iterator it;
-	// remove any that are in this deal
-	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	for(TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_CITIES && it->m_eFromPlayer == ePlayer)
 		{
@@ -1586,9 +1590,7 @@ bool CvDeal::IsCityInDeal(PlayerTypes ePlayer, int iCityID)
 	if (ePlayer == NO_PLAYER)
 		return 0;
 
-	TradedItemList::iterator it;
-	// remove any that are in this deal
-	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if (it->m_eItemType == TRADE_ITEM_CITIES && it->m_eFromPlayer == ePlayer)
 		{

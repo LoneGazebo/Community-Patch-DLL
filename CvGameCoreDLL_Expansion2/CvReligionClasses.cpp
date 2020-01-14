@@ -16,6 +16,8 @@
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
 #include "cvStopWatch.h"
+#include "CvTacticalAI.h"
+#include "CvTacticalAnalysisMap.h"
 
 #include "LintFree.h"
  
@@ -554,10 +556,9 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	iEraScaler *= GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
 	iEraScaler /= 100;
 
-	iMaxDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE() + iEraScaler;
-
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(pFromCity->getOwner());
+
 #if defined(MOD_BALANCE_CORE)
 	//Boost from policy of other player?
 	if (GET_PLAYER(pToCity->getOwner()).GetReligionDistance() != 0)
@@ -590,6 +591,8 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 		}
 	}
 #endif
+
+	iMaxDistance = (GC.getRELIGION_ADJACENT_CITY_DISTANCE() + iEraScaler)*SPath::getNormalizedDistanceBase();
 	if (iDistanceMod > 0)
 	{
 		iMaxDistance *= (100 + iDistanceMod);
@@ -616,7 +619,7 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 
-	bool bWithinDistance = (iApparentDistance <= iMaxDistance*SPath::getNormalizedDistanceBase());
+	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
 	return bWithinDistance;
 }
 

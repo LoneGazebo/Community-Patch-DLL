@@ -239,6 +239,9 @@ public:
 
 	int GetLastThemUpdate() const;
 	void SetLastThemUpdate(int iValue);
+
+	void SetBoredomCache(int iValue);
+	int GetBoredomCache() const;
 #endif
 	int GetLastTurnLifetimeCulture() const;
 	void SetLastTurnLifetimeCulture(int iValue);
@@ -327,6 +330,8 @@ public:
 	int m_iRawWarWeariness; //without modifier
 	int m_iLastUpdate;
 	int m_iLastThemUpdate;
+	int m_iBoredomCache;
+	int m_iBoredomCacheTurn;
 #endif
 	CvString m_strOpinionTooltip;
 	CvString m_strOpinionUnhappinessTooltip;

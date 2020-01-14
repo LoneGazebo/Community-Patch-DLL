@@ -795,7 +795,7 @@ void CvPlot::verifyUnitValidPlot()
 							
 							if (pLoopUnit != NULL)
 							{
-								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/)))
+								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam())))
 								{
 									if (!pLoopUnit->jumpToNearestValidPlot())
 										pLoopUnit->kill(true);
@@ -3440,8 +3440,8 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 
 bool CvPlot::isRevealedFortification(TeamTypes eTeam) const
 {
-	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
 	if ((eFort != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eFort) ||
 		(eCitadel != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eCitadel))
@@ -4345,9 +4345,9 @@ bool CvPlot::MeleeAttackerAdvances() const
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
 		// If the attacker is in a city, fort or citadel, don't advance
-		static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-		static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-		static ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+		static const  ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+		static const  ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+		static const  ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
 		if (isCity() ||
 			(getImprovementType() == eImprovementFort && !IsImprovementPillaged()) ||
@@ -9655,12 +9655,12 @@ void CvPlot::changeYield(YieldTypes eYield, int iChange)
 
 int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature, bool bDisplay) const
 {
-	ResourceTypes eResource;
-	int iYield;
+	int iYield = 0;
 	TeamTypes eTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
-	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+	//performance critical ...
+	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
@@ -9724,7 +9724,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 
 	if(eTeam != NO_TEAM)
 	{
-		eResource = getResourceType(eTeam);
+		ResourceTypes eResource = getResourceType(eTeam);
 
 		if(eResource != NO_RESOURCE)
 		{
@@ -15569,8 +15569,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 	if(eTeam == NO_TEAM)
 		return 0;
 
-	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
 	bool bNoAdjacent = GC.getImprovementInfo(eFort)->IsNoTwoAdjacent();
 	

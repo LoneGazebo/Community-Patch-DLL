@@ -800,7 +800,7 @@ end
 -------------------------------------------------
 -- City banner mouseover
 -------------------------------------------------
-local function OnBannerMouseExit()
+local function OnBannerMouseExit( ... ) -- UndeadDevel: using variadic form to pass in plot index
 	if not UI.IsCityScreenUp() then
 
 		ClearHexHighlights()
@@ -817,6 +817,12 @@ local function OnBannerMouseExit()
 		else
 			Events_RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
 		end
+        	-- UndeadDevel: making sure that info is reset to ensure player never sees historic and thus possibly incorrect info
+        	local instance = g_cityBanners[ (...) ]
+        	if (instance and instance.CityStrengthContainer) then
+        	    instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
+        	    instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
+        	end
 	end
 end
 
@@ -1152,6 +1158,14 @@ local function RefreshCityBannersNow()
 						local free = pledge and cityOwner:CanMajorWithdrawProtection( g_activePlayerID )
 						instance.Pledge1:SetHide( not pledge or free )
 						instance.Pledge2:SetHide( not free )
+                        			-- UndeadDevel: include tributing information on City Strength element
+                        			local ttText = ""
+                        			if cityOwner.GetMajorBullyGoldDetails then
+                        			    ttText = "[NEWLINE][COLOR_GREY]====================[ENDCOLOR][NEWLINE]" .. cityOwner:GetMajorBullyGoldDetails( g_activePlayerID )
+                        			end
+                        			instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
+                        			instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
+                        			-- UndeadDevel end
 					end
 					-- Update Allies
 					allyID = cityOwner:GetAlly()

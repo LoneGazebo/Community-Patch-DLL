@@ -930,7 +930,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
-	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
+	kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam,false);
+	kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam,true);
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
 	kToNodeCacheData.plotMovementCostMultiplier = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit,pPlot);
@@ -1048,7 +1049,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 			if(!pUnit->canEnterTerrain(*pToPlot))
 				return FALSE;
 
-			if(!pUnit->canEnterTerritory(pToPlot->getTeam(),finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE)))
+			if(!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) && !pUnit->canEnterTerritory(pToPlot->getTeam(),true))
 				return FALSE;
 		}
 
@@ -1387,7 +1388,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		if (kFromNodeCacheData.bIsRevealedToTeam)
 		{
 			// most importantly, we need to be able to end the turn there
-			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritory)
+			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritoryPermanent)
 				return FALSE;
 
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
@@ -1416,7 +1417,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		//some quick checks first (redundant with canMoveInto but faster)
 		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
-		if(!kToNodeCacheData.bCanEnterTerritory)
+		if(!kToNodeCacheData.bCanEnterTerritoryIntermediate)
 			return FALSE;
 		if(kToNodeCacheData.bIsVisibleNeutralCombatUnit && kToNodeCacheData.bIsVisibleEnemyUnit)
 			return FALSE;
@@ -1433,7 +1434,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		// if we can enter, there's another check in PathCost once we know whether we need to stay here
 		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
-		if(!kToNodeCacheData.bCanEnterTerritory)
+		if(!kToNodeCacheData.bCanEnterTerritoryIntermediate)
 			return FALSE;
 
 		//do not use DestinationReached() here, approximate destination won't do (also we don't use MOVEFLAG_DESTINATION in pathfinder)
@@ -2240,14 +2241,17 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 {
 	if (!temp)
 		return false;
-	if (temp->m_kCostCacheData.bIsRevealedToTeam && !temp->m_kCostCacheData.bCanEnterTerrainPermanent)
+
+	if (temp->m_kCostCacheData.bIsRevealedToTeam)
+		if (!temp->m_kCostCacheData.bCanEnterTerrainPermanent || !temp->m_kCostCacheData.bCanEnterTerritoryPermanent || temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
 		return false;
+
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
-		return (temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit; //never ignore stacking for neutral units
-	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
+		if ((temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0 || temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit) //never ignore stacking for neutral units
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && 
-			(temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES)))
+
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK)) 
+		if (temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 		return false;
 
 	return true;

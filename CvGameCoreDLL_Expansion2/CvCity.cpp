@@ -12534,11 +12534,9 @@ void CvCity::changeProductionTimes100(int iChange)
 								{
 									if (getProductionProcess() != NO_PROCESS)
 									{
-										int iI;
-										int iYield;
-										for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+										for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 										{
-											iYield = (this->getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * this->getProductionToYieldModifier((YieldTypes)iI) / 100;
+											int iYield = (this->getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * this->getProductionToYieldModifier((YieldTypes)iI) / 100;
 
 											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
 										}
@@ -19004,7 +19002,6 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 {
-	//todo: avoid iterating over ALL improvement types ...
 	int iYield = 0;
 
 	if (isCapital() || !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly())
@@ -19506,6 +19503,10 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 	//Update yields
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		UpdateYieldPerXTerrain(((YieldTypes)iI), eTerrain);
 		UpdateYieldPerXTerrainFromReligion(((YieldTypes)iI), eTerrain);
 	}
@@ -19528,6 +19529,10 @@ void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChang
 	//Update yields
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		UpdateYieldPerXTerrain(((YieldTypes)iI), eTerrain);
 		UpdateYieldPerXTerrainFromReligion(((YieldTypes)iI), eTerrain);
 	}
@@ -19550,6 +19555,10 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 	//Update yields
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		UpdateYieldPerXFeature(((YieldTypes)iI), eFeature);
 	}
 }
@@ -32040,9 +32049,8 @@ void CvCity::doGrowth()
 		}
 	}
 	//starving
-	else if(getFood() < 0 && getPopulation() > 1)
+	else if(getFood()==0 && iFoodPerTurn100<0 && getPopulation()>1)
 	{
-		setFood(0);
 		changePopulation(-1);
 	}
 }

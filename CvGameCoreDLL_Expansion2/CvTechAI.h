@@ -53,7 +53,6 @@ public:
 
 private:
 	// Internal methods
-	void WeightPrereqs(int* paiTempWeights, int iPropagationPercent);
 	void PropagateWeights(int iTech, int iWeight, int iPropagationPercent, int iPropagationLevel);
 
 	// Recompute weights taking into account tech cost

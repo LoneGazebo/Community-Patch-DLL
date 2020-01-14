@@ -84,7 +84,8 @@ struct CvPathNodeCacheData
 	bool bIsNonNativeDomain:1;
 	bool bCanEnterTerrainIntermediate:1;
 	bool bCanEnterTerrainPermanent:1;
-	bool bCanEnterTerritory:1;
+	bool bCanEnterTerritoryIntermediate:1;
+	bool bCanEnterTerritoryPermanent:1;
 	bool bContainsOtherFriendlyTeamCity:1;
 	bool bIsEnemyCity:1;
 	bool bIsVisibleEnemyUnit:1;

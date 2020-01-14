@@ -225,7 +225,7 @@ public:
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
 
-	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;
+	bool canEnterTerritory(TeamTypes eTeam, bool bEndTurn = true) const;
 	bool canEnterTerrain(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
@@ -233,7 +233,6 @@ public:
 	bool IsAngerFreeUnit() const;
 
 	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
-	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange);
@@ -1314,6 +1313,7 @@ public:
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
+	bool IsNearMedic(CvPlot* pAtPlot=NULL) const;
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;

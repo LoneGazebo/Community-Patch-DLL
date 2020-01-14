@@ -1323,6 +1323,29 @@ void CvPlayerTechs::SetGSPriorities()
 	{
 		m_piGSTechPriority[iI] = 1;
 	}
+
+	//preparation
+	map<TechTypes, vector<UnitTypes>> unitPrereqTechs;
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		UnitTypes eUnit = (UnitTypes)iUnitLoop;
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+		if (pkUnitInfo && pkUnitInfo->GetPrereqAndTech() != NO_TECH)
+			unitPrereqTechs[(TechTypes)pkUnitInfo->GetPrereqAndTech()].push_back(eUnit);
+	}
+
+	//preparation pt2
+	map<TechTypes, vector<BuildingTypes>> buildingPrereqTechs;
+	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if(pkBuildingInfo && pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
+			buildingPrereqTechs[(TechTypes)pkBuildingInfo->GetPrereqAndTech()].push_back(eBuilding);
+	}
+
 	// == Grand Strategy ==
 	AIGrandStrategyTypes eGrandStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
 	bool bSeekingDiploVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory() || m_pPlayer->GetPlayerTraits()->IsDiplomat();
@@ -1394,25 +1417,22 @@ void CvPlayerTechs::SetGSPriorities()
 				}
 			}
 		}
-		//Let's look at grandstrategy values for buildings as well and add those in to techs.
-		for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-		{
-			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-			if(pkBuildingInfo && pkBuildingInfo->GetPrereqAndTech() == iTechLoop)
+		//Let's look at grandstrategy values for buildings as well and add those in to techs.
+		for(size_t i=0; i<buildingPrereqTechs[eTech].size(); i++)
 			{
+			const BuildingTypes eBuilding = buildingPrereqTechs[eTech][i];
 				int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
 				if (iTechGSValue > 0)
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
 			}
-		}
+
 		//Let's look at grandstrategy values for units as well and add those in to techs.
-		for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+		for(size_t i=0; i<unitPrereqTechs[eTech].size(); i++)
 		{
-			UnitTypes eUnit = (UnitTypes)iUnitLoop;
+			const UnitTypes eUnit = unitPrereqTechs[eTech][i];
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 			if (pkUnitInfo && pkUnitInfo->GetPrereqAndTech() == iTechLoop)
