@@ -257,6 +257,9 @@ public:
 	const_iterator find(int iPlotIndex) const;
 	void insert(const SMovePlot& plot);
 
+	bool operator==(const ReachablePlots& rhs) const { return storage == rhs.storage && lookup == rhs.lookup; }
+	bool operator!=(const ReachablePlots& rhs) const { return storage != rhs.storage || lookup != rhs.lookup; }
+
 protected:
 	std::tr1::unordered_map<int,size_t> lookup;
 	std::vector<SMovePlot> storage;

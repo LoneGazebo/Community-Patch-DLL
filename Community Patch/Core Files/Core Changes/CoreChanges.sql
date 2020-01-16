@@ -315,9 +315,9 @@ UPDATE Defines
 SET Value = '4'
 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
--- there are 6 ring1 plots
+-- there are 6 ring1 plots but don't overemphasize the very short term
 UPDATE Defines
-SET Value = '8'
+SET Value = '6'
 WHERE Name = 'CITY_RING_1_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- there are 12 ring2 plots, workable soon
@@ -326,8 +326,8 @@ SET Value = '6'
 WHERE Name = 'CITY_RING_2_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- there are 18 ring3 plots, workable late and often conflicted
-UPDATE Defines
-SET Value = '2'
+UPDATE Define
+SET Value = '3'
 WHERE Name = 'CITY_RING_3_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Defines
