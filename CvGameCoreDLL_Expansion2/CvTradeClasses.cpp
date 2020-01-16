@@ -4653,7 +4653,7 @@ void CvPlayerTrade::UpdateTradeStats()
 		if (!connection.isValid())
 			continue;
 
-		if (GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
+		if (connection.m_eOriginOwner == m_pPlayer->GetID() && GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
 			m_tradeStats.iMinorTRs++;
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
@@ -4677,29 +4677,6 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 {
 	UpdateTradeStats();
 	return m_tradeStats.iMinorTRs;
-}
-
-int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
-{
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iNumConnections = 0;
-	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
-
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			if (pConnection->m_iOriginX == pCity->getX() && pConnection->m_iOriginY == pCity->getY())
-			{
-				if (GET_PLAYER(pConnection->m_eDestOwner).isMinorCiv())
-				{
-					iNumConnections++;
-				}
-			}
-		}
-	}
-
-	return iNumConnections;
 }
 
 int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
