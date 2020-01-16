@@ -29249,8 +29249,8 @@ void CvDiplomacyAI::DoBeginDiploWithHuman()
 		PlayerTypes ePlayer = GC.getGame().getActivePlayer();
 		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isHuman() && IsAtWar(ePlayer))
 		{
-			DoUpdatePeaceTreatyWillingness();
 			DoUpdateWarDamageLevel();
+			DoUpdatePeaceTreatyWillingness();
 		}
 #endif
 #if defined(MOD_ACTIVE_DIPLOMACY)
