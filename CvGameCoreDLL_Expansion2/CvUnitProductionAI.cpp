@@ -906,6 +906,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (!kPlayer.GetDiplomacyAI()->HasMetValidMinorCiv())
 				return 0;
 
+			//There's a diplomat waiting here? Abort!
+			if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_MESSENGER, m_pCity->getOwner()) > 0)
+			{
+				return 0;
+			}
+
+			//There's 2 sitting around? Abort!
+			if (kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true, false) > 3)
+			{
+				return 0;
+			}
+
 			int iInfluence = 0;
 			//Promotion Bonus
 			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
@@ -956,13 +968,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					return 0;
 				}
 			}
-			bool bAlwaysOne = false;
-			if(kPlayer.GetPlayerTraits()->IsDiplomat())
-			{
-				iInfluence *= 2;
-				bAlwaysOne = true;
-			}
-
 			if (MOD_DIPLOMACY_CITYSTATES)
 			{
 				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
@@ -972,10 +977,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 			}
 
-			if(bAlwaysOne && kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true, true) <= 0)
-			{
-				iInfluence *= 2;
-			}
 			iBonus += iInfluence;
 		}
 #endif

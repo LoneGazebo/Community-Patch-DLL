@@ -4670,7 +4670,7 @@ void CvPlayerTrade::UpdateTradeStats()
 	}
 
 	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
-}
+	}
 
 //Returns the number of city state trade routes connected to a city
 int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()

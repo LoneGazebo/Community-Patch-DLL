@@ -988,6 +988,8 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	m_iRawWarWeariness = 0;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
+	m_iBoredomCache = 0;
+	m_iBoredomCacheTurn = 0;
 #endif
 
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
@@ -3778,6 +3780,8 @@ void CvPlayerCulture::DoTurn()
 		//and store off our delta
 		m_aiLastTurnCulturalIPT[iLoopPlayer] = m_aiCulturalInfluence[iLoopPlayer] - m_aiLastTurnCulturalInfluence[iLoopPlayer];
 	}
+
+	SetBoredomCache(m_pPlayer->getUnhappinessFromCityCulture());
 	
 	DoPublicOpinion();
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -4267,6 +4271,19 @@ int CvPlayerCulture::GetLastThemUpdate() const
 void CvPlayerCulture::SetLastThemUpdate(int iValue)
 {
 	m_iLastThemUpdate = iValue;
+}
+
+void CvPlayerCulture::SetBoredomCache(int iValue)
+{
+	if (GC.getGame().getGameTurn() != m_iBoredomCacheTurn)
+	{
+		m_iBoredomCacheTurn = GC.getGame().getGameTurn();
+		m_iBoredomCache = iValue;
+	}
+}
+int CvPlayerCulture::GetBoredomCache() const
+{
+	return m_iBoredomCache;
 }
 #endif
 /// What was our total culture generated throughout the game last turn?
@@ -5192,8 +5209,8 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	}
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		int iDelta = iBoredom - m_pPlayer->getUnhappinessFromCityCulture();
+		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
+		int iDelta = iBoredom - GetBoredomCache();
 		if (iDelta > 0)
 		{
 			iMultiplier += (iDelta * 3);
@@ -5410,8 +5427,8 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		int iDelta = iBoredom - m_pPlayer->getUnhappinessFromCityCulture();
+		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
+		int iDelta = iBoredom - GetBoredomCache();
 
 		if (iDelta > 0)
 		{
@@ -7951,8 +7968,8 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	}
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		int iDelta = iBoredom - kCityPlayer.getUnhappinessFromCityCulture();
+		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
+		int iDelta = iBoredom - kCityPlayer.GetCulture()->GetBoredomCache();
 
 		if (iDelta > 0)
 		{

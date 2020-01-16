@@ -19015,7 +19015,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		{
 			ImprovementTypes eImprovement = relevantTypes[i];
 			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
-			if (iYieldChangePerImprovementBuilt == 0)
+				if (iYieldChangePerImprovementBuilt == 0)
 				continue;
 
 			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
@@ -26751,17 +26751,17 @@ void CvCity::DoBarbIncursion()
 								{
 									GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGold);
 
-								Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
-								strMessage << iGold;
-								strMessage << getNameKey();
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY");
-								strSummary << getNameKey();
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
+									strMessage << iGold;
+									strMessage << getNameKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY");
+									strSummary << getNameKey();
 
-								CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-								if(pNotification)
-								{
-									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-								}
+									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+									if(pNotification)
+									{
+										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
+									}
 
 									CvString strLog;
 									strLog.Format("Barbarians stole %d gold from %s", iGold, getNameKey());
@@ -26775,11 +26775,11 @@ void CvCity::DoBarbIncursion()
 								{
 									GET_PLAYER(getOwner()).changeJONSCulture(-iCulture);
 
-								Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
-								strMessage << iCulture;
-								strMessage << getNameKey();
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY");
-								strSummary << getNameKey();
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
+									strMessage << iCulture;
+									strMessage << getNameKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY");
+									strSummary << getNameKey();
 
 									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
 									if(pNotification)
@@ -26802,17 +26802,17 @@ void CvCity::DoBarbIncursion()
 									{
 										GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, getOwner());
 
-									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
-									strMessage << iScience;
-									strMessage << getNameKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY");
-									strSummary << getNameKey();
+										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
+										strMessage << iScience;
+										strMessage << getNameKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY");
+										strSummary << getNameKey();
 
-									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-									if(pNotification)
-									{
-										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-									}
+										CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+										if(pNotification)
+										{
+											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
+										}
 
 										CvString strLog;
 										strLog.Format("Barbarians stole %d science from %s", iScience, getNameKey());
@@ -26833,11 +26833,11 @@ void CvCity::DoBarbIncursion()
 									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY");
 									strSummary << getNameKey();
 
-								CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-								if(pNotification)
-								{
-									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-								}
+									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+									if(pNotification)
+									{
+										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
+									}
 
 									CvString strLog;
 									strLog.Format("Barbarians stole %d food from %s", iFood, getNameKey());
@@ -26859,11 +26859,11 @@ void CvCity::DoBarbIncursion()
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY");
 										strSummary << getNameKey();
 
-									CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-									if(pNotification)
-									{
-										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
-									}
+										CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+										if(pNotification)
+										{
+											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
+										}
 
 										CvString strLog;
 										strLog.Format("Barbarians stole %d production from %s", iProduction, getNameKey());
@@ -29659,22 +29659,22 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		break;
 
 	case ORDER_CONSTRUCT:
-	{
+			{
 		eConstructBuilding = ((BuildingTypes)(pOrderNode->iData1));
 
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
 
 		if(pkBuildingInfo)
-		{
+				{
 			kOwner.changeBuildingClassMaking(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), -1);
 
 			if(bFinish)
-			{
+					{
 				produce(eConstructBuilding);
 			}
-		}
+					}
 		break;
-	}
+				}
 
 	case ORDER_CREATE:
 		eCreateProject = ((ProjectTypes)(pOrderNode->iData1));
@@ -29683,28 +29683,28 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		kOwner.changeProjectMaking(eCreateProject, -1);
 
 		if(bFinish)
-		{
+									{
 			produce(eCreateProject);
-		}
+									}
 		break;
 
 	case ORDER_PREPARE:
 
 		if(bFinish)
-		{
+									{
 			eSpecialist = (SpecialistTypes)(pOrderNode->iData1);
 			produce(eSpecialist);
-		}
+									}
 
 		break;
 
 	case ORDER_MAINTAIN:
 #if defined(MOD_BALANCE_CORE)
 		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS)
-		{
+									{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)pOrderNode->iData1);
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
-			{
+										{
 				bUpdateStrength = true;
 			}
 		}
@@ -29713,36 +29713,36 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	default:
 		CvAssertMsg(false, "pOrderNode->eOrderType is not a valid option");
-		break;
-	}
+													break;
+												}
 
 	if(m_unitBeingBuiltForOperation.IsValid())
 	{
 		kOwner.CityUncommitToBuildUnitForOperationSlot(m_unitBeingBuiltForOperation);
 		m_unitBeingBuiltForOperation.Invalidate();
-	}
+											}
 
 	if(pOrderNode == headOrderQueueNode())
 	{
 		bStart = true;
 		stopHeadOrder();
-	}
+										}
 	else
-	{
+										{
 		bStart = false;
-	}
+										}
 
 	m_orderQueue.deleteNode(pOrderNode);
 	pOrderNode = NULL;
 	if(bFinish)
-	{
+										{
 		CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
-	}
+										}
 
 	if(bStart)
 	{
 		startHeadOrder();
-	}
+									}
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
@@ -29750,82 +29750,82 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		{
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
-		}
-	}
+								}
+							}
 
 	bMessage = false;
 
 	if(bChoose)
-	{
+						{
 		if(getOrderQueueLength() == 0)
-		{
+							{
 			if(!isHuman() || isProductionAutomated())
-			{
+								{
 				AI_chooseProduction(false /*bInterruptWonders*/, false);
-			}
+									}
 			else
-			{
+									{
 				chooseProduction(eTrainUnit, eConstructBuilding, eCreateProject, bFinish);
 
 				bMessage = true;
-			}
-		}
-	}
+									}
+								}
+							}
 
 	if(bFinish && !bMessage)
-	{
+						{
 		if(getOwner() == GC.getGame().getActivePlayer())
-		{
+							{
 			Localization::String localizedText;
 			if(eTrainUnit != NO_UNIT)
-			{
+								{
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eTrainUnit);
 				if(pkUnitInfo)
-				{
+									{
 					localizedText = Localization::Lookup(((isLimitedUnitClass((UnitClassTypes)(pkUnitInfo->GetUnitClassType()))) ? "TXT_KEY_MISC_TRAINED_UNIT_IN_LIMITED" : "TXT_KEY_MISC_TRAINED_UNIT_IN"));
 					localizedText << pkUnitInfo->GetTextKey() << getNameKey();
 				}
-			}
+									}
 			else if(eConstructBuilding != NO_BUILDING)
 			{
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
 				if(pkBuildingInfo)
-				{
+									{
 					localizedText = Localization::Lookup(((isLimitedWonderClass(pkBuildingInfo->GetBuildingClassInfo())) ? "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN_LIMITED" : "TXT_KEY_MISC_CONSTRUCTED_BUILD_IN"));
 					localizedText << pkBuildingInfo->GetTextKey() << getNameKey();
-				}
-			}
+									}
+								}
 			else if(eCreateProject != NO_PROJECT)
 			{
 				localizedText = Localization::Lookup(((isLimitedProject(eCreateProject)) ? "TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED" : "TXT_KEY_MISC_CREATED_PROJECT_IN"));
 				localizedText << GC.getProjectInfo(eCreateProject)->GetTextKey() << getNameKey();
-			}
+							}
 			if(isProduction())
 			{
 				localizedText = Localization::Lookup(((isProductionLimited()) ? "TXT_KEY_MISC_WORK_HAS_BEGUN_LIMITED" : "TXT_KEY_MISC_WORK_HAS_BEGUN"));
 				localizedText << getProductionNameKey();
-			}
+						}
 			DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8()/*, szSound, MESSAGE_TYPE_MINOR_EVENT, szIcon, (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
-		}
-	}
+					}
+				}
 #if defined(MOD_BALANCE_CORE)
 	if (bUpdateStrength)
-	{
+				{
 		updateStrengthValue();
-	}
+				}
 #endif
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
 		if(isCitySelected())
-		{
+				{
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
-		}
+				}
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-	}
-}
+				}
+				}
 
 //	--------------------------------------------------------------------------------
 void CvCity::swapOrder(int iNum)
@@ -29834,88 +29834,88 @@ void CvCity::swapOrder(int iNum)
 	VALIDATE_OBJECT
 
 	if(iNum == 0)
-	{
+				{
 		stopHeadOrder();
-	}
+				}
 
 	m_orderQueue.swapUp(iNum);
 
 	if(iNum == 0)
-	{
+				{
 		startHeadOrder();
-	}
+				}
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
 		if(isCitySelected())
-		{
+				{
 			//DLLUI->setDirty(InfoPane_DIRTY_BIT, true );
 			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
 		}
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-	}
-}
+				}
+			}
 
 
 //	--------------------------------------------------------------------------------
 void CvCity::startHeadOrder()
-{
+			{
 	VALIDATE_OBJECT
 	OrderData* pOrderNode = headOrderQueueNode();
 
 	if(pOrderNode != NULL)
 	{
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
-		{
+				{
 			processProcess(((ProcessTypes)(pOrderNode->iData1)), 1);
+				}
+			}
 		}
-	}
-}
 
 
 //	--------------------------------------------------------------------------------
 void CvCity::stopHeadOrder()
-{
+		{
 	VALIDATE_OBJECT
 	OrderData* pOrderNode = headOrderQueueNode();
 
 	if(pOrderNode != NULL)
-	{
+			{
 		if(pOrderNode->eOrderType == ORDER_MAINTAIN)
-		{
+				{
 			processProcess(((ProcessTypes)(pOrderNode->iData1)), -1);
-		}
-	}
-}
+				}
+				}
+				}
 
 
 //	--------------------------------------------------------------------------------
 int CvCity::getOrderQueueLength()
-{
+				{
 	VALIDATE_OBJECT
 	return m_orderQueue.getLength();
-}
-
+				}
+				
 
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::getOrderFromQueue(int iIndex)
-{
+				{
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 
 	pOrderNode = m_orderQueue.getAt(iIndex);
 
 	if(pOrderNode != NULL)
-	{
+					{
 		return pOrderNode;
 	}
 	else
-	{
+						{
 		return NULL;
-	}
-}
+						}
+					}
 
 
 //	--------------------------------------------------------------------------------
@@ -29923,26 +29923,26 @@ OrderData* CvCity::nextOrderQueueNode(OrderData* pNode)
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.next(pNode);
-}
+				}
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::nextOrderQueueNode(const OrderData* pNode) const
 {
 	VALIDATE_OBJECT
 	return m_orderQueue.next(pNode);
-}
+	}
 
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::headOrderQueueNode() const
-{
+		{
 	VALIDATE_OBJECT
 	return m_orderQueue.head();
 }
 
 //	--------------------------------------------------------------------------------
 OrderData* CvCity::headOrderQueueNode()
-{
+			{
 	VALIDATE_OBJECT
 	return m_orderQueue.head();
 }
@@ -29950,15 +29950,15 @@ OrderData* CvCity::headOrderQueueNode()
 
 //	--------------------------------------------------------------------------------
 const OrderData* CvCity::tailOrderQueueNode() const
-{
+			{
 	VALIDATE_OBJECT
 	return m_orderQueue.tail();
-}
+			}
 
 //	--------------------------------------------------------------------------------
 /// remove items in the queue that are no longer valid
 bool CvCity::CleanUpQueue(void)
-{
+			{
 	VALIDATE_OBJECT
 	bool bOK = true;
 
@@ -29974,10 +29974,10 @@ bool CvCity::CleanUpQueue(void)
 				bOK = false;
 			}
 		}
-	}
+			}
 
 	return bOK;
-}
+		}
 
 //	--------------------------------------------------------------------------------
 /// Create unit by completing production in city, separated out from popOrder() so other functions can call this
@@ -30130,9 +30130,9 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 #endif
 #if defined(MOD_EVENTS_CITY)
 		if (MOD_EVENTS_CITY)
-		{
+	{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
-		}
+	}
 		else
 		{
 #endif
@@ -30148,40 +30148,40 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
-			}
+	}
 #if defined(MOD_EVENTS_CITY)
-		}
+}
 #endif
 
 		int iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 #if defined(MOD_BALANCE_CORE)
 		if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
-		{
+{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 		}
 #endif
 		if (bCanOverflow)
 		{
-			// max overflow is the value of the item produced (to eliminate prebuild exploits)
-			int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-			iOverflow = std::min(iMaxOverflow, iOverflow);
+		// max overflow is the value of the item produced (to eliminate prebuild exploits)
+		int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
+		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+		iOverflow = std::min(iMaxOverflow, iOverflow);
 
-			if (iOverflow > 0)
-			{
-				changeOverflowProductionTimes100(iOverflow);
-			}
-			setUnitProduction(eTrainUnit, 0);
+		if (iOverflow > 0)
+	{
+			changeOverflowProductionTimes100(iOverflow);
+	}
+		setUnitProduction(eTrainUnit, 0);
 
-			int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-			if (iProductionGold > 0)
-			{
-				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-			}
+		int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+		if (iProductionGold > 0)
+	{
+			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
 		}
-		else
-		{
+	}
+	else
+	{
 			changeUnitProductionTimes100(eTrainUnit, -iProductionNeeded);
 		}
 	}
@@ -30192,7 +30192,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 		CvNotifications* pNotifications = kOwner.GetNotifications();
 		if (pNotifications)
-		{
+	{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_REMOVED_UNIT");
 			strText << getNameKey();
 			strText << GC.getUnitInfo(eTrainUnit)->GetDescription();
@@ -30223,7 +30223,7 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem)
-		{
+{
 			CvLuaArgsHandle args;
 			args->Push(getOwner());
 			args->Push(GetID());
@@ -30236,25 +30236,25 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 		}
 #if defined(MOD_EVENTS_CITY)
 	}
-#endif
+#endif		
 	if (bCanOverflow)
 	{
-		// max overflow is the value of the item produced (to eliminate prebuild exploits)
-		int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-		iOverflow = std::min(iMaxOverflow, iOverflow);
-		if (iOverflow > 0)
-		{
-			changeOverflowProductionTimes100(iOverflow);
-		}
-		m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
+	// max overflow is the value of the item produced (to eliminate prebuild exploits)
+	int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
+	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+	int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+	iOverflow = std::min(iMaxOverflow, iOverflow);
+	if (iOverflow > 0)
+	{
+		changeOverflowProductionTimes100(iOverflow);
+}
+	m_pCityBuildings->SetBuildingProduction(eConstructBuilding, 0);
 
-		int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
-		if (iProductionGold > 0)
-		{
-			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-		}
+	int iProductionGold = ((iLostProduction * GC.getMAXED_BUILDING_GOLD_PERCENT()) / 100);
+	if (iProductionGold > 0)
+{
+		kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+}
 	}
 	else
 	{
@@ -30262,12 +30262,12 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 	}
 
 	if (GC.getLogging() && GC.getAILogging())
-	{
+{
 		CvBuildingEntry* pkConstructBuildingInfo = GC.getBuildingInfo(eConstructBuilding);
 		if (pkConstructBuildingInfo)
-		{
+	{
 			if (kOwner.GetWonderProductionAI()->IsWonder(*pkConstructBuildingInfo))
-			{
+	{
 				CvString playerName;
 				FILogFile* pLog;
 				CvString strBaseString;
@@ -30279,8 +30279,8 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 				strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkConstructBuildingInfo->GetDescription());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
-			}
-		}
+	}
+}
 
 	}
 }
@@ -30305,7 +30305,7 @@ void CvCity::produce(ProjectTypes eCreateProject, bool bCanOverflow)
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem)
-		{
+{
 			CvLuaArgsHandle args;
 			args->Push(getOwner());
 			args->Push(GetID());
@@ -30317,30 +30317,30 @@ void CvCity::produce(ProjectTypes eCreateProject, bool bCanOverflow)
 			LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
 		}
 #if defined(MOD_EVENTS_CITY)
-	}
+}
 #endif
 
 	int iProductionNeeded = getProductionNeeded(eCreateProject) * 100;
 	if (bCanOverflow)
 	{
-		// max overflow is the value of the item produced (to eliminate prebuild exploits)
-		int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-		iOverflow = std::min(iMaxOverflow, iOverflow);
+	// max overflow is the value of the item produced (to eliminate prebuild exploits)
+	int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
+	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+	int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+	iOverflow = std::min(iMaxOverflow, iOverflow);
 
-		if (iOverflow > 0)
-		{
-			changeOverflowProductionTimes100(iOverflow);
-		}
-		setProjectProduction(eCreateProject, 0);
+	if (iOverflow > 0)
+{
+		changeOverflowProductionTimes100(iOverflow);
+}
+	setProjectProduction(eCreateProject, 0);
 
-		int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
-		if (iProductionGold > 0)
-		{
-			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
-		}
+	int iProductionGold = ((iLostProduction * GC.getMAXED_PROJECT_GOLD_PERCENT()) / 100);
+	if (iProductionGold > 0)
+{
+		kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
 	}
+}
 	else
 	{
 		changeProjectProductionTimes100(eCreateProject, -iProductionNeeded);
@@ -30357,17 +30357,17 @@ void CvCity::produce(SpecialistTypes eSpecialist, bool bCanOverflow)
 
 	if (bCanOverflow)
 	{
-		// max overflow is the value of the item produced (to eliminate prebuild exploits)
-		int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-		iOverflow = std::min(iMaxOverflow, iOverflow);
-		if (iOverflow > 0)
+	// max overflow is the value of the item produced (to eliminate prebuild exploits)
+	int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
+	int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+	iOverflow = std::min(iMaxOverflow, iOverflow);
+	if (iOverflow > 0)
 		{
-			changeOverflowProductionTimes100(iOverflow);
-		}
-
-		setSpecialistProduction(eSpecialist, 0);
+		changeOverflowProductionTimes100(iOverflow);
 	}
+
+	setSpecialistProduction(eSpecialist, 0);
+}
 	else
 	{
 		changeSpecialistProductionTimes100(eSpecialist, -iProductionNeeded);

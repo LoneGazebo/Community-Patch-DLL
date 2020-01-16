@@ -135,12 +135,12 @@
 	<!--   =========================================================== Other City Banner ===========================================================   -->
 	<Instance Name="OtherCityBanner">
 		<WorldAnchor ID="Anchor">
-			<!-- CityBannerButton -->
-			<Button ID="CityBannerButton" Anchor="C,C" Size="160,48"/>
+			<!-- CityBannerButton        UndeadDevel: stretched this a bit vertically to allow easily extending mouse-over functionality over City Strength label-->
+			<Button ID="CityBannerButton" Anchor="C,C" Offset="0,-8" Size="160,52"/>
 			<Image ID="CityAtWar" Anchor="C,C" Size="160,64" Texture="CityBannerButtonBase.dds" Color="Red.180">
-				<Image Size="48,64" Anchor="L,C" AnchorSide="O.I" Texture="CityBannerButtonBaseLeft.dds" Color="Red.180"/>
-				<Image Size="48,64" Anchor="R,C" AnchorSide="O.I" Texture="CityBannerButtonBaseRight.dds" Color="Red.180"/>
-				<Image Anchor="C,C" Offset="0,-32" Size="128,48" Texture="CityBannerStrengthFrame.dds" Color="Red.180"/>
+				<Image Offset="-1,0" Size="48,64" Anchor="L,C" AnchorSide="O.I" Texture="CityBannerButtonBaseLeft.dds" Color="Red.180"/>
+				<Image Offset="-1,0" Size="48,64" Anchor="R,C" AnchorSide="O.I" Texture="CityBannerButtonBaseRight.dds" Color="Red.180"/>
+				<Image Anchor="C,C" Offset="0,-28" Size="130,48" Texture="CityBannerStrengthFrame.dds" Color="Red.180"/>
 			</Image>
 			<Image ID="CityBannerBackground" Anchor="C,C" Size="32,32" Texture="CityBannerBackground.dds" BranchAlpha="0.7">
 				<Image ID="CityBannerBackgroundHL" Anchor="C,C" Size="32,32" Texture="CityBannerBackgroundHL.dds"/>
@@ -201,7 +201,7 @@
 			<Image ID="GarrisonFrame" Anchor="C,C" Offset="-42,-37" Size="64,64" Texture="GarrisonFrameOther.dds"/>
 			<!--  City Strength -->
 			<Label ID="CityStrength" Anchor="C,C" Offset="6,-24" Font="TwCenMT16" Color0="255,255,200,255" Color1="0,0,0,200" ForceNonIME="1" FontStyle="Stroke" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
-			<Container Anchor="C,C" Offset="0,-24" Size="50,20" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
+			<Container ID="CityStrengthContainer" Anchor="C,C" Offset="0,-24" Size="50,20" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
 			<!-- Lower Icons -->
 			<Stack ID="IconsStack" Anchor="C,T" Offset="0,22" StackGrowth="Left" Padding="0">
 				<TextButton ID="CitySpy" String="[ICON_SPY]" Hidden="1"/>

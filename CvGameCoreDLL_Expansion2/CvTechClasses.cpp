@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1417,7 +1417,6 @@ void CvPlayerTechs::SetGSPriorities()
 				}
 			}
 		}
-
 		//Let's look at grandstrategy values for buildings as well and add those in to techs.
 		for(size_t i=0; i<buildingPrereqTechs[eTech].size(); i++)
 		{

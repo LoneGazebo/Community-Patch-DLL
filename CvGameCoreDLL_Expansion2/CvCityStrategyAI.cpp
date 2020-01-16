@@ -5657,7 +5657,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if(pkBuildingInfo->GetFreePolicies() > 0)
 	{
-		iCultureValue += kPlayer.GetNumPolicies() * kPlayer.getNumCities() * 500;
+		iCultureValue += kPlayer.GetNumPolicies() * kPlayer.getNumCities() * 5;
 	}	
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
@@ -5702,7 +5702,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if(pCity != NULL && (pkBuildingInfo->GetGreatWorksTourismModifier() > 0 || pkBuildingInfo->GetGreatWorksTourismModifierGlobal() > 0))
 	{
-		int iWorks = pCity->GetCityCulture()->GetNumGreatWorks() + GC.getBASE_TOURISM_PER_GREAT_WORK() + kPlayer.GetGreatWorkYieldChange(YIELD_TOURISM);
+		int iWorks = max(3, pCity->GetCityCulture()->GetNumGreatWorkSlots());
 
 		//Higher value the higher the number of works.
 		iCultureValue += (iWorks * (pkBuildingInfo->GetGreatWorksTourismModifier() + pkBuildingInfo->GetGreatWorksTourismModifierGlobal()));

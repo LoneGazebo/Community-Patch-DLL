@@ -16,6 +16,8 @@
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
 #include "cvStopWatch.h"
+#include "CvTacticalAI.h"
+#include "CvTacticalAnalysisMap.h"
 
 #include "LintFree.h"
  
@@ -556,6 +558,7 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(pFromCity->getOwner());
+
 #if defined(MOD_BALANCE_CORE)
 	//Boost from policy of other player?
 	if (GET_PLAYER(pToCity->getOwner()).GetReligionDistance() != 0)

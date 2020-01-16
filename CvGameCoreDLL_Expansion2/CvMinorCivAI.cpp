@@ -15470,9 +15470,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if (iLastBullyTurn + 17 >= GC.getGame().getGameTurn())
+		else if (iLastBullyTurn + 15 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedRecentlyScore = (((iLastBullyTurn + 17) - (GC.getGame().getGameTurn())) * -25);
+			int iBulliedRecentlyScore = (((iLastBullyTurn + 16) - (GC.getGame().getGameTurn())) * -25);
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
 			{

@@ -2437,7 +2437,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
 			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
 			{
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
 			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
@@ -4659,7 +4659,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	}
 
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
-
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
@@ -4674,6 +4673,11 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	}
 
 	if(isEnemy(eTeam))
+	{
+		return true;
+	}
+
+	if(isRivalTerritory())
 	{
 		return true;
 	}
@@ -4717,14 +4721,14 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 				if (IsAngerFreeUnit())
 					return true;
 
-				// If already intruding on this minor, okay to do it some more (so we can leave!)
+				// If already intruding on this minor, okay to do it some more
 				if (pMinorAI->IsMajorIntruding(getOwner()))
 					return true;
 
 				//Let's let scouts in.
 				if(getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
 					return true;
-			}
+				}
 		}
 	}
 
@@ -22307,7 +22311,7 @@ void CvUnit::setPlagued(int iChange)
 int CvUnit::getPlaguePromotionID() const
 {
 	VALIDATE_OBJECT
-		return m_iIsPlagued;
+	return m_iIsPlagued;
 }
 
 void CvUnit::setPlagueID(int iValue)
@@ -23255,6 +23259,7 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 	}
 	return iHeal;
 }
+
 int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -23290,6 +23295,7 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 
 	return 0;
 }
+
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -24771,7 +24777,6 @@ bool CvUnit::isPromotionReady() const
 	VALIDATE_OBJECT
 	return m_bPromotionReady;
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvUnit::setPromotionReady(bool bNewValue)

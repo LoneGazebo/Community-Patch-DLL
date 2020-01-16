@@ -37949,7 +37949,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 		{
 			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
 
-			iTotalNumResource *= 100 + std::min(50, iQuantityMod);
+			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
 			iTotalNumResource /= 100;
 		}
 	}
