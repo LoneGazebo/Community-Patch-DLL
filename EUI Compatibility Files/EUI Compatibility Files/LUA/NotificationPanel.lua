@@ -1261,6 +1261,8 @@ local g_civListInstanceCallBacks = {-- the callback function table names need to
 				elseif bnw_mode and UI.CtrlKeyDown() and g_activeTeam:CanChangeWarPeace( teamID ) then
 					if g_activeTeam:IsAtWar( teamID ) then
 					-- Asking for Peace (currently at war) - bring up the trade screen
+						player:DoUpdateWarDamageLevel(); -- UndeadDevel: since we're bypassing the default diplo screen, which would update these two things we need to do it manually here
+						player:DoUpdatePeaceTreatyWillingness();
 						Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_NEGOTIATE_PEACE, playerID, 0, 0 )
 					elseif g_activeTeam:CanDeclareWar( teamID ) then
 					-- Declaring War - bring up the BNW popup
