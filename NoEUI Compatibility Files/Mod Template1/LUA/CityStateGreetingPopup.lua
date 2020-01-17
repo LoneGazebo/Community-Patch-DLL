@@ -315,17 +315,17 @@ print(string.format("City State: Need to add a message and a quest"))
 	local strGiftTxtKey = string.format("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), popupInfo.Text)
 	
 	if (popupInfo.Data2 == 0) then
-          if (popupInfo.Data3 == 0) then
-            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-          else
-            -- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
-            local activePlayer = Players[iActivePlayer];
+      if (popupInfo.Data3 == 0) then
+        strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+      else
+        -- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
+        local activePlayer = Players[iActivePlayer];
 	    if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
-                strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-            else
-            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
-            end
-          end
+          strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+        else
+          strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
+        end
+      end
 	else
 	  if (popupInfo.Text == "UNIT") then
 	    strGiftString = Locale.ConvertTextKey(strGiftTxtKey, GameInfo.Units[popupInfo.Data2].Description, strPersonalityKey)
