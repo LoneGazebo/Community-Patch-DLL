@@ -12,7 +12,7 @@ print("Loading EUI city banners",ContextPtr,os.clock(),[[
 | |   | | __| | | |  _ \ / _` | '_ \| '_ \ / _ \ '__| |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|
 | |___| | |_| |_| | |_) | (_| | | | | | | |  __/ |  | |  | | (_| | | | | (_| | (_| |  __/ |   
  \____|_|\__|\__, |____/ \__,_|_| |_|_| |_|\___|_|  |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|   
-             |___/                                                            |___/           
+			 |___/                                                            |___/           
 ]])
 -------------------------------
 -- minor lua optimizations
@@ -817,12 +817,12 @@ local function OnBannerMouseExit( ... ) -- UndeadDevel: using variadic form to p
 		else
 			Events_RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
 		end
-        -- UndeadDevel: making sure that info is reset to ensure player never sees historic and thus possibly incorrect info
-        local instance = g_cityBanners[ (...) ]
-        if (instance and instance.CityStrengthContainer) then
-            instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
-            instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
-        end
+		-- UndeadDevel: making sure that info is reset to ensure player never sees historic and thus possibly incorrect info
+		local instance = g_cityBanners[ (...) ]
+		if (instance and instance.CityStrengthContainer) then
+			instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
+			instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
+		end
 	end
 end
 
@@ -1158,14 +1158,14 @@ local function RefreshCityBannersNow()
 						local free = pledge and cityOwner:CanMajorWithdrawProtection( g_activePlayerID )
 						instance.Pledge1:SetHide( not pledge or free )
 						instance.Pledge2:SetHide( not free )
-                        -- UndeadDevel: include tributing information on City Strength element
-                        local ttText = ""
-                        if cityOwner.GetMajorBullyGoldDetails then
-                            ttText = "[NEWLINE][COLOR_GREY]====================[ENDCOLOR][NEWLINE]" .. cityOwner:GetMajorBullyGoldDetails( g_activePlayerID )
-                        end
-                        instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
-                        instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
-                        -- UndeadDevel end
+						-- UndeadDevel: include tributing information on City Strength element
+						local ttText = ""
+						if cityOwner.GetMajorBullyGoldDetails then
+							ttText = "[NEWLINE][COLOR_GREY]====================[ENDCOLOR][NEWLINE]" .. cityOwner:GetMajorBullyGoldDetails( g_activePlayerID )
+						end
+						instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
+						instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
+						-- UndeadDevel end
 					end
 					-- Update Allies
 					allyID = cityOwner:GetAlly()
@@ -1266,12 +1266,12 @@ local function RefreshCityBannersNow()
 				instance.CityBannerBaseFrame:SetSizeX( bannerWidth )
 				instance.CityAtWar:SetSizeX( bannerWidth )
 				instance.CityAtWar:SetHide( not g_activeTeam:IsAtWar( city:GetTeam() ) )
-                -- UndeadDevel: make banner button smaller for non-CS-non-team banners since we don't need the Tributing functionality there
-                if (not cityOwner:IsMinorCiv()) then
-                    instance.CityBannerButton:SetSizeY( 40 )
-                    instance.CityBannerButton:SetOffsetY( 0 )
-                end
-                -- UndeadDevel end
+				-- UndeadDevel: make banner button smaller for non-CS-non-team banners since we don't need the Tributing functionality there
+				if (not cityOwner:IsMinorCiv()) then
+					instance.CityBannerButton:SetSizeY( 40 )
+					instance.CityBannerButton:SetOffsetY( 0 )
+				end
+				-- UndeadDevel end
 			end
 
 			instance.CityBannerButton:ReprocessAnchoring()
