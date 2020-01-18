@@ -10,7 +10,7 @@
 			<Description>TXT_KEY_PROMOTION_HEAL_INSTANTLY</Description>
 			<Help>TXT_KEY_PROMOTION_HEAL_INSTANTLY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>99</OrderPriority>
+			<OrderPriority>97</OrderPriority>
 			<InstaHeal>true</InstaHeal>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>26</PortraitIndex>
@@ -998,6 +998,7 @@
 			<MaxHitPointsChange>10</MaxHitPointsChange>
 			<CombatPercent>10</CombatPercent>
 			<PortraitIndex>19</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_RAIDER_1</PediaEntry>
@@ -1011,6 +1012,7 @@
 			<MaxHitPointsChange>15</MaxHitPointsChange>
 			<CombatPercent>10</CombatPercent>
 			<PortraitIndex>20</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_RAIDER_2</PediaEntry>
@@ -1024,6 +1026,7 @@
 			<MaxHitPointsChange>15</MaxHitPointsChange>
 			<CombatPercent>10</CombatPercent>
 			<PortraitIndex>21</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_RAIDER_3</PediaEntry>
@@ -1034,6 +1037,7 @@
 			<Help>TXT_KEY_PROMOTION_BOARDING_PARTY_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>0</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<CombatPercent>15</CombatPercent>
 			<PlagueChance>100</PlagueChance>
 			<PlaguePromotion>PROMOTION_BOARDED_I</PlaguePromotion>
@@ -1048,6 +1052,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr1>
 			<PortraitIndex>1</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<CombatPercent>15</CombatPercent>
 			<PlagueIDImmunity>1</PlagueIDImmunity>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
@@ -1061,6 +1066,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>2</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<CombatPercent>15</CombatPercent>
 			<PlagueChance>100</PlagueChance>
 			<PlaguePromotion>PROMOTION_BOARDED_II</PlaguePromotion>
@@ -1075,6 +1081,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<VisibilityChange>1</VisibilityChange>
 			<PortraitIndex>18</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_1</PediaEntry>
@@ -1087,6 +1094,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_1</PromotionPrereqOr1>
 			<PortraitIndex>19</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<MovesChange>1</MovesChange>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
@@ -1100,6 +1108,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<ExtraWithdrawal>40</ExtraWithdrawal>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
@@ -2767,7 +2776,7 @@
 			<Help>TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2780,7 +2789,7 @@
 			<Help>TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2798,7 +2807,7 @@
 			<CityAttack>-50</CityAttack>
 			<NearbyEnemyCombatMod>-15</NearbyEnemyCombatMod>
 			<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>34</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2816,7 +2825,7 @@
 			<CityAttack>-25</CityAttack>
 			<NearbyEnemyCombatMod>-10</NearbyEnemyCombatMod>
 			<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>34</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3081,7 +3090,7 @@
 			<Description>TXT_KEY_PROMOTION_COERCION</Description>
 			<Help>TXT_KEY_PROMOTION_COERCION_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>99</OrderPriority>
+			<OrderPriority>97</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
 			<CaptureDefeatedEnemy>true</CaptureDefeatedEnemy>
 			<PortraitIndex>59</PortraitIndex>
@@ -3195,7 +3204,7 @@
 			<Description>TXT_KEY_PROMOTION_HOVER_UNIT</Description>
 			<Help>TXT_KEY_PROMOTION_HOVER_UNIT_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
@@ -3299,6 +3308,7 @@
 			<CityAttackPlunderModifier>100</CityAttackPlunderModifier>
 			<RangedDefenseMod>25</RangedDefenseMod>
 			<PortraitIndex>5</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_RAIDER_4</PediaEntry>
@@ -3310,6 +3320,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_3</PromotionPrereqOr1>
 			<PortraitIndex>23</PortraitIndex>
+			<OrderPriority>1</OrderPriority>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<FlankAttackModifier>10</FlankAttackModifier>
 			<IgnoreZOC>true</IgnoreZOC>
@@ -3323,6 +3334,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<PortraitIndex>12</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<ChangeDamageValue>-5</ChangeDamageValue>
 			<SameTileHealChange>10</SameTileHealChange>
@@ -3336,6 +3348,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
 			<PortraitIndex>23</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<FreePillageMoves>true</FreePillageMoves>
 			<HealOnPillage>true</HealOnPillage>
@@ -3349,6 +3362,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>6</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<ExtraWithdrawal>25</ExtraWithdrawal>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -3658,7 +3672,7 @@
 			<Description>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I</Description>
 			<Help>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>90</OrderPriority>
 			<BarbarianCombatBonus>-30</BarbarianCombatBonus>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>2</PortraitIndex>
@@ -3671,7 +3685,7 @@
 			<Description>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II</Description>
 			<Help>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>90</OrderPriority>
 			<BarbarianCombatBonus>-20</BarbarianCombatBonus>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>2</PortraitIndex>
@@ -3684,7 +3698,7 @@
 			<Description>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III</Description>
 			<Help>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>90</OrderPriority>
 			<BarbarianCombatBonus>-10</BarbarianCombatBonus>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>2</PortraitIndex>
@@ -3823,7 +3837,7 @@
 			<Help>TXT_KEY_PROMOTION_NAVAL_INACCURACY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3861,7 +3875,7 @@
 			<Description>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</Description>
 			<Help>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>7</OrderPriority>
+			<OrderPriority>80</OrderPriority>
 			<StrongerDamaged>true</StrongerDamaged>
 			<PortraitIndex>12</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
@@ -3939,6 +3953,7 @@
 			<DamageReductionCityAssault>50</DamageReductionCityAssault>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<PortraitIndex>14</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COASTAL_TERROR</PediaEntry>
@@ -3993,6 +4008,7 @@
 			<AOEDamageOnKill>15</AOEDamageOnKill>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
 			<PortraitIndex>8</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BREACHER</PediaEntry>
@@ -4005,6 +4021,7 @@
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>3</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENCIRCLEMENT</PediaEntry>
@@ -4107,6 +4124,7 @@
 			<RangedDefenseMod>-10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
+			<OrderPriority>3</OrderPriority>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MINELAYER</PediaEntry>
@@ -4132,7 +4150,7 @@
 			<Help>TXT_KEY_PROMOTION_AIR_MISFIRE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>95</OrderPriority>
 			<CityAttack>-25</CityAttack>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -4170,7 +4188,7 @@
 			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_1</Description>
 			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>80</OrderPriority>
 			<RangedDefenseMod>15</RangedDefenseMod>
 			<MaxHitPointsChange>15</MaxHitPointsChange>
 			<LostWithUpgrade>true</LostWithUpgrade>
@@ -4184,7 +4202,7 @@
 			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_2</Description>
 			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>80</OrderPriority>
 			<RangedDefenseMod>20</RangedDefenseMod>
 			<MaxHitPointsChange>20</MaxHitPointsChange>
 			<LostWithUpgrade>true</LostWithUpgrade>
@@ -4198,7 +4216,7 @@
 			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_3</Description>
 			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>1</OrderPriority>
+			<OrderPriority>80</OrderPriority>
 			<RangedDefenseMod>25</RangedDefenseMod>
 			<MaxHitPointsChange>25</MaxHitPointsChange>
 			<PortraitIndex>14</PortraitIndex>
