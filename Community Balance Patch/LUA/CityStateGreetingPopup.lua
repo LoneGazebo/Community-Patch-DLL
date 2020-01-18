@@ -27,7 +27,7 @@ function OnPopup( popupInfo )
 	--   Text is nil
 	
 	-- Updated assignments of members of popupInfo
-    --   Data1 is the player id (unchanged)
+	--   Data1 is the player id (unchanged)
 	--   Data2 is the gift "value" (Gold/Culture/Faith amount, UnitId, CityId of population growth)
 	--   Data3 is the friendship boost
 	--   Option1 is first met (unchanged)
@@ -44,8 +44,8 @@ function OnPopup( popupInfo )
 	
 	m_PopupInfo = popupInfo;	
 	
-    local iPlayer = popupInfo.Data1;
-    local pPlayer = Players[iPlayer];
+	local iPlayer = popupInfo.Data1;
+	local pPlayer = Players[iPlayer];
 	
 	local strNameKey = pPlayer:GetCivilizationShortDescriptionKey();
 
@@ -280,7 +280,7 @@ print(string.format("City State: Need to add a message and a quest"))
 
 	-- Gifts
 	-- Updated assignments of members of popupInfo
-    --   Data1 is the player id (unchanged)
+	--   Data1 is the player id (unchanged)
 	--   Data2 is the gift "value" (Gold/Culture/Faith amount, UnitId, CityId of population growth)
 	--   Data3 is the friendship boost
 	--   Option1 is first met (unchanged)
@@ -315,17 +315,17 @@ print(string.format("City State: Need to add a message and a quest"))
 	local strGiftTxtKey = string.format("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), popupInfo.Text)
 	
 	if (popupInfo.Data2 == 0) then
-          if (popupInfo.Data3 == 0) then
-            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-          else
-            -- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
-            local activePlayer = Players[iActivePlayer];
+	  if (popupInfo.Data3 == 0) then
+		strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+	  else
+		-- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
+		local activePlayer = Players[iActivePlayer];
 	    if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
-                strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-            else
-            strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
-            end
-          end
+		  strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+		else
+		  strGiftString = Locale.ConvertTextKey("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", popupInfo.Data3, strPersonalityKey)
+		end
+	  end
 	else
 	  if (popupInfo.Text == "UNIT") then
 	    strGiftString = Locale.ConvertTextKey(strGiftTxtKey, GameInfo.Units[popupInfo.Data2].Description, strPersonalityKey)
@@ -372,7 +372,7 @@ end
 
 function UpdateActiveQuests()
 	local iActivePlayer = Game.GetActivePlayer();
-    local iPlayer = m_PopupInfo.Data1;
+	local iPlayer = m_PopupInfo.Data1;
 	local sIconText = GetActiveQuestText(iActivePlayer, iPlayer);
 	local sToolTipText = GetActiveQuestToolTip(iActivePlayer, iPlayer);
 	
@@ -385,7 +385,7 @@ end
 -- Input processing
 ----------------------------------------------------------------        
 function OnCloseButtonClicked ()
-    UIManager:DequeuePopup( ContextPtr );
+	UIManager:DequeuePopup( ContextPtr );
 end
 Controls.CloseButton:RegisterCallback( Mouse.eLClick, OnCloseButtonClicked );
 Controls.ScreenButton:RegisterCallback( Mouse.eRClick, OnCloseButtonClicked );
@@ -412,12 +412,12 @@ Controls.FindOnMapButton:RegisterCallback( Mouse.eLClick, OnFindOnMapButtonClick
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function InputHandler( uiMsg, wParam, lParam )
-    if uiMsg == KeyEvents.KeyDown then
-        if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
-            OnCloseButtonClicked();
-            return true;
-        end
-    end
+	if uiMsg == KeyEvents.KeyDown then
+		if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
+			OnCloseButtonClicked();
+			return true;
+		end
+	end
 end
 ContextPtr:SetInputHandler( InputHandler );
 
@@ -425,17 +425,17 @@ ContextPtr:SetInputHandler( InputHandler );
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler( bIsHide, bInitState )
-    if( not bInitState ) then
+	if( not bInitState ) then
 		Controls.BackgroundImage:UnloadTexture();
-        if( not bIsHide ) then
+		if( not bIsHide ) then
 			Controls.BackgroundImage:SetTexture(lastBackgroundImage);
-        	UI.incTurnTimerSemaphore();
-        	Events.SerialEventGameMessagePopupShown(m_PopupInfo);
-        else
-            UI.decTurnTimerSemaphore();
-            Events.SerialEventGameMessagePopupProcessed.CallImmediate(m_PopupInfo.Type, 0);
-        end
-    end
+			UI.incTurnTimerSemaphore();
+			Events.SerialEventGameMessagePopupShown(m_PopupInfo);
+		else
+			UI.decTurnTimerSemaphore();
+			Events.SerialEventGameMessagePopupProcessed.CallImmediate(m_PopupInfo.Type, 0);
+		end
+	end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
 
