@@ -446,6 +446,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarDamageLevel);
 	Method(IsWillingToMakePeaceWithHuman);
 	Method(GetTreatyWillingToOffer);
+	Method(DoUpdateWarDamageLevel);
+	Method(DoUpdatePeaceTreatyWillingness);
 	Method(GetDominationResistance);
 #endif
 	Method(GetCombatBonusVsHigherTech);
@@ -530,10 +532,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeNumUnitGoldenAges);
 	Method(GetStrikeTurns);
 	Method(GetGoldenAgeModifier);
-    Method(GetGoldenAgeTourismModifier);
-    Method(GetGoldenAgeGreatWriterRateModifier);
-    Method(GetGoldenAgeGreatArtistRateModifier);
-    Method(GetGoldenAgeGreatMusicianRateModifier);
+	Method(GetGoldenAgeTourismModifier);
+	Method(GetGoldenAgeGreatWriterRateModifier);
+	Method(GetGoldenAgeGreatArtistRateModifier);
+	Method(GetGoldenAgeGreatMusicianRateModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetGoldenAgeGreatScientistRateModifier);
 	Method(GetGoldenAgeGreatEngineerRateModifier);
@@ -6446,6 +6448,24 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 	const int iResult = pkPlayer->GetDiplomacyAI()->GetTreatyWillingToOffer(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+
+// void DoUpdateWarDamageLevel();
+int CvLuaPlayer::lDoUpdateWarDamageLevel(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamageLevel();
+	return 0;
+}
+
+// void DoUpdatePeaceTreatyWillingness();
+int CvLuaPlayer::lDoUpdatePeaceTreatyWillingness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	pkPlayer->GetDiplomacyAI()->DoUpdatePeaceTreatyWillingness();
+	return 0;
 }
 
 int CvLuaPlayer::lGetDominationResistance(lua_State* L)

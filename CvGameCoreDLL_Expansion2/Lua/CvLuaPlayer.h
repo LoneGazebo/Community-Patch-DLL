@@ -428,6 +428,8 @@ protected:
 	LUAAPIEXTN(GetWarDamageLevel, int);
 	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
+	LUAAPIEXTN(DoUpdateWarDamageLevel, void);
+	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);
 	LUAAPIEXTN(GetDominationResistance, int);
 	LUAAPIEXTN(GetMajorCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
@@ -1296,7 +1298,7 @@ protected:
 	static int lGetNumInternationalTradeRoutesUsed(lua_State* L);
 	static int lGetNumInternationalTradeRoutesAvailable(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
-    static int GetPotentialInternationalTradeRouteDestinationsHelper(lua_State* L, CvPlayerAI* pkPlayer, CvUnit* pkUnit, CvPlot* pkUnitPlot);
+	static int GetPotentialInternationalTradeRouteDestinationsHelper(lua_State* L, CvPlayerAI* pkPlayer, CvUnit* pkUnit, CvPlot* pkUnitPlot);
 	LUAAPIEXTN(GetPotentialInternationalTradeRouteDestinationsFrom, table, pUnit, pCity);
 #endif
 	static int lGetPotentialInternationalTradeRouteDestinations(lua_State* L);
