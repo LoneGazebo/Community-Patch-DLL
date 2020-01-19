@@ -2847,7 +2847,9 @@ void CvTacticalAI::PlotCampDefenseMoves()
 					CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
 					if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
 					{
-						if (pNeighbor->getBestDefender(NO_PLAYER, m_pPlayer->GetID())->GetBaseCombatStrength() < currentDefender->GetBaseCombatStrength())
+						CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER, m_pPlayer->GetID());
+						//if the enemy ignores zoc, he might capture the camp behind our back 
+						if (pEnemy->GetBaseCombatStrength() < currentDefender->GetBaseCombatStrength() && !pEnemy->IsIgnoreZOC())
 							iWeakEnemyCount++;
 						else
 							iStrongEnemyCount++;
@@ -11917,7 +11919,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case A_CAPTURE:
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
-#ifdef VPDEBUG
+#ifdef TACTDEBUG
 			//see if we can indeed reach the target plot this turn ... 
 			pUnit->ClearPathCache(); pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, INT_MAX, NULL, true);
 			if (pUnit->GetPathEndFirstTurnPlot() != pToPlot)

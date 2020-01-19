@@ -33,16 +33,6 @@ enum CvAStarNodeAddOp
 	ASNC_NEWADD
 };
 
-enum CvAStarListType
-{
-	NO_CVASTARLIST = -1,
-
-	CVASTARLIST_OPEN,
-	CVASTARLIST_CLOSED,
-
-	NUM_CVASTARLIST_TYPES
-};
-
 class CvUnit;
 class CvPlot;
 
@@ -86,7 +76,7 @@ struct CvPathNodeCacheData
 	bool bCanEnterTerrainPermanent:1;
 	bool bCanEnterTerritoryIntermediate:1;
 	bool bCanEnterTerritoryPermanent:1;
-	bool bContainsOtherFriendlyTeamCity:1;
+	bool bIsNonEnemyCity:1;
 	bool bIsEnemyCity:1;
 	bool bIsVisibleEnemyUnit:1;
 	bool bIsVisibleEnemyCombatUnit:1;
@@ -121,27 +111,23 @@ public:
 	CvAStarNode();
 	void clear();
 
-	short m_iX, m_iY;	  // Coordinate position - persistent
+	short m_iX, m_iY;							// Coordinate position - persistent, ie not affected by clear()
 
-	int m_iTotalCost;	  // Fitness (f)
-	int m_iKnownCost;	  // Goal (g)
-	int m_iHeuristicCost; // Heuristic (h)
+	long m_iKnownCost;							// Goal (g)
+	long m_iHeuristicCost;						// Heuristic (h)
+	long m_iTotalCost;							// Fitness (f)
 
-	int m_iMoves;		//unit-specific, movement points left. if no unit is given, always zero
-	int m_iTurns;		//unit-specific, how many turns does it take to get here. if no unit given: equal to number of plots in path up to here
+	unsigned short m_iMoves;					// unit-specific, movement points left. if no unit is given, always zero
+	unsigned short m_iTurns;					// unit-specific, how many turns does it take to get here. if no unit given: equal to number of plots in path up to here
+	unsigned short m_iStartMovesForTurn;		// needed for move cost normalization on domain change
 
-	CvAStarNode* m_pParent;					// Parent in current path
-	CvAStarListType m_eCvAStarListType;
+	bool m_bIsOpen;								// Is this node on the open or closed list?
+	CvAStarNode* m_pParent;						// Parent in current path
 
-	CvAStarNode* m_pStack;					// For Push/Pop Stack
+	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()
+	std::vector<CvAStarNode*> m_apChildren;		// Nodes we could reach from this node - maybe be more than 6 because of "extrachildren"
 
-	//nodes we could reach from this node - maybe be more than 6 because of "extrachildren"
-	std::vector<CvAStarNode*> m_apChildren;
-
-	//for faster neighbor lookup (potential children) - always 6 - persistent
-	CvAStarNode** m_apNeighbors;
-
-	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
+	CvPathNodeCacheData m_kCostCacheData;		// some things we want to calculate only once
 };
 
 //-------------------------------------------------------------------------------------------------

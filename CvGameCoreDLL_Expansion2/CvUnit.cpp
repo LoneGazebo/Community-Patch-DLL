@@ -311,7 +311,6 @@ CvUnit::CvUnit() :
 	, m_iNumInterceptions("CvUnit::m_iNumInterceptions", m_syncArchive)
 	, m_iMadeInterceptionCount("CvUnit::m_iMadeInterceptionCount", m_syncArchive)
 	, m_iEverSelectedCount("CvUnit::m_iEverSelectedCount", m_syncArchive)
-	, m_bIgnoreDangerWakeup("CvUnit::m_bIgnoreDangerWakeup", m_syncArchive, false, false)
 	, m_iEmbarkedAllWaterCount("CvUnit::m_iEmbarkedAllWaterCount", m_syncArchive)
 	, m_iEmbarkExtraVisibility("CvUnit::m_iEmbarkExtraVisibility", m_syncArchive)
 	, m_iEmbarkDefensiveModifier("CvUnit::m_iEmbarkDefensiveModifier", m_syncArchive)
@@ -1666,7 +1665,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMadeInterceptionCount = 0;
 	m_iEverSelectedCount = 0;
 
-	m_bIgnoreDangerWakeup = false;
 	m_iEmbarkedAllWaterCount = 0;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	m_iEmbarkedDeepWaterCount = 0;
@@ -3098,7 +3096,7 @@ void CvUnit::doTurn()
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 	if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
 		// Healing units will awaken if they can see an enemy unit
-		bHealCheck = bHealCheck || ((eActivityType == ACTIVITY_HEAL) && SentryAlert(true));
+		bHealCheck = bHealCheck || (eActivityType == ACTIVITY_HEAL && SentryAlert());
 	}
 #endif
 	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert();
@@ -4682,60 +4680,43 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		return true;
 	}
 
-	if(kTheirTeam.isMinorCiv())
+	// Minors can't intrude into one another's territory
+	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
-		// Minors can't intrude into one another's territory
-		if(!kMyTeam.isMinorCiv())
-		{
-			// If we haven't yet met the Minor we can move in
-			// Do we need to do anything special here for human VS AI civs?  AIs might get confused
-			if(!kMyTeam.isHasMet(eTeam))
-			{
-				return true;
-			}
+		// Humans can always enter a minor's territory and bear the consequences
+		if (isHuman())
+			return true;
 
-			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+		// Allow AI players to pass through minors' territory
+		if (!bEndTurn)
+			return true;
+
+		// If we haven't yet met the Minor we can move in
+		if(!kMyTeam.isHasMet(eTeam))
+			return true;
+
+		// Is this an excluded unit that doesn't cause anger?
+		if (IsAngerFreeUnit())
+			return true;
+
+		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 #if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-			// If the minor is allied, treat the plot as being owned by their ally
-			PlayerTypes eMinorAlly = pMinorAI->GetAlly();
-			if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMinorAlly != NO_PLAYER)
-			{
-				if (eMinorAlly == getOwner())
-				{
-					return true;
-				}
-			} 
-			else 
+		// If the minor is allied, treat the plot as being owned by their ally
+		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
+			return true;
 #endif
-			{
-				// The remaining checks are only for AI major vs. AI Minor, humans can always enter a minor's territory.
-				if (isHuman())
-					return true;
 
-				// Allow AI players to pass through minors' territory
-				if (!bEndTurn)
-					return true;
-
-				// Is this an excluded unit that doesn't cause anger?
-				if (IsAngerFreeUnit())
-					return true;
-
-				// If already intruding on this minor, okay to do it some more
-				if (pMinorAI->IsMajorIntruding(getOwner()))
-					return true;
-
-				//Let's let scouts in.
-				if(getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
-					return true;
-				}
-		}
+		// If already intruding on this minor, okay to do it some more
+		if (pMinorAI->IsMajorIntruding(getOwner()))
+			return true;
 	}
 
 	//city states may enter their ally's territory - may help for defense
 	if (kMyTeam.isMinorCiv() && kTheirTeam.isMajorCiv() && GET_PLAYER(getOwner()).GetMinorCivAI()->IsAllies(kTheirTeam.getLeaderID()))
 		return true;
 
+	//default
 	return false;
 }
 
@@ -7112,18 +7093,6 @@ void CvUnit::ChangeEmbarkAbilityCount(int iChange)
 	{
 		m_iEmbarkAbilityCount += iChange;
 	}
-}
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsIgnoringDangerWakeup() const
-{
-	return m_bIgnoreDangerWakeup;
-}
-
-//	--------------------------------------------------------------------------------
-void CvUnit::SetIgnoreDangerWakeup(bool bState)
-{
-	m_bIgnoreDangerWakeup = bState;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28311,47 +28280,12 @@ bool CvUnit::IsBusy() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-bool CvUnit::SentryAlert(bool bSameDomainOrRanged) const
-#else
 bool CvUnit::SentryAlert() const
-#endif
 {
-	VALIDATE_OBJECT
-	if (GetActivityType() == ACTIVITY_SLEEP)
-		return false;
-
-	int iRange = visibilityRange();
 #if defined(MOD_BALANCE_CORE)
 	if (getDomainType() == DOMAIN_AIR)
 	{
-		iRange = GetRange();
-		if(iRange > 0)
-		{
-			for(int iX = -iRange; iX <= iRange; ++iX)
-			{
-				for(int iY = -iRange; iY <= iRange; ++iY)
-				{
-					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
-					if(NULL != pPlot)
-					{
-						if(pPlot->isVisible(getTeam()))
-						{
-							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
-							{
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	else
-#endif
-
-	if(iRange > 0)
-	{
+		int iRange = GetRange();
 		for(int iX = -iRange; iX <= iRange; ++iX)
 		{
 			for(int iY = -iRange; iY <= iRange; ++iY)
@@ -28359,33 +28293,31 @@ bool CvUnit::SentryAlert() const
 				CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
 				if(NULL != pPlot)
 				{
-					if(plot()->canSeePlot(pPlot, getTeam(), iRange, NO_DIRECTION))
+					if(pPlot->isVisible(getTeam()))
 					{
-						if(pPlot->isVisibleEnemyUnit(this))
+						if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
 						{
-							// Blocker for enemies not in our domain
-							CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
-							if(pEnemyUnit)
-							{
-#if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-								if (bSameDomainOrRanged)
-								{
-									if (pEnemyUnit->isRanged() || pEnemyUnit->getDomainType() == getDomainType()) {
-										return true;
-									}
-								}
-								else
-#endif
-									return true;
-							}
+							return true;
 						}
 					}
 				}
 			}
 		}
 	}
+#endif
 
-	return false;
+	//combat units should wake as soon as enemies are around
+	//civilians ignore non-lethal danger like fallout
+	int iDangerLimit = IsCombatUnit() ? 0 : GetCurrHitPoints() / 2;
+
+	//if we're on the move, check the plot we're going to, not the one we're currently at
+	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
+	{
+		CvPlot* pTurnDestination = GetPathEndFirstTurnPlot();
+		return GetDanger(pTurnDestination) > iDangerLimit;
+	}
+
+	return GetDanger() > iDangerLimit;
 }
 
 //	--------------------------------------------------------------------------------

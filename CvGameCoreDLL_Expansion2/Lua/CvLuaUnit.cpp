@@ -803,7 +803,7 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 
 	//no caching!
 	SPathFinderUserData data(pkUnit, CvUnit::MOVEFLAG_IGNORE_STACKING, iMaxTurns);
-	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data, true);
+	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)
 	{
@@ -845,7 +845,7 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 
 	//no caching!
 	SPathFinderUserData data(pkUnit, 0, INT_MAX);
-	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pDestPlot->getX(), pDestPlot->getY(), data, true);
+	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pDestPlot->getX(), pDestPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)
 	{

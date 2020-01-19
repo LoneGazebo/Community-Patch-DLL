@@ -27,7 +27,7 @@
 //PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(20)	//per percent defense bonus on turn end plot
-#define PATH_STEP_WEIGHT										(100)	//relatively small
+#define PATH_STEP_WEIGHT										(10)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(20)	//accept four plots detour to save on maintenance
@@ -297,17 +297,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	}
 
 	//set up first node
-	CvAStarNode* temp = &(m_ppaaNodes[iXstart][iYstart]);
-	temp->clear();
-	temp->m_iKnownCost = 0;
-	if(udHeuristic && isValid(m_iXdest, m_iYdest))
-	{
-		temp->m_iHeuristicCost = udHeuristic(m_iXstart, m_iYstart, m_iXstart, m_iYstart, m_iXdest, m_iYdest);
-		temp->m_iTotalCost = temp->m_iHeuristicCost;
-	}
-	temp->m_eCvAStarListType = CVASTARLIST_OPEN;
-	m_openNodes.push_back(temp);
-	NodeAdded(NULL, temp, ASNC_INITIALADD);
+	NodeAddedToPath(NULL, GetNodeMutable(iXstart,iYstart), 0, ASNC_INITIALADD);
 
 #if defined(MOD_CORE_DEBUGGING)
 	cvStopWatch timer("pathfinder",NULL,0,true);
@@ -430,7 +420,7 @@ CvAStarNode* CvAStar::GetBest()
 	CvAStarNode* temp = m_openNodes.back();	m_openNodes.pop_back();
 
 	//move the node to the closed list
-	temp->m_eCvAStarListType = CVASTARLIST_CLOSED;
+	temp->m_bIsOpen = false;
 	m_closedNodes.push_back(temp);
 	return temp;
 }
@@ -574,46 +564,30 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	node->m_apChildren.push_back(check);
 
 	//is the new node already on the open list? update it
-	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
+	if(check->m_bIsOpen)
 	{
 		if(iKnownCost < check->m_iKnownCost)
 		{
 			//heap order will be restored when calling getBest
 			m_bHeapDirty = true;
-
-			check->m_pParent = node;
-			check->m_iKnownCost = iKnownCost;
-			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
-
-			NodeAdded(node, check, ASNC_OPENADD_UP);
+			NodeAddedToPath(node, check, iKnownCost, ASNC_OPENADD_UP);
 		}
 	}
 	//is the new node on the closed list?
-	else if(check->m_eCvAStarListType == CVASTARLIST_CLOSED)
+	else if(check->m_iTotalCost > -1)
 	{
 		if(iKnownCost < check->m_iKnownCost)
 		{
-			check->m_pParent = node;
-			check->m_iKnownCost = iKnownCost;
-			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
-			
-			NodeAdded(node, check, ASNC_CLOSEDADD_UP);
-			UpdateParents(check);
+			NodeAddedToPath(node, check, iKnownCost, ASNC_CLOSEDADD_UP);
+			UpdateDownstreamNodes(check);
 		}
 	}
 	//new node is previously untouched
-	else if (check->m_eCvAStarListType == NO_CVASTARLIST)
+	else
 	{
-		check->m_pParent = node;
-		check->m_iKnownCost = iKnownCost;
-		check->m_iHeuristicCost = (udHeuristic && isValid(m_iXdest, m_iYdest)) ? 
-			udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest) : 0;
-		check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
-
-		NodeAdded(node, check, ASNC_NEWADD);
-		AddToOpen(check);
+		NodeAddedToPath(node, check, iKnownCost, ASNC_NEWADD);
 	}
-	
+
 	return NS_VALID;
 }
 
@@ -621,8 +595,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 /// Add node to open list
 void CvAStar::AddToOpen(CvAStarNode* addnode)
 {
-	addnode->m_eCvAStarListType = CVASTARLIST_OPEN;
-
+	addnode->m_bIsOpen = true;
 	m_openNodes.push_back(addnode);
 	std::push_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
 }
@@ -632,10 +605,16 @@ const CvAStarNode * CvAStar::GetNode(int iCol, int iRow) const
 	return &(m_ppaaNodes[iCol][iRow]);
 }
 
+CvAStarNode * CvAStar::GetNodeMutable(int iCol, int iRow) const
+{
+	return &(m_ppaaNodes[iCol][iRow]);
+}
+
 //	--------------------------------------------------------------------------------
 /// Refresh parent node (after linking in a child)
-void CvAStar::UpdateParents(CvAStarNode* node)
+void CvAStar::UpdateDownstreamNodes(CvAStarNode* node)
 {
+	//simple bfs
 	std::vector<CvAStarNode*> storedNodes;
 
 	CvAStarNode* parent = node;
@@ -650,15 +629,11 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 			if(iKnownCost < kid->m_iKnownCost)
 			{
 				//heap order will be restored when calling getBest()
-				if (kid->m_eCvAStarListType == CVASTARLIST_OPEN)
+				if (kid->m_bIsOpen)
 					m_bHeapDirty = true;
 
-				kid->m_iKnownCost = iKnownCost;
-				kid->m_iTotalCost = kid->m_iKnownCost + kid->m_iHeuristicCost;
-				FAssert(parent->m_pParent != kid);
-				kid->m_pParent = parent;
-
-				NodeAdded(parent, kid, ASNC_PARENTADD_UP);
+				//also need to check closed nodes, they might have open children!
+				NodeAddedToPath(parent, kid, iKnownCost, ASNC_PARENTADD_UP);
 
 				if (std::find(storedNodes.begin(),storedNodes.end(),kid) == storedNodes.end())
 					storedNodes.push_back(kid);
@@ -677,7 +652,7 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 
 //	--------------------------------------------------------------------------------
 /// Get the whole path
-SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
+SPath CvAStar::GetCurrentPath(TurnCountMode eMode) const
 {
 	SPath ret;
 	ret.iTurnSliceGenerated = GC.getGame().getTurnSlice();
@@ -697,11 +672,19 @@ SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 	//walk backwards ...
 	while(pNode != NULL)
 	{
+		//default mode TC_GAMECORE
 		ret.vPlots.push_back(SPathNode(pNode));
 
 		//switch counting convention. if zero moves left, consider this as plus one turns
-		if (ret.vPlots.back().moves == 0 && bUseUiTurnCountConvention)
+		if (eMode==TC_UI && ret.vPlots.back().moves == 0)
 			ret.vPlots.back().turns++;
+		//overwrite the turns with the costs
+		else if (eMode==TC_DEBUG)
+			ret.vPlots.back().turns = (short)pNode->m_iKnownCost;
+
+		//failsafe
+		if (pNode == pNode->m_pParent)
+			break;
 
 		pNode = pNode->m_pParent;
 	}
@@ -854,7 +837,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bIsNonNativeDomain = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
-	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
+	kToNodeCacheData.bIsNonEnemyCity = false;
 	kToNodeCacheData.bIsEnemyCity = false;
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
@@ -864,7 +847,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 			if (kUnitTeam.isAtWar(pCity->getTeam()))
 				kToNodeCacheData.bIsEnemyCity = true;
 			else
-				kToNodeCacheData.bContainsOtherFriendlyTeamCity = true;
+				kToNodeCacheData.bIsNonEnemyCity = true;
 		}
 	}
 
@@ -1083,7 +1066,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	//a normal move is 60 times the base cost
+	//a normal move is 30 times the base cost (for a unit with 2 base moves)
 	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*20; 
 }
 
@@ -1091,9 +1074,9 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 /// Standard path finder - cost for ending the turn on a given plot
 int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, bool bAbortInDanger)
 {
-	//human knows best, don't try to be smart
+	//human knows best, don't try to be smart, but when in doubt prefer native domain ...
 	if (!pUnitDataCache->isAIControl())
-		return 0;
+		return kToNodeCacheData.bIsNonNativeDomain && pUnitDataCache->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
 
 	int iCost = 0;
 
@@ -1234,7 +1217,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	//this is quite tricky with passable ice plots which can be either water or land
 	bool bToPlotIsWater = kToNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	bool bFromPlotIsWater = kFromNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	int iBaseMovesInCurrentDomain = pUnitDataCache->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
 
 	if (iStartMoves==0)
 	{
@@ -1242,11 +1224,12 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		iTurns++;
 
 		//hand out new moves
-		iStartMoves = iBaseMovesInCurrentDomain*GC.getMOVE_DENOMINATOR();
+		iStartMoves = parent->m_iStartMovesForTurn*GC.getMOVE_DENOMINATOR();
 	}
 
 	//calculate move cost
 	int iMovementCost = 0;
+
 	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES)) || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
@@ -1276,20 +1259,29 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	//can't write to node just yet, before we know whether this transition is good or not
 	finder->SetTempResult(iMovesLeft,iTurns);
 
-	//base cost
-	int iCost = (PATH_BASE_COST * iMovementCost);
+	//base cost. normalize by movement speed of the unit so that faster movement is cheaper.
+	//we want to optimize the number of turns for the path, not movement points spent!
+	int iCost = (PATH_BASE_COST * iMovementCost) / parent->m_iStartMovesForTurn;
+	
+	//when in doubt prefer the shorter path
+	iCost += PATH_STEP_WEIGHT;
+
+	//when in doubt avoid domain changes because too many of them look stupid
+	if (bFromPlotIsWater != bToPlotIsWater)
+		iCost += PATH_STEP_WEIGHT;
 
 	//do we end the turn here
 	if(iMovesLeft == 0)
 	{
-		// check whether we're allowed to end the turn in this terrain
-		if (kToNodeCacheData.bIsRevealedToTeam && !kToNodeCacheData.bCanEnterTerrainPermanent)
-			return -1; //forbidden
+		// check whether we're allowed to end the turn in this plot
+		if (kToNodeCacheData.bIsRevealedToTeam)
+		{
+			if (!kToNodeCacheData.bCanEnterTerrainPermanent || !kToNodeCacheData.bCanEnterTerritoryPermanent || kToNodeCacheData.bIsNonEnemyCity)
+				return -1; //forbidden
+		}
+
 		// check stacking (if visible)
 		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bUnitStackingLimitReached && iTurns==0)
-			return -1; //forbidden
-		// can't stay in other players' cities
-		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
 			return -1; //forbidden
 
 		//extra cost for ending the turn on various types of undesirable plots
@@ -1351,9 +1343,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		}
 	}
 
-	//when in doubt prefer the shorter path
-	iCost += PATH_STEP_WEIGHT;
-
 	return iCost;
 }
 
@@ -1397,7 +1386,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			if(true)
 #endif
 			{
-				if (kFromNodeCacheData.bContainsOtherFriendlyTeamCity)
+				if (kFromNodeCacheData.bIsNonEnemyCity)
 					return FALSE;
 			}
 
@@ -1422,7 +1411,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		if(kToNodeCacheData.bIsVisibleNeutralCombatUnit && kToNodeCacheData.bIsVisibleEnemyUnit)
 			return FALSE;
 
-		//we check stacking once we know whether we end the turn here (in PathCost)
+		//we check stacking and canEnterPermanent flags once we know whether we end the turn here (in PathCost)
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
 			return FALSE;
 	}
@@ -1491,29 +1480,64 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 
 //	--------------------------------------------------------------------------------
 /// Node was added to the path
-void CvTwoLayerPathFinder::NodeAdded(CvAStarNode*, CvAStarNode* node, CvAStarNodeAddOp operation)
+void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int iKnownCost, CvAStarNodeAddOp operation)
 {
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(GetScratchBuffer());
 	const CvUnit* pUnit = pCacheData->pUnit;
 	bool bUpdateCacheForNeighbors = false;
+
+	//failsafe
+	if (node == parent)
+		return;
+
+	//make sure the costs are up to date
+	node->m_pParent = parent;
+	node->m_iKnownCost = iKnownCost;
+	//compute heuristic cost only once ...
+	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
+	{
+		int iHeuristicCost = parent ?
+			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
+			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
+		node->m_iHeuristicCost = iHeuristicCost;
+	}
+	node->m_iTotalCost = node->m_iKnownCost*giKnownCostWeight + node->m_iHeuristicCost*giHeuristicCostWeight;
 
 	if(operation == ASNC_INITIALADD)
 	{
 		//in this case we did not call PathCost() before, so we have to set the initial values here
 		node->m_iMoves = GetData().iStartMoves;
 		node->m_iTurns = 0;
+		node->m_iStartMovesForTurn = pCacheData->baseMoves(pUnit->plot()->getDomain());
 
+		AddToOpen(node);
 		UpdateNodeCacheData(node,pUnit,this);
 		bUpdateCacheForNeighbors = true;
 	}
 	else
 	{
+		//these were already calculated in PathCost, don't do the work again
 		node->m_iMoves = GetCachedMoveCount();
 		node->m_iTurns = GetCachedTurnCount();
 
+		if (node->m_iMoves == 0)
+		{
+			//if necessary manually update the start turn moves field
+			CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+			node->m_iStartMovesForTurn = pCacheData->baseMoves(pPlot->getDomain());
+		}
+		else if (parent) //should always be true
+		{
+			//re-use parent value if we can continue the turn
+			node->m_iStartMovesForTurn = parent->m_iStartMovesForTurn;
+		}
+
 		//otherwise we don't need to update the cache, it has already been done in a previous call
 		if (operation == ASNC_NEWADD)
+		{
 			bUpdateCacheForNeighbors = true;
+			AddToOpen(node);
+		}
 	}
 
 	if (bUpdateCacheForNeighbors)
@@ -1737,23 +1761,44 @@ int StepValidWideAnyArea(const CvAStarNode* parent, const CvAStarNode* node, con
 
 //	--------------------------------------------------------------------------------
 /// Step path finder - add a new node to the path. count the steps as turns
-void CvStepFinder::NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation)
+void CvStepFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int iKnownCost, CvAStarNodeAddOp operation)
 {
+	//failsafe
+	if (node == parent)
+		return;
+
+	//fix up the most important fields first
+	node->m_pParent = parent;
+	node->m_iKnownCost = iKnownCost;
+	//compute heuristic cost only once ...
+	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
+	{
+		int iHeuristicCost = parent ?
+			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
+			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
+		node->m_iHeuristicCost = iHeuristicCost;
+	}
+	node->m_iTotalCost = node->m_iKnownCost*giKnownCostWeight + node->m_iHeuristicCost*giHeuristicCostWeight;
+
+	//moves always zero for stepfinder
+	node->m_iMoves = 0;
+
 	if(operation == ASNC_INITIALADD)
 	{
 		node->m_iTurns = 0;
-	}
-	else if (m_sData.ePathType == PT_GENERIC_REACHABLE_PLOTS)
-	{
-		//assume a unit has 2*PATH_BASE_COST movement points per turn
-		node->m_iTurns = (node->m_iKnownCost + PATH_BASE_COST) / (2 * PATH_BASE_COST);
+		AddToOpen(node);
 	}
 	else
 	{
-		node->m_iTurns = (parent->m_iTurns + 1);
-	}
+		if (m_sData.ePathType == PT_GENERIC_REACHABLE_PLOTS)
+			//assume a unit has 2*PATH_BASE_COST movement points per turn
+			node->m_iTurns = unsigned short((node->m_iKnownCost + PATH_BASE_COST) / (2 * PATH_BASE_COST));
+		else
+			node->m_iTurns = (parent->m_iTurns + 1);
 
-	node->m_iMoves = 0;
+		if (operation == ASNC_NEWADD)
+			AddToOpen(node);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -2243,7 +2288,7 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 		return false;
 
 	if (temp->m_kCostCacheData.bIsRevealedToTeam)
-		if (!temp->m_kCostCacheData.bCanEnterTerrainPermanent || !temp->m_kCostCacheData.bCanEnterTerritoryPermanent || temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
+		if (!temp->m_kCostCacheData.bCanEnterTerrainPermanent || !temp->m_kCostCacheData.bCanEnterTerritoryPermanent || temp->m_kCostCacheData.bIsNonEnemyCity)
 			return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
@@ -2267,7 +2312,7 @@ bool CvTwoLayerPathFinder::CommonNeighborIsPassable(const CvAStarNode * a, const
 	{
 		CvAStarNode* check = a->m_apNeighbors[i];
 		if (check && plotDistance(check->m_iX, check->m_iY, b->m_iX, b->m_iY) == 1)
-			if (check->m_kCostCacheData.bCanEnterTerrainIntermediate)
+			if (check->m_kCostCacheData.bCanEnterTerrainIntermediate && check->m_kCostCacheData.bCanEnterTerritoryIntermediate)
 				return true;
 	}
 
@@ -2329,12 +2374,13 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 			return false;
 
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
-		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
+		UpdateNodeCacheData(pStopNode,pUnitDataCache->pUnit,this);
 
 		//assume a stop here - do not add the cost for the wasted movement points!
 		pStopNode->m_iMoves = 0;
 		pStopNode->m_iTurns = current->m_iTurns;
 		pStopNode->m_iHeuristicCost = current->m_iHeuristicCost;
+		pStopNode->m_iStartMovesForTurn = current->m_iStartMovesForTurn;
 
 		//cost is the same plus a little bit to encourage going the full distance when in doubt
 		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
@@ -2497,7 +2543,7 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 //	--------------------------------------------------------------------------------
 /// configure the pathfinder and do the magic
 ///	atomic call, should be threadsafe
-SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, bool bUseUiTurnCountConvention)
+SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, TurnCountMode eMode)
 {
 	//make sure we don't call this from dll and lua at the same time
 	bool bHadLock = gDLL->HasGameCoreLock();
@@ -2506,7 +2552,7 @@ SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, co
 
 	SPath result;
 	if (Configure(data) && CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
-		result = CvAStar::GetCurrentPath(bUseUiTurnCountConvention);
+		result = CvAStar::GetCurrentPath(eMode);
 
 	if(!bHadLock)
 		gDLL->ReleaseGameCoreLock();
@@ -2514,12 +2560,12 @@ SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, co
 }
 
 //wrapper for CvPlot*
-SPath CvPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data, bool bUseUiTurnCountConvention)
+SPath CvPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data, TurnCountMode eMode)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
 		return SPath();
 
-	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data, bUseUiTurnCountConvention);
+	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data, eMode);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2689,6 +2735,11 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 				while (node)
 				{
 					path.vPlots.push_back( SPathNode(node) );
+
+					//failsafe
+					if (node == node->m_pParent || path.vPlots.size() > 10000)
+						break;
+
 					node = node->m_pParent;
 				}
 

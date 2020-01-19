@@ -11808,7 +11808,6 @@ void CvPlayer::DoUnitReset()
 			}
 		}
 
-		pLoopUnit->SetIgnoreDangerWakeup(false);
 		pLoopUnit->setMadeAttack(false);
 		pLoopUnit->resetInterceptionCount();
 

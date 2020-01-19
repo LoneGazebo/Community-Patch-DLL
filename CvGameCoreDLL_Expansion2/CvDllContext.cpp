@@ -1086,11 +1086,13 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 //------------------------------------------------------------------------------
 ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadSelectedUnit, int iMouseMapX, int iMouseMapY)
 {
+	static TurnCountMode eMode = TC_UI; //change this to TC_DEBUG if interested
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
 
 	//no caching!
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
-	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data, true);
+	//use TC_DEBUG to see path costs in the UI
+	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data, eMode);
 
 	if (!!path)
 	{
@@ -1104,9 +1106,14 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			CvDllPathFinderUpdateListData update;
 			update.iX = path.vPlots[i].x;
 			update.iY = path.vPlots[i].y;
+
 			update.iTurnNumber = path.vPlots[i].turns * 10; //fixed point float
 			if (path.vPlots[i].moves>0)
 				update.iTurnNumber += 5; //indicate that there are movement points left
+
+			//in debug mode just use the raw number, it's actually the known cost
+			if (eMode==TC_DEBUG)
+				update.iTurnNumber = path.vPlots[i].turns;
 
 			pUpdateData.push_back(update);
 		}

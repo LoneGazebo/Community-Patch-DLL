@@ -28679,6 +28679,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					iInfluenceCost *= iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
 
 					// Resource Plots claimed first
+					int iResourceMod = 0;
 					ResourceTypes eResource = pLoopPlot->getResourceType(thisTeam);
 					if (eResource != NO_RESOURCE)
 					{
@@ -28686,21 +28687,21 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						if (pkResource)
 						{
 							if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
+								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST;
 							else if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) <= iWorkPlotDistance)
 								//bonus resources are meh, even if they are in range
-								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST/2;
+								iResourceMod += iPLOT_INFLUENCE_RESOURCE_COST/2;
 						}
 					}
-					else //no resource
-					{
 
+					if (iResourceMod == 0) //no resource or ignored resource
+					{
 						// Water Plots claimed later
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
-						{
 							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
-						}
 					}
+					else
+						iInfluenceCost += iResourceMod;
 
 					// if we can't work this tile in this city make it much less likely to be picked
 					if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
@@ -28729,7 +28730,13 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
-						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * pLoopPlot->getYield((YieldTypes) iYieldLoop));
+						//Simplification - errata yields not worth considering.
+						if ((YieldTypes)iYieldLoop > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+							break;
+
+						int iWeight = (iYieldLoop == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;
+
+						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * pLoopPlot->getYield((YieldTypes) iYieldLoop) * iWeight);
 					}
 
 					// all other things being equal move towards unclaimed resources

@@ -4368,7 +4368,7 @@ bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUn
 
 bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
 {
-	ImprovementTypes eImprovement = getImprovementType();
+	ImprovementTypes eImprovement = getRevealedImprovementType( GET_PLAYER(ePlayer).getTeam() );
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable() && !IsImprovementPillaged();
 	bool bIsCityOrPassable = isCity() || bIsPassableImprovement;

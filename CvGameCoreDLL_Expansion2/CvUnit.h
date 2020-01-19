@@ -209,11 +209,7 @@ public:
 	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
-#if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-	bool SentryAlert(bool bSameDomainOrRanged = false) const;
-#else
 	bool SentryAlert() const;
-#endif
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
@@ -1800,9 +1796,6 @@ public:
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
 
-	bool IsIgnoringDangerWakeup() const;
-	void SetIgnoreDangerWakeup(bool bState);
-
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
 	int GetEmbarkAllWaterCount() const;
@@ -2313,7 +2306,6 @@ protected:
 	//not serialized
 	std::vector<CvPlot*> m_unitMoveLocs;
 
-	FAutoVariable<bool, CvUnit> m_bIgnoreDangerWakeup; // slewis - make this an autovariable when saved games are broken
 	FAutoVariable<int, CvUnit> m_iEmbarkedAllWaterCount;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	FAutoVariable<int, CvUnit> m_iEmbarkedDeepWaterCount;

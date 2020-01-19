@@ -33,6 +33,13 @@ typedef int(*CvAGetExtraChild)(const CvAStarNode*, int, int&, int&, const CvASta
 typedef void(*CvABegin)(const SPathFinderUserData&, CvAStar*);
 typedef void(*CvAEnd)(const SPathFinderUserData&, CvAStar*);
 
+enum TurnCountMode
+{
+	TC_GAMECORE,	//turns start at zero, continue with one after turn end
+	TC_UI,			//turns start at zero, continue with one at turn end
+	TC_DEBUG		//turns are in fact move costs. needs a modified PathHelpManager.lua to show it in the UI
+};
+
 enum NodeState
 {
 	NS_INITIAL_FINAL = 0,
@@ -70,7 +77,7 @@ public:
 	bool VerifyPath(const SPath& path);
 
 	// Get the result
-	SPath GetCurrentPath(bool bUseUiTurnCountConvention) const;
+	SPath GetCurrentPath(TurnCountMode eMode) const;
 
 	inline bool HaveFlag(int iFlag) const
 	{
@@ -166,6 +173,7 @@ public:
 
 	//has to be public for the free functions to access it
 	const CvAStarNode* GetNode(int iCol, int iRow) const;
+	CvAStarNode* GetNodeMutable(int iCol, int iRow) const;
 
 	inline bool IsApproximateMode() const
 	{
@@ -176,7 +184,7 @@ public:
 	virtual bool CommonNeighborIsPassable(const CvAStarNode* a, const CvAStarNode* b) const = 0;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next) = 0;
 	virtual bool DestinationReached(int iToX, int iToY) const = 0;
-	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation) = 0;
+	virtual void NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int iKnownCost, CvAStarNodeAddOp operation) = 0;
 
 	//--------------------------------------- PROTECTED FUNCTIONS -------------------------------------------
 protected:
@@ -207,7 +215,7 @@ protected:
 
 	void CreateChildren(CvAStarNode* node);
 	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
-	void UpdateParents(CvAStarNode* node);
+	void UpdateDownstreamNodes(CvAStarNode* node);
 
 	inline int xRange(int iX) const;
 	inline int yRange(int iY) const;
@@ -351,8 +359,8 @@ inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, co
 class CvPathFinder : public CvAStar
 {
 public:
-	virtual SPath GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, bool bUseUiTurnCountConvention=false);
-	virtual SPath GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data, bool bUseUiTurnCountConvention=false);
+	virtual SPath GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, TurnCountMode eMode=TC_GAMECORE);
+	virtual SPath GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data, TurnCountMode eMode=TC_GAMECORE);
 	virtual bool DoesPathExist(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 	virtual bool DoesPathExist(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 	virtual int GetPathLengthInPlots(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
@@ -373,7 +381,7 @@ class CvStepFinder : public CvPathFinder
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
 	virtual bool CommonNeighborIsPassable(const CvAStarNode* a, const CvAStarNode* b) const;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
-	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation);
+	virtual void NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int iKnownCost, CvAStarNodeAddOp operation);
 
 protected:
 	virtual bool Configure(const SPathFinderUserData& config);
@@ -398,7 +406,7 @@ public:
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
 	virtual bool CommonNeighborIsPassable(const CvAStarNode* a, const CvAStarNode* b) const;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
-	virtual void NodeAdded(CvAStarNode* parent, CvAStarNode* node, CvAStarNodeAddOp operation);
+	virtual void NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int iKnownCost, CvAStarNodeAddOp operation);
 
 protected:
 	// set the function pointers which do the actual work
