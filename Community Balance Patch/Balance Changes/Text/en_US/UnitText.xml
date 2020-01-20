@@ -485,7 +485,7 @@
 			<Text>Zeppelins are a useful ranged exploration unit that appears during the Industrial Era. They are fairly weak on defense and, therefore, are easily defeated by contemporary military units. Their reconaissance abilities are unparalleled, especially due to their ability to hover.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_ZEPPELIN_CBP">
-			<Text>Industrial-era ranged exploration unit. Use these units to explore or to monitor your borders. It is capable of hovering over all terrain, however it takes damage if it ends its turn on a mountain.</Text>
+			<Text>Industrial-era ranged exploration unit. Use these units to explore or to monitor your borders. It is capable of hovering over Mountains.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_ZEPPELIN_TEXT_CBP">
 			<Text>A Zeppelin was a type of rigid airship named after the German Count Ferdinand von Zeppelin who pioneered rigid airship development at the beginning of the 20th century. Zeppelin's ideas were first formulated in 1874 and developed in detail in 1893. They were patented in Germany in 1895 and in the United States in 1899. After the outstanding success of the Zeppelin design, the word zeppelin came to be commonly used to refer to all rigid airships. Zeppelins were first flown commercially in 1910 by Deutsche Luftschiffahrts-AG (DELAG), the world's first airline in revenue service. By mid-1914, DELAG had carried over 10,000 fare-paying passengers on over 1,500 flights. During World War I the German military made extensive use of Zeppelins as bombers and scouts, killing over 500 people in bombing raids in Britain.</Text>
