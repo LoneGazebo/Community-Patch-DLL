@@ -5212,6 +5212,14 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;
 			}
 		}
+		else
+		{
+			//just a failsafe, aircraft do range attacks when moving and move by rebasing ...
+			if (!canRebaseAt(this->plot(),plot.getX(),plot.getY()))
+			{
+				return false;
+			}
+		}
 	}
 	else
 	{
@@ -9860,7 +9868,7 @@ bool CvUnit::canRebase() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
+bool CvUnit::canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const
 {
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
 	if(!canRebase())
@@ -9868,7 +9876,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 		return false;
 	}
 
-	CvPlot* pToPlot = GC.getMap().plot(iX, iY);
+	CvPlot* pToPlot = GC.getMap().plot(iXDest, iYDest);
 
 	// Null plot...
 	if(pToPlot == NULL)
@@ -9876,8 +9884,11 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 		return false;
 	}
 
+	if (pStartPlot == NULL)
+		pStartPlot = plot();
+
 	// Same plot...
-	if(pToPlot == pPlot)
+	if(pToPlot == pStartPlot)
 	{
 		return false;
 	}
@@ -9887,7 +9898,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 	iRange *= /*200*/ GC.getAIR_UNIT_REBASE_RANGE_MULTIPLIER();
 	iRange /= 100;
 
-	if(plotDistance(pPlot->getX(), pPlot->getY(), iX, iY) > iRange)
+	if(plotDistance(pStartPlot->getX(), pStartPlot->getY(), iXDest, iYDest) > iRange)
 	{
 		return false;
 	}
@@ -9911,7 +9922,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 		if (!bCityToRebase)
 		{
 #if defined(MOD_EVENTS_REBASE)
-			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanRebaseInCity, getOwner(), GetID(), iX, iY) == GAMEEVENTRETURN_TRUE) {
+			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanRebaseInCity, getOwner(), GetID(), iXDest, iYDest) == GAMEEVENTRETURN_TRUE) {
 				bCityToRebase = true;
 			} else {
 #endif
@@ -9921,8 +9932,8 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 				CvLuaArgsHandle args;
 				args->Push(getOwner());
 				args->Push(GetID());
-				args->Push(iX);
-				args->Push(iY);
+				args->Push(iXDest);
+				args->Push(iYDest);
 
 				// Attempt to execute the game events.
 				// Will return false if there are no registered listeners.
@@ -9993,7 +10004,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 
 #if defined(MOD_EVENTS_REBASE)
 		if (MOD_EVENTS_REBASE) {
-			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanRebaseTo, getOwner(), GetID(), iX, iY, bCityToRebase) == GAMEEVENTRETURN_TRUE) {
+			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanRebaseTo, getOwner(), GetID(), iXDest, iYDest, bCityToRebase) == GAMEEVENTRETURN_TRUE) {
 				return true;
 			}
 		} else {
@@ -10004,8 +10015,8 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 			CvLuaArgsHandle args;
 			args->Push(getOwner());
 			args->Push(GetID());
-			args->Push(iX);
-			args->Push(iY);
+			args->Push(iXDest);
+			args->Push(iYDest);
 
 			// Attempt to execute the game events.
 			// Will return false if there are no registered listeners.

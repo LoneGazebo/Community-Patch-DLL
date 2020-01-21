@@ -213,7 +213,7 @@ protected:
 	struct SDealItemValueParamsHash
 	{
 		//obviously not portable ...
-		size_t rotl32 (size_t value, unsigned int count) const {
+		size_t rotl32 (size_t value, size_t count) const {
 			return value << count | value >> (32 - count);
 		}
 

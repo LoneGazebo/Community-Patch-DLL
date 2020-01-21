@@ -47682,8 +47682,14 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
 			if (pClosestCity && pClosestCity->getOwner() != GetID())
 			{
-				if (GC.getGame().GetClosestCityDistanceInTurns(pPlot,true)*2 < GetCityDistanceInEstimatedTurns(pPlot))
-					iScale = 0;
+				int iTheirDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot, true);
+				int iOurDistance = GetCityDistanceInEstimatedTurns(pPlot);
+				int iRatio = (100 * iTheirDistance) / iOurDistance;
+				if (iRatio < 100 && iTheirDistance < 5)
+				{
+					iScale *= iRatio;
+					iScale /= 100;
+				}
 			}
 		}
 

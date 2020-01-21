@@ -1390,34 +1390,28 @@ void CvHomelandAI::PlotMovesToSafety()
 			continue;
 
 		int iDangerLevel = pUnit->GetDanger();
-		if (iDangerLevel == 0 && pUnit->plot()->getOwner()==pUnit->getOwner())
+		if (iDangerLevel == 0)
 			continue;
 
-		bool bAddUnit = false;
-
-		// civilian always ready to flee, except if danger is due to fallout, somebody needs to clean that up
+		// civilian always ready to flee
 		if (pUnit->IsCivilianUnit())
 		{
-			if ( pUnit->plot()->getFeatureType() != FEATURE_FALLOUT || pUnit->getDamage() > pUnit->GetCurrHitPoints())
-				bAddUnit = true;
+			//allow workers to clean fallout (at home)
+			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
+				pUnit->plot()->getFeatureType() == FEATURE_FALLOUT && 
+				pUnit->getDamage() < pUnit->GetCurrHitPoints())
+				continue;
 		}
 		else
 		{
 			//land barbarians don't flee
 			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
 				continue;
-
-			//everybody else flees: this is homeland AI, avoid any danger here
-			bAddUnit = true;
 		}
 
-		if(bAddUnit)
-		{
-			// Just one unit involved in this move to execute
-			CvHomelandUnit unit;
-			unit.SetID(pUnit->GetID());
-			m_CurrentMoveUnits.push_back(unit);
-		}
+		CvHomelandUnit unit;
+		unit.SetID(pUnit->GetID());
+		m_CurrentMoveUnits.push_back(unit);
 	}
 
 	if(m_CurrentMoveUnits.size() > 0)
@@ -5538,7 +5532,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Move to spread religion, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+					strLogString.Format("Move %d to spread religion, X: %d, Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
 
@@ -5551,7 +5545,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Moving to plot adjacent to conversion city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("Moving %d to plot adjacent to conversion city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}

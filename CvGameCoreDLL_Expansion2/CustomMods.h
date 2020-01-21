@@ -94,10 +94,6 @@
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
 /// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
 #define AUI_GS_CONQUEST_FIX_CRAMPED
-/// Priorities for sneak attack military units are no longer artificially inflated at the highest difficulty levels
-#define AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
-/// The AI wants an expensive tech if it's selecting a free tech
-#define AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
 /// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
 #define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
 
@@ -110,12 +106,8 @@
 /// When prioritizing trade routes, the actual trade value of all three possible route types will be considered instead of prioritizing food > production > international
 #define AUI_TRADE_UNBIASED_PRIORITIZE
 
-/// Uses slightly modified algorithm for determining Diplomat Usefulness levels
-#define AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
 /// Uses a different algorithm for scoring voting on world ideology
 #define AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
-/// Uses a different algorithm for scoring voting on world religion
-#define AUI_VOTING_TWEAKED_WORLD_RELIGION
 
 /// Weighs different yield types differently depending on flavor and citizen value
 #define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
@@ -125,10 +117,6 @@
 #define AUI_RELIGION_SCORE_BELIEF_AT_CITY_CONSIDER_GRAND_STRATEGY
 /// River happiness score will only be applied if the city being scored is actually on a river
 #define AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
-/// If a building for which yield improvement is being calculated is a wonder of any kind, divide the yield by the city count (so there's effective only one instance being scored in the civ)
-#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_YIELDS_FROM_WONDERS_COUNT_ONCE
-/// Divides a city's targetting score for missionaries by this value if passive pressure is enough to eventually convert the city
-#define AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH (10)
 /// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
 #define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (100.0 / 3.0)
 /// Fixes the bug where the AI scores inquisitors if it already has enough, not when it needs them

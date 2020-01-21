@@ -537,9 +537,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					}
 					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
-						//nothing to attack, continue movement
-						hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
-						bDone = true;
+						//illegal, cannot execute attack and aircraft need to use the rebase mission to move
+						hUnit->ClearMissionQueue();
+						return;
 					}
 					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{

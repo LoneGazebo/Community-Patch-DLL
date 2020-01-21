@@ -5030,7 +5030,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 				// Does the calling function want us to break out? (saves processing time)
 				if(bBreakOnUnitLimit)
 				{
-					if(iNumUnitsOfSameType > iPlotUnitLimit)
+					if(iNumUnitsOfSameType >= iPlotUnitLimit)
 					{
 						return iNumUnitsOfSameType;
 					}

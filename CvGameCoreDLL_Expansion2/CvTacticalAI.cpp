@@ -5794,7 +5794,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 		if(pCivilian)
 		{
 			//for the barbarian player AI_TACTICAL_TARGET_BARBARIAN_CAMP does not automatically mean the camp is empty of _barbarian_ defenders (check is only for enemy units)
-			pTarget = FindNearbyTarget(pCivilian, 23, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+			pTarget = FindNearbyTarget(pCivilian, 17, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 			if(pTarget)
 			{
 				// If we're not there yet, we have work to do
@@ -7663,10 +7663,6 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 			if (plotDistance(target.GetTargetX(), target.GetTargetY(),pUnit->getX(),pUnit->getY()) > iRange)
 				continue;
 
-			//shortcut, may happen often
-			if (pUnit->plot() == pPlot)
-				return pPlot;
-
 			//can't do anything if we would need to embark
 			if (pPlot->needsEmbarkation(pUnit))
 				continue;
@@ -7678,7 +7674,11 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 				if (!pPlot)
 					continue;
 			}
-	
+
+			//shortcut, may happen often (do this after the domain checks so don't accidentally get stuck in the wrong domain)
+			if (pUnit->plot() == pPlot)
+				return pPlot;
+
 			//see how far the unit can go
 			if (reachablePlots.empty())
 			{
@@ -8161,8 +8161,13 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 		if (pTestPlot->isEnemyUnit(pUnit->getOwner(), true, true) && !pUnit->isOutOfAttacks())
 		{
 			CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true);
-			int iDamageDealt = 0, iDamageReceived = 0;
-			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pOrigin, iDamageReceived);
+			int iDamageReceived = 0;
+			int iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pOrigin, iDamageReceived);
+
+			//no suicide
+			if (iDamageReceived >= pUnit->GetCurrHitPoints())
+				continue;
+
 			if (iDamageDealt >= pEnemy->GetCurrHitPoints())
 			{
 				if (iDamageReceived < pUnit->GetCurrHitPoints())
@@ -9730,13 +9735,13 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	if (iMaxAttacks == 0)
 		return result;
 
+	//don't attack cities if the real target is something else (capturing is ok)
+	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
+		return result;
+
 	//check how much damage we could do
 	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), result);
 	if (result.iScore < 0)
-		return result;
-
-	//don't attack cities if the real target is something else (capturing is ok)
-	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
 		return result;
 
 	//what happens next? capturing a city always ends the turn
@@ -9754,7 +9759,10 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 
 	//don't break formation if there are many enemies around
 	if (result.eAssignmentType == A_MELEEKILL && enemyPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3)
+	{
+		result.iScore = -INT_MAX;
 		return result;
+	}
 
 	if (pEnemyPlot == assumedPosition.getTarget() || TacticalAIHelpers::IsEnemyCitadel(pEnemyPlot, assumedPosition.getPlayer()))
 		result.iScore += 3; //a slight boost for attacking the "real" target or a citadel

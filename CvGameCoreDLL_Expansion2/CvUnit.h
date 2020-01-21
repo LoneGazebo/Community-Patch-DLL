@@ -390,7 +390,7 @@ public:
 	bool sellExoticGoods();
 
 	bool canRebase() const;
-	bool canRebaseAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const;
 	bool rebase(int iX, int iY);
 
 	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
