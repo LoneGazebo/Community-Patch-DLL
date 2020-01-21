@@ -33,12 +33,12 @@
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(20)	//accept four plots detour to save on maintenance
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*110)	//embarkation should be avoided (land units only)
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*55)		//embarkation should be avoided (land units only)
 #define PATH_END_TURN_INVISIBLE_WEIGHT							(PATH_BASE_COST*10)		//when in doubt, prefer routes through visible areas
-#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
-#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
-#define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
-#define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*310)	//don't make it even so we don't get ties
+#define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*45)		//one of these is worth 1.5 plots of detour (more for faster units)
+#define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*75)		//one of these is worth 2.5 plots of detour (more for faster units)
+#define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*115)	//one of these is worth 3.5 plots of detour (more for faster units)
+#define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*155)	//don't make it even so we don't get ties
 #define PATH_ASSUMED_MAX_DEFENSE								(100)	//MAX_DEFENSE * DEFENSE_WEIGHT + END_TURN_FOREIGN_TERRITORY + END_TURN_NO_ROUTE should be smaller than END_TURN_WATER
 #define NORM_COST_BASE											(100)	//we use a fixed point format for normalized path cost
 
