@@ -9236,7 +9236,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 				if (enemyPlot.isValid() && enemyPlot.isEnemy())
 				{
 					//don't attack cities if the real target is something else
-					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot)
+					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot && iMaxRange>1)
 						continue;
 
 					//we don't care for damage here but let's reuse the scoring function
@@ -11203,7 +11203,7 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 	if (!pPlot)
 		return;
 
-	map<int, int>::iterator it = tacticalPlotLookup.find(pPlot->GetPlotIndex());
+	TTactPlotLookup::iterator it = tacticalPlotLookup.find(pPlot->GetPlotIndex());
 	if (it != tacticalPlotLookup.end())
 		return; //nothing to do
 
@@ -11411,7 +11411,7 @@ void CvTacticalPosition::exportToDotFile(const char* fname) const
 //it may get invalidated by additional calls to this function!
 CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 {
-	map<int,int>::const_iterator it = tacticalPlotLookup.find(plotindex);
+	TTactPlotLookup::const_iterator it = tacticalPlotLookup.find(plotindex);
 	if (it!=tacticalPlotLookup.end())
 		return tactPlots[it->second];
 
@@ -11432,7 +11432,7 @@ CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 
 const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 {
-	map<int,int>::const_iterator it = tacticalPlotLookup.find(plotindex);
+	TTactPlotLookup::const_iterator it = tacticalPlotLookup.find(plotindex);
 	if (it!=tacticalPlotLookup.end())
 		return tactPlots[it->second];
 

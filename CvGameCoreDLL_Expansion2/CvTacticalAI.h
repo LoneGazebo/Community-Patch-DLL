@@ -905,6 +905,11 @@ struct SPathFinderStartPos
 	SPathFinderStartPos(const SUnitStats& startpoint, const PlotIndexContainer& noZocPlots) :
 		iUnitID(startpoint.iUnitID), iPlotIndex(startpoint.iPlotIndex), iMovesLeft(startpoint.iMovesLeft), freedPlots(noZocPlots) {}
 
+	bool operator==(const SPathFinderStartPos& rhs) const
+	{
+		return (iUnitID == rhs.iUnitID) && (iPlotIndex == rhs.iPlotIndex) && (iMovesLeft == rhs.iMovesLeft) && (freedPlots == rhs.freedPlots);
+	}
+
 	bool operator<(const SPathFinderStartPos& rhs) const
 	{
 		//unit id is primary feature
@@ -939,8 +944,46 @@ struct SPathFinderStartPos
 	}
 };
 
-typedef map<SPathFinderStartPos, ReachablePlots> TCachedMovePlots;
-typedef map<pair<int, int>, vector<int>> TCachedRangeAttackPlots; // (unit:plot) -> plots
+// specialized hash function for unordered_map keys
+struct SDealItemValueParamsHash
+{
+	void hash_combine(size_t& hash, const size_t& extra) const
+	{
+		hash ^= extra + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	}
+
+	std::size_t operator() (const SPathFinderStartPos& key) const
+	{
+		std::size_t h0 = key.freedPlots.size();
+
+		hash_combine(h0, tr1::hash<int>()(key.iUnitID));
+		hash_combine(h0, tr1::hash<int>()(key.iPlotIndex));
+		hash_combine(h0, tr1::hash<int>()(key.iMovesLeft));
+
+		for(vector<int>::const_iterator i = key.freedPlots.begin(); i!=key.freedPlots.end(); ++i)
+			hash_combine(h0, tr1::hash<int>()(*i));
+
+		return h0;
+	}
+};
+
+struct SIntPairHash
+{
+	void hash_combine(size_t& hash, const size_t& extra) const
+	{
+		hash ^= extra + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	}
+
+	std::size_t operator() (const pair<int, int>& key) const
+	{
+		std::size_t h0 = tr1::hash<int>()(key.first);
+		hash_combine(h0, tr1::hash<int>()(key.second));
+		return h0;
+	}
+};
+
+typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SDealItemValueParamsHash> TCachedMovePlots;
+typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
 
 //forward
 class CvTacticalPosition;
@@ -1020,6 +1063,8 @@ protected:
 
 class CvTacticalPosition
 {
+	typedef tr1::unordered_map<int, int> TTactPlotLookup;
+
 protected:
 	//for final sorting (does not include intermediate moves)
 	int iTotalScore;
@@ -1038,7 +1083,7 @@ protected:
 	vector<SUnitStats> availableUnits; //units which still need an assignment
 	vector<SUnitStats> unfinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
+	TTactPlotLookup tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
