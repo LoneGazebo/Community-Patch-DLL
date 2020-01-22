@@ -9843,22 +9843,29 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 		//neutral units
 		else if (ePlayer != pPlotUnit->getOwner())
 		{
-			//don't use this plot
-			if (pPlotUnit->isNativeDomain(pPlot))
+			if (pPlotUnit->IsCanDefend())
 			{
-				pPlot = NULL;
-				return;
+				//don't use this plot. note: neutral cities are filtered out by the pathfinder
+				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCity())
+				{
+					pPlot = NULL;
+					return;
+				}
 			}
 		}
 		//owned units not included in sim
 		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
 		{
-			//don't use this plot
-			//todo: figure out a simple way to allow generals into owned cities with a garrison
-			if (pPlotUnit->isNativeDomain(pPlot))
+			if (pPlotUnit->IsCanDefend())
 			{
-				pPlot = NULL;
-				return;
+				//don't use this plot if we can't move a combat unit there
+				//could also be a ship in a city or a fort ... but we can't differentiate by domain
+				//todo: figure out a simple way to allow generals into owned cities with a garrison
+				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCityOrPassableImprovement(ePlayer,true))
+				{
+					pPlot = NULL;
+					return;
+				}
 			}
 		}
 	}
@@ -11926,7 +11933,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case A_MOVE_FORCED:
 		case A_CAPTURE:
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
-			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
+			bPrecondition = pUnit->canMove() && (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
 #ifdef TACTDEBUG
 			//see if we can indeed reach the target plot this turn ... 
 			pUnit->ClearPathCache(); pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, INT_MAX, NULL, true);
@@ -12020,6 +12027,10 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			return false; //the previous move revealed a new enemy (which cause a danger update). restart the combat simulation with the remaining units.
 			break;
 		}
+
+		//this is unexpected
+		if (vAssignments[i].iRemainingMoves > 0 && !pUnit->canMove())
+			OutputDebugString("ouch, inconsistent movement points\n");
 
 		if (!bPrecondition || !bPostcondition)
 		{
