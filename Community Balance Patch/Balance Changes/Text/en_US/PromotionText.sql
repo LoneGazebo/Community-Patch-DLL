@@ -1,3 +1,8 @@
+  -- added Hovering Unit
+	UPDATE Language_en_US
+	SET Text = 'Unit may pass over Mountains.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HOVERING_UNIT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
  -- added Withdraw Before Melee
 	UPDATE Language_en_US
 	SET Text = 'Unit will withdraw when faced with melee attack (80% chance). Chance of withdrawal decreased against fast enemy units or if there are limited open tiles behind the unit.'
