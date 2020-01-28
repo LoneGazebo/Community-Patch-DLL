@@ -29,7 +29,9 @@
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 //for easier debugging
-#define TACTDEBUG 1
+#ifdef VPDEBUG
+	#define TACTDEBUG 1
+#endif
 int gCurrentUnitToTrack = 0;
 int gTacticalCombatDebugOutput = 0;
 int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
@@ -3037,88 +3039,45 @@ void CvTacticalAI::PlotAncientRuinMoves(int iNumTurnsAway)
 /// Set fighters to intercept
 void CvTacticalAI::PlotAirInterceptMoves()
 {
-	list<int>::iterator it;
 	m_CurrentMoveUnits.clear();
 	CvTacticalUnit unit;
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 	std::vector<CvPlot*> checkedPlotList;
-#endif
-	CvTacticalDominanceZone *pZone;
 
 	// Loop through all recruited units
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && !pUnit->TurnProcessed())
 		{
 			// Am I eligible to intercept?
-#if defined(MOD_AI_SMART_AIR_TACTICS)
 			// we only commandeered units which won't be rebased
 			if(pUnit->canAirPatrol(NULL))
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
-				if (MOD_AI_SMART_AIR_TACTICS)
+				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
+				int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
+				int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
+
+				if (iNumNearbyBombers == 1)
 				{
-					int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
-					int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
-					int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
+					// To at least intercept once if only one bomber found.
+					iNumNearbyBombers++;
+				}
+				int maxInterceptorsWanted = ((iNumNearbyBombers / 2) + (iNumNearbyFighters / 4));
 
-					if (iNumNearbyBombers == 1)
+				if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
+				{
+					checkedPlotList.push_back(pUnitPlot);
+					unit.SetID(pUnit->GetID());
+					m_CurrentMoveUnits.push_back(unit);
+
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						// To at least intercept once if only one bomber found.
-						iNumNearbyBombers++;
-					}
-					int maxInterceptorsWanted = ((iNumNearbyBombers / 2) + (iNumNearbyFighters / 4));
-
-					if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
-					{
-						checkedPlotList.push_back(pUnitPlot);
-						unit.SetID(pUnit->GetID());
-						m_CurrentMoveUnits.push_back(unit);
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-							LogTacticalMessage(strLogString);
-						}
+						CvString strLogString;
+						strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogTacticalMessage(strLogString);
 					}
 				}
-				else
-				{
-#else
-			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pUnit))
-			{
-				CvPlot* pUnitPlot = pUnit->plot();
-
-#endif
-					CvCity* pCity = pUnitPlot->getPlotCity();
-					pZone = NULL;
-
-					if (pCity)
-						pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-
-					int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, m_iRecruitRange, false/*bCountFighters*/, true/*bCountBombers*/);
-
-					// On a carrier or in a city where we are not dominant and near some enemy bombers?
-					if (!pCity || !pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
-					{
-						if (iNumNearbyBombers > 0)
-						{
-							unit.SetID(pUnit->GetID());
-							m_CurrentMoveUnits.push_back(unit);
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
-						}
-					}
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-				}
-#endif
 			}
 		}
 	}
@@ -3148,12 +3107,8 @@ void CvTacticalAI::PlotAirSweepMoves()
 #endif
 		{
 			// Am I eligible to air sweep and have a target?
-#if defined(MOD_BALANCE_CORE)
 			// we have only units here which won't be rebased
 			if(pUnit->canAirSweep() && m_pPlayer->GetMilitaryAI()->GetBestAirSweepTarget(pUnit) != NULL)
-#else
-			if(pUnit->canAirSweep() && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pUnit) && m_pPlayer->GetMilitaryAI()->GetBestAirSweepTarget(pUnit) != NULL)
-#endif
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
 				CvCity* pCity = pUnitPlot->getPlotCity();
@@ -12028,6 +11983,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		}
 
+#ifdef TACTDEBUG
 		//this is unexpected
 		if (vAssignments[i].iRemainingMoves > 0 && !pUnit->canMove())
 			OutputDebugString("ouch, inconsistent movement points\n");
@@ -12039,6 +11995,10 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			OutputDebugString(out.str().c_str());
 			return false;
 		}
+#else
+		if (!bPrecondition || !bPostcondition)
+			return false;
+#endif
 	}
 
 	return true;

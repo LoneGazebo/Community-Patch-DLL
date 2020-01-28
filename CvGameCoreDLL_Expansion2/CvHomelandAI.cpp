@@ -3221,7 +3221,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			args->Push(pUnit->getOwner());
 			args->Push(pUnit->GetID());
 
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "UnitGetSpecialExploreTarget", args.get(), bResult);
 
 			if(bResult)
@@ -5811,11 +5811,7 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 		if(pUnit)
 		{
 			// Am I eligible to intercept?
-#if defined(MOD_AI_SMART_AIR_TACTICS) && defined(MOD_BALANCE_CORE_MILITARY)
 			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit))
-#else
-			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pUnit))
-#endif
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
 				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);

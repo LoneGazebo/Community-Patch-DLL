@@ -319,7 +319,6 @@ public:
 		return m_eArmyTypeBeingBuilt;
 	};
 	UnitTypes GetUnitForArmy(CvCity* pCity) const;
-	bool WillAirUnitRebase(CvUnit* pUnit) const;
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	int GetMaxPossibleInterceptions(CvPlot* pCenterPlot, bool bCountPercents = false) const;
 #endif

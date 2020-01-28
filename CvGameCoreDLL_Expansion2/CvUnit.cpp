@@ -5215,7 +5215,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		else
 		{
 			//just a failsafe, aircraft do range attacks when moving and move by rebasing ...
-			if (!canRebaseAt(this->plot(),plot.getX(),plot.getY()))
+			if (!canRebaseAt(NULL,plot.getX(),plot.getY()))
 			{
 				return false;
 			}
@@ -5525,8 +5525,8 @@ bool CvUnit::jumpToNearestValidPlot()
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-			//need to check for everything, including invisible units
-			if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+			//plot must be empty even of civilians (don't use CanMoveInto() here)
+			if (pLoopPlot->getNumUnits()==0)
 			{
 				int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
@@ -5549,6 +5549,11 @@ bool CvUnit::jumpToNearestValidPlot()
 		for (size_t i=0; i<candidates.size(); i++)
 		{
 			CvPlot* pTestPlot = candidates[i].pPlot;
+			if (pTestPlot->IsFriendlyTerritory(getOwner()))
+			{
+				pBestPlot = pTestPlot;
+				break;
+			}
 
 			// "quick" heuristic check to make sure this is not a dead end
 			// alternatively we could verify against all plots reachable from owner's capital?
@@ -9884,13 +9889,16 @@ bool CvUnit::canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const
 		return false;
 	}
 
-	if (pStartPlot == NULL)
-		pStartPlot = plot();
-
-	// Same plot...
+	// Cannot rebase if we're already there
 	if(pToPlot == pStartPlot)
 	{
 		return false;
+	}
+
+	// If no startplot is given, use the current plot
+	if (pStartPlot == NULL)
+	{
+		pStartPlot = plot();
 	}
 
 	// too far
@@ -30182,15 +30190,19 @@ void CvUnit::AI_promote()
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
-				const char* szPromotionDesc = (pkPromotionEntry != NULL)? pkPromotionEntry->GetDescription() : "Unknown Promotion";
-
-				CvString strMsg;
-				strMsg.Format("Promotion, %s, For %s, Value: %d, Damage: %d",
-							 szPromotionDesc, getName().GetCString(), iValue, getDamage());
+				CvString strPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
+				CvString strUnitName = getName();
+				CvString strCivName = GET_PLAYER(getOwner()).getName();
+				strPromotionDesc.Replace(' ', '_'); strPromotionDesc.Replace('(', '_'); strPromotionDesc.Replace(')', '_');
+				strUnitName.Replace(' ', '_');
+				strCivName.Replace(' ', '_');
 
 				FILogFile* pLog = LOGFILEMGR.GetLog("PromotionLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 				CvString strLog;
-				strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(),GET_PLAYER(getOwner()).getName());
+				strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(), strCivName.c_str());
+				CvString strMsg;
+				strMsg.Format("Promotion, %s, For %s, Ranged %d, Domain %d, Value: %d, Damage: %d", strPromotionDesc.c_str(), strUnitName.c_str(), isRanged() ? 1 : 0, getDomainType(), iValue, getDamage());
+
 				strLog += strMsg;
 				pLog->Msg(strLog);
 			}
@@ -30210,13 +30222,20 @@ void CvUnit::AI_promote()
 		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
-			CvString strMsg;
-			strMsg.Format("--> Chosen Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
-				pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+			CvString strPromotionDesc = pkPromoInfo->GetDescription();
+			CvString strUnitName = getName();
+			CvString strCivName = GET_PLAYER(getOwner()).getName();
+			strPromotionDesc.Replace(' ', '_'); strPromotionDesc.Replace('(', '_'); strPromotionDesc.Replace(')', '_');
+			strUnitName.Replace(' ', '_');
+			strCivName.Replace(' ', '_');
 
 			FILogFile* pLog = LOGFILEMGR.GetLog("PromotionLog.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 			CvString strLog;
-			strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(),GET_PLAYER(getOwner()).getName());
+			strLog.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(), strCivName.c_str());
+			CvString strMsg;
+			strMsg.Format("--> Chosen Promotion, %s, Received by %s, ID %d, Lvl %d, XP %d, Ranged %d, Domain %d, X: %d, Y: %d, Damage: %d", 
+				strPromotionDesc.c_str(), strUnitName.c_str(), GetID(), getLevel(), getExperienceTimes100(), isRanged() ? 1 : 0, getDomainType(), getX(), getY(), getDamage());
+
 			strLog += strMsg;
 			pLog->Msg(strLog);
 		}

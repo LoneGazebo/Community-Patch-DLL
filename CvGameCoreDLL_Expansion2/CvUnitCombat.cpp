@@ -3557,7 +3557,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			args->Push(plotX);
 			args->Push(plotY);
 
-			bool bResult;
+			bool bResult = false;
 		
 			if(MOD_EVENTS_RED_COMBAT_ABORT && LuaSupport::CallTestAll(pkScriptSystem, "MustAbortAttack", args.get(), bResult))
 			{

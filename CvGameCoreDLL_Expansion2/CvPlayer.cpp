@@ -47682,11 +47682,15 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
 			if (pClosestCity && pClosestCity->getOwner() != GetID())
 			{
+				//todo: there is already distance check in PlotFoundValue() ...
 				int iTheirDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot, true);
 				int iOurDistance = GetCityDistanceInEstimatedTurns(pPlot);
 				int iRatio = (100 * iTheirDistance) / iOurDistance;
 				if (iRatio < 100 && iTheirDistance < 5)
 				{
+					//square it, ie exaggerate the effect
+					iScale *= iRatio;
+					iScale /= 100;
 					iScale *= iRatio;
 					iScale /= 100;
 				}
@@ -50247,7 +50251,7 @@ void CvPlayer::updatePlotFoundValues()
 		pLoopArea->setTotalFoundValue(0);
 
 	//don't need to update if never going to settle
-	if (isBarbarian())
+	if (isBarbarian() || isMinorCiv())
 		return;
 
 	//don't need to update if never going to settle again
