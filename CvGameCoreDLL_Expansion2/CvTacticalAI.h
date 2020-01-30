@@ -1081,7 +1081,7 @@ protected:
 	const CvTacticalPosition* parentPosition;
 
 	vector<SUnitStats> availableUnits; //units which still need an assignment
-	vector<SUnitStats> unfinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
+	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
 	TTactPlotLookup tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
@@ -1114,6 +1114,7 @@ protected:
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
+	bool canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 
 	//finding a particular unit
