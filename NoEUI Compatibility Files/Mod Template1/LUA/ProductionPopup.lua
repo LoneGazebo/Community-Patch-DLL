@@ -62,6 +62,9 @@ Controls.Backdrop:SetSize( backdropSize );
 
 local listOfStrings = {};
 
+-- Is the mod for faith purchase buildings in puppets is activated?
+local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS");
+
 -------------------------------------------------
 -- Get the current city the popup is working with
 -- Can return nil
@@ -89,7 +92,7 @@ function ProductionSelected( ePurchaseEnum, iData)
 	-- slewis - Venice side-effect. Able to purchase in city-states
 	local player = Players[Game.GetActivePlayer()];
 	g_bTheVeniceException = (player:MayNotAnnex()) and (not g_IsProductionMode);
-	if (UI.IsCityScreenViewingMode() and (not g_bTheVeniceException)) then
+	if (UI.IsCityScreenViewingMode() and (not g_bTheVeniceException) and (not g_isFaithPurchaseBuildingsInPuppetsMod)) then
 		return;
 	end
 	
@@ -1069,8 +1072,9 @@ function OnPopup( popupInfo )
 	end
     
     if city and city:IsPuppet() then
-		if (player:MayNotAnnex() and not g_IsProductionMode) then
+		if (player:MayNotAnnex() and not g_IsProductionMode) or g_isFaithPurchaseBuildingsInPuppetsMod then
 			-- You're super-special Venice and are able to update the window. Congrats.
+			-- Or you have a mod that lets you purchase stuff in puppets. Congrats.
 		else
 			return;
 		end

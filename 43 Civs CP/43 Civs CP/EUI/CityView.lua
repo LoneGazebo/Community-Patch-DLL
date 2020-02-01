@@ -289,6 +289,12 @@ local function StringFormatNeatFloat(x)
 end
 
 -------------------------------------------------
+-- See if the mod for faith purchase buildings in
+-- puppets is activated, then cache the result.
+-------------------------------------------------
+local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
+
+-------------------------------------------------
 -- Clear out the UI so that when a player changes
 -- the next update doesn't show the previous player's
 -- values for a frame
@@ -993,7 +999,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 	if city then
 		local cityOwnerID = city:GetOwner()
 		if cityOwnerID == g_activePlayerID
-			and ( not city:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) )
+			and ( not city:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
 							----------- Venice exception -----------
 		then
 			local cityID = city:GetID()
@@ -1359,7 +1365,7 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 	-- Update Selection List
 	-------------------------------------------
 
-	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode
+	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode or g_isFaithPurchaseBuildingsInPuppetsMod
 	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
 	if isSelectionList then
 		local unitSelectList = table()
