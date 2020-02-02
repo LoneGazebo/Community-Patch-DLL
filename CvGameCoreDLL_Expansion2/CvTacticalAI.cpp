@@ -9321,10 +9321,9 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		}
 	}
 
-	//many considerations are only relevant if we end the turn here (critical for skirmishers!)
-	//can happen if we run out of movement points or if we actively decide to stay in a plot
-	bool bEndTurn = (movePlot.iPlotIndex == unit.iPlotIndex) || (movePlot.iMovesLeft == 0);
-	if (bEndTurn) 
+	//many considerations are only relevant if we end the turn here (critical for skirmishers which can move after attacking ...)
+	//we only consider this when explicitly ending the turn!
+	if (movePlot.iMovesLeft == 0) 
 	{
 		//try to close the lines (todo: make sure the friendlies intend to stay there ...)
 		if (testPlot.getNumAdjacentFirstlineFriendlies(DomainForUnit(pUnit), unit.iPlotIndex) > 0)
@@ -9400,17 +9399,17 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 				iDamageScore /= 2;
 		}
 
+		//often there are multiple identical units which could move into a plot (eg in naval battles)
+		//in that case we want to prefer the one which has more movement points left to make the movement animation look better
+		iDamageScore -= result.iRemainingMoves / GC.getMOVE_DENOMINATOR();
+
 		//todo: take into account mobility at the proposed plot
 		//todo: take into account ZOC when ending the turn
 	}
 
-	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker
+	//final score - danger values are mostly useless but maybe useful as tiebreaker
 	//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
 	result.iScore = iDamageScore * 10 + iMiscScore * 10 - iDangerScore + GC.getCOMBAT_AI_OFFENSE_SCORE_BIAS();
-
-	//often there are multiple identical units which could move into a plot (eg in naval battles)
-	//in that case we want to prefer the one which has more movement points left
-	result.iScore += result.iRemainingMoves / GC.getMOVE_DENOMINATOR();
 
 	return result;
 }
@@ -10561,23 +10560,6 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 	}
 
 	return true;
-}
-
-//it makes no sense to move around units after the last attack
-//but we don't know beforehand whether additional attacks are possible
-//so we backtrack after the fact
-const CvTacticalPosition* CvTacticalPosition::findAncestorWithoutExtraMoves() const
-{
-	if (assignedMoves.empty())
-		return NULL;
-
-	if (assignedMoves.back().isOffensive() || assignedMoves.back().eAssignmentType == A_RESTART)
-		return this;
-
-	if (!parentPosition)
-		return NULL;
-
-	return parentPosition->findAncestorWithoutExtraMoves();
 }
 
 //this influences how daring we'll be
@@ -11785,12 +11767,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 				CvTacticalPosition* newPos = *it;
 				if (newPos->isComplete())
 				{
-					//finally a good usecase for const-casting
-					CvTacticalPosition* positionWithoutExtraMoves = const_cast<CvTacticalPosition*>(newPos->findAncestorWithoutExtraMoves());
-					if (positionWithoutExtraMoves && positionWithoutExtraMoves->addFinishMovesIfAcceptable())
+					if (newPos->addFinishMovesIfAcceptable())
 					{
-						completedPositions.push_back(positionWithoutExtraMoves);
-						iTopScore = max(iTopScore, positionWithoutExtraMoves->getScore());
+						completedPositions.push_back(newPos);
+						iTopScore = max(iTopScore, newPos->getScore());
 					}
 					else
 						iDiscardedPositions++;
@@ -11806,11 +11786,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		else
 		{
 			//apparently we're blocked from making further assignments, but maybe this position is still useful
-			CvTacticalPosition* positionWithoutExtraMoves = const_cast<CvTacticalPosition*>(current->findAncestorWithoutExtraMoves());
-			if (positionWithoutExtraMoves && positionWithoutExtraMoves->addFinishMovesIfAcceptable())
+			if (current->addFinishMovesIfAcceptable())
 			{
-				blockedPositions.push_back(positionWithoutExtraMoves);
-				iTopScore = max(iTopScore, positionWithoutExtraMoves->getScore());
+				blockedPositions.push_back(current);
+				iTopScore = max(iTopScore, current->getScore());
 			}
 			else
 				iDiscardedPositions++;
@@ -11849,9 +11828,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		//last chance - take the best open / blocked position
 		for (size_t i = 0; i < openPositionsHeap.size(); i++)
 		{
-			CvTacticalPosition* positionWithoutExtraMoves = const_cast<CvTacticalPosition*>(openPositionsHeap[i]->findAncestorWithoutExtraMoves());
-			if (positionWithoutExtraMoves && positionWithoutExtraMoves->getScore() > iTopScore/2 && positionWithoutExtraMoves->addFinishMovesIfAcceptable())
-				blockedPositions.push_back(positionWithoutExtraMoves);
+			if (openPositionsHeap[i]->getScore() > iTopScore/2 && openPositionsHeap[i]->addFinishMovesIfAcceptable())
+				blockedPositions.push_back(openPositionsHeap[i]);
 		}
 
 		if (!blockedPositions.empty())

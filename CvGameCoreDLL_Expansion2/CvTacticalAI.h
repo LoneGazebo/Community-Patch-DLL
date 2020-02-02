@@ -1132,7 +1132,6 @@ public:
 	void initFromParent(const CvTacticalPosition& parent); 
 
 	bool isComplete() const;
-	const CvTacticalPosition* findAncestorWithoutExtraMoves() const;
 	bool addFinishMovesIfAcceptable();
 	void countEnemies();
 	void refreshVolatilePlotProperties();

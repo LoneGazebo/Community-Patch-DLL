@@ -6246,6 +6246,13 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 	{
 		if(pUnit->atPlot(*pBestPlot))
 		{
+			//if the units is not in friendly territory and not in danger, try to bring it home ...
+			if (!pBestPlot->IsFriendlyTerritory(m_pPlayer->GetID()) && pUnit->GetDanger() == 0 && m_pPlayer->getCapitalCity())
+			{
+				ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true);
+				return true;
+			}
+
 			if (pUnit->canHold(pBestPlot))
 			{
 				if(GC.getLogging() && GC.getAILogging())
