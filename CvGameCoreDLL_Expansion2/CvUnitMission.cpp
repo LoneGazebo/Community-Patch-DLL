@@ -544,6 +544,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{
 						//attack executed
+						bAction = true;
 						bDone = true;
 					}
 				}
@@ -594,6 +595,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{
 						//attack executed
+						bAction = true;
 						bDone = true;
 					}
 				}
@@ -617,13 +619,6 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 				if(pTargetPlot != NULL)
 				{
 					CvPlot* pOriginationPlot = hUnit->plot();
-
-					if(pTargetPlot->getNumUnits() < 1)
-					{
-						bAction = false;
-						bDone = true;
-						break;
-					}
 
 					// Find unit to move out
 					for(int iI = 0; iI < pTargetPlot->getNumUnits(); iI++)
@@ -652,10 +647,18 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 								while (iResult2 >= 0)
 									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
 
+								bAction = true;
 								bDone = true;
 								break;
 							}
 						}
+					}
+
+					if (!bDone)
+					{
+						//illegal, cannot execute swap
+						hUnit->ClearMissionQueue();
+						return;
 					}
 				}
 			}

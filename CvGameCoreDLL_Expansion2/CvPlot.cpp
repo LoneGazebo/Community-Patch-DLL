@@ -4929,17 +4929,10 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 {
 	int iNumUnitsOfSameType = 0;
 
-	bool bCombat = false;
-
 	// slewis - trying to break the 1upt for trade units
 	if (pUnit->isTrade())
 	{
 		return 0;
-	}
-
-	if(pUnit->IsCombatUnit())
-	{
-		bCombat = true;
 	}
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -4949,18 +4942,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 	}
 #endif
 
-	bool bPretendEmbarked = false;
-
-	bool bIsEmbarkedHere = pUnit->isEmbarked() && pUnit->plot()==this;
-	if(bIsEmbarkedHere || pUnit->canEmbarkOnto(*pUnit->plot(), *this))
-	{
-		bPretendEmbarked = true;
-	}
-
 	CvTeam& kUnitTeam = GET_TEAM(pUnit->getTeam());
-
-	const CvUnit* pLoopUnit;
-	const IDInfo* pUnitNode = headUnitNode();
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int iPlotUnitLimit = getUnitLimit();
@@ -4968,9 +4950,10 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 	int iPlotUnitLimit = GC.getPLOT_UNIT_LIMIT();
 #endif
 
+	const IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		const CvUnit*  pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
 		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
@@ -4980,7 +4963,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 			{
 				// Units of the same type OR Units belonging to different civs
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
+				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #else
 				if(pUnit->getOwner() != pLoopUnit->getOwner() || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #endif

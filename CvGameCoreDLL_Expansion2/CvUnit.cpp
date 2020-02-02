@@ -27196,28 +27196,10 @@ bool CvUnit::potentialWarAction(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarked) const
+bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2) const
 {
-	VALIDATE_OBJECT
-
-	bool bUnit1isEmbarked = isEmbarked();
-	bool bUnit2isEmbarked = pUnit2.isEmbarked() || bPretendEmbarked;
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	{
-		if(IsCivilianUnit())
-		{
-			bUnit1isEmbarked = false;
-		}
-		if(pUnit2.IsCivilianUnit())
-		{
-			bUnit2isEmbarked = false;
-		}
-	}
-#endif
-
 	// 2 embarked units are considered the same type, regardless of circumstances
-	if(bUnit1isEmbarked && bUnit2isEmbarked)
+	if(isEmbarked() && pUnit2.isEmbarked())
 	{
 		return true;
 	}

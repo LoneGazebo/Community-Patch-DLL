@@ -4094,6 +4094,10 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 			vUnitsFinal.push_back( m_CurrentMoveUnits.getUnit(i) );
 
+	//don't be too aggressive
+	if (vUnitsFinal.size() < allEnemyPlots.size())
+		return false;
+
 	int iCount = 0;
 	bool bSuccess = false;
 	do
