@@ -945,11 +945,7 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 			return false;
 
 		//need to make sure there are no mountains/ice plots in between
-		if (!CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY())))
-			return false;
-
-		//now make sure it's the right area ...
-		return GC.getMap().plotUnchecked(iToX, iToY)->isAdjacentToArea( GC.getMap().plotUnchecked(GetDestX(), GetDestY())->getArea() );
+		return CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY()));
 	}
 	else if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
 	{

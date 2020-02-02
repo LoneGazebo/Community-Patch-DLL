@@ -8300,10 +8300,10 @@ int TacticalAIHelpers::CountDeploymentPlots(const CvPlot* pTarget, int iRange, T
 
 CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly, bool bConsiderSwap)
 {
-	CvWeightedVector<CvPlot*, 8, true> aCityList;
-	CvWeightedVector<CvPlot*, 8, true> aZeroDangerList;
-	CvWeightedVector<CvPlot*, 8, true> aCoverList;
-	CvWeightedVector<CvPlot*, 8, true> aDangerList;
+	vector<OptionWithScore<CvPlot*>> aCityList;
+	vector<OptionWithScore<CvPlot*>> aZeroDangerList;
+	vector<OptionWithScore<CvPlot*>> aCoverList;
+	vector<OptionWithScore<CvPlot*>> aDangerList;
 
 	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); //embarkation allowed for now, we sort it out below
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
@@ -8392,39 +8392,38 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if(bIsInCity)
 		{
 			if (!pPlot->getPlotCity()->isInDangerOfFalling())
-				aCityList.push_back(pPlot, iScore);
+				aCityList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
 		}
 		else if(bIsZeroDanger)
 		{
 			//if danger is zero, look at distance to closest owned city instead
 			//idea: could also look at number of plots reachable from pPlot to avoid dead ends
-			aZeroDangerList.push_back(pPlot, bIsInTerritory ? iCityDistance : iCityDistance*2 );
+			aZeroDangerList.push_back( OptionWithScore<CvPlot*>(pPlot, bIsInTerritory ? iCityDistance : iCityDistance*2) );
 		}
 		else if(bIsInCover) //mostly relevant for civilians
 		{
-			aCoverList.push_back(pPlot, iScore);
+			aCoverList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
 		}
 		else if( (!bLowDangerOnly || iDanger<pUnit->GetCurrHitPoints()) && (!bWouldEmbark || bAllowEmbark) )
 		{
-			aDangerList.push_back(pPlot, iScore);
+			aDangerList.push_back( OptionWithScore<CvPlot*>(pPlot,iScore) );
 		}
 	}
 
-	//this makes the highest weight come first!
-	aCityList.SortItems();
-	aZeroDangerList.SortItems();
-	aCoverList.SortItems();
-	aDangerList.SortItems();
+	sort(aCityList.begin(), aCityList.end());
+	sort(aZeroDangerList.begin(), aZeroDangerList.end());
+	sort(aCoverList.begin(), aCoverList.end());
+	sort(aDangerList.begin(), aDangerList.end());
 
 	// Now that we've gathered up our lists of destinations, pick the most promising one
-	if (aCityList.size()>0)
-		return aCityList.GetElement( aCityList.size()-1 );
+	if (aCityList.size() > 0)
+		return aCityList.front().option;
 	else if (aZeroDangerList.size()>0)
-		return aZeroDangerList.GetElement(  aZeroDangerList.size()-1 );
+		return aZeroDangerList.front().option;
 	else if (aCoverList.size()>0)
-		return aCoverList.GetElement( aCoverList.size()-1 );
+		return aCoverList.front().option;
 	else if (aDangerList.size()>0)
-		return aDangerList.GetElement( aDangerList.size()-1 );
+		return aDangerList.front().option;
 
 	return NULL;
 }
@@ -9753,6 +9752,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	//constant
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
 	bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
+	bBlockedForCombatUnit = false;
 
 	//updated if necessary
 	bEnemyCivilianPresent = false;
@@ -9776,6 +9776,8 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 	//this means that 1UPT is still valid for all our simulated moves and we can ignore embarked defenders etc.
 
 	//so here comes tricky logic to figure out whether we can use this plot
+	bool bPlotBlocked = false;
+	bool bSimUnitPresent = false;
 	for (int i = 0; i < pPlot->getNumUnits(); i++)
 	{
 		CvUnit* pPlotUnit = pPlot->getUnitByIndex(i);
@@ -9809,10 +9811,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 			{
 				//don't use this plot. note: neutral cities are filtered out by the pathfinder
 				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCity())
-				{
-					pPlot = NULL;
-					return;
-				}
+					bPlotBlocked = true;
 			}
 		}
 		//owned units not included in sim
@@ -9823,12 +9822,23 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 				//don't use this plot if we can't move a combat unit there
 				//could also be a ship in a city or a fort ... but we can't differentiate by domain
 				//todo: figure out a simple way to allow generals into owned cities with a garrison
-				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCityOrPassableImprovement(ePlayer,true))
-				{
-					pPlot = NULL;
-					return;
-				}
+				if (pPlotUnit->isNativeDomain(pPlot) || pPlot->isCityOrPassableImprovement(ePlayer, true))
+					bPlotBlocked = true;
 			}
+		}
+		else
+			bSimUnitPresent = true;
+	}
+
+	//annoying details ... embarked units can stack but combat units cannot
+	if (bPlotBlocked)
+	{
+		bBlockedForCombatUnit = true;
+		//we don't want to use it unless there's already on of our units there
+		if (!bSimUnitPresent)
+		{
+			pPlot = NULL;
+			return;
 		}
 	}
 
@@ -10135,6 +10145,9 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 
 		if (IsCombatUnit(unit))
 		{
+			if (testPlot.isBlockedForCombatUnit())
+				continue;
+
 			if (testPlot.isEnemy())
 			{
 				//ranged attacks are handled separately below

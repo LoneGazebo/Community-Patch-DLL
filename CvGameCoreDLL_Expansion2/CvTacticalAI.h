@@ -1016,6 +1016,7 @@ public:
 	void setNextToCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
+	bool isBlockedForCombatUnit() const { return bBlockedForCombatUnit; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -1050,6 +1051,7 @@ protected:
 	//set once and not changed afterwards
 	bool bIsVisibleToEnemy:1;
 	bool bHasAirCover:1;
+	bool bBlockedForCombatUnit:1;
 
 	//this is updated if the civilian is captured
 	bool bEnemyCivilianPresent:1; 
