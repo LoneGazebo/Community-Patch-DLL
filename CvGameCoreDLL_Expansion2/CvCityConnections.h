@@ -35,7 +35,7 @@ public:
 	bool Empty(void);  // if there are no cities in the route list
 
 	//we don't only connect or own cities but also some others (eg for quests)
-	std::vector<int> GetPlotsToConnect() const { return m_cityPlotIDs; }
+	std::vector<int> GetPlotsToConnect() const { return m_plotIdsToConnect; }
 
 	enum CityConnectionTypes
 	{
@@ -56,7 +56,7 @@ public:
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
-	void UpdateCityPlotIDs(void);
+	void UpdatePlotsToConnect(void);
 	void UpdateRouteInfo(void);
 	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState);
 	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
@@ -64,7 +64,7 @@ protected:
 
 	AllCityConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;
-	PlotIndexStore m_cityPlotIDs;
+	PlotIndexStore m_plotIdsToConnect;
 	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes;
 	CvPlayer* m_pPlayer;
 };

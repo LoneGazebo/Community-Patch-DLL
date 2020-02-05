@@ -57,7 +57,7 @@ void CvCityConnections::Reset(void)
 	m_pPlayer = NULL;
 	m_plotsWithConnectionToCapital.clear();
 	m_connectionState.clear();
-	m_cityPlotIDs.clear();
+	m_plotIdsToConnect.clear();
 }
 
 /// Serialization read
@@ -96,14 +96,7 @@ void CvCityConnections::Read(FDataStream& kStream)
 	}
 
 	// read in city locations
-	kStream >> nItems;
-	m_cityPlotIDs.clear();
-	for(size_t i = 0; i < nItems; i++)
-	{
-		int iValue;
-		kStream >> iValue;
-		m_cityPlotIDs.push_back(iValue);
-	}
+	kStream >> m_plotIdsToConnect;
 }
 
 /// Serialization write
@@ -133,11 +126,7 @@ void CvCityConnections::Write(FDataStream& kStream) const
 	}
 
 	// read in city locations
-	kStream << m_cityPlotIDs.size();
-	for (PlotIndexStore::const_iterator it=m_cityPlotIDs.begin(); it!=m_cityPlotIDs.end(); ++it)
-	{
-		kStream << *(it);
-	}
+	kStream << m_plotIdsToConnect;
 }
 
 /// Update - called from within CvPlayer
@@ -148,95 +137,60 @@ void CvCityConnections::Update(void)
 		return;
 	}
 
-	UpdateCityPlotIDs();
+	UpdatePlotsToConnect();
 	UpdateRouteInfo();
 }
 
 /// Update the city ids to the correct ones
-void CvCityConnections::UpdateCityPlotIDs(void)
+void CvCityConnections::UpdatePlotsToConnect(void)
 {
-	m_cityPlotIDs.clear();
+	m_plotIdsToConnect.clear();
 
-	for(uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
+	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if(GET_PLAYER(ePlayer).isBarbarian())
+		PlayerTypes ePlayer = vTeamPlayers[i];
+
+		//cities
+		int iLoop;
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
-			continue;
+			int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
+			m_plotIdsToConnect.push_back(iPlotIndex);
 		}
 
-		TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
-		TeamTypes eMyPlayerTeam = m_pPlayer->getTeam();
-
-		if(ePlayerTeam == eMyPlayerTeam)
+		//citadels etc
+		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
+		for (size_t j=0; j<vPlots.size(); j++)
 		{
-			// player's city
-			int iLoop;
-			for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-			{
-				CvAssertMsg(pLoopCity->plot(), "pLoopCity does not have a plot. What??");
-				int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
-				m_cityPlotIDs.push_back(iPlotIndex);
+			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
 
-				for (int iCityPlotLoop = 0; iCityPlotLoop < pLoopCity->GetNumWorkablePlots(); iCityPlotLoop++)
-				{
-					CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iCityPlotLoop);
+			if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+				continue;
 
-					// Invalid plot or not owned by this player
-					if (pLoopPlot == NULL || pLoopPlot->getOwner() != m_pPlayer->GetID())
-					{
-						continue;
-					}
-						
-					if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-						continue;
+			//ignore plots which are not exposed
+			CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopPlot);
+			if (!pZone || pZone->GetBorderScore() == 0)
+				continue;
 
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-					if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() < 50)
-						continue;
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 50)
+				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 
-					if (pLoopPlot->getOwningCity() != pLoopCity)
-						continue;
-
-					//only want border tiles
-					bool bNotBorder = true;
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-						if (eLoopPlayer != NO_PLAYER && eLoopPlayer != pLoopCity->getOwner() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
-						{
-							if (pLoopPlot->IsHomeFrontForPlayer(eLoopPlayer))
-							{
-								bNotBorder = false;
-								break;
-							}
-						}
-					}
-					if (bNotBorder)
-						continue;
-					
-					bool bAlreadyIncluded = false;
-					for (PlotIndexStore::iterator it = m_cityPlotIDs.begin(); it != m_cityPlotIDs.end(); ++it)
-					{
-						CvPlot* pInPlot = GC.getMap().plotByIndexUnchecked(*it);
-						if (pInPlot->GetPlotIndex() == pLoopPlot->GetPlotIndex())
-						{
-							bAlreadyIncluded = true;
-							break;
-						}
-					}
-					if (!bAlreadyIncluded)
-						m_cityPlotIDs.push_back(pLoopPlot->GetPlotIndex());
-				}
-			}
 		}
-		else if(ShouldConnectToOtherPlayer(ePlayer))
+	}
+
+	//quests
+	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+		if(ShouldConnectToOtherPlayer(ePlayer))
 		{
 			CvCity* pOtherCapital = GET_PLAYER(ePlayer).getCapitalCity();
 			if(pOtherCapital)
 			{
 				int iPlotIndex = pOtherCapital->plot()->GetPlotIndex();
-				m_cityPlotIDs.push_back(iPlotIndex);
+				m_plotIdsToConnect.push_back(iPlotIndex);
 			}
 		}
 	}
@@ -297,7 +251,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 	m_connectionState.clear();
 
-	for (PlotIndexStore::iterator it = m_cityPlotIDs.begin(); it != m_cityPlotIDs.end(); ++it)
+	for (PlotIndexStore::iterator it = m_plotIdsToConnect.begin(); it != m_plotIdsToConnect.end(); ++it)
 	{
 		CvCity* pStartCity = GC.getMap().plotByIndexUnchecked( *it )->getPlotCity();
 		
@@ -513,7 +467,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 /// if there are no cities in the route list
 bool CvCityConnections::Empty(void)
 {
-	return m_cityPlotIDs.empty();
+	return m_plotIdsToConnect.empty();
 }
 
 bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)

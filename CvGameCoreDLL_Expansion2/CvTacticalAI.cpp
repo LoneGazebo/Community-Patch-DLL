@@ -4124,7 +4124,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (!pUnit->isDelayedDeath())
+		if (!pUnit->isDelayedDeath() && plotDistance(*pTurnTarget,*pUnit->plot())<pUnit->maxMoves()*3)
 			vUnits.push_back(pUnit);
 
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -5079,14 +5079,10 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 	{
 		CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
+		//if the unit is too far out we move it later
 		if ( m_CurrentMoveUnits[i].GetMovesToTarget()<3 )
 			vUnits.push_back(pUnit);
-		else //unit is too far out, just move there directly
-			ExecuteMoveToPlot(pUnit, pTargetPlot);
 	}
-
-	if (vUnits.empty())
-		return true;
 
 	int iCount = 0;
 	bool bSuccess = false;
@@ -5101,6 +5097,27 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		iCount++;
 	}
 	while (!bSuccess && iCount < 4);
+
+	//in case not all units were moved ...
+	for (vector<CvUnit*>::iterator it = vUnits.begin(); it != vUnits.end(); ++it)
+	{
+		CvUnit* pUnit = *it;
+		if (pUnit->TurnProcessed())
+			continue;
+
+		if (pUnit->GetDanger() == INT_MAX) //don't leave a general out in the cold
+		{
+			CvPlot* pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+			if (pSafePlot)
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
+				UnitProcessed(pUnit->GetID());
+			}
+		}
+
+		if (!pUnit->TurnProcessed())
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+	}
 
 	return bSuccess;
 }
@@ -5284,10 +5301,10 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					{
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 						
-						if(GC.getLogging() && GC.getAILogging())
+						if(GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv())
 						{
 							CvString strLogString;
-							strLogString.Format("%s moving to empty space near defensive target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
+							strLogString.Format("%s moving near defensive target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
 							                    pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strLogString);
 						}
@@ -5313,10 +5330,10 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					{
 						bMoveMade = true;
 
-						if(GC.getLogging() && GC.getAILogging())
+						if(GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv())
 						{
 							CvString strLogString;
-							strLogString.Format("%s moving to empty space near defensive naval target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
+							strLogString.Format("%s moving near defensive naval target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
 												pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strLogString);
 						}
@@ -5329,53 +5346,44 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 				if (!bMoveMade)
 				{
+					pBestPlot = NULL;
+
 					ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 					for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 					{
 						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-
 						if ( IsGoodPlotForStaging(m_pPlayer,pLoopPlot,pUnit->getDomainType()==DOMAIN_SEA) )
 						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), 0, false, false, MISSIONAI_BUILD);
-							TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
-							bMoveMade = true;
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("%s moving to empty space to avoid being in the way (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-													pLoopPlot->getX(), pLoopPlot->getY(), pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
+							pBestPlot = pLoopPlot;
 							break;
 						}
 					}
 
 					//nothing found in neighborhood? move to closest city
-					if (!bMoveMade)
+					if (!pBestPlot)
 					{
-						CvCity* pTargetCity = m_pPlayer->GetClosestCity(pUnit->plot(),INT_MAX,true);
+						CvCity* pTargetCity = m_pPlayer->GetClosestCity(pUnit->plot(), INT_MAX, true);
 						if (pTargetCity)
-						{
-							bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetCity->plot(), DOMAIN_SEA, 12, true);
+							pBestPlot = pTargetCity->plot();
+					}
 
-							if (GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("%s cannot move to empty space to avoid being in the way,  moving to city instead (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-									pTargetCity->getX(), pTargetCity->getY(), pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
+					if (pBestPlot)
+					{
+						bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12, true);
+
+						if(GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv())
+						{
+							CvString strLogString;
+							strLogString.Format("%s moving out of the way (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
+								pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
+							LogTacticalMessage(strLogString);
 						}
 					}
 				
 				}
+
 				if(bMoveMade)
-				{
-					//the new homeland patrol moves can handle naval units also, but the simple logic above seems good enough, so end their turn
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
 					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-				}
 			}
 #endif
 		}
@@ -10827,6 +10835,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
+			//note that if the unit is far away, it won't have any good plots and will be considered blocked
+			if (plotDistance(*pPlot, *pTargetPlot) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+				continue;
+
 			if (unit.eStrategy == MS_ESCORTED_EMBARKED)
 			{
 				//we are embarked and stay embarked, so we can stack with combat units
@@ -10860,9 +10872,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 				}
 			}
 
-			//note that if the unit is far away, it won't have any good plots and will be considered blocked
-			if (plotDistance(*pPlot, *pTargetPlot) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
-				reachablePlotsPruned.insert(*it);
+			reachablePlotsPruned.insert(*it);
 		}
 
 		gReachablePlotsLookup[SPathFinderStartPos(unit, freedPlots)] = reachablePlotsPruned;
@@ -11641,8 +11651,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-		strMsg.Format("tactsim_defense target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", 
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), AL_NONE, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
+		strMsg.Format("tactsim_defense %s, target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", result.empty() ? "failed" : "success",
+			pTarget->getX(), pTarget->getY(), ourUnits.size(), AL_NONE, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f);
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
@@ -11874,13 +11884,15 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	//	buffer << result[i] << "\n";
 	//OutputDebugString( buffer.str().c_str() );
 
-
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strMsg;
-		strMsg.Format("tactsim_offense target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", 
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
-		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+		if (result.empty())
+		{
+			CvString strMsg;
+			strMsg.Format("tactsim_offense %s, target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", result.empty() ? "failed" : "success",
+				pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f);
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+		}
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
