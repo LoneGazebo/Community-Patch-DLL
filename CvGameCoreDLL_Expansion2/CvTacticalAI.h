@@ -1135,6 +1135,7 @@ public:
 
 	bool isComplete() const;
 	bool addFinishMovesIfAcceptable();
+	bool hasOffensiveAssignments() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);

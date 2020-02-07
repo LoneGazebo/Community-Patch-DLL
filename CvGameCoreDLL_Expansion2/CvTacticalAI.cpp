@@ -10587,6 +10587,15 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 	return true;
 }
 
+bool CvTacticalPosition::hasOffensiveAssignments() const
+{
+	for (size_t i = 0; i < assignedMoves.size(); i++)
+		if (assignedMoves[i].isOffensive())
+			return true;
+
+	return false;
+}
+
 //this influences how daring we'll be
 void CvTacticalPosition::countEnemies()
 {
@@ -11794,7 +11803,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 				CvTacticalPosition* newPos = *it;
 				if (newPos->isComplete())
 				{
-					if (newPos->addFinishMovesIfAcceptable())
+					if (newPos->hasOffensiveAssignments() && newPos->addFinishMovesIfAcceptable())
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());
@@ -11813,7 +11822,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		else
 		{
 			//apparently we're blocked from making further assignments, but maybe this position is still useful
-			if (current->addFinishMovesIfAcceptable())
+			if (current->hasOffensiveAssignments() && current->addFinishMovesIfAcceptable())
 			{
 				blockedPositions.push_back(current);
 				iTopScore = max(iTopScore, current->getScore());
