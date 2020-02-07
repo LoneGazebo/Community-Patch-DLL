@@ -88,31 +88,29 @@
 	<!-- Fade out the full screen area -->
 	<Box Anchor="C,C" Size="Full,Full" Color="0,0,0,220" ConsumeMouse="1"/>
 	
-	<Box Anchor="C,C" Size="Full,780" Color="0,0,0,0" ID="TreePanel">
+	<Box Anchor="C,C" Size="Full,768" Color="0,0,0,0" ID="TreePanel">
 		<Box Anchor="C,T" AnchorSide="O,O" Size="Full,Full" Color="0,0,0,255" /> <!-- Top letter-box border -->
-		<Box Anchor="C,B" AnchorSide="O,I" Size="Full,20"   Color="0,0,0,255" /> <!-- Scroll bar area -->
+		<Box Anchor="C,B" AnchorSide="O,I" Size="Full,10"   Color="0,0,0,255" /> <!-- Scroll bar area -->
 		<Box Anchor="C,B" AnchorSide="O,O" Size="Full,Full" Color="0,0,0,255" /> <!-- Bottom letter-box border -->
 
-		<GridButton Anchor="L,T" AnchorSide="i,o" Offset="20,10" Size="150,32" String="TXT_KEY_PROMO_SWITCH_MODE" Style="BaseButton" ConsumeMouse="1" ID="SwitchModeButton" />
-		
 		<ScrollPanel Anchor="L,T" Size="Full,760" Vertical="0" ID="ScrollPanel">
 			<!--Stack of Group boxes-->
 			<Stack Anchor="L,T" Offset="20,0" StackGrowth="Right" Padding="0" ID="GroupsStack" >
-				<Box Anchor="L,T" Size="246,780" Color="0,0,0,0" ID="ClassGroup">
+				<Box Anchor="L,T" Size="246,768" Color="0,0,0,0" ID="ClassGroup">
 					<Image Anchor="R,T" Offset="-1,20" Color="White,32" Texture="Assets/UI/Art/Controls/9 Grids/Divider4.dds" Size="4,760" ID="ClassDivider"/>
 
 					<!-- Black Style-->
-					<Grid Anchor="L,T" AnchorSide="I,I" Offset="0,0" Style="WindowGridBlack" Size="246,20" ID="ClassBar">
+					<Grid Anchor="L,T" AnchorSide="I,I" Offset="0,0" Style="WindowGridBlack" Size="246,18" ID="ClassBar">
 						<Label Anchor="C,C" AnchorSide="I,O" Offset="0,-1" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_PROMO_GROUP_CLASS" ID="ClassLabel"/>
 					</Grid>
 				</Box>
 
-				<Box Anchor="L,T" Size="286,780" Color="0,0,0,0" ID="BaseGroup">
+				<Box Anchor="L,T" Size="286,768" Color="0,0,0,0" ID="BaseGroup">
 					<Image Anchor="R,T" Offset="-1,20" Color="White,32" Texture="Assets/UI/Art/Controls/9 Grids/Divider4.dds" Size="4,760" ID="BaseDivider"/>
 
 					<!-- Blue style-->
 					<Grid Anchor="L,T" Offset="0,0" Color="White,255" Size="286,760" Padding="0,0" Style="GridGlass16" ID="BaseBlock">
-						<Grid Anchor="L,T" AnchorSide="I,I" Offset="0,0" Style="WindowGrid" Size="286,20" ID="BaseBar" ToolTip="TXT_KEY_PROMO_GROUP_BASE_TT" >
+						<Grid Anchor="L,T" AnchorSide="I,I" Offset="0,0" Style="WindowGrid" Size="286,18" ID="BaseBar" ToolTip="TXT_KEY_PROMO_GROUP_BASE_TT" >
 							<Label Anchor="C,C" AnchorSide="I,O" Offset="0,-1" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_PROMO_GROUP_BASE" ID="BaseLabel"/>
 						</Grid>
 					</Grid>
@@ -152,9 +150,13 @@
 					<Image Anchor="C,C" Size="64,64" Texture="CivSymbolsColor512.dds" TextureOffset="448,128" ID="UnitPortrait"/>
 				</Image>
 			</Box>
-
-			<!--The legend-->
-			<Grid Size="230,150" Anchor="L,B" Offset="20,48" Style="WindowGridBlack" ID="Legend">
+            
+            <GridButton Anchor="L,T" Offset="20,30" Size="150,30" String="TXT_KEY_PROMO_SWITCH_MODE" Style="BaseButton" ConsumeMouse="1" ID="SwitchModeButton" />
+			<CheckBox   Anchor="L,T" Offset="12,65" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_PROMO_SIZE" ID="ResizeButton" />
+			<GridButton Anchor="L,T" Offset="20,100" Size="100,30" String="TXT_KEY_CLOSE" Style="BaseButton" ConsumeMouse="1" ID="CloseButton" />            
+			
+            <!--The legend-->
+			<Grid Size="230,150" Anchor="L,B" Offset="20,68" Style="WindowGridBlack" ID="Legend">
 				<Stack Anchor="C,C" Offset="0,0" Size="128,128" StackGrowth="Bottom" Padding="12" >
 					<GridButton Anchor="C,C" Size="200,32" Color="255,255,255,230"  Offset="0,0" StateOffsetIncrement="0,0" ToolTip="TXT_KEY_PROMO_EARNT_TT" >
 						<GridData Style="Grid9Gold8" />
@@ -176,11 +178,8 @@
 				</Stack>
 			</Grid>
 
-			<CheckBox   Anchor="L,B" AnchorSide="i,o" Offset="12,-46" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_PROMO_SIZE" ID="ResizeButton" />
-			<GridButton Anchor="L,B" AnchorSide="i,o" Offset="20,-13" Size="100,32" String="TXT_KEY_CLOSE" Style="BaseButton" ConsumeMouse="1" ID="CloseButton" />
-
 			<!-- 127 = CloseButton.SizeX + CloseButton.OffsetX + 7 -->
-			<UpButton   Offset="127,0" Anchor="L,B" AnchorSide="i,o" Style="ScrollBarLeft"  />
+			<UpButton   Offset="0,0" Anchor="L,B" AnchorSide="i,o" Style="ScrollBarLeft"  />
 			<DownButton Offset="2,0"   Anchor="R,B" AnchorSide="i,o" Style="ScrollBarRight" />
 			<ScrollBar  Offset="19,0"  Anchor="R,B" AnchorSide="i,o" Style="ScrollBar" Length="900" ID="ScrollBar" /> <!-- Length is re-calculated -->
 		</ScrollPanel>

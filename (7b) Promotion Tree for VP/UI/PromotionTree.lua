@@ -37,7 +37,7 @@ include("PromotionUtils")
 local config = {
   normal  = {NAME="Normal",  PANEL=900, GAP=44, PIPE=16, BUTTON="ButtonInstance"},
 --normal = {NAME="Normal", PANEL=740, GAP=50, PIPE=32, BUTTON="ButtonInstance"},   -- UndeadDevel: not tested by me!
-  small  = {NAME="Small",  PANEL=780, GAP=44, PIPE=16, BUTTON="ButtonInstanceSmall"},
+  small  = {NAME="Small",  PANEL=768, GAP=44, PIPE=16, BUTTON="ButtonInstanceSmall"},
 --  small  = {NAME="Small",  PANEL=840, GAP=44, PIPE=16, BUTTON="ButtonInstanceSmall"}   -- UndeadDevel: not tested by me!
 }
 
@@ -48,10 +48,6 @@ local iCentreLine = nil
 
 local iLeftMargin = 20
 local iTopMargin = 20
-
-local iCloseButtonSixeX = 100
-local iCloseButtonSixeY = 32
-local iScrollBarMagicX = iLeftMargin + iCloseButtonSixeX + 43
 
 local iDropDownSizeX = 230
 local iDropDownSizeY = 60
@@ -131,7 +127,7 @@ function PlaceUnit(pUnit)
   elseif (sDisplayClass == "UNITCOMBAT_ARCHER") then
     if (pUnit:GetUnitType() == GameInfoTypes.UNIT_HELICOPTER_GUNSHIP) then
       sDisplayClass = "UNITCOMBAT_HELICOPTER"
-    elseif (pUnit:Range() == 1) then
+    elseif (pUnit:IsMounted()) then
       sDisplayClass = "UNITCOMBAT_MOUNTED_ARCHER"
     end
   end
@@ -568,14 +564,9 @@ function AdjustPanelHeight(iHeight)
 
   Controls.DropDownBox:SetOffset({x=iLeftMargin, y=(iCentreLine - iDropDownSizeY/2)})
   Controls.UnitBox:SetOffset({x=iLeftMargin, y=(iCentreLine - iUnitBoxSizeY/2)})
-
-  -- It would appear that changing the height of the container doesn't move the bottom anchored Close Button or the Legend
-  -- so move them to (0,0) then move them back from whence they came!
-  OffsetAgain(Controls.CloseButton)
-  OffsetAgain(Controls.ResizeButton)
-
+  
   Controls.ScrollPanel:CalculateInternalSize()
-  Controls.ScrollBar:SetSizeX(Controls.ScrollPanel:GetSizeX() - iScrollBarMagicX)
+  Controls.ScrollBar:SetSizeX(Controls.ScrollPanel:GetSizeX() - iLeftMargin - 15)
 end
 
 function AdjustClassGroupWidth(iWidth)
@@ -641,6 +632,8 @@ function DrawPromotionButton(iX, iY, pUnit, sPromotion, sCombatClass)
     sToolTip = sToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PROMO_INTERCEPTION_TOOL_TIP")
   elseif (sPromotion:match("EVASION_[I]+$") ~= nil and sCombatClass == "UNITCOMBAT_BOMBER") then
     sToolTip = sToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PROMO_EVASION_TOOL_TIP")
+  elseif (sCombatClass == "UNITCOMBAT_ARCHER" and (sPromotion == "PROMOTION_INDIRECT_FIRE" or sPromotion == "PROMOTION_RANGE")) then
+    sToolTip = sToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PROMO_RANGE_LIMITATION_TOOL_TIP")
   end
 
   local button = ButtonManagerGetButton(iX, iY, sToolTip, promotion.IconAtlas, promotion.PortraitIndex, promotion.TechPrereq)
@@ -844,6 +837,13 @@ function InputHandler(uiMsg, wParam, lParam)
       return true
     elseif (wParam == Keys.S) then
         OnSwitchMode()
+    elseif (wParam == Keys.D) then
+        Controls.ResizeButton:SetCheck(largeUI == true)
+        if (largeUI) then
+          Small()
+        else
+          Normal()
+        end
     end
   end
 end
