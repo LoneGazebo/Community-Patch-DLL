@@ -11886,13 +11886,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		if (result.empty())
-		{
-			CvString strMsg;
-			strMsg.Format("tactsim_offense %s, target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", result.empty() ? "failed" : "success",
-				pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f);
-			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
-		}
+		CvString strMsg;
+		strMsg.Format("tactsim_offense %s, target %d:%d with %d units (agglvl %d). tested %d, discarded %d, completed %d, open %d (%.2f ms)", result.empty() ? "failed" : "success",
+			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, iUsedPositions, iDiscardedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f);
+		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
 		if (timer.GetDeltaInSeconds() > 10 || vUnits.size()>20)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
