@@ -1098,7 +1098,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if (eReligion > RELIGION_PANTHEON)
 			{
 				GetReligionData()->SetReligion(eReligion);
-				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads());
+				int iExtraSpreads = getUnitInfo().IsFoundReligion() ? 0 : pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads();
+				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + iExtraSpreads);
 				int iStrength = getUnitInfo().GetReligiousStrength();
 #if defined(MOD_BALANCE_CORE)
 				iStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetExtraMissionaryStrength());
@@ -4687,9 +4688,9 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		if (isHuman())
 			return true;
 
-		// Allow AI players to pass through minors' territory
-		if (!bEndTurn)
-			return true;
+				// Allow AI players to pass through minors' territory
+				if (!bEndTurn)
+					return true;
 
 		// If we haven't yet met the Minor we can move in
 		if(!kMyTeam.isHasMet(eTeam))
@@ -17150,44 +17151,40 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 {
 	pAttacker;  pTargetPlot; //unused
 
-	int iVal = 4;
+	int iVal = 5;
 
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
-		int iBaseValue = getUnitInfo().GetBaseLandAirDefense();
-		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
-		{
-			iVal = iVal * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
-			iVal /= 100;
-		}
+		int iBaseValue = getUnitInfo().GetBaseLandAirDefense() + getLandAirDefenseValue();
 		if (iBaseValue == 0)
 			if (bIncludeRand && !IsCivilianUnit())
 				return GC.getGame().getSmallFakeRandNum(iVal, *plot());
 			else
 				return 0;
-		else
+
+		if (pAttacker != NULL)
 		{
-			iBaseValue += getLandAirDefenseValue();
+			//value is negative if good!
+			int iReduction = pAttacker->GetInterceptionDefenseDamageModifier();
 
-			if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
-			{
-				iBaseValue = iBaseValue * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
-				iBaseValue /= 100;
-			}
-
-			if (bIncludeRand)
-				return iBaseValue + GC.getGame().getSmallFakeRandNum(5, *plot());
-			else
-				return iBaseValue;
+			iBaseValue = iBaseValue * (100 + iReduction);
+			iBaseValue /= 100;
+			if (iBaseValue <= 0)
+				iBaseValue = 0;
 		}
+
+		if (bIncludeRand)
+			return iBaseValue + GC.getGame().getSmallFakeRandNum(iVal, *plot());
+		else
+			return iBaseValue;
 	}
 	else
 	{
 		iVal *= 2;
 		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
 		{
-			iVal = iVal * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
+			iVal = iVal * (100 + pAttacker->GetInterceptionDefenseDamageModifier());
 			iVal /= 100;
 		}
 
@@ -27844,6 +27841,77 @@ bool CvUnit::airSweep(int iX, int iY)
 	return true;
 }
 
+bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
+{
+	bool bFoundSomething = false;
+	if (!IsAirSweepCapable())
+		return bFoundSomething;
+
+	int iAirSweepDamage = getUnitInfo().GetRangedCombat() / 10;
+	iAirSweepDamage *= 100 + GetAirSweepCombatModifier();
+	iAirSweepDamage /= 100;
+
+	CvString strAppendText = GetLocalizedText("TXT_KEY_PROMOTION_AIR_SWEEP");
+
+	int iRange = 1;
+	for (int i = -iRange; i <= iRange; ++i)
+	{
+		for (int j = -iRange; j <= iRange; ++j)
+		{
+			CvPlot* pLoopPlot = ::plotXYWithRangeCheck(pPlot.getX(), pPlot.getY(), i, j, iRange);
+			if (NULL != pLoopPlot)
+			{
+				pLoopPlot->changeVisibilityCount(getTeam(), 1, NO_INVISIBLE, false, false, this);
+
+				if (pLoopPlot->getOwner() == NO_PLAYER || pLoopPlot->getOwner() == getOwner())
+					continue;
+
+				if (!GET_TEAM(pLoopPlot->getTeam()).isAtWar(getTeam()))
+					continue;
+
+				const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+				while (pUnitNode != NULL)
+				{
+					CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+					if (pLoopUnit == NULL)
+						continue;
+					if (!pLoopUnit->canIntercept() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+						continue;
+					if (pLoopUnit->isSuicide())
+						continue;
+					if (pLoopUnit->isCargo())
+						continue;
+
+					pLoopUnit->changeDamage(iAirSweepDamage, getOwner(), 0.25f, &strAppendText);
+
+					if (pLoopUnit->IsDead())
+					{
+						CvString strBuffer;
+						int iActivePlayerID = GC.getGame().getActivePlayer();
+
+						if (iActivePlayerID == getOwner())
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), iAirSweepDamage, pLoopUnit->getNameKey());
+							GC.GetEngineUserInterface()->AddMessage(0, getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						}
+
+						changeExperienceTimes100(200, -1, true);
+
+						testPromotionReady();
+
+						CvUnitCombat::ApplyPostKillTraitEffects(this, pLoopUnit);
+					}
+
+					bFoundSomething = true;
+				}
+			}
+		}
+	}
+	return bFoundSomething;
+}
+
 //	---------------------------------------------------------------------------
 bool CvUnit::isEnemy(TeamTypes eTeam, const CvPlot* pPlot) const
 {
@@ -28999,7 +29067,7 @@ bool CvUnit::UnitBuild(BuildTypes eBuild)
 				if((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != (ImprovementTypes)(GC.getRUINS_IMPROVEMENT())))
 				{
 					ResourceTypes eResource = (ResourceTypes)pPlot->getNonObsoleteResourceType(GET_PLAYER(getOwner()).getTeam());
-					if((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsImprovementResourceTrade(eResource))
+					if ((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsExpandedImprovementResourceTrade(eResource))
 					{
 						if(GC.getImprovementInfo(eImprovement)->GetImprovementPillage() != NO_IMPROVEMENT)
 						{
@@ -30146,32 +30214,35 @@ void CvUnit::AI_promote()
 	{
 		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
 
+		CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
+
+		if (pkPromotionEntry == NULL)
+			continue;
+
 		if(canPromote(ePromotion, -1))
 		{
 			iNumValidPromotions++;
 			int iValue = AI_promotionValue(ePromotion);
 
-			//value lower-level promotions  a bit less.
-			if (GC.getPromotionInfo(ePromotion) != NULL && GC.getPromotionInfo(ePromotion)->GetPrereqOrPromotion1() == NO_PROMOTION)
-				iValue /= 2;
+			//value lower-level promotions a bit less.
+			if (pkPromotionEntry->GetPrereqOrPromotion1() == NO_PROMOTION)
+				iValue /= max(1, getLevel());
 
-			//for some basic forward planning, look at promotions this promotion unlocks and add those to the value.
-			for (int j = 0; j < GC.getNumPromotionInfos(); j++)
+			for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
 			{
-				const PromotionTypes eNextPromotion(static_cast<PromotionTypes>(j));
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNextPromotion);
-				if (pkPromotionInfo == NULL)
-					continue;
+				const PromotionTypes eNextPromotion(static_cast<PromotionTypes>(iJ));
+				CvPromotionEntry* pkNextPromotionEntry = GC.getPromotionInfo(eNextPromotion);
 
-				if (pkPromotionInfo->GetPrereqOrPromotion1() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion2() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion3() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion4() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion5() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion6() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion7() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion8() == ePromotion ||
-					pkPromotionInfo->GetPrereqOrPromotion9() == ePromotion)
+				//for some basic forward planning, look at promotions this promotion unlocks and add those to the value.
+				if (   pkNextPromotionEntry->GetPrereqOrPromotion1() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion2() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion3() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion4() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion5() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion6() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion7() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion8() == ePromotion
+					|| pkNextPromotionEntry->GetPrereqOrPromotion9() == ePromotion)
 				{
 					iValue += AI_promotionValue(eNextPromotion) / 2;
 				}
@@ -31040,6 +31111,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra = getInterceptChance();
+		//AA units prioritize
+		if (getDomainType() != DOMAIN_AIR && GetAirInterceptRange() > 0)
+		{
+			iExtra *= GetAirInterceptRange() * 2;
+		}
 		iValue += iTemp + iExtra + iFlavorAir;
 	}
 

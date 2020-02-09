@@ -326,7 +326,7 @@ SET Value = '6'
 WHERE Name = 'CITY_RING_2_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- there are 18 ring3 plots, workable late and often conflicted
-UPDATE Define
+UPDATE Defines
 SET Value = '3'
 WHERE Name = 'CITY_RING_3_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 

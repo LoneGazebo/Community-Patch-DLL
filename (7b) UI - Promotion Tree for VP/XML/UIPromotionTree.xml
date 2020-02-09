@@ -99,6 +99,9 @@
 		<Row Tag="TXT_KEY_PROMO_EVASION_TOOL_TIP" >
 			<Text>Cannot be chosen for Stealth Bombers.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMO_RANGE_LIMITATION_TOOL_TIP" >
+			<Text>Available only for units with Range above 1.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMO_MOD_DESC_MELEE" >
 			<Text>Melee Units</Text>
 		</Row>
@@ -160,7 +163,7 @@
 			<Text>Display the Promotion Tree to easily see which promotions this unit has and are available</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_SIZE" >
-			<Text>Small</Text>
+			<Text>Small (key: 'D')</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_EARNT" >
 			<Text>Earnt</Text>
@@ -172,7 +175,7 @@
 			<Text>Available</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_AVAILABLE_TT" >
-			<Text>Promotions which may be choosen for the unit</Text>
+			<Text>Promotions which may be chosen for the unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_NOT_AVAILABLE" >
 			<Text>Not Yet Available</Text>
@@ -200,6 +203,9 @@
 		</Row>	
 		<Row Tag="TXT_KEY_PROMO_EVASION_TOOL_TIP" >
 			<Text>Tarnkappenbomber können diese Beförderung nicht auswählen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMO_RANGE_LIMITATION_TOOL_TIP" >
+			<Text>Nur verfügbar für Einheiten deren Reichweite über 1 liegt.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_MOD_DESC_MELEE" >
 			<Text>Nahkampfeinheiten</Text>
@@ -262,13 +268,13 @@
             <Text>Zeigt auf einfache Weise welche Beförderungen diese Einheit zur Verfügung hat</Text>
         </Row>
         <Row Tag="TXT_KEY_PROMO_SIZE" >
-            <Text>Klein</Text>
+            <Text>Klein (Taste: 'D')</Text>
         </Row>
         <Row Tag="TXT_KEY_PROMO_EARNT" >
             <Text>Erhalten</Text>
         </Row>
         <Row Tag="TXT_KEY_PROMO_EARNT_TT" >
-            <Text>Schon erhaltene Beföderungen der Einheit (ausgenommen Spezialfähigkeiten and Wunder-Beförderungen)</Text>
+            <Text>Schon erhaltene Beförderungen der Einheit (ausgenommen Spezialfähigkeiten and Wunder-Beförderungen)</Text>
         </Row>
         <Row Tag="TXT_KEY_PROMO_AVAILABLE" >
             <Text>Verfügbar</Text>
@@ -303,6 +309,9 @@
 		<Row Tag="TXT_KEY_PROMO_EVASION_TOOL_TIP" >
 			<Text>Не доступно для выбора бомбардировщиками Стелс.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMO_RANGE_LIMITATION_TOOL_TIP" >
+			<Text>Доступно только для юнитов с дальности действия больше 1.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMO_MOD_DESC_MELEE" >
 			<Text>Войска ближнего боя</Text>
 		</Row>
@@ -325,7 +334,7 @@
 			<Text>Конная милиция дальнего боя</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_MOD_DESC_HELICOPTER" >
-			<Text>вертолёты</Text>
+			<Text>Вертолёты</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_MOD_DESC_SIEGE" >
 			<Text>Осадные орудия</Text>
@@ -364,7 +373,7 @@
 			<Text>При просмотре дерева повышений легко увидеть какие повышения доступны для боевых классов юнитов</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_SIZE" >
-			<Text>Мелко</Text>
+			<Text>Мелко (клавиша: «D»)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMO_EARNT" >
 			<Text>Полученные</Text>

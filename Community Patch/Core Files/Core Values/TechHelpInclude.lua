@@ -240,13 +240,21 @@ function GetHelpTextForTech( iTechID )
 		end
 		abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_MOVEMENT", GameInfo.Routes[row.RouteType].Description);
 		numAbilities = numAbilities + 1;
-	end	
+	end
 
 	if thisTech.EmbarkedMoveChange > 0 then
 		if numAbilities > 0 then
 				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
 		end
 		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_FAST_EMBARK_STRING" );
+		numAbilities = numAbilities + 1;
+	end
+
+	if thisTech.FeatureProductionModifier > 0 then
+		if numAbilities > 0 then
+				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
+		end
+		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", thisTech.FeatureProductionModifier );
 		numAbilities = numAbilities + 1;
 	end
 	

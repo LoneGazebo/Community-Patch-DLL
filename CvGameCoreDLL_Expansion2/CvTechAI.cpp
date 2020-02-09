@@ -407,6 +407,12 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 			}
 		}
 
+		if (iNewWeight > 10000)
+			iNewWeight = 10000;
+
+		if (iNewWeight < 1)
+			iNewWeight = 1;
+
 		// Now actually change the weight
 		m_ResearchableTechs.SetWeight(iI, iNewWeight);
 	}
@@ -473,7 +479,40 @@ void CvTechAI::LogResearchChoice(TechTypes eTech)
 		CvTechEntry* pTechEntry = GC.getTechInfo(eTech);
 		const char* szTechType = (pTechEntry != NULL)? pTechEntry->GetType() : "Unknown Tech";
 
-		strTemp.Format("CHOSEN, %s", szTechType);
+		int iNumTurns = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
+
+		strTemp.Format("CHOSEN, %s, TURNS: %d", szTechType, iNumTurns);
+
+		strOutBuf = strBaseString + strTemp;
+		pLog->Msg(strOutBuf);
+	}
+}
+
+/// Log chosen tech
+void CvTechAI::LogResearchCompleted(TechTypes eTech)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString playerName;
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp;
+		CvString strDesc;
+
+		// Find the name of this civ
+		playerName = m_pCurrentTechs->GetPlayer()->getCivilizationShortDescription();
+
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+
+		CvTechEntry* pTechEntry = GC.getTechInfo(eTech);
+		const char* szTechType = (pTechEntry != NULL) ? pTechEntry->GetType() : "Unknown Tech";
+
+		strTemp.Format("COMPLETED, %s", szTechType);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);

@@ -3510,6 +3510,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		if (!pOldCity->isEverOwned(GetID()))
 		{
 			int iScaler = pOldCity->getPopulation() / 2;
+			iScaler -= GetCurrentEra();
 			if(iScaler <= 0)
 			{
 				iScaler = 1;
@@ -3704,16 +3705,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	iBattleDamage = pOldCity->getDamage();
 
+	bool bReduce = true;
 	// Traded cities between humans don't heal (an exploit would be to trade a city back and forth between teammates to get an instant heal.)
-	if(!bGift || !isHuman() || !GET_PLAYER(pOldCity->getOwner()).isHuman())
-	{
-		int iBattleDamageThreshold = pOldCity->GetMaxHitPoints() * /*50*/ GC.getCITY_CAPTURE_DAMAGE_PERCENT();
-		iBattleDamageThreshold /= 100;
+	if (bGift || GET_PLAYER(pOldCity->getOwner()).getTeam() != getTeam())
+		bReduce = false;
 
-		if(iBattleDamage > iBattleDamageThreshold)
-		{
-			iBattleDamage = iBattleDamageThreshold;
-		}
+	int iBattleDamageThreshold = GC.getMAX_CITY_HIT_POINTS() * /*50*/ (bReduce ? GC.getCITY_CAPTURE_DAMAGE_PERCENT() : 90);
+	iBattleDamageThreshold /= 100;
+
+	if(iBattleDamage > iBattleDamageThreshold)
+	{
+		iBattleDamage = iBattleDamageThreshold;
 	}
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -12956,23 +12958,23 @@ void CvPlayer::unraze(CvCity* pCity)
 {
 	if (GetPlayerTraits()->IsUnableToCancelRazing() == false)
 	{
-	if (GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoCreatePuppet();
-	}
-	else
-	{
-		pCity->DoAnnex();
-	}
+		if (GetPlayerTraits()->IsNoAnnexing())
+		{
+			pCity->DoCreatePuppet();
+		}
+		else
+		{
+			pCity->DoAnnex();
+		}
 
-	pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
+		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
 
-	DoUpdateNextPolicyCost();
+		DoUpdateNextPolicyCost();
 
-	// Update City UI
-	if(GetID() == GC.getGame().getActivePlayer())
-	{
-		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		// Update City UI
+		if(GetID() == GC.getGame().getActivePlayer())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
 	}
 }
@@ -20587,7 +20589,10 @@ int CvPlayer::GetExcessHappiness() const
 {
 	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0))
 	{
-		return 50;
+		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+			return 50;
+		else
+			return 0;
 	}
 
 	return m_iHappinessTotal;
@@ -26746,8 +26751,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if (iPassYield == 0)
 						iValue += GetYieldFromMinorDemand(eYield);
-					else
+					else if (ePassYield != NO_YIELD)
 						iValue += iPassYield;
+					else
+					{
+						int iTemp = GetYieldFromMinorDemand(eYield) * iPassYield;
+						iTemp /= 100;
+						iValue += iTemp;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_SPREAD:

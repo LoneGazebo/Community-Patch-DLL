@@ -166,12 +166,12 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
 
 			if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-				continue;
-
+						continue;
+						
 			//ignore plots which are not exposed
 			CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopPlot);
 			if (!pZone || pZone->GetBorderScore() == 0)
-				continue;
+						continue;
 
 			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 50)
@@ -182,7 +182,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 	//quests
 	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)
-	{
+					{
 		PlayerTypes ePlayer = (PlayerTypes)i;
 		if(ShouldConnectToOtherPlayer(ePlayer))
 		{

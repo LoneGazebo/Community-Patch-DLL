@@ -111,7 +111,7 @@ public:
 	CvAStarNode();
 	void clear();
 
-	short m_iX, m_iY;							// Coordinate position - persistent, ie not affected by clear()
+	short m_iX, m_iY;	  // Coordinate position - persistent
 
 	long m_iKnownCost;							// Goal (g)
 	long m_iHeuristicCost;						// Heuristic (h)
@@ -127,7 +127,7 @@ public:
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()
 	std::vector<CvAStarNode*> m_apChildren;		// Nodes we could reach from this node - maybe be more than 6 because of "extrachildren"
 
-	CvPathNodeCacheData m_kCostCacheData;		// some things we want to calculate only once
+	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
 };
 
 //-------------------------------------------------------------------------------------------------

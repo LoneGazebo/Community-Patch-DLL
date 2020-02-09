@@ -1577,6 +1577,23 @@ bool CvImprovementEntry::IsImprovementResourceTrade(int i) const
 	return m_paImprovementResource[i].m_bResourceTrade;
 }
 
+bool CvImprovementEntry::IsExpandedImprovementResourceTrade(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	if (m_paImprovementResource[i].m_bResourceTrade)
+		return true;
+
+	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+	{
+		if (IsCreatedByGreatPerson() || IsAdjacentCity())
+			return true;
+	}
+
+	return false;
+
+}
+
 /// the chance of the specified Resource appearing randomly when the Improvement is present with no current Resource
 int CvImprovementEntry::GetImprovementResourceDiscoverRand(int i) const
 {

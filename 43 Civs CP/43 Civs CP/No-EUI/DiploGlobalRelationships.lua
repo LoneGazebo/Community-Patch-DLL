@@ -21,6 +21,7 @@ function InitMajorCivList()
 	local g_pUs = Players[ g_iUs ];
 	local g_iUsTeam = g_pUs:GetTeam();
 	local g_pUsTeam = Teams[ g_iUsTeam ];
+	local g_RelationshipLength = Game.GetRelationshipDuration();
 	
 	-- Clear buttons
 	Controls.ItemStack:DestroyAllChildren();
@@ -136,7 +137,7 @@ function InitMajorCivList()
 					else
 						local text = Locale.Lookup("TXT_KEY_DIPLO_YOU_HAVE_DENOUNCED")
 						if(Players[g_iUs].GetDenouncedPlayerCounter ~= nil) then
-							local turnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - Players[g_iUs]:GetDenouncedPlayerCounter(iOtherPlayer);
+							local turnsLeft = g_RelationshipLength - Players[g_iUs]:GetDenouncedPlayerCounter(iOtherPlayer);
 							text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
 						end
 					
@@ -254,7 +255,7 @@ function InitMajorCivList()
 									
 									local text = Locale.Lookup("TXT_KEY_DIPLO_FRIENDS_WITH", thirdName);
 									if(pOtherPlayer.GetDoFCounter ~= nil) then
-										local turnsLeft = GameDefines.DOF_EXPIRATION_TIME - pOtherPlayer:GetDoFCounter(iThirdPlayer);
+										local turnsLeft = g_RelationshipLength - pOtherPlayer:GetDoFCounter(iThirdPlayer);
 										text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
         							end
 									textControls.Text:SetText(text);
@@ -360,7 +361,7 @@ function InitMajorCivList()
 									else
 										local text = Locale.Lookup("TXT_KEY_DIPLO_DENOUNCED", thirdName);
 										if(pOtherPlayer.GetDenouncedPlayerCounter ~= nil) then
-											local turnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - pOtherPlayer:GetDenouncedPlayerCounter(iThirdPlayer);
+											local turnsLeft = g_RelationshipLength - pOtherPlayer:GetDenouncedPlayerCounter(iThirdPlayer);
 											text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
         								end
 										textControls.Text:SetText(text);

@@ -1154,8 +1154,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			iProduction = GC.getBuildInfo(eBuildRemoveJungle)->getFeatureProduction(FEATURE_JUNGLE);
 		}
 
-		iProduction *= std::max(0, (GET_PLAYER(getOwner()).getFeatureProductionModifier() + 100));
-		iProduction /= 100;
+		if (MOD_BALANCE_CORE_SETTLER_ADVANCED)
+		{
+			iProduction *= std::max(0, (GET_PLAYER(getOwner()).getFeatureProductionModifier()));
+			iProduction /= 100;
+		}
+		else
+		{
+			iProduction *= std::max(0, (GET_PLAYER(getOwner()).getFeatureProductionModifier() + 100));
+			iProduction /= 100;
+		}
 
 		iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
 		iProduction /= 100;
@@ -2701,7 +2709,7 @@ void CvCity::PreKill()
 	}
 
 	// If this city was built on a Resource, remove its Quantity from total
-	if(pPlot->getResourceType() != NO_RESOURCE)
+	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 	{
 		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(pPlot->getResourceType())->getTechCityTrade()))
 		{
@@ -8470,7 +8478,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
-	if(pkBuildingInfo->IsRequiresRail())
+	if (pkBuildingInfo->IsRequiresRail() && !GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 	{
 		//this flag is also set for water connection once railroad is available
 		if(!IsIndustrialRouteToCapitalConnected())
@@ -9875,24 +9883,6 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	ResourceTypes eResource;
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	// Loop through all resource infos and invalidate resources that only come from minor civs
-	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		eResource = (ResourceTypes) iResourceLoop;
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-		{
-			if (pkResource->isOnlyMinorCivs())
-			{
-				veInvalidLuxuryResources.push_back(eResource);
-			}
-			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
-			{
-				veInvalidLuxuryResources.push_back(eResource);
-			}
-		}
-	}
-
 	// Loop through all Plots near this City to see if there's Luxuries we should invalidate
 
 	for(int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
@@ -9913,12 +9903,6 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		}
 	}
 
-	// Current Resource demanded may not be a valid choice
-	if(bCurrentResourceInvalid && eCurrentResource != NO_RESOURCE)
-	{
-		veInvalidLuxuryResources.push_back(eCurrentResource);
-	}
-
 	// Create list of valid Luxuries
 	FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veValidLuxuryResources;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -9930,16 +9914,36 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		if(pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
 			// Is the Resource actually on the map?
-			if(GC.getMap().getNumResources(eResource) > 0)
+			if (GC.getMap().getNumResources(eResource) <= 0)
+				continue;
+
+			if (pkResource->isOnlyMinorCivs())
+				continue;
+
+			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
+				continue;
+
+			if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == 0)
+				continue;
+
+			if (bCurrentResourceInvalid && eCurrentResource == eResource)
+				continue;
+
+			bool bResourceValid = true;
+
+			// Look at all invalid Resources found to see if our randomly-picked Resource matches any
+			for (int iVectorLoop = 0; iVectorLoop < (int)veInvalidLuxuryResources.size(); iVectorLoop++)
 			{
-				// Can't be a minor civ only resource!
-				if(!GC.getResourceInfo(eResource)->isOnlyMinorCivs())
+				if (eResource == veInvalidLuxuryResources[iVectorLoop])
 				{
-					// We must not have this already
-					if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == 0)
-						veValidLuxuryResources.push_back(eResource);
+					bResourceValid = false;
+					break;
 				}
 			}
+			if (!bResourceValid)
+				continue;
+
+			veValidLuxuryResources.push_back(eCurrentResource);
 		}
 	}
 
@@ -9950,31 +9954,16 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	}
 
 	// Now pick a Luxury we can use
-	int iNumAttempts = 0;
-	int iVectorLoop;
 	int iVectorIndex;
-	bool bResourceValid;
 
-	do
-	{
-		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
-		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
-		bResourceValid = true;
+	iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+	eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 
-		// Look at all invalid Resources found to see if our randomly-picked Resource matches any
-		for(iVectorLoop = 0; iVectorLoop < (int) veInvalidLuxuryResources.size(); iVectorLoop++)
-		{
-			if(eResource == veInvalidLuxuryResources[iVectorLoop])
-			{
-				bResourceValid = false;
-				break;
-			}
-		}
+	//hurk! STOP.
+	if (eResource == NO_RESOURCE)
+		return;
 
-		// Not found nearby?
-		if(bResourceValid)
-		{
-			SetResourceDemanded(eResource);
+	SetResourceDemanded(eResource);
 
 			// Notification
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -10003,13 +9992,6 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 #endif
 			}
 
-			return;
-		}
-
-		iNumAttempts++;
-	}
-	while(iNumAttempts < 500);
-
 	// If we're on the debug map it's too small for us to care
 	if(GC.getMap().getWorldSize() != WORLDSIZE_DEBUG)
 	{
@@ -10024,7 +10006,7 @@ void CvCity::DoTestResourceDemanded()
 	VALIDATE_OBJECT
 	ResourceTypes eResource = GetResourceDemanded();
 
-	if (eResource == NO_RESOURCE)
+	if (eResource == NO_RESOURCE && GetResourceDemandedCountdown() <= 0)
 		DoPickResourceDemanded();
 
 	if(GetWeLoveTheKingDayCounter() > 0)
@@ -15345,7 +15327,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if(owningTeam.GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
 						{
 #if defined(MOD_BALANCE_CORE)
-							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsAdjacentCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource))))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
 #else
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
 #endif
@@ -15376,7 +15358,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if(owningTeam.GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
 						{
 #if defined(MOD_BALANCE_CORE)
-							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsAdjacentCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource))))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
 #else
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
 #endif
@@ -21097,6 +21079,10 @@ bool CvCity::DoRazingTurn()
 		ChangeRazingTurns(-1);
 		changePopulation(-iPopulationDrop, true);
 
+		//don't kill the city on an 'off' turn.
+		if (GetRazingTurns() > 0 && getPopulation() <= 0)
+			setPopulation(1);
+
 		// Counter has reached 0, disband the City
 		if(GetRazingTurns() <= 0 || getPopulation() <= 0)
 		{
@@ -26737,7 +26723,7 @@ void CvCity::DoBarbIncursion()
 					if (iDefenderDamage > 0)
 					{
 						//they get x turns worth of yields
-						int iTheftTurns = max(1, iDefenderDamage / 23 + GC.getGame().getSmallFakeRandNum(1, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+						int iTheftTurns = max(1, iDefenderDamage / 23 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 
 						//but they lose some health in exchange
 						pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
@@ -28127,9 +28113,10 @@ void CvCity::updateStrengthValue()
 	if(pGarrisonedUnit)
 	{
 		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
-		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 		if (!pGarrisonedUnit->isNativeDomain(plot()))
-			iStrengthFromGarrison /= 2; //see getBestGarrison ... naval units make weaker garrisons
+			iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
+
+		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
 		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
 		iStrengthValue += iStrengthFromGarrison;
@@ -28176,6 +28163,18 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				}
 			}
 
+			// We also remove the garrisoned unit's strength
+			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
+			if (pGarrisonedUnit)
+			{
+				int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
+				if (!pGarrisonedUnit->isNativeDomain(plot()))
+					iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
+
+				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+				iValue -= iStrengthFromGarrison;
+			}
+
 			int iModifier = 0;
 			if (HasGarrison())
 			{
@@ -28206,13 +28205,16 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				}
 			}
 
+			iValue *= (100 + iModifier);
+			iValue /= 100;
+
 			// OTHER UNIT is a Barbarian
 			if (pDefender != NULL)
 			{
 				if (pDefender->isBarbarian())
 				{
 					// Generic Barb Combat Bonus
-					iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
+					iModifier = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 
 					const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
@@ -28696,10 +28698,11 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 					if (iResourceMod == 0) //no resource or ignored resource
 					{
+
 						// Water Plots claimed later
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
 							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
-					}
+						}
 					else
 						iInfluenceCost += iResourceMod;
 
@@ -31783,7 +31786,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			// Missionary strength
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 			{
-				pUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads());
+				int iExtraReligionSpreads = pUnit->getUnitInfo().IsFoundReligion() ? 0 : GetCityBuildings()->GetMissionaryExtraSpreads() + GET_PLAYER(getOwner()).GetNumMissionarySpreads();
+				pUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + iExtraReligionSpreads);
 				pUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 			}
 

@@ -18,6 +18,7 @@
 #include "CvMap.h"
 #include "CvPlot.h"
 #include "CvTeam.h"
+#include "CvTechAI.h"
 #include "ICvDLLUserInterface.h"
 #include "CvInfos.h"
 #include "CvMinorCivAI.h"
@@ -6620,80 +6621,46 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					{
 						if(pResourceInfo->getTechCityTrade() == eIndex)
 						{
-								// Appropriate Improvement on this Plot?
-#if defined(MOD_BALANCE_CORE)
-							bool bConnect = false;
-							if(pLoopPlot->isCity())
+							// Appropriate Improvement on this Plot?
+							if (pLoopPlot->isCity() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eResource)))
 							{
-								bConnect = true;
-							}
-							else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							{
-								CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-								if(ImprovementEntry)
+								for (int iI = 0; iI < MAX_PLAYERS; iI++)
 								{
-									if(ImprovementEntry->IsImprovementResourceTrade(eResource))
+									const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+									CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+									if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
 									{
-										bConnect = true;
-									}
-									else if(ImprovementEntry->IsCreatedByGreatPerson())
-									{
-										bConnect = true;
-									}
-									else if(ImprovementEntry->IsAdjacentCity())
-									{
-										bConnect = true;
-									}
-								}
-							}
-							if(bConnect)
-							{
-#else
-							if(pLoopPlot->isCity() || pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							{
-								if(pLoopPlot->isCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eResource))
-								{
-#endif
-									for(int iI = 0; iI < MAX_PLAYERS; iI++)
-									{
-										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-										CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-										if(kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+										// We now have a new Tech
+										if (bNewValue)
 										{
-											// We now have a new Tech
-											if(bNewValue)
+											// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+											if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 											{
-												// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
-												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
-												{
-													kLoopPlayer.changeNumResourceTotal(eResource, pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
-												}
-
-												// Reconnect resource link
-												if(pLoopPlot->GetResourceLinkedCity() != NULL)
-												{
-													pLoopPlot->SetResourceLinkedCityActive(true);
-												}
-												// Create resource link
-												else
-												{
-													pLoopPlot->DoFindCityToLinkResourceTo();
-												}
+												kLoopPlayer.changeNumResourceTotal(eResource, pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
 											}
-											// Removing Tech
+
+											// Reconnect resource link
+											if (pLoopPlot->GetResourceLinkedCity() != NULL)
+											{
+												pLoopPlot->SetResourceLinkedCityActive(true);
+											}
+											// Create resource link
 											else
 											{
-												kLoopPlayer.changeNumResourceTotal(eResource, -pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
-
-												// Disconnect resource link
-												if(pLoopPlot->GetResourceLinkedCity() != NULL)
-													pLoopPlot->SetResourceLinkedCityActive(false);
+												pLoopPlot->DoFindCityToLinkResourceTo();
 											}
 										}
+										// Removing Tech
+										else
+										{
+											kLoopPlayer.changeNumResourceTotal(eResource, -pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
+
+											// Disconnect resource link
+											if (pLoopPlot->GetResourceLinkedCity() != NULL)
+												pLoopPlot->SetResourceLinkedCityActive(false);
+										}
 									}
-#if !defined(MOD_BALANCE_CORE)
 								}
-#endif
 							}
 						}
 					}
@@ -7105,6 +7072,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					if(kPlayer.GetPlayerTechs()->IsResearchingTech(eIndex))
 					{
 						kPlayer.popResearch(eIndex);
+						kPlayer.GetPlayerTechs()->GetTechAI()->LogResearchCompleted(eIndex);
 					}
 
 					// notify the player they now have the tech, if they want to make immediate changes

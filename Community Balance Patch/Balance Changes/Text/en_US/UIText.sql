@@ -295,9 +295,18 @@ SET Text = '[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] {1_TurnsUntilPledgeAvaila
 WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_MISTRUST_TT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence too high'
+SET Text = '[ICON_INFLUENCE] Influence above Friend threshold'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );
-	
+
+UPDATE Language_en_US
+SET Text = 'They recognize your military strength, and will give you [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of their total yields as tribute.'
+WHERE Tag = 'TXT_KEY_CSTATE_CAN_BULLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );	
+
+UPDATE Language_en_US
+SET Text = 'They do not fear you, and will resist tribute demands, as you are [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] below the threshold.'
+WHERE Tag = 'TXT_KEY_CSTATE_CANNOT_BULLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );	
+
+
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.[ENDCOLOR][NEWLINE][NEWLINE]Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.'
 WHERE Tag = 'TXT_KEY_FEATURE_FALLOUT_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -740,3 +749,41 @@ WHERE Tag = 'TXT_KEY_TECH_ECOLOGY_TITLE';
 UPDATE Language_en_US
 SET Text = 'Renewable, or alternative energy is energy that is collected from renewable resources, which are naturally replenished on a human timescale, such as sunlight, wind, rain, tides, waves, and geothermal heat. Renewable energy often provides energy in four important areas: electricity generation, air and water heating/cooling, transportation, and rural (off-grid) energy services.'
 WHERE Tag = 'TXT_KEY_TECH_ECOLOGY_DESC';
+
+UPDATE Language_en_US
+SET Text = 'Can Air Sweep to clear intercepting Units. If no interceptors found, it will deal 10% of it''s [ICON_RANGE_STRENGTH] Ranged Combat Strength to all enemy Air Units within 3 tiles of the target Tile.' 
+WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SWEEP_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Can Air Sweep to clear intercepting Units. If no interceptors found, it will deal 10% of it''s [ICON_RANGE_STRENGTH] Ranged Combat Strength to all enemy Air and Anti-Air Units in and adjacent to the target Tile.' 
+WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SWEEP_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Order the unit to sweep an area for air and ground-based interceptors. If no interceptors found, it will deal 10% of it''s [ICON_RANGE_STRENGTH] Ranged Combat Strength to all enemy Air and Anti-Air Units in and adjacent to the target Tile.' 
+WHERE Tag = 'TXT_KEY_INTERFACEMODE_AIR_SWEEP_HELP';
+
+-- Bully Changes
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT](+{1_FactorScore}%) {@2_FactorDescription}[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT]({1_FactorScore}%) {@2_FactorDescription}[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE';
+
+UPDATE Language_en_US
+SET Text = 'They are currently [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR], and are willing to give up [COLOR_POSITIVE_TEXT]{1_FactorScore}%[ENDCOLOR] of max tribute:'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_AFRAID';
+
+UPDATE Language_en_US
+SET Text = 'They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the tribute threshold:'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_RESILIENT';
+
+UPDATE Language_en_US
+SET Text = 'Has Pledges of Protection'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT';
+
+UPDATE Language_en_US
+SET Text = 'Already bullied this turn'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';

@@ -90,6 +90,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iInspirationalLeader(0),
 	m_iBullyMilitaryStrengthModifier(0),
 	m_iBullyValueModifier(0),
+	m_bIgnoreBullyPenalties(false),
 	m_bDiplomaticMarriage(false),
 	m_bAdoptionFreeTech(false),
 	m_bGPWLTKD(false),
@@ -708,6 +709,11 @@ int CvTraitEntry::GetBullyMilitaryStrengthModifier() const
 int CvTraitEntry::GetBullyValueModifier() const
 {
 	return m_iBullyValueModifier;
+}
+
+bool CvTraitEntry::IgnoreBullyPenalties() const
+{
+	return m_bIgnoreBullyPenalties;
 }
 
 bool CvTraitEntry::IsDiplomaticMarriage() const
@@ -2302,6 +2308,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
 	m_iBullyMilitaryStrengthModifier		= kResults.GetInt("CSBullyMilitaryStrengthModifier");
 	m_iBullyValueModifier					= kResults.GetInt("CSBullyValueModifier");
+	m_bIgnoreBullyPenalties					= kResults.GetBool("IgnoreBullyPenalties");
 	m_bAdoptionFreeTech						= kResults.GetBool("IsAdoptionFreeTech");
 	m_iWLTKDGPImprovementModifier			= kResults.GetInt("WLTKDGPImprovementModifier");
 	m_iGrowthBoon							= kResults.GetInt("GrowthBoon");
@@ -3755,6 +3762,7 @@ void CvPlayerTraits::SetIsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
+		IgnoreBullyPenalties() ||
 		GetBullyYieldMultiplierAnnex() != 0 ||
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
@@ -4182,6 +4190,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			if (trait->GetBullyValueModifier() != 0)
 			{
 				m_iBullyValueModifier += trait->GetBullyValueModifier();
+			}
+			if (trait->IgnoreBullyPenalties())
+			{
+				m_bIgnoreBullyPenalties = true;
 			}
 			if(trait->IsDiplomaticMarriage())
 			{
@@ -5013,6 +5025,7 @@ void CvPlayerTraits::Reset()
 	m_iInspirationalLeader = 0;
 	m_iBullyMilitaryStrengthModifier = 0;
 	m_iBullyValueModifier = 0;
+	m_bIgnoreBullyPenalties = false;
 	m_bDiplomaticMarriage = false;
 	m_bAdoptionFreeTech = false;
 	m_iGrowthBoon = 0;
@@ -7226,6 +7239,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iInspirationalLeader, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iBullyMilitaryStrengthModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iBullyValueModifier, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_bIgnoreBullyPenalties, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_bDiplomaticMarriage, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
@@ -7865,6 +7879,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iInspirationalLeader);
 	MOD_SERIALIZE_WRITE(kStream, m_iBullyMilitaryStrengthModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iBullyValueModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_bIgnoreBullyPenalties);
 	MOD_SERIALIZE_WRITE(kStream, m_bDiplomaticMarriage);
 	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
 	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);

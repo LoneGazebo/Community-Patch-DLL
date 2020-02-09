@@ -13,7 +13,7 @@ WHERE Type = 'POLICY_EXPLORATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 -- Maritime Infrastructure -- Now Martial Law
 UPDATE Policies
-SET PuppetYieldPenaltyMod = '30'
+SET PuppetYieldPenaltyMod = '20'
 WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
@@ -229,7 +229,7 @@ VALUES
 INSERT INTO Policy_ConquerorYield
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 100);
+	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 75);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
@@ -248,7 +248,7 @@ VALUES
 INSERT INTO Policy_PlotYieldChanges
 	(PolicyType, PlotType, YieldType, Yield)
 VALUES
-	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_SCIENCE', 2),
+	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_SCIENCE', 1),
 	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Policy_BuildingClassYieldChanges

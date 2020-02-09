@@ -134,7 +134,7 @@ function UpdateButtonStack()
 
 	-- CSD
 	Controls.GiveStackCSD:CalculateSize();
-    Controls.GiveStackCSD:ReprocessAnchoring();
+	Controls.GiveStackCSD:ReprocessAnchoring();
 	-- END
 
 	Controls.TakeStack:CalculateSize()
@@ -443,16 +443,16 @@ function OnDisplay()
 			local strGiftTxtKey = S("TXT_KEY_MINOR_CIV_%sCONTACT_BONUS_%s", (bFirstMajorCiv and "FIRST_" or ""), m_PopupInfo.Text)
 	
 			if (m_PopupInfo.Data2 == 0) then
-				  if (m_PopupInfo.Data3 == 0) then
-					strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-				  else
-                    			-- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
-                    			if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
-                    			    strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-                    			else
-					strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
-                    			end
-				  end
+			  if (m_PopupInfo.Data3 == 0) then
+			    strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+			  else
+				-- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
+				if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
+				  strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
+				else
+				  strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
+				end
+			  end
 			else
 			  if (m_PopupInfo.Text == "UNIT") then
 				strGiftString = L(strGiftTxtKey, GameInfo.Units[m_PopupInfo.Data2].Description, personalityInfo.title)

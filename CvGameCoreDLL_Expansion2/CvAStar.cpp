@@ -587,7 +587,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	{
 		NodeAddedToPath(node, check, iKnownCost, ASNC_NEWADD);
 	}
-
+	
 	return NS_VALID;
 }
 
@@ -1062,7 +1062,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	//a normal move is 30 times the base cost (for a unit with 2 base moves)
+	//a normal move is 60 times the base cost
 	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*20; 
 }
 
@@ -1070,7 +1070,7 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 /// Standard path finder - cost for ending the turn on a given plot
 int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, bool bAbortInDanger)
 {
-	//human knows best, don't try to be smart, but when in doubt prefer native domain ...
+	//human knows best, don't try to be smart
 	if (!pUnitDataCache->isAIControl())
 		return kToNodeCacheData.bIsNonNativeDomain && pUnitDataCache->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
 
@@ -1225,7 +1225,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//calculate move cost
 	int iMovementCost = 0;
-
 	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES)) || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
@@ -1407,7 +1406,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		if(kToNodeCacheData.bIsVisibleNeutralCombatUnit && kToNodeCacheData.bIsVisibleEnemyUnit)
 			return FALSE;
 
-		//we check stacking and canEnterPermanent flags once we know whether we end the turn here (in PathCost)
+		//we check stacking once we know whether we end the turn here (in PathCost)
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
 			return FALSE;
 	}
@@ -2289,11 +2288,11 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
 		if ((temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0 || temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit) //never ignore stacking for neutral units
-			return false;
+		return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK)) 
 		if (temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES))
-			return false;
+		return false;
 
 	return true;
 }
@@ -2370,7 +2369,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 			return false;
 
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
-		UpdateNodeCacheData(pStopNode,pUnitDataCache->pUnit,this);
+		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
 
 		//assume a stop here - do not add the cost for the wasted movement points!
 		pStopNode->m_iMoves = 0;

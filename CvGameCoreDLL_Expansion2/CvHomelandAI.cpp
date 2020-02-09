@@ -776,7 +776,7 @@ void CvHomelandAI::FindHomelandTargets()
 							if(eNavalImprovement == NO_IMPROVEMENT)
 								continue;
 
-							if(GC.getImprovementInfo(eNavalImprovement)->IsImprovementResourceTrade(pLoopPlot->getResourceType()))
+							if (GC.getImprovementInfo(eNavalImprovement)->IsExpandedImprovementResourceTrade(pLoopPlot->getResourceType()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
@@ -1098,6 +1098,7 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 		case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
 			PlotAircraftMoves();
+			PlotAircraftInterceptions();
 			break;
 		case AI_HOMELAND_MOVE_ADD_SPACESHIP_PART:
 			PlotSSPartAdds();
@@ -2717,11 +2718,37 @@ void CvHomelandAI::PlotAircraftMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-		if (MOD_AI_SMART_AIR_TACTICS)
-			ExecuteAircraftInterceptions();
-#endif
 		ExecuteAircraftMoves();
+	}
+}
+
+void CvHomelandAI::PlotAircraftInterceptions()
+{
+	ClearCurrentMoveUnits();
+
+	// Loop through all recruited units
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (pUnit)
+		{
+			if (pUnit->getDomainType() == DOMAIN_AIR)
+			{
+				if (pUnit->canIntercept() && pUnit->isOutOfInterceptions())
+				{
+					CvHomelandUnit unit;
+					unit.SetID(pUnit->GetID());
+					unit.SetAuxIntData(pUnit->getInterceptChance() + pUnit->GetInterceptionCombatModifier());
+					m_CurrentMoveUnits.push_back(unit);
+				}
+			}
+		}
+	}
+
+	if (m_CurrentMoveUnits.size() > 0)
+	{
+		std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end(), HomelandAIHelpers::CvHomelandUnitAuxIntSort);
+		ExecuteAircraftInterceptions();
 	}
 }
 

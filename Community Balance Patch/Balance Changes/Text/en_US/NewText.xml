@@ -22,28 +22,28 @@
 			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you kill a unit. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
-			<Text>Morrigan, Harbinger of Strife</Text>
+			<Text>Morrigan, the Harbinger</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>Receive +10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold when your Borders expand, scaling with Era. +4 [ICON_FOOD] Food from Ceilidh Hall</Text>
+			<Text>Receive +8 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold when your Borders expand, scaling with Era. +4 [ICON_FOOD] Food from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, capped at half the number of Followers in the City. +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +2 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. +5 [ICON_GOLD] Gold from Ceilidh Hall</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, capped at half the number of Followers in the City. +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +3 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. +5 [ICON_GOLD] Gold from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
-			<Text>+1 [ICON_FOOD] Food and [ICON_GOLD] Gold from Forests, +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Jungles. +1 [ICON_CULTURE] Culture from Camps. +2 [ICON_CULTURE] Culture from Ceilidh Hall</Text>
+			<Text>+1 [ICON_FOOD] Food and [ICON_GOLD] Gold from Forests, +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Jungles. +1 [ICON_PEACE] Faith from Jungles and Forests if unimproved. +1 [ICON_CULTURE] Culture from Camps. +2 [ICON_CULTURE] Culture from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
 			<Text>Cernunnos, the Horned Stag</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH">
-			<Text>+3 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist. +3 [ICON_PRODUCTION] Production from Ceilidh Hall</Text>
+			<Text>+2 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold in Cities with a Specialist. +3 [ICON_PRODUCTION] Production from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
 			<Text>Lugh, the Skilled One</Text>
@@ -52,7 +52,7 @@
 			<Text>+2 [ICON_CULTURE] Culture in every City, +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every Resource connected with a normal Improvement. +5 [ICON_GOLDEN_AGE] Golden Age Points from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
-			<Text>Rhiannon, Goddess of Sovereignty</Text>
+			<Text>Rhiannon, the Sovereign</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
 			<Text>+3 [ICON_FOOD] Food, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities. +2 [ICON_GREAT_ADMIRAL] Great Admiral Points from Ceilidh Hall</Text>
@@ -61,13 +61,13 @@
 			<Text>Mannanan, Son of the Sea</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA">
-			<Text>+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in a City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GREAT_SCIENTIST] Great Scientist Points in [ICON_CAPITAL] Capital. +5 [ICON_RESEARCH] Science from Ceilidh Hall</Text>
+			<Text>+1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in a City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GREAT_SCIENTIST] Great Scientist Points in [ICON_CAPITAL] Capital. +5 [ICON_RESEARCH] Science from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA_SHORT">
 			<Text>Ogma, the Learned</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN">
-			<Text>+50% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +8 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born, scaling with Era. +4 [ICON_PEACE] Faith from Ceilidh Hall</Text>
+			<Text>+25% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +10 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born, scaling with Era. +1 [ICON_HAPPINESS_1] Happiness per following City. +4 [ICON_PEACE] Faith from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
 			<Text>Bran, the Sleeping Guardian</Text>

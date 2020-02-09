@@ -205,7 +205,18 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local player = Players[playerID];
 	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 
-		if tech.EmbarkedMoveChange > 0 then
+	if tech.FeatureProductionModifier > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", tech.FeatureProductionModifier ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+
+	if tech.EmbarkedMoveChange > 0 then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
 		if thisButton then
@@ -348,6 +359,17 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 --CBP
+	if tech.FeatureProductionModifier > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", tech.FeatureProductionModifier ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+
 	if tech.Happiness > 0 then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];

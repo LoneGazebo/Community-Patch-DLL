@@ -660,16 +660,16 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 	{
 		//needed later
 		int iRandomContribution = 0;
-		if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
-		{
+			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
+			{
 				
 			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + 1) * 2;
 			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() - 1) * 2;
-		}
-		else
-		{
+			}
+			else
+			{
 			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() ) * 2;
-		}
+			}
 
 		//common for all yields
 		int iBaseModifier = 100 +
@@ -679,13 +679,24 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			(ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY ? 25 : 0) +
 			(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE ? -25 : 0);
 
-		if(pkSmallAwardInfo->GetInfluence() > 0)
+		if (pMinor->GetMinorCivAI()->IsSameReligionAsMajor(m_eAssignedPlayer))
 		{
+			int iFriendshipMod = GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetCityStateInfluenceModifier(m_eAssignedPlayer);
+			if (iFriendshipMod != 0)
+			{
+				iBaseModifier *= (100 + iFriendshipMod);
+				iBaseModifier /= 100;
+			}
+		}
+
+		if(pkSmallAwardInfo->GetInfluence() > 0)
+			{
 			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
+
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
@@ -694,7 +705,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 			{
@@ -715,7 +726,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
@@ -736,7 +747,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
 			{
@@ -758,7 +769,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		}
 		if(pkSmallAwardInfo->GetExperience() > 0)
 		{
-			int iBaseBonus = (pkSmallAwardInfo->GetExperience() * iEraScaler)/100 + iRandomContribution;
+			int iBaseBonus = pkSmallAwardInfo->GetExperience() + iRandomContribution;
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			//no gamespeed scaling for EXP!
@@ -782,7 +793,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 			{
@@ -803,7 +814,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 			{
@@ -829,7 +840,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_CULTURED)
 			{
@@ -855,7 +866,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 			{
@@ -892,6 +903,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
+
 			SetGP(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
@@ -916,6 +928,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
+
 			SetGPGlobal(iBonus);
 		}
 		if(pkSmallAwardInfo->GetHappiness() > 0)
@@ -929,7 +942,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
@@ -960,7 +973,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
@@ -976,7 +989,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = (iBaseBonus * iBaseModifier)/100;
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-			iBonus /= 100;
+				iBonus /= 100;
 
 			if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 			{
@@ -986,6 +999,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 
 			SetScience(iBonus);
 		}
+
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogName;
@@ -1721,6 +1735,8 @@ bool CvMinorCivQuest::IsRevoked()
 {
 	if(GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 	{
+		if (m_eType == MINOR_CIV_QUEST_KILL_CAMP)
+			return true;
 		if(m_eType == MINOR_CIV_QUEST_ROUTE)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_CONNECT_RESOURCE)
@@ -1728,6 +1744,8 @@ bool CvMinorCivQuest::IsRevoked()
 		if(m_eType == MINOR_CIV_QUEST_CONSTRUCT_WONDER)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_GREAT_PERSON)
+			return true;
+		if (m_eType == MINOR_CIV_QUEST_KILL_CITY_STATE)
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_FIND_PLAYER)
 			return true;
@@ -10037,13 +10055,16 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 		if (GET_PLAYER(ePlayer).GetProximityToPlayer(eTarget) < eClosestProximity)
 			continue;
 
+		if (GetAlly() == ePlayer)
+			continue;
+
 		int iLoopCity;
 		for (CvCity* pLoopCity = GET_PLAYER(eTarget).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTarget).nextCity(&iLoopCity, true))
-		{
-			if(!pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
 			{
-				if (pLoopCity->getPreviousOwner() == ePlayer)
-					continue;
+			if(!pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
+				{
+					if (pLoopCity->getPreviousOwner() == ePlayer)
+						continue;
 
 					bool bBad = false;
 					//Check for other minors that are currently targeting this city
@@ -10073,13 +10094,13 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 
 				int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(pLoopCity->plot()) + m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot());
 				if(iDistance < iMinDistance)
-				{
+					{
 					iMinDistance = iDistance;
-					pBestCity = pLoopCity;
+						pBestCity = pLoopCity;
+					}
 				}
 			}
 		}
-	}
 
 	return pBestCity;
 }
@@ -11022,7 +11043,8 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 				iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
 				if (iShift != 0 && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 				{
-					iShift += kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes()-1;
+					int iNumRoutes = (kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes() - 1) * 100;
+					iShift += min(iShift*5, iNumRoutes);
 				}
 			}
 		}
@@ -15194,11 +15216,11 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 	return m_bullyRelevantPlots;
 }
 
-int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer)
+int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
 #if defined(MOD_BALANCE_CORE)
-	int iGoldGrowthFactor = 500; //antonjs: todo: XML
+	int iGoldGrowthFactor = 400; //antonjs: todo: XML
 #else
 	int iGoldGrowthFactor = 350; //antonjs: todo: XML
 #endif
@@ -15225,6 +15247,15 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer)
 	iGold /= iVisibleDivisor;
 	iGold *= iVisibleDivisor;
 
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING && !bIgnoreScaling)
+	{
+		int iFactor = CalculateBullyValue(eBullyPlayer, false);
+		iGold *= iFactor;
+		iGold /= 100;
+	}
+	if (iGold <= 0)
+		iGold = 0;
+
 	return iGold;
 }
 
@@ -15233,6 +15264,9 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer)
 // May be modified after return, if the task is easier or harder (ex. bully a worker vs. bully gold)
 int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink)
 {
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+		return CalculateBullyValue(eBullyPlayer, bForUnit, sTooltipSink);
+
 	CvString sFactors = "";
 
 	int iScore = 0;
@@ -15563,8 +15597,10 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// -10 ~ -0
 	// **************************
-	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
+	if (!GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IgnoreBullyPenalties())
 	{
+		if (GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
+		{
 #if defined(MOD_BALANCE_CORE_MINORS)
 		int iAllyScore = 0;
 		if(MOD_BALANCE_CORE_MINORS)
@@ -15611,15 +15647,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 			}
 #endif
-			iScore += iProtectionScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iProtectionScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
-				sFactors += strNegativeFactor.toUTF8();
+				iScore += iProtectionScore;
+				if (sTooltipSink)
+				{
+					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+					strNegativeFactor << iProtectionScore;
+					strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
+					sFactors += strNegativeFactor.toUTF8();
+				}
+				break;
 			}
-			break;
 		}
 	}
 
@@ -15661,6 +15698,367 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	return iScore;
 }
 
+int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink)
+{
+	CvString sFactors = "";
+
+	int iScore = 0;
+	const int iFailScore = -100;
+
+	CvAssertMsg(GetPlayer()->GetID() != eBullyPlayer, "Minor civ and bully civ not expected to have the same ID!");
+	if (GetPlayer()->GetID() == eBullyPlayer)
+		return iFailScore;
+
+	CvAssertMsg(eBullyPlayer >= 0, "eBullyPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBullyPlayer < MAX_MAJOR_CIVS, "eBullyPlayer is expected to be within maximum bounds (invalid Index)");
+	if (eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
+		return iFailScore;
+
+	// Can't bully the dead
+	if (!GetPlayer()->isAlive())
+		return iFailScore;
+
+	if (GC.getGame().getGameTurn() == GetTurnLastBulliedByMajor(eBullyPlayer))
+	{
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iFailScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+		return iFailScore;
+	}
+
+	// **************************
+	// Global military power ranking of major
+	//
+	// +0 ~ +25
+	// **************************
+	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+	PlayerTypes eMajorLoop;
+	int iGlobalMilitaryScore = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		eMajorLoop = (PlayerTypes)iMajorLoop;
+		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		{
+			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
+		}
+	}
+	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
+	veMilitaryRankings.SortItems();
+	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	{
+		if (veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
+		{
+			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
+			int iValue = 50;
+			iGlobalMilitaryScore = (int)(fRankRatio * iValue); // A score between 0*(1 / num majors alive) and 25, with the highest rank major getting 25
+			iScore += iGlobalMilitaryScore;
+			break;
+		}
+	}
+
+	if (sTooltipSink)
+	{
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iGlobalMilitaryScore;
+		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GLOBAL_MILITARY";
+		sFactors += strPositiveFactor.toUTF8();
+	}
+
+	// **************************
+	// Local military power comparison
+	//
+	// +0 ~ +25
+	// **************************
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	if (pMinorCapital == NULL)
+		return iFailScore;
+
+	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
+	//don't forget the city itself
+	int iLocalPowerRatio = int((localPower.second * 100.f) / (localPower.first + pMinorCapital->GetPower()));
+	iLocalPowerRatio /= 5;
+
+	if (iLocalPowerRatio != 0)
+	{
+		if (iLocalPowerRatio > 50)
+			iLocalPowerRatio = 50;
+
+		iScore += iLocalPowerRatio;
+
+		if (sTooltipSink)
+		{
+			Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+			strPositiveFactor << iLocalPowerRatio;
+			strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
+			sFactors += strPositiveFactor.toUTF8();
+		}
+	}
+
+	// **************************
+	// Social Policies
+	//
+	// Modifier to positive scores
+	// **************************
+	int iPoliciesScore = 0;
+	int iPoliciesMod = GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER);
+	if (iPoliciesMod != 0)
+	{
+		iPoliciesScore += iGlobalMilitaryScore;
+		iPoliciesScore += iLocalPowerRatio;
+
+		iPoliciesScore *= iPoliciesMod;
+		iPoliciesScore /= 100;
+	}
+	if (sTooltipSink && iPoliciesScore != 0)
+	{
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iPoliciesScore;
+		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GUNBOAT_DIPLOMACY";
+		sFactors += strPositiveFactor.toUTF8();
+	}
+	iScore += iPoliciesScore;
+
+	// **************************
+	// Empire Proximity
+	//
+	// +0 ~ +50
+
+	PlayerProximityTypes eProximity = GET_PLAYER(eBullyPlayer).GetProximityToPlayer(GetPlayer()->GetID());
+	int iProxmityBonus = 0;
+	switch (eProximity)
+	{
+	case PLAYER_PROXIMITY_NEIGHBORS:
+		iProxmityBonus = 20;
+		break;
+	case PLAYER_PROXIMITY_CLOSE:
+		iProxmityBonus = 10;
+		break;
+	case PLAYER_PROXIMITY_FAR:
+		iProxmityBonus = -20;
+		break;
+	case PLAYER_PROXIMITY_DISTANT:
+		iProxmityBonus = -40;
+		break;
+	}
+
+	if (iProxmityBonus != 0)
+	{
+		iScore += iProxmityBonus;
+		if (sTooltipSink)
+		{
+			if (iProxmityBonus < 0)
+			{
+				Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strPositiveFactor << iProxmityBonus;
+				strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_EMPIRE_PROXIMITY";
+				sFactors += strPositiveFactor.toUTF8();
+			}
+			else
+			{
+				Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+				strPositiveFactor << iProxmityBonus;
+				strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_EMPIRE_PROXIMITY";
+				sFactors += strPositiveFactor.toUTF8();
+			}
+		}
+	}
+
+
+	// **************************
+	// Current influence of major
+	//
+	// -999 ~ -0
+	// **************************
+	if (!GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
+	{
+		int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
+		if (GetEffectiveFriendshipWithMajor(eBullyPlayer) > iFriendshipLimit)
+		{
+			iScore -= GetEffectiveFriendshipWithMajor(eBullyPlayer);
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << GetEffectiveFriendshipWithMajor(eBullyPlayer) * -1;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
+
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if (GC.getGame().getGameTurn() > 30 && GetTurnLiberated() != 0)
+	{
+		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
+		if (iDuration >= 0)
+		{
+			int iLimit = 50;
+			if (iDuration <= iLimit)
+			{
+				iScore += iFailScore;
+				if (sTooltipSink)
+				{
+					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+					strNegativeFactor << iFailScore;
+					strNegativeFactor << "TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED";
+					sFactors += strNegativeFactor.toUTF8();
+				}
+			}
+		}
+	}
+#endif
+
+
+	// **************************
+	// City-State population
+	//
+	// -300 ~ -0
+	// **************************
+	if (bForUnit)
+	{
+		if (GetPlayer()->getCapitalCity() == NULL || GetPlayer()->getCapitalCity()->getPopulation() < 5)
+		{
+			iScore += iFailScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iFailScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_POPULATION";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
+	
+	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
+
+	if (iLastBullyTurn >= 0)
+	{
+		int iGameturn = 30;
+		iGameturn *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iGameturn /= 100;
+
+		if (iLastBullyTurn + iGameturn >= GC.getGame().getGameTurn())
+		{
+			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + iGameturn) - (GC.getGame().getGameTurn())) * -10);
+			iScore += iBulliedVeryRecentlyScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iBulliedVeryRecentlyScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
+
+
+	// **************************
+	// Passive Support from other majors
+	//
+	// -10 ~ -0
+	// **************************
+	if (!GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IgnoreBullyPenalties())
+	{
+		if (GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
+		{
+			iScore -= 50;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << -50;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_ALLIES";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+
+		// **************************
+		// Pledges of Protection from other majors
+		//
+		// -20 ~ -0
+		// **************************
+		int iProtectionScore = 0;
+		int iFriends = 0;
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			eMajorLoop = (PlayerTypes)iMajorLoop;
+			if (eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
+			{
+				iProtectionScore += 10;
+			}
+			if (eMajorLoop != eBullyPlayer && IsFriends(eMajorLoop))
+			{
+				iFriends += 5;
+			}
+		}
+
+		if (iProtectionScore != 0)
+		{
+			iScore -= iProtectionScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iProtectionScore*-1;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+		if (iFriends != 0)
+		{
+			iScore -= iFriends;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iFriends*-1;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_FRIENDS";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
+
+	// **************************
+	// Minor Civ Type
+	//
+	// -20 ~ -0
+	// **************************
+	if (GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+	{
+		int iHostileScore = -10;
+		iScore += iHostileScore;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iHostileScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+	}
+	if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+	{
+		int iMilitaristicScore = -10;
+		iScore += iMilitaristicScore;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iMilitaristicScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARISTIC";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+	}
+
+	if (sTooltipSink != NULL)
+	{
+		(*sTooltipSink) += sFactors;
+	}
+	
+	if (iScore > 100)
+		iScore = 100;
+
+	return iScore;
+}
+
 bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -15675,8 +16073,8 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 #endif
-
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ false);
+
 	return CanMajorBullyGold(ePlayer, iScore);
 }
 
@@ -15703,8 +16101,10 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMet
 		}
 	}
 #endif				
-	
-	return (iSpecifiedBullyMetric >= 0);
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+		return (iSpecifiedBullyMetric > 0);
+	else
+		return (iSpecifiedBullyMetric >= 0);
 }
 
 CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
@@ -15722,7 +16122,14 @@ CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
 	{
 		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
 	}
-	sFear << iScore;
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	{
+		if (iScore < 0)
+			iScore *= -1;
+		sFear << iScore;
+	}
+	else
+		sFear << iScore;
 
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_GOLD_TT");
 	sResult << sFear.toUTF8() << sFactors;
@@ -15772,8 +16179,10 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMet
 		}
 	}
 #endif				
-	
-	return (iSpecifiedBullyMetric >= 0);
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+		return (iSpecifiedBullyMetric > 0);
+	else
+		return (iSpecifiedBullyMetric >= 0);
 }
 
 CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
@@ -15814,7 +16223,15 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	{
 		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
 	}
-	sFear << iScore;
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	{
+		if (iScore < 0)
+			iScore *= -1;
+		sFear << iScore;
+	}
+	else
+		sFear << iScore;
+
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT");
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	// Minor must have Capital
@@ -15887,7 +16304,14 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
 		if (pCapital != NULL)
 		{
-			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
+			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pCapital);
+			//do we get a lump some of yields from this?
+			if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
+			{
+				iGold *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+				iGold /= 100;
+				GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_GOLD);
+			}
 		}
 		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
 		{
@@ -15968,9 +16392,9 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 #if defined(MOD_BALANCE_CORE)
-int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
+int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {
-	int iValue = 65;
+	int iValue = 40;
 	iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 	iValue /= 100;
 
@@ -16029,18 +16453,6 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 			break;
 	}
 
-	switch (eYield)
-	{
-	case YIELD_PRODUCTION:
-		iValue *= 80;
-		iValue /= 100;
-		break;
-	case YIELD_FOOD:
-		iValue *= 100;
-		iValue /= 80;
-		break;
-	}
-
 	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(500, GC.getGame().getGameTurn());
 	if(iNumTurns > 0)
 	{
@@ -16050,6 +16462,16 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	
 	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
 	iValue /= 100;
+
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING && !bIgnoreScaling)
+	{
+		int iFactor = CalculateBullyValue(eBully, true);
+		iValue *= iFactor;
+		iValue /= 100;
+	}
+
+	if (iValue <= 0)
+		iValue = 0;
 
 	return iValue;
 }
@@ -16072,10 +16494,13 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		{
 			iEra = 1;
 		}
-		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
-		if(pCapital != NULL)
+		if (!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
-			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
+			CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
+			if (pCapital != NULL)
+			{
+				GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
+			}
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -16205,55 +16630,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
 						}
 					}
-					//do we get a lump some of yields from this?
-					if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
-					{
-						MinorCivTraitTypes eTrait = GetTrait();
-
-						switch (eTrait)
-						{
-							case(MINOR_CIV_TRAIT_CULTURED):
-							{
-								int iYield = GetYieldTheftAmount(eBully, YIELD_CULTURE);
-								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-								iYield /= 100;
-								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_CULTURE);
-								break;
-							}
-							case(MINOR_CIV_TRAIT_MARITIME) :
-							{
-								int iYield = GetYieldTheftAmount(eBully, YIELD_FOOD);
-								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-								iYield /= 100;
-								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_FOOD);
-								break;
-							}
-							case(MINOR_CIV_TRAIT_MERCANTILE) :
-							{
-								int iYield = GetYieldTheftAmount(eBully, YIELD_GOLD);
-								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-								iYield /= 100;
-								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_GOLD);
-								break;
-							}
-							case(MINOR_CIV_TRAIT_MILITARISTIC) :
-							{
-								int iYield = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
-								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-								iYield /= 100;
-								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_SCIENCE);
-								break;
-							}
-							case(MINOR_CIV_TRAIT_RELIGIOUS) :
-							{
-								int iYield = GetYieldTheftAmount(eBully, YIELD_FAITH);
-								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-								iYield /= 100;
-								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_FAITH);
-								break;
-							}
-						}
-					}
+					
 					//int iGoldenAge = GetPlayer()->getCapitalCity()->getPopulation() * 20;
 					//GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iGoldenAge);
 					
@@ -16286,203 +16663,271 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
 			int iValue = 0;
 			float fDelay = 0.0f;
-			if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+			if (pBullyCapital != NULL)
 			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
-				if(iValue > 0)
+				if (GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 				{
-					TechTypes eCurrentTech = GET_PLAYER(eBully).GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
+					iValue = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
+					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).changeOverflowResearch(iValue);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eBully);
-					}
-					if(GC.getGame().getActivePlayer() != NULL)
-					{
-						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
+
+						TechTypes eCurrentTech = GET_PLAYER(eBully).GetPlayerTechs()->GetCurrentResearch();
+						if (eCurrentTech == NO_TECH)
 						{
-							char text[256] = {0};
-							
-							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+							GET_PLAYER(eBully).changeOverflowResearch(iValue);
 						}
-						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						else
 						{
-							char text[256] = {0};
-							fDelay += 1.5f;
-							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+							GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eBully);
 						}
+						if (GC.getGame().getActivePlayer() != NULL)
+						{
+							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
+								SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+							}
+							if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+							{
+								char text[256] = { 0 };
+								fDelay += 1.5f;
+								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_RESEARCH]", iValue);
+								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+							}
+						}
+						GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyHeavy(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), YIELD_SCIENCE, iValue, bSuccess, iBullyMetric);
 					}
-				}	
-				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_SCIENCE);
 				}
 #endif
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					// Logging
-					CvString strLogString;
-					strLogString.Format("%s robbed of science by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
-					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
-			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_CULTURE);
-				if(iValue > 0)
-				{
-					GET_PLAYER(eBully).changeJONSCulture(iValue);
-					pBullyCapital->ChangeJONSCultureStored(iValue);
-					if(GC.getGame().getActivePlayer() != NULL)
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
-						{
-							char text[256] = {0};
-							
-							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
-							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
-						}
-						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
-						{
-							char text[256] = {0};
-							fDelay += 1.5f;
-							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_CULTURE]", iValue);
-							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
-						}
+						// Logging
+						CvString strLogString;
+						strLogString.Format("%s robbed of science by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
-				}			
-				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+				}
+				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+				{
+					iValue = GetYieldTheftAmount(eBully, YIELD_CULTURE);
+					if (iValue > 0)
+					{
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
+
+						GET_PLAYER(eBully).changeJONSCulture(iValue);
+						pBullyCapital->ChangeJONSCultureStored(iValue);
+						if (GC.getGame().getActivePlayer() != NULL)
+						{
+							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
+								SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+							}
+							if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+							{
+								char text[256] = { 0 };
+								fDelay += 1.5f;
+								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_CULTURE]", iValue);
+								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+							}
+						}
+						GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyHeavy(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), YIELD_CULTURE, iValue, bSuccess, iBullyMetric);
+					}
+					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_CULTURE);
 				}
 #endif
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					// Logging
-					CvString strLogString;
-					strLogString.Format("%s robbed of culture by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
-					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
-			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_PRODUCTION);
-				if(iValue > 0)
-				{
-					pBullyCapital->changeProduction(iValue);
-					if(GC.getGame().getActivePlayer() != NULL)
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
-						{
-							char text[256] = {0};
-							
-							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
-						}
-						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
-						{
-							char text[256] = {0};
-							fDelay += 1.5f;
-							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
-						}
+						// Logging
+						CvString strLogString;
+						strLogString.Format("%s robbed of culture by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+				{
+					iValue = GetYieldTheftAmount(eBully, YIELD_PRODUCTION);
+					if (iValue > 0)
+					{
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
+
+						pBullyCapital->changeProduction(iValue);
+						if (GC.getGame().getActivePlayer() != NULL)
+						{
+							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
+								SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+							}
+							if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+							{
+								char text[256] = { 0 };
+								fDelay += 1.5f;
+								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
+								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+							}
+						}
+						GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyHeavy(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), YIELD_PRODUCTION, iValue, bSuccess, iBullyMetric);
+					}
+					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_PRODUCTION);
 				}
 #endif
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					// Logging
-					CvString strLogString;
-					strLogString.Format("%s robbed of production by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
-					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
-			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_FAITH);
-				if(iValue > 0)
-				{
-					GET_PLAYER(eBully).ChangeFaith(iValue);
-					if(GC.getGame().getActivePlayer() != NULL)
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
-						{
-							char text[256] = {0};
-							
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
-							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
-						}
-						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
-						{
-							char text[256] = {0};
-							fDelay += 1.5f;
-							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PEACE]", iValue);
-							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
-						}
+						// Logging
+						CvString strLogString;
+						strLogString.Format("%s robbed of production by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+				{
+					iValue = GetYieldTheftAmount(eBully, YIELD_FAITH);
+					if (iValue > 0)
+					{
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
+
+						GET_PLAYER(eBully).ChangeFaith(iValue);
+						if (GC.getGame().getActivePlayer() != NULL)
+						{
+							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
+								SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+							}
+							if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+							{
+								char text[256] = { 0 };
+								fDelay += 1.5f;
+								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PEACE]", iValue);
+								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+							}
+						}
+						GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyHeavy(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), YIELD_FAITH, iValue, bSuccess, iBullyMetric);
+					}
+					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_FAITH);
 				}
 #endif
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					// Logging
-					CvString strLogString;
-					strLogString.Format("%s robbed of faith by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
-					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-			}
-			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
-				if(iValue > 0)
-				{
-					pBullyCapital->changeFood(iValue);
-					if(GC.getGame().getActivePlayer() != NULL)
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
-						{
-							char text[256] = {0};
-							
-							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iValue);
-							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
-						}
-						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
-						{
-							char text[256] = {0};
-							fDelay += 1.5f;
-							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_FOOD]", iValue);
-							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
-						}
+						// Logging
+						CvString strLogString;
+						strLogString.Format("%s robbed of faith by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
-				}		
-				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+				}
+				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+				{
+					iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
+					if (iValue > 0)
+					{
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pBullyCapital);
+
+						pBullyCapital->changeFood(iValue);
+						if (GC.getGame().getActivePlayer() != NULL)
+						{
+							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+							{
+								char text[256] = { 0 };
+
+								sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iValue);
+								SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+							}
+							if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+							{
+								char text[256] = { 0 };
+								fDelay += 1.5f;
+								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_FOOD]", iValue);
+								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+							}
+						}
+						GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyHeavy(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), YIELD_FOOD, iValue, bSuccess, iBullyMetric);
+					}
+					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_FOOD);
 				}
 #endif
-				if (GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						// Logging
+						CvString strLogString;
+						strLogString.Format("%s robbed of food by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
+
+				//do we get a lump some of yields from this?
+				if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 				{
-					// Logging
-					CvString strLogString;
-					strLogString.Format("%s robbed of food by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
-					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
+					MinorCivTraitTypes eTrait = GetTrait();
+
+					switch (eTrait)
+					{
+					case(MINOR_CIV_TRAIT_CULTURED) :
+					{
+						int iYield = GetYieldTheftAmount(eBully, YIELD_CULTURE, true);
+						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+						iYield /= 100;
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_CULTURE);
+						break;
+					}
+					case(MINOR_CIV_TRAIT_MARITIME) :
+					{
+						int iYield = GetYieldTheftAmount(eBully, YIELD_FOOD, true);
+						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+						iYield /= 100;
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_FOOD);
+						break;
+					}
+					case(MINOR_CIV_TRAIT_MERCANTILE) :
+					{
+						int iYield = GetYieldTheftAmount(eBully, YIELD_GOLD, true);
+						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+						iYield /= 100;
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_GOLD);
+						break;
+					}
+					case(MINOR_CIV_TRAIT_MILITARISTIC) :
+					{
+						int iYield = GetYieldTheftAmount(eBully, YIELD_SCIENCE, true);
+						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+						iYield /= 100;
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_SCIENCE);
+						break;
+					}
+					case(MINOR_CIV_TRAIT_RELIGIOUS) :
+					{
+						int iYield = GetYieldTheftAmount(eBully, YIELD_FAITH, true);
+						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+						iYield /= 100;
+						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_FAITH);
+						break;
+					}
+					}
 				}
 			}
 			else
@@ -16563,7 +17008,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 	}
 
 	// Logging
-	GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyUnit(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), eUnitType, bSuccess, iBullyMetric);
+	if (!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+		GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyUnit(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), eUnitType, bSuccess, iBullyMetric);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
@@ -17092,7 +17538,10 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 
 	// Mod (Policies, etc.)
 	int iFriendshipMod = GET_PLAYER(eMajor).getMinorGoldFriendshipMod();
-	iFriendshipMod += GET_PLAYER(eMajor).GetReligions()->GetCityStateInfluenceModifier(eMajor);
+
+	if (IsSameReligionAsMajor(eMajor))
+		iFriendshipMod += GET_PLAYER(eMajor).GetReligions()->GetCityStateInfluenceModifier(eMajor);
+
 	if(iFriendshipMod != 0)
 	{
 		iFriendship *= (100 + iFriendshipMod);

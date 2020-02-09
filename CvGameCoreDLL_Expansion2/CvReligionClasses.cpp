@@ -4639,27 +4639,19 @@ int CvPlayerReligions::GetCityStateMinimumInfluence(ReligionTypes eReligion, Pla
 {
 	int iMinInfluence = 0;
 
-	ReligionTypes eFounderBenefitReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eFounderBenefitReligion == NO_RELIGION)
+	ReligionTypes eFounderBenefitReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
+	if (eReligion == eFounderBenefitReligion && eFounderBenefitReligion != NO_RELIGION)
 	{
-		eFounderBenefitReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
-	if (eReligion == eFounderBenefitReligion)
-	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		if(eFounderBenefitReligion != NO_RELIGION)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounderBenefitReligion, ePlayer);
+		if(pReligion)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFounderBenefitReligion, ePlayer);
-			if(pReligion)
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
 			{
-				CvCity* pHolyCity = NULL;
-				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-				if (pHolyCityPlot)
-				{
-					pHolyCity = pHolyCityPlot->getPlotCity();
-				}
-				iMinInfluence += pReligion->m_Beliefs.GetCityStateMinimumInfluence(ePlayer, pHolyCity);
+				pHolyCity = pHolyCityPlot->getPlotCity();
 			}
+			iMinInfluence += pReligion->m_Beliefs.GetCityStateMinimumInfluence(ePlayer, pHolyCity);
 		}
 	}
 
@@ -5929,13 +5921,11 @@ void CvCityReligions::AddSpyPressure(ReligionTypes eReligion, int iBasePressure)
 /// Set this city to have all citizens following a religion (mainly for scripting)
 void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 {
-	m_ReligionStatus.clear();
-
 	CvReligionInCity religion;
 
 	// Add 1 pop of Atheism (needed in case other religions wiped out by an Inquisitor/Prophet
-	religion.m_bFoundedHere = false;
-	religion.m_eReligion = NO_RELIGION;
+	religion.m_bFoundedHere = IsHolyCityAnyReligion();
+	religion.m_eReligion = GetReligionForHolyCity();
 	religion.m_iFollowers = 1;
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) || defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	// This needs to be less than the pressure in a city with a pop of 1
@@ -5943,6 +5933,8 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 #else
 	religion.m_iPressure = religion.m_iFollowers * GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
 #endif
+	m_ReligionStatus.clear();
+
 	m_ReligionStatus.push_back(religion);
 
 	// Now add full pop of this religion
@@ -8680,7 +8672,7 @@ int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldT
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
 		if (pkImprovementInfo && !pkImprovementInfo->IsCreatedByGreatPerson())
 		{
-			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsImprovementResourceTrade(eResource)))
+			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource)))
 				continue;
 		
 			if (pPlot->HasImprovement((ImprovementTypes)jJ))

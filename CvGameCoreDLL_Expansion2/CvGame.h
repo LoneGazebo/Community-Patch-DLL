@@ -628,6 +628,7 @@ public:
 	void GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
 
 	int GetDealDuration();
+	int GetRelationshipDuration();
 	int GetPeaceDuration();
 
 	CombatPredictionTypes GetCombatPrediction(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit);

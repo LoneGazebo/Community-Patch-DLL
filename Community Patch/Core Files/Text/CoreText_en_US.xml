@@ -2287,6 +2287,11 @@
 			<Gender>feminine</Gender>
 		</Row>
 		
+		<!-- Tech Helpers -->
+		<Row Tag="TXT_KEY_ABLTY_TECH_BOOST_CHOP">
+			<Text>+{1_Num}% [ICON_PRODUCTION] Production from Chopping Forests/Jungles (+25 [ICON_PRODUCTION])</Text>
+		</Row>
+
 		<!-- CS Quests -->
 		<Row Tag="TXT_KEY_CS_QUEST_BONUS_HEADER_FINISH">
 			<Text>[COLOR_POSITIVE_TEXT]     Quest Reward:[ENDCOLOR][NEWLINE]</Text>
@@ -5443,11 +5448,15 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_ACTUALLY">
-			<Text>Your {@1_UnitName} bombarded the enemy City of {2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
+			<Text>Your {@1_UnitName} bombarded the enemy City of {2_CityName} ({3_Num} damage), and was not intercepted!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_INTERCEPTED_KILLED">
+			<Text>Your {@2_UnitName} was killed during interception by an enemy {@1_AttUnitName}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_INTERCEPTED">
-			<Text>While attacking {4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+			<Text>While attacking {4_CityName}, an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_UNIT_BY_AIR_INTERCEPTED">
@@ -5455,7 +5464,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
-			<Text>The City of {@1_CityName} ({3_Num} damage) was bombarded by an enemy {@2_EnUName}!</Text>
+			<Text>The City of {@1_CityName} was bombarded by an enemy {@2_EnUName} ({3_Num} damage)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">

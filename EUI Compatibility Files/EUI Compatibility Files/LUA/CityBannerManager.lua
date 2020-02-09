@@ -817,12 +817,7 @@ local function OnBannerMouseExit( ... ) -- UndeadDevel: using variadic form to p
 		else
 			Events_RequestYieldDisplay( YieldDisplayTypes.AREA, 0 )
 		end
-        	-- UndeadDevel: making sure that info is reset to ensure player never sees historic and thus possibly incorrect info
-        	local instance = g_cityBanners[ (...) ]
-        	if (instance and instance.CityStrengthContainer) then
-        	    instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
-        	    instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") )
-        	end
+
 	end
 end
 
@@ -1136,10 +1131,18 @@ local function RefreshCityBannersNow()
 
 				UpdateRangeIcons( plotIndex, city, instance )
 
+				local ttText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT")
+				local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+
+				instance.CityStrength:SetToolTipString(ttText)
+				instance.CityStrengthContainer:SetToolTipString(ttText)
+
 			-- not active team city
 			else
 				local isMinorCiv = cityOwner:IsMinorCiv()
 				local allyID, ally
+
+				local ttText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT")
 
 				if isMinorCiv then
 					-- Update Quests
@@ -1158,14 +1161,17 @@ local function RefreshCityBannersNow()
 						local free = pledge and cityOwner:CanMajorWithdrawProtection( g_activePlayerID )
 						instance.Pledge1:SetHide( not pledge or free )
 						instance.Pledge2:SetHide( not free )
-                        			-- UndeadDevel: include tributing information on City Strength element
-                        			local ttText = ""
-                        			if cityOwner.GetMajorBullyGoldDetails then
-                        			    ttText = "[NEWLINE][COLOR_GREY]====================[ENDCOLOR][NEWLINE]" .. cityOwner:GetMajorBullyGoldDetails( g_activePlayerID )
-                        			end
-                        			instance.CityStrength:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
-                        			instance.CityStrengthContainer:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ttText )
-                        			-- UndeadDevel end
+						-- UndeadDevel: include tributing information on City Strength element
+						if plot:IsVisible( activeTeamID ) then
+							ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+						end
+
+						if cityOwner:IsMinorCiv() then
+							ttText = ttText .. "[NEWLINE][COLOR_GREY]====================[ENDCOLOR][NEWLINE]" .. cityOwner:GetMajorBullyGoldDetails( g_activePlayerID )
+						end
+						instance.CityStrength:SetToolTipString(ttText )
+						instance.CityStrengthContainer:SetToolTipString(ttText)
+						-- UndeadDevel end
 					end
 					-- Update Allies
 					allyID = cityOwner:GetAlly()
@@ -1173,6 +1179,13 @@ local function RefreshCityBannersNow()
 				else
 					instance.CityQuests:SetHide( true )
 					local civInfo = GameInfo.Civilizations[ cityOwner:GetCivilizationType() ]
+
+					if plot:IsVisible( activeTeamID ) then
+						ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+					end
+
+					instance.CityStrength:SetToolTipString(ttText )
+					instance.CityStrengthContainer:SetToolTipString(ttText)
 
 					IconHookup( civInfo.PortraitIndex, 32, civInfo.AlphaIconAtlas, instance.StatusIconBG )
 				end
@@ -1266,6 +1279,12 @@ local function RefreshCityBannersNow()
 				instance.CityBannerBaseFrame:SetSizeX( bannerWidth )
 				instance.CityAtWar:SetSizeX( bannerWidth )
 				instance.CityAtWar:SetHide( not g_activeTeam:IsAtWar( city:GetTeam() ) )
+				-- UndeadDevel: make banner button smaller for non-CS-non-team banners since we don't need the Tributing functionality there
+				if (not cityOwner:IsMinorCiv()) then
+					instance.CityBannerButton:SetSizeY( 40 )
+					instance.CityBannerButton:SetOffsetY( 0 )
+				end
+				-- UndeadDevel end
 			end
 
 			instance.CityBannerButton:ReprocessAnchoring()

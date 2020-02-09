@@ -1530,43 +1530,19 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 {
 	int iNumAvailable = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, false);
-	int iNumInRenewDeal = 0;
 	int iNumInExistingDeal = 0;
 
-	PlayerTypes eOtherPlayer = GetOtherPlayer(ePlayer);
-	CvDeal* pRenewDeal = NULL;
-	if (eOtherPlayer != NO_PLAYER)
+	TradedItemList::iterator it;
+	// remove any that are in this deal
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		pRenewDeal = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDealToRenew(NULL, eOtherPlayer);
-		if (!pRenewDeal)
+		if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
 		{
-			pRenewDeal = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDealToRenew(NULL, ePlayer);
+			iNumInExistingDeal += it->m_iData2;
 		}
 	}
 
-	if (pRenewDeal)
-	{
-		// count any that are in the renew deal
-		TradedItemList::iterator it;
-		for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
-		{
-			if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-			{
-				// credit the amount
-				iNumInRenewDeal += it->m_iData2;
-			}
-		}
-		// remove any that are in this deal
-		for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-		{
-			if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-			{
-				iNumInExistingDeal += it->m_iData2;
-			}
-		}
-	}
-
-	return iNumAvailable + iNumInRenewDeal - iNumInExistingDeal;
+	return iNumAvailable - iNumInExistingDeal;
 }
 
 #if defined(MOD_BALANCE_CORE)

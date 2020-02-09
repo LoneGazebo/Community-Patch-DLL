@@ -12095,6 +12095,8 @@ void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	int iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(eBully);
+	if (iGold <= 0)
+		return;
 
 	gDLL->sendMinorBullyGold(eBully, eMinor, iGold);
 }
@@ -12909,6 +12911,11 @@ bool CvGame::allUnitAIProcessed() const
 int CvGame::GetDealDuration()
 {
 	return getGameSpeedInfo().GetDealDuration();
+}
+
+int CvGame::GetRelationshipDuration()
+{
+	return getGameSpeedInfo().getRelationshipDuration();
 }
 
 //	--------------------------------------------------------------------------------

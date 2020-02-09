@@ -682,7 +682,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
 				int iValue = iDesired - iCurrent;
 
-				iValue *= 5 + kPlayer.GetCurrentEra();
+				iValue *= 1 + kPlayer.GetCurrentEra();
 
 				int iNumCoastal = 0;
 				int iLoop;
@@ -694,7 +694,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 				if (iCurrent <= iNumCoastal * 4)
-					iValue *= 10;
+					iValue *= 5;
 
 				if (iValue > 0)
 				{

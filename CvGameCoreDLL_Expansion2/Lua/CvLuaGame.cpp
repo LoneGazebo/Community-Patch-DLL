@@ -349,6 +349,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetWorldNumCitiesUnhappinessPercent);
 
 	Method(GetDealDuration);
+	Method(GetRelationshipDuration);
 	Method(GetPeaceDuration);
 
 	Method(GetUnitUpgradesTo);
@@ -2508,6 +2509,11 @@ int CvLuaGame::lGetWorldNumCitiesUnhappinessPercent(lua_State* L)
 int CvLuaGame::lGetDealDuration(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::GetDealDuration);
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetRelationshipDuration(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::GetRelationshipDuration);
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetPeaceDuration(lua_State* L)

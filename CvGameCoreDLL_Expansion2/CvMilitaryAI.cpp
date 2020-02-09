@@ -5037,6 +5037,10 @@ CvPlot *CvMilitaryAI::GetBestAirSweepTarget(CvUnit* pFighter) const
 									{
 										if (pUnit->IsAirSweepCapable() || pUnit->canAirDefend())
 										{
+											iCountFighters+=2;
+										}
+										else if (!pUnit->isSuicide() && !pUnit->isCargo())
+										{
 											iCountFighters++;
 										}
 									}

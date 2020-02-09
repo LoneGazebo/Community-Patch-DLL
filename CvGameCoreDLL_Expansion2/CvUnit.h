@@ -1698,6 +1698,8 @@ public:
 	bool canAirSweepAt(int iX, int iY) const;
 	bool airSweep(int iX, int iY);
 
+	bool attemptGroundAttacks(const CvPlot& pPlot);
+
 	bool potentialWarAction(const CvPlot* pPlot) const;
 	bool willRevealByMove(const CvPlot& pPlot) const;
 

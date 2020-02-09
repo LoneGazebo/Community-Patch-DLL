@@ -187,8 +187,10 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 					}
 				}
 
+
 				ImprovementTypes eImprovement = NO_IMPROVEMENT;
 				RouteTypes eRoute = NO_ROUTE;
+
 				if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 				{
 					eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();

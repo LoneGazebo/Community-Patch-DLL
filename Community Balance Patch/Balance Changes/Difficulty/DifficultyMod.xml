@@ -68,7 +68,7 @@
 			<DifficultyBonusC>100</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>40</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>50</BarbarianBonus>
 			<AIBarbarianBonus>0</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
@@ -153,7 +153,7 @@
 			<DifficultyBonusC>100</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>40</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>40</BarbarianBonus>
 			<AIBarbarianBonus>5</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
@@ -238,7 +238,7 @@
 			<DifficultyBonusC>100</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>35</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>30</BarbarianBonus>
 			<AIBarbarianBonus>10</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
@@ -323,7 +323,7 @@
 			<DifficultyBonusC>100</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>35</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>30</BarbarianBonus>
 			<AIBarbarianBonus>10</AIBarbarianBonus>
 			<BarbCampGold>30</BarbCampGold>
@@ -408,7 +408,7 @@
 			<DifficultyBonusC>100</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>20</BarbarianBonus>
 			<AIBarbarianBonus>15</AIBarbarianBonus>
 			<BarbCampGold>20</BarbCampGold>
@@ -493,7 +493,7 @@
 			<DifficultyBonusC>125</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>15</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>20</BarbarianBonus>
 			<AIBarbarianBonus>15</AIBarbarianBonus>
 			<BarbCampGold>20</BarbCampGold>
@@ -549,7 +549,7 @@
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>200</AIDeclareWarProb>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -575,10 +575,10 @@
 			<DifficultyBonusBase>7</DifficultyBonusBase>
 			<DifficultyBonusA>375</DifficultyBonusA>
 			<DifficultyBonusB>225</DifficultyBonusB>
-			<DifficultyBonusC>150</DifficultyBonusC>
+			<DifficultyBonusC>165</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>10</BarbarianBonus>
 			<AIBarbarianBonus>20</AIBarbarianBonus>
 			<BarbCampGold>20</BarbCampGold>
@@ -634,7 +634,7 @@
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<AttitudeChange>0</AttitudeChange>
 			<AIDeclareWarProb>225</AIDeclareWarProb>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -660,10 +660,10 @@
 			<DifficultyBonusBase>9</DifficultyBonusBase>
 			<DifficultyBonusA>400</DifficultyBonusA>
 			<DifficultyBonusB>250</DifficultyBonusB>
-			<DifficultyBonusC>150</DifficultyBonusC>
+			<DifficultyBonusC>175</DifficultyBonusC>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>0</BarbarianBonus>
 			<AIBarbarianBonus>25</AIBarbarianBonus>
 			<BarbCampGold>15</BarbCampGold>

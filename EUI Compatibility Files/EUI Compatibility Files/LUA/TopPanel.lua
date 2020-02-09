@@ -286,7 +286,7 @@ local function ScanGP( player )
 
 				end
 
-				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod
+				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod;
 				gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 				if gpChange > 0 then

@@ -1451,6 +1451,18 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_RANGE_STRIKE_CITY">
 			<Text>Ranged Strike Modifier</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_EMPIRE_PROXIMITY">
+			<Text>Empire Proximity</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_FRIENDS">
+			<Text>Has Friends</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS">
+			<Text>Your {@1_UnitName} encountered no resistance, and attacked enemy air and anti-air units on the ground!</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>
