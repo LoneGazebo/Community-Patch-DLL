@@ -4279,6 +4279,36 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 
 	viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+	
+	// Base weight for Opinion to curb AI aggression a bit - not an elegant solution, but will be OK temporarily
+	switch (GetMajorCivOpinion(ePlayer))
+	{
+	case MAJOR_CIV_OPINION_ALLY:
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 3);
+		break;
+	case MAJOR_CIV_OPINION_FRIEND:
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
+		break;
+	case MAJOR_CIV_OPINION_FAVORABLE:
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+		break;
+	case MAJOR_CIV_OPINION_NEUTRAL:
+		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+		break;
+	case MAJOR_CIV_OPINION_COMPETITOR:
+		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+		break;
+	case MAJOR_CIV_OPINION_ENEMY:
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		break;
+	case MAJOR_CIV_OPINION_UNFORGIVABLE:
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		break;
+	}
 
 	// If we're planning a war then give it a bias so that we don't get away from it too easily
 	if (eOldApproach == MAJOR_CIV_APPROACH_WAR && GetWarGoal(ePlayer) == WAR_GOAL_PREPARE)
@@ -4452,7 +4482,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		if (GetNumCitiesLiberatedBy(ePlayer) > 0)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + GetNumCitiesLiberatedBy(ePlayer));
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + (GetNumCitiesLiberatedBy(ePlayer) * 2));
 			
 			if (viApproachWeights[MAJOR_CIV_APPROACH_WAR] >= 0)
 			{
@@ -4619,7 +4649,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			else if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iCityDifference*-1));
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference*-1);
 				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] - iCityDifference);
 			}
 			// Weaker than us? Let's get revenge!
@@ -4872,23 +4902,23 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	switch (GetDoFType(ePlayer))
 	{
 	case DOF_TYPE_UNTRUSTWORTHY:
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iTheirEra);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iTheirEra);
 		break;
 	case DOF_TYPE_NEW:
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iTheirEra);
 		break;
 	case DOF_TYPE_FRIENDS:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iTheirEra);
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iTheirEra);
 		break;
 	case DOF_TYPE_ALLIES:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iTheirEra) * 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iTheirEra) * 2);
 		break;
 	case DOF_TYPE_BATTLE_BROTHERS:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 3);
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 3);
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iTheirEra) * 3);
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iTheirEra) * 3);
 		break;
 	}
 #endif
@@ -5041,19 +5071,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	
 		// Are they expanding recklessly?
 		if (IsPlayerRecklessExpander(ePlayer))
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-
-			// Easy target?
-			if (bEasyTarget)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			}
-		}			
-			
-		// Are they spamming Wonders?
-		if (IsPlayerWonderSpammer(ePlayer))
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
@@ -5452,19 +5469,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 				break;
-			}
-			
-			// Are they spamming Wonders?
-			if (IsPlayerWonderSpammer(ePlayer))
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-				
-				// Easy target?
-				if (bEasyTarget)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-				}
 			}
 			
 			// They have influence over us
@@ -6308,28 +6312,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		}
 	}
-	
-	////////////////////////////////////
-	// Is this player spamming Wonders?
-	////////////////////////////////////
-	
-	if (IsPlayerWonderSpammer(ePlayer))
-	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-#if defined(MOD_BALANCE_CORE)
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsTourism())
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-		}
-#endif
-		if (bEasyTarget)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		}
-	}
 
 	////////////////////////////////////
 	// Is this player already in a war with someone who isn't us?
@@ -6887,7 +6869,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			bWantsConquest = true;
 		}
-		else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer)))
+		else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && IsPlayerRecklessExpander(ePlayer))
 		{
 			bWantsConquest = true;
 		}
@@ -10629,6 +10611,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		//positive means we are winning - let's ride this out until we get a good peace deal.
 		else
 		{
+			/* commenting this out temporarily - AI needs more training in how to evaluate when a war's gone on for too long - otherwise this results in endless warring
 			bool bOffensiveState = GetWarState(ePlayer) >= WAR_STATE_CALM;
 			if (bOffensiveState && GetWarState(ePlayer) == WAR_STATE_CALM && m_pPlayer->IsEmpireUnhappy() && m_pPlayer->GetCulture()->GetWarWeariness() > 0)
 			{
@@ -10654,7 +10637,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			{
 				if (bCapturedOurCapital || !bCapturedTheirCapital || bCloseToVictory)
 				{
-					if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
+					if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer,  false))
 					{
 						if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_SOFT || GetWarProjection(ePlayer) == WAR_PROJECTION_VERY_GOOD ||
 							GetWarState(ePlayer) == WAR_STATE_NEARLY_WON || GetPlayerMilitaryStrengthComparedToUs(ePlayer) == STRENGTH_PATHETIC ||
@@ -10687,6 +10670,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			{
 				iWantPeace += 10;
 			}
+			*/
 
 			//If we get a bonus from high warscore, let's not end early!
 			if (m_pPlayer->GetPositiveWarScoreTourismMod() > 0)
@@ -10697,8 +10681,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			{
 				iWantPeace += (iWarScore / 15);
 				//At 100? Let's end this (unless we can ride this out!
-				if (iWarScore == 100 && !bCapturedOurCapital && !bCloseToVictory)
-					iWantPeace += 5;
+				if (iWarScore == 100/* && !bCapturedOurCapital && !bCloseToVictory*/)
+					iWantPeace += 20;
 			}
 		}
 
@@ -16455,14 +16439,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDPWeight += -10;
 				iDoFWeight += -10;
 			}
-			
-			// Weight for wonder spamming
-			if (IsPlayerWonderSpammer(ePlayer))
-			{
-				iEnemyWeight += 10;
-				iDPWeight += -10;
-				iDoFWeight += -10;
-			}
 
 			// Captured our capital or Holy City, and we aren't their capitulated vassal?
 			if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer))
@@ -16831,22 +16807,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					
 					// Are they expanding recklessly?
 					if (IsPlayerRecklessExpander(ePlayer))
-					{
-						iEnemyWeight += 15;
-						iDPWeight += -15;
-						iDoFWeight += -15;
-
-						// Easy target?
-						if (bEasyTarget)
-						{
-							iEnemyWeight += 15;
-							iDPWeight += -15;
-							iDoFWeight += -15;
-						}
-					}		
-					
-					// Are they spamming Wonders?
-					if (IsPlayerWonderSpammer(ePlayer))
 					{
 						iEnemyWeight += 15;
 						iDPWeight += -15;
@@ -17260,22 +17220,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						iDPWeight += -20;
 						iDoFWeight += -20;
 						break;
-					}
-				
-					// Are they spamming Wonders?
-					if (IsPlayerWonderSpammer(ePlayer))
-					{
-						iEnemyWeight += 15;
-						iDPWeight += -15;
-						iDoFWeight += -15;
-
-						// Easy target?
-						if (bEasyTarget)
-						{
-							iEnemyWeight += 15;
-							iDPWeight += -15;
-							iDoFWeight += -15;
-						}
 					}
 				
 					// They have influence over us
@@ -18118,9 +18062,6 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 	if (GetPlayer()->GetDiplomacyAI()->IsPlayerRecklessExpander(ePlayer))
 		return true;
 	
-	if (GetPlayer()->GetDiplomacyAI()->IsPlayerWonderSpammer(ePlayer))
-		return true;
-	
 	if (!IsNoVictoryCompetition())
 	{
 		if (GetPlayer()->GetCurrentEra() >= 2 && IsGoingForWorldConquest())
@@ -18481,7 +18422,7 @@ bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
 	{
 		bWantsConquest = true;
 	}
-	else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer)))
+	else if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE && IsPlayerRecklessExpander(ePlayer))
 	{
 		bWantsConquest = true;
 	}
@@ -34985,12 +34926,6 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		iWeight += 4;
 	}
 
-	// Weight for spamming Wonders
-	if (IsPlayerWonderSpammer(eTargetPlayer))
-	{
-		iWeight += 6;
-	}
-
 	// Weight for warmonger threat
 	switch(GetWarmongerThreat(eTargetPlayer))
 	{
@@ -40540,7 +40475,7 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_WONDER_CULTURAL();
 		}
-		else if (!IsPlayerWonderSpammer(ePlayer))
+		else
 		{
 			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
 		}
@@ -41987,6 +41922,8 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		}
 	}
 #endif
+
+	iOpinionWeight = 0; // fixing this
 
 	return iOpinionWeight;
 }
