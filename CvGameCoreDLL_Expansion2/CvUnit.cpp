@@ -4681,36 +4681,36 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		return true;
 	}
 
-		// Minors can't intrude into one another's territory
+	// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
-		{
+	{
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
 
-		// Allow AI players to pass through minors' territory
-		if (!bEndTurn)
-			return true;
+				// Allow AI players to pass through minors' territory
+				if (!bEndTurn)
+					return true;
 
-			// If we haven't yet met the Minor we can move in
-			if(!kMyTeam.isHasMet(eTeam))
-				return true;
+		// If we haven't yet met the Minor we can move in
+		if(!kMyTeam.isHasMet(eTeam))
+			return true;
 
 		// Is this an excluded unit that doesn't cause anger?
 		if (IsAngerFreeUnit())
 			return true;
 
-			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 #if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-			// If the minor is allied, treat the plot as being owned by their ally
+		// If the minor is allied, treat the plot as being owned by their ally
 		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
-					return true;
+			return true;
 #endif
 
-				// If already intruding on this minor, okay to do it some more
-				if (pMinorAI->IsMajorIntruding(getOwner()))
-					return true;
+		// If already intruding on this minor, okay to do it some more
+		if (pMinorAI->IsMajorIntruding(getOwner()))
+			return true;
 	}
 
 	//city states may enter their ally's territory - may help for defense
@@ -28355,24 +28355,24 @@ bool CvUnit::SentryAlert() const
 	if (getDomainType() == DOMAIN_AIR)
 	{
 		int iRange = GetRange();
-			for(int iX = -iRange; iX <= iRange; ++iX)
+		for(int iX = -iRange; iX <= iRange; ++iX)
+		{
+			for(int iY = -iRange; iY <= iRange; ++iY)
 			{
-				for(int iY = -iRange; iY <= iRange; ++iY)
+				CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
+				if(NULL != pPlot)
 				{
-					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
-					if(NULL != pPlot)
+					if(pPlot->isVisible(getTeam()))
 					{
-						if(pPlot->isVisible(getTeam()))
+						if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
 						{
-							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
-							{
-								return true;
-							}
+							return true;
 						}
 					}
 				}
 			}
 		}
+	}
 #endif
 
 	//combat units should wake as soon as enemies are around
@@ -28381,7 +28381,7 @@ bool CvUnit::SentryAlert() const
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
-								{
+	{
 		CvPlot* pTurnDestination = GetPathEndFirstTurnPlot();
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
@@ -29245,10 +29245,11 @@ const char* CvUnit::GetMissionInfo()
 {
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
-	m_strMissionInfoString += " // ";
 
 	if (IsCombatUnit())
 	{
+		m_strMissionInfoString += " // ";
+
 		if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
 			m_strMissionInfoString += "no move assigned";
 		else
@@ -29269,8 +29270,11 @@ const char* CvUnit::GetMissionInfo()
 	}
 	else
 	{
-		if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		if (m_eGreatPeopleDirectiveType != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		{
+			m_strMissionInfoString += " // ";
 			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+		}
 		else if (isTrade())
 		{
 			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -29286,28 +29290,33 @@ const char* CvUnit::GetMissionInfo()
 						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
 						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
 						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
+
+					m_strMissionInfoString += " // ";
 					m_strMissionInfoString += strTemp0;
 				}
 			}
 		}
 	}
 
+	CvString strTemp;
+	getActivityTypeString(strTemp, GetActivityType());
+	m_strMissionInfoString += " // ";
+	m_strMissionInfoString += strTemp;
+
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
-		CvString strTemp1;
-		getMissionAIString(strTemp1, GetMissionAIType());
+		getMissionAIString(strTemp, GetMissionAIType());
 		m_strMissionInfoString += " // ";
-		m_strMissionInfoString += strTemp1;
-		strTemp1.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
-		m_strMissionInfoString += strTemp1;
+		m_strMissionInfoString += strTemp;
+		strTemp.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		m_strMissionInfoString += strTemp;
 	}
 
 	if (GetHeadMissionData())
 	{
-		CvString strTemp1;
-		strTemp1.Format(" // Mission %d -> %d,%d", GetHeadMissionData()->eMissionType, 
+		strTemp.Format(" // Mission %d -> %d,%d", GetHeadMissionData()->eMissionType, 
 			GetHeadMissionData()->iData1, GetHeadMissionData()->iData2);
-		m_strMissionInfoString += strTemp1;
+		m_strMissionInfoString += strTemp;
 	}
 
 	m_strMissionInfoString += " -----------------------------";
@@ -30237,10 +30246,12 @@ void CvUnit::AI_promote()
 				{
 					iValue += AI_promotionValue(eNextPromotion) / 2;
 				}
+
 			}
+			
 			if(GC.getLogging() && GC.getAILogging())
 			{
-				
+				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
 				CvString strPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
 				CvString strUnitName = getName();
 				CvString strCivName = GET_PLAYER(getOwner()).getName();

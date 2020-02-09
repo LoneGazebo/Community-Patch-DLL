@@ -111,7 +111,7 @@ public:
 	CvAStarNode();
 	void clear();
 
-	short m_iX, m_iY;							// Coordinate position - persistent, ie not affected by clear()
+	short m_iX, m_iY;	  // Coordinate position - persistent
 
 	long m_iKnownCost;							// Goal (g)
 	long m_iHeuristicCost;						// Heuristic (h)
@@ -122,7 +122,7 @@ public:
 	unsigned short m_iStartMovesForTurn;		// needed for move cost normalization on domain change
 
 	bool m_bIsOpen;								// Is this node on the open or closed list?
-	CvAStarNode* m_pParent;					// Parent in current path
+	CvAStarNode* m_pParent;						// Parent in current path
 
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()
 	std::vector<CvAStarNode*> m_apChildren;		// Nodes we could reach from this node - maybe be more than 6 because of "extrachildren"

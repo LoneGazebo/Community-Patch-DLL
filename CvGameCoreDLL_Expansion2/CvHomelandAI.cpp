@@ -1410,10 +1410,10 @@ void CvHomelandAI::PlotMovesToSafety()
 				continue;
 		}
 
-			CvHomelandUnit unit;
-			unit.SetID(pUnit->GetID());
-			m_CurrentMoveUnits.push_back(unit);
-		}
+		CvHomelandUnit unit;
+		unit.SetID(pUnit->GetID());
+		m_CurrentMoveUnits.push_back(unit);
+	}
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
@@ -6058,6 +6058,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					strLogString.Format("Failed to rebase %s (%d) at %d,%d for healing", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			}
 		}
 		else
@@ -6068,10 +6069,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				strLogString.Format("Don't need to rebase %s (%d) at %d,%d for healing", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 
 		//that's it for this turn, whether we rebased successfully or not
-		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		UnitProcessed(pUnit->GetID());
 	}
 
@@ -6147,10 +6148,12 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					strLogString.Format("Failed to rebase %s (%d) at %d,%d for combat", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
+	
+			//not strictly needed but looks cooler than doing nothing and we're ready for surprise attacks
+			pUnit->PushMission(CvTypes::getMISSION_AIRPATROL());
 		}
 
 		//that's it for this turn, whether we rebased successfully or not
-		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		UnitProcessed(pUnit->GetID());
 	}
 }

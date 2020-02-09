@@ -40157,31 +40157,27 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes
 //	--------------------------------------------------------------------------------
 bool CvPlayer::removeFromArmy(int iArmyID, int iID)
 {
-	bool bRemoved = false;
 	CvArmyAI* pThisArmyAI = getArmyAI(iArmyID);
 	if(pThisArmyAI)
-	{
-		bRemoved = pThisArmyAI->RemoveUnit(iID);
-	}
+		return pThisArmyAI->RemoveUnit(iID);
 
-	return bRemoved;
+	return false;
 }
 
 
 //	---------------------------------------------------------------------------
 bool CvPlayer::removeFromArmy(int iID)
 {
-	CvArmyAI* pLoopArmyAI;
-	int iLoop;
-	bool bRemoved = false;
-
 	// for all the army AIs
-	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL && !bRemoved; pLoopArmyAI = nextArmyAI(&iLoop))
+	int iLoop;
+	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
 	{
-		// attempt to remove from this army
-		bRemoved = removeFromArmy(pLoopArmyAI->GetID(), iID);
+		//unit can only be in one army
+		if (removeFromArmy(pLoopArmyAI->GetID(), iID))
+			return true;
 	}
-	return bRemoved;
+
+	return false;
 }
 
 //	---------------------------------------------------------------------------

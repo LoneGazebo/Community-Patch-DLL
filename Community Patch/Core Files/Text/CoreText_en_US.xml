@@ -2890,6 +2890,19 @@
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
 			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Non-Competition Diplo Mods -->
+		<Row Tag="TXT_KEY_DIPLO_NO_WONDER_DISPUTE">
+			<Text>[COLOR_POSITIVE_TEXT]You are not competing for World Wonders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_MINOR_CIV_DISPUTE">
+			<Text>[COLOR_POSITIVE_TEXT]You are not competing for the favor of the same City-States.</Text>
+		</Row>
+		
+		<!-- Wonder Spammer Diplo Mod -->
+		<Row Tag="TXT_KEY_DIPLO_WONDER_SPAMMER">
+			<Text>[COLOR_NEGATIVE_TEXT]They believe we are building World Wonders too aggressively!</Text>
+		</Row>
 
 		<!-- Non-Competition Diplo Mods -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WONDER_DISPUTE">
@@ -2960,6 +2973,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_SUPPORTED_THEIR_HOSTING_UN">
 			<Text>[COLOR_POSITIVE_TEXT]We helped them become the host of the United Nations.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Special Warmonger Hate Descriptor for Aztecs -->
+		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
+			<Text> (They are bloodthirsty warmongers!)</Text>
+		</Row>
+		
+		<!-- :) -->
+		<Row Tag="TXT_KEY_DIPLO_NUCLEAR_GANDHI">
+			<Text>[COLOR_NEGATIVE_TEXT]Gandhi's words are backed with NUCLEAR WEAPONS![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Special Warmonger Hate Descriptor for Aztecs -->
@@ -6111,6 +6134,27 @@
 
 		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Production cost reduction from resources at city level -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">
+			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! [ICON_PRODUCTION] Production Cost reduced for:{3_Details}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_LIST">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_UnitCombat}[ENDCOLOR]: {2_CostModifier}%{3_EraInfo}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_PREREQUISITE">
+			<Text>(Prerequisite: {1_RequiredEra})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_ERA_OBSOLETE">
+			<Text>(Obsoletes: {1_ObsoleteEra})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD_BUILDING">
+			<Text>Buildings</Text>
 		</Row>
 
 		<!-- Production cost reduction from resources at city level -->
