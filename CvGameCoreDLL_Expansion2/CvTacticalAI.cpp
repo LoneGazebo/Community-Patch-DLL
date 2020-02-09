@@ -3040,7 +3040,6 @@ void CvTacticalAI::PlotAncientRuinMoves(int iNumTurnsAway)
 void CvTacticalAI::PlotAirInterceptMoves()
 {
 	m_CurrentMoveUnits.clear();
-	CvTacticalUnit unit;
 	std::vector<CvPlot*> checkedPlotList;
 
 	// Loop through all recruited units
@@ -3049,8 +3048,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && !pUnit->TurnProcessed())
 		{
-			// Am I eligible to intercept?
-			// we only commandeered units which won't be rebased
+			// Am I eligible to intercept? We only commandeered units which won't be rebased
 			if(pUnit->canAirPatrol(NULL))
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
@@ -3058,23 +3056,23 @@ void CvTacticalAI::PlotAirInterceptMoves()
 				int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
 				int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
 
+				// To at least intercept once if only one bomber found.
 				if (iNumNearbyBombers == 1)
-				{
-					// To at least intercept once if only one bomber found.
 					iNumNearbyBombers++;
-				}
-				int maxInterceptorsWanted = ((iNumNearbyBombers / 2) + (iNumNearbyFighters / 4));
 
+				// TODO: we should not just use any interceptor but the best one (depending on promotions etc)
+				int maxInterceptorsWanted = (iNumNearbyBombers / 2) + (iNumNearbyFighters / 4);
 				if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
 				{
 					checkedPlotList.push_back(pUnitPlot);
+					CvTacticalUnit unit;
 					unit.SetID(pUnit->GetID());
 					m_CurrentMoveUnits.push_back(unit);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d with %s %d", pUnit->getX(), pUnit->getY(), pUnit->getName().c_str(), pUnit->GetID());
 						LogTacticalMessage(strLogString);
 					}
 				}
@@ -3091,13 +3089,10 @@ void CvTacticalAI::PlotAirInterceptMoves()
 /// Set fighters to air sweep
 void CvTacticalAI::PlotAirSweepMoves()
 {
-	list<int>::iterator it;
 	m_CurrentMoveUnits.clear();
-	CvTacticalUnit unit;
-	CvTacticalDominanceZone *pZone;
 
 	// Loop through all recruited units
-	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 #if defined(MOD_UNITS_MAX_HP)
@@ -3112,7 +3107,7 @@ void CvTacticalAI::PlotAirSweepMoves()
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
 				CvCity* pCity = pUnitPlot->getPlotCity();
-				pZone = NULL;
+				CvTacticalDominanceZone* pZone = NULL;
 
 				// On a carrier or in a city where we are dominant?
 				if (pCity)
@@ -3120,13 +3115,14 @@ void CvTacticalAI::PlotAirSweepMoves()
 
 				if (!pCity || !pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 				{
+					CvTacticalUnit unit;
 					unit.SetID(pUnit->GetID());
 					m_CurrentMoveUnits.push_back(unit);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Ready to air sweep enemy air units at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						strLogString.Format("Ready to air sweep enemy air units at, X: %d, Y: %d with %s %d", pUnit->getX(), pUnit->getY(), pUnit->getName().c_str(), pUnit->GetID());
 						LogTacticalMessage(strLogString);
 					}
 				}
@@ -4815,7 +4811,7 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("AIR ATTACK: %s attacks Target X: %d, Y: %d", pUnit->getName().GetCString(), pBestTarget->getX(), pBestTarget->getY());
+						strMsg.Format("AIR ATTACK: %s %d attacks Target X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY());
 						LogTacticalMessage(strMsg);
 					}
 				}
@@ -4903,7 +4899,7 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 						continue;
 
 					//use distance from actual target as tiebreaker
-					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) * 3 - iTargetDistance * 3;
+					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) - iTargetDistance * 3;
 
 					if (pCity != NULL)
 						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false);
@@ -4948,7 +4944,7 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Sending %s to air sweep prior to attack to Target X: %d, Y: %d", pUnit->getName().GetCString(), pTargetPlot->getX(), pTargetPlot->getY());
+						strMsg.Format("Sending %s %d to air sweep prior to attack to Target X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTargetPlot->getX(), pTargetPlot->getY());
 						LogTacticalMessage(strMsg);
 					}
 				}
