@@ -40,8 +40,8 @@ void CvCitySiteEvaluator::Init()
 {
 	// Set up city ring multipliers
 	m_iRingModifier[0] = 1;   // Items under city get handled separately
-	m_iRingModifier[1] = /*6*/ GC.getCITY_RING_1_MULTIPLIER();
-	m_iRingModifier[2] = /*3*/ GC.getCITY_RING_2_MULTIPLIER();
+	m_iRingModifier[1] = /*8*/ GC.getCITY_RING_1_MULTIPLIER();
+	m_iRingModifier[2] = /*6*/ GC.getCITY_RING_2_MULTIPLIER();
 	m_iRingModifier[3] = /*2*/ GC.getCITY_RING_3_MULTIPLIER();
 	m_iRingModifier[4] = /*1*/ GC.getCITY_RING_4_MULTIPLIER();
 	m_iRingModifier[5] = /*1*/ GC.getCITY_RING_5_MULTIPLIER();

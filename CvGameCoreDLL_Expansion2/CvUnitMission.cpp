@@ -76,23 +76,10 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 				}
 			}
 
-			bool bAbortMission = (!bEscortedBuilder && !hUnit->IsIgnoringDangerWakeup());
-			// Remove the line below to have combat units behave like workers, waking at every opportunity!
-			bAbortMission = (bAbortMission && !hUnit->IsCombatUnit());
-
-			// Only change human player's units' behaviour
-			if (GET_PLAYER(hUnit->getOwner()).isHuman() && MOD_BUGFIX_WORKERS_VISIBLE_DANGER) {
-				// Stop only if the worker can actually see the enemy
-				bAbortMission = (bAbortMission && hUnit->SentryAlert(true));
-			} else {
-				// Stop if there is any hint of an enemy - fallout also counts as danger, so set a higher threshold
-				bAbortMission = (bAbortMission && hUnit->GetDanger()>hUnit->GetCurrHitPoints()/2);
-			}
-
+			bool bAbortMission = !hUnit->IsCombatUnit() && !bEscortedBuilder && hUnit->SentryAlert();
 			if(bAbortMission)
 			{
 				hUnit->ClearMissionQueue();
-				hUnit->SetIgnoreDangerWakeup(true);
 			}
 			else
 			{
@@ -146,21 +133,9 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 			if(pkBuildInfo)
 			{
-				if (hUnit->GetDanger()>hUnit->GetCurrHitPoints()/2)
-				{
-					if(hUnit->plot()->getNumDefenders(hUnit->getOwner()) <= 0)
-					{
-						hUnit->SetIgnoreDangerWakeup(true);
-					}
-				}
-
-				//if (hUnit->isHuman())
-				{
 					FeatureTypes eFeature = hUnit->plot()->getFeatureType();
 					if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
 					{
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
-					  if (MOD_BUGFIX_FEATURE_REMOVAL) {
 						// Don't bother looking if this is the build that removes this feature
 						if (!pkBuildInfo->isFeatureRemoveOnly(eFeature)) {
 						
@@ -183,10 +158,12 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 												if (pRemoveBuild == NULL) {
 													pRemoveBuild = pRemoveBuildInfo;
 												}
-											} else if (pTechs->HasTech(ePrereqTech)) {
+										}
+										else if (pTechs->HasTech(ePrereqTech)) {
 												if (pRemoveBuild == NULL) {
 													pRemoveBuild = pRemoveBuildInfo;
-												} else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes) pRemoveBuild->getFeatureTech(eFeature))->GetGridX()) {
+											}
+											else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)pRemoveBuild->getFeatureTech(eFeature))->GetGridX()) {
 													pRemoveBuild = pRemoveBuildInfo;
 												}
 											}
@@ -208,61 +185,10 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 								bAppend = true;
 							}
 						}
-					  } else {
-#endif
-						CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
-						MissionData removeMission;
-						removeMission.eMissionType = eMission;
-						if(iData1 != 15 && strcmp(feature->GetType(), "FEATURE_FOREST") == 0)
-						{
-							removeMission.iData1 = 15; // todo: future proof this
-							removeMission.iData2 = iData2;
-							removeMission.iFlags = iFlags;
-							removeMission.iPushTurn = GC.getGame().getGameTurn();
-							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
-							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-							bAppend = true;
-						}
-						else if(iData1 != 14 && strcmp(feature->GetType(), "FEATURE_JUNGLE") == 0)
-						{
-							removeMission.iData1 = 14; // todo: future proof this
-							removeMission.iData2 = iData2;
-							removeMission.iFlags = iFlags;
-							removeMission.iPushTurn = GC.getGame().getGameTurn();
-							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
-							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-							bAppend = true;
-						}
-						else if(iData1 != 16 && strcmp(feature->GetType(), "FEATURE_MARSH") == 0)
-						{
-							removeMission.iData1 = 16; // todo: future proof this
-							removeMission.iData2 = iData2;
-							removeMission.iFlags = iFlags;
-							removeMission.iPushTurn = GC.getGame().getGameTurn();
-							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
-							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-							bAppend = true;
-						}
-						else if(iData1 != 17 && strcmp(feature->GetType(), "FEATURE_FALLOUT") == 0)
-						{
-							removeMission.iData1 = 17; // todo: future proof this
-							removeMission.iData2 = iData2;
-							removeMission.iFlags = iFlags;
-							removeMission.iPushTurn = GC.getGame().getGameTurn();
-							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
-							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-							bAppend = true;
-						}
-#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
-					  }
-#endif
-					}
 				}
-
 
 				ImprovementTypes eImprovement = NO_IMPROVEMENT;
 				RouteTypes eRoute = NO_ROUTE;
-
 				if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 				{
 					eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
@@ -611,13 +537,14 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					}
 					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
-						//nothing to attack, continue movement
-						hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
-						bDone = true;
+						//illegal, cannot execute attack and aircraft need to use the rebase mission to move
+						hUnit->ClearMissionQueue();
+						return;
 					}
 					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{
 						//attack executed
+						bAction = true;
 						bDone = true;
 					}
 				}
@@ -668,6 +595,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{
 						//attack executed
+						bAction = true;
 						bDone = true;
 					}
 				}
@@ -691,13 +619,6 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 				if(pTargetPlot != NULL)
 				{
 					CvPlot* pOriginationPlot = hUnit->plot();
-
-					if(pTargetPlot->getNumUnits() < 1)
-					{
-						bAction = false;
-						bDone = true;
-						break;
-					}
 
 					// Find unit to move out
 					for(int iI = 0; iI < pTargetPlot->getNumUnits(); iI++)
@@ -726,10 +647,18 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 								while (iResult2 >= 0)
 									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
 
+								bAction = true;
 								bDone = true;
 								break;
 							}
 						}
+					}
+
+					if (!bDone)
+					{
+						//illegal, cannot execute swap
+						hUnit->ClearMissionQueue();
+						return;
 					}
 				}
 			}

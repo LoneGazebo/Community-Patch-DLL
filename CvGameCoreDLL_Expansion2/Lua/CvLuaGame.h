@@ -338,6 +338,7 @@ protected:
 	static int lGetWorldNumCitiesUnhappinessPercent(lua_State* L);
 
 	static int lGetDealDuration(lua_State* L);
+	static int lGetRelationshipDuration(lua_State* L);
 	static int lGetPeaceDuration(lua_State* L);
 
 	static int lGetUnitUpgradesTo(lua_State* L);

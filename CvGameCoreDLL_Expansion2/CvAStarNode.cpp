@@ -11,14 +11,15 @@ CvAStarNode::CvAStarNode()
 
 void CvAStarNode::clear()
 {
-	m_iTotalCost = 0;
+	m_iTotalCost = -1; //marker for untouched node
 	m_iKnownCost = 0;
 	m_iHeuristicCost = 0;
 	m_iMoves = 0;
 	m_iTurns = 0;
+	m_iStartMovesForTurn = 1; //safe default
 
+	m_bIsOpen = false;
 	m_pParent = NULL;
-	m_eCvAStarListType = NO_CVASTARLIST;
 
 	m_apChildren.clear();
 	m_kCostCacheData.clear();

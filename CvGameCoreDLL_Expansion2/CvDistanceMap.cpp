@@ -159,7 +159,7 @@ void CvDistanceMapByTurns::Update()
 	allMajorPlayers.Reset(nPlots, iVeryFar);
 	//initialize to empty
 	majorPlayers = vector<CvDistanceMap>(MAX_MAJOR_CIVS);
-		
+
 	//in principle for all players but we filter later
 	for (int i = 0; i < MAX_PLAYERS; i++) //include the barbarians!
 	{
@@ -219,17 +219,17 @@ void CvDistanceMapByPlots::Update()
 		{
 			CvPlot* pCityPlot = pLoopCity->plot();
 
-			for (int iPlotIndex = 0; iPlotIndex<nPlots; iPlotIndex++)
+			for (int iPlotIndex = 0; iPlotIndex < nPlots; iPlotIndex++)
 			{
 				CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
 				if (!pPlot)
 					continue;
 
-					int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
+				int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
 
 				allPlayers.UpdateDistanceIfLower(iPlotIndex, i, pLoopCity->GetID(), iDistance, SCityTiebreak());
 				if (thisPlayer.isMajorCiv())
-					{
+				{
 					majorPlayers[i].UpdateDistanceIfLower(iPlotIndex, i, pLoopCity->GetID(), iDistance, SCityTiebreak());
 					allMajorPlayers.UpdateDistanceIfLower(iPlotIndex, i, pLoopCity->GetID(), iDistance, SCityTiebreak());
 				}
@@ -257,5 +257,6 @@ void CvDistanceMap::Dump(const char* filename)
 		}
 	}
 	out.close();
+
 }
 

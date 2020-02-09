@@ -106,8 +106,8 @@
 			<!-- Garrison Frame -->
 			<Image ID="GarrisonFrame" Anchor="C,C" Offset="-42,-40" Size="64,64" Texture="GarrisonFrame.dds"/>
 			<!--  City Strength -->
-			<Label ID="CityStrength" Anchor="C,C" Offset="6,-28" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" ForceNonIME="1"/>
-			<Container Anchor="C,C" Offset="0,-27" Size="50,20" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
+			<Container ID="CityStrengthContainer" Anchor="C,C" Offset="0,-28" Size="50,20" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT" />
+			<Label ID="CityStrength" Anchor="C,C" Offset="6,-28" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" ForceNonIME="1" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
 
 			<!-- Lower Icons -->
 			<Stack ID="IconsStack" Anchor="C,T" Offset="0,25" StackGrowth="Left" Padding="0">
@@ -200,8 +200,9 @@
 			<!-- Garrison Frame -->
 			<Image ID="GarrisonFrame" Anchor="C,C" Offset="-42,-37" Size="64,64" Texture="GarrisonFrameOther.dds"/>
 			<!--  City Strength -->
-			<Label ID="CityStrength" Anchor="C,C" Offset="6,-24" Font="TwCenMT16" Color0="255,255,200,255" Color1="0,0,0,200" ForceNonIME="1" FontStyle="Stroke" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
 			<Container ID="CityStrengthContainer" Anchor="C,C" Offset="0,-24" Size="50,20" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
+			<Label ID="CityStrength" Anchor="C,C" Offset="6,-24" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" ForceNonIME="1" FontStyle="Stroke" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
+			
 			<!-- Lower Icons -->
 			<Stack ID="IconsStack" Anchor="C,T" Offset="0,22" StackGrowth="Left" Padding="0">
 				<TextButton ID="CitySpy" String="[ICON_SPY]" Hidden="1"/>

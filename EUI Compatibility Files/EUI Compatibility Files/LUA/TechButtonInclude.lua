@@ -585,6 +585,10 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 
 --CBP
+		if tech.FeatureProductionModifier > 0 then
+			addSmallActionButton( GameInfo.Missions.MISSION_GOLDEN_AGE, "", "TXT_KEY_ABLTY_TECH_BOOST_CHOP", tech.FeatureProductionModifier )
+		end
+
 		if tech.Happiness > 0 then
 			addSmallActionButton( GameInfo.Missions.MISSION_GOLDEN_AGE, "", "TXT_KEY_ABLTY_HAPPINESS_BUMP", tech.Happiness )
 		end

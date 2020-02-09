@@ -238,7 +238,7 @@ g_NameTable[ NotificationTypes.NOTIFICATION_INSTANT_YIELD ] = "InstantYield";
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE_CITY ] = "CityEventChoice";
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE ] = "EventChoice";
 
-g_NameTable[ NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES ] = "BonusResource";
+g_NameTable[ NotificationTypes.NOTIFICATION_DISCOVERED_BONUS_RESOURCE ] = "BonusResource";
 --END
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------

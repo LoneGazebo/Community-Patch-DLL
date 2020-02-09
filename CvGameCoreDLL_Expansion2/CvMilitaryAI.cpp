@@ -3766,7 +3766,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 					bRollForNuke = true;
 				}
 #endif
-				else if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
+				else if (m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POWERFUL)
 				{
 					bRollForNuke = true;
 				}
@@ -4954,143 +4954,6 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	return eType;
 }
 
-#if !defined(MOD_BALANCE_CORE)
-/// Do we want to move this air unit to a new base?
-bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
-{
-	CvPlot* pUnitPlot = pUnit->plot();
-	CvPlot* pBestPlot = NULL;
-
-	// Is this unit in a base in danger?
-	bool bNeedsToMove = false;
-	if (pUnitPlot->isCity())
-	{
-		if (pUnitPlot->getPlotCity()->getDamage() > (pUnitPlot->getPlotCity()->GetMaxHitPoints() / 5))
-		{
-			bNeedsToMove = true;
-		}
-	}
-	else
-	{
-		CvUnit *pCarrier = pUnit->getTransportUnit();
-		if (pCarrier)
-		{
-#if defined(MOD_UNITS_MAX_HP)
-			if (pCarrier->getDamage() > (pCarrier->GetMaxHitPoints() / 5))
-#else
-			if (pCarrier->getDamage() > (GC.getMAX_HIT_POINTS() / 5))
-#endif
-			{
-				bNeedsToMove = true;
-			}
-		}
-	}
-
-	// Is this a fighter that doesn't have any useful missions nearby
-	if (pUnit->canAirPatrol(NULL) || pUnit->canAirSweep())
-	{
-		int iNumNearbyEnemyAirUnits = GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true /*bCountFighters*/, true /*bCountBombers*/);
-		if (iNumNearbyEnemyAirUnits == 0 && !GetBestAirSweepTarget(pUnit))
-		{
-			bNeedsToMove = true;
-		}
-	}
-	if (!bNeedsToMove)
-	{
-		return false;
-	}
-
-	// first look for open carrier slots in carriers within operations
-	int iLoopUnit = 0;
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
-	{
-		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
-
-#if defined(MOD_UNITS_MAX_HP)
-		if(pLoopUnit->getDamage() > (pLoopUnit->GetMaxHitPoints() / 5))  // this might not be a good place to land
-#else
-		if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
-#endif
-		{
-			continue;
-		}
-
-		if (pLoopUnit->getArmyID() == -1)
-		{
-			continue;
-		}
-
-		if(pBestPlot != pUnitPlot && !pUnit->canRebaseAt(pUnitPlot, pLoopUnitPlot->getX(),pLoopUnitPlot->getY()))
-		{
-			continue;
-		}
-
-		if(!pUnit->canLoadUnit(*pLoopUnit, *pLoopUnitPlot))
-		{
-			continue;
-		}
-		
-		// Found somewhere to rebase to
-		return true;
-	}
-
-	// then look for open carrier slots in carriers NOT in operations
-	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
-	{
-		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
-
-#if defined(MOD_UNITS_MAX_HP)
-		if(pLoopUnit->getDamage() > (pLoopUnit->GetMaxHitPoints() / 5))  // this might not be a good place to land
-#else
-		if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
-#endif
-		{
-			continue;
-		}
-
-		if (pLoopUnit->getArmyID() != -1)
-		{
-			continue;
-		}
-
-		if(pBestPlot != pUnitPlot && !pUnit->canRebaseAt(pUnitPlot, pLoopUnitPlot->getX(),pLoopUnitPlot->getY()))
-		{
-			continue;
-		}
-
-		if(!pUnit->canLoadUnit(*pLoopUnit, *pLoopUnitPlot))
-		{
-			continue;
-		}
-
-		// Found somewhere to rebase to
-		return true;
-	}
-
-	CvCity* pLoopCity;
-	int iLoopCity = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-	{
-		CvPlot* pTarget = pLoopCity->plot();
-
-		if(pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 5))
-		{
-			continue;
-		}
-
-		if (pTarget != pUnitPlot && !pUnit->canRebaseAt(pUnitPlot, pTarget->getX(),pTarget->getY()))
-		{
-			continue;
-		}
-
-		// Found somewhere to rebase to
-		return true;
-	}
-
-	return false;
-}
-#endif
-
 /// Assess nearby enemy air assets
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 // Add half of unit range to the calculations.
@@ -5173,6 +5036,10 @@ CvPlot *CvMilitaryAI::GetBestAirSweepTarget(CvUnit* pFighter) const
 									if (pUnit->getDomainType() == DOMAIN_AIR)
 									{
 										if (pUnit->IsAirSweepCapable() || pUnit->canAirDefend())
+										{
+											iCountFighters+=2;
+										}
+										else if (!pUnit->isSuicide() && !pUnit->isCargo())
 										{
 											iCountFighters++;
 										}

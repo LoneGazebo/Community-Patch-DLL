@@ -895,6 +895,96 @@ struct SUnitStats
 	bool operator<(const SUnitStats& rhs) { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
 };
 
+struct SPathFinderStartPos
+{
+	int iUnitID;
+	int iPlotIndex;
+	int iMovesLeft;
+	PlotIndexContainer freedPlots;
+
+	SPathFinderStartPos(const SUnitStats& startpoint, const PlotIndexContainer& noZocPlots) :
+		iUnitID(startpoint.iUnitID), iPlotIndex(startpoint.iPlotIndex), iMovesLeft(startpoint.iMovesLeft), freedPlots(noZocPlots) {}
+
+	bool operator==(const SPathFinderStartPos& rhs) const
+	{
+		return (iUnitID == rhs.iUnitID) && (iPlotIndex == rhs.iPlotIndex) && (iMovesLeft == rhs.iMovesLeft) && (freedPlots == rhs.freedPlots);
+	}
+
+	bool operator<(const SPathFinderStartPos& rhs) const
+	{
+		//unit id is primary feature
+		if (iUnitID < rhs.iUnitID)
+			return true;
+		if (iUnitID > rhs.iUnitID)
+			return false;
+		//equal unit, check plot
+		if (iPlotIndex < rhs.iPlotIndex)
+			return true;
+		if (iPlotIndex > rhs.iPlotIndex)
+			return false;
+		//equal plot, check moves
+		if (iMovesLeft < rhs.iMovesLeft)
+			return true;
+		if (iMovesLeft > rhs.iMovesLeft)
+			return false;
+		//no good way to compare this ...
+		if (freedPlots.size() < rhs.freedPlots.size())
+			return true;
+		if (freedPlots.size() > rhs.freedPlots.size())
+			return false;
+		for (size_t i = 0; i < freedPlots.size(); i++)
+		{
+			if (freedPlots[i] < rhs.freedPlots[i])
+				return true;
+			if (freedPlots[i] > rhs.freedPlots[i])
+				return false;
+		}
+
+		return false;
+	}
+};
+
+// specialized hash function for unordered_map keys
+struct SDealItemValueParamsHash
+{
+	void hash_combine(size_t& hash, const size_t& extra) const
+	{
+		hash ^= extra + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	}
+
+	std::size_t operator() (const SPathFinderStartPos& key) const
+	{
+		std::size_t h0 = key.freedPlots.size();
+
+		hash_combine(h0, tr1::hash<int>()(key.iUnitID));
+		hash_combine(h0, tr1::hash<int>()(key.iPlotIndex));
+		hash_combine(h0, tr1::hash<int>()(key.iMovesLeft));
+
+		for(vector<int>::const_iterator i = key.freedPlots.begin(); i!=key.freedPlots.end(); ++i)
+			hash_combine(h0, tr1::hash<int>()(*i));
+
+		return h0;
+	}
+};
+
+struct SIntPairHash
+{
+	void hash_combine(size_t& hash, const size_t& extra) const
+	{
+		hash ^= extra + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	}
+
+	std::size_t operator() (const pair<int, int>& key) const
+	{
+		std::size_t h0 = tr1::hash<int>()(key.first);
+		hash_combine(h0, tr1::hash<int>()(key.second));
+		return h0;
+	}
+};
+
+typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SDealItemValueParamsHash> TCachedMovePlots;
+typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
+
 //forward
 class CvTacticalPosition;
 class CvTactPosStorage;
@@ -926,6 +1016,7 @@ public:
 	void setNextToCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
+	bool isBlockedForCombatUnit() const { return bBlockedForCombatUnit; }
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -960,9 +1051,10 @@ protected:
 	//set once and not changed afterwards
 	bool bIsVisibleToEnemy:1;
 	bool bHasAirCover:1;
+	bool bBlockedForCombatUnit:1;
 
 	//this is updated if the civilian is captured
-	bool bEnemyCivilianPresent:1;
+	bool bEnemyCivilianPresent:1; 
 
 	//updated if an enemy is killed, after pillage or after adding a newly visible plot
 	bool bEdgeOfTheKnownWorld:1; //neighboring plot is not part of sim and invisible
@@ -973,6 +1065,8 @@ protected:
 
 class CvTacticalPosition
 {
+	typedef tr1::unordered_map<int, int> TTactPlotLookup;
+
 protected:
 	//for final sorting (does not include intermediate moves)
 	int iTotalScore;
@@ -989,11 +1083,9 @@ protected:
 	const CvTacticalPosition* parentPosition;
 
 	vector<SUnitStats> availableUnits; //units which still need an assignment
-	vector<SUnitStats> unfinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
+	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
-	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
-	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
+	TTactPlotLookup tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
@@ -1016,14 +1108,15 @@ protected:
 	SAssignmentSummary summary;
 
 	//------------
-	const ReachablePlots& getReachablePlotsForUnit(int iUnit) const;
-	const set<int>& getRangeAttackPlotsForUnit(int iUnit) const;
+	const ReachablePlots& getReachablePlotsForUnit(const SUnitStats& unit) const;
+	const vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;
 	vector<STacticalAssignment> getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
 	CvTacticalPosition* addChild(CvTactPosStorage& storage);
 	bool removeChild(CvTacticalPosition* pChild);
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
+	bool canStayInPlotUntilNextTurn(SUnitStats unit, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 
 	//finding a particular unit
@@ -1041,8 +1134,8 @@ public:
 	void initFromParent(const CvTacticalPosition& parent); 
 
 	bool isComplete() const;
-	const CvTacticalPosition* findAncestorWithoutExtraMoves() const;
 	bool addFinishMovesIfAcceptable();
+	bool hasOffensiveAssignments() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
@@ -1115,7 +1208,7 @@ namespace TacticalAIHelpers
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
 	ReachablePlots GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const PlotIndexContainer& plotsToIgnoreForZOC=PlotIndexContainer());
-	std::set<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, bool bOnlyWithEnemy, bool bIgnoreVisibility);
+	vector<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	std::set<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
@@ -1134,6 +1227,7 @@ namespace TacticalAIHelpers
 	CvPlot* GetFirstTargetInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
+	bool IsEnemyCitadel(const CvPlot* pPlot, PlayerTypes ePlayer);
 
 	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);
 	vector<STacticalAssignment> FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage);

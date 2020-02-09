@@ -2835,18 +2835,6 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusSum = bonusSum + iModifier;
 			bonusCount = bonusCount + 1;
 		end
-
-		-- Range Strike Modifier
-		iModifier = myCity:GetCityBuildingRangeStrikeModifier();
-		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-			controlTable = g_MyCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_RANGE_STRIKE_CITY" );
-			controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-			bonusCount = bonusCount + 1;
-		elseif (iModifier ~= 0) then
-			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;
-		end
 		
 		-- Lack Strategic Resources
 		iModifier = theirUnit:GetStrategicResourceCombatPenalty();

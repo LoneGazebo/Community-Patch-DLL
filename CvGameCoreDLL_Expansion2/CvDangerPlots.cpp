@@ -377,7 +377,7 @@ int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison
 	if(m_DangerPlots.empty() || !pCity)
 		return 0;
 
-		return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
+	return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
@@ -386,7 +386,7 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const Unit
 	if(m_DangerPlots.empty() || !pUnit)
 		return 0;
 
-		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
 }
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const
@@ -623,7 +623,7 @@ int CvDangerPlotContents::GetDanger(bool bFixedDamageOnly)
 		return 0;
 
 	int iPlotDamage = m_iImprovementDamage;
-
+	
 	// Damage from terrain & features (eg fallout) - since we don't know the unit, just assume 20
 	if (m_bFlatPlotDamage)
 		iPlotDamage += 20;
@@ -670,7 +670,7 @@ int CvDangerPlotContents::GetDanger(bool bFixedDamageOnly)
 			}
 		}
 	}
-	
+		
 	return iPlotDamage;
 }
 
@@ -1070,7 +1070,7 @@ std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers(TeamTypes eTeamF
 		if (pAttacker)
 		{
 			if (eTeamForVisibilityCheck == NO_TEAM || pAttacker->plot()->isVisible(eTeamForVisibilityCheck))
-			vResult.push_back(pAttacker);
+				vResult.push_back(pAttacker);
 		}
 	}
 

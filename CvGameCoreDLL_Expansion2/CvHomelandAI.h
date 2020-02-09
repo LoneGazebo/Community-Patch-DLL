@@ -271,6 +271,7 @@ private:
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
 	void PlotAircraftMoves();
+	void PlotAircraftInterceptions();
 	void PlotAirliftMoves();
 
 	void ExecuteAircraftInterceptions();

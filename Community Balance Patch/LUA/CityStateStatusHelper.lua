@@ -318,10 +318,10 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	end
 	if (bCanBully) then
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
-		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_BULLY");
+		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_BULLY", pMinor:GetMajorBullyValue(iMajor));
 	else
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
-		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY");
+		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY", pMinor:GetMajorBullyValue(iMajor));
 	end
 -- CBP
 	local iJerk = pMinor:GetJerk(iMajor);
@@ -490,6 +490,26 @@ function GetAllyToolTip(iActivePlayer, iMinor)
 	
 	return sToolTip;
 end
+
+
+-- Vox Populi contender info
+function GetContenderInfo(majorPlayerID, minorPlayerID)
+	local pMinor = Players[ minorPlayerID ]
+	if not pMinor then return "error" end
+	
+	local iContInfluence = 0
+	local eAllyID = pMinor:GetAlly()
+	
+	for ePlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+		if ePlayer ~= eAllyID then
+			local iInfluence = pMinor:GetMinorCivFriendshipWithMajor(ePlayer)
+			if iInfluence > iContInfluence then iContInfluence = iInfluence end
+		end
+	end
+	
+	return tostring(iContInfluence).."[ICON_INFLUENCE]"
+end
+
 
 function GetActiveQuestText(iMajor, iMinor)
 	local iMajor = iMajor;

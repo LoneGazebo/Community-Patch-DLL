@@ -411,7 +411,7 @@ public:
 	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
-
+	
 	bool IsWantsDoFWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDoFWithPlayer(PlayerTypes ePlayer, bool bValue);
 	
@@ -471,9 +471,9 @@ public:
 	bool IsPlayerLiberatedCapital(PlayerTypes ePlayer);
 	void SetPlayerLiberatedCapital(PlayerTypes ePlayer, bool bValue);
 
-	int GetNumCitiesLiberated(PlayerTypes ePlayer);
-	void ChangeNumCitiesLiberated(PlayerTypes ePlayer, int iChange);
-	void SetNumCitiesLiberated(PlayerTypes ePlayer, int iValue);
+	int GetNumCitiesLiberatedBy(PlayerTypes ePlayer);
+	void ChangeNumCitiesLiberatedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesLiberatedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetRecentTradeValue(PlayerTypes ePlayer);
 	void ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange);
@@ -955,7 +955,7 @@ public:
 
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
-
+	
 	int GetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer) const;
 	void SetBrokenMilitaryPromiseTurn(PlayerTypes ePlayer, int iValue);
 	
@@ -1030,6 +1030,9 @@ public:
 
 	// Problems between friends
 	bool IsUntrustworthyFriend(PlayerTypes ePlayer) const;
+	void SetUntrustworthyFriend(PlayerTypes ePlayer, bool bValue);
+	void DoTestUntrustworthyFriends();
+	bool DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
 	int GetNumFriendsDenouncedBy();
 
 	bool IsFriendDenouncedUs(PlayerTypes ePlayer) const;	// They denounced us while we were friends!
@@ -1398,9 +1401,9 @@ public:
 	void ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange);
 	void SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue);
 
-	int GetNumCitiesCaptured(PlayerTypes ePlayer) const;
-	void ChangeNumCitiesCaptured(PlayerTypes ePlayer, int iChange);
-	void SetNumCitiesCaptured(PlayerTypes ePlayer, int iValue);
+	int GetNumCitiesCapturedBy(PlayerTypes ePlayer) const;
+	void ChangeNumCitiesCapturedBy(PlayerTypes ePlayer, int iChange);
+	void SetNumCitiesCapturedBy(PlayerTypes ePlayer, int iValue);
 
 	int GetNumTimesRazed(PlayerTypes ePlayer) const;
 	void ChangeNumTimesRazed(PlayerTypes ePlayer, int iChange);
@@ -1578,6 +1581,7 @@ public:
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
 	void LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, int iGold, bool bSuccess, int iBullyMetricScore);
 	void LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, UnitTypes eUnit, bool bSuccess, int iBullyMetricScore);
+	void LogMinorCivBullyHeavy(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, YieldTypes eYield, int iValue, bool bSuccess, int iBullyMetricScore);
 	void LogMinorCivQuestReceived(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, MinorCivQuestTypes eType);
 	void LogMinorCivQuestFinished(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, MinorCivQuestTypes eType);
 	void LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, MinorCivQuestTypes eType);
@@ -1791,6 +1795,7 @@ private:
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
 		bool m_abDenouncedPlayer[MAX_MAJOR_CIVS];
+		bool m_abUntrustworthyFriend[MAX_MAJOR_CIVS];
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		bool m_abOfferingGift[MAX_MAJOR_CIVS];
@@ -2154,6 +2159,7 @@ private:
 	short* m_paiDoFCounter;
 
 	bool* m_pabDenouncedPlayer;
+	bool* m_pabUntrustworthyFriend;
 	bool* m_pabFriendDenouncedUs;
 	bool* m_pabFriendDeclaredWarOnUs;
 	short* m_paiDenouncedPlayerCounter;

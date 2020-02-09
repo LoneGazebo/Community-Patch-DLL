@@ -520,7 +520,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
 		//turns to plots is factor 2, distance to diameter is also factor 2
 		int iMaxDistance = GetTacticalRangeTurns();
-			CvCity *pZoneCity = pZone->GetZoneCity();
+		CvCity *pZoneCity = pZone->GetZoneCity();
 
 		if(pZoneCity)
 		{

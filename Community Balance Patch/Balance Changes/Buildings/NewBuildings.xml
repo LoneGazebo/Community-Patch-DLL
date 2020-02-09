@@ -413,20 +413,19 @@
 			<Type>BUILDING_WHITE_TOWER</Type>
 			<BuildingClass>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClass>
 			<Cost>125</Cost>
-			<PrereqTech>TECH_MACHINERY</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_WHITE_TOWER_HELP</Help>
 			<Description>TXT_KEY_BUILDING_WHITE_TOWER</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WHITE_TOWER_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY</Strategy>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<Defense>500</Defense>
 			<FreeGreatWork>GREAT_WORK_THE_CROWN_JEWELS</FreeGreatWork>
 			<GreatWorkCount>1</GreatWorkCount>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<NumCityCostMod>10</NumCityCostMod>
-			<NationalPopRequired>35</NationalPopRequired>
-			<GlobalEspionageModifier>-15</GlobalEspionageModifier>
+			<NationalPopRequired>30</NationalPopRequired>
+			<GlobalEspionageModifier>-10</GlobalEspionageModifier>
 			<ExtraSpies>1</ExtraSpies>
 			<Espionage>true</Espionage>
 			<SpyRankChange>1</SpyRankChange>

@@ -1,3 +1,8 @@
+  -- added Hovering Unit
+	UPDATE Language_en_US
+	SET Text = 'Unit may pass over Mountains.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HOVERING_UNIT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
  -- added Withdraw Before Melee
 	UPDATE Language_en_US
 	SET Text = 'Unit will withdraw when faced with melee attack (80% chance). Chance of withdrawal decreased against fast enemy units or if there are limited open tiles behind the unit.'
@@ -134,15 +139,15 @@
 -- Replace Drill
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Replace Shock
@@ -203,11 +208,11 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOODSMAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].'
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_FORMATION_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].'
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when defending in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_FORMATION_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -251,7 +256,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_COVER_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
-	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength when adjacent to a friendly Unit.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when adjacent to a friendly Unit.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -724,4 +729,15 @@
 	SET Text = 'Ace Pilot III'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.[NEWLINE]+1 operational range.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.[NEWLINE]+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	

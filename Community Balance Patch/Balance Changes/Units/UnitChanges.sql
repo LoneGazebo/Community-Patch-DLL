@@ -119,13 +119,14 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_NUCLEAR_M
 -- All civs start with a pathfinder
 
 --Replace Starting Warrior with a Pathfinder
-UPDATE Eras SET StartingDefenseUnits='0' Where Type='ERA_ANCIENT';
+UPDATE Eras SET StartingDefenseUnits='1' Where Type='ERA_ANCIENT';
 UPDATE Eras SET StartingExploreUnits='1' Where Type='ERA_ANCIENT';
 
 --Assigns UnitCombatInfos to civilian units -- Can now grant production bonuses and free promotions via buildings, traits and policies
 INSERT INTO UnitCombatInfos  	
 			(Type,					Description)
-VALUES		('UNITCOMBAT_SETTLER',	'TXT_KEY_UNITCOMBAT_SETTLER'),
+VALUES		
+	('UNITCOMBAT_SETTLER',	'TXT_KEY_UNITCOMBAT_SETTLER'),
 	('UNITCOMBAT_WORKER',	'TXT_KEY_UNITCOMBAT_WORKER'),
 	('UNITCOMBAT_WORKBOAT',	'TXT_KEY_UNITCOMBAT_WORKBOAT'),
 	('UNITCOMBAT_CARGO',	'TXT_KEY_UNITCOMBAT_CARGO'),

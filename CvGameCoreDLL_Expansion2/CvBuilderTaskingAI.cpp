@@ -935,7 +935,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 #endif
 
-		if(pkImprovementInfo->IsImprovementResourceTrade(eResource) || pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson())
+		if (pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
 		{
 			if(eImprovement == eExistingPlotImprovement)
 			{
@@ -984,7 +984,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 					if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
 					{
 						CvImprovementEntry* pkExistingImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pkBuild2->getImprovement());
-						bPrevImprovementConnects = pkExistingImprovementInfo && pkExistingImprovementInfo->IsImprovementResourceTrade(eResource);
+						bPrevImprovementConnects = pkExistingImprovementInfo && pkExistingImprovementInfo->IsExpandedImprovementResourceTrade(eResource);
 						eExistingBuild = eBuild2;
 						break;
 					}
@@ -1134,11 +1134,11 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		// for bonus resources, check to see if this is the improvement that connects it
 		if(eResource != NO_RESOURCE)
 		{
-			if(!pImprovement->IsImprovementResourceTrade(eResource) && !pImprovement->IsAdjacentCity())
+			if (!pImprovement->IsExpandedImprovementResourceTrade(eResource))
 			{
 				if(m_bLogging){
 					CvString strTemp;
-					strTemp.Format("Weight,!pImprovement->IsImprovementResourceTrade(eResource),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eResource, pPlot->getX(), pPlot->getY());
+					strTemp.Format("Weight,!pImprovement->IsExpandedImprovementResourceTrade(eResource),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eResource, pPlot->getX(), pPlot->getY());
 					LogInfo(strTemp, m_pPlayer);
 				}
 				continue;

@@ -1024,7 +1024,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 					break;
 				}
 			}
-
+			
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
 				iYield /= 2;
 
@@ -3466,8 +3466,8 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-					if (eGreatPerson != NO_GREATPERSON)
+				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+				if (eGreatPerson != NO_GREATPERSON)
 				{
 					iMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 					if (GetPlayer()->isGoldenAge())

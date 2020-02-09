@@ -567,6 +567,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/DiploOpinionWeights.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Values/FasterAircraft.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -1040,6 +1045,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Core Values\FasterAircraft.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Core Values\MinorCivQuestRewards.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1167,6 +1176,10 @@
     <Content Include="Core Files\CoreLua\EventOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\InGame.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\CoreLua\MPList.lua">
       <SubType>Lua</SubType>

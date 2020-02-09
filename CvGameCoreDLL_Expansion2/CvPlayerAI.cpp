@@ -2227,7 +2227,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	MinorCivApproachTypes eApproach = GetDiplomacyAI()->GetMinorCivApproach(kMinor.GetID());
 
 	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
-		iScore /= 10;
+		iScore /= 5;
 
 	// **************************
 	// Benefits to Us!
@@ -2321,11 +2321,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	//Nobody likes hostile city-states.
 	if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 	{
-		iScore /= 5;
+		iScore /= 2;
 	}
 
 	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
-	if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < 0)
+	if (kMinor.GetMinorCivAI()->GetBaseFriendshipWithMajor(GetID()) < -20)
 	{
 		iScore /= 5;
 	}
@@ -2469,7 +2469,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	iScore -= iDistance;
 
 	//All CSs should theoretically be valuable if we've gotten this far.
-	return iScore;
+	return max(1,iScore);
 }
 
 CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)

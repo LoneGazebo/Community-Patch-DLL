@@ -1760,8 +1760,9 @@ local function UpdateCityViewNow()
 		-- COMMUNITY PATCH
 		Controls.CityNameTitleBarLabel:LocalizeAndSetToolTip(city:GetCityUnhappinessBreakdown(false));
 		-- END
-		
+
 		Controls.Defense:SetText( math_floor( city:GetStrengthValue() / 100 ) )
+		Controls.Defense:LocalizeAndSetToolTip( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) )
 
  		CivIconHookup( cityOwnerID, 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true )
 

@@ -207,6 +207,9 @@ ALTER TABLE Traits ADD COLUMN 'CapitalFreeBuildingPrereqTech' TEXT DEFAULT NULL;
 
 ALTER TABLE Traits ADD COLUMN 'BullyAnnex' BOOLEAN DEFAULT 0;
 
+-- Adds a trait that lets a player ignore friends/PtP/allies in bully calculation
+ALTER TABLE Traits ADD COLUMN 'IgnoreBullyPenalties' BOOLEAN DEFAULT 0;
+
 -- Adds a trait that makes CS alliances boost the defense of CS cities.
 
 ALTER TABLE Traits ADD COLUMN 'AllianceCSDefense' INTEGER DEFAULT 0;

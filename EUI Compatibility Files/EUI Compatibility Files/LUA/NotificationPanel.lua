@@ -1016,106 +1016,112 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			tips:insert( L"TXT_KEY_PEACE_BLOCKED"  .. "[NEWLINE][NEWLINE]") -- UndeadDevel: add newlines here instead to avoid having unused space
 		end
 				
--- UndeadDevel: add WarInfo to tool tip
-		local strWarInfo = "";
+-- UndeadDevel: update war status and peace willingness and add war info to tool tip
+		if (not Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_WAR ) and playerID ~= g_leaderID and not g_leaderMode and playerID ~= g_activePlayerID and not player:IsHuman() and not player:IsMinorCiv() and not player:IsBarbarian() and not IsGameCoreBusy()) then
 
-		if(player:IsWillingToMakePeaceWithHuman(g_activePlayerID)) then
-			local iPeaceValue = player:GetTreatyWillingToOffer(g_activePlayerID);
-			if(iPeaceValue >  PeaceTreatyTypes.PEACE_TREATY_WHITE_PEACE) then
-				if( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_ARMISTICE ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_ARMISTICE" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SETTLEMENT ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SETTLEMENT" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_BACKDOWN ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_BACKDOWN" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SUBMISSION ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SUBMISSION" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SURRENDER ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SURRENDER" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_CESSION ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_CESSION" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_CAPITULATION ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION" );
-				elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_UNCONDITIONAL_SURRENDER ) then
-					strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER" );
+			player:DoUpdateWarDamageLevel();
+			player:DoUpdatePeaceTreatyWillingness();
+			
+			local strWarInfo = "";
+	
+			if(player:IsWillingToMakePeaceWithHuman(g_activePlayerID)) then
+				local iPeaceValue = player:GetTreatyWillingToOffer(g_activePlayerID);
+				if(iPeaceValue >  PeaceTreatyTypes.PEACE_TREATY_WHITE_PEACE) then
+					if( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_ARMISTICE ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_ARMISTICE" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SETTLEMENT ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SETTLEMENT" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_BACKDOWN ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_BACKDOWN" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SUBMISSION ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SUBMISSION" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_SURRENDER ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_SURRENDER" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_CESSION ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_CESSION" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_CAPITULATION ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION" );
+					elseif( iPeaceValue == PeaceTreatyTypes.PEACE_TREATY_UNCONDITIONAL_SURRENDER ) then
+						strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER" );
+					end
+				end
+			else
+				strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_WAR_NO_PEACE_OFFER" );
+			end
+					
+			local iStrengthAverage = g_activePlayer:GetPlayerMilitaryStrengthComparedToUs(playerID);
+			if( iStrengthAverage == StrengthTypes.STRENGTH_PATHETIC ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_PATHETIC" );
+			elseif( iStrengthAverage == StrengthTypes.STRENGTH_WEAK ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_WEAK" );
+			elseif( iStrengthAverage == StrengthTypes.STRENGTH_POOR ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_POOR" );
+			elseif( iStrengthAverage == StrengthTypes.STRENGTH_AVERAGE ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_AVERAGE" );
+			elseif( iStrengthAverage == StrengthTypes.STRENGTH_STRONG ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_STRONG" );
+			elseif( iStrengthAverage == StrengthTypes.STRENGTH_POWERFUL ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_POWERFUL" );
+			elseif( iStrengthAverage == StrengthTypes.STRENGTH_IMMENSE ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_IMMENSE" );
+			end
+					
+			local iEconomicAverage = g_activePlayer:GetPlayerEconomicStrengthComparedToUs(playerID);
+			if( iEconomicAverage == StrengthTypes.STRENGTH_PATHETIC ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_PATHETIC" );
+			elseif( iEconomicAverage == StrengthTypes.STRENGTH_WEAK ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_WEAK" );
+			elseif( iEconomicAverage == StrengthTypes.STRENGTH_POOR ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_POOR" );
+			elseif( iEconomicAverage == StrengthTypes.STRENGTH_AVERAGE ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_AVERAGE" );
+			elseif( iEconomicAverage == StrengthTypes.STRENGTH_STRONG ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_STRONG" );
+			elseif( iEconomicAverage == StrengthTypes.STRENGTH_POWERFUL ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_POWERFUL" );
+			elseif( iEconomicAverage == StrengthTypes.STRENGTH_IMMENSE ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_IMMENSE" );
+			end
+					
+			local iUsWarDamage = player:GetWarDamageLevel(g_activePlayerID);
+			local iThemWarDamage = g_activePlayer:GetWarDamageLevel(playerID);
+			if(iUsWarDamage > WarDamageLevelTypes.WAR_DAMAGE_LEVEL_NONE)then
+				if( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MINOR ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MINOR" );
+				elseif( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MAJOR ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MAJOR" );
+				elseif( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_SERIOUS ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_SERIOUS" );
+				elseif( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_CRIPPLED ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_CRIPPLED" );
+				end
+			elseif(iThemWarDamage > WarDamageLevelTypes.WAR_DAMAGE_LEVEL_NONE)then
+				if( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MINOR ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MINOR" );
+				elseif( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MAJOR ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MAJOR" );
+				elseif( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_SERIOUS ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_SERIOUS" );
+				elseif( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_CRIPPLED ) then
+					strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
 				end
 			end
-		else
-			strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_WAR_NO_PEACE_OFFER" );
-		end
-				
-		local iStrengthAverage = g_activePlayer:GetPlayerMilitaryStrengthComparedToUs(playerID);
-		if( iStrengthAverage == StrengthTypes.STRENGTH_PATHETIC ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_PATHETIC" );
-		elseif( iStrengthAverage == StrengthTypes.STRENGTH_WEAK ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_WEAK" );
-		elseif( iStrengthAverage == StrengthTypes.STRENGTH_POOR ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_POOR" );
-		elseif( iStrengthAverage == StrengthTypes.STRENGTH_AVERAGE ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_AVERAGE" );
-		elseif( iStrengthAverage == StrengthTypes.STRENGTH_STRONG ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_STRONG" );
-		elseif( iStrengthAverage == StrengthTypes.STRENGTH_POWERFUL ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_POWERFUL" );
-		elseif( iStrengthAverage == StrengthTypes.STRENGTH_IMMENSE ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_IMMENSE" );
-		end
-				
-		local iEconomicAverage = g_activePlayer:GetPlayerEconomicStrengthComparedToUs(playerID);
-		if( iEconomicAverage == StrengthTypes.STRENGTH_PATHETIC ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_PATHETIC" );
-		elseif( iEconomicAverage == StrengthTypes.STRENGTH_WEAK ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_WEAK" );
-		elseif( iEconomicAverage == StrengthTypes.STRENGTH_POOR ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_POOR" );
-		elseif( iEconomicAverage == StrengthTypes.STRENGTH_AVERAGE ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_AVERAGE" );
-		elseif( iEconomicAverage == StrengthTypes.STRENGTH_STRONG ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_STRONG" );
-		elseif( iEconomicAverage == StrengthTypes.STRENGTH_POWERFUL ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_POWERFUL" );
-		elseif( iEconomicAverage == StrengthTypes.STRENGTH_IMMENSE ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_IMMENSE" );
-		end
-				
-		local iUsWarDamage = player:GetWarDamageLevel(g_activePlayerID);
-		local iThemWarDamage = g_activePlayer:GetWarDamageLevel(playerID);
-		if(iUsWarDamage > WarDamageLevelTypes.WAR_DAMAGE_LEVEL_NONE)then
-			if( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MINOR ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MINOR" );
-			elseif( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MAJOR ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_MAJOR" );
-			elseif( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_SERIOUS ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_SERIOUS" );
-			elseif( iUsWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_CRIPPLED ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_US_CRIPPLED" );
+					
+			local iTheirWarWeariness = player:GetWarWeariness();
+			if(iTheirWarWeariness <= 0)then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_NONE" );
+			elseif( iTheirWarWeariness <= 25 ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MINOR" );
+			elseif( iTheirWarWeariness <= 50 ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MAJOR" );
+			elseif( iTheirWarWeariness <= 75 ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_SERIOUS" );
+			elseif( iTheirWarWeariness > 75 ) then
+				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
 			end
-		elseif(iThemWarDamage > WarDamageLevelTypes.WAR_DAMAGE_LEVEL_NONE)then
-			if( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MINOR ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MINOR" );
-			elseif( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_MAJOR ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_MAJOR" );
-			elseif( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_SERIOUS ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_SERIOUS" );
-			elseif( iThemWarDamage == WarDamageLevelTypes.WAR_DAMAGE_LEVEL_CRIPPLED ) then
-				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
-			end
-		end
 				
-		local iTheirWarWeariness = player:GetWarWeariness();
-		if(iTheirWarWeariness <= 0)then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_NONE" );
-		elseif( iTheirWarWeariness <= 25 ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MINOR" );
-		elseif( iTheirWarWeariness <= 50 ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MAJOR" );
-		elseif( iTheirWarWeariness <= 75 ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_SERIOUS" );
-		elseif( iTheirWarWeariness > 75 ) then
-			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
+			tips:insert(strWarInfo);
 		end
-				
-		tips:insert(strWarInfo);
 -- UndeadDevel end
 
 -- todo TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR & permanent war
@@ -1255,6 +1261,8 @@ local g_civListInstanceCallBacks = {-- the callback function table names need to
 				elseif bnw_mode and UI.CtrlKeyDown() and g_activeTeam:CanChangeWarPeace( teamID ) then
 					if g_activeTeam:IsAtWar( teamID ) then
 					-- Asking for Peace (currently at war) - bring up the trade screen
+						player:DoUpdateWarDamageLevel(); -- UndeadDevel: since we're bypassing the default diplo screen, which would update these two things we need to do it manually here
+						player:DoUpdatePeaceTreatyWillingness();
 						Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_NEGOTIATE_PEACE, playerID, 0, 0 )
 					elseif g_activeTeam:CanDeclareWar( teamID ) then
 					-- Declaring War - bring up the BNW popup

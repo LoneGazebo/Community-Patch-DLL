@@ -51,6 +51,8 @@ public:
 
 	float GetTechRatio();
 
+	void LogResearchCompleted(TechTypes eTech);
+
 private:
 	// Internal methods
 	void PropagateWeights(int iTech, int iWeight, int iPropagationPercent, int iPropagationLevel);

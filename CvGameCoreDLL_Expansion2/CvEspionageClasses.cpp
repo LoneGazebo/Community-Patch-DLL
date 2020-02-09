@@ -2218,7 +2218,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 		}
 		case ADVANCED_ACTION_GOLD_THEFT:
 		{
-			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
+			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateGrossGoldTimes100() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
 			if (iSetback > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
 			{
 				iSetback = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();
@@ -4520,7 +4520,14 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			{
 				CvTechEntry* pkTechInfo = GC.getTechInfo(m_aaPlayerStealableTechList[ePlayer][i]);
 				if (pkTechInfo)
-					iMaxTechCost = max(iMaxTechCost, pkTechInfo->GetResearchCost()*100);
+				{
+					int iTechCost = pkTechInfo->GetResearchCost();
+					//not being able to counterspy is lame.
+					if (GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
+						iTechCost *= 5;
+
+					iMaxTechCost = max(iMaxTechCost, (iTechCost * 100));
+				}
 			}
 
 			int iModifier = GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT() - 100;
@@ -4553,11 +4560,10 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxGWAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxGWAdjusted /= 100;
 #if defined(MOD_BALANCE_CORE)
-			if (GET_PLAYER(ePlayer).GetCurrentEra() <= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
-			{
-				uiMaxGWAdjusted *= (100 + GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
-				uiMaxGWAdjusted /= 100;
-			}
+			//not being able to counterspy is lame.
+			if (GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
+				uiMaxGWAdjusted *= 2;
+
 			if (GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
 				uiMaxGWAdjusted *= (100 - GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
@@ -5045,7 +5051,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 						!GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->WasTeammateEverBackstabbedBy(ePreviousAlly) &&
 						!GET_TEAM(GET_PLAYER((PlayerTypes)ui).getTeam()).isAtWar(GET_PLAYER(ePreviousAlly).getTeam()))
 					{
-					GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
+						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesPerformedCoupAgainstUs(m_pPlayer->GetID(), 1);
 						GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
 					}
 				}

@@ -281,6 +281,9 @@ function OnDisplay()
 	Controls.AllyIconContainer:SetHide(bHideIcon);
 	Controls.AllyText:SetHide(bHideText);
 	
+	-- Vox Populi - Contender info
+	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, g_iMinorCivID) )
+	
 	-- Protected by anyone?
 	local sProtectingPlayers = getProtectingPlayers(g_iMinorCivID);
 
@@ -500,12 +503,12 @@ function OnDisplay()
 	local bEnableRevokeButton = false;
 	local strProtectButton = Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_TO_PROTECT");
 -- CBP
-	
 	local strProtectTT = Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_TT", GameDefines.MINOR_FRIENDSHIP_ANCHOR_MOD_PROTECTED, GameDefines.BALANCE_MINOR_PROTECTION_MINIMUM_DURATION, GameDefines.BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR, GameDefines.BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS, GameDefines.BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX);
 	--local strProtectTT = Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_TT", GameDefines.MINOR_FRIENDSHIP_ANCHOR_MOD_PROTECTED, 10); --antonjs: todo: xml
 --END
 	local strRevokeProtectButton = Locale.Lookup("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION");
 	local strRevokeProtectTT = Locale.Lookup("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_TT");
+	
 	if (not bWar) then
 		-- PtP in effect
 		if (pPlayer:IsProtectedByMajor(iActivePlayer)) then

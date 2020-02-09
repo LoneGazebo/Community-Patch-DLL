@@ -776,7 +776,7 @@ void CvHomelandAI::FindHomelandTargets()
 							if(eNavalImprovement == NO_IMPROVEMENT)
 								continue;
 
-							if(GC.getImprovementInfo(eNavalImprovement)->IsImprovementResourceTrade(pLoopPlot->getResourceType()))
+							if (GC.getImprovementInfo(eNavalImprovement)->IsExpandedImprovementResourceTrade(pLoopPlot->getResourceType()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
@@ -1098,6 +1098,7 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 		case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
 			PlotAircraftMoves();
+			PlotAircraftInterceptions();
 			break;
 		case AI_HOMELAND_MOVE_ADD_SPACESHIP_PART:
 			PlotSSPartAdds();
@@ -1390,35 +1391,29 @@ void CvHomelandAI::PlotMovesToSafety()
 			continue;
 
 		int iDangerLevel = pUnit->GetDanger();
-		if (iDangerLevel == 0 && pUnit->plot()->getOwner()==pUnit->getOwner())
+		if (iDangerLevel == 0)
 			continue;
 
-		bool bAddUnit = false;
-
-		// civilian always ready to flee, except if danger is due to fallout, somebody needs to clean that up
+		// civilian always ready to flee
 		if (pUnit->IsCivilianUnit())
 		{
-			if ( pUnit->plot()->getFeatureType() != FEATURE_FALLOUT || pUnit->getDamage() > pUnit->GetCurrHitPoints())
-				bAddUnit = true;
+			//allow workers to clean fallout (at home)
+			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
+				pUnit->plot()->getFeatureType() == FEATURE_FALLOUT && 
+				pUnit->getDamage() < pUnit->GetCurrHitPoints())
+				continue;
 		}
 		else
 		{
 			//land barbarians don't flee
 			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
 				continue;
-
-			//everybody else flees: this is homeland AI, avoid any danger here
-			bAddUnit = true;
 		}
 
-		if(bAddUnit)
-		{
-			// Just one unit involved in this move to execute
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
 			m_CurrentMoveUnits.push_back(unit);
 		}
-	}
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
@@ -2723,11 +2718,37 @@ void CvHomelandAI::PlotAircraftMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-		if (MOD_AI_SMART_AIR_TACTICS)
-			ExecuteAircraftInterceptions();
-#endif
 		ExecuteAircraftMoves();
+	}
+}
+
+void CvHomelandAI::PlotAircraftInterceptions()
+{
+	ClearCurrentMoveUnits();
+
+	// Loop through all recruited units
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (pUnit)
+		{
+			if (pUnit->getDomainType() == DOMAIN_AIR)
+			{
+				if (pUnit->canIntercept() && pUnit->isOutOfInterceptions())
+				{
+					CvHomelandUnit unit;
+					unit.SetID(pUnit->GetID());
+					unit.SetAuxIntData(pUnit->getInterceptChance() + pUnit->GetInterceptionCombatModifier());
+					m_CurrentMoveUnits.push_back(unit);
+				}
+			}
+		}
+	}
+
+	if (m_CurrentMoveUnits.size() > 0)
+	{
+		std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end(), HomelandAIHelpers::CvHomelandUnitAuxIntSort);
+		ExecuteAircraftInterceptions();
 	}
 }
 
@@ -3227,7 +3248,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			args->Push(pUnit->getOwner());
 			args->Push(pUnit->GetID());
 
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "UnitGetSpecialExploreTarget", args.get(), bResult);
 
 			if(bResult)
@@ -5538,7 +5559,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Move to spread religion, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+					strLogString.Format("Move %d to spread religion, X: %d, Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
 
@@ -5551,7 +5572,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Moving to plot adjacent to conversion city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("Moving %d to plot adjacent to conversion city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
@@ -5817,11 +5838,7 @@ void CvHomelandAI::ExecuteAircraftInterceptions()
 		if(pUnit)
 		{
 			// Am I eligible to intercept?
-#if defined(MOD_AI_SMART_AIR_TACTICS) && defined(MOD_BALANCE_CORE_MILITARY)
 			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit))
-#else
-			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pUnit))
-#endif
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
 				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
@@ -6256,6 +6273,13 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 	{
 		if(pUnit->atPlot(*pBestPlot))
 		{
+			//if the units is not in friendly territory and not in danger, try to bring it home ...
+			if (!pBestPlot->IsFriendlyTerritory(m_pPlayer->GetID()) && pUnit->GetDanger() == 0 && m_pPlayer->getCapitalCity())
+			{
+				ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true);
+				return true;
+			}
+
 			if (pUnit->canHold(pBestPlot))
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -7701,7 +7725,10 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	else
 	{
 		CvCity* pCity = pBasePlot->getPlotCity();
-		if(pCity->isInDangerOfFalling() || (pCity->IsRazing() && pCity->getPopulation()<3) )
+		//careful in cities we might lose
+		if(pCity->isInDangerOfFalling() || (GC.getGame().getGameTurn() - pCity->getGameTurnAcquired())<2)
+			return -1;
+		if (pCity->IsRazing() && pCity->getPopulation() < 3)
 			return -1;
 
 		if (GET_PLAYER(ePlayer).GetFlatDefenseFromAirUnits() != 0 && pCity->isUnderSiege())

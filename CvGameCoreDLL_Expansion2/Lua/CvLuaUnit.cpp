@@ -803,7 +803,7 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 
 	//no caching!
 	SPathFinderUserData data(pkUnit, CvUnit::MOVEFLAG_IGNORE_STACKING, iMaxTurns);
-	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data, true);
+	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)
 	{
@@ -845,7 +845,7 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 
 	//no caching!
 	SPathFinderUserData data(pkUnit, 0, INT_MAX);
-	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pDestPlot->getX(), pDestPlot->getY(), data, true);
+	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pDestPlot->getX(), pDestPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)
 	{
@@ -879,14 +879,22 @@ int CvLuaUnit::lCanEnterTerritory(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const TeamTypes eTeam				= (TeamTypes)lua_tointeger(L, 2);
+	//this parameter is useless
 	const bool bIgnoreRightOfPassage	= luaL_optint(L, 3, 0);
 
 	//this parameter is ignored ...
 	//const bool bIsCity				= luaL_optint(L, 4, 0);
 
-	const bool bResult = pkUnit->canEnterTerritory(eTeam, bIgnoreRightOfPassage);
+	if (bIgnoreRightOfPassage)
+	{
+		lua_pushboolean(L, true);
+	}
+	else
+	{
+		const bool bResult = pkUnit->canEnterTerritory(eTeam);
+		lua_pushboolean(L, bResult);
+	}
 
-	lua_pushboolean(L, bResult);
 	return 1;
 }
 //------------------------------------------------------------------------------

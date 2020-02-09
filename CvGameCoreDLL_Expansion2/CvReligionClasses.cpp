@@ -4639,27 +4639,19 @@ int CvPlayerReligions::GetCityStateMinimumInfluence(ReligionTypes eReligion, Pla
 {
 	int iMinInfluence = 0;
 
-	ReligionTypes eFounderBenefitReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eFounderBenefitReligion == NO_RELIGION)
+	ReligionTypes eFounderBenefitReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
+	if (eReligion == eFounderBenefitReligion && eFounderBenefitReligion != NO_RELIGION)
 	{
-		eFounderBenefitReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
-	if (eReligion == eFounderBenefitReligion)
-	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		if(eFounderBenefitReligion != NO_RELIGION)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounderBenefitReligion, ePlayer);
+		if(pReligion)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFounderBenefitReligion, ePlayer);
-			if(pReligion)
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
 			{
-				CvCity* pHolyCity = NULL;
-				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-				if (pHolyCityPlot)
-				{
-					pHolyCity = pHolyCityPlot->getPlotCity();
-				}
-				iMinInfluence += pReligion->m_Beliefs.GetCityStateMinimumInfluence(ePlayer, pHolyCity);
+				pHolyCity = pHolyCityPlot->getPlotCity();
 			}
+			iMinInfluence += pReligion->m_Beliefs.GetCityStateMinimumInfluence(ePlayer, pHolyCity);
 		}
 	}
 
@@ -5929,13 +5921,11 @@ void CvCityReligions::AddSpyPressure(ReligionTypes eReligion, int iBasePressure)
 /// Set this city to have all citizens following a religion (mainly for scripting)
 void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 {
-	m_ReligionStatus.clear();
-
 	CvReligionInCity religion;
 
 	// Add 1 pop of Atheism (needed in case other religions wiped out by an Inquisitor/Prophet
-	religion.m_bFoundedHere = false;
-	religion.m_eReligion = NO_RELIGION;
+	religion.m_bFoundedHere = IsHolyCityAnyReligion();
+	religion.m_eReligion = GetReligionForHolyCity();
 	religion.m_iFollowers = 1;
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) || defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	// This needs to be less than the pressure in a city with a pop of 1
@@ -5943,6 +5933,8 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 #else
 	religion.m_iPressure = religion.m_iFollowers * GC.getRELIGION_ATHEISM_PRESSURE_PER_POP();
 #endif
+	m_ReligionStatus.clear();
+
 	m_ReligionStatus.push_back(religion);
 
 	// Now add full pop of this religion
@@ -7388,7 +7380,8 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 			int iLoop;
 			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if (pUnit->GetDanger(pLoopCity->plot()) > 0)
+				//ignore mere fog danger ... it's volatile, leading to missionaries going back and forth
+ 				if (pUnit->GetDanger(pLoopCity->plot()) > pUnit->GetCurrHitPoints()/4 || pLoopCity->IsRazing())
 					continue;
 
 				//we often have multiple missionaries active at the same time, don't all go to the same target
@@ -7396,7 +7389,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
-				if(pUnit->CanSpreadReligion(pLoopCity->plot()) && pUnit->GetDanger(pLoopCity->plot())==0 && !pLoopCity->IsRazing())
+				if(pUnit->CanSpreadReligion(pLoopCity->plot()))
 				{
 					int iScore = ScoreCityForMissionary(pLoopCity, pUnit);
 					if (iScore>0)
@@ -8679,7 +8672,7 @@ int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldT
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
 		if (pkImprovementInfo && !pkImprovementInfo->IsCreatedByGreatPerson())
 		{
-			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsImprovementResourceTrade(eResource)))
+			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource)))
 				continue;
 		
 			if (pPlot->HasImprovement((ImprovementTypes)jJ))
@@ -10722,36 +10715,16 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 /// AI's evaluation of this city as a target for a missionary
 int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 {
-	int iScore = 0;
-#if defined(MOD_BALANCE_CORE)
 	ReligionTypes eMyReligion = pUnit->GetReligionData()->GetReligion();
-#else
-	ReligionTypes eMyReligion = GetReligionToSpread();
-#endif
 	
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eMyReligion)->IsLocalReligion()) {
 		if (pCity->getOwner() != pUnit->getOwner()) {
-			return iScore;
+			return 0;
 		}
 
 		if (pCity->IsOccupied() || pCity->IsPuppet()) {
-			return iScore;
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
-	if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pCity->getOwner() != m_pPlayer->GetID())
-	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-		if (pMyReligion)
-		{
-			if(pMyReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
-			{
-				return iScore;
-			}
+			return 0;
 		}
 	}
 #endif
@@ -10759,57 +10732,42 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 	// Skip if not revealed
 	if(!pCity->plot()->isRevealed(m_pPlayer->getTeam()))
 	{
-		return iScore;
+		return 0;
+		}
+
+	// Skip if at war with city owner
+	if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
+	{
+		return 0;
 	}
 
 	// Skip if already our religion
 	if(pCity->GetCityReligions()->GetReligiousMajority() == eMyReligion)
 	{
-		return iScore;
+		return 0;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//If this religion is not our founder faith, don't spread it beyond our borders!
 	if(eMyReligion != m_pPlayer->GetReligions()->GetReligionCreatedByPlayer())
 	{
 		if(pCity->getOwner() != m_pPlayer->GetID())
 		{
-			return iScore;
+			return 0;
 		}
 	}
-#endif
 
-	// Skip if at war with city owner
-	if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
+	//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
+	if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pCity->getOwner() != m_pPlayer->GetID())
 	{
-		return iScore;
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+		if (pMyReligion)
+	{
+			if(pMyReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
+	{
+				return 0;
 	}
-
-	// Base score based on if we are establishing majority
-	iScore = max(10,100 - 2*plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()));
-
-	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-	// Better score if our own city or if this city owner isn't starting a religion
-	if(pCity->getOwner() == m_pPlayer->GetID())
-	{
-		iScore += 10;
-	}
-	else if(!kCityPlayer.GetReligions()->HasCreatedReligion())
-	{
-		iScore += 10;
-	}
-
-	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))
-	{
-		iScore *= 2;
-#ifdef AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH
-		// We don't actually need a missionary if passive pressure is enough to convert the city
-		if (ShouldBecomeNewMajority(pCity, eMyReligion, 0))
-		{
-			iScore /= 3;
-			iScore *= 2;
 		}
-#endif // AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH
 	}
 
 	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv())
@@ -10819,6 +10777,28 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 			return 0;
 		}
 	}
+
+	// Base score based on distance
+	int iScore = max(10,100 - 2*plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()));
+
+	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+	CvCityReligions* pCR = pCity->GetCityReligions();
+
+	// Better score if our own city
+	if(pCity->getOwner() == m_pPlayer->GetID())
+		iScore += 10;
+	// Better score if city owner isn't starting a religion
+	if(!kCityPlayer.GetReligions()->HasCreatedReligion())
+		iScore += 10;
+	// Better score if it's the city we targeted before
+	if (pCity->plot() == pUnit->GetMissionAIPlot())
+		iScore += 10;
+
+	// In the early game there is little accumulated pressure and conversion is easy
+	int iPressureFromUnit = pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+	int iPressureRatio = (iPressureFromUnit*100) / (pCR->GetTotalPressure() - pCR->GetPressure(eMyReligion));
+	int iHeathens = pCity->getPopulation() - pCR->GetFollowersOtherReligions(eMyReligion) - pCR->GetNumFollowers(eMyReligion);
+	iScore += (iHeathens * iPressureRatio) / 100;
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	if(MOD_BALANCE_CORE_HAPPINESS && pCity->getOwner() == m_pPlayer->GetID())
@@ -10941,16 +10921,6 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit)
 		iScore *= 5;
 
 	return iScore;
-}
-
-/// Is this enough new pressure to establish this as the new religious majority?
-bool CvReligionAI::ShouldBecomeNewMajority(CvCity* pCity, ReligionTypes eReligion, int iNewPressure) const
-{
-	CvCityReligions* pCityReligions = pCity->GetCityReligions();
-	int iTotalPressure = pCityReligions->GetTotalPressure() + iNewPressure;
-	int iReligionPressure = pCityReligions->GetPressure(eReligion) + iNewPressure;
-
-	return (iReligionPressure * 2) > iTotalPressure;
 }
 
 /// Are all of our own cities our religion?

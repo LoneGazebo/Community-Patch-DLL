@@ -1276,7 +1276,7 @@ void CvPlayerTechs::SetLocalePriorities()
 							if(eImprovement != NO_IMPROVEMENT)
 							{
 								CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-								if (pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
+								if (pkImprovementInfo && pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
 								{
 									if (pLoopPlot->canHaveImprovement(eImprovement))
 										multiplierValue++;
@@ -1417,17 +1417,16 @@ void CvPlayerTechs::SetGSPriorities()
 				}
 			}
 		}
-
 		//Let's look at grandstrategy values for buildings as well and add those in to techs.
 		for(size_t i=0; i<buildingPrereqTechs[eTech].size(); i++)
-			{
+		{
 			const BuildingTypes eBuilding = buildingPrereqTechs[eTech][i];
-				int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
-				if (iTechGSValue > 0)
-				{
-					m_piGSTechPriority[iTechLoop]++;
-				}
+			int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
+			if (iTechGSValue > 0)
+			{
+				m_piGSTechPriority[iTechLoop]++;
 			}
+		}
 
 		//Let's look at grandstrategy values for units as well and add those in to techs.
 		for(size_t i=0; i<unitPrereqTechs[eTech].size(); i++)

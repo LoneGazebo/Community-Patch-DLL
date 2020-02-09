@@ -136,6 +136,7 @@ public:
 	int GetInspirationalLeader() const;
 	int GetBullyMilitaryStrengthModifier() const;
 	int GetBullyValueModifier() const;
+	bool IgnoreBullyPenalties() const;
 	bool IsDiplomaticMarriage() const;
 	bool IsAdoptionFreeTech() const;
 	bool IsGPWLTKD() const;
@@ -506,6 +507,7 @@ protected:
 	int m_iInspirationalLeader;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
+	bool m_bIgnoreBullyPenalties;
 	bool m_bDiplomaticMarriage;
 	bool m_bAdoptionFreeTech;
 	bool m_bGPWLTKD;
@@ -1103,6 +1105,10 @@ public:
 	int GetBullyValueModifier() const
 	{
 		return m_iBullyValueModifier;
+	};
+	bool IgnoreBullyPenalties() const
+	{
+		return m_bIgnoreBullyPenalties;
 	};
 	bool IsDiplomaticMarriage() const
 	{
@@ -2067,6 +2073,7 @@ private:
 	int m_iInspirationalLeader;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
+	bool m_bIgnoreBullyPenalties;
 	bool m_bDiplomaticMarriage;
 	bool m_bAdoptionFreeTech;
 	bool m_bGPWLTKD;

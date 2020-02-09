@@ -333,11 +333,11 @@ SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing i
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas. Only the English may build it. Starts with [COLOR_POSITIVE_TEXT]Logistics[ENDCOLOR] Promotion.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
+SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas. Only the English may build it. Starts with the [COLOR_POSITIVE_TEXT]Breacher[ENDCOLOR] Promotion.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHIPOFTHELINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Ship of the Line is the English unique unit, replacing the Frigate. The Ship of the Line has a slightly lower Ranged Combat strength than the Frigate. It can, however see one hex farther than the Frigate, allowing it to spot enemies in a significantly larger section of ocean, and it can attack twice in one turn. Like the frigate, it cannot fire on non-coastal land tiles.'
+SET Text = 'The Ship of the Line is the English unique unit, replacing the Frigate. The Ship of the Line has a higher Ranged Combat strength than the Frigate. It can also see one hex farther than the Frigate, allowing it to spot enemies in a significantly larger section of ocean, and enemies it destroys deal additional damage to neighboring units. Like the frigate, it cannot fire on non-coastal land tiles.'
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 --------------------
@@ -439,7 +439,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CHATEAU_TEXT' AND EXISTS (SELECT * FROM C
 -- Germany
 --------------------
 UPDATE Language_en_US
-SET Text = '10% of the City''s [ICON_GOLD] Gold output is added to the City''s [ICON_RESEARCH] Science every turn. +5% [ICON_PRODUCTION] Production in this City for each [ICON_INTERNATIONAL_TRADE] Trade Route your Civilization has with a [ICON_CITY_STATE] City-State.[NEWLINE][NEWLINE]When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for the [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
+SET Text = '10% of the City''s [ICON_GOLD] Gold output is added to the City''s [ICON_RESEARCH] Science every turn. +5% [ICON_PRODUCTION] Production in this City for each [ICON_INTERNATIONAL_TRADE] Trade Route your Civilization has with a [ICON_CITY_STATE] City-State.[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for the [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -746,7 +746,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY' AND EXISTS (SELECT * FROM CO
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Mounted Ranged Units gain +2 [ICON_MOVES] Movement and ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR]. [ICON_CITY_STATE] City-States surrender via Heavy Tribute. Receive 250% of Heavy Tribute Yields in [ICON_CAPITAL] Capital when a [ICON_CITY_STATE] City-State is acquired, scaling with Era.'
+SET Text = 'Mounted Ranged Units gain +2 [ICON_MOVES] Movement and ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR]. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying. Ignores Alliance and Protection penalties when bullying.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1023,7 +1023,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Only your [ICON_RELIGION] Religion can spread to owned Cities or Allied [ICON_CITY_STATE] City-States. Gaining or founding Cities generates [ICON_PEACE] Faith and [ICON_GOLD] Gold, and converts them to your official [ICON_RELIGION] Religion. May purchase Naval Units with [ICON_PEACE] Faith.'
+SET Text = 'Only your [ICON_RELIGION] Religion can spread to owned Cities or Allied [ICON_CITY_STATE] City-States. Gaining or founding Cities generates [ICON_PEACE] Faith and [ICON_FOOD] Food, and converts them to your official [ICON_RELIGION] Religion. May purchase Naval Units with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1182,5 +1182,5 @@ SET Text = 'Specialized in defeating mounted units, and stronger overall than mo
  WHERE Tag = 'TXT_KEY_UNIT_HELP_ZULU_IMPI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Melee and Gun Units cost 25% less maintenance, and all Units require 25% less Experience for Promotions. Your military is 50% more effective at intimidating [ICON_CITY_STATE] City-States, and you receive 25% more Yields from demanding tribute.'
+SET Text = 'Melee and Gun Units cost 25% less maintenance, and all Units require 25% less Experience for Promotions. Your military is 50% more effective at intimidating [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );

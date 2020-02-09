@@ -665,7 +665,6 @@ private:
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit);
 	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit);
 
-	bool ShouldBecomeNewMajority(CvCity* pCity, ReligionTypes eReligion, int iNewPressure) const;
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter) const;

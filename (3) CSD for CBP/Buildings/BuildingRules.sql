@@ -24,3 +24,34 @@ UPDATE Buildings
 SET GoldenAge = 'true'
 WHERE BuildingClass= 'BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS' 
 AND EXISTS (SELECT * FROM CSD WHERE Type='ANCIENT_WONDERS' AND Value= 1 );
+
+------------------------------	
+-- Building_ImprovementYieldChangesGlobal
+------------------------------		
+INSERT INTO Building_ImprovementYieldChangesGlobal	
+			(BuildingType, 			ImprovementType,		YieldType,					Yield)
+VALUES		('BUILDING_MENIN_GATE',	'IMPROVEMENT_FORT',		'YIELD_CULTURE',			1),
+			('BUILDING_MENIN_GATE',	'IMPROVEMENT_FORT',		'YIELD_GOLDEN_AGE_POINTS',	1),
+			('BUILDING_MENIN_GATE',	'IMPROVEMENT_LANDMARK',	'YIELD_CULTURE',			1),
+			('BUILDING_MENIN_GATE',	'IMPROVEMENT_LANDMARK',	'YIELD_GOLDEN_AGE_POINTS',	1),
+			('BUILDING_MENIN_GATE',	'IMPROVEMENT_CITADEL',	'YIELD_CULTURE',			1),
+			('BUILDING_MENIN_GATE',	'IMPROVEMENT_CITADEL',	'YIELD_GOLDEN_AGE_POINTS',	1);
+------------------------------	
+-- Building_YieldFromDeath
+------------------------------		
+INSERT INTO Building_YieldFromDeath 	
+			(BuildingType, 			YieldType,			Yield)
+VALUES		('BUILDING_MENIN_GATE',	'YIELD_CULTURE',	2);
+--==========================================================================================================================
+-- ARTDEFINES
+--==========================================================================================================================	
+--------------------------------
+-- IconTextureAtlases
+--------------------------------
+INSERT INTO IconTextureAtlases 
+		(Atlas, 				IconSize, 	Filename, 				IconsPerRow, 	IconsPerColumn)
+VALUES	('ATLAS_MENIN_GATE', 	256, 		'MeninGate_256.dds',	1, 				1),
+		('ATLAS_MENIN_GATE', 	128, 		'MeninGate_128.dds',	1, 				1),
+		('ATLAS_MENIN_GATE', 	80, 		'MeninGate_080.dds',	1, 				1),
+		('ATLAS_MENIN_GATE', 	64, 		'MeninGate_064.dds',	1, 				1),
+		('ATLAS_MENIN_GATE', 	45, 		'MeninGate_045.dds',	1, 				1);

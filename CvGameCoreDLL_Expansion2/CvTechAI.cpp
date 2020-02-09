@@ -133,9 +133,9 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 					if(m_pCurrentTechs->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
 					{
 						iTechWeight += 10;
+					}
+				}
 			}
-		}
-	}
 
 			// Apply and propagate to prereqs
 			PropagateWeights(iTech, iTechWeight, iPropagationPercent, 0);
@@ -329,17 +329,17 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 	if (!pkTechInfo)
 		return;
 
-			// Loop through all prerequisites
+	// Loop through all prerequisites
 	vector<int> prereqTechs;
-			for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
-			{
-// Did we find a prereq?
-int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
+	for(int iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
+	{
+		// Did we find a prereq?
+		int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
 		if (iPrereq == NO_TECH)
-	break;
+			break;
 
 		prereqTechs.push_back(iPrereq);
-			}
+	}
 
 	//nothing to do
 	if (prereqTechs.empty())
@@ -407,6 +407,12 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 			}
 		}
 
+		if (iNewWeight > 10000)
+			iNewWeight = 10000;
+
+		if (iNewWeight < 1)
+			iNewWeight = 1;
+
 		// Now actually change the weight
 		m_ResearchableTechs.SetWeight(iI, iNewWeight);
 	}
@@ -473,7 +479,40 @@ void CvTechAI::LogResearchChoice(TechTypes eTech)
 		CvTechEntry* pTechEntry = GC.getTechInfo(eTech);
 		const char* szTechType = (pTechEntry != NULL)? pTechEntry->GetType() : "Unknown Tech";
 
-		strTemp.Format("CHOSEN, %s", szTechType);
+		int iNumTurns = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
+
+		strTemp.Format("CHOSEN, %s, TURNS: %d", szTechType, iNumTurns);
+
+		strOutBuf = strBaseString + strTemp;
+		pLog->Msg(strOutBuf);
+	}
+}
+
+/// Log chosen tech
+void CvTechAI::LogResearchCompleted(TechTypes eTech)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString playerName;
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strTemp;
+		CvString strDesc;
+
+		// Find the name of this civ
+		playerName = m_pCurrentTechs->GetPlayer()->getCivilizationShortDescription();
+
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+
+		CvTechEntry* pTechEntry = GC.getTechInfo(eTech);
+		const char* szTechType = (pTechEntry != NULL) ? pTechEntry->GetType() : "Unknown Tech";
+
+		strTemp.Format("COMPLETED, %s", szTechType);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);

@@ -36,7 +36,7 @@ protected:
 };
 
 class CvDistanceMapWrapper
-	{
+{
 protected:
 	bool m_bDirty;
 	CvDistanceMap allPlayers;

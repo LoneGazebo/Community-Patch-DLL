@@ -333,10 +333,10 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	end
 	if (bCanBully) then
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
-		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_BULLY");
+		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_BULLY", pMinor:GetMajorBullyValue(iMajor));
 	else
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
-		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY");
+		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY", pMinor:GetMajorBullyValue(iMajor));
 	end
 -- CBP
 	local iJerk = pMinor:GetJerk(iMajor);

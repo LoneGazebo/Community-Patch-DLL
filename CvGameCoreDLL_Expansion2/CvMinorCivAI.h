@@ -17,7 +17,7 @@
 #define ENABLE_QUESTS_AT_START false
 #define ENABLE_PERMANENT_WAR false
 #define SAFE_ESTIMATE_NUM_QUESTS_PER_PLAYER (5)
-#define MINOR_POWER_COMPARISON_RADIUS (5)
+#define MINOR_POWER_COMPARISON_RADIUS (6)
 
 enum MinorCivStatusTypes
 {
@@ -684,9 +684,11 @@ public:
 	// ************************************
 
 	const ReachablePlots& GetBullyRelevantPlots();
-	int GetBullyGoldAmount(PlayerTypes eBullyPlayer);
+	int GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling = false);
 
 	int CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
+
+	int CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
 
 	bool CanMajorBullyGold(PlayerTypes ePlayer);
 	bool CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMetric);
@@ -700,7 +702,7 @@ public:
 	void DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType);
 
 #if defined(MOD_BALANCE_CORE)
-	int GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield);
+	int GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling = false);
 #endif
 	
 	void DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceChangeTimes100);

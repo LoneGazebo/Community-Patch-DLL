@@ -1085,7 +1085,6 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
-
 #if defined(MOD_BALANCE_CORE)
 	UpdateTradePlots();
 #endif
@@ -4654,7 +4653,7 @@ void CvPlayerTrade::UpdateTradeStats()
 		if (!connection.isValid())
 			continue;
 
-		if (GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
+		if (connection.m_eOriginOwner == m_pPlayer->GetID() && GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
 			m_tradeStats.iMinorTRs++;
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
@@ -4668,7 +4667,7 @@ void CvPlayerTrade::UpdateTradeStats()
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID())
 			m_tradeStats.nRoutesFromCity[connection.m_iOriginID]++;
-		}
+	}
 
 	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
 	}

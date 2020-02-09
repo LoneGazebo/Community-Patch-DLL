@@ -3122,7 +3122,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			PlayerTypes ePlayer;
 			CvDiplomacyAI* pOldOwnerDiploAI = GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI();
 			pOldOwnerDiploAI->SetPlayerLiberatedCapital(GetID(), false);
-			pOldOwnerDiploAI->SetNumCitiesLiberated(GetID(), 0);
+			pOldOwnerDiploAI->SetNumCitiesLiberatedBy(GetID(), 0);
 			pOldOwnerDiploAI->SetMasterLiberatedMeFromVassalage(GetID(), false);
 			pOldOwnerDiploAI->SetTurnsSinceVassalagePeacefullyRevoked(GetID(), -1);
 			
@@ -3135,7 +3135,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
 			
 			// increment captured city counter
-			pOldOwnerDiploAI->ChangeNumCitiesCaptured(GetID(), 1);
+			pOldOwnerDiploAI->ChangeNumCitiesCapturedBy(GetID(), 1);
 
 			iValue = iDefaultCityValue;
 			iValue += pOldCity->getPopulation() * /*120*/ GC.getWAR_DAMAGE_LEVEL_UNINVOLVED_CITY_POP_MULTIPLIER();
@@ -3510,6 +3510,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		if (!pOldCity->isEverOwned(GetID()))
 		{
 			int iScaler = pOldCity->getPopulation() / 2;
+			iScaler -= GetCurrentEra();
 			if(iScaler <= 0)
 			{
 				iScaler = 1;
@@ -3704,16 +3705,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 	iBattleDamage = pOldCity->getDamage();
 
+	bool bReduce = true;
 	// Traded cities between humans don't heal (an exploit would be to trade a city back and forth between teammates to get an instant heal.)
-	if(!bGift || !isHuman() || !GET_PLAYER(pOldCity->getOwner()).isHuman())
-	{
-		int iBattleDamageThreshold = pOldCity->GetMaxHitPoints() * /*50*/ GC.getCITY_CAPTURE_DAMAGE_PERCENT();
-		iBattleDamageThreshold /= 100;
+	if (bGift || GET_PLAYER(pOldCity->getOwner()).getTeam() != getTeam())
+		bReduce = false;
 
-		if(iBattleDamage > iBattleDamageThreshold)
-		{
-			iBattleDamage = iBattleDamageThreshold;
-		}
+	int iBattleDamageThreshold = GC.getMAX_CITY_HIT_POINTS() * /*50*/ (bReduce ? GC.getCITY_CAPTURE_DAMAGE_PERCENT() : 90);
+	iBattleDamageThreshold /= 100;
+
+	if(iBattleDamage > iBattleDamageThreshold)
+	{
+		iBattleDamage = iBattleDamageThreshold;
 	}
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -9789,7 +9791,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetPlayerLiberatedCapital(m_eID, true);
 		}
 				
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
+		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberatedBy(m_eID, 1);
 #if defined(MOD_BALANCE_CORE)
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
 #endif
@@ -9841,11 +9843,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			
 			// Forget war history
 			pDiploAI->SetNumWarsDeclaredOnUs(eMePlayer, 0);
-			pDiploAI->SetNumCitiesCaptured(eMePlayer, 0);
+			pDiploAI->SetNumCitiesCapturedBy(eMePlayer, 0);
 			pDiploAI->SetNumTimesRazed(eMePlayer, 0);
 			pDiploAI->SetNumTradeRoutesPlundered(eMePlayer, 0);
 			GetDiplomacyAI()->SetNumWarsDeclaredOnUs(ePlayer, 0);
-			GetDiplomacyAI()->SetNumCitiesCaptured(ePlayer, 0);
+			GetDiplomacyAI()->SetNumCitiesCapturedBy(ePlayer, 0);
 			GetDiplomacyAI()->SetNumTimesRazed(ePlayer, 0);
 			GetDiplomacyAI()->SetNumTradeRoutesPlundered(ePlayer, 0);
 			
@@ -11808,7 +11810,6 @@ void CvPlayer::DoUnitReset()
 			}
 		}
 
-		pLoopUnit->SetIgnoreDangerWakeup(false);
 		pLoopUnit->setMadeAttack(false);
 		pLoopUnit->resetInterceptionCount();
 
@@ -12957,23 +12958,23 @@ void CvPlayer::unraze(CvCity* pCity)
 {
 	if (GetPlayerTraits()->IsUnableToCancelRazing() == false)
 	{
-	if (GetPlayerTraits()->IsNoAnnexing())
-	{
-		pCity->DoCreatePuppet();
-	}
-	else
-	{
-		pCity->DoAnnex();
-	}
+		if (GetPlayerTraits()->IsNoAnnexing())
+		{
+			pCity->DoCreatePuppet();
+		}
+		else
+		{
+			pCity->DoAnnex();
+		}
 
-	pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
+		pCity->ChangeRazingTurns(-pCity->GetRazingTurns());
 
-	DoUpdateNextPolicyCost();
+		DoUpdateNextPolicyCost();
 
-	// Update City UI
-	if(GetID() == GC.getGame().getActivePlayer())
-	{
-		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		// Update City UI
+		if(GetID() == GC.getGame().getActivePlayer())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
 	}
 }
@@ -20588,7 +20589,10 @@ int CvPlayer::GetExcessHappiness() const
 {
 	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0))
 	{
-		return 50;
+		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+			return 50;
+		else
+			return 0;
 	}
 
 	return m_iHappinessTotal;
@@ -26747,8 +26751,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if (iPassYield == 0)
 						iValue += GetYieldFromMinorDemand(eYield);
-					else
+					else if (ePassYield != NO_YIELD)
 						iValue += iPassYield;
+					else
+					{
+						int iTemp = GetYieldFromMinorDemand(eYield) * iPassYield;
+						iTemp /= 100;
+						iValue += iTemp;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_SPREAD:
@@ -32950,9 +32960,9 @@ void CvPlayer::updateMightStatistics()
 #if defined(MOD_BATTLE_ROYALE)
 	if (MOD_BATTLE_ROYALE)
 	{
-	m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
-	m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
-	m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+		m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
 	}
 #endif
 }
@@ -36937,7 +36947,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 			else
 			{
 #endif
-			GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
+				GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 			}
 #endif
@@ -37949,7 +37959,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 		{
 			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
 
-			iTotalNumResource *= 100 + std::min(50, iQuantityMod);
+			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
 			iTotalNumResource /= 100;
 		}
 	}
@@ -47056,7 +47066,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
-		if (pLoopUnit->isNearbyPromotion())
+		if (pLoopUnit->isNearbyPromotion() || pLoopUnit->getAdjacentTileHeal()>0)
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
 		if (pLoopUnit->canIntercept())
@@ -47683,8 +47693,18 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			CvCity* pClosestCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot,true);
 			if (pClosestCity && pClosestCity->getOwner() != GetID())
 			{
-				if (GC.getGame().GetClosestCityDistanceInTurns(pPlot,true)*2 < GetCityDistanceInEstimatedTurns(pPlot))
-					iScale = 0;
+				//todo: there is already distance check in PlotFoundValue() ...
+				int iTheirDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot, true);
+				int iOurDistance = GetCityDistanceInEstimatedTurns(pPlot);
+				int iRatio = (100 * iTheirDistance) / iOurDistance;
+				if (iRatio < 100 && iTheirDistance < 5)
+				{
+					//square it, ie exaggerate the effect
+					iScale *= iRatio;
+					iScale /= 100;
+					iScale *= iRatio;
+					iScale /= 100;
+				}
 			}
 		}
 
@@ -47723,7 +47743,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			iValue = pPlot->getFoundValue(eOwner);
 		}
 
-		if (iValue==0)
+		if (iValue<=0)
 			continue;
 
 		//factor in the distance
@@ -50242,7 +50262,7 @@ void CvPlayer::updatePlotFoundValues()
 		pLoopArea->setTotalFoundValue(0);
 
 	//don't need to update if never going to settle
-	if (isBarbarian())
+	if (isBarbarian() || isMinorCiv())
 		return;
 
 	//don't need to update if never going to settle again

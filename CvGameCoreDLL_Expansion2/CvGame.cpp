@@ -12095,6 +12095,8 @@ void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
 	int iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(eBully);
+	if (iGold <= 0)
+		return;
 
 	gDLL->sendMinorBullyGold(eBully, eMinor, iGold);
 }
@@ -12911,6 +12913,11 @@ int CvGame::GetDealDuration()
 	return getGameSpeedInfo().GetDealDuration();
 }
 
+int CvGame::GetRelationshipDuration()
+{
+	return getGameSpeedInfo().getRelationshipDuration();
+}
+
 //	--------------------------------------------------------------------------------
 int CvGame::GetPeaceDuration()
 {
@@ -13674,7 +13681,7 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, bool bMajorOnly )
 
 	int owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
 	int id = m_cityDistancePlots.GetFeatureId(*pPlot, bMajorOnly, NO_PLAYER);
-	if (owner != NO_PLAYER)
+	if (owner!=NO_PLAYER)
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;

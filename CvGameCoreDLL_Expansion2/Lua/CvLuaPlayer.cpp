@@ -446,6 +446,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarDamageLevel);
 	Method(IsWillingToMakePeaceWithHuman);
 	Method(GetTreatyWillingToOffer);
+	Method(DoUpdateWarDamageLevel);
+	Method(DoUpdatePeaceTreatyWillingness);
 	Method(GetDominationResistance);
 #endif
 	Method(GetCombatBonusVsHigherTech);
@@ -530,10 +532,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeNumUnitGoldenAges);
 	Method(GetStrikeTurns);
 	Method(GetGoldenAgeModifier);
-    Method(GetGoldenAgeTourismModifier);
-    Method(GetGoldenAgeGreatWriterRateModifier);
-    Method(GetGoldenAgeGreatArtistRateModifier);
-    Method(GetGoldenAgeGreatMusicianRateModifier);
+	Method(GetGoldenAgeTourismModifier);
+	Method(GetGoldenAgeGreatWriterRateModifier);
+	Method(GetGoldenAgeGreatArtistRateModifier);
+	Method(GetGoldenAgeGreatMusicianRateModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetGoldenAgeGreatScientistRateModifier);
 	Method(GetGoldenAgeGreatEngineerRateModifier);
@@ -773,6 +775,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
 	Method(GetMajorBullyUnitDetails);
+	Method(GetMajorBullyValue);
 	Method(CanMajorBuyout);
 #if defined(MOD_BALANCE_CORE)
 	Method(CanMajorMarry);
@@ -6448,6 +6451,24 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 	return 1;
 }
 
+// void DoUpdateWarDamageLevel();
+int CvLuaPlayer::lDoUpdateWarDamageLevel(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	pkPlayer->GetDiplomacyAI()->DoUpdateWarDamageLevel();
+	return 0;
+}
+
+// void DoUpdatePeaceTreatyWillingness();
+int CvLuaPlayer::lDoUpdatePeaceTreatyWillingness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	pkPlayer->GetDiplomacyAI()->DoUpdatePeaceTreatyWillingness();
+	return 0;
+}
+
 int CvLuaPlayer::lGetDominationResistance(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -8788,10 +8809,21 @@ int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	int iTargetVal = (PlayerTypes)luaL_optint(L, 3, 0);
 
-	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor);
-	lua_pushboolean(L, bResult);
-	return 1;
+	if (iTargetVal > 0)
+	{
+		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ false);
+		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor, (iScore-iTargetVal));
+		lua_pushboolean(L, bResult);
+		return 1;
+	}
+	else
+	{
+		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor);
+		lua_pushboolean(L, bResult);
+		return 1;
+	}
 }
 //------------------------------------------------------------------------------
 //bool GetMajorBullyGoldDetails(PlayerTypes eMajor);
@@ -8810,10 +8842,21 @@ int CvLuaPlayer::lCanMajorBullyUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	int iTargetVal = (PlayerTypes)luaL_optint(L, 3, 0);
 
-	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyUnit(eMajor);
-	lua_pushboolean(L, bResult);
-	return 1;
+	if (iTargetVal > 0)
+	{
+		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ true);
+		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyUnit(eMajor, (iScore - iTargetVal));
+		lua_pushboolean(L, bResult);
+		return 1;
+	}
+	else
+	{
+		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyUnit(eMajor);
+		lua_pushboolean(L, bResult);
+		return 1;
+	}
 }
 //------------------------------------------------------------------------------
 //bool GetMajorBullyUnitDetails(PlayerTypes eMajor);
@@ -8824,6 +8867,21 @@ int CvLuaPlayer::lGetMajorBullyUnitDetails(lua_State* L)
 
 	const CvString sResult = pkPlayer->GetMinorCivAI()->GetMajorBullyUnitDetails(eMajor);
 	lua_pushstring(L, sResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool GetMajorBullyUnitDetails(PlayerTypes eMajor);
+int CvLuaPlayer::lGetMajorBullyValue(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+	bool bForUnit = luaL_optbool(L, 3, false);
+
+	//since this is just for UI, flip it to positive.
+	const int iValue = abs(pkPlayer->GetMinorCivAI()->CalculateBullyValue(eMajor, bForUnit));
+
+	lua_pushinteger(L, iValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -11481,7 +11539,7 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eExistingPlotImprovement);
 			if(pkImprovement != NULL)
 			{
-				if(pkImprovement->IsImprovementResourceTrade(eResource))
+				if (pkImprovement->IsExpandedImprovementResourceTrade(eResource))
 				{
 					continue;
 				}
@@ -11508,7 +11566,7 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 				continue;
 			}
 
-			if(!pkImprovementInfo->IsImprovementResourceTrade(eResource))
+			if (!pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
 			{
 				continue;
 			}
@@ -12571,6 +12629,30 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		
 			aOpinions.push_back(kOpinion);
 		}
+	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
+	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = 0;
+		
+		switch (iVisibleApproach)
+		{
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY");
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_AFRAID");
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_GUARDED");
+			break;
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_HOSTILE");
+			break;
+		}
+		
+		aOpinions.push_back(kOpinion);
+	}
 
 	// Base opinion score?
 	iValue = pDiploAI->GetBaseOpinionScore(eWithPlayer);
@@ -12585,7 +12667,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			
-			if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			if (iValue >= /*20*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
 			}
@@ -12593,7 +12675,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
 			}
-			else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+			else if (iValue <= /*-20*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
 			}

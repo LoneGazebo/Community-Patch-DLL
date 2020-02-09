@@ -209,11 +209,7 @@ public:
 	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
-#if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-	bool SentryAlert(bool bSameDomainOrRanged = false) const;
-#else
 	bool SentryAlert() const;
-#endif
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
@@ -394,7 +390,7 @@ public:
 	bool sellExoticGoods();
 
 	bool canRebase() const;
-	bool canRebaseAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool canRebaseAt(const CvPlot* pStartPlot, int iXDest, int iYDest) const;
 	bool rebase(int iX, int iY);
 
 	bool canPillage(const CvPlot* pPlot, int iMovesOverride = 0) const;
@@ -1702,6 +1698,8 @@ public:
 	bool canAirSweepAt(int iX, int iY) const;
 	bool airSweep(int iX, int iY);
 
+	bool attemptGroundAttacks(const CvPlot& pPlot);
+
 	bool potentialWarAction(const CvPlot* pPlot) const;
 	bool willRevealByMove(const CvPlot& pPlot) const;
 
@@ -1723,7 +1721,7 @@ public:
 
 	int GetPower() const;
 
-	bool AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarked = false) const;
+	bool AreUnitsOfSameType(const CvUnit& pUnit2) const;
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
 
@@ -1799,9 +1797,6 @@ public:
 	CvPlot* GetPathEndFirstTurnPlot() const;
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
-
-	bool IsIgnoringDangerWakeup() const;
-	void SetIgnoreDangerWakeup(bool bState);
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
@@ -2313,7 +2308,6 @@ protected:
 	//not serialized
 	std::vector<CvPlot*> m_unitMoveLocs;
 
-	FAutoVariable<bool, CvUnit> m_bIgnoreDangerWakeup; // slewis - make this an autovariable when saved games are broken
 	FAutoVariable<int, CvUnit> m_iEmbarkedAllWaterCount;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	FAutoVariable<int, CvUnit> m_iEmbarkedDeepWaterCount;

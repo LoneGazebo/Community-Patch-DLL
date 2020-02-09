@@ -142,6 +142,10 @@ VALUES
 	('TRAIT_BONUS_AGAINST_TECH', 'YIELD_FAITH', 1);
 
 
+UPDATE Buildings
+SET PlotCultureCostModifier = '-25'
+WHERE Type = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_STELE' AND YieldType = 'YIELD_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
@@ -318,31 +322,41 @@ VALUES
 	('BELIEF_DAGDA', 'BUILDINGCLASS_CIRCUS', 2);
 
 UPDATE Beliefs
+SET CityRangeStrikeModifier = '25'
+WHERE Type = 'BELIEF_BRAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Beliefs
 SET CityGrowthModifier = '25'
 WHERE Type = 'BELIEF_BRAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET CityRangeStrikeModifier = '50'
+SET HappinessPerCity = '1'
 WHERE Type = 'BELIEF_BRAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 INSERT INTO Belief_YieldFromKills
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_MORRIGAN', 'YIELD_GOLD', 100),
-	('BELIEF_MORRIGAN', 'YIELD_CULTURE', 100),
-	('BELIEF_MORRIGAN', 'YIELD_GOLDEN_AGE_POINTS', 100);
+	('BELIEF_MORRIGAN', 'YIELD_GOLD', 125),
+	('BELIEF_MORRIGAN', 'YIELD_CULTURE', 125),
+	('BELIEF_MORRIGAN', 'YIELD_GOLDEN_AGE_POINTS', 125);
 
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 VALUES
 	('BELIEF_CERNUNNOS', 'IMPROVEMENT_CAMP', 'YIELD_CULTURE', 1);
 
+INSERT INTO Belief_UnimprovedFeatureYieldChanges
+	(BeliefType, FeatureType, YieldType, Yield)
+VALUES
+	('BELIEF_CERNUNNOS', 'FEATURE_JUNGLE', 'YIELD_FAITH', 1),
+	('BELIEF_CERNUNNOS', 'FEATURE_FOREST', 'YIELD_FAITH', 1);
+
 INSERT INTO Belief_YieldPerBorderGrowth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_EPONA', 'YIELD_SCIENCE', 10),
-	('BELIEF_EPONA', 'YIELD_CULTURE', 10),
-	('BELIEF_EPONA', 'YIELD_GOLD', 10);
+	('BELIEF_EPONA', 'YIELD_SCIENCE', 8),
+	('BELIEF_EPONA', 'YIELD_CULTURE', 8),
+	('BELIEF_EPONA', 'YIELD_GOLD', 8);
 
 INSERT INTO Belief_YieldPerScience
 	(BeliefType, YieldType, Yield)
@@ -365,14 +379,15 @@ VALUES
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_LUGH', 'YIELD_CULTURE', 3),
-	('BELIEF_LUGH', 'YIELD_GOLD', 3),
-	('BELIEF_LUGH', 'YIELD_SCIENCE', 3);
+	('BELIEF_LUGH', 'YIELD_CULTURE', 2),
+	('BELIEF_LUGH', 'YIELD_GOLD', 2),
+	('BELIEF_LUGH', 'YIELD_FOOD', 2),
+	('BELIEF_LUGH', 'YIELD_SCIENCE', 2);
 
 INSERT INTO Belief_YieldChangeTradeRoute
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_NUADA', 'YIELD_GOLD', 2);
+	('BELIEF_NUADA', 'YIELD_GOLD', 3);
 
 INSERT INTO Belief_YieldPerFollowingCity
 	(BeliefType, YieldType, Yield)
@@ -419,7 +434,7 @@ VALUES
 INSERT INTO Belief_YieldPerPop
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_OGMA', 'YIELD_SCIENCE', 3);
+	('BELIEF_OGMA', 'YIELD_SCIENCE', 4);
 
 INSERT INTO Belief_GreatPersonPoints
 	(BeliefType, GreatPersonType, Value)
@@ -435,7 +450,7 @@ VALUES
 INSERT INTO Belief_YieldPerBirth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_BRAN', 'YIELD_CULTURE', 8);
+	('BELIEF_BRAN', 'YIELD_CULTURE', 10);
 
 INSERT INTO Belief_YieldPerXFollowers
 	(BeliefType, YieldType, PerXFollowers)

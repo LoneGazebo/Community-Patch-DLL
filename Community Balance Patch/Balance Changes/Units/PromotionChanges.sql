@@ -177,8 +177,8 @@ VALUES
 
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50 WHERE PromotionType = 'PROMOTION_ANTI_TANK';
 
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_FORMATION_1' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_FORMATION_2' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 33 WHERE PromotionType = 'PROMOTION_FORMATION_1' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 33 WHERE PromotionType = 'PROMOTION_FORMATION_2' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
 
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR';
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR_II';

@@ -38,6 +38,9 @@
 		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL">
 			<Text>Grand Canal</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE">
+			<Text>Menin Gate</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE">
 			<Text>Olympic Village</Text>
 		</Row>
@@ -89,6 +92,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_HELP">
 			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route. Grants all Naval Units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% [ICON_STRENGTH] Combat Strength when attacking, +1 Sight, and the ability to heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_HELP">
+			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_HAPPINESS_1] Happiness in the City in which it is built.[NEWLINE][NEWLINE]Receive 2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points whenever an owned unit is killed, scaling with Era. +1 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Point for every Fort, Citadel, and Landmark on Empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP">
 			<Text>May only be built collaboratively through the World Congress. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the City.[NEWLINE][NEWLINE]All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.</Text>
@@ -144,6 +150,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_STRATEGY">
 			<Text>Build this wonder to boost the strength and durability of your navy via the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] promotion, and to receive an additional trade route. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_STRATEGY">
+			<Text>A defensive wonder. Strengthens the yields from Forts, Citadels, and Landmarks. The Menin Gate also gives a small bonus for each unit that falls in battle. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_STRATEGY">
 			<Text>Combining the strengths of the Hotel, Stadium and Hermitage in one, the Olympic Village is a powerhouse of late-game culture. May only be built collaboratively through the World Congress.</Text>
@@ -220,6 +229,16 @@
 		<Row Tag="TXT_KEY_WONDER_GRAND_CANAL_QUOTE">
 			<Text>
 				[NEWLINE][TAB][TAB]"To build a city where it is impossible to build a city is madness in itself, but to build there one of the most elegant and grandest of cities is the madness of genius.”[NEWLINE]- Alexander Herzen[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_TEXT">
+			<Text>
+				The Menin Gate Memorial to the Missing is a war memorial in Ypres, Belgium, dedicated to the British and Commonwealth soldiers who were killed in the Ypres Salient of World War I. The high, barrel-vaulted passageway is inscribed with the names of 54,395 Commonwealth soldiers who died in the Salient, but whose bodies were never recovered. The memorial stands at the eastern exit of the town, marking the starting point towards the front line, where more than 450,000 men on both sides of the conflict were killed.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"Who will remember, passing through this Gate,[NEWLINE][TAB][TAB]the unheroic dead who fed the guns?[NEWLINE][TAB][TAB]Who shall absolve the foulness of their fate,[NEWLINE][TAB][TAB]Those doomed, conscripted, unvictorious ones?"[NEWLINE]- Siegfried Sassoon[NEWLINE][TAB]
+			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_OLYMPIC_VILLAGE_TEXT">
 			<Text>

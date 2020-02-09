@@ -616,6 +616,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Projects/NewProjects.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Buildings/CityDefense.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -1793,6 +1798,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Buildings\BuildingHurryCosts.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Buildings\CityDefense.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
