@@ -356,9 +356,9 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		end
 		
 		local ttText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT")
-		local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+		local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. city:GetStrengthValue(true) / 100
 
-		instance.CityStrength:SetToolTipString(ttText)
+		controls.CityStrength:SetToolTipString(ttText)
 
 		controls.CityStrength:SetText(cityStrengthStr);
 		

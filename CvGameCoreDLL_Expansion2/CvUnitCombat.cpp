@@ -2255,14 +2255,6 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					}
 				}
 
-				if(pCity->getOwner() == iActivePlayerID)
-				{
-					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOUR_CITY_ATTACKED_BY_AIR", pCity->getNameKey(), pkAttacker->getNameKey(), iAttackerDamageInflicted);
-					//red icon over attacking unit
-					pkDLLInterface->AddMessage(uiParentEventID, pCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
-				}
-
-#if defined(MOD_BALANCE_CORE)
 				if(iAttackerDamageInflicted > 0 || iDefenderDamageInflicted > 0)
 				{
 					if(iActivePlayerID == pkAttacker->getOwner())
@@ -2292,7 +2284,6 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 						}
 					}
 				}
-#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				//apply damage to garrison
@@ -3326,16 +3317,14 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 			iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit, true, &dropPlot);
 		}
 	
-		if (iInterceptionDamage > 0)
-		{
+		if (iInterceptionDamage > 0) {
 #if defined(MOD_EVENTS_BATTLES)
 			if (MOD_EVENTS_BATTLES) {
 				BATTLE_STARTED(BATTLE_TYPE_PARADROP, dropPlot);
 				BATTLE_JOINED(&paraUnit, BATTLE_UNIT_ATTACKER, false);
 				BATTLE_JOINED(pInterceptor, BATTLE_UNIT_INTERCEPTOR, false);
 
-				if (MOD_EVENTS_BATTLES_DAMAGE) 
-				{
+				if (MOD_EVENTS_BATTLES_DAMAGE) {
 					int iValue = 0;
 					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BattleDamageDelta, BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage) == GAMEEVENTRETURN_VALUE) {
 						if (iValue != 0) {
@@ -3377,12 +3366,18 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 			pInterceptor->setCombatUnit(NULL);
 
 			// Killing the unit during the drop is a really bad idea, the game crashes at random after the drop
-			int iHealth = paraUnit.GetMaxHitPoints() - paraUnit.GetCurrHitPoints();
-			paraUnit.changeDamage(std::min(iHealth-1, iInterceptionDamage), pInterceptor->getOwner());
+			int iEffectiveDamage = std::min(paraUnit.GetCurrHitPoints() - 1, iInterceptionDamage);
+			paraUnit.changeDamage(iEffectiveDamage, pInterceptor->getOwner());
 
 			if (GC.getGame().getActivePlayer() == paraUnit.getOwner()) 
 			{
-				CvString strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_DAMAGED", paraUnit.getNameKey(), pInterceptor->getNameKey(), iInterceptionDamage);
+				CvString strBuffer;
+
+				if (paraUnit.IsDead()) //cannot occur, see above
+					strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_KILLED", paraUnit.getNameKey(), pInterceptor->getNameKey());
+				else
+					strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_DAMAGED", paraUnit.getNameKey(), pInterceptor->getNameKey(), iInterceptionDamage);
+
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, paraUnit.getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
 			

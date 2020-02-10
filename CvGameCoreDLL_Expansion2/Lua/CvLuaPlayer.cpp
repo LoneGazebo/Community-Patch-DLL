@@ -12667,7 +12667,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
 			
-			if (iValue >= /*20*/ GC.getOPINION_THRESHOLD_COMPETITOR())
+			if (iValue >= /*30*/ GC.getOPINION_THRESHOLD_COMPETITOR())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_BAD_BASE_OPINION");
 			}
@@ -12675,7 +12675,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_BAD_BASE_OPINION");
 			}
-			else if (iValue <= /*-20*/ GC.getOPINION_THRESHOLD_FAVORABLE())
+			else if (iValue <= /*-30*/ GC.getOPINION_THRESHOLD_FAVORABLE())
 			{
 				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_VERY_GOOD_BASE_OPINION");
 			}

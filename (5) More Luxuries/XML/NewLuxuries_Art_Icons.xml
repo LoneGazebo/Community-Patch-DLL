@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<GameData>
+
+	<IconTextureAtlases>
+		<Row>
+			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>NewLuxuries_ResourceAtlas256.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>4</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<IconSize>80</IconSize>
+			<Filename>NewLuxuries_ResourceAtlas80.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>4</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>NewLuxuries_ResourceAtlas64.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>4</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>NewLuxuries_ResourceAtlas45.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>4</IconsPerColumn>
+		</Row>
+	</IconTextureAtlases>
+
+	<IconFontTextures>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconFontTextureFile>fonticons_newluxuries</IconFontTextureFile>
+		</Row>
+	</IconFontTextures>
+
+	<IconFontMapping>
+		<!-- Delete any luxury font icons with the same name so there's no conflict. -->
+		<!-- <Delete IconName="ICON_RES_COCOA"/> -->
+		<Delete IconName="ICON_RES_COFFEE"/>
+		<Delete IconName="ICON_RES_TEA"/>
+		<Delete IconName="ICON_RES_TOBACCO"/>
+		<Delete IconName="ICON_RES_AMBER"/>
+		<Delete IconName="ICON_RES_JADE"/>
+		<Delete IconName="ICON_RES_OLIVE"/>
+		<Delete IconName="ICON_RES_PERFUME"/>
+		<Delete IconName="ICON_RES_CORAL"/>
+		<Delete IconName="ICON_RES_LAPIS"/>
+		<Delete IconName="ICON_RES_GLASS"/>
+		<!--
+		<Row>
+			<IconName>ICON_RES_COCOA</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+		-->
+		<Row>
+			<IconName>ICON_RES_COFFEE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>2</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_TEA</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>3</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_TOBACCO</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>4</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_AMBER</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>5</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_JADE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>6</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_OLIVE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>7</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_PERFUME</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>8</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_CORAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>9</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_LAPIS</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>10</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_GLASS</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>11</IconMapping>
+		</Row>
+	</IconFontMapping>
+	
+</GameData>

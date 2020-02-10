@@ -9947,7 +9947,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		}
 	}
 
-	// Is there actually anything in our vector? - 0 can be invalid if we already have everything, for example
+	// Is there actually anything in our vector? - 0 can be valid if we already have everything, for example
 	if(veValidLuxuryResources.size() == 0)
 	{
 		return;
@@ -28698,6 +28698,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 					if (iResourceMod == 0) //no resource or ignored resource
 					{
+
 						// Water Plots claimed later
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
 							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;

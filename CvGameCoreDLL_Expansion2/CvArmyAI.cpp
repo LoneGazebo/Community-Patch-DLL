@@ -658,6 +658,8 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 
 	// remove this unit from an army if it is already in one
 	thisPlayer.removeFromArmy(pThisUnit->getArmyID(), GetID());
+
+	// add it to this army
 	m_FormationEntries[iSlotNum] = CvArmyFormationSlot(); //reset
 	m_FormationEntries[iSlotNum].SetUnitID(iUnitID);
 	pThisUnit->setArmyID(GetID());
@@ -692,11 +694,13 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 /// Remove a unit from the army
 bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 {
-	for(int iI = 0; iI < (int)m_FormationEntries.size(); iI++)
+	for(size_t iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-		CvArmyFormationSlot slot = m_FormationEntries[iI];
+		CvArmyFormationSlot& slot = m_FormationEntries[iI];
 		if(slot.GetUnitID() == iUnitToRemoveID)
 		{
+			slot.SetUnitID(-1);
+
 			CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitToRemoveID);
 			if(pThisUnit)
 			{

@@ -111,7 +111,7 @@ public:
 	CvAStarNode();
 	void clear();
 
-	short m_iX, m_iY;							// Coordinate position - persistent, ie not affected by clear()
+	short m_iX, m_iY;	  // Coordinate position - persistent
 
 	long m_iKnownCost;							// Goal (g)
 	long m_iHeuristicCost;						// Heuristic (h)

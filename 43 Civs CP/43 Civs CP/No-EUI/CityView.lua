@@ -898,7 +898,7 @@ function OnCityViewUpdate()
 		Controls.TitleStack:ReprocessAnchoring();
 
 	    Controls.Defense:SetText(  math.floor( pCity:GetStrengthValue() / 100 ) );
-		Controls.Defense:LocalizeAndSetToolTip( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ": [ICON_RANGE_STRENGTH] " .. math_floor(pCity:GetStrengthValue(true) / 100) )
+		Controls.Defense:LocalizeAndSetToolTip( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT") .. ": [ICON_RANGE_STRENGTH] " .. pCity:GetStrengthValue(true) / 100)
 
  		CivIconHookup( pPlayer:GetID(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
 		

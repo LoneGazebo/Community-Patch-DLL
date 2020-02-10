@@ -5444,6 +5444,14 @@
 			<Text>The City of {@1_CityName} was bombarded by an enemy {@2_EnUName} ({3_Num} damage)!</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PARADROP_AA_KILLED">
+			<Text>Your {1_Unit} was killed by an enemy {2_EnUName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PARADROP_AA_DAMAGED">
+			<Text>Your {1_Unit} was intercepted by an enemy {2_EnUName} ({3_Num} damage)!</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">
 			<Text>Thanks to your intercepting {@1_UnitName}, we damaged the {@2_owner_adjective} {@3_EnUName} ({4_Num} damage) attacking your City of {@5_CityName}.</Text>
 		</Row>

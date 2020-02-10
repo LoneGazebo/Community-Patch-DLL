@@ -755,10 +755,6 @@ SET Text = 'Can Air Sweep to clear intercepting Units. If no interceptors found,
 WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SWEEP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Can Air Sweep to clear intercepting Units. If no interceptors found, it will deal 10% of it''s [ICON_RANGE_STRENGTH] Ranged Combat Strength to all enemy Air and Anti-Air Units in and adjacent to the target Tile.' 
-WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SWEEP_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Order the unit to sweep an area for air and ground-based interceptors. If no interceptors found, it will deal 10% of it''s [ICON_RANGE_STRENGTH] Ranged Combat Strength to all enemy Air and Anti-Air Units in and adjacent to the target Tile.' 
 WHERE Tag = 'TXT_KEY_INTERFACEMODE_AIR_SWEEP_HELP';
 

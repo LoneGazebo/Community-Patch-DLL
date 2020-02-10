@@ -1257,7 +1257,7 @@ void getActivityTypeString(CvString& strString, ActivityTypes eActivityType)
 		strString		= "ACTIVITY_SENTRY";
 		break;
 	case ACTIVITY_INTERCEPT:
-		strString	= "ACTIVITY_SENTRY";
+		strString		= "ACTIVITY_INTERCEPT";
 		break;
 	case ACTIVITY_MISSION:
 		strString	= "ACTIVITY_MISSION";

@@ -696,6 +696,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 
 			iBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iBonus /= 100;
+
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
@@ -902,6 +903,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
+
 			SetGP(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
@@ -926,6 +928,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
+
 			SetGPGlobal(iBonus);
 		}
 		if(pkSmallAwardInfo->GetHappiness() > 0)
@@ -996,6 +999,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 
 			SetScience(iBonus);
 		}
+
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogName;
@@ -16149,7 +16153,6 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 #endif
 
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ true);
-
 	return CanMajorBullyUnit(ePlayer, iScore);
 }
 
@@ -16190,7 +16193,6 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 
 	CvString sFactors = "";
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/ true, &sFactors);
-
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
 #if defined(MOD_BALANCE_CORE)
 	UnitClassTypes eUnitClassType = GetBullyUnit();
