@@ -45,6 +45,7 @@
 #include "CvBarbarians.h"
 #endif
 
+#include <sstream>
 #include "CvDllNetMessageExt.h"
 // include after all other headers
 #include "LintFree.h"
@@ -3288,7 +3289,7 @@ void CvCity::doTurn()
 		{
 			ChangeResourceDemandedCountdown(-1);
 
-			if(GetResourceDemandedCountdown() == 0)
+			if(GetResourceDemandedCountdown() <= 0)
 			{
 				// Pick a Resource to demand
 				DoPickResourceDemanded();
@@ -9923,7 +9924,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
 				continue;
 
-			if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == 0)
+			if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 				continue;
 
 			if (bCurrentResourceInvalid && eCurrentResource == eResource)
@@ -9943,7 +9944,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if (!bResourceValid)
 				continue;
 
-			veValidLuxuryResources.push_back(eCurrentResource);
+			veValidLuxuryResources.push_back(eResource);
 		}
 	}
 
@@ -10127,7 +10128,8 @@ void CvCity::SetResourceDemandedCountdown(int iValue)
 void CvCity::ChangeResourceDemandedCountdown(int iChange)
 {
 	VALIDATE_OBJECT
-	SetResourceDemandedCountdown(GetResourceDemandedCountdown() + iChange);
+	if (iChange != 0)
+		m_iDemandResourceCounter += iChange;
 }
 
 //	--------------------------------------------------------------------------------
