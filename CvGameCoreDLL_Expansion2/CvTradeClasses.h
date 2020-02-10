@@ -287,8 +287,6 @@ public:
 
 	const TradeConnection* GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity);
 	int GetNumberOfCityStateTradeRoutes();
-	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
-
 	int GetNumberOfTradeRoutesFromCity(CvCity* pCity);
 
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);

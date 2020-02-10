@@ -1239,7 +1239,7 @@ void getActivityTypeString(CvString& strString, ActivityTypes eActivityType)
 	switch(eActivityType)
 	{
 	case NO_ACTIVITY:
-		strString			= "NO_ACTIVITY";
+		strString		= "NO_ACTIVITY";
 		break;
 	case ACTIVITY_AWAKE:
 		strString		= "ACTIVITY_AWAKE";
@@ -1260,7 +1260,7 @@ void getActivityTypeString(CvString& strString, ActivityTypes eActivityType)
 		strString		= "ACTIVITY_INTERCEPT";
 		break;
 	case ACTIVITY_MISSION:
-		strString	= "ACTIVITY_MISSION";
+		strString		= "ACTIVITY_MISSION";
 		break;
 
 	default:

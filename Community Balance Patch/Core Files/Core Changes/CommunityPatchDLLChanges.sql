@@ -282,6 +282,10 @@ UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_RANGED_ATTACK_PENALTY';
 
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'CORE_DISABLE_LUA_HOOKS';
+
 UPDATE GameOptions SET "Default" = 1 WHERE Type = 'GAMEOPTION_EVENTS';
 
 UPDATE CustomModOptions SET Value=1 WHERE Name='UNITS_MAX_HP';  

@@ -10733,7 +10733,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 	if(!pCity->plot()->isRevealed(m_pPlayer->getTeam()))
 	{
 		return 0;
-		}
+	}
 
 	// Skip if at war with city owner
 	if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
@@ -10762,11 +10762,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
 		if (pMyReligion)
-	{
+		{
 			if(pMyReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
-	{
+			{
 				return 0;
-	}
+			}
 		}
 	}
 

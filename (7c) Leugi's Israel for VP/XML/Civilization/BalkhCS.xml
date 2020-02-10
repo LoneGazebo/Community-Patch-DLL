@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 8/6/2013 9:18:46 AM -->
+<GameData>
+	<Language_en_US>
+		<Update>
+			<Set Text="Balkh"/>
+			<Where Tag="TXT_KEY_CITYSTATE_JERUSALEM"/>
+		</Update>
+		<Update>
+			<Set Text="Balkh"/>
+			<Where Tag="TXT_KEY_CITYSTATE_JERUSALEM_ADJ"/>
+		</Update>
+		<Update>
+			<Set Text="Balkh was an ancient city and centre of Zoroastrianism in what is northern Afghanistan. Today it is a small town in the province of Balkh, about 20 kilometers northwest of the provincial capital, Mazar-e Sharif, and some 74 km (46 mi) south of the Amu Darya. It was one of the major cities of Khorasan,since the latter's earliest history. Marco Polo described Balkh as a noble and great city.
+
+[NEWLINE][NEWLINE]The ancient city of Balkh was under the Greeks renamed Bactra, giving its name to Bactria. It was mostly known as the centre and capital of Bactria or Tokharistan. Balkh is now for the most part a mass of ruins, situated some 12 km from the right bank of the seasonally flowing Balkh River, at an elevation of about 365 m (1,200 ft).
+
+[NEWLINE][NEWLINE]Outside the town was a large Buddhist monastery, later known as Naubahar."/>
+			<Where Tag="TXT_KEY_CIV5_JERUSALEM_TEXT"/>
+		</Update>
+	</Language_en_US>
+
+
+</GameData>

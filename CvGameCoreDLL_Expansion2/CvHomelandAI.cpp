@@ -1410,10 +1410,10 @@ void CvHomelandAI::PlotMovesToSafety()
 				continue;
 		}
 
-			CvHomelandUnit unit;
-			unit.SetID(pUnit->GetID());
-			m_CurrentMoveUnits.push_back(unit);
-		}
+		CvHomelandUnit unit;
+		unit.SetID(pUnit->GetID());
+		m_CurrentMoveUnits.push_back(unit);
+	}
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{

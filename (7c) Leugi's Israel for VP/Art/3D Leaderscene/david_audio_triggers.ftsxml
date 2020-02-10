@@ -1,0 +1,331 @@
+<trigger_system type="FGrannyTimedTriggerSystem">
+  <event_tracks>
+    <event_track ec="9004">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9013">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7006">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7070">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7015">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="6000">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7001">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7010">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9021">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9030">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9007">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9071">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9016">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="1">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="8001">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9002">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9011">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7004">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7013">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7008">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7021">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9005">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7030">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9014">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7007">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7071">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9000">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7002">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9050">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7011">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9022">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9031">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9017">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9003">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9012">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7005">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7014">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7000">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7009">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7050">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9006">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9070">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7031">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9015">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="8000">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9001">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="9010">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7003">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+    <event_track ec="7012">
+      <track id="1" name="Sound" />
+      <track id="2" name="Effect" />
+      <track id="3" name="Transfer" />
+      <track id="4" name="Action" />
+    </event_track>
+  </event_tracks>
+  <triggers>
+     <trigger type="FTimedTriggerSound" id="23" time="1.77142835" duration="0" repeat="0" ec="6000" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="24" time="0.7142852" duration="0" repeat="0" ec="6000" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="25" time="1.34285688" duration="0" repeat="0" ec="7001" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="26" time="0.2285713" duration="0" repeat="0" ec="7001" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="27" time="4.54285765" duration="0" repeat="0" ec="7002" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="28" time="0.371428" duration="0" repeat="0" ec="7008" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="29" time="0.3428566" duration="0" repeat="0" ec="7009" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="32" time="1.08571446" duration="0" repeat="0" ec="7021" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="33" time="0.7714285" duration="0" repeat="0" ec="7050" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="34" time="0.4857145" duration="0" repeat="0" ec="7050" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="35" time="1.08007061" duration="0" repeat="0" ec="7070" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="36" time="4.628571" duration="0" repeat="0" ec="9000" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="37" time="2.514285" duration="0" repeat="0" ec="9000" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="38" time="1.31428516" duration="0" repeat="0" ec="9002" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="39" time="0.914285839" duration="0" repeat="0" ec="9003" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="40" time="0.9142861" duration="0" repeat="0" ec="9010" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="41" time="0.6857144" duration="0" repeat="0" ec="9011" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="42" time="0.3428573" duration="0" repeat="0" ec="9021" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="43" time="0.3428573" duration="0" repeat="0" ec="9022" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="44" time="1.17142892" duration="0" repeat="0" ec="9050" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="45" time="0.6857144" duration="0" repeat="0" ec="9050" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="46" time="1.65714383" duration="0" repeat="0" ec="9071" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="47" time="0.08571446" duration="0" repeat="0" ec="9071" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="53" time="0.972486138" duration="0" repeat="0" ec="7031" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="54" time="1.5527333" duration="0" repeat="0" ec="7071" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="55" time="2.676191" duration="0" repeat="0" ec="8000" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="56" time="0.7714285" duration="0" repeat="0" ec="8000" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_SANDAL" bone="" />
+    <trigger type="FTimedTriggerSound" id="57" time="0.6857144" duration="0" repeat="0" ec="9030" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="58" time="1.43880057" duration="0" repeat="0" ec="9031" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="59" time="1.35238111" duration="0" repeat="0" ec="9070" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+    <trigger type="FTimedTriggerSound" id="60" time="0.27830714" duration="0" repeat="0" ec="9071" track="1" tier="0" event="AS2D_UNIT_LEADER_DARIUS_CLOTH_MOVE_DRESS" bone="" />
+  </triggers>
+</trigger_system>

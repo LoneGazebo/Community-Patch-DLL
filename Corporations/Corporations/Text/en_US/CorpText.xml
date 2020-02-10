@@ -533,7 +533,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production when training Land, Air, or Naval Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
+			<Text>+15% [ICON_PRODUCTION] Production when training Land, Air, or Naval Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ">
 			<Text>Giorgio Armeier, Inc.</Text>

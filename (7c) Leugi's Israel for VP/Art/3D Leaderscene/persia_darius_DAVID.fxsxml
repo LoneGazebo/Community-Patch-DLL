@@ -1,0 +1,92 @@
+<Asset>
+	<Mesh file="persia_darius_DAVID.gr2"/>
+	<Animation file="Persia_Darius_INTRO.gr2" ec="6000"/>
+	<Animation file="Persia_Darius_NEUTRAL_IDLE.gr2" ec="7000"/>
+	<Animation file="Persia_Darius_REQUEST.gr2" ec="7002"/>
+	<Animation file="Persia_Darius_NEUTRAL_HELLO.gr2" ec="7003"/>
+	<Animation file="Persia_Darius_NEUTRAL_YES_GESTURE.gr2" ec="7008"/>
+	<Animation file="Persia_Darius_NEUTRAL_NO_GESTURE.gr2" ec="7009"/>
+	<Animation file="Persia_Darius_NEUTRAL_YES_GESTURE_BASE.gr2" ec="7030"/>
+	<Animation file="Persia_Darius_NEUTRAL_YES_LAYER.gr2" ec="7005"/>
+	<Animation file="Persia_Darius_NEUTRAL_YES_LAYER_02.gr2" ec="7012, 7013"/>
+	<Animation file="Persia_Darius_NEUTRAL_NO_GESTURE_BASE.gr2" ec="7031"/>
+	<Animation file="Persia_Darius_NEUTRAL_NO_LAYER.gr2" ec="7006"/>
+	<Animation file="Persia_Darius_NEUTRAL_NO_LAYER_02.gr2" ec="7014, 7015"/>
+	<Animation file="Persia_Darius_NEUTRAL_HEAR_IT.gr2" ec="7007"/>
+	<Animation file="Persia_Darius_NEUTRAL_HEAR_IT_02.gr2" ec="7010, 7011"/>
+	<Animation file="Persia_Darius_DEFEATED.gr2" ec="8000"/>
+	<Animation file="Persia_Darius_DEFEATED_IDLE.gr2" ec="8001"/>
+	<Animation file="Persia_Darius_DECLARE_WAR.gr2" ec="9000"/>
+	<Animation file="Persia_Darius_HATE_IDLE.gr2" ec="9001"/>
+	<Animation file="Persia_Darius_TRANS_HATE_ATTACK.gr2" ec="9022"/>
+	<Animation file="Persia_Darius_ATTACKED.gr2" ec="9002"/>
+	<Animation file="Persia_Darius_HATE_HELLO.gr2" ec="9004"/>
+	<Animation file="Persia_Darius_HATE_YES_GESTURE.gr2" ec="9010, 9003"/>
+	<Animation file="Persia_Darius_HATE_NO_GESTURE.gr2" ec="9011"/>
+	<Animation file="Persia_Darius_HATE_YES_GESTURE_BASE.gr2" ec="9030"/>
+	<Animation file="Persia_Darius_HATE_NO_GESTURE_BASE.gr2" ec="9031"/>
+	<Animation file="Persia_Darius_HATE_YES_LAYER.gr2" ec="9006"/>
+	<Animation file="Persia_Darius_HATE_YES_LAYER_02.gr2" ec="9014, 9015"/>
+	<Animation file="Persia_Darius_HATE_NO_LAYER.gr2" ec="9005"/>
+	<Animation file="Persia_Darius_HATE_NO_LAYER_02.gr2" ec="9012, 9013"/>
+	<Animation file="Persia_Darius_HATE_HEAR_IT.gr2" ec="9007"/>
+	<Animation file="Persia_Darius_HATE_HEAR_IT_02.gr2" ec="9016, 9017"/>
+	<Animation file="Persia_Darius_TRANS_NEUTRAL_ATTACK.gr2" ec="9021"/>
+	<Animation file="Persia_Darius_TRANS_HATE_PEACEFUL.gr2" ec="7021"/>
+	<Animation file="Persia_Darius_PEACEFUL.gr2" ec="7001"/>
+	<Animation file="Persia_Darius_NEUTRAL_YES_GESTURE_02_.gr2" ec="7070"/>
+	<Animation file="Persia_Darius_NEUTRAL_NO_GESTURE_02.gr2" ec="7071"/>
+	<Animation file="Persia_Darius_HATE_YES_GESTURE_02.gr2" ec="9070"/>
+	<Animation file="Persia_Darius_HATE_NO_GESTURE_02.gr2" ec="9071"/>
+	<Texture file="Darius_Environment.dds"/>
+	<Texture file="Darius_Irradiance.dds"/>
+	<Texture file="Darius_Backfaced_DIFF.dds"/>
+	<Texture file="Darius_Backfaced_NORM.dds"/>
+	<Texture file="Darius_Backfaced_SREF.dds"/>
+	<Texture file="Darius_Hair_DIFF.dds"/>
+	<Texture file="Darius_Hair_NORM.dds"/>
+	<Texture file="Darius_Hair_OPAC.dds"/>
+	<Texture file="Darius_Hair_SREF.dds"/>
+	<Texture file="Darius_Skin_BLUR.dds"/>
+	<Texture file="Darius_Skin_DIFF.dds"/>
+	<Texture file="Darius_Skin_NORM.dds"/>
+	<Texture file="Darius_Skin_SREF.dds"/>
+	<Texture file="Darius_Backfaced_DIFF.dds"/>
+	<Texture file="Darius_Backfaced_NORM.dds"/>
+	<Texture file="Darius_Backfaced_SREF.dds"/>
+	<Texture file="Darius_Cloth_DIFF.dds"/>
+	<Texture file="Darius_Cloth_NORM.dds"/>
+	<Texture file="Darius_Cloth_SREF.dds"/>
+	<Texture file="Darius_Environment.dds"/>
+	<Texture file="Darius_Hair_OPAC.dds"/>
+	<Texture file="Darius_Irradiance.dds"/>
+	<AnimGraph file="NEUTRAL_RESPONSE_ATTACKED_GRAPH_LEADER.dge"/>
+	<AnimGraph file="HATE_RESPONSE_ATTACKED_GRAPH_LEADER.dge"/>
+	<AnimGraph file="DEFEATED_GRAPH_LEADER.dge"/>
+	<StateMachine file="LEADER_FULL_STATE.fsmxml"/>
+	<AnimGraph file="HATE_HEAR_IT_SPEECH_GRAPH_LEADER.dge"/>
+	<AnimGraph file="NEUTRAL_HEAR_IT_SPEECH_GRAPH_LEADER.dge"/>
+	<AnimGraph file="INTRO_GRAPH_LEADER.dge"/>
+	<AnimGraph file="DEMAND_GRAPH_LEADER.dge"/>
+	<AnimGraph file="REQUEST_GRAPH_LEADER.dge"/>
+	<AnimGraph file="NEUTRAL_HELLO_GRAPH_LEADER.dge"/>
+	<AnimGraph file="HATE_HELLO_GRAPH_LEADER.dge"/>
+	<AnimGraph file="DEFEATED_IDLE_GRAPH_LEADER.dge"/>
+	<AnimGraph file="HATE_IDLE_GRAPH_LEADER.dge"/>
+	<AnimGraph file="NEUTRAL_IDLE_GRAPH_LEADER.dge"/>
+	<AnimGraph file="DECLARE_WAR_GRAPH_LEADER.dge"/>
+	<AnimGraph file="TRANS_NEUTRAL_ATTACKED_GRAPH_LEADER.dge"/>
+	<AnimGraph file="TRANS_HATE_ATTACKED_GRAPH_LEADER.dge"/>
+	<AnimGraph file="ATTACKED_GRAPH_LEADER.dge"/>
+	<AnimGraph file="NEUTRAL_IDLE_RESTART_GRAPH_LEADER.dge"/>
+	<AnimGraph file="HATE_IDLE_RESTART_GRAPH_LEADER.dge"/>
+	<AnimGraph file="HATE_YES_MULTI_GRAPH_LEADER.dge"/>
+	<AnimGraph file="HATE_NO_MULTI_GRAPH_LEADER.dge"/>
+	<AnimGraph file="NEUTRAL_NO_MULTI_GRAPH_LEADER.dge"/>
+	<AnimGraph file="NEUTRAL_YES_MULTI_GRAPH_LEADER.dge"/>
+	<AnimGraph file="PEACEFUL_GRAPH_LEADERS.dge"/>
+	<AnimGraph file="HATE_TRANS_PEACEFUL_GRAPH_LEADERS.dge"/>
+	<TimedTrigger file="DAVID_AUDIO_TRIGGERS.ftsxml"/>
+	<BoneUsage/>
+</Asset>
+

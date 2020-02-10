@@ -133,58 +133,58 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 			if(pkBuildInfo)
 			{
-					FeatureTypes eFeature = hUnit->plot()->getFeatureType();
-					if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
-					{
-						// Don't bother looking if this is the build that removes this feature
-						if (!pkBuildInfo->isFeatureRemoveOnly(eFeature)) {
-						
-							// We need to find the build that will remove eFeature.
-							CvBuildInfo* pRemoveBuild = NULL;
-						
-							// Assumes that the BuildFeatures table has an extra column RemoveOnly
-							for(int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
-								CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-								if(pRemoveBuildInfo) {
-									if(pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
-										CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
-										TechTypes eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
+				FeatureTypes eFeature = hUnit->plot()->getFeatureType();
+				if (eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
+				{
+					// Don't bother looking if this is the build that removes this feature
+					if (!pkBuildInfo->isFeatureRemoveOnly(eFeature)) {
 
-										if (eObsoleteTech == NO_TECH || !pTechs->HasTech(eObsoleteTech)) {
-											TechTypes ePrereqTech = (TechTypes) pRemoveBuildInfo->getFeatureTech(eFeature);
-									
-											// We have a candidate build for removing this feature
-											if (ePrereqTech == NO_TECH) {
-												if (pRemoveBuild == NULL) {
-													pRemoveBuild = pRemoveBuildInfo;
-												}
+						// We need to find the build that will remove eFeature.
+						CvBuildInfo* pRemoveBuild = NULL;
+
+						// Assumes that the BuildFeatures table has an extra column RemoveOnly
+						for (int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
+							CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo((BuildTypes)iI);
+							if (pRemoveBuildInfo) {
+								if (pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
+									CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
+									TechTypes eObsoleteTech = (TechTypes)pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
+
+									if (eObsoleteTech == NO_TECH || !pTechs->HasTech(eObsoleteTech)) {
+										TechTypes ePrereqTech = (TechTypes)pRemoveBuildInfo->getFeatureTech(eFeature);
+
+										// We have a candidate build for removing this feature
+										if (ePrereqTech == NO_TECH) {
+											if (pRemoveBuild == NULL) {
+												pRemoveBuild = pRemoveBuildInfo;
+											}
 										}
 										else if (pTechs->HasTech(ePrereqTech)) {
-												if (pRemoveBuild == NULL) {
-													pRemoveBuild = pRemoveBuildInfo;
+											if (pRemoveBuild == NULL) {
+												pRemoveBuild = pRemoveBuildInfo;
 											}
 											else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)pRemoveBuild->getFeatureTech(eFeature))->GetGridX()) {
-													pRemoveBuild = pRemoveBuildInfo;
-												}
+												pRemoveBuild = pRemoveBuildInfo;
 											}
 										}
 									}
 								}
 							}
-						
-							if (pRemoveBuild != NULL) {
-								MissionData removeMission;
-								removeMission.eMissionType = eMission;
-								removeMission.iData1 = pRemoveBuild->GetID();
-								removeMission.iData2 = iData2;
-								removeMission.iFlags = iFlags;
-								removeMission.iPushTurn = GC.getGame().getGameTurn();
-							
-								hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
-								InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-								bAppend = true;
-							}
 						}
+
+						if (pRemoveBuild != NULL) {
+							MissionData removeMission;
+							removeMission.eMissionType = eMission;
+							removeMission.iData1 = pRemoveBuild->GetID();
+							removeMission.iData2 = iData2;
+							removeMission.iFlags = iFlags;
+							removeMission.iPushTurn = GC.getGame().getGameTurn();
+
+							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
+							bAppend = true;
+						}
+					}
 				}
 
 
