@@ -2301,7 +2301,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #if defined(MOD_UNIT_KILL_STATS)
 	if (ePlayer != NO_PLAYER && !bDelay)
 	{
-		TacticalAIMoveTypes move = getTacticalMove();
+		AITacticalMove move = getTacticalMove();
 		saiTaskWhenKilled[(int)move + 1]++;
 
 		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
@@ -2881,7 +2881,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	{
 		CvString szMsg;
 		szMsg.Format("Captured: %s, Enemy was: %s", GC.getUnitInfo(kCaptureDef.eOldType)->GetDescription(), kCapturingPlayer.getCivilizationShortDescription());
-		GET_PLAYER(kCaptureDef.eOldPlayer).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+		GET_PLAYER(kCaptureDef.eOldPlayer).GetTacticalAI()->LogTacticalMessage(szMsg);
 	}
 
 	if(kCaptureDef.bEmbarked)
@@ -7285,7 +7285,7 @@ void CvUnit::SetTurnProcessed(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
+void CvUnit::setTacticalMove(AITacticalMove eMove)
 {
 	VALIDATE_OBJECT
 
@@ -7305,7 +7305,7 @@ void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 }
 
 //	--------------------------------------------------------------------------------
-TacticalAIMoveTypes CvUnit::getTacticalMove(int* pTurnSet) const
+AITacticalMove CvUnit::getTacticalMove(int* pTurnSet) const
 {
 	VALIDATE_OBJECT
 	if (pTurnSet)
@@ -7317,11 +7317,6 @@ TacticalAIMoveTypes CvUnit::getTacticalMove(int* pTurnSet) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::canRecruitFromTacticalAI() const
 {
-	VALIDATE_OBJECT
-	if(m_eTacticalMove != NO_TACTICAL_MOVE)
-		if (!GC.GetGameTacticalMoves()->GetEntry(m_eTacticalMove)->CanRecruitForOperations())
-			return false;
-
 	//Is it a garrison we can spare?
 	if (IsGarrisoned())
 	{
@@ -7370,7 +7365,7 @@ CvPlot* CvUnit::GetTacticalAIPlot() const
 //	--------------------------------------------------------------------------------
 bool CvUnit::hasCurrentTacticalMove() const
 { 
-	return ( m_eTacticalMove!=NO_TACTICAL_MOVE && m_eTacticalMove!=GC.getInfoTypeForString("TACTICAL_UNASSIGNED") && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
+	return ( m_eTacticalMove!=NO_TACTICAL_MOVE && m_eTacticalMove!=AI_TACTICAL_UNASSIGNED && m_iTactMoveSetTurn==GC.getGame().getGameTurn() );
 }
 
 void CvUnit::setHomelandMove(AIHomelandMove eMove)
@@ -7382,13 +7377,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 		if (eMove==AI_HOMELAND_MOVE_NONE)
 			return;
 
-		CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
-		if (pkMoveInfo)
-		{
-			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
-				GetID(), pkMoveInfo->GetType(), eMove == AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove]);
-			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
-		}
+		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+			GetID(), tacticalMoveNames[m_eTacticalMove], eMove == AI_HOMELAND_MOVE_NONE ? "NONE" : homelandMoveNames[eMove]);
+		GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
 	}
 
 	//clear tactical move, can't have both ...
@@ -20895,13 +20886,10 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 		CvString szMsg;
 		CvString lastMission("no_tactical_move");
 		if (m_eTacticalMove!=NO_TACTICAL_MOVE)
-		{
-			CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
-			if (pkMoveInfo)
-				lastMission == (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
-			}
+			lastMission ==  tacticalMoveNames[m_eTacticalMove];
+
 		szMsg.Format("KilledInCombat %s, LastMove %s, KilledBy %d", getName().GetCString(), lastMission.c_str(), ePlayer);
-		GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+		GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg);
 
 		//--- finally ----------------------------
 		kill(true, ePlayer);
@@ -29255,11 +29243,7 @@ const char* CvUnit::GetMissionInfo()
 		else
 		{
 			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-			{
-				CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
-				if (pkMoveInfo)
-					m_strMissionInfoString += (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
-			}
+				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
 			if (m_eTacticalMove==NO_TACTICAL_MOVE)
 				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
@@ -30052,7 +30036,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 			CvString szMsg;
 			szMsg.Format("Promotion, %s, Transferred by %s to %s in melee",
 							szPromotionDesc, getName().GetCString(), defender.getName().GetCString());
-			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg);
 		}
 		
 		if (MOD_BALANCE_CORE_JFD)

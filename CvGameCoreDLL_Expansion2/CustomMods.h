@@ -62,9 +62,6 @@
 /// ships on land tiles (city, fort) cannot attack
 #define MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN
 
-//this needs a reassignment of move priorities to work properly, especially concerning global moves
-//#define MOD_CORE_TACTICAL_MOVE_DELAY_SORT
-
 // for debugging only
 //#define MOD_UNIT_KILL_STATS
 
@@ -535,14 +532,6 @@
 #define MOD_AI_SMART_ARCHAEOLOGISTS                 (MOD_AI_SMART && gCustomMods.isAI_SMART_ARCHAEOLOGISTS())
 // Disband long obsolete units, eg triremes in industrial era (v50)
 #define MOD_AI_SMART_DISBAND                        (MOD_AI_SMART && gCustomMods.isAI_SMART_DISBAND())
-// Upgrade more units per turn if there are lots of units that can be upgraded. Also upgrade air units more often (v50)
-#define MOD_AI_SMART_UPGRADES                       (MOD_AI_SMART && gCustomMods.isAI_SMART_UPGRADES())
-// Units with at least 75% health will avoid healing (v50)
-#define MOD_AI_SMART_HEALING                        (MOD_AI_SMART && gCustomMods.isAI_SMART_HEALING())
-// Units won't randomly embark to water tiles (v50)
-#define MOD_AI_SMART_FLEE_FROM_DANGER               (MOD_AI_SMART && gCustomMods.isAI_SMART_FLEE_FROM_DANGER())
-// Ranged units are always able to move AND shoot on the same turn and should not attack over and over a city with 1 HP remaining. (v51)
-#define MOD_AI_SMART_RANGED_UNITS                   (MOD_AI_SMART && gCustomMods.isAI_SMART_RANGED_UNITS())
 // AI will hold planes back for interceptions and perform air sweep missions more efficiently, if enemy aircraft are nearby (v50)
 #define MOD_AI_SMART_AIR_TACTICS                    (MOD_AI_SMART && gCustomMods.isAI_SMART_AIR_TACTICS())
 // Quickens how fast the AI will critically ask for settler based also on difficulty and game speed properties.

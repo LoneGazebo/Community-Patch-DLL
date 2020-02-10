@@ -295,7 +295,6 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getAIGrandStrategyInfo(), "AIGrandStrategies");
 	PrefetchCollection(GC.getMilitaryAIStrategyInfo(), "AIMilitaryStrategies");
 	PrefetchCollection(GC.getCitySpecializationInfo(), "CitySpecializations");
-	PrefetchCollection(GC.getTacticalMoveInfo(), "TacticalMoves");
 
 	//BasicInfos
 	//AnimationOperators?
@@ -689,7 +688,6 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumSpecialistInfos);
 	ValidateVectorSize(getNumEconomicAIStrategyInfos);
 	ValidateVectorSize(getNumCitySpecializationInfos);
-	ValidateVectorSize(getNumTacticalMoveInfos);
 	ValidateVectorSize(getNumMilitaryAIStrategyInfos);
 	ValidateVectorSize(getNumAIGrandStrategyInfos);
 	ValidateVectorSize(getNumAICityStrategyInfos);

@@ -526,6 +526,10 @@ UPDATE Language_en_US
 SET Text = 'Duisburg'
 WHERE Tag = 'TXT_KEY_CITY_NAME_HILDESHEIM';
 
+UPDATE Language_en_US
+SET Text = 'Braunschweig'
+WHERE Tag = 'TXT_KEY_CITY_NAME_BRAUNSCHWEIG';
+
 --------------------
 -- Greece
 --------------------
