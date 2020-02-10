@@ -38296,7 +38296,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 							bValid = true;
 					}
 					else
@@ -38350,7 +38350,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 							bValid = true;
 					}
 					else
