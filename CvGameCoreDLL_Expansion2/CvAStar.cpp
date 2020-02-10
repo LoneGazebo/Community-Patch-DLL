@@ -1272,7 +1272,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam)
 		{
 			if (!kToNodeCacheData.bCanEnterTerrainPermanent || !kToNodeCacheData.bCanEnterTerritoryPermanent || kToNodeCacheData.bIsNonEnemyCity)
-				return -1; //forbidden
+			return -1; //forbidden
 		}
 
 		// check stacking (if visible)
@@ -1786,10 +1786,10 @@ void CvStepFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int i
 	else
 	{
 		if (m_sData.ePathType == PT_GENERIC_REACHABLE_PLOTS)
-			//assume a unit has 2*PATH_BASE_COST movement points per turn
+		//assume a unit has 2*PATH_BASE_COST movement points per turn
 			node->m_iTurns = unsigned short((node->m_iKnownCost + PATH_BASE_COST) / (2 * PATH_BASE_COST));
-		else
-			node->m_iTurns = (parent->m_iTurns + 1);
+	else
+		node->m_iTurns = (parent->m_iTurns + 1);
 
 		if (operation == ASNC_NEWADD)
 			AddToOpen(node);
@@ -2288,11 +2288,11 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && temp->m_kCostCacheData.bUnitStackingLimitReached)
 		if ((temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0 || temp->m_kCostCacheData.bIsVisibleNeutralCombatUnit) //never ignore stacking for neutral units
-		return false;
+			return false;
 
 	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK)) 
 		if (temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES))
-		return false;
+			return false;
 
 	return true;
 }

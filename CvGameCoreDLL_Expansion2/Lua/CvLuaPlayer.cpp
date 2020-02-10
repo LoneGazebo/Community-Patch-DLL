@@ -532,10 +532,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeNumUnitGoldenAges);
 	Method(GetStrikeTurns);
 	Method(GetGoldenAgeModifier);
-    Method(GetGoldenAgeTourismModifier);
-    Method(GetGoldenAgeGreatWriterRateModifier);
-    Method(GetGoldenAgeGreatArtistRateModifier);
-    Method(GetGoldenAgeGreatMusicianRateModifier);
+	Method(GetGoldenAgeTourismModifier);
+	Method(GetGoldenAgeGreatWriterRateModifier);
+	Method(GetGoldenAgeGreatArtistRateModifier);
+	Method(GetGoldenAgeGreatMusicianRateModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetGoldenAgeGreatScientistRateModifier);
 	Method(GetGoldenAgeGreatEngineerRateModifier);
@@ -12627,8 +12627,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			break;
 		}
 		
-		aOpinions.push_back(kOpinion);
-	}
+			aOpinions.push_back(kOpinion);
+		}
 	// If the visible approach isn't neutral (and we're not at war), show an explanation message to the player.
 	else if (iVisibleApproach != MAJOR_CIV_APPROACH_NEUTRAL && !GET_TEAM(pkPlayer->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 	{

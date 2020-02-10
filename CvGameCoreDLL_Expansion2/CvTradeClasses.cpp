@@ -4679,6 +4679,29 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 	return m_tradeStats.iMinorTRs;
 }
 
+int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if (pConnection->m_iOriginX == pCity->getX() && pConnection->m_iOriginY == pCity->getY())
+			{
+				if (GET_PLAYER(pConnection->m_eDestOwner).isMinorCiv())
+				{
+					iNumConnections++;
+				}
+			}
+		}
+	}
+
+	return iNumConnections;
+}
+
 int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
 {
 	if (!pCity)

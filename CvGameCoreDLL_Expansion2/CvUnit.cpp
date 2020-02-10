@@ -4681,36 +4681,36 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		return true;
 	}
 
-	// Minors can't intrude into one another's territory
+		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
-	{
+		{
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
 
-				// Allow AI players to pass through minors' territory
-				if (!bEndTurn)
-					return true;
-
-		// If we haven't yet met the Minor we can move in
-		if(!kMyTeam.isHasMet(eTeam))
+		// Allow AI players to pass through minors' territory
+		if (!bEndTurn)
 			return true;
+
+			// If we haven't yet met the Minor we can move in
+			if(!kMyTeam.isHasMet(eTeam))
+				return true;
 
 		// Is this an excluded unit that doesn't cause anger?
 		if (IsAngerFreeUnit())
 			return true;
 
-		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 #if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-		// If the minor is allied, treat the plot as being owned by their ally
+			// If the minor is allied, treat the plot as being owned by their ally
 		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
-			return true;
+					return true;
 #endif
 
-		// If already intruding on this minor, okay to do it some more
-		if (pMinorAI->IsMajorIntruding(getOwner()))
-			return true;
+				// If already intruding on this minor, okay to do it some more
+				if (pMinorAI->IsMajorIntruding(getOwner()))
+					return true;
 	}
 
 	//city states may enter their ally's territory - may help for defense
@@ -28355,24 +28355,24 @@ bool CvUnit::SentryAlert() const
 	if (getDomainType() == DOMAIN_AIR)
 	{
 		int iRange = GetRange();
-		for(int iX = -iRange; iX <= iRange; ++iX)
-		{
-			for(int iY = -iRange; iY <= iRange; ++iY)
+			for(int iX = -iRange; iX <= iRange; ++iX)
 			{
-				CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
-				if(NULL != pPlot)
+				for(int iY = -iRange; iY <= iRange; ++iY)
 				{
-					if(pPlot->isVisible(getTeam()))
+					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
+					if(NULL != pPlot)
 					{
-						if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
+						if(pPlot->isVisible(getTeam()))
 						{
-							return true;
+							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
+							{
+								return true;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 #endif
 
 	//combat units should wake as soon as enemies are around
@@ -28381,7 +28381,7 @@ bool CvUnit::SentryAlert() const
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
-	{
+								{
 		CvPlot* pTurnDestination = GetPathEndFirstTurnPlot();
 		return GetDanger(pTurnDestination) > iDangerLimit;
 	}
@@ -29270,11 +29270,7 @@ const char* CvUnit::GetMissionInfo()
 	}
 	else
 	{
-<<<<<<< HEAD
 		if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-=======
-		if (m_eGreatPeopleDirectiveType != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
->>>>>>> origin/master
 		{
 			m_strMissionInfoString += " // ";
 			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
