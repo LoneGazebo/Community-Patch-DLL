@@ -634,7 +634,7 @@
 			<Text>Unique English replacement for the National Intelligence Agency. The White Tower is available significantly earlier than the National Intelligence Agency, however yields from Spy Actions are reduced slightly as a result. In addition to the bonuses from the National Intelligence Agency, the White Tower improves Constabularies and Police Stations, contains a Great Work of Art, and provides yields for enemy Spies killed in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS_QUOTE">
-			<Text>"On the contrary. Every Bison dollar will be worth five British pounds. For that is the exchange rate that the bank of England will implement after I kidnap their queen."[NEWLINE]-M. Bison</Text>
+			<Text>"On the contrary. Every Bison dollar will be worth[NEWLINE] five British pounds. For that is the exchange rate[NEWLINE] that the bank of England will implement after[NEWLINE] I kidnap their queen."[NEWLINE]-M. Bison</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS">
 			<Text>The Crown Jewels</Text>
