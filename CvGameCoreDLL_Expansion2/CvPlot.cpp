@@ -3337,8 +3337,16 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 			if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
 				continue;
 
-			int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBestAttackStrength() * pInterceptorUnit->GetCurrHitPoints();
-
+			// we're fine with truncation here; take promotions boosting intercept strength into account
+			int attackStrength = (pInterceptorUnit->GetBestAttackStrength() * (100 + pInterceptorUnit->GetInterceptionCombatModifier())) / 100;
+			
+			// interceptionProbability contains product of actual intercept chance and health percentage; lets be careful with air units at low health in case of air sweeps
+			int healthFactor = pInterceptorUnit->interceptionProbability();
+			if (pInterceptorUnit->getDomainType() == DOMAIN_AIR)
+				healthFactor = (healthFactor * (pInterceptorUnit->GetCurrHitPoints() * 100) / pInterceptorUnit->GetMaxHitPoints()) / 100;
+			
+			int iValue = attackStrength * healthFactor;
+			
 			if (iValue>0 && piNumPossibleInterceptors)
 				(*piNumPossibleInterceptors)++;
 
