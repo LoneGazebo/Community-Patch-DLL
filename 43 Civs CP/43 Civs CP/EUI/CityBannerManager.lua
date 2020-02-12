@@ -800,7 +800,7 @@ end
 -------------------------------------------------
 -- City banner mouseover
 -------------------------------------------------
-local function OnBannerMouseExit( ... ) -- UndeadDevel: using variadic form to pass in plot index
+local function OnBannerMouseExit()
 	if not UI.IsCityScreenUp() then
 
 		ClearHexHighlights()
@@ -1161,11 +1161,11 @@ local function RefreshCityBannersNow()
 						local free = pledge and cityOwner:CanMajorWithdrawProtection( g_activePlayerID )
 						instance.Pledge1:SetHide( not pledge or free )
 						instance.Pledge2:SetHide( not free )
-						-- UndeadDevel: include tributing information on City Strength element
+
 						if plot:IsVisible( activeTeamID ) then
 							ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
 						end
-
+						-- UndeadDevel: include tributing information on City Strength element
 						if cityOwner:IsMinorCiv() then
 							ttText = ttText .. "[NEWLINE][COLOR_GREY]====================[ENDCOLOR][NEWLINE]" .. cityOwner:GetMajorBullyGoldDetails( g_activePlayerID )
 						end

@@ -15726,6 +15726,7 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 			strNegativeFactor << iFailScore;
 			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
 			sFactors += strNegativeFactor.toUTF8();
+			(*sTooltipSink) += sFactors;
 		}
 		return iFailScore;
 	}

@@ -121,7 +121,7 @@ function PlaceUnit(pUnit)
 -- in particular we need to check if we have a "Gunpowder unit" that is really an AA unit and
 -- if we have an Archery unit, which could either be a helicopter or a mounted archer (or a regular one)
 -- if the unit is a gunpowder unit, we should query if it has a relevant AirInterceptRange
--- if the unit is an archery unit, we should first query if it has the type UNIT_HELICOPTER_GUNSHIP and if not, if it has attack range 1
+-- if the unit is an archery unit, we should first query if it has the type UNIT_HELICOPTER_GUNSHIP and if not, if it is mounted
   if (sDisplayClass == "UNITCOMBAT_GUN" and pUnit:GetAirInterceptRange() > 0) then
     sDisplayClass = "UNITCOMBAT_AA"
   elseif (sDisplayClass == "UNITCOMBAT_ARCHER") then
