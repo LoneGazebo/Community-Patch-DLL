@@ -6,7 +6,7 @@
 			<Class>UNITCLASS_SWORDSMAN</Class>
 			<Type>UNIT_ISRAEL_MACCABEE</Type>
 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			<Combat>16</Combat>
+			<Combat>17</Combat>
 			<Cost>100</Cost>
 			<FaithCost>200</FaithCost>
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
