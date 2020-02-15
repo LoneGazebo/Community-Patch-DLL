@@ -1062,8 +1062,10 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
-	//a normal move is 60 times the base cost
-	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*20; 
+	//for the heuristic to be admissible, it needs to never overestimate the cost of reaching the target
+	//a regular step by a unit costs PATH_BASE_COST*MOVE_DENOMINATOR/MOVES_PER_TURN
+	//for a fast unit on a road, moves per turn can be high ... let's assume 15
+	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*4;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1631,6 +1633,7 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, const S
 /// Default heuristic cost
 int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
 {
+	//todo: do we need tiebreaks here? cross product between step direction and target direction?
 	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST/2;
 }
 
@@ -1641,7 +1644,11 @@ int StepCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserD
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
 	//when in doubt, avoid rough plots
-	return pNewPlot->isRoughGround() && (!pNewPlot->isRoute() || pNewPlot->IsRoutePillaged()) ? PATH_BASE_COST+PATH_BASE_COST/10 : PATH_BASE_COST;
+	int iCost = PATH_BASE_COST;
+	if (pNewPlot->isRoughGround() && (!pNewPlot->isRoute() || pNewPlot->IsRoutePillaged())) 
+		iCost += PATH_BASE_COST/10;
+		
+	return iCost;
 }
 
 
