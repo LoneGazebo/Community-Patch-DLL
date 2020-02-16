@@ -608,7 +608,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						//msg.Format("Zone %d, Enemy %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
 						//	pZone->GetZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
 						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength, pZone->GetOverallEnemyStrength());
-						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg);
 #endif
 
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
@@ -636,7 +636,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						//msg.Format("Zone %d, Friendly %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
 						//	pZone->GetZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
 						//	pLoopUnit->getX(), pLoopUnit->getY(), iDistance, iUnitStrength, iRangedStrength, pZone->GetOverallFriendlyStrength());
-						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg);
 #endif
 
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
@@ -888,7 +888,7 @@ void CvTacticalAnalysisMap::LogZones()
 	//			szLogMsg += ", NAVAL INVASION";
 	//		}
 
-	//		GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szLogMsg, true /*bSkipLogDominanceZone*/);
+	//		GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szLogMsg);
 	//	}
 	//}
 }

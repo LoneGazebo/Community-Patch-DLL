@@ -1711,8 +1711,8 @@ public:
 	void setArmyID(int iNewArmyID);
 	CvString getTacticalZoneInfo() const;
 
-	void setTacticalMove(TacticalAIMoveTypes eMove);
-	TacticalAIMoveTypes getTacticalMove(int* pTurnSet=NULL) const;
+	void setTacticalMove(AITacticalMove eMove);
+	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;
@@ -2227,7 +2227,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;
 #endif
 
-	FAutoVariable<TacticalAIMoveTypes, CvUnit> m_eTacticalMove;
+	FAutoVariable<AITacticalMove, CvUnit> m_eTacticalMove;
 	FAutoVariable<PlayerTypes, CvUnit> m_eCapturingPlayer;
 	FAutoVariable<bool, CvUnit> m_bCapturedAsIs;
 	FAutoVariable<UnitTypes, CvUnit> m_eLeaderUnitType;

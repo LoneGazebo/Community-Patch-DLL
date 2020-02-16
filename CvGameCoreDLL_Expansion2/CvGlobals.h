@@ -91,8 +91,6 @@ class CvEconomicAIStrategyXMLEntries;
 class CvEconomicAIStrategyXMLEntry;
 class CvCitySpecializationXMLEntries;
 class CvCitySpecializationXMLEntry;
-class CvTacticalMoveXMLEntries;
-class CvTacticalMoveXMLEntry;
 class CvMilitaryAIStrategyXMLEntries;
 class CvMilitaryAIStrategyXMLEntry;
 class CvAIGrandStrategyXMLEntries;
@@ -523,11 +521,6 @@ public:
 	std::vector<CvCitySpecializationXMLEntry*>& getCitySpecializationInfo();
 	_Ret_maybenull_ CvCitySpecializationXMLEntry* getCitySpecializationInfo(CitySpecializationTypes eCitySpecialization);
 	CvCitySpecializationXMLEntries* GetGameCitySpecializations() const;
-
-	int getNumTacticalMoveInfos();
-	std::vector<CvTacticalMoveXMLEntry*>& getTacticalMoveInfo();
-	_Ret_maybenull_ CvTacticalMoveXMLEntry* getTacticalMoveInfo(TacticalAIMoveTypes eTacticalMove);
-	CvTacticalMoveXMLEntries* GetGameTacticalMoves() const;
 
 	int getNumMilitaryAIStrategyInfos();
 	std::vector<CvMilitaryAIStrategyXMLEntry*>& getMilitaryAIStrategyInfo();
@@ -9460,7 +9453,6 @@ protected:
 
 	CvEconomicAIStrategyXMLEntries* m_pEconomicAIStrategies;
 	CvCitySpecializationXMLEntries* m_pCitySpecializations;
-	CvTacticalMoveXMLEntries* m_pTacticalMoves;
 	CvMilitaryAIStrategyXMLEntries* m_pMilitaryAIStrategies;
 	CvAIGrandStrategyXMLEntries* m_pAIGrandStrategies;
 	CvAICityStrategies* m_pAICityStrategies;

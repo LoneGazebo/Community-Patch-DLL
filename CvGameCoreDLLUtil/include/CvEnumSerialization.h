@@ -180,8 +180,8 @@ FDataStream & operator>>(FDataStream &, BuildTypes &);
 FDataStream & operator<<(FDataStream &, const CultureLevelTypes &);
 FDataStream & operator>>(FDataStream &, CultureLevelTypes &);
 
-FDataStream & operator<<(FDataStream &, const TacticalAIMoveTypes &);
-FDataStream & operator>>(FDataStream &, TacticalAIMoveTypes &);
+FDataStream & operator<<(FDataStream &, const AITacticalMove &);
+FDataStream & operator>>(FDataStream &, AITacticalMove &);
 
 FDataStream & operator<<(FDataStream &, const CitySpecializationTypes &);
 FDataStream & operator>>(FDataStream &, CitySpecializationTypes &);
