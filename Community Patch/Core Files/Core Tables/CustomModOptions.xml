@@ -283,6 +283,10 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TRAITS_CITY_WORKING" Value="0"/>
 
+    <!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
+    <!-- See also: "Global - City Automaton Workers" -->
+    <Row Class="2" Name="TRAITS_CITY_AUTOMATON_WORKERS" Value="0"/>
+
     <!-- Enables traits to be enabled/obsoleted via beliefs and policies (v77) -->
 	<!-- See also: "Belief - One With Natural Wonders" -->
 	<!-- See also: "Policy - Diplomatic Marriage" -->
@@ -305,9 +309,17 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="POLICIES_CITY_WORKING" Value="0"/>
 
+    <!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
+    <!-- See also: "Global - City Automaton Workers" -->
+    <Row Class="2" Name="POLICIES_CITY_AUTOMATON_WORKERS" Value="0"/>
+
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>
+
+    <!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
+    <!-- See also: "Global - City Automaton Workers" -->
+    <Row Class="2" Name="TECHS_CITY_AUTOMATON_WORKERS" Value="0"/>
 
     <!-- Permits variable great general and admiral aura ranges (v83) -->
 	<!-- See also: "Promotions - Colonels" -->
@@ -368,6 +380,10 @@
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="BUILDINGS_CITY_WORKING" Value="0"/>
+
+    <!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
+    <!-- See also: "Global - City Automaton Workers" -->
+    <Row Class="2" Name="BUILDINGS_CITY_AUTOMATON_WORKERS" Value="0"/>
 
     <!-- Scales trade routes based on map size and game speed (v52) -->
     <Row Class="5" Name="TRADE_ROUTE_SCALING" Value="0" DbUpdates="1"/>

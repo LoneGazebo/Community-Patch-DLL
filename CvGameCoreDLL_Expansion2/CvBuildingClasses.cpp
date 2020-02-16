@@ -723,6 +723,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
 	m_iGlobalCityWorkingChange = kResults.GetInt("GlobalCityWorkingChange");
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
+	m_iGlobalCityAutomatonWorkersChange = kResults.GetInt("GlobalCityAutomatonWorkersChange");
+#endif
 	m_iGlobalPopulationChange = kResults.GetInt("GlobalPopulationChange");
 	m_iPopulationChange = kResults.GetInt("PopulationChange");
 	m_iTechShare = kResults.GetInt("TechShare");
@@ -2050,6 +2054,20 @@ int CvBuildingEntry::GetCityWorkingChange() const
 int CvBuildingEntry::GetGlobalCityWorkingChange() const
 {
 	return m_iGlobalCityWorkingChange;
+}
+#endif
+
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+/// Change in number of automatons for this city
+int CvBuildingEntry::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
+}
+
+/// Change in number of automatons for every city
+int CvBuildingEntry::GetGlobalCityAutomatonWorkersChange() const
+{
+	return m_iGlobalCityAutomatonWorkersChange;
 }
 #endif
 

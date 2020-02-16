@@ -142,6 +142,11 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsCityWorkingChange);
 	Method(ChangeCityWorkingChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	Method(GetCityAutomatonWorkersChange);
+	Method(IsCityAutomatonWorkersChange);
+	Method(ChangeCityAutomatonWorkersChange);
+#endif
 	Method(GetBridgeBuildingCount);
 	Method(IsBridgeBuilding);
 	Method(ChangeBridgeBuildingCount);
@@ -929,6 +934,29 @@ int CvLuaTeam::lIsCityWorkingChange(lua_State* L)
 int CvLuaTeam::lChangeCityWorkingChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::changeCityWorkingChange);
+}
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+//------------------------------------------------------------------------------
+//int getCityAutomatonWorkersChange();
+int CvLuaTeam::lGetCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetCityAutomatonWorkersChange);
+}
+
+//------------------------------------------------------------------------------
+//bool isCityAutomatonWorkersChange();
+int CvLuaTeam::lIsCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::isCityAutomatonWorkersChange);
+}
+
+//------------------------------------------------------------------------------
+//void changeCityAutomatonWorkersChange(int iChange);
+int CvLuaTeam::lChangeCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::changeCityAutomatonWorkersChange);
 }
 #endif
 

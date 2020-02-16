@@ -115,6 +115,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_POLICIES_CITY_WORKING)
 	m_iCityWorkingChange(0),
 #endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange(0),
+#endif
 	m_iPlotCultureCostModifier(0),
 	m_iPlotCultureExponentModifier(0),
 	m_iNumCitiesPolicyCostDiscount(0),
@@ -571,6 +574,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPlotGoldCostMod = kResults.GetInt("PlotGoldCostMod");
 #if defined(MOD_POLICIES_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
+#endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 #endif
 	m_iPlotCultureCostModifier = kResults.GetInt("PlotCultureCostModifier");
 	m_iPlotCultureExponentModifier = kResults.GetInt("PlotCultureExponentModifier");
@@ -1815,6 +1821,14 @@ int CvPolicyEntry::GetPlotGoldCostMod() const
 int CvPolicyEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
+}
+#endif
+
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+/// How many more tiles can we work
+int CvPolicyEntry::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
 }
 #endif
 

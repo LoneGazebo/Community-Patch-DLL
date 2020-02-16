@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v89 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 89)
+#define MOD_DLL_NAME "Community Patch v94 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 94)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -416,6 +416,8 @@
 #define MOD_TRAITS_CROSSES_ICE                      gCustomMods.isTRAITS_CROSSES_ICE()
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_TRAITS_CITY_WORKING                     gCustomMods.isTRAITS_CITY_WORKING()
+// Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
+#define MOD_TRAITS_CITY_AUTOMATON_WORKERS           gCustomMods.isTRAITS_CITY_AUTOMATON_WORKERS()
 // Enables traits to be enabled/obsoleted via beliefs and policies (v77)
 #define MOD_TRAITS_OTHER_PREREQS                    gCustomMods.isTRAITS_OTHER_PREREQS()
 // Enables any belief to be selected, even if already taken (v46)
@@ -431,6 +433,8 @@
 
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
+// Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
+#define MOD_POLICIES_CITY_AUTOMATON_WORKERS         gCustomMods.isPOLICIES_CITY_AUTOMATON_WORKERS()
 
 // Restricts a Team from passing into the next era before they have found all techs of their current era
 #define MOD_ERA_RESTRICTION							gCustomMods.isERA_RESTRICTION()
@@ -440,6 +444,8 @@
 
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_TECHS_CITY_WORKING                      gCustomMods.isTECHS_CITY_WORKING()
+// Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v89)
+#define MOD_TECHS_CITY_AUTOMATON_WORKERS            gCustomMods.isTECHS_CITY_AUTOMATON_WORKERS()
 
 // Permits variable great general and admiral aura ranges (v83)
 #define MOD_PROMOTIONS_AURA_CHANGE                  gCustomMods.isPROMOTIONS_AURA_CHANGE()
@@ -475,6 +481,8 @@
 #define MOD_BUILDINGS_PRO_RATA_PURCHASE             gCustomMods.isBUILDINGS_PRO_RATA_PURCHASE()
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_BUILDINGS_CITY_WORKING                  gCustomMods.isBUILDINGS_CITY_WORKING()
+// Permit cities to have automaton workers - AFFECTS SAVE GAME DATA FORMAT (v90)
+#define MOD_BUILDINGS_CITY_AUTOMATON_WORKERS        gCustomMods.isBUILDINGS_CITY_AUTOMATON_WORKERS()
 
 // Scales trade routes based on map size and game speed (v52)
 #define MOD_TRADE_ROUTE_SCALING                     gCustomMods.isTRADE_ROUTE_SCALING()
@@ -695,6 +703,11 @@
 //   GameEvents.ParadropAt.Add(function(iPlayer, iUnit, iFromX, iFromY, iToX, iToY) end)
 #define MOD_EVENTS_PARADROPS                        gCustomMods.isEVENTS_PARADROPS()
 
+// Event sent to ascertain if a unit can perform a ranged attack on a tile (v90)
+//   GameEvents.UnitCanRangeAttackAt.Add(function(iPlayer, iUnit, iPlotX, iPlotY, bNeedWar) return false end)
+//   GameEvents.UnitRangeAttackAt.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return 0; end)
+#define MOD_EVENTS_UNIT_RANGEATTACK                 gCustomMods.isEVENTS_UNIT_RANGEATTACK()
+
 // Event sent when a unit is created (v46)
 //   GameEvents.UnitCreated.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end)
 #define MOD_EVENTS_UNIT_CREATED                     gCustomMods.isEVENTS_UNIT_CREATED()
@@ -891,6 +904,9 @@
 #define MOD_BUGFIX_RANDOM							(true)
 // Fixes the spy name crash (v53)
 #define MOD_BUGFIX_SPY_NAMES                        (true)
+// Fixes the research NaN issue (v90)
+#define MOD_BUGFIX_RESEARCH_NAN						(true)
+// Fixes the research overflow bug/exploit (v52)
 #define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
 // Fixes the bug where a city doesn't work its centre tile (v45)
 #define MOD_BUGFIX_CITY_CENTRE_WORKING              (true)
@@ -1224,6 +1240,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitCanHavePromotion			"UnitCanHavePromotion",			"iii"
 #define GAMEEVENT_UnitCanHaveUpgrade			"UnitCanHaveUpgrade",			"iiii"
 #define GAMEEVENT_UnitCanPillage				"UnitCanPillage",				"iiii"
+#define GAMEEVENT_UnitCanRangeAttackAt			"UnitCanRangeAttackAt",			"iiiib"
 #define GAMEEVENT_UnitCanTransitMinorCity		"UnitCanTransitMinorCity",		"iiiiii"
 #define GAMEEVENT_UnitCaptured					"UnitCaptured",					"iiiibi"
 #define GAMEEVENT_UnitCaptureType				"UnitCaptureType",				"iiii"
@@ -1232,6 +1249,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitPillageGold				"UnitPillageGold",				"iiii"
 #define GAMEEVENT_UnitPrekill					"UnitPrekill",					"iiiiibi"
 #define GAMEEVENT_UnitPromoted					"UnitPromoted",					"iii"
+#define GAMEEVENT_UnitRangeAttackAt				"UnitRangeAttackAt",			"iiii"
 #define GAMEEVENT_UnitUpgraded					"UnitUpgraded",					"iiib"
 #define GAMEEVENT_IdeologyAdopted				"IdeologyAdopted",				"ii"
 #define GAMEEVENT_IdeologySwitched				"IdeologySwitched",				"iii"
@@ -1529,6 +1547,7 @@ public:
 	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
+	MOD_OPT_DECL(TRAITS_CITY_AUTOMATON_WORKERS);
 	MOD_OPT_DECL(TRAITS_OTHER_PREREQS);
 	MOD_OPT_DECL(TRAITS_ANY_BELIEF);
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_BONUSES);
@@ -1537,9 +1556,11 @@ public:
 	MOD_OPT_DECL(TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY);
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
+	MOD_OPT_DECL(POLICIES_CITY_AUTOMATON_WORKERS);
 	MOD_OPT_DECL(ERA_RESTRICTION);
 	MOD_OPT_DECL(USE_TRADE_FEATURES);
 	MOD_OPT_DECL(TECHS_CITY_WORKING);
+	MOD_OPT_DECL(TECHS_CITY_AUTOMATON_WORKERS);
 
 	MOD_OPT_DECL(PROMOTIONS_AURA_CHANGE);
 	MOD_OPT_DECL(PROMOTIONS_GG_FROM_BARBARIANS);
@@ -1559,6 +1580,7 @@ public:
 	MOD_OPT_DECL(BUILDINGS_NW_EXCLUDE_RAZING);
 	MOD_OPT_DECL(BUILDINGS_PRO_RATA_PURCHASE);
 	MOD_OPT_DECL(BUILDINGS_CITY_WORKING);
+	MOD_OPT_DECL(BUILDINGS_CITY_AUTOMATON_WORKERS);
 
 	MOD_OPT_DECL(TRADE_ROUTE_SCALING);
 	MOD_OPT_DECL(TRADE_WONDER_RESOURCE_ROUTES);
@@ -1634,6 +1656,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CITY_CONNECTIONS);
 	MOD_OPT_DECL(EVENTS_AREA_RESOURCES);
 	MOD_OPT_DECL(EVENTS_PARADROPS);
+	MOD_OPT_DECL(EVENTS_UNIT_RANGEATTACK);
 	MOD_OPT_DECL(EVENTS_UNIT_CREATED);
 	MOD_OPT_DECL(EVENTS_UNIT_FOUNDED);
 	MOD_OPT_DECL(EVENTS_UNIT_PREKILL);

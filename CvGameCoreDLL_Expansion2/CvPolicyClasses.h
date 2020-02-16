@@ -125,6 +125,9 @@ public:
 #if defined(MOD_POLICIES_CITY_WORKING)
 	int GetCityWorkingChange() const;
 #endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
+#endif
 	int GetPlotCultureCostModifier() const;
 	int GetPlotCultureExponentModifier() const;
 	int GetNumCitiesPolicyCostDiscount() const;
@@ -529,6 +532,9 @@ private:
 	int m_iPlotGoldCostMod;
 #if defined(MOD_POLICIES_CITY_WORKING)
 	int m_iCityWorkingChange;
+#endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	int m_iCityAutomatonWorkersChange;
 #endif
 	int m_iPlotCultureCostModifier;
 	int m_iPlotCultureExponentModifier;
