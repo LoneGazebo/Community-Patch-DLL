@@ -107,6 +107,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTRVisionBoost(0),
 	m_iHappinessPerXPolicies(0),
 	m_iHappinessPerXGreatWorks(0),
+	m_iExtraMissionaryStrength(0),
+	m_iExtraMissionarySpreads(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -564,6 +566,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
 	m_iHappinessPerXGreatWorks = kResults.GetInt("HappinessPerXGreatWorks");
+	m_iExtraMissionaryStrength = kResults.GetInt("ExtraMissionaryStrength");
+	m_iExtraMissionarySpreads = kResults.GetInt("ExtraMissionarySpreads");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1325,6 +1329,35 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+	//Policy_YieldChangesPerReligion
+	{
+		m_piYieldChangesPerReligion.clear();
+		std::string sqlKey = "Policy_YieldChangesPerReligion";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID, Yield from Policy_YieldChangesPerReligion, Yields where PolicyType = ? and YieldType = Yields.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPolicyType, false);
+
+		while (pResults->Step())
+		{
+			const int yieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+
+			m_piYieldChangesPerReligion[yieldID] += yield;
+		}
+
+		//Trim capacity
+		std::map<int, int>(m_piYieldChangesPerReligion).swap(m_piYieldChangesPerReligion);
+
+		pResults->Reset();
+	}
+#endif
+
 	return true;
 }
 
@@ -1784,6 +1817,16 @@ int CvPolicyEntry::GetHappinessPerXPolicies() const
 int CvPolicyEntry::GetHappinessPerXGreatWorks() const
 {
 	return m_iHappinessPerXGreatWorks;
+}
+
+int CvPolicyEntry::GetExtraMissionaryStrength() const
+{
+	return m_iExtraMissionaryStrength;
+}
+
+int CvPolicyEntry::GetExtraMissionarySpreads() const
+{
+	return m_iExtraMissionarySpreads;
 }
 #endif
 /// Happiness from each connected Luxury Resource
@@ -2738,6 +2781,23 @@ bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCu
 	}
 
 	return false;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+/// What is the golden age modifier for the specific yield type?
+int CvPolicyEntry::GetYieldChangesPerReligionTimes100(const int yieldID) const
+{
+	CvAssertMsg(yieldID < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(yieldID > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator it = m_piYieldChangesPerReligion.find(yieldID);
+	if (it != m_piYieldChangesPerReligion.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	return 0;
 }
 #endif
 

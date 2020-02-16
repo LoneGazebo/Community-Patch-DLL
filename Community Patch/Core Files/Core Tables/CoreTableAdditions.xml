@@ -708,6 +708,12 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- POLICY: Allows you to define a yield in all cities, as a percent of the number of religions present in the city. -->
+	<Table name="Policy_YieldChangesPerReligion">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
 	Yield here is maximum yield for mountain clusters. All mountains have a minimum of 1 yield from the value below, so the yield will be somewhere between 1 and x, where x is the maximum value or # of adjacent mountains. -->
