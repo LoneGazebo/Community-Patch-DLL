@@ -346,16 +346,10 @@ void CvTacticalAI::CommandeerUnits()
 			if (pLoopUnit->getDamage() > 50 || ShouldRebase(pLoopUnit) || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
 				continue;
 
-			if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
-				pLoopUnit->setTacticalMove(AI_TACTICAL_UNASSIGNED);
-
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 		else if (pLoopUnit->isBarbarian()) // We want ALL the barbarians
 		{
-			if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
-				pLoopUnit->setTacticalMove(AI_TACTICAL_UNASSIGNED);
-
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 		// these should be handled by homeland AI
@@ -377,9 +371,7 @@ void CvTacticalAI::CommandeerUnits()
 			{
 				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
 				if (eDirective == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
-				{
 					continue;
-				}
 			}
 
 			// Is this one in an operation we can't interrupt?
@@ -395,13 +387,7 @@ void CvTacticalAI::CommandeerUnits()
 					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 			}
 			else
-			{
-				//just for debugging
-				if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
-					pLoopUnit->setTacticalMove(AI_TACTICAL_UNASSIGNED);
-
 				m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-			}
 		}
 	}
 
@@ -418,11 +404,6 @@ void CvTacticalAI::CommandeerUnits()
 		}
 	}
 #endif
-}
-
-/// Set up for a turn of tactical moves
-void CvTacticalAI::DoTurn()
-{
 }
 
 /// Update the AI for units
@@ -1195,20 +1176,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 void CvTacticalAI::AssignBarbarianMoves()
 {
 	//barbarians don't have tactical zones, they just attack everything that moves
-	//the Execute* functions are low-level and don't set their move type
-	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_HUNT);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
-	
-	//barbarians range-attack civilians, they are barbarians!
-	//again the Execute* functions are low-level and don't set their move type
-	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_EMBARKED_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
+	PlotBarbarianAttacks();
 
 	//barbarians like to plunder as well
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, true);
@@ -1222,10 +1190,8 @@ void CvTacticalAI::AssignBarbarianMoves()
 	//capturing civilians
 	PlotCivilianAttackMoves();
 
+	//normal roaming unless in camp
 	PlotCampDefenseMoves();
-	PlotBarbarianCivilianEscortMove();
-	
-	//normal roaming
 	PlotBarbarianMove(true);
 	PlotBarbarianMove(false);
 
@@ -1756,27 +1722,22 @@ void CvTacticalAI::PlotBarbarianMove(bool bAggressive)
 		ExecuteBarbarianMoves(bAggressive);
 }
 
-/// Escort captured civilians back to barbarian camps
-void CvTacticalAI::PlotBarbarianCivilianEscortMove()
+//attack military units and civilians without regard for tactical zones
+void CvTacticalAI::PlotBarbarianAttacks()
 {
-	if (!m_pPlayer->isBarbarian())
-		return;
-
-	ClearCurrentMoveUnits(AI_TACTICAL_ESCORT);
-
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit || pUnit->TurnProcessed())
-			continue;
-
-		// Find any civilians we may have "acquired" from the civs
-		if(!pUnit->IsCombatUnit())
-			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-		ExecuteBarbarianCivilianEscortMove();
+	//the Execute* functions are generic, need to set the current tactical move before calling them
+	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_HUNT);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
+	
+	//barbarians range-attack civilians, they are barbarians!
+	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK);
+	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_EMBARKED_CIVILIAN);
+	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN);
+	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN);
+	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN);
+	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
 }
 
 /// Plunder trade routes
@@ -4881,7 +4842,6 @@ void CvTacticalAI::ExecuteHeals()
 void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 {
 	CvPlot* pBestPlot = NULL;
-	CvString strTemp;
 
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
@@ -4890,7 +4850,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 		{
 			if(pUnit->isBarbarian()) //combat and captured civilians both
 			{
-				strTemp = pUnit->getUnitInfo().GetDescription();
+				CvString strTemp = pUnit->getUnitInfo().GetDescription();
 
 				// LAND MOVES
 				if(pUnit->getDomainType() == DOMAIN_LAND)
@@ -4915,284 +4875,18 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
 					{
-#if defined(MOD_BALANCE_CORE)
 						if(pUnit->shouldPillage(pUnit->plot()))
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-#endif
-						}
-
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 					}
+				}
 				// NAVAL MOVES
 				else
 				{
 					pBestPlot = FindBestBarbarianSeaMove(pUnit);
-					MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12);
 					//no naval pillaging, it's just too annoying
+					if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-				}
-			}
-		}
-	}
-}
-
-/// Move Barbarian civilian to a camp (with escort if possible)
-void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
-{
-	CvUnit* pCivilian = NULL;
-	CvUnit* pEscort = NULL;
-	CvPlot* pTarget = NULL;
-	CvPlot* pCurrent = NULL;
-	CvPlot* pCivilianMove = NULL;
-	CvPlot* pEscortMove = NULL;
-	CvUnit* pLoopUnit = NULL;
-
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		pCivilian = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pCivilian)
-		{
-			//for the barbarian player AI_TACTICAL_TARGET_BARBARIAN_CAMP does not automatically mean the camp is empty of _barbarian_ defenders (check is only for enemy units)
-			pTarget = FindNearbyTarget(pCivilian, 17, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-			if(pTarget)
-			{
-				// If we're not there yet, we have work to do
-				pCurrent = pCivilian->plot();
-				if(pCurrent == pTarget)
-				{
-					UnitProcessed(pCivilian->GetID());
-				}
-				else
-				{
-#if defined(MOD_BALANCE_CORE)
-					int iLoop;
-					int iBestDistance = 4;
-					ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-					for(pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
-					{
-						if(!pLoopUnit || pLoopUnit->IsCivilianUnit() || pLoopUnit->plot()->getArea()!=pCivilian->plot()->getArea())
-							continue;
-
-						if(pLoopUnit->getDomainType() == pCivilian->getDomainType() || pLoopUnit->getArea() != pCivilian->getArea())
-							continue;
-
-						if(pLoopUnit->plot()->getImprovementType()==eCamp)
-							continue;
-
-						if(pLoopUnit->plot() == pCivilian->plot())
-						{
-							pEscort = pLoopUnit;
-							break;
-						}
-						else
-						{
-							int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pCivilian->getX(), pCivilian->getY());
-							if(iDistance < iBestDistance)
-							{
-								pEscort = pLoopUnit;
-								iBestDistance = iDistance;
-							}
-						}
-					}
-#else
-
-					if(pCurrent->getNumUnits() > 1)
-					{
-						for(int iJ = 0; iJ < pCurrent->getNumUnits(); iJ++)
-						{
-							pLoopUnit = pCurrent->getUnitByIndex(iJ);
-							if(pLoopUnit->GetID() != pCivilian->GetID() &&
-							        pLoopUnit->getOwner() == pCivilian->getOwner())
-							{
-								pEscort = CvUnit*(pLoopUnit);
-								break;
-							}
-						}
-					}
-#endif
-
-					// Handle case of no path found at all for civilian
-					if(!pCivilian->GeneratePath(pTarget, 0, INT_MAX, NULL, true))
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Civilian cannot reach target, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-							LogTacticalMessage(strLogString);
-						}
-						return;
-					}
-					else
-					{
-						pCivilianMove = pCivilian->GetPathEndFirstTurnPlot();
-
-						// Can we reach our target this turn?
-						if (pCivilianMove == pTarget)
-						{
-							// See which defender is stronger
-							CvUnit* pCampDefender = pCivilianMove->getBestDefender(m_pPlayer->GetID());
-							if(!pCampDefender || (pEscort && pEscort->GetPower() > pCampDefender->GetPower()))
-							{
-								if(pEscort && (!pCampDefender || ExecuteMoveOfBlockingUnit(pCampDefender)))
-								{
-									ExecuteMoveToPlot(pEscort, pCivilianMove);
-									ExecuteMoveToPlot(pCivilian, pCivilianMove);
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strTemp;
-										CvString strLogString;
-										strTemp = pEscort->getUnitInfo().GetDescription();
-										strLogString.Format("Moving escorting %s to take over camp defense, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-										LogTacticalMessage(strLogString);
-										strTemp = pCivilian->getUnitInfo().GetDescription();
-										strLogString.Format("Moving %s to camp, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-										LogTacticalMessage(strLogString);
-									}
-								}
-								else
-								{
-									ExecuteMoveToPlot(pCivilian, pCivilianMove);
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strTemp;
-										CvString strLogString;
-										strTemp = pCivilian->getUnitInfo().GetDescription();
-										strLogString.Format("Moving %s to camp, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-										LogTacticalMessage(strLogString);
-									}
-								}
-							}
-							else
-							{
-								ExecuteMoveToPlot(pCivilian, pCivilianMove);
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strTemp;
-									CvString strLogString;
-									strTemp = pCivilian->getUnitInfo().GetDescription();
-									strLogString.Format("Moving %s to camp, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-									LogTacticalMessage(strLogString);
-								}
-							}
-						}
-						// Can't reach target and don't have escort...
-						else if (!pEscort)
-						{
-							ExecuteMoveToPlot(pCivilian, pCivilianMove);
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strTemp;
-								CvString strLogString;
-								strTemp = pCivilian->getUnitInfo().GetDescription();
-								strLogString.Format("Moving %s without escort to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY());
-								LogTacticalMessage(strLogString);
-							}
-						}
-						// Can't reach target and DO have escort...
-						else if (pCivilianMove)
-						{
-							// See if escort can move to the same location in one turn
-							if(pEscort->TurnsToReachTarget(pCivilianMove) < 1)
-							{
-								ExecuteMoveToPlot(pEscort, pCivilianMove);
-								ExecuteMoveToPlot(pCivilian, pCivilianMove);
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strTemp;
-									CvString strLogString;
-									strTemp = pEscort->getUnitInfo().GetDescription();
-									strLogString.Format("Moving escorting %s to target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-									LogTacticalMessage(strLogString);
-									strTemp = pCivilian->getUnitInfo().GetDescription();
-									strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-									LogTacticalMessage(strLogString);
-								}
-							}
-							else
-							{
-								CvUnit* pBlockingUnit = pCivilianMove->getBestDefender(m_pPlayer->GetID());
-
-								// See if friendly blocking unit is ending the turn there, or if no blocking unit (which indicates this is somewhere civilian
-								// can move that escort can't), then find a new path based on moving the escort
-								if(!pBlockingUnit || pBlockingUnit->getMoves() == 0)
-								{
-									if(!pEscort->GeneratePath(pTarget))
-									{
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-											strLogString.Format("Escort cannot move with civilian, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-											LogTacticalMessage(strLogString);
-										}
-										return;
-									}
-									else
-									{
-										pEscortMove = pCivilian->GetPathEndFirstTurnPlot();
-
-										// See if civilian can move to the same location in one turn
-										if(pCivilian->TurnsToReachTarget(pEscortMove) < 1)
-										{
-											ExecuteMoveToPlot(pEscort, pEscortMove);
-											ExecuteMoveToPlot(pCivilian, pEscortMove);
-											if(GC.getLogging() && GC.getAILogging())
-											{
-												CvString strTemp;
-												CvString strLogString;
-												strTemp = pEscort->getUnitInfo().GetDescription();
-												strLogString.Format("Moving escorting %s to target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-												LogTacticalMessage(strLogString);
-												strTemp = pCivilian->getUnitInfo().GetDescription();
-												strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-												LogTacticalMessage(strLogString);
-											}
-										}
-										else
-										{
-											if(GC.getLogging() && GC.getAILogging())
-											{
-												CvString strLogString;
-												strLogString.Format("Civilian cannot move with escort. Too many blocking units.");
-												LogTacticalMessage(strLogString);
-											}
-											return;
-										}
-									}
-								}
-
-								// Looks like we should be able to move the blocking unit out of the way
-								else
-								{
-									if(ExecuteMoveOfBlockingUnit(pBlockingUnit))
-									{
-										ExecuteMoveToPlot(pEscort, pCivilianMove);
-										ExecuteMoveToPlot(pCivilian, pCivilianMove);
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strTemp;
-											CvString strLogString;
-											strTemp = pEscort->getUnitInfo().GetDescription();
-											strLogString.Format("Moving escorting %s to target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-											LogTacticalMessage(strLogString);
-											strTemp = pCivilian->getUnitInfo().GetDescription();
-											strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-											LogTacticalMessage(strLogString);
-										}
-									}
-									else
-									{
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-											strLogString.Format("Could not move blocking unit for escorted civilian.");
-											LogTacticalMessage(strLogString);
-										}
-										return;
-									}
-								}
-							}
-						}
-					}
 				}
 			}
 		}
@@ -6918,6 +6612,16 @@ void CvTacticalAI::UnitProcessed(int iID)
 	if (!pUnit)
 		return;
 
+	if (iID==gCurrentUnitToTrack)
+	{
+		CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
+		OutputDebugString( CvString::format("turn %03d: used %s %s %d for tactical move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
+			GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), gCurrentUnitToTrack,
+			tacticalMoveNames[m_CurrentMoveUnits.getCurrentTacticalMove()], 
+			pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
+	}
+
+	pUnit->setTacticalMove(m_CurrentMoveUnits.getCurrentTacticalMove());
 	pUnit->SetTurnProcessed(true);
 }
 
@@ -7508,7 +7212,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot) + kPlayer.GetCityDistanceInPlots(pPlot);
 
 		bool bIsZeroDanger = (iDanger <= 0);
-		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
+		bool bIsInCity = pPlot->isFriendlyCity(*pUnit);
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 
@@ -7533,7 +7237,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger += 9;
 
 		//try to go avoid borders
-		if (pPlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+		if (pPlot->IsAdjacentOwnedByEnemy(pUnit->getTeam()))
 			iDanger += 7;
 
 		//don't stay here, try to get away even if it means temporarily moving to a higher danger plot
@@ -7587,37 +7291,21 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 	// Now that we've gathered up our lists of destinations, pick the most promising one
 	if (aCityList.size()>0)
-		return aCityList.front().option;
+		return aCityList.back().option;
 	else if (aZeroDangerList.size()>0)
-		return aZeroDangerList.front().option;
+		return aZeroDangerList.back().option;
 	else if (aCoverList.size()>0)
-		return aCoverList.front().option;
+		return aCoverList.back().option;
 	else if (aDangerList.size()>0)
-		return aDangerList.front().option;
+		return aDangerList.back().option;
 
 	return NULL;
 }
 
 void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 {
+	//put a breakpoint here if required
 	m_vec.push_back(unit);
-
-	CvUnit* pUnit = m_owner ? m_owner->getUnit( unit.GetID() ) : NULL;
-
-	if (pUnit)
-	{
-		//not a nice design to use a global variable here, but it's easier than modifying the code in 30 places
-		pUnit->setTacticalMove( m_eCurrentMoveType );
-
-		if (unit.GetID()== gCurrentUnitToTrack)
-		{
-			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
-			OutputDebugString( CvString::format("turn %03d: using %s %s %d for tactical move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
-				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), gCurrentUnitToTrack,
-				tacticalMoveNames[m_eCurrentMoveType], 
-				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
-		}
-	}
 }
 
 CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
@@ -8787,7 +8475,7 @@ STacticalAssignment ScorePlotForNonCombatUnitMove(const SUnitStats& unit, const 
 	vector<STacticalAssignment> defenderAssignment = assumedPosition.findBlockingUnitsAtPlot(testPlot.getPlotIndex(),dummy);
 
 	//todo: check if the defender is not embarked! 
-	if ( (!defenderAssignment.empty() && defenderAssignment.front().iRemainingMoves == 0) || pTestPlot->isFriendlyCity(*pUnit,true) )
+	if ( (!defenderAssignment.empty() && defenderAssignment.front().iRemainingMoves == 0) || pTestPlot->isFriendlyCity(*pUnit) )
 		iScore += 100;
 	else
 	{
@@ -11212,18 +10900,25 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 
 const char* tacticalMoveNames[] =
 {
+	"T_NONE",
+
 	"T_UNASSIGNED",
 	"T_GUARD",
 	"T_GARRISON",
 	"T_OPERATION",
+
 	"T_PILLAGE",
 	"T_PLUNDER",
 	"T_GOODY",
+
 	"T_HEAL",
 	"T_SAFETY",
 	"T_REPOSITION",
+	"T_ESCORT",
+
 	"T_AIRSWEEP",
 	"T_AIRPATROL",
+
 	"T_HEDGEHOG",
 	"T_COUNTERATTACK",
 	"T_WITHDRAW",
@@ -11232,7 +10927,7 @@ const char* tacticalMoveNames[] =
 	"T_SURGICAL_STRIKE",
 	"T_STEAMROLL",
 	"T_FLANKATTACK",
-	"T_ESCORT",
+
 	"T_AIRLIFT",
 	"T_BLOCKADE",
 	"T_CAPTURE",

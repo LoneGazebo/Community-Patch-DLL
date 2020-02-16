@@ -183,6 +183,9 @@ FDataStream & operator>>(FDataStream &, CultureLevelTypes &);
 FDataStream & operator<<(FDataStream &, const AITacticalMove &);
 FDataStream & operator>>(FDataStream &, AITacticalMove &);
 
+FDataStream & operator<<(FDataStream &, const AIHomelandMove &);
+FDataStream & operator>>(FDataStream &, AIHomelandMove &);
+
 FDataStream & operator<<(FDataStream &, const CitySpecializationTypes &);
 FDataStream & operator>>(FDataStream &, CitySpecializationTypes &);
 

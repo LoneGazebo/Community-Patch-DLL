@@ -26673,13 +26673,10 @@ bool CvCity::isPotentiallyInDanger() const
 void CvCity::DoBarbIncursion()
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
-	{
 		return;
-	}
 
 	//No barb incursions before 'release' point.
-	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn();
-	if (!bBarbsAllowedYet)
+	if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 		return;
 
 	// Found a CS city to spawn near
@@ -26704,7 +26701,7 @@ void CvCity::DoBarbIncursion()
 	{
 		//don't steal from ourselves
 		if(GET_PLAYER(getOwner()).isBarbarian())
-		return;
+			return;
 
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
@@ -26713,11 +26710,11 @@ void CvCity::DoBarbIncursion()
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
+				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit() && pLoopPlot->GetNumFriendlyUnitsAdjacent(getTeam(),pUnit->getDomainType())==0)
 				{			
-				//pretend the unit attacks this city
-				int iAttackerDamage = 0;
-				int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
+					//pretend the unit attacks this city
+					int iAttackerDamage = 0;
+					int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
 
 					//we pay them off so they don't do damage
 					if (iDefenderDamage > 0)

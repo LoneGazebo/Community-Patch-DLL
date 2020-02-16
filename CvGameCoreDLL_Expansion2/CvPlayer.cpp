@@ -11679,21 +11679,13 @@ void CvPlayer::doTurnPostDiplomacy()
 //	--------------------------------------------------------------------------------
 void CvPlayer::doTurnUnits()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
-
 	AI_doTurnUnitsPre();
-
-	// Tactical AI
-	m_pTacticalAI->DoTurn();
-
-	// Homeland AI
-	m_pHomelandAI->DoTurn();
 
 	// Start: old unit AI processing
 	for(int iPass = 0; iPass < 4; iPass++)
 	{
-		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		int iLoop;
+		for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
 			switch(pLoopUnit->getDomainType())
 			{
@@ -14276,7 +14268,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 									{
 										if(pNewUnit->canEnterTerritory(pLoopPlot->getTeam()) && !pNewUnit->isEnemy(pLoopPlot->getTeam(), pLoopPlot))
 										{
-											if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit, true))
+											if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit))
 											{
 												if(pLoopPlot->isRevealed(getTeam()))
 												{

@@ -939,14 +939,16 @@ int CvLuaPlot::lIsCity(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::isCity);
 }
 //------------------------------------------------------------------------------
-//bool isFriendlyCity(CyUnit* pUnit, bool bCheckImprovement);
+//bool isFriendlyCity(CyUnit* pUnit);
 int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
-	const bool bCheckImprovement = lua_toboolean(L, 3);
 
-	const bool bResult = pkPlot->isFriendlyCity(*pkUnit, bCheckImprovement);
+	//ignored
+	//const bool bCheckImprovement = lua_toboolean(L, 3);
+
+	const bool bResult = pkPlot->isFriendlyCity(*pkUnit);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
