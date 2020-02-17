@@ -737,6 +737,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldFromBarbarianKills(NULL)
 	, m_piYieldChangeTradeRoute(NULL)
 	, m_piYieldChangesNaturalWonder(NULL)
+	, m_piYieldChangesPerReligion()
 	, m_piYieldChangeWorldWonder(NULL)
 	, m_piYieldFromMinorDemand(NULL)
 	, m_piYieldFromWLTKD(NULL)
@@ -2241,6 +2242,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_piYieldChangesNaturalWonder.clear();
 		m_piYieldChangesNaturalWonder.resize(NUM_YIELD_TYPES, 0);
+
+		m_piYieldChangesPerReligion.clear();
 
 		m_piYieldChangeWorldWonder.clear();
 		m_piYieldChangeWorldWonder.resize(NUM_YIELD_TYPES, 0);
@@ -39952,6 +39955,38 @@ void CvPlayer::ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetYieldChangesPerReligionTimes100(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	std::map<int, int>::const_iterator it = m_piYieldChangesPerReligion.find((int)eYield);
+	if (it != m_piYieldChangesPerReligion.end()) // find returns the iterator to map::end if the key is not present
+	{
+		return it->second;
+	}
+
+	return 0;
+}
+
+void CvPlayer::ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_piYieldChangesPerReligion[(int)eYield] += iChange;
+
+		updateYield();
+
+		//Trim capacity
+		std::map<int, int>(m_piYieldChangesPerReligion).swap(m_piYieldChangesPerReligion);
+	}
+}
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetYieldChangeWorldWonder(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -43197,6 +43232,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeTRSpeedBoost(pPolicy->GetTRSpeedBoost() * iChange);
 	ChangeExtraHappinessPerXPoliciesFromPolicies(pPolicy->GetHappinessPerXPolicies() * iChange);
 	ChangeHappinessPerXGreatWorks(pPolicy->GetHappinessPerXGreatWorks() * iChange);
+	ChangeMissionaryExtraStrength(pPolicy->GetExtraMissionaryStrength() * iChange);
+	ChangeNumMissionarySpreads(pPolicy->GetExtraMissionarySpreads() * iChange);
+
 	ChangePositiveWarScoreTourismMod(pPolicy->GetPositiveWarScoreTourismMod() * iChange);
 
 	ChangeIsNoCSDecayAtWar(pPolicy->IsNoCSDecayAtWar() * iChange);
@@ -43669,6 +43707,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetYieldChangesNaturalWonder(iI) * iChange;
 		if(iMod != 0)
 			ChangeYieldChangesNaturalWonder(eYield, iMod);
+
+		iMod = pPolicy->GetYieldChangesPerReligionTimes100(iI) * iChange;
+		if (iMod != 0)
+			ChangeYieldChangesPerReligionTimes100(eYield, iMod);
 
 		iMod = pPolicy->GetYieldChangeWorldWonder(iI) * iChange;
 		if(iMod != 0)
@@ -45537,6 +45579,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piYieldFromBarbarianKills;
 	kStream >> m_piYieldChangeTradeRoute;
 	kStream >> m_piYieldChangesNaturalWonder;
+	kStream >> m_piYieldChangesPerReligion;
 	kStream >> m_piYieldChangeWorldWonder;
 	kStream >> m_piYieldFromMinorDemand;
 	kStream >> m_piYieldFromWLTKD;
@@ -45725,6 +45768,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piYieldFromBarbarianKills;
 	kStream << m_piYieldChangeTradeRoute;
 	kStream << m_piYieldChangesNaturalWonder;
+	kStream << m_piYieldChangesPerReligion;
 	kStream << m_piYieldChangeWorldWonder;
 	kStream << m_piYieldFromMinorDemand;
 	kStream << m_piYieldFromWLTKD;

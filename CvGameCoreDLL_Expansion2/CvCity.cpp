@@ -15938,6 +15938,10 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		int iYieldPerReligion = GetYieldPerReligionTimes100((YieldTypes)iYield);
+#if defined(MOD_API_UNIFIED_YIELDS)
+		// Player-level yield per religion
+		iYieldPerReligion += GET_PLAYER(getOwner()).GetYieldChangesPerReligionTimes100((YieldTypes)iYield);
+#endif
 		if (iYieldPerReligion > 0)
 		{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -24859,6 +24863,10 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
 #endif
 	iBaseYield += (GetYieldPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers());
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Player-level yield per religion
+	iBaseYield += GET_PLAYER(m_eOwner).GetYieldChangesPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers();
+#endif
 	int iNonSpecialist = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizens(eIndex);
 	if (iNonSpecialist != 0)
 	{

@@ -2337,6 +2337,9 @@ public:
 	int GetYieldChangesNaturalWonder(YieldTypes eYield) const;
 	void ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange);
 
+	int GetYieldChangesPerReligionTimes100(YieldTypes eYield) const;
+	void ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange);
+
 	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
 	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
 
@@ -3585,6 +3588,7 @@ protected:
 	std::vector<int> m_piYieldFromBarbarianKills;
 	std::vector<int> m_piYieldChangeTradeRoute;
 	std::vector<int> m_piYieldChangesNaturalWonder;
+	std::map<int, int> m_piYieldChangesPerReligion;
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
