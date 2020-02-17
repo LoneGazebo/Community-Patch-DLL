@@ -315,6 +315,9 @@ CvCity::CvCity() :
 	, m_iHappinessFromLuxuries("CvCity::m_iHappinessFromLuxuries", m_syncArchive)
 	, m_iUnhappinessFromEmpire("CvCity::m_iUnhappinessFromEmpire", m_syncArchive)
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	, m_iCityAutomatonWorkersChange("CvCity::m_iCityAutomatonWorkersChange", m_syncArchive)
+#endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
 #endif
@@ -1553,6 +1556,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bAllowsFoodTradeRoutes = false;
 	m_bAllowPuppetPurchase = false;
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = 0;
+#endif
 	m_iMaintenance = 0;
 	m_iHealRate = 0;
 	m_iEspionageModifier = 0;
@@ -2437,7 +2443,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 		if (m_eOwner != NO_PLAYER) {
-			setAutomatons(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).getCityAutomatonWorkers());
+			setAutomatons(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCityAutomatonWorkersChange());
+			setAutomatons(GET_PLAYER(getOwner()).GetCityAutomatonWorkersChange());
 		}
 #endif
 	}
@@ -14909,6 +14916,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BUILDINGS_CITY_WORKING)
 		changeCityWorkingChange(pBuildingInfo->GetCityWorkingChange() * iChange);
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+		changeCityAutomatonWorkersChange(pBuildingInfo->GetCityAutomatonWorkersChange() * iChange);
+#endif
 
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 		int iBuildingFaith = pBuildingInfo->GetYieldChange(YIELD_FAITH);
@@ -20499,6 +20509,27 @@ void CvCity::changeCityWorkingChange(int iChange)
 			}
 		}
 	}
+}
+#endif
+
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+//	--------------------------------------------------------------------------------
+int CvCity::GetCityAutomatonWorkersChange() const
+{
+	VALIDATE_OBJECT
+		return m_iCityAutomatonWorkersChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeCityAutomatonWorkersChange(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			changeAutomatons(iChange);
+
+			m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
+		}
 }
 #endif
 

@@ -77,7 +77,7 @@ public:
 #if defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
 #endif
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
 #endif
 	bool IsBridgeBuilding() const;
@@ -166,7 +166,7 @@ private:
 #if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
 #endif
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
 #endif
 	bool m_bBridgeBuilding;

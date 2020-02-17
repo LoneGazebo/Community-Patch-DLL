@@ -4040,6 +4040,22 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 	if(!pPlot->isCity())
 	{
 		CvUnit* pDefender = kAttacker.rangeStrikeTarget(*pPlot, true);
+
+#if defined(MOD_EVENTS_UNIT_RANGEATTACK)
+		if (!pDefender) {
+			if (MOD_EVENTS_UNIT_RANGEATTACK) {
+				int iValue = 0;
+				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitRangeAttackAt, kAttacker.getOwner(), kAttacker.GetID(), iX, iY) == GAMEEVENTRETURN_VALUE) {
+					if (iValue) {
+						return CvUnitCombat::ATTACK_COMPLETED;
+					}
+
+					return CvUnitCombat::ATTACK_ABORTED;
+				}
+			}
+		}
+#endif
+
 		if(!pDefender) 
 			return ATTACK_ABORTED;
 
@@ -4152,6 +4168,22 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 	if(!targetPlot.isCity() || kAttacker.AI_getUnitAIType()==UNITAI_MISSILE_AIR)
 	{
 		CvUnit* pDefender = kAttacker.rangeStrikeTarget(targetPlot, true);
+
+#if defined(MOD_EVENTS_UNIT_RANGEATTACK)
+		if (!pDefender) {
+			if (MOD_EVENTS_UNIT_RANGEATTACK) {
+				int iValue = 0;
+				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitRangeAttackAt, kAttacker.getOwner(), kAttacker.GetID(), targetPlot.getX(), targetPlot.getY()) == GAMEEVENTRETURN_VALUE) {
+					if (iValue) {
+						return CvUnitCombat::ATTACK_COMPLETED;
+					}
+
+					return CvUnitCombat::ATTACK_ABORTED;
+				}
+			}
+		}
+#endif
+
 		if(!pDefender) 
 			return CvUnitCombat::ATTACK_ABORTED;
 

@@ -238,6 +238,9 @@ protected:
 	static int lGetRouteType(lua_State* L);
 	static int lSetRouteType(lua_State* L);
 	static int lIsRoutePillaged(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(SetRoutePillaged, void, bPillage);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetPlayerThatBuiltImprovement, int);
