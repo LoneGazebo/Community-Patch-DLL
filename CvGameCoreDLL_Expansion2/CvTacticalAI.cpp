@@ -290,9 +290,11 @@ void CvTacticalAI::CommandeerUnits()
 	{
 		// debugging hook
 		if (gCurrentUnitToTrack == pLoopUnit->GetID())
-		{
 			pLoopUnit->DumpDangerInNeighborhood();
-		}
+
+		// we reset this every turn in order to spot units falling through the cracks
+		// todo: ideally we have some persistency and prefer to assign the same tasks across turns ...
+		pLoopUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
 
 		//LogTacticalMessage( CvString::format("looking to recruit %s %d at (%d,%d) with %d hp",
 		//	pLoopUnit->getName().c_str(),pLoopUnit->GetID(),pLoopUnit->getX(),pLoopUnit->getY(),pLoopUnit->GetCurrHitPoints()).c_str() );
@@ -4268,7 +4270,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		}
 
 		if (!pUnit->TurnProcessed())
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
 	}
 
 	return bSuccess;
@@ -5216,8 +5218,6 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 /// Move forces in toward our target
 void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone)
 {
-	ClearCurrentMoveUnits(AI_TACTICAL_CLOSE_ON_TARGET);
-
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 
 	//cities have two zones ...
@@ -5263,7 +5263,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 
 				//finally detailed pathfinding
 				int iTurns = 0;
-				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2, iMaxTurns, &iTurns, true))
+				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2||CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())

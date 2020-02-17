@@ -15364,13 +15364,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
-	bool bNoAdjacent = GC.getImprovementInfo(eFort)->IsNoTwoAdjacent();
-	
-	if((eFort == NO_IMPROVEMENT) || (eCitadel == NO_IMPROVEMENT))
+	if(eFort == NO_IMPROVEMENT && eCitadel == NO_IMPROVEMENT)
 		return 0;
-
-	PlayerTypes pNeighborAdjacent = NO_PLAYER;
-	PlayerTypes pNeighborNearby = NO_PLAYER;
 
 	// See how many outside plots are nearby to monitor
 	int iAdjacentUnowned = 0;
@@ -15380,7 +15375,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 	int iNearbyOwned = 0;
 	int iBadNearby = 0;
 	int iBadAdjacent = 0;
-	int iRange = 2;
+
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pLoopAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
@@ -15388,131 +15383,82 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		//Don't want them adjacent to cities, but we do want to check for plot ownership.
 		if (pLoopAdjacentPlot != NULL)
 		{	
-			//Let's check for adjacent plots, but only ones we own.
+			//Adjacent to city? Break!
+			if(pLoopAdjacentPlot->isCity())
+				return 0;
+			//impassable is uninteresting
+			if(pLoopAdjacentPlot->isImpassable(eTeam))
+				continue;
+
 			if(pLoopAdjacentPlot->getOwner() == eOwner)
 			{
 				iAdjacentWeOwn++;
 				//don't build other defenses near citadels (next to forts is ok)
 				if (pLoopAdjacentPlot->getImprovementType() == eCitadel)
 					return 0;
-				//special rule for CP - since we don't force adjacency penalty, let's make the AI behave that way.
-				else if (!bNoAdjacent && pLoopAdjacentPlot->getImprovementType() == eFort)
-					return 0;
-			}
-			if(pLoopAdjacentPlot->isCity())
-			{
-				//Adjacent to city? Break!
-				return 0;
-			}
-			else if(pLoopAdjacentPlot->isImpassable(eTeam) || pLoopAdjacentPlot->isWater())
-			{
-				//don't consider impassable and water plots
-				continue;
 			}
 			else if(pLoopAdjacentPlot->getOwner() == NO_PLAYER)
 			{
 				iAdjacentUnowned++;
 			}
-
-			else if(pLoopAdjacentPlot->getOwner() != eOwner && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
+			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
 				iAdjacentOwned++;
-				if (!GET_PLAYER(eOwner).isHuman())
-				{
-					pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
-					if (pNeighborAdjacent != NULL)
-					{
-						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) <= MAJOR_CIV_OPINION_NEUTRAL)
-						{
-							iBadAdjacent++;
-						}
-					}
-				}
+				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
+					iBadAdjacent++;
 			}
-			else if(pLoopAdjacentPlot->getOwner() != eOwner && (GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
+			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv())
 			{
 				iAdjacentOwned++;
-				if (!GET_PLAYER(eOwner).isHuman())
-				{
-					pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
-					if (pNeighborAdjacent != NULL)
-					{
-						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborAdjacent) >= MINOR_CIV_APPROACH_CONQUEST)
-						{
-							iBadAdjacent++;
-						}
-					}
-				}
+				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopAdjacentPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
+					iBadAdjacent++;
 			}
 		}
 	}
+
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
-	if(iAdjacentWeOwn < 6 && ((iAdjacentUnowned > 2) || (iBadAdjacent > 0) || (iAdjacentOwned > 3)) )
+	if(iAdjacentUnowned + iAdjacentOwned > 2 || iBadAdjacent > 0)
 	{
 		//check the wider area for enemy tiles. may also be on another landmass
-		for(int iX = -iRange; iX <= iRange; iX++)
+		for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 		{
-			for(int iY = -iRange; iY <= iRange; iY++)
-			{
-				CvPlot* pLoopNearbyPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
+			CvPlot* pLoopNearbyPlot = iterateRingPlots(this, i);
 
-				//Don't want them adjacent to cities, but we do want to check for plot ownership.
-				if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam) && (this != pLoopNearbyPlot))
+			//Don't want them adjacent to cities, but we do want to check for plot ownership.
+			if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam))
+			{
+				if (!pLoopNearbyPlot->isOwned())
+					continue;
+
+				if (pLoopNearbyPlot->getOwner() != eOwner)
 				{
-					if((pLoopNearbyPlot->getOwner() != eOwner) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+					if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 					{
 						iNearbyOwned++;
-						pNeighborNearby = pLoopNearbyPlot->getOwner();
-						if(pNeighborNearby != NULL)
-						{
-							if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) <= MAJOR_CIV_OPINION_NEUTRAL)
-							{
-								iBadNearby++;
-							}
-						}
+						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
+							iBadNearby++;
 					}
-					else if((pLoopNearbyPlot->getOwner() != eOwner) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+					else if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv())
 					{
 						iNearbyOwned++;
-						pNeighborNearby = pLoopNearbyPlot->getOwner();
-						if(pNeighborNearby != NULL)
-						{
-							if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborNearby) >= MINOR_CIV_APPROACH_CONQUEST)
-							{
-								iBadNearby++;
-							}
-						}
-					}
-					//Let's check for owned nearby forts as well
-					if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && (pLoopNearbyPlot->getOwner() == eOwner))
-					{
-						if((eFort == pLoopNearbyPlot->getImprovementType()) || (eCitadel == pLoopNearbyPlot->getImprovementType()))
-						{
-							iNearbyForts++;
-						}
+						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopNearbyPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
+							iBadNearby++;
 					}
 				}
+
+				//Let's check for owned nearby forts as well
+				if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
+					if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
+						iNearbyForts++;
 			}
 		}
 
 		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
-		if (iBadNearby == 0 || (iNearbyForts > 2))
-		{
+		if (iBadNearby == 0 || iNearbyForts > 2)
 			return 0;
-		}
 
 		// Get score for this sentry point (defense and danger)
-		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this,false) + defenseModifier(eTeam, true, true);
-
-		ImprovementTypes eCurrentImprovement = getImprovementType();
-
-		if (eCurrentImprovement != NO_IMPROVEMENT)
-		{
-			if (GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() > 0)
-			{
-				iScore -= GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() * 2;
-			}
-		}
+		int iScore = defenseModifier(eTeam, true, true);
 
 		//Bonus for nearby owned tiles
 		iScore += (iNearbyOwned * 3);
@@ -15527,16 +15473,12 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		iScore += (iBadNearby * 10);
 
 		//Big bonus if chokepoint
-		if(IsLandbridge(12,54))
-		{
-			iScore *= 33;
-		}
-		else if(IsChokePoint())
-		{
-			iScore *= 17;
-		}
+		if(IsChokePoint())
+			iScore += 17;
+
 		return iScore;
 	}
+
 	return 0;
 }
 
