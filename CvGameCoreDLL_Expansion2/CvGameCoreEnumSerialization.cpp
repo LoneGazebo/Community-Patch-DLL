@@ -13,6 +13,12 @@ FDataStream& operator<<(FDataStream& saveTo, const AITacticalMove& readFrom)
 	saveTo << static_cast<int>(readFrom);
 	return saveTo;
 }
+FDataStream& operator<<(FDataStream& saveTo, const AIHomelandMove& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+
 //------------------------------------------------------------------------------
 FDataStream& operator>>(FDataStream& loadFrom, AITacticalMove& writeTo)
 {
@@ -21,13 +27,20 @@ FDataStream& operator>>(FDataStream& loadFrom, AITacticalMove& writeTo)
 	writeTo = static_cast<AITacticalMove>(v);
 	return loadFrom;
 }
+FDataStream& operator>>(FDataStream& loadFrom, AIHomelandMove& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<AIHomelandMove>(v);
+	return loadFrom;
+}
 
+//------------------------------------------------------------------------------
 FDataStream& operator<<(FDataStream& saveTo, const YieldTypes& readFrom)
 {
 	saveTo << static_cast<int>(readFrom);
 	return saveTo;
 }
-//------------------------------------------------------------------------------
 FDataStream& operator>>(FDataStream& loadFrom, YieldTypes& writeTo)
 {
 	int v;

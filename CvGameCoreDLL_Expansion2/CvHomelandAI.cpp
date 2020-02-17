@@ -174,19 +174,20 @@ void CvHomelandAI::FindAutomatedUnits()
 	}
 }
 
-/// Set up for a turn of tactical moves
-void CvHomelandAI::DoTurn()
-{
-}
-
 /// Update the AI for units
 void CvHomelandAI::Update()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("Homeland AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()));
 
 	//no homeland for barbarians
-	if(m_pPlayer->GetID() == BARBARIAN_PLAYER)
+	if (m_pPlayer->GetID() == BARBARIAN_PLAYER)
+	{
+		int iLoop;
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+			if (!pLoopUnit->TurnProcessed())
+				pLoopUnit->SetTurnProcessed(true);
 		return;
+	}
 
 	if (m_pPlayer->isHuman())
 		FindAutomatedUnits();
@@ -586,9 +587,7 @@ void CvHomelandAI::FindHomelandTargets()
 
 	// Post-processing on targets
 	EliminateAdjacentSentryPoints();
-#if defined(MOD_BALANCE_CORE)
 	EliminateAdjacentNavalSentryPoints();
-#endif
 	EliminateAdjacentHomelandRoads();
 	std::stable_sort(m_TargetedCities.begin(), m_TargetedCities.end());
 }
@@ -2329,7 +2328,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				continue;
 			}
 
-			pUnit->setHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
 			if (pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if (pUnit->getMoves() > 0)
@@ -2435,18 +2433,11 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 void CvHomelandAI::ExecuteUnassignedUnitMoves()
 {
-	MoveUnitsArray::iterator it;
-	for (it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for (MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if (!pUnit || pUnit->isDelayedDeath())
 			continue;
-
-		if (pUnit->IsCivilianUnit())
-		{
-			MoveCivilianToSafety(pUnit);
-			continue;
-		}
 
 		CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
 		if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
@@ -2454,6 +2445,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 		else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
+		//important: do this for every unit so the next player's turn can start
 		UnitProcessed(pUnit->GetID());
 	}
 }
@@ -2461,8 +2453,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 /// Creates cities for AI civs on first turn
 void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 {
-	MoveUnitsArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(pUnit)
@@ -6384,14 +6375,28 @@ void CvHomelandAI::LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit 
 	pLog->Msg(strLog);
 }
 
+int g_currentHomelandUnitToTrack = 0;
+
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvHomelandAI::UnitProcessed(int iID)
 {
 	m_CurrentTurnUnits.remove(iID);
 
 	CvUnit* pUnit = m_pPlayer->getUnit(iID);
-	if(pUnit)
-		pUnit->SetTurnProcessed(true);
+	if (!pUnit)
+		return;
+
+	if (iID==g_currentHomelandUnitToTrack)
+	{
+		CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
+		OutputDebugString( CvString::format("turn %03d: using %s %s %d for homeland move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
+			GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentHomelandUnitToTrack,
+			homelandMoveNames[m_CurrentMoveUnits.getCurrentHomelandMove()], 
+			pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
+	}
+
+	pUnit->setHomelandMove(m_CurrentMoveUnits.getCurrentHomelandMove());
+	pUnit->SetTurnProcessed(true);
 }
 
 //returns the target plot if sucessful, null otherwise
@@ -6730,8 +6735,6 @@ void CvHomelandAI::ClearCurrentMoveUnits(AIHomelandMove eNextMove)
 
 //	---------------------------------------------------------------------------
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-
 bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
 {
 	if(pUnit->GeneratePath(pTargetPlot,iFlags,INT_MAX,NULL,true))
@@ -6777,10 +6780,9 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 }
 
 
-int g_currentHomelandUnitToTrack = 0;
-
 const char* homelandMoveNames[] =
 {
+	"H_MOVE_NONE",
 	"H_MOVE_UNASSIGNED",
 	"H_MOVE_EXPLORE",
 	"H_MOVE_EXPLORE_SEA",
@@ -6835,25 +6837,7 @@ const char* directiveNames[] =
 void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)
 {
 	m_vec.push_back(unit);
-
-	CvUnit* pUnit = m_owner ? m_owner->getUnit( unit.GetID() ) : NULL;
-
-	if (pUnit)
-	{
-		//not a nice design to use a global variable here, but it's easier than modifying the code in 30 places
-		pUnit->setHomelandMove( m_currentHomelandMove );
-
-		if (unit.GetID()==g_currentHomelandUnitToTrack)
-		{
-			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
-			OutputDebugString( CvString::format("turn %03d: using %s %s %d for homeland move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
-				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentHomelandUnitToTrack,
-				homelandMoveNames[(int)m_currentHomelandMove+1], 
-				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
-		}
-	}
 }
-#endif
 
 // HELPER FUNCTIONS
 

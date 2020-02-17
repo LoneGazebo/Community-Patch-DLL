@@ -104,6 +104,7 @@ public:
 	void clear() { m_vec.clear(); }
 	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentHomelandMove(AIHomelandMove move) { m_currentHomelandMove=move; }
+	AIHomelandMove getCurrentHomelandMove() const { return m_currentHomelandMove; }
 
 	typedef std::vector<CvHomelandUnit>::iterator iterator; 
 
@@ -209,7 +210,6 @@ public:
 	// Public turn update routines
 	void RecruitUnits();
 	void FindAutomatedUnits();
-	void DoTurn();
 	void Update();
 
 	// Public exploration routines

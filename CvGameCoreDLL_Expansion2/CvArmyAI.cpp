@@ -666,7 +666,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 
 #if defined(MOD_BALANCE_CORE)
 	//just for avoiding confusion
-	pThisUnit->setTacticalMove(NO_TACTICAL_MOVE);
+	pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
 #endif
 
 	// Finally, compute when we think this unit will arrive at the next checkpoint

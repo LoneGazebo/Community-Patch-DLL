@@ -457,6 +457,7 @@ public:
 	void clear() { m_vec.clear(); }
 	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType=move; }
+	AITacticalMove getCurrentTacticalMove() const { return m_eCurrentMoveType; }
 	CvUnit* getUnit(size_t i) const { return m_owner ? m_owner->getUnit( m_vec[i].GetID() ) : NULL; }
 	PlayerTypes getOwner() const { return m_owner ? m_owner->GetID() : NO_PLAYER; }
 private:
@@ -489,7 +490,6 @@ public:
 
 	// Public turn update routines
 	void CommandeerUnits();
-	void DoTurn();
 	void Update();
 
 	// Temporary dominance zones
@@ -538,6 +538,7 @@ private:
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
+	void PlotBarbarianAttacks();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotBlockadeMoves();
 	void PlotCivilianAttackMoves();
@@ -545,7 +546,6 @@ private:
 	void PlotHealMoves();
 	void PlotCampDefenseMoves();
 	void PlotBarbarianMove(bool bAggressive);
-	void PlotBarbarianCivilianEscortMove();
 
 ///------------------------------
 //	unify these?
@@ -610,7 +610,6 @@ private:
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();
 	void ExecuteBarbarianMoves(bool bAggressive);
-	void ExecuteBarbarianCivilianEscortMove();
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);

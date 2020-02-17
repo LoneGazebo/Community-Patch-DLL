@@ -4325,7 +4325,7 @@ void CvPlot::removeGoody()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
+bool CvPlot::isFriendlyCity(const CvUnit& kUnit) const
 {
 	if(!isCity())
 	{
@@ -14518,7 +14518,7 @@ bool CvPlot::IsWithinDistanceOfCity(const CvUnit* eThisUnit, int iDistance, bool
 				{
 					if(pLoopPlot->isCity())
 					{
-						if(bIsFriendly && pLoopPlot->isFriendlyCity(*eThisUnit, true))
+						if(bIsFriendly && pLoopPlot->isFriendlyCity(*eThisUnit))
 						{
 							return true;
 						}
