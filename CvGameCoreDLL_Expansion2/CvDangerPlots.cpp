@@ -780,7 +780,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	int iPlotDamage = 0;
 
 	CvCity* pFriendlyCity = NULL;
-	if ( m_pPlot->isFriendlyCity(*pUnit,true) )
+	if ( m_pPlot->isFriendlyCity(*pUnit) )
 		pFriendlyCity = m_pPlot->getPlotCity();
 
 	// Civilians can be captured - unless they would need to be embarked on this plot

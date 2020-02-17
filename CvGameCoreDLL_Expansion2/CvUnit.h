@@ -1711,8 +1711,8 @@ public:
 	void setArmyID(int iNewArmyID);
 	CvString getTacticalZoneInfo() const;
 
-	void setTacticalMove(TacticalAIMoveTypes eMove);
-	TacticalAIMoveTypes getTacticalMove(int* pTurnSet=NULL) const;
+	void setTacticalMove(AITacticalMove eMove);
+	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;
@@ -2227,7 +2227,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageTakenLastTurn;
 #endif
 
-	FAutoVariable<TacticalAIMoveTypes, CvUnit> m_eTacticalMove;
 	FAutoVariable<PlayerTypes, CvUnit> m_eCapturingPlayer;
 	FAutoVariable<bool, CvUnit> m_bCapturedAsIs;
 	FAutoVariable<UnitTypes, CvUnit> m_eLeaderUnitType;
@@ -2377,9 +2376,10 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
-	int m_iTactMoveSetTurn;
-	int m_iHomelandMoveSetTurn;
-	AIHomelandMove m_eHomelandMove;
+	FAutoVariable<AITacticalMove, CvUnit> m_eTacticalMove;
+	FAutoVariable<int, CvUnit> m_iTacticalMoveSetTurn;
+	FAutoVariable<AIHomelandMove, CvUnit> m_eHomelandMove;
+	FAutoVariable<int, CvUnit> m_iHomelandMoveSetTurn;
 #endif
 
 	friend class CvLuaUnit;

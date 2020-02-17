@@ -11222,14 +11222,14 @@ void CvPlayer::doTurn()
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
 						}
 					}
 					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
 						}
 					}
 					else
@@ -11679,21 +11679,13 @@ void CvPlayer::doTurnPostDiplomacy()
 //	--------------------------------------------------------------------------------
 void CvPlayer::doTurnUnits()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
-
 	AI_doTurnUnitsPre();
-
-	// Tactical AI
-	m_pTacticalAI->DoTurn();
-
-	// Homeland AI
-	m_pHomelandAI->DoTurn();
 
 	// Start: old unit AI processing
 	for(int iPass = 0; iPass < 4; iPass++)
 	{
-		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		int iLoop;
+		for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
 			switch(pLoopUnit->getDomainType())
 			{
@@ -14276,7 +14268,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 									{
 										if(pNewUnit->canEnterTerritory(pLoopPlot->getTeam()) && !pNewUnit->isEnemy(pLoopPlot->getTeam(), pLoopPlot))
 										{
-											if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit, true))
+											if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit))
 											{
 												if(pLoopPlot->isRevealed(getTeam()))
 												{
@@ -19882,15 +19874,11 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	{	
 		if (eHistoricEvent == HISTORIC_EVENT_ERA)
 			iYieldHandicap *= 2;
-		else if (eHistoricEvent == HISTORIC_EVENT_GP)
-			iYieldHandicap /= 3;
-		else if (eHistoricEvent != NO_HISTORIC_EVENT_TYPE)
-			iYieldHandicap /= 2;
 
 		bool IncludeCities = true;
 		if (eHistoricEvent == HISTORIC_EVENT_GP ||
-			eHistoricEvent == HISTORIC_EVENT_WONDER ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
+			eHistoricEvent == HISTORIC_EVENT_TRADE_CS ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
 		{
 			IncludeCities = false;
@@ -19912,7 +19900,7 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 		GetTreasury()->ChangeGold(iYieldHandicap);
 		ChangeGoldenAgeProgressMeter(iYieldHandicap);
-		changeJONSCulture(iYieldHandicap / 2);
+		changeJONSCulture(iYieldHandicap);
 		
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
@@ -31503,7 +31491,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 1)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 0)
 	{
 		int iYieldHandicap = DoDifficultyBonus(eHistoricEvent);
 		if (GC.getLogging() && GC.getAILogging())
@@ -38296,7 +38284,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 							bValid = true;
 					}
 					else
@@ -38350,7 +38338,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 							bValid = true;
 					}
 					else

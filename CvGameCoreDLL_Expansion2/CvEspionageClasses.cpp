@@ -4562,7 +4562,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 #if defined(MOD_BALANCE_CORE)
 			//not being able to counterspy is lame.
 			if (GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
-				uiMaxGWAdjusted *= 2;
+				uiMaxGWAdjusted *= 3;
 
 			if (GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{

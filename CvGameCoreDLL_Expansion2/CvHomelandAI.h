@@ -30,24 +30,6 @@ enum AIHomelandTargetType
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
 
-// Object stored in the list of move priorities (m_MovePriorityList)
-class CvHomelandMove
-{
-public:
-	CvHomelandMove()
-	{
-		m_eMoveType = AI_HOMELAND_MOVE_NONE;
-		m_iPriority = 0;
-	}
-
-	bool operator<(const CvHomelandMove& move) const
-	{
-		return (m_iPriority > move.m_iPriority);
-	}
-
-	AIHomelandMove m_eMoveType;
-	int m_iPriority;
-};
 
 // Object stored in the list of current move units (m_CurrentMoveUnits)
 class CvHomelandUnit
@@ -122,6 +104,7 @@ public:
 	void clear() { m_vec.clear(); }
 	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentHomelandMove(AIHomelandMove move) { m_currentHomelandMove=move; }
+	AIHomelandMove getCurrentHomelandMove() const { return m_currentHomelandMove; }
 
 	typedef std::vector<CvHomelandUnit>::iterator iterator; 
 
@@ -227,7 +210,6 @@ public:
 	// Public turn update routines
 	void RecruitUnits();
 	void FindAutomatedUnits();
-	void DoTurn();
 	void Update();
 
 	// Public exploration routines
@@ -247,34 +229,21 @@ private:
 	typedef CHomelandUnitArray MoveUnitsArray;
 
 	// Internal turn update routines - commandeered unit processing
-	void EstablishHomelandPriorities();
 	void FindHomelandTargets();
 	void AssignHomelandMoves();
 
-	// Routines to manage identifying and implementing homeland moves
+//---- move those to tactical AI eventually
 	void PlotExplorerMoves(bool bSecondPass);
 	void PlotExplorerSeaMoves(bool bSecondPass);
-	void PlotFirstTurnSettlerMoves();
-	void PlotHealMoves();
-	void PlotMovesToSafety();
-
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-	void PlotOpportunisticSettlementMoves();
-#endif
-
-//------------------------------------- move to tactical AI
-#if defined(MOD_BALANCE_CORE)
-	void PlotGarrisonMoves(bool bCityStateOnly = false);
+	void PlotGarrisonMoves();
 	void PlotMobileReserveMoves();
 	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
-	void PlotAircraftMoves();
-	void PlotAircraftInterceptions();
+	void PlotAircraftRebase();
 	void PlotAirliftMoves();
 
-	void ExecuteAircraftInterceptions();
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves(bool bAtWar);
 
@@ -284,9 +253,15 @@ private:
 
 	std::vector<CvHomelandTarget> m_TargetedSentryPoints;
 	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
-#endif
 //-------------------------------------
 
+	// Routines to manage identifying and implementing homeland moves
+	void PlotFirstTurnSettlerMoves();
+	void PlotHealMoves();
+	void PlotMovesToSafety();
+#if defined(MOD_AI_SECONDARY_SETTLERS)
+	void PlotOpportunisticSettlementMoves();
+#endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
 	void PlotWorkerSeaMoves(bool bSecondary = false);
@@ -349,7 +324,7 @@ private:
 	void ExecuteArchaeologistMoves();
 
 	void EliminateAdjacentHomelandRoads();
-	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
+	bool FindUnitsForThisMove(AIHomelandMove eMove);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns);
@@ -362,9 +337,7 @@ private:
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
-	bool GetClosestUnitByTurnsToTarget(MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns);
-	void ClearCurrentMoveUnits();
-	void ClearCurrentMoveHighPriorityUnits();
+	void ClearCurrentMoveUnits(AIHomelandMove eNextMove);
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
@@ -375,9 +348,6 @@ private:
 	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
 
 	MoveUnitsArray m_CurrentMoveUnits;
-	MoveUnitsArray m_CurrentMoveHighPriorityUnits;
-
-	vector< CvHomelandMove > m_MovePriorityList;
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;

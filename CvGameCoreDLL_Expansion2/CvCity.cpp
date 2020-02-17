@@ -1043,7 +1043,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 	// Do this only after the capital has been chosen
-	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding && !isCapital())
+	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
 		int iYieldHandicap = owningPlayer.DoDifficultyBonus();
 		if (GC.getLogging() && GC.getAILogging())
@@ -26675,13 +26675,10 @@ bool CvCity::isPotentiallyInDanger() const
 void CvCity::DoBarbIncursion()
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
-	{
 		return;
-	}
 
 	//No barb incursions before 'release' point.
-	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn();
-	if (!bBarbsAllowedYet)
+	if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 		return;
 
 	// Found a CS city to spawn near
@@ -26725,7 +26722,7 @@ void CvCity::DoBarbIncursion()
 					if (iDefenderDamage > 0)
 					{
 						//they get x turns worth of yields
-						int iTheftTurns = max(1, iDefenderDamage / 23 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+						int iTheftTurns = max(1, iDefenderDamage / 25 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 
 						//but they lose some health in exchange
 						pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));

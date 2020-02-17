@@ -913,10 +913,7 @@ void CvBarbarians::DoUnits()
 				{
 					CvString strLogString;
 					strLogString.Format("Unit spawned in camp. X: %d, Y: %d", pLoopPlot->getX(), pLoopPlot->getY());
-					if(GET_PLAYER(BARBARIAN_PLAYER).GetID() != NO_PLAYER)
-					{
 						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
-					}
 				}
 			}
 		}

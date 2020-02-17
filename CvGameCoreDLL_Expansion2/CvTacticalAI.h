@@ -14,99 +14,6 @@
 
 class FDataStream;
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTacticalMoveXMLEntry
-//!  \brief		A single entry in the tactical move XML file
-//
-//!  Key Attributes:
-//!  - Populated from XML\AI\CIV5TacticalMoves.xml
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvTacticalMoveXMLEntry: public CvBaseInfo
-{
-public:
-	CvTacticalMoveXMLEntry();
-	virtual ~CvTacticalMoveXMLEntry();
-
-	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
-
-	// Accessor Functions
-	int GetPriority() const
-	{
-		return m_iPriority;
-	};
-	void SetPriority(int iPriority)
-	{
-		m_iPriority = iPriority;
-	};
-	int GetOffenseFlavorWeight() const
-	{
-		return m_iOffenseWeight;
-	};
-	void SetOffenseFlavorWeight(int iWeight)
-	{
-		m_iOffenseWeight = iWeight;
-	};
-	int GetDefenseFlavorWeight() const
-	{
-		return m_iDefenseWeight;
-	};
-	void SetDefenseFlavorWeight(int iWeight)
-	{
-		m_iDefenseWeight = iWeight;
-	};
-	int CanRecruitForOperations() const
-	{
-		return m_bOperationsCanRecruit;
-	};
-	void SetRecruitForOperations(bool bAvailable)
-	{
-		m_bOperationsCanRecruit = bAvailable;
-	};
-	int IsDominanceZoneMove() const
-	{
-		return m_bDominanceZoneMove;
-	};
-	void SetDominanceZoneMove(bool bByPosture)
-	{
-		m_bDominanceZoneMove = bByPosture;
-	};
-
-private:
-	TacticalAIMoveTypes m_eMoveType;
-	int m_iPriority;
-	int m_iOffenseWeight;
-	int m_iDefenseWeight;
-	bool m_bOperationsCanRecruit;
-	bool m_bDominanceZoneMove;
-};
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTacticalMoveXMLEntries
-//!  \brief		Game-wide information about tactical move priorities
-//
-//! Key Attributes:
-//! - Populated from XML\AI\Civ5TacticalMoves.xml
-//! - Contains an array of CvTacticalMoveXMLEntry from the above XML file
-//! - One instance for the entire game
-//! - Accessed heavily by CvTacticalAI class
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvTacticalMoveXMLEntries
-{
-public:
-	CvTacticalMoveXMLEntries(void);
-	~CvTacticalMoveXMLEntries(void);
-
-	// Accessor functions
-	std::vector<CvTacticalMoveXMLEntry*>& GetTacticalMoveEntries();
-	int GetNumTacticalMoves();
-	CvTacticalMoveXMLEntry* GetEntry(int index);
-
-	void DeleteArray();
-
-private:
-	std::vector<CvTacticalMoveXMLEntry*> m_paTacticalMoveEntries;
-};
-
 //for tactical combat
 enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH };
 
@@ -127,58 +34,25 @@ private:
 	int m_iMatchingUnitID;
 };
 
-// Object stored in the list of move priorities (m_MovePriorityList)
-class CvTacticalMove
-{
-public:
-	CvTacticalMove()
-	{
-		m_eMoveType = NO_TACTICAL_MOVE;
-		m_iPriority = 0;
-		m_name = 0;
-	}
-
-	bool operator<(const CvTacticalMove& move) const
-	{
-		return (m_iPriority > move.m_iPriority);
-	}
-
-	const char* m_name;
-	TacticalAIMoveTypes m_eMoveType;
-	int m_iPriority;
-};
-
-struct ZoneMoveWithPrio
-{
-	CvTacticalMove move;
-	class CvTacticalDominanceZone* pZone; //forward
-	int prio;
-
-	bool operator<(const ZoneMoveWithPrio& other) const {
-		return prio > other.prio; //> intended for descending sort
-	}
-};
-
 // Object stored in the list of current move units (m_CurrentMoveUnits)
 class CvTacticalUnit
 {
 public:
-	CvTacticalUnit();
+	CvTacticalUnit(int iID) 
+	{
+		memset(this, 0, sizeof(CvTacticalUnit)); m_iID = iID;
+	}
 
 	bool operator<(const CvTacticalUnit& unit) const
 	{
 		return (GetAttackPriority() > unit.GetAttackPriority());
 	}
 
-	// Accessors
-	void SetID(int iID)
-	{
-		m_iID = iID;
-	};
 	int GetID() const
 	{
 		return m_iID;
 	};
+
 	void SetHealthPercent(int curHitPoints, int maxHitPoints)
 	{
 		CvAssert(maxHitPoints != 0);
@@ -410,14 +284,12 @@ enum AITacticalPosture
 {
     AI_TACTICAL_POSTURE_NONE = -1,
     AI_TACTICAL_POSTURE_WITHDRAW,
-    AI_TACTICAL_POSTURE_SIT_AND_BOMBARD, //not used anymore
     AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE,
     AI_TACTICAL_POSTURE_EXPLOIT_FLANKS,
     AI_TACTICAL_POSTURE_STEAMROLL,
     AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE,
     AI_TACTICAL_POSTURE_HEDGEHOG,
     AI_TACTICAL_POSTURE_COUNTERATTACK,
-    AI_TACTICAL_POSTURE_SHORE_BOMBARDMENT,
 };
 
 class CvTacticalPosture
@@ -584,13 +456,14 @@ public:
 	void push_back(const CvTacticalUnit& unit);
 	void clear() { m_vec.clear(); }
 	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
-	void setCurrentTacticalMove(CvTacticalMove move) { m_currentTacticalMove=move; }
+	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType=move; }
+	AITacticalMove getCurrentTacticalMove() const { return m_eCurrentMoveType; }
 	CvUnit* getUnit(size_t i) const { return m_owner ? m_owner->getUnit( m_vec[i].GetID() ) : NULL; }
 	PlayerTypes getOwner() const { return m_owner ? m_owner->GetID() : NO_PLAYER; }
 private:
 	std::vector<CvTacticalUnit> m_vec;
 	CvPlayer* m_owner;
-	CvTacticalMove m_currentTacticalMove;
+	AITacticalMove m_eCurrentMoveType;
 };
 #endif
 
@@ -617,7 +490,6 @@ public:
 
 	// Public turn update routines
 	void CommandeerUnits();
-	void DoTurn();
 	void Update();
 
 	// Temporary dominance zones
@@ -633,7 +505,7 @@ public:
 #endif
 
 	// Public logging
-	void LogTacticalMessage(const CvString& strMsg, bool bSkipLogDominanceZone = true);
+	void LogTacticalMessage(const CvString& strMsg);
 
 	// Other people want to know this too
 	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
@@ -651,54 +523,55 @@ private:
 
 	// Internal turn update routines - commandeered unit processing
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
-	void EstablishTacticalPriorities();
-	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();
 	void PrioritizeNavalTargetsAndAddToMainList();
 	void ProcessDominanceZones();
-	void AssignTacticalMove(CvTacticalMove move);
+	void AssignGlobalHighPrioMoves();
+	void AssignGlobalLowPrioMoves();
 	void AssignBarbarianMoves();
 
 	// Routines to manage identifying and implementing tactical moves
-	void PlotCaptureCityMoves();
+	void ExecuteCaptureCityMoves();
 	void PlotBarbarianCampMoves();
-	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
-	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
+	void ExecuteDamageCivilianMoves(AITacticalTargetType targetType);
+	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
+	void PlotBarbarianAttacks();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
-	void PlotPlunderTradePlotMoves(DomainTypes eDomain); // squat on trade plots to try to scoop up trade units
 	void PlotBlockadeMoves();
-	void PlotCivilianAttackMoves(AITacticalTargetType eTargetType);
-	void PlotSafeBombardMoves();
+	void PlotCivilianAttackMoves();
+	void ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType);
 	void PlotHealMoves();
 	void PlotCampDefenseMoves();
 	void PlotBarbarianMove(bool bAggressive);
-	void PlotBarbarianCivilianEscortMove();
-///0------------------------------
-//	unify these
-///0------------------------------
+
+///------------------------------
+//	unify these?
+///------------------------------
 	void PlotGarrisonMoves(int iTurnsToArrive);
 	void PlotBastionMoves(int iTurnsToArrive);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
 	void PlotRepositionMoves();
-	//void PlotDefensiveMoves(int iTurnsToArrive);
 //--------------------------------
-	void PlotAncientRuinMoves(int iNumTurnsAway);
+
 	void PlotAirInterceptMoves();
 	void PlotAirSweepMoves();
-	void PlotAttritFromRangeMoves();
-	void PlotExploitFlanksMoves();
-	void PlotSteamrollMoves();
-	void PlotSurgicalCityStrikeMoves();
-	void PlotHedgehogMoves();
-	void PlotCounterattackMoves();
-	void PlotWithdrawMoves();
-	void PlotShoreBombardmentMoves();
-	void PlotCloseOnTarget();
-	void PlotEmergencyPurchases();
-	void PlotDefensiveAirlifts();
+
+	void PlotAttritFromRangeMoves(CvTacticalDominanceZone* pZone);
+	void PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone);
+	void PlotSteamrollMoves(CvTacticalDominanceZone* pZone);
+	void PlotSurgicalCityStrikeMoves(CvTacticalDominanceZone* pZone);
+	void PlotHedgehogMoves(CvTacticalDominanceZone* pZone);
+	void PlotCounterattackMoves(CvTacticalDominanceZone* pZone);
+	void PlotWithdrawMoves(CvTacticalDominanceZone* pZone);
+	void PlotCloseOnTarget(CvTacticalDominanceZone* pZone);
+
+	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
+	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
+
+	void PlotAncientRuinMoves(int iNumTurnsAway);
 	void PlotEscortEmbarkedMoves();
 	void ReviewUnassignedUnits();
 
@@ -713,6 +586,8 @@ private:
 	void UpdateTargetScores();
 	void SortTargetListAndDropUselessTargets();
 	void DumpTacticalTargets(const char* hint);
+
+	void ClearCurrentMoveUnits(AITacticalMove eNewMove);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
 	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_NONE);
 	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel eMaxLvl = AL_NONE);
@@ -735,7 +610,6 @@ private:
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();
 	void ExecuteBarbarianMoves(bool bAggressive);
-	void ExecuteBarbarianCivilianEscortMove();
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
@@ -748,10 +622,8 @@ private:
 	void ExecuteEscortEmbarkedMoves();
 
 	// Internal low-level utility routines
-#if defined(MOD_AI_SMART_RANGED_UNITS)
 	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
-#endif
-	CvUnit* FindUnitForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0);
+	CvUnit* FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot, bool bCheckDanger);
@@ -799,7 +671,6 @@ private:
 
 	CTacticalUnitArray m_CurrentMoveUnits;
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
-	std::vector<CvTacticalMove> m_MovePriorityList;
 
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;
@@ -816,16 +687,11 @@ private:
 	int m_iDeployRadius;
 
 	// Dominance zone info
-	int m_iCurrentZoneID;
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
 
-	int m_iCurrentTempZoneIndex;
 	std::vector<CvTemporaryZone> m_TempZones;
-
-	// Operational AI support data
-	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
 
 enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_ESCORTED_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
@@ -1234,7 +1100,7 @@ namespace TacticalAIHelpers
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
 }
 
-extern const char* barbarianMoveNames[];
+extern const char* tacticalMoveNames[];
 extern const char* postureNames[];
 extern const char* assignmentTypeNames[];
 

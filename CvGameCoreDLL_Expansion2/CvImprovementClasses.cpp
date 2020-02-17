@@ -1577,12 +1577,15 @@ bool CvImprovementEntry::IsImprovementResourceTrade(int i) const
 	return m_paImprovementResource[i].m_bResourceTrade;
 }
 
-bool CvImprovementEntry::IsExpandedImprovementResourceTrade(int i) const
+bool CvImprovementEntry::IsExpandedImprovementResourceTrade(int i, bool bIgnorePrimary) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	if (m_paImprovementResource[i].m_bResourceTrade)
-		return true;
+	if (!bIgnorePrimary)
+	{
+		if (m_paImprovementResource[i].m_bResourceTrade)
+			return true;
+	}
 
 	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	{

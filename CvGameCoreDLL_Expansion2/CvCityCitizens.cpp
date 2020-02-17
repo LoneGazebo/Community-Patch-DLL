@@ -915,6 +915,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
 					iFoodEmphasisModifier = (int)sqrt((float)iMultiplier * iFoodTurnsRemaining * iPopulation);
+					//increase value by era
+					iFoodEmphasisModifier += GET_PLAYER(m_pCity->getOwner()).GetCurrentEra();
 				}
 
 				if (store.iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
@@ -1670,10 +1672,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
-		//Smaller cities want to grow fast - larger cities can slow down a bit.
-		iExcessFoodTimes100 *= 100;
-		iExcessFoodTimes100 /= max(1, (100 - m_pCity->getPopulation()));
-
 		int iFoodFactor = iExcessFoodTimes100 / 100;
 
 		iFoodVal = range(iFoodFactor, 0, 100);
@@ -1683,14 +1681,19 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 		else
 			iFoodVal += (iGrowth/10);
 
-		if (iExcessFoodTimes100 > 0 && m_bDiscourageGrowth)
+		if (iFoodFactor > 0 && m_bDiscourageGrowth)
 			iFoodVal *= 4;
+
+		//increase value by era
+		iFoodVal += pPlayer->GetCurrentEra();
 	}
 
 	///////
 	// Bonuses
 	//////////
-	
+	ProcessTypes eProcess = m_pCity->getProductionProcess();
+	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
+
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
@@ -1837,6 +1840,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
 				iYield /= 5;
+
+			if (pkProcessInfo)
+			{
+				if (pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+				{
+					iYield *= pkProcessInfo->getProductionToYieldModifier(eYield);
+				}
+			}
 
 			iValue += iYield;
 		}

@@ -2370,7 +2370,6 @@ CvGlobals::CvGlobals() :
 
 	m_pEconomicAIStrategies(NULL),
 	m_pCitySpecializations(NULL),
-	m_pTacticalMoves(NULL),
 	m_pMilitaryAIStrategies(NULL),
 	m_pAIGrandStrategies(NULL),
 	m_pPolicies(NULL),
@@ -2626,7 +2625,6 @@ void CvGlobals::init()
 
 	m_pEconomicAIStrategies = FNEW(CvEconomicAIStrategyXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pCitySpecializations = FNEW(CvCitySpecializationXMLEntries, c_eCiv5GameplayDLL, 0);
-	m_pTacticalMoves = FNEW(CvTacticalMoveXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pMilitaryAIStrategies = FNEW(CvMilitaryAIStrategyXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pAIGrandStrategies = FNEW(CvAIGrandStrategyXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pAICityStrategies = FNEW(CvAICityStrategies, c_eCiv5GameplayDLL, 0);
@@ -2694,7 +2692,6 @@ void CvGlobals::uninit()
 
 	SAFE_DELETE(m_pEconomicAIStrategies);
 	SAFE_DELETE(m_pCitySpecializations);
-	SAFE_DELETE(m_pTacticalMoves);
 	SAFE_DELETE(m_pMilitaryAIStrategies);
 	SAFE_DELETE(m_pAIGrandStrategies);
 	SAFE_DELETE(m_pPolicies);
@@ -4150,31 +4147,6 @@ CvCitySpecializationXMLEntry* CvGlobals::getCitySpecializationInfo(CitySpecializ
 CvCitySpecializationXMLEntries* CvGlobals::GetGameCitySpecializations() const
 {
 	return m_pCitySpecializations;
-}
-
-int CvGlobals::getNumTacticalMoveInfos()
-{
-	return (int)m_pTacticalMoves->GetTacticalMoveEntries().size();
-}
-
-std::vector<CvTacticalMoveXMLEntry*>& CvGlobals::getTacticalMoveInfo()
-{
-	return m_pTacticalMoves->GetTacticalMoveEntries();
-}
-
-CvTacticalMoveXMLEntry* CvGlobals::getTacticalMoveInfo(TacticalAIMoveTypes eTacticalMove)
-{
-	FAssert(eTacticalMove > -1);
-	FAssert(eTacticalMove < GC.getNumTacticalMoveInfos());
-	if(eTacticalMove > -1 && eTacticalMove < GC.getNumTacticalMoveInfos())
-		return m_pTacticalMoves->GetTacticalMoveEntries()[eTacticalMove];
-	else
-		return NULL;
-}
-
-CvTacticalMoveXMLEntries* CvGlobals::GetGameTacticalMoves() const
-{
-	return m_pTacticalMoves;
 }
 
 int CvGlobals::getNumMilitaryAIStrategyInfos()

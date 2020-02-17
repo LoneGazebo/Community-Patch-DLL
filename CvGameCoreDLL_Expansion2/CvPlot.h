@@ -295,7 +295,7 @@ public:
 		return false;
 	}
 
-	bool isFriendlyCity(const CvUnit& kUnit, bool bIgnored) const;
+	bool isFriendlyCity(const CvUnit& kUnit) const;
 	bool isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit = NULL) const;
 	bool isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit = NULL) const;
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
@@ -586,7 +586,7 @@ public:
 #endif
 
 	ImprovementTypes getImprovementType() const;
-	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true);
+	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool IsImprovementEmbassy() const;
