@@ -791,7 +791,11 @@
 //   GameEvents.PlayerBuilt.Add(function(iPlayer, iUnit, iX, iY, iBuild) end) (v46)
 #define MOD_EVENTS_PLOT                             gCustomMods.isEVENTS_PLOT()
 
-// Events sent by golden ages (v52)
+// Event sent by ending turn (v94)
+//   GameEvents.PlayerDoneTurn.Add(function(iPlayer) end)
+#define MOD_EVENTS_PLAYER_TURN                      gCustomMods.isEVENTS_PLAYER_TURN()
+
+// Event sent by golden ages (v52)
 //   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end)
 //   GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
 #define MOD_EVENTS_GOLDEN_AGE                       gCustomMods.isEVENTS_GOLDEN_AGE()
@@ -1209,6 +1213,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanRevoke				"PlayerCanRevoke",				"ii"
 #define GAMEEVENT_PlayerCanSpreadReligion		"PlayerCanSpreadReligion",		"iiii"
 #define GAMEEVENT_PlayerCanTransitMinorCity		"PlayerCanTransitMinorCity",	"iiiii"
+#define GAMEEVENT_PlayerDoneTurn				"PlayerDoneTurn",				"i"
 #define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
 #define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
 #define GAMEEVENT_PlayerEndOfMayaLongCount		"PlayerEndOfMayaLongCount",		"iii"
@@ -1644,6 +1649,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RELIGION);
 	MOD_OPT_DECL(EVENTS_ESPIONAGE);
 	MOD_OPT_DECL(EVENTS_PLOT);
+	MOD_OPT_DECL(EVENTS_PLAYER_TURN);
 	MOD_OPT_DECL(EVENTS_GOLDEN_AGE);
 	MOD_OPT_DECL(EVENTS_CITY);
 	MOD_OPT_DECL(EVENTS_CITY_CAPITAL);

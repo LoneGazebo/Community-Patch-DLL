@@ -222,6 +222,9 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetRouteType);
 	Method(SetRouteType);
 	Method(IsRoutePillaged);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(SetRoutePillaged);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetPlayerThatBuiltImprovement);
@@ -1547,6 +1550,14 @@ int CvLuaPlot::lIsRoutePillaged(lua_State* L)
 	lua_pushboolean(L, pkPlot->IsRoutePillaged());
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void setRoutePillaged(bool b);
+int CvLuaPlot::lSetRoutePillaged(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::SetRoutePillaged);
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lGetPlayerThatBuiltImprovement(lua_State* L)
