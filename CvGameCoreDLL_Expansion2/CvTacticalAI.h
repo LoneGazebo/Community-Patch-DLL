@@ -282,7 +282,7 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 enum AITacticalPosture
 {
-    AI_TACTICAL_POSTURE_NONE = -1,
+    AI_TACTICAL_POSTURE_NONE,
     AI_TACTICAL_POSTURE_WITHDRAW,
     AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE,
     AI_TACTICAL_POSTURE_EXPLOIT_FLANKS,

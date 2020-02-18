@@ -295,6 +295,7 @@ void CvTacticalAI::CommandeerUnits()
 		// we reset this every turn in order to spot units falling through the cracks
 		// todo: ideally we have some persistency and prefer to assign the same tasks across turns ...
 		pLoopUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+		pLoopUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 
 		//LogTacticalMessage( CvString::format("looking to recruit %s %d at (%d,%d) with %d hp",
 		//	pLoopUnit->getName().c_str(),pLoopUnit->GetID(),pLoopUnit->getX(),pLoopUnit->getY(),pLoopUnit->GetCurrHitPoints()).c_str() );
@@ -376,18 +377,10 @@ void CvTacticalAI::CommandeerUnits()
 					continue;
 			}
 
-			// Is this one in an operation we can't interrupt?
-			int iArmyID = pLoopUnit->getArmyID();
-			if (iArmyID != -1)
-			{
+			// Is this one in an operation?
+			if (pLoopUnit->getArmyID() != -1)
 				//those units will be moved as part of the army moves
 				pLoopUnit->setTacticalMove(AI_TACTICAL_OPERATION);
-
-				//some are part of an army but we can still use it for tactical AI if it has moves left
-				const CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
-				if (!pArmy || pArmy->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
-					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-			}
 			else
 				m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
@@ -627,9 +620,9 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	{
 		// Default for this zone
 		eChosenPosture = (pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE) ? AI_TACTICAL_POSTURE_STEAMROLL : AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		CvCity *pClosestCity = pZone->GetZoneCity();
 
 		// Temporary zone: Attack if possible, if defenses are strong try to wear them down first
+		CvCity *pClosestCity = pZone->GetZoneCity();
 		if (pClosestCity && IsTemporaryZoneCity(pClosestCity))
 		{
 			if (pZone->GetEnemyMeleeStrength() > pZone->GetFriendlyMeleeStrength())
@@ -1083,7 +1076,7 @@ void CvTacticalAI::ProcessDominanceZones()
 				strLogString.Format("Zone %d, %s, city of %s, posture %s",  
 					pZone ? pZone->GetZoneID() : -1, pZone->IsWater() ? "water" : "land",
 					pZoneCity ? pZoneCity->getNameNoSpace().c_str() : "no_name_city", 
-					ePosture != AI_TACTICAL_POSTURE_NONE ? postureNames[ePosture] : "no posture");
+					postureNames[ePosture]);
 				LogTacticalMessage(strLogString);
 			}
 
@@ -1775,9 +1768,11 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 /// Process units that we recruited out of operational moves.
 void CvTacticalAI::PlotOperationalArmyMoves()
 {
-	std::vector<int> opsToKill;
+	//just so that UnitProcessed() sets the right flags
+	ClearCurrentMoveUnits(AI_TACTICAL_OPERATION);
 
 	// move all units in operations
+	std::vector<int> opsToKill;
 	CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
 	while(nextOp != NULL)
 	{
@@ -2039,6 +2034,8 @@ void CvTacticalAI::PlotHealMoves()
 /// Assigns a barbarian to go protect an undefended camp
 void CvTacticalAI::PlotCampDefenseMoves()
 {
+	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CAMPDEFENSE);
+
 	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 	while(pTarget != NULL)
 	{
@@ -2051,14 +2048,12 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			if (currentDefender->CanUpgradeRightNow(true))
 			{
 				currentDefender->DoUpgrade(true);
-				UnitProcessed(currentDefender->GetID());
 			}
 			else if (currentDefender->isRanged())
 			{
 				//don't leave camp
 				TacticalAIHelpers::PerformOpportunityAttack(currentDefender);
 				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
-				UnitProcessed(currentDefender->GetID());
 			}
 			else
 			{
@@ -2081,11 +2076,9 @@ void CvTacticalAI::PlotCampDefenseMoves()
 
 				TacticalAIHelpers::PerformOpportunityAttack(currentDefender,iWeakEnemyCount<2 && iStrongEnemyCount==0);
 				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
-				UnitProcessed(currentDefender->GetID());
 			}
 
-			//that's a hack but that's the way it is
-			currentDefender->setTacticalMove( AI_TACTICAL_BARBARIAN_CAMPDEFENSE );
+			UnitProcessed(currentDefender->GetID());
 		}
 		else if(FindUnitsForHarassing(pPlot,5,-1,-1,DOMAIN_LAND,false))
 		{
@@ -2098,6 +2091,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 				LogTacticalMessage(strLogString);
 			}
 		}
+
 		pTarget = GetNextZoneTarget();
 	}
 }
@@ -2118,8 +2112,12 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 
 		//an explorer can be a transient garrison but we don't want to keep it here
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-		if (pGarrison && pGarrison->AI_getUnitAIType()!=UNITAI_EXPLORE)
+		if (pGarrison)
 		{
+			//sometimes we have an accidental garrison ...
+			if (pGarrison->AI_getUnitAIType() == UNITAI_EXPLORE || pGarrison->TurnProcessed())
+				continue;
+
 			//first check how many enemies are around
 			int iEnemyCount = 0;
 			for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
@@ -2143,6 +2141,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				//do not call finishMoves() else the garrison will not heal!
 				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			}
+
 			UnitProcessed(pGarrison->GetID());
 		}
 		else if ( !pCity->isInDangerOfFalling() )
@@ -4653,7 +4652,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					if(pMovePlot != NULL)
 					{
 						MoveToEmptySpaceNearTarget(pUnit,pMovePlot,DOMAIN_LAND,42,true);
-						pUnit->SetTurnProcessed(true);
+						UnitProcessed(pUnit->GetID());
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 						if(pkUnitInfo)
@@ -4667,7 +4666,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					else
 					{
 						pUnit->PushMission(CvTypes::getMISSION_SKIP());
-						pUnit->SetTurnProcessed(true);
+						UnitProcessed(pUnit->GetID());
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 						if(pkUnitInfo)
@@ -4825,14 +4824,11 @@ void CvTacticalAI::ExecuteHeals()
 			}
 		}
 
-		pUnit->setTacticalMove(AI_TACTICAL_HEAL);
-
 		//finish this up
 		if (pUnit->canHeal(pUnit->plot()))
-		{
 			pUnit->PushMission(CvTypes::getMISSION_HEAL());
-			UnitProcessed(*it);
-		}
+
+		UnitProcessed(*it);
 	}
 
 	//erase the zombies
@@ -10941,8 +10937,8 @@ const char* tacticalMoveNames[] =
 
 const char* postureNames[] =
 {
+	"P_NONE",
     "P_WITHDRAW",
-    "P_SIT_AND_BOMBARD",
     "P_ATTRIT_FROM_RANGE",
     "P_EXPLOIT_FLANKS",
     "P_STEAMROLL",

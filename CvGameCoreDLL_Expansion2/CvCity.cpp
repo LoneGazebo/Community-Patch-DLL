@@ -3546,7 +3546,7 @@ void CvCity::SetCoastalThreatRank(int iValue)
 int CvCity::GetCoastalThreatRank() const
 {
 	VALIDATE_OBJECT
-		return m_iCoastalThreatRank;
+	return m_iCoastalThreatRank;
 }
 
 void CvCity::SetTradePriorityLand(int iValue)

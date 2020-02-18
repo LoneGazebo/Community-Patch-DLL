@@ -15369,10 +15369,9 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 	// See how many outside plots are nearby to monitor
 	int iAdjacentUnowned = 0;
-	int iAdjacentOwned = 0;
-	int iAdjacentWeOwn = 0;
+	int iAdjacentOwnedOther = 0;
 	int iNearbyForts = 0;
-	int iNearbyOwned = 0;
+	int iNearbyOwnedOther = 0;
 	int iBadNearby = 0;
 	int iBadAdjacent = 0;
 
@@ -15392,7 +15391,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 			if(pLoopAdjacentPlot->getOwner() == eOwner)
 			{
-				iAdjacentWeOwn++;
 				//don't build other defenses near citadels (next to forts is ok)
 				if (pLoopAdjacentPlot->getImprovementType() == eCitadel)
 					return 0;
@@ -15403,13 +15401,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			}
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
-				iAdjacentOwned++;
+				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
 					iBadAdjacent++;
 			}
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv())
 			{
-				iAdjacentOwned++;
+				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopAdjacentPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
 					iBadAdjacent++;
 			}
@@ -15417,7 +15415,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 	}
 
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
-	if(iAdjacentUnowned + iAdjacentOwned > 2 || iBadAdjacent > 0)
+	if(iAdjacentUnowned + iAdjacentOwnedOther > 2 || iBadAdjacent > 0)
 	{
 		//check the wider area for enemy tiles. may also be on another landmass
 		for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
@@ -15434,13 +15432,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 				{
 					if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 					{
-						iNearbyOwned++;
+						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
 							iBadNearby++;
 					}
 					else if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv())
 					{
-						iNearbyOwned++;
+						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopNearbyPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
 							iBadNearby++;
 					}
@@ -15461,10 +15459,10 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		int iScore = defenseModifier(eTeam, true, true);
 
 		//Bonus for nearby owned tiles
-		iScore += (iNearbyOwned * 3);
+		iScore += (iNearbyOwnedOther * 3);
 		
 		//Big Bonus if adjacent to territory.
-		iScore += (iAdjacentOwned * 4);
+		iScore += (iAdjacentOwnedOther * 4);
 
 		//Big Bonus if adjacent to enemy territory.
 		iScore += (iBadAdjacent * 16);
