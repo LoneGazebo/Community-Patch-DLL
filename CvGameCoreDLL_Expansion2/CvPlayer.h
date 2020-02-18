@@ -2337,6 +2337,9 @@ public:
 	int GetYieldChangesNaturalWonder(YieldTypes eYield) const;
 	void ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange);
 
+	int GetYieldChangesPerReligionTimes100(YieldTypes eYield) const;
+	void ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange);
+
 	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
 	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
 
@@ -2514,6 +2517,11 @@ public:
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
 	void ChangeCityWorkingChange(int iChange);
+#endif
+
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
+	void ChangeCityAutomatonWorkersChange(int iChange);
 #endif
 
 	int GetPlotCultureCostModifier() const;
@@ -3392,6 +3400,9 @@ protected:
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	FAutoVariable<int, CvPlayer> m_iCityWorkingChange;
 #endif
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	FAutoVariable<int, CvPlayer> m_iCityAutomatonWorkersChange;
+#endif
 	FAutoVariable<int, CvPlayer> m_iPlotCultureCostModifier;
 	FAutoVariable<int, CvPlayer> m_iPlotCultureExponentModifier;
 	FAutoVariable<int, CvPlayer> m_iNumCitiesPolicyCostDiscount;
@@ -3585,6 +3596,7 @@ protected:
 	std::vector<int> m_piYieldFromBarbarianKills;
 	std::vector<int> m_piYieldChangeTradeRoute;
 	std::vector<int> m_piYieldChangesNaturalWonder;
+	std::vector<int> m_piYieldChangesPerReligion;
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;

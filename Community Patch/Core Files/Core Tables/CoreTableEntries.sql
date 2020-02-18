@@ -1444,6 +1444,12 @@ ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedCities' INTEGER DEFAULT 0;
 -- Additional trade routes based on the number of owned vassals
 ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedVassals' INTEGER DEFAULT 0;
 
+-- Missionaries gain % more strength
+ALTER TABLE Policies ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
+
+-- Missionaries gain % more strength
+ALTER TABLE Policies ADD COLUMN 'ExtraMissionarySpreads' INTEGER DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 

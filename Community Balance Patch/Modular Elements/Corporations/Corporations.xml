@@ -657,7 +657,7 @@
 			<Help>TXT_KEY_POLICY_NATIONALIZATION_HELP</Help>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
 			<CultureCost>10</CultureCost>
-			<CorporationOfficesAsNumFranchises>2</CorporationOfficesAsNumFranchises>
+			<CorporationOfficesAsNumFranchises>1</CorporationOfficesAsNumFranchises>
 			<NoForeignCorpsInCities>true</NoForeignCorpsInCities>
 			<NoFranchisesInForeignCities>true</NoFranchisesInForeignCities>
 			<Level>2</Level>

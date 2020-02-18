@@ -134,6 +134,7 @@ void CvHomelandAI::RecruitUnits()
 		}
 #endif
 
+		pLoopUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 		m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 	}
 
@@ -443,6 +444,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 				else
 				{
+					//todo: shouldn't we be looking at visibility here?
 					int iWeight = pLoopPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 					if(iWeight > 0)
 					{
@@ -676,7 +678,7 @@ void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 		if(pUnit)
 		{
 			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
-			        pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE)
+				(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_LAND && pUnit->GetAutomateType() == AUTOMATE_EXPLORE))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -716,7 +718,7 @@ void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 		if(pUnit)
 		{
 			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
-			        pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_EXPLORE)
+				(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_EXPLORE))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -832,7 +834,7 @@ void CvHomelandAI::PlotMovesToSafety()
 			continue;
 
 		// civilian always ready to flee
-		if (pUnit->IsCivilianUnit() && iDangerLevel > 6)
+		if (pUnit->IsCivilianUnit() && iDangerLevel > 20)
 		{
 			//allow workers to clean fallout (at home)
 			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
@@ -1439,7 +1441,7 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 					if(pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 3)
 						continue;
 
-					if (pUnit->canMoveInto(*vTargets[i], CvUnit::MOVEFLAG_DESTINATION))
+					if (pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 					{
 						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(pLoopPlot->GetPlotIndex());
@@ -5932,26 +5934,24 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 	std::stable_sort(m_TargetedSentryPoints.begin(), m_TargetedSentryPoints.end());
 
 	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedSentryPoints;
+	std::vector<CvHomelandTarget> tempPoints(m_TargetedSentryPoints);
 
 	// Clear out main list
 	m_TargetedSentryPoints.clear();
 
 	// Loop through all points in copy
-	std::vector<CvHomelandTarget>::iterator it, it2;
-	for(it = tempPoints.begin(); it != tempPoints.end(); ++it)
+	for(std::vector<CvHomelandTarget>::iterator it = tempPoints.begin(); it != tempPoints.end(); ++it)
 	{
-		bool bFoundAdjacent = false;
-		//Let's make sure that we exclude forts here. If the first is a sentry, then we can make the check.
-		if((it->GetTargetType() == AI_HOMELAND_TARGET_FORT))
+		//always take forts
+		if(it->GetTargetType() == AI_HOMELAND_TARGET_FORT)
 		{
 			m_TargetedSentryPoints.push_back(*it);
 		}
 		else
 		{
 			// Is it adjacent to a point in the main list?
-			for(it2 = m_TargetedSentryPoints.begin(); it2 != m_TargetedSentryPoints.end(); ++it2)
+			bool bFoundAdjacent = false;
+			for(std::vector<CvHomelandTarget>::iterator it2 = m_TargetedSentryPoints.begin(); it2 != m_TargetedSentryPoints.end(); ++it2)
 			{
 				if(plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
 				{
@@ -5959,6 +5959,7 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 					break;
 				}
 			}
+
 			if(!bFoundAdjacent)
 			{
 				m_TargetedSentryPoints.push_back(*it);
@@ -6089,7 +6090,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries
 					if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsEverFortifyable() && !pLoopUnit->IsGarrisoned() && 
-						( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) ) )
+					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || pLoopUnit->isUnitAI(UNITAI_COUNTER) ) )
 					{
 						bSuitableUnit = true;
 
@@ -6103,7 +6104,8 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 #if defined(MOD_BALANCE_CORE)
 				case AI_HOMELAND_MOVE_SENTRY_NAVAL:
 					// No ranged units as sentries
-					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
+				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && 
+					(pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA) || pLoopUnit->isUnitAI(UNITAI_ASSAULT_SEA)) )
 					{
 						bSuitableUnit = true;
 

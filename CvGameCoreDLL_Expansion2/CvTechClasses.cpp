@@ -60,7 +60,7 @@ CvTechEntry::CvTechEntry(void):
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
 #endif
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange(0),
 #endif
 	m_bBridgeBuilding(false),
@@ -151,7 +151,7 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
 #endif
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 #endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
@@ -522,7 +522,7 @@ int CvTechEntry::GetCityWorkingChange() const
 }
 #endif
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 /// Change the number of automaton workers a city can have
 int CvTechEntry::GetCityAutomatonWorkersChange() const
 {

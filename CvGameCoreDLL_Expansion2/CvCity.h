@@ -738,6 +738,10 @@ public:
 	int GetCityWorkingChange() const;
 	void changeCityWorkingChange(int iChange);
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
+	void changeCityAutomatonWorkersChange(int iChange);
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
 #endif
@@ -1823,6 +1827,9 @@ protected:
 	FAutoVariable<bool, CvCity> m_bAllowsProductionTradeRoutes;
 	FAutoVariable<bool, CvCity> m_bAllowsFoodTradeRoutes;
 	FAutoVariable<bool, CvCity> m_bAllowPuppetPurchase;
+#endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	FAutoVariable<bool, CvCity> m_iCityAutomatonWorkersChange;
 #endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;

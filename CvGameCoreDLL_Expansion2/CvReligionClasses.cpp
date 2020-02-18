@@ -7034,7 +7034,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-	int iNumChoices = MIN(beliefChoices.size(),4);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
+	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
 
 #if defined(MOD_BALANCE_CORE)
 	BeliefTypes rtnValue = NO_BELIEF;
@@ -7153,24 +7153,13 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
 
-#if defined(MOD_BALANCE_CORE)
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
-			for (int iI = 0; iI < beliefChoices.size(); iI++)
-				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
-#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
-#else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
-	LogBeliefChoices(beliefChoices, rtnValue);
-#endif
 
 	return rtnValue;
 }
@@ -7214,24 +7203,13 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
 
-#if defined(MOD_BALANCE_CORE)
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
-			for (int iI = 0; iI < beliefChoices.size(); iI++)
-				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
-#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
-#else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
-	LogBeliefChoices(beliefChoices, rtnValue);
-#endif
 
 	return rtnValue;
 }
@@ -7278,24 +7256,13 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
 
-#if defined(MOD_BALANCE_CORE)
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
-			for (int iI = 0; iI < beliefChoices.size(); iI++)
-				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
-#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
-#else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
-	LogBeliefChoices(beliefChoices, rtnValue);
-#endif
 
 	return rtnValue;
 }
@@ -7339,24 +7306,13 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
 
-#if defined(MOD_BALANCE_CORE)
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
-			for (int iI = 0; iI < beliefChoices.size(); iI++)
-				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
-#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
-#else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
-	LogBeliefChoices(beliefChoices, rtnValue);
-#endif
 
 	return rtnValue;
 }
@@ -7688,7 +7644,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 		return;
 	}
 
-	BuildingClassTypes eFaithBuilding = FaithBuildingAvailable(eReligion, pCity);
+	BuildingClassTypes eFaithBuilding = FaithBuildingAvailable(eReligion, pCity, true);
 	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();
 
 	// FIRST PRIORITY - OUR RELIGION'S BUILDING(S) IN CORE CITIES
@@ -8406,7 +8362,7 @@ bool CvReligionAI::BuyAnyAvailableFaithBuilding()
 		ReligionTypes eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
 		if(eReligion > RELIGION_PANTHEON)
 		{
-			BuildingClassTypes eBuildingClass = FaithBuildingAvailable(eReligion, pLoopCity);
+			BuildingClassTypes eBuildingClass = FaithBuildingAvailable(eReligion, pLoopCity, true);
 			if(eBuildingClass != NO_BUILDINGCLASS)
 			{
 				BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
@@ -8581,7 +8537,8 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iRand = 0;
 	if (iRtnValue > 0)
 	{
-		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), m_pPlayer->GetPseudoRandomSeed());
+		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue, m_pPlayer->GetPseudoRandomSeed());
+		iRand /= max(1,(GC.getGame().getHandicapInfo().GetID() / 2));
 		iRtnValue += iRand;
 	}
 
@@ -9015,8 +8972,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldPerBorderGrowth(iI) > 0)
 		{
-			iTotalRtnValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iCulture) / max(3, pCity->GetJONSCultureLevel() * 4));
-			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			iTempValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iCulture) / max(4, pCity->GetJONSCultureLevel() * 5));
+			if (m_pPlayer->GetPlayerTraits()->GetPlotCultureCostModifier() < 0)
 			{
 				iTempValue *= 2;
 			}
@@ -10333,7 +10290,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			}
 			
 			if (pEntry->IsFollowerBelief())
-				iBuildingTemp *= iIdealEmpireSize;
+				iBuildingTemp += iIdealEmpireSize * 10;
 		}
 	}
 
@@ -10605,14 +10562,12 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	{
 		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 10;
 		iHappinessTemp *= 5;
-		iBuildingTemp *= 2;
 		iGPTemp *= 5;
 	}
 	if (pPlayerTraits->IsExpansionist())
 	{
 		iSpreadTemp *= pEntry->IsPantheonBelief() ? 2 : 5;
 		iHappinessTemp *= 10;
-		iBuildingTemp *= 2;
 		iPolicyGainTemp *= 5;
 	}
 	if (pPlayerTraits->IsSmaller())
@@ -11233,25 +11188,53 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 	{
 		if (bEvaluateBestPurchase)
 		{
-			for (unsigned int iI = 0; iI < choices.size(); iI++)
+			if (pCity != NULL)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
-				if (eBuilding != NO_BUILDING)
+				int iBest = 0;
+				BuildingClassTypes eBestBuilding = NO_BUILDINGCLASS;
+				int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+				////Sanity and AI Optimization Check
+
+				//stats to decide whether to disband a unit
+				int iWaterPriority = m_pPlayer->getCapitalCity()->GetTradePrioritySea();
+				int iLandPriority = m_pPlayer->getCapitalCity()->GetTradePriorityLand();
+
+				int iWaterRoutes = -1;
+				int iLandRoutes = -1;
+
+				if (iWaterPriority >= 0)
 				{
-					CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
-					if (pBuildingEntry && pBuildingEntry->GetExtraCityHitPoints() > 0 || pBuildingEntry->GetDefenseModifier() > 0)
+					//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
+					iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
+				}
+				if (iLandPriority >= 0)
+				{
+					iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
+				}
+				for (unsigned int iI = 0; iI < choices.size(); iI++)
+				{
+					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
+					if (eBuilding != NO_BUILDING)
 					{
-						if (pCity != NULL && pCity->isPotentiallyInDanger() || pCity->isUnderSiege() || pCity->isInDangerOfFalling())
+						CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+						int iValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, iLandRoutes, iWaterRoutes, iGPT, false, false, true, true);
+						if (iValue > iBest)
 						{
-							return choices[iI];
+							iBest = iValue;
+							eBestBuilding = choices[iI];
 						}
 					}
 				}
+				if (eBestBuilding != NO_BUILDINGCLASS)
+					return eBestBuilding;
+				else
+					return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
 			}
-			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
+			else
+				return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
 		}
 		else
-			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
+			return choices[0];
 	}
 	else if (choices.size()==1)
 		return choices[0];

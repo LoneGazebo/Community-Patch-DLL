@@ -14,6 +14,7 @@
 #include "CvAStar.h"
 #include "CvImprovementClasses.h"
 #include "CvCityConnections.h"
+#include "CvEconomicAI.h"
 #include "CvGameCoreEnumSerialization.h" //toString(const YieldTypes& v)
 #include "CvTypes.h"
 
@@ -375,11 +376,11 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			return;
 
 	//see if the new route makes sense economically
-	short sValue = -1;
+	int iValue = -1;
 	if(!bSamePlayer)
 	{
 		//this is for a quest ... normal considerations don't apply
-		sValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / max(1,iPlotsNeeded), MAX_SHORT);
+		iValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / max(1, iPlotsNeeded), MAX_SHORT);
 	}
 	else
 	{
@@ -387,28 +388,26 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		int iSideBenefits = iRoadLength * 70;
+		int iSideBenefits = iRoadLength * 25;
 		// give an additional bump if we're almost done (don't get distracted)
-		if (iPlotsNeeded<=3)
-			iSideBenefits += 10000;
+		if (iPlotsNeeded<=5)
+			iSideBenefits += 150 - (iPlotsNeeded * 20);
 
-		if(pTargetCity->getUnhappinessFromConnection() > 0 && m_pPlayer->GetExcessHappiness()<75)
-		{
-			//assume one unhappiness is worth 1 gold per turn per city
-			iSideBenefits += (pTargetCity->getUnhappinessFromConnection() * 100 * m_pPlayer->getNumCities());
-		}
+		//assume one unhappiness is worth .5 gold per turn per city
+		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 100 : 50;
 
 		if(bIndustrialRoute)
 		{
-			iSideBenefits += (pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD());
+			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD());
 		}
 
-		int iProfit = iGoldForRoute + iSideBenefits - iRoadLength*iMaintenancePerTile;
+		int iProfit = iGoldForRoute - (iRoadLength*iMaintenancePerTile);
+		iProfit += iSideBenefits;
+
 		if (!bHuman && (iProfit < 0 || (iProfit + iNetGoldTimes100 < 0)))
 			return;
 
-		//bring it out of the hundreds to avoid overflow
-		sValue = min(iProfit/100, MAX_SHORT);
+		iValue = iProfit;
 	}
 
 	for (size_t i=0; i<path.vPlots.size(); i++)
@@ -433,9 +432,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		// if we already know about this plot, continue on
 		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
 		{
-			if(sValue > pPlot->GetBuilderAIScratchPadValue())
+			if (iValue > pPlot->GetBuilderAIScratchPadValue())
 			{
-				pPlot->SetBuilderAIScratchPadValue(sValue);
+				pPlot->SetBuilderAIScratchPadValue(iValue);
 				pPlot->SetBuilderAIScratchPadRoute(eRoute);
 			}
 			continue;
@@ -444,7 +443,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		// mark nodes and reset values
 		pPlot->SetBuilderAIScratchPadTurn(GC.getGame().getGameTurn());
 		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-		pPlot->SetBuilderAIScratchPadValue(sValue);
+		pPlot->SetBuilderAIScratchPadValue(iValue);
 		pPlot->SetBuilderAIScratchPadRoute(eRoute);
 	}
 }
@@ -897,11 +896,6 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 	}
 
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-	if(pkResource->getResourceUsage() == RESOURCEUSAGE_BONUS)
-	{
-		// evaluate bonus resources as normal improvements
-		return;
-	}
 
 	if (pPlot->IsImprovementPillaged())
 		return;
@@ -964,6 +958,13 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
 			int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
 
+			//slightly downward value for bonus resources relative to lux/strat
+			if (pkResource->getResourceUsage() == RESOURCEUSAGE_BONUS)
+			{
+				iWeight *= 2;
+				iWeight /= 3;
+			}
+
 			//if we're building a great person improvement, putting it on a resource is the last resort ...
 			if (pkImprovementInfo->IsCreatedByGreatPerson())
 				iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
@@ -1016,22 +1017,20 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			iScore = min(iScore,0x7FFF);
 			if(iScore > 0)
 			{
-				iWeight *= iScore;
+				iWeight += iScore;
 			}
 
+			CvCity* pLogCity = NULL;
+			int iProduction = pPlot->getFeatureProduction(eBuild, pUnit->getOwner(), &pLogCity);
+			if(DoesBuildHelpRush(pUnit, pPlot, eBuild))
 			{
-				CvCity* pLogCity = NULL;
-				int iProduction = pPlot->getFeatureProduction(eBuild, pUnit->getOwner(), &pLogCity);
-				if(DoesBuildHelpRush(pUnit, pPlot, eBuild))
-				{
-					iWeight += iProduction; // a nominal benefit for choosing this production
+				iWeight += iProduction; // a nominal benefit for choosing this production
 
-					if(m_bLogging)
-					{
-						CvString strLog;
-						strLog.Format("Helps rush, %d", iProduction);
-						LogInfo(strLog, m_pPlayer);
-					}
+				if(m_bLogging)
+				{
+					CvString strLog;
+					strLog.Format("Helps rush, %d", iProduction);
+					LogInfo(strLog, m_pPlayer);
 				}
 			}
 
@@ -1282,7 +1281,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 #endif
 
 		//overflow danger here
-		iWeight *= iScore;
+		iWeight += iScore;
 
 		BuilderDirective directive;
 		directive.m_eDirective = eDirectiveType;
@@ -1374,7 +1373,12 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	}
 
 	//we want to be aggressive with this because of the cost.
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES() * 5;
+	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES()/4;
+	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+	//if in debt, bump it up.
+	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+		iWeight *= 5;
+
 	BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::REMOVE_ROAD;
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRemoveRouteBuild);
@@ -1468,7 +1472,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false);
-	iWeight *= pPlot->GetBuilderAIScratchPadValue();
+	iWeight += pPlot->GetBuilderAIScratchPadValue();
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 
 	BuilderDirective directive;
@@ -1804,7 +1808,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		break;
 	}
 
-	if(pUnit->GetDanger(pPlot) >= 6 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
+	if(pUnit->GetDanger(pPlot) >= 20 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
@@ -1876,15 +1880,9 @@ int CvBuilderTaskingAI::GetBuildCostWeight(int iWeight, CvPlot* pPlot, BuildType
 	if(iBuildCost > 0)
 	{
 		iWeight = (iWeight * 100) / iBuildCost;
+		return iWeight;
 	}
-	else
-	{
-		//if (m_bLogging)
-		//{
-		//	LogInfo("Build cost is zero", m_pPlayer);
-		//}
-		iWeight = (iWeight * 100);
-	}
+	
 	return iWeight;
 }
 
@@ -2020,6 +2018,10 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 		return false;
 	}
 
+	//don't care about rush if this connects a resource.
+	if (pPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE)
+		return true;
+
 	if(!(pCity->getOrderFromQueue(0)->bRush))
 	{
 		// this order should not be rushed
@@ -2055,6 +2057,10 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 	//Some base value.
 	int iScore = 10;
 
+	int iBigBuff = 1000;
+	int iMedBuff = 500;
+	int iSmallBuff = 250;
+
 	if (m_bEvaluateAdjacent && m_pCurrentPlot->getOwner() != m_pPlayer->GetID())
 	{
 		if (!pImprovement->IsInAdjacentFriendly())
@@ -2077,8 +2083,8 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 			{
 				int iMultiplier = pCapitalCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
-				int iAbsMultiplier = abs(iMultiplier);
-				int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui];
+				//int iAbsMultiplier = abs(iMultiplier);
+				int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui] * 100;
 
 				// the multiplier being lower than zero means that we need more of this resource
 				if(iMultiplier < 0)
@@ -2086,11 +2092,11 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					bAnyNegativeMultiplier = true;
 					if(iYieldDelta > 0)  // this would be an improvement to the yield
 					{
-						iScore += m_aiProjectedPlotYields[ui] * iAbsMultiplier;
+						iScore += m_aiProjectedPlotYields[ui];
 					}
 					else if(iYieldDelta < 0)  // the yield would go down
 					{
-						iScore += iYieldDelta * iAbsMultiplier;
+						iScore += iYieldDelta;
 					}
 				}
 				else
@@ -2101,7 +2107,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					}
 					else if(iYieldDelta < 0)
 					{
-						iScore += iYieldDelta * iAbsMultiplier;
+						iScore += iYieldDelta;
 					}
 				}
 			}
@@ -2110,12 +2116,12 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
 				if(iYieldDelta > 0)
 				{
-					iScore += m_aiProjectedPlotYields[eFocusYield] * 100;
+					iScore += m_aiProjectedPlotYields[eFocusYield];
 				}
 			}
 			
 			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
-			iScore /= 5;
+			iScore -= iMedBuff;
 		}
 	}
 #endif
@@ -2133,72 +2139,39 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		{
 			return -1;
 		}
-		bool bAnyNegativeMultiplier = false;
-		YieldTypes eFocusYield = pCityStrategy->GetFocusYield();
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			int iMultiplier = pCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
-			int iAbsMultiplier = abs(iMultiplier);
-			int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui];
-
-			// the multiplier being lower than zero means that we need more of this resource
-			if(iMultiplier < 0)
-			{
-				bAnyNegativeMultiplier = true;
-				if(iYieldDelta > 0)  // this would be an improvement to the yield
-				{
-					iScore += m_aiProjectedPlotYields[ui] * iAbsMultiplier;
-				}
-				else if(iYieldDelta < 0)  // the yield would go down
-				{
-					iScore += iYieldDelta * iAbsMultiplier;
-				}
-			}
+			//int iAbsMultiplier = abs(iMultiplier);
+			int iYieldDelta = (m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui]) * 100;
+			if (iYieldDelta > 0 && pCityStrategy->GetFocusYield() == (YieldTypes)ui)
+				iScore += iYieldDelta * 5;
 			else
-			{
-				if(iYieldDelta >= 0)
-				{
-					iScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
-				}
-				else if(iYieldDelta < 0)
-				{
-					iScore += iYieldDelta * iAbsMultiplier;
-				}
-			}
-		}
-
-		if(!bAnyNegativeMultiplier && eFocusYield != NO_YIELD)
-		{
-			int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
-			if(iYieldDelta > 0)
-			{
-				iScore += m_aiProjectedPlotYields[eFocusYield] * 100;
-			}
+				iScore += iYieldDelta;
 		}
 
 		if (pCity->isCapital()) // this is our capital and needs emphasis
 		{
-			iScore *= 4;
+			iScore += iBigBuff;
 		}
 		else if (pCity->IsOriginalCapital()) // this was a particularly good city and needs a little emphasis
 		{
-			iScore *= 2;
+			iScore += iMedBuff;
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Plots with resources on them need emphasis, especially if they offer happiness.
 		if (!pImprovement->IsCreatedByGreatPerson() && m_pCurrentPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
 		{
-			iScore *= 2;
+			iScore += iMedBuff;
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(m_pCurrentPlot->getResourceType(pCity->getTeam()));
 			if(pkResourceInfo)
 			{
 				if(pkResourceInfo->getHappiness() > 0)
 				{
-					iScore *= 2;
+					iScore += iMedBuff;
 				}
 				if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				{
-					iScore *= 2;
+					iScore += iMedBuff;
 				}
 			}
 		}
@@ -2207,7 +2180,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(m_pCurrentPlot->getImprovementType());
 			if(pkImprovementInfo && (pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
 			{
-				iScore /= 10;
+				iScore -= iBigBuff;
 			}
 		}
 		//Improvement? Let's not default to great person improvements here.
@@ -2218,13 +2191,13 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				if (m_pCurrentPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
 				{
 					if (!m_bNoPermanentsAdjacentCity || m_pCurrentPlot->GetAdjacentCity() == NULL)
-						iScore *= 5;
+						iScore += iBigBuff;
 					else
-						iScore /= 2;
+						iScore -= iSmallBuff;
 				}
 				else
 				{
-					iScore /= 15;
+					iScore -= iBigBuff;
 				}
 			}
 		}
@@ -2247,12 +2220,12 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 						iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 						if(iPersonalityFlavorValue > 0)
 						{
-							iResult = iResourceFlavor * iPersonalityFlavorValue;
+							iResult = iResourceFlavor + iPersonalityFlavorValue;
 						}
 					}
 					if(iResult > 0)
 					{
-						iScore += iResult * 5;
+						iScore += iResult;
 					}
 				}
 			}
@@ -2269,7 +2242,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			{
 				if(!m_bEvaluateAdjacent || !pkImprovementInfo->IsInAdjacentFriendly())
 				{
-					iScore *= 5;
+					iScore += iBigBuff;
 				}
 				else if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (m_pCurrentPlot->getOwner() != m_pPlayer->GetID()))
 				{
@@ -2301,8 +2274,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 								if((pAdjacentPlot->getOwner() == m_pPlayer->GetID()) && (pAdjacentPlot->getImprovementType() == eImprovement))
 								{
 									//Is the plot outside our land, but we can build on it, and get an adjacency bonus? Let's capitalize on this.
-									iScore *= 4;
-									iScore /= 3;
+									iScore += iSmallBuff;
 									if(m_bLogging)
 									{
 										CvString strTemp;
@@ -2316,8 +2288,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 						}
 						if(!bAdjacent)
 						{
-							iScore *= 3;
-							iScore /= 2;
+							iScore += iSmallBuff;
 							if(m_bLogging)
 							{
 								CvString strTemp;
@@ -2330,7 +2301,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					else
 					{
 						//Is the plot outside our land, but we can build on it? Let's do this after everything else.
-						iScore /= 2;
+						iScore -= iSmallBuff;
 						if(m_bLogging)
 						{
 							CvString strTemp;
@@ -2342,11 +2313,11 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				// if it's Iroquois building forests give it even more weight since it connects cities.
 				else if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && pkImprovementInfo->GetCreatedFeature() != NO_FEATURE)
 				{
-					iScore *= 5;
+					iScore += iBigBuff;
 				}
 				else
 				{
-					iScore *= 2;
+					iScore += iSmallBuff;
 					if(m_bLogging)
 					{
 						CvString strTemp;
@@ -2428,27 +2399,27 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 
 			if(iAdjacentValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
+				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
 			}
 			if(iAdjacentTwoValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
+				iScore += (100 * m_pCurrentPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
 			}
 			if(iAdjacentOtherValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
+				iScore += (100 * m_pCurrentPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
 			}
 			if(iAdjacentTerrainValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
+				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
 			}
 			if(iAdjacentResourceValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
+				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
 			}
 			if (iAdjacentFeatureValue > 0)
 			{
-				iScore *= (1 + m_pCurrentPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
+				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
 			}
 
 		}
@@ -2467,7 +2438,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		}
 		if(iAdjacentGood > 0)
 		{
-			iScore *= iAdjacentGood;
+			iScore += 100 * iAdjacentGood;
 		}
 	}
 #endif
@@ -2494,26 +2465,25 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		if (m_pCurrentPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
 		{
 			if (m_pCurrentPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pCurrentPlot->IsRouteRailroad() || m_pCurrentPlot->IsRouteRoad()))
-				iScore *= 4;
+				iScore += iBigBuff;
 			else
-				iScore /= 2;
+				iScore -= iSmallBuff;
 		}
 		else
 		{
 			if (m_pCurrentPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pCurrentPlot->IsRouteRailroad() || m_pCurrentPlot->IsRouteRoad()))
 			{
-				iScore *= 3; 
-				iScore /= 2;
+				iScore += iMedBuff;
 			}
 			else
-				iScore /= 4;
+				iScore -= iSmallBuff;
 		}
 	}
 
 	//City adjacenct improvement? Ramp it up!
 	if(pImprovement->IsAdjacentCity() && m_pCurrentPlot->GetAdjacentCity() != NULL)
 	{
-		iScore *= 5;
+		iScore += iBigBuff;
 	}
 	//Holy Sites should be built near Holy Cities.
 	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
@@ -2524,7 +2494,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		{
 			if(m_pCurrentPlot->getOwningCity() != NULL && m_pCurrentPlot->getOwningCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
-				iScore *= 5;
+				iScore += iBigBuff;
 			}
 		}
 	}
@@ -2534,17 +2504,20 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 	{
 		if(pImprovement->IsImprovementResourceMakesValid(eResource))
 		{
-			iScore *= 2;
+			iScore += iBigBuff;
 		}
 	}
 	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
 	if(m_pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && !pImprovement->IsAdjacentCity())
 	{
+		//first off, reduce the value, because this is time consuming. It had better be worth it!
+		iScore -= iMedBuff;
+
 		//If our current improvement is obsolete, let's half it's value, so that the potential replacement is stronger.
 		CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(m_pCurrentPlot->getImprovementType());
 		if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
 		{
-			iScore *= 2;
+			iScore -= iMedBuff;
 		}
 		int iNumWorkedPlots = 0;
 		int iNumImprovedPlots = 0;
@@ -2560,14 +2533,15 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				}
 			}
 			iNumWorkedPlots = pCity->getPopulation();
-			//if population is higher than # of plots, increase value. Otherwise, reduce it.
-			if(iNumWorkedPlots > iNumWorkedPlots)
+			//if population is higher than # of plots, reduce value. Otherwise, increase it.
+			//one will remove penalty above - more than that and it becomes useful.
+			if (iNumWorkedPlots > iNumImprovedPlots)
 			{
-				iScore += ((iNumWorkedPlots - iNumImprovedPlots) * 2);
+				iScore -= ((iNumWorkedPlots - iNumImprovedPlots) * iSmallBuff);
 			}
 			else
 			{
-				iScore /= max(1, (iNumImprovedPlots - iNumWorkedPlots));
+				iScore += iSmallBuff * (iNumImprovedPlots - iNumWorkedPlots);
 			}
 		}
 	}

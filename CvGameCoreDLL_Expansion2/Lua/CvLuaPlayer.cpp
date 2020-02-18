@@ -970,6 +970,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCityWorkingChange);
 	Method(ChangeCityWorkingChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	Method(GetCityAutomatonWorkersChange);
+	Method(ChangeCityAutomatonWorkersChange);
+#endif
 
 	Method(DoBeginDiploWithHuman);
 	Method(DoTradeScreenOpened);
@@ -10150,6 +10154,20 @@ int CvLuaPlayer::lGetCityWorkingChange(lua_State* L)
 int CvLuaPlayer::lChangeCityWorkingChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeCityWorkingChange);
+}
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+//------------------------------------------------------------------------------
+//int getCityAutomatonWorkersChange();
+int CvLuaPlayer::lGetCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetCityAutomatonWorkersChange);
+}
+//------------------------------------------------------------------------------
+//void changeCityAutomatonWorkersChange(int iChange);
+int CvLuaPlayer::lChangeCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::ChangeCityAutomatonWorkersChange);
 }
 #endif
 //------------------------------------------------------------------------------

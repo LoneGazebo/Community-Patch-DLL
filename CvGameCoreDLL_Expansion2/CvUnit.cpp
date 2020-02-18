@@ -27586,6 +27586,13 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 			const CvUnit* pDefender = rangeStrikeTarget(*pTargetPlot, bNoncombatAllowed);
 			if(NULL == pDefender)
 			{
+#if defined(MOD_EVENTS_UNIT_RANGEATTACK)
+				if (MOD_EVENTS_UNIT_RANGEATTACK) {
+					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_UnitCanRangeAttackAt, getOwner(), GetID(), iX, iY, bNeedWar) == GAMEEVENTRETURN_TRUE) {
+						return true;
+					}
+				}
+#endif
 				return false;
 			}
 
@@ -27657,6 +27664,13 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 			if(!bFoundUnit)
 			{
+#if defined(MOD_EVENTS_UNIT_RANGEATTACK)
+				if (MOD_EVENTS_UNIT_RANGEATTACK) {
+					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_UnitCanRangeAttackAt, getOwner(), GetID(), iX, iY, bNeedWar) == GAMEEVENTRETURN_TRUE) {
+						return true;
+					}
+				}
+#endif
 				return false;
 			}
 		}

@@ -860,6 +860,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 	YieldTypes eTargetYield = GetFocusTypeYield(GetFocusType());
 	bool bCityFoodProduction = m_pCity->isFoodProduction();
+
+
+	ProcessTypes eProcess = m_pCity->getProductionProcess();
+	const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(eProcess);
 	// Yield Values
 	///////
 	// Bonuses
@@ -1025,6 +1029,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 					}
 					break;
 				}
+			}
+
+			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+			{
+				iYield *= (pkProcessInfo->getProductionToYieldModifier(eYield) / 5);
 			}
 			
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
@@ -2179,6 +2188,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	//and lastly increase it based on food val and stance.
 	iValue *= (100 + iFoodVal);
 	iValue /= 100;
+
+
+	if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(YIELD_FOOD) > 0)
+	{
+		iValue /= 5;
+	}
 
 	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 		iValue /= 25;

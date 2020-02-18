@@ -107,6 +107,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTRVisionBoost(0),
 	m_iHappinessPerXPolicies(0),
 	m_iHappinessPerXGreatWorks(0),
+	m_iExtraMissionaryStrength(0),
+	m_iExtraMissionarySpreads(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -114,6 +116,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iPlotGoldCostMod(0),
 #if defined(MOD_POLICIES_CITY_WORKING)
 	m_iCityWorkingChange(0),
+#endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange(0),
 #endif
 	m_iPlotCultureCostModifier(0),
 	m_iPlotCultureExponentModifier(0),
@@ -362,6 +367,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldModifierFromGreatWorks(NULL),
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
+	m_piYieldChangesPerReligion(NULL),
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
 	m_bCSResourcesForMonopolies(false),
@@ -459,6 +465,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
+	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -564,6 +571,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
 	m_iHappinessPerXGreatWorks = kResults.GetInt("HappinessPerXGreatWorks");
+	m_iExtraMissionaryStrength = kResults.GetInt("ExtraMissionaryStrength");
+	m_iExtraMissionarySpreads = kResults.GetInt("ExtraMissionarySpreads");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -571,6 +580,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPlotGoldCostMod = kResults.GetInt("PlotGoldCostMod");
 #if defined(MOD_POLICIES_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
+#endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 #endif
 	m_iPlotCultureCostModifier = kResults.GetInt("PlotCultureCostModifier");
 	m_iPlotCultureExponentModifier = kResults.GetInt("PlotCultureExponentModifier");
@@ -1171,6 +1183,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
+
+	kUtility.SetYields(m_piYieldChangesPerReligion, "Policy_YieldChangesPerReligion", "PolicyType", szPolicyType);
+
+	
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
@@ -1785,6 +1801,16 @@ int CvPolicyEntry::GetHappinessPerXGreatWorks() const
 {
 	return m_iHappinessPerXGreatWorks;
 }
+
+int CvPolicyEntry::GetExtraMissionaryStrength() const
+{
+	return m_iExtraMissionaryStrength;
+}
+
+int CvPolicyEntry::GetExtraMissionarySpreads() const
+{
+	return m_iExtraMissionarySpreads;
+}
 #endif
 /// Happiness from each connected Luxury Resource
 int CvPolicyEntry::GetExtraHappinessPerLuxury() const
@@ -1815,6 +1841,14 @@ int CvPolicyEntry::GetPlotGoldCostMod() const
 int CvPolicyEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
+}
+#endif
+
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+/// How many more tiles can we work
+int CvPolicyEntry::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
 }
 #endif
 
@@ -2738,6 +2772,22 @@ bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCu
 	}
 
 	return false;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+/// What is the golden age modifier for the specific yield type?
+int CvPolicyEntry::GetYieldChangesPerReligionTimes100(int iYield) const
+{
+	CvAssertMsg((YieldTypes)iYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg((YieldTypes)iYield > -1, "Index out of bounds");
+
+	return m_piYieldChangesPerReligion ? m_piYieldChangesPerReligion[iYield] : 0;
+}
+/// What is the golden age modifier for the specific yield type?
+int* CvPolicyEntry::GetYieldChangesPerReligionTimes100Array() const
+{
+	return m_piYieldChangesPerReligion;
 }
 #endif
 

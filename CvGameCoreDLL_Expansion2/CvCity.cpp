@@ -315,6 +315,9 @@ CvCity::CvCity() :
 	, m_iHappinessFromLuxuries("CvCity::m_iHappinessFromLuxuries", m_syncArchive)
 	, m_iUnhappinessFromEmpire("CvCity::m_iUnhappinessFromEmpire", m_syncArchive)
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	, m_iCityAutomatonWorkersChange("CvCity::m_iCityAutomatonWorkersChange", m_syncArchive)
+#endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
 #endif
@@ -1553,6 +1556,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bAllowsFoodTradeRoutes = false;
 	m_bAllowPuppetPurchase = false;
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = 0;
+#endif
 	m_iMaintenance = 0;
 	m_iHealRate = 0;
 	m_iEspionageModifier = 0;
@@ -2437,7 +2443,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 #if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 		if (m_eOwner != NO_PLAYER) {
-			setAutomatons(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).getCityAutomatonWorkers());
+			setAutomatons(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCityAutomatonWorkersChange());
+			setAutomatons(GET_PLAYER(getOwner()).GetCityAutomatonWorkersChange());
 		}
 #endif
 	}
@@ -14909,6 +14916,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BUILDINGS_CITY_WORKING)
 		changeCityWorkingChange(pBuildingInfo->GetCityWorkingChange() * iChange);
 #endif
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+		changeCityAutomatonWorkersChange(pBuildingInfo->GetCityAutomatonWorkersChange() * iChange);
+#endif
 
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 		int iBuildingFaith = pBuildingInfo->GetYieldChange(YIELD_FAITH);
@@ -15938,6 +15948,10 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		int iYieldPerReligion = GetYieldPerReligionTimes100((YieldTypes)iYield);
+#if defined(MOD_API_UNIFIED_YIELDS)
+		// Player-level yield per religion
+		iYieldPerReligion += GET_PLAYER(getOwner()).GetYieldChangesPerReligionTimes100((YieldTypes)iYield);
+#endif
 		if (iYieldPerReligion > 0)
 		{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -20498,6 +20512,27 @@ void CvCity::changeCityWorkingChange(int iChange)
 }
 #endif
 
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+//	--------------------------------------------------------------------------------
+int CvCity::GetCityAutomatonWorkersChange() const
+{
+	VALIDATE_OBJECT
+		return m_iCityAutomatonWorkersChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeCityAutomatonWorkersChange(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			changeAutomatons(iChange);
+
+			m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
+		}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvCity::getHealRate() const
 {
@@ -24859,6 +24894,10 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
 #endif
 	iBaseYield += (GetYieldPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers());
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Player-level yield per religion
+	iBaseYield += GET_PLAYER(m_eOwner).GetYieldChangesPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers();
+#endif
 	int iNonSpecialist = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizens(eIndex);
 	if (iNonSpecialist != 0)
 	{
@@ -26722,7 +26761,7 @@ void CvCity::DoBarbIncursion()
 					if (iDefenderDamage > 0)
 					{
 						//they get x turns worth of yields
-						int iTheftTurns = max(1, iDefenderDamage / 25 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+						int iTheftTurns = max(1, iDefenderDamage / 30 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 
 						//but they lose some health in exchange
 						pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));

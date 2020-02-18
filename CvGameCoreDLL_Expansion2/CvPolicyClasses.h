@@ -117,6 +117,8 @@ public:
 	int GetTRVisionBoost() const;
 	int GetHappinessPerXPolicies() const;
 	int GetHappinessPerXGreatWorks() const;
+	int GetExtraMissionaryStrength() const;
+	int GetExtraMissionarySpreads() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -124,6 +126,9 @@ public:
 	int GetPlotGoldCostMod() const;
 #if defined(MOD_POLICIES_CITY_WORKING)
 	int GetCityWorkingChange() const;
+#endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
 #endif
 	int GetPlotCultureCostModifier() const;
 	int GetPlotCultureExponentModifier() const;
@@ -277,6 +282,10 @@ public:
 #if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	bool HasFaithPurchaseUnitClasses() const;
 	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldChangesPerReligionTimes100(int i) const;
+	int* GetYieldChangesPerReligionTimes100Array() const;
 #endif
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
@@ -530,6 +539,9 @@ private:
 #if defined(MOD_POLICIES_CITY_WORKING)
 	int m_iCityWorkingChange;
 #endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	int m_iCityAutomatonWorkersChange;
+#endif
 	int m_iPlotCultureCostModifier;
 	int m_iPlotCultureExponentModifier;
 	int m_iNumCitiesPolicyCostDiscount;
@@ -686,6 +698,9 @@ private:
 #if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	std::multimap<int, int> m_FaithPurchaseUnitClasses;
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piYieldChangesPerReligion;
+#endif
 	int* m_piPrereqOrPolicies;
 	int* m_piPrereqAndPolicies;
 	int* m_piPolicyDisables;
@@ -780,6 +795,8 @@ private:
 	int m_iTRVisionBoost;
 	int m_iHappinessPerXPolicies;
 	int m_iHappinessPerXGreatWorks;
+	int m_iExtraMissionaryStrength;
+	int m_iExtraMissionarySpreads;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
