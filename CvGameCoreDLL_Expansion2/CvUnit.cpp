@@ -508,7 +508,7 @@ CvUnit::CvUnit() :
 	, m_iTacticalMoveSetTurn("CvUnit::m_iTacticalMoveSetTurn", m_syncArchive)
 	, m_eHomelandMove("CvUnit::m_eHomelandMove", m_syncArchive)
 	, m_iHomelandMoveSetTurn("CvUnit::m_iHomelandMoveSetTurn", m_syncArchive)
-	{
+{
 	initPromotions();
 	OBJECT_ALLOCATED
 	FSerialization::unitsToCheck.push_back(this);
@@ -7363,16 +7363,16 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 		if (eMove==AI_HOMELAND_MOVE_NONE)
 			return;
 
-		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
 			GetID(), tacticalMoveNames[m_eTacticalMove], homelandMoveNames[eMove]);
-		GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
-	}
+			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
+		}
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
-	m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
-	m_eHomelandMove = eMove;
-}
+		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+		m_eHomelandMove = eMove;
+	}
 
 //	--------------------------------------------------------------------------------
 AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
@@ -10134,6 +10134,10 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 		return false;
 
 	if(pPlot->getDomain() != getDomainType())
+		return false;
+
+	//barbs can't pillage camps yo
+	if (isBarbarian() && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		return false;
 
 	if(pPlot->getOwner() == NO_PLAYER && pPlot->isRoute())
@@ -29222,18 +29226,18 @@ const char* CvUnit::GetMissionInfo()
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
-	m_strMissionInfoString += " // ";
+		m_strMissionInfoString += " // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-		m_strMissionInfoString += "no move assigned";
-	else
-	{
-		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-			m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
+			m_strMissionInfoString += "no move assigned";
+		else
+		{
+			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
 		if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
-			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
-	}
+				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
+		}
 
 	if (IsCombatUnit())
 	{
@@ -29241,28 +29245,28 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += getTacticalZoneInfo();
 	}
 	else if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		m_strMissionInfoString += " // ";
-		m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
-	}
-	else if (isTrade())
-	{
-		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-		int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
-		if (iTrIndex>=0)
 		{
-			const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
-			if (pTradeConnection)
+			m_strMissionInfoString += " // ";
+			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+		}
+		else if (isTrade())
+		{
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
+			if (iTrIndex>=0)
 			{
-				CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
-				CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
-				CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
-					pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
-					pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
-					pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
+				const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
+				if (pTradeConnection)
+				{
+					CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
+					CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
+					CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
+						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
+						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
+						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
 
-				m_strMissionInfoString += " // ";
-				m_strMissionInfoString += strTemp0;
+					m_strMissionInfoString += " // ";
+					m_strMissionInfoString += strTemp0;
 			}
 		}
 	}

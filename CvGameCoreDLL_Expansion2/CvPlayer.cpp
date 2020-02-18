@@ -740,7 +740,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldFromBarbarianKills(NULL)
 	, m_piYieldChangeTradeRoute(NULL)
 	, m_piYieldChangesNaturalWonder(NULL)
-	, m_piYieldChangesPerReligion()
+	, m_piYieldChangesPerReligion(NULL)
 	, m_piYieldChangeWorldWonder(NULL)
 	, m_piYieldFromMinorDemand(NULL)
 	, m_piYieldFromWLTKD(NULL)
@@ -2253,6 +2253,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_piYieldChangesNaturalWonder.resize(NUM_YIELD_TYPES, 0);
 
 		m_piYieldChangesPerReligion.clear();
+		m_piYieldChangesPerReligion.resize(NUM_YIELD_TYPES, 0);
 
 		m_piYieldChangeWorldWonder.clear();
 		m_piYieldChangeWorldWonder.resize(NUM_YIELD_TYPES, 0);
@@ -11234,14 +11235,14 @@ void CvPlayer::doTurn()
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
 						}
 					}
 					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
 						}
 					}
 					else
@@ -19890,15 +19891,11 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	{	
 		if (eHistoricEvent == HISTORIC_EVENT_ERA)
 			iYieldHandicap *= 2;
-		else if (eHistoricEvent == HISTORIC_EVENT_GP)
-			iYieldHandicap /= 3;
-		else if (eHistoricEvent != NO_HISTORIC_EVENT_TYPE)
-			iYieldHandicap /= 2;
 
 		bool IncludeCities = true;
 		if (eHistoricEvent == HISTORIC_EVENT_GP ||
-			eHistoricEvent == HISTORIC_EVENT_WONDER ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
+			eHistoricEvent == HISTORIC_EVENT_TRADE_CS ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
 		{
 			IncludeCities = false;
@@ -19920,7 +19917,7 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 		GetTreasury()->ChangeGold(iYieldHandicap);
 		ChangeGoldenAgeProgressMeter(iYieldHandicap);
-		changeJONSCulture(iYieldHandicap / 2);
+		changeJONSCulture(iYieldHandicap);
 		
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
@@ -31511,7 +31508,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 1)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 0)
 	{
 		int iYieldHandicap = DoDifficultyBonus(eHistoricEvent);
 		if (GC.getLogging() && GC.getAILogging())
@@ -39978,13 +39975,7 @@ int CvPlayer::GetYieldChangesPerReligionTimes100(YieldTypes eYield) const
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	std::map<int, int>::const_iterator it = m_piYieldChangesPerReligion.find((int)eYield);
-	if (it != m_piYieldChangesPerReligion.end()) // find returns the iterator to map::end if the key is not present
-	{
-		return it->second;
-	}
-
-	return 0;
+	return m_piYieldChangesPerReligion[eYield];
 }
 
 void CvPlayer::ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange)
@@ -39994,12 +39985,9 @@ void CvPlayer::ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iCha
 
 	if (iChange != 0)
 	{
-		m_piYieldChangesPerReligion[(int)eYield] += iChange;
+		m_piYieldChangesPerReligion[eYield] += iChange;
 
 		updateYield();
-
-		//Trim capacity
-		std::map<int, int>(m_piYieldChangesPerReligion).swap(m_piYieldChangesPerReligion);
 	}
 }
 

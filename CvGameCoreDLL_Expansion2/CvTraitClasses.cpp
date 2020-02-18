@@ -7189,7 +7189,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
     MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
 #endif
 #if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
-	MOD_SERIALIZE_READ(90, kStream, m_iCityAutomatonWorkersChange, 0);
+	kStream >> m_iCityAutomatonWorkersChange;
 #endif
 	kStream >> m_iPlotCultureCostModifier;
 	kStream >> m_iCultureFromKills;
@@ -7868,7 +7868,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
     MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
 #endif
 #if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
-	MOD_SERIALIZE_WRITE(kStream, m_iCityAutomatonWorkersChange);
+	kStream << m_iCityAutomatonWorkersChange;
 #endif
 	kStream << m_iPlotCultureCostModifier;
 	kStream << m_iCultureFromKills;

@@ -5028,7 +5028,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) * 10;
+		iInstant += pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) * 5;
 	}
 	if (pkBuildingInfo->GetYieldFromVictoryGlobalPlayer(eYield) > 0)
 	{
@@ -5254,19 +5254,21 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	int iDelta = 0;
 	if (iFlatYield > 0)
 	{
-		iDelta = iYieldRate - max(1, iFlatYield);
-		if (iDelta <= 0)
+		//let's see our % bump here.
+		iDelta = (iFlatYield * 100) / max(1, iYieldRate);
+
+		if (iYieldRate <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iFlatYield *= 5;
+			iDelta *= 5;
 		}
 
 		//Instant Yields don't scale with era, but they do help for base infrastructure. Scale by city population.
-		iFlatYield *= (100 + pCity->getPopulation() - iEra);
-		iFlatYield /= 100;
+		iDelta *= (100 + pCity->getPopulation() - iEra);
+		iDelta /= 100;
 
 		//And here's what the value represents.
-		iYieldValue += iFlatYield;
+		iYieldValue += iDelta;
 	}
 
 	if (iInstant > 0)
@@ -5308,7 +5310,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			if (kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
-				iYieldValue *= 5;
+				iYieldValue *= 2;
 			}
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
@@ -5318,15 +5320,15 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 					{
-						iYieldValue *= 10;
-					}
-					if (GET_PLAYER(eLoopPlayer).GetCulture()->GetInfluenceTrend(kPlayer.GetID()) == INFLUENCE_TREND_RISING)
-					{
-						iYieldValue *= 5;
-					}
-					if (GET_PLAYER(eLoopPlayer).GetCulture()->GetInfluenceLevel(kPlayer.GetID()) >= INFLUENCE_LEVEL_FAMILIAR)
-					{
 						iYieldValue *= 3;
+					}
+					else if (GET_PLAYER(eLoopPlayer).GetCulture()->GetInfluenceTrend(kPlayer.GetID()) == INFLUENCE_TREND_RISING)
+					{
+						iYieldValue *= 2;
+					}
+					else if (GET_PLAYER(eLoopPlayer).GetCulture()->GetInfluenceLevel(kPlayer.GetID()) >= INFLUENCE_LEVEL_FAMILIAR)
+					{
+						iYieldValue *= 2;
 					}
 				}
 			}
@@ -5334,19 +5336,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		case YIELD_SCIENCE:
 			if (kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iYieldValue *= 5;
+				iYieldValue *= 2;
 			}
 			break;
 		case YIELD_PRODUCTION:
 			if (kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
 			{
-				iYieldValue *= 5;
+				iYieldValue *= 2;
 			}
 			break;
 		case YIELD_TOURISM:
 			if (kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
-				iYieldValue *= 5;
+				iYieldValue *= 2;
 			}
 			break;
 		case YIELD_FAITH:
@@ -5366,12 +5368,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 			if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
 			{		
-				iYieldValue *= max(1, iFlavorReligion);
+				iYieldValue += max(1, iFlavorReligion);
 			}
 			
 			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
 			{
-				iYieldValue *= max(1, iFlavorReligion);
+				iYieldValue += max(1, iFlavorReligion);
 			}
 			break;
 		}
@@ -5385,19 +5387,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//GS Yield Valuation
 		if (bSeekingDiploVictory && (eYield == YIELD_GOLD || eYield == YIELD_FAITH))
 		{
-			iYieldValue *= 5;
+			iYieldValue *= 2;
 		}
 		if (bSeekingConquestVictory && (eYield == YIELD_PRODUCTION || eYield == YIELD_GOLD))
 		{
-			iYieldValue *= 5;
+			iYieldValue *= 2;
 		}
 		if (bSeekingCultureVictory && (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM))
 		{
-			iYieldValue *= 5;
+			iYieldValue *= 2;
 		}
 		if (bSeekingScienceVictory && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD))
 		{
-			iYieldValue *= 5;
+			iYieldValue *= 2;
 		}
 
 		//JFD CRIME NEGATIVE OVERRIDE
@@ -5661,9 +5663,9 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}	
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
-		iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 10);
+		iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 5);
 		if (pCity != NULL && pCity->GetCityCulture()->GetNumGreatWorkSlots() <= pkBuildingInfo->GetGreatWorkCount())
-			iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 10);
+			iCultureValue += (pkBuildingInfo->GetGreatWorkCount() * 5);
 	}
 	if(pkBuildingInfo->GetGreatWorksTourismModifier() > 0)
 	{
@@ -6069,7 +6071,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
 		iValue += (pkBuildingInfo->GetNumThemingBonuses());
-		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 10);
+		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 2);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)
 		{
 			if (pCity != NULL && pCity->isCapital())
@@ -6295,16 +6297,16 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	
 	if(pkBuildingInfo->GetGreatWorkSlotType() == eArtArtifactSlot)
 	{
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 5);
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 5);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 2);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 2);
 	}
 	else if(pkBuildingInfo->GetGreatWorkSlotType() == eWritingSlot)
 	{
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 5);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 2);
 	}
 	else if(pkBuildingInfo->GetGreatWorkSlotType() == eMusicSlot)
 	{
-		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 5);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 2);
 	}
 	
 	//Strategy-specific yield bonuses (that lack a yield modifier)

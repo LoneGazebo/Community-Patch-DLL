@@ -367,6 +367,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldModifierFromGreatWorks(NULL),
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
+	m_piYieldChangesPerReligion(NULL),
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
 	m_bCSResourcesForMonopolies(false),
@@ -464,6 +465,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
+	SAFE_DELETE_ARRAY(m_piYieldChangesPerReligion);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -1181,6 +1183,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
+
+	kUtility.SetYields(m_piYieldChangesPerReligion, "Policy_YieldChangesPerReligion", "PolicyType", szPolicyType);
+
+	
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
@@ -1332,35 +1338,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 		pResults1->Reset();
 		pResults2->Reset();
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
-	//Policy_YieldChangesPerReligion
-	{
-		m_piYieldChangesPerReligion.clear();
-		std::string sqlKey = "Policy_YieldChangesPerReligion";
-		Database::Results* pResults = kUtility.GetResults(sqlKey);
-		if (pResults == NULL)
-		{
-			const char* szSQL = "select Yields.ID, Yield from Policy_YieldChangesPerReligion, Yields where PolicyType = ? and YieldType = Yields.Type";
-			pResults = kUtility.PrepareResults(sqlKey, szSQL);
-		}
-
-		pResults->Bind(1, szPolicyType, false);
-
-		while (pResults->Step())
-		{
-			const int yieldID = pResults->GetInt(0);
-			const int yield = pResults->GetInt(1);
-
-			m_piYieldChangesPerReligion[yieldID] += yield;
-		}
-
-		//Trim capacity
-		std::map<int, int>(m_piYieldChangesPerReligion).swap(m_piYieldChangesPerReligion);
-
-		pResults->Reset();
 	}
 #endif
 
@@ -2800,18 +2777,17 @@ bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCu
 
 #if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
 /// What is the golden age modifier for the specific yield type?
-int CvPolicyEntry::GetYieldChangesPerReligionTimes100(const int yieldID) const
+int CvPolicyEntry::GetYieldChangesPerReligionTimes100(int iYield) const
 {
-	CvAssertMsg(yieldID < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(yieldID > -1, "Index out of bounds");
+	CvAssertMsg((YieldTypes)iYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg((YieldTypes)iYield > -1, "Index out of bounds");
 
-	std::map<int, int>::const_iterator it = m_piYieldChangesPerReligion.find(yieldID);
-	if (it != m_piYieldChangesPerReligion.end()) // find returns the iterator to map::end if the key is not present
-	{
-		return it->second;
-	}
-
-	return 0;
+	return m_piYieldChangesPerReligion ? m_piYieldChangesPerReligion[iYield] : 0;
+}
+/// What is the golden age modifier for the specific yield type?
+int* CvPolicyEntry::GetYieldChangesPerReligionTimes100Array() const
+{
+	return m_piYieldChangesPerReligion;
 }
 #endif
 

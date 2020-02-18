@@ -284,7 +284,8 @@ public:
 	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldChangesPerReligionTimes100(const int yieldID) const;
+	int GetYieldChangesPerReligionTimes100(int i) const;
+	int* GetYieldChangesPerReligionTimes100Array() const;
 #endif
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
@@ -698,7 +699,7 @@ private:
 	std::multimap<int, int> m_FaithPurchaseUnitClasses;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES) && defined(MOD_API_UNIFIED_YIELDS)
-	std::map<int, int> m_piYieldChangesPerReligion;
+	int* m_piYieldChangesPerReligion;
 #endif
 	int* m_piPrereqOrPolicies;
 	int* m_piPrereqAndPolicies;

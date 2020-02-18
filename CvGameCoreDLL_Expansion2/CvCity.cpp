@@ -1046,7 +1046,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 	// Do this only after the capital has been chosen
-	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding && !isCapital())
+	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
 		int iYieldHandicap = owningPlayer.DoDifficultyBonus();
 		if (GC.getLogging() && GC.getAILogging())
@@ -26742,7 +26742,7 @@ void CvCity::DoBarbIncursion()
 	{
 		//don't steal from ourselves
 		if(GET_PLAYER(getOwner()).isBarbarian())
-			return;
+		return;
 
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
@@ -26751,17 +26751,17 @@ void CvCity::DoBarbIncursion()
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit() && pLoopPlot->GetNumFriendlyUnitsAdjacent(getTeam(),pUnit->getDomainType())==0)
+				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
-					//pretend the unit attacks this city
-					int iAttackerDamage = 0;
-					int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
+				//pretend the unit attacks this city
+				int iAttackerDamage = 0;
+				int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
 
 					//we pay them off so they don't do damage
 					if (iDefenderDamage > 0)
 					{
 						//they get x turns worth of yields
-						int iTheftTurns = max(1, iDefenderDamage / 23 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+						int iTheftTurns = max(1, iDefenderDamage / 30 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 
 						//but they lose some health in exchange
 						pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));

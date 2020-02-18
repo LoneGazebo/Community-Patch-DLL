@@ -47607,6 +47607,11 @@ int CvDiplomacyAIHelpers::GetWarmongerOffset(CvCity* pCity, PlayerTypes eWarmong
 	//cities rated on a 0-100 scale, where 0 = worthless, and 100 = most valuable in the world.
 	iWarmongerWeight = (iLocalEconomicPower * 100) / max(1, iHighestEconomicPower);
 
+	if (pCity->isCapital())
+	{
+		iWarmongerWeight *= GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
+		iWarmongerWeight /= 100;
+	}
 
 	//we reduce value significantly if we've owned before.
 	if(pCity != NULL && eWarmonger != NO_PLAYER)

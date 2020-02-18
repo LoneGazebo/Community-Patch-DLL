@@ -224,7 +224,7 @@ public:
 	int  GetImprovementResourceYield(int i, int j) const;
 	bool IsImprovementResourceMakesValid(int i) const;
 	bool IsImprovementResourceTrade(int i) const;
-	bool IsExpandedImprovementResourceTrade(int i) const;
+	bool IsExpandedImprovementResourceTrade(int i, bool bIgnorePrimary = false) const;
 
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;

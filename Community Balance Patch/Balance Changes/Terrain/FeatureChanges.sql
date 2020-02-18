@@ -112,7 +112,7 @@ WHERE BuildType = 'BUILD_FORT';
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
 VALUES ('BUILD_POLDER', 'FEATURE_JUNGLE', 'TECH_CALENDAR', '500', 20 ,1);
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
-VALUES ('BUILD_POLDER', 'FEATURE_FOREST', 'TECH_BRONZE_WORKING', '300', 30, 1);
+VALUES ('BUILD_POLDER', 'FEATURE_FOREST', 'TECH_MINING', '300', 30, 1);
 
 UPDATE BuildFeatures SET Remove = 1 WHERE  FeatureType = 'FEATURE_MARSH'  AND BuildType NOT IN ('BUILD_POLDER');
 UPDATE BuildFeatures SET Time = 300 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 0);

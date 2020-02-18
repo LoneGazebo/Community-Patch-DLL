@@ -290,9 +290,11 @@ void CvTacticalAI::CommandeerUnits()
 	{
 		// debugging hook
 		if (gCurrentUnitToTrack == pLoopUnit->GetID())
-		{
 			pLoopUnit->DumpDangerInNeighborhood();
-		}
+
+		// we reset this every turn in order to spot units falling through the cracks
+		// todo: ideally we have some persistency and prefer to assign the same tasks across turns ...
+		pLoopUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
 
 		//LogTacticalMessage( CvString::format("looking to recruit %s %d at (%d,%d) with %d hp",
 		//	pLoopUnit->getName().c_str(),pLoopUnit->GetID(),pLoopUnit->getX(),pLoopUnit->getY(),pLoopUnit->GetCurrHitPoints()).c_str() );
@@ -372,7 +374,7 @@ void CvTacticalAI::CommandeerUnits()
 				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
 				if (eDirective == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 					continue;
-			}
+				}
 
 			// Is this one in an operation we can't interrupt?
 			int iArmyID = pLoopUnit->getArmyID();
@@ -388,8 +390,8 @@ void CvTacticalAI::CommandeerUnits()
 			}
 			else
 				m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
+			}
 		}
-	}
 
 #if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
@@ -1074,20 +1076,20 @@ void CvTacticalAI::ProcessDominanceZones()
 			}
 
 			AITacticalPosture ePosture = FindPosture(pZone);
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
 				CvCity* pZoneCity = pZone->GetZoneCity();
 				strLogString.Format("Zone %d, %s, city of %s, posture %s",  
 					pZone ? pZone->GetZoneID() : -1, pZone->IsWater() ? "water" : "land",
 					pZoneCity ? pZoneCity->getNameNoSpace().c_str() : "no_name_city", 
 					ePosture != AI_TACTICAL_POSTURE_NONE ? postureNames[ePosture] : "no posture");
-				LogTacticalMessage(strLogString);
-			}
-
+					LogTacticalMessage(strLogString);
+				}
+							
 			ExtractTargetsForZone(pZone);
-			switch (ePosture)
-			{
+					switch (ePosture)
+					{
 			case AI_TACTICAL_POSTURE_WITHDRAW: //give up
 				PlotWithdrawMoves(pZone);
 				break;
@@ -1096,20 +1098,20 @@ void CvTacticalAI::ProcessDominanceZones()
 				break;
 			case AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE: //low risk attacks on units
 				PlotAttritFromRangeMoves(pZone);
-				break;
-			case AI_TACTICAL_POSTURE_EXPLOIT_FLANKS: //try to kill enemy units
+						break;
+					case AI_TACTICAL_POSTURE_EXPLOIT_FLANKS: //try to kill enemy units
 				PlotExploitFlanksMoves(pZone);
-				break;
-			case AI_TACTICAL_POSTURE_STEAMROLL: //attack everything
+						break;
+					case AI_TACTICAL_POSTURE_STEAMROLL: //attack everything
 				PlotSteamrollMoves(pZone);
-				break;
-			case AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE: //go for the city
+						break;
+					case AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE: //go for the city
 				PlotSurgicalCityStrikeMoves(pZone);
-				break;
-			case AI_TACTICAL_POSTURE_COUNTERATTACK: //concentrated fire on enemy attackers
+						break;
+					case AI_TACTICAL_POSTURE_COUNTERATTACK: //concentrated fire on enemy attackers
 				PlotCounterattackMoves(pZone);
-				break;
-			}
+						break;
+					}
 
 			//bring in reinforcements if needed
 			if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
@@ -1135,7 +1137,7 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 
 /// Choose which tactics to run and assign units to it
 void CvTacticalAI::AssignGlobalLowPrioMoves()
-{
+	{
 	//air attacks are already done during zone attacks, this is just for the remaining units
 	PlotAirInterceptMoves();
 	//do extra sweeps _after_ setting up the necessary interceptors for defense
@@ -1148,7 +1150,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//score some goodies
 	PlotAncientRuinMoves(1);
-	PlotBarbarianCampMoves();
+		PlotBarbarianCampMoves();
 
 	//harass the enemy (plundering also happens during combat sim ...)
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, true);
@@ -1158,17 +1160,17 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, false);
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT, false);
 
-	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
-	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
+		PlotPlunderTradeUnitMoves(DOMAIN_LAND);
+		PlotPlunderTradeUnitMoves(DOMAIN_SEA);
 	PlotBlockadeMoves();
 
 	//try to capture
 	PlotCivilianAttackMoves();
 
 	//pure defense
-	PlotGarrisonMoves(2);
-	PlotBastionMoves(2);
-	PlotGuardImprovementMoves(1);
+		PlotGarrisonMoves(2);
+		PlotBastionMoves(2);
+		PlotGuardImprovementMoves(1);
 	PlotRepositionMoves();
 }
 
@@ -1186,7 +1188,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
 	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
 	PlotBlockadeMoves();
-	
+
 	//capturing civilians
 	PlotCivilianAttackMoves();
 
@@ -1196,8 +1198,8 @@ void CvTacticalAI::AssignBarbarianMoves()
 	PlotBarbarianMove(false);
 
 	//safety comes last for the barbarians ...
-	PlotMovesToSafety(true /*bCombatUnits*/);
-	PlotMovesToSafety(false /*bCombatUnits*/);
+			PlotMovesToSafety(true /*bCombatUnits*/);
+			PlotMovesToSafety(false /*bCombatUnits*/);
 }
 
 /// Assign a group of units to take down each city we can capture
@@ -1710,17 +1712,17 @@ void CvTacticalAI::PlotBarbarianMove(bool bAggressive)
 
 	ClearCurrentMoveUnits(bAggressive ? AI_TACTICAL_BARBARIAN_AGGRESSIVE_MOVE : AI_TACTICAL_BARBARIAN_PASSIVE_MOVE);
 
-	// Loop through all recruited units
+		// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed())
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if (pUnit && !pUnit->TurnProcessed())
 			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-	}
+		}
 
-	if(m_CurrentMoveUnits.size() > 0)
-		ExecuteBarbarianMoves(bAggressive);
-}
+		if(m_CurrentMoveUnits.size() > 0)
+			ExecuteBarbarianMoves(bAggressive);
+		}
 
 //attack military units and civilians without regard for tactical zones
 void CvTacticalAI::PlotBarbarianAttacks()
@@ -1730,7 +1732,7 @@ void CvTacticalAI::PlotBarbarianAttacks()
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
-	
+
 	//barbarians range-attack civilians, they are barbarians!
 	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK);
 	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_EMBARKED_CIVILIAN);
@@ -1738,7 +1740,7 @@ void CvTacticalAI::PlotBarbarianAttacks()
 	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN);
 	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN);
 	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
-}
+		}
 
 /// Plunder trade routes
 void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
@@ -2277,30 +2279,30 @@ void CvTacticalAI::PlotAirInterceptMoves()
 			if(pUnit->canAirPatrol(NULL))
 			{
 				CvPlot* pUnitPlot = pUnit->plot();
-				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
-				int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
-				int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
+					int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
+					int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
+					int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
 
 				// To at least intercept once if only one bomber found.
-				if (iNumNearbyBombers == 1)
-					iNumNearbyBombers++;
+					if (iNumNearbyBombers == 1)
+						iNumNearbyBombers++;
 
 				// TODO: we should not just use any interceptor but the best one (depending on promotions etc)
 				int maxInterceptorsWanted = (iNumNearbyBombers / 2) + (iNumNearbyFighters / 4);
-				if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
-				{
-					checkedPlotList.push_back(pUnitPlot);
+					if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
+					{
+						checkedPlotList.push_back(pUnitPlot);
 
 					m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
-	
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
+
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
 						strLogString.Format("Ready to intercept enemy air units at, X: %d, Y: %d with %s %d", pUnit->getX(), pUnit->getY(), pUnit->getName().c_str(), pUnit->GetID());
-						LogTacticalMessage(strLogString);
+							LogTacticalMessage(strLogString);
+						}
 					}
 				}
-			}
 		}
 	}
 
@@ -2512,10 +2514,10 @@ void CvTacticalAI::PlotAttritFromRangeMoves(CvTacticalDominanceZone* /*pZone*/)
 
 	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+		{
 		ExecuteSafeBombards(*pTarget);
 		pTarget = GetNextZoneTarget();
-	}
+		}
 
 	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
 	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
@@ -2566,10 +2568,10 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves(CvTacticalDominanceZone* /*pZone*
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_SURGICAL_STRIKE);
 
-	// Attack the city first
+		// Attack the city first
 	ExecuteCaptureCityMoves();
 
-	// Take any other really good attacks we've set up
+		// Take any other really good attacks we've set up
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
@@ -2584,11 +2586,11 @@ void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* /*pZone*/)
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
-}
+	}
 
 /// Try to push back the invader
 void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* /*pZone*/)
-{
+	{
 	ClearCurrentMoveUnits(AI_TACTICAL_COUNTERATTACK);
 
 	// Attack priority unit targets
@@ -4268,7 +4270,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 		}
 
 		if (!pUnit->TurnProcessed())
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
 	}
 
 	return bSuccess;
@@ -4878,8 +4880,8 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						if(pUnit->shouldPillage(pUnit->plot()))
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+						}
 					}
-				}
 				// NAVAL MOVES
 				else
 				{
@@ -5216,8 +5218,6 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 /// Move forces in toward our target
 void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone)
 {
-	ClearCurrentMoveUnits(AI_TACTICAL_CLOSE_ON_TARGET);
-
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 
 	//cities have two zones ...
@@ -5263,7 +5263,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 
 				//finally detailed pathfinding
 				int iTurns = 0;
-				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2, iMaxTurns, &iTurns, true))
+				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2||CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())

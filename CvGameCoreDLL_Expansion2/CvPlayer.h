@@ -3596,7 +3596,7 @@ protected:
 	std::vector<int> m_piYieldFromBarbarianKills;
 	std::vector<int> m_piYieldChangeTradeRoute;
 	std::vector<int> m_piYieldChangesNaturalWonder;
-	std::map<int, int> m_piYieldChangesPerReligion;
+	std::vector<int> m_piYieldChangesPerReligion;
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;

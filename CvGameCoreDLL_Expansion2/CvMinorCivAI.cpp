@@ -15254,7 +15254,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 		iGold /= 100;
 	}
 	if (iGold <= 0)
-		iGold = 0;
+		iGold = -1;
 
 	return iGold;
 }
@@ -16019,6 +16019,18 @@ int CvMinorCivAI::CalculateBullyValue(PlayerTypes eBullyPlayer, bool bForUnit, C
 		}
 	}
 
+	if (bForUnit)
+	{
+		iScore -= 15;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << -15;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_UNIT_RELUCTANCE";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+	}
+
 	// **************************
 	// Minor Civ Type
 	//
@@ -16472,7 +16484,7 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 	}
 
 	if (iValue <= 0)
-		iValue = 0;
+		iValue = -1;
 
 	return iValue;
 }
@@ -17716,7 +17728,15 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		}
 	}
 
-	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false);
+	ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (pImprovementInfo != NULL && pImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
+			return false;
+	}
+
+	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false);
 
 	// There must be a valid improvement for the player to build
 	if(eImprovement == NO_IMPROVEMENT)
@@ -17763,7 +17783,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 		return;
 	}
 
-	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false);
+	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
 	if(eImprovement == NO_IMPROVEMENT)
 	{
 		return;
