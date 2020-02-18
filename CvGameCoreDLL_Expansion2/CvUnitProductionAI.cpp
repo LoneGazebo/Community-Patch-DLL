@@ -1504,7 +1504,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
-			iBonus += (500 * iUnimprovedAround * (m_pCity->getPopulation() + kPlayer.GetCurrentEra()));
+			iBonus += (1000 * iUnimprovedAround * (m_pCity->getPopulation() + kPlayer.GetCurrentEra()));
+
+			//additional loop to help coastal and non-coastal cities nearby.
+			int iCityLoop;
+			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+			{
+				if (pLoopCity->getArea() == m_pCity->getArea())
+				{
+					AICityStrategyTypes eNeedNavalWorker = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
+					if (eNeedNavalWorker != NO_AICITYSTRATEGY && pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedNavalWorker))
+						iBonus += (250 * (pLoopCity->getPopulation() + kPlayer.GetCurrentEra()));
+				}
+			}
 		}
 	}
 	//Make sure we need workers in this city.

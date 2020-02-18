@@ -390,8 +390,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
 		int iSideBenefits = iRoadLength * 25;
 		// give an additional bump if we're almost done (don't get distracted)
-		if (iPlotsNeeded<=5)
-			iSideBenefits += 150 - (iPlotsNeeded * 20);
+		if (iPlotsNeeded<=3)
+			iSideBenefits += 1000 - (iPlotsNeeded * 20);
 
 		//assume one unhappiness is worth .5 gold per turn per city
 		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 100 : 50;
@@ -1015,6 +1015,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 			int iScore = ScoreCurrentPlot(eImprovement, eBuild);
 			iScore = min(iScore,0x7FFF);
+
 			if(iScore > 0)
 			{
 				iWeight += iScore;
@@ -1185,7 +1186,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		FeatureTypes eFeature = pPlot->getFeatureType();
 		if(eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE)
 		{
-			if(pkBuild->isFeatureRemove(eFeature))
+			if (pkBuild->isFeatureRemove(eFeature))
 			{
 				bWillRemoveForestOrJungle = true;
 			}
@@ -2028,7 +2029,7 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 		return false;
 	}
 
-	return true;
+	return false;
 }
 
 int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTypes eBuild)
@@ -2055,7 +2056,9 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 	ResourceTypes eResource = m_pCurrentPlot->getResourceType(m_pPlayer->getTeam());
 
 	//Some base value.
-	int iScore = 10;
+	int iScore = 0;
+	int iYieldScore = 0;
+	int iSecondaryScore = 0;
 
 	int iBigBuff = 1000;
 	int iMedBuff = 500;
@@ -2092,22 +2095,22 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					bAnyNegativeMultiplier = true;
 					if(iYieldDelta > 0)  // this would be an improvement to the yield
 					{
-						iScore += m_aiProjectedPlotYields[ui];
+						iYieldScore += m_aiProjectedPlotYields[ui];
 					}
 					else if(iYieldDelta < 0)  // the yield would go down
 					{
-						iScore += iYieldDelta;
+						iYieldScore += iYieldDelta;
 					}
 				}
 				else
 				{
 					if(iYieldDelta >= 0)
 					{
-						iScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
+						iYieldScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
 					}
 					else if(iYieldDelta < 0)
 					{
-						iScore += iYieldDelta;
+						iYieldScore += iYieldDelta;
 					}
 				}
 			}
@@ -2116,12 +2119,12 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
 				if(iYieldDelta > 0)
 				{
-					iScore += m_aiProjectedPlotYields[eFocusYield];
+					iYieldScore += m_aiProjectedPlotYields[eFocusYield];
 				}
 			}
 			
 			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
-			iScore -= iMedBuff;
+			iYieldScore -= iSmallBuff;
 		}
 	}
 #endif
@@ -2144,18 +2147,14 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			//int iAbsMultiplier = abs(iMultiplier);
 			int iYieldDelta = (m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui]) * 100;
 			if (iYieldDelta > 0 && pCityStrategy->GetFocusYield() == (YieldTypes)ui)
-				iScore += iYieldDelta * 5;
+				iYieldScore += iYieldDelta * 5;
 			else
-				iScore += iYieldDelta;
+				iYieldScore += iYieldDelta;
 		}
 
-		if (pCity->isCapital()) // this is our capital and needs emphasis
+		if (pCity->isCapital() || pCity->IsOriginalCapital()) // this is our capital and needs emphasis
 		{
-			iScore += iBigBuff;
-		}
-		else if (pCity->IsOriginalCapital()) // this was a particularly good city and needs a little emphasis
-		{
-			iScore += iMedBuff;
+			iYieldScore += iSmallBuff;
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Plots with resources on them need emphasis, especially if they offer happiness.
@@ -2180,7 +2179,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(m_pCurrentPlot->getImprovementType());
 			if(pkImprovementInfo && (pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
 			{
-				iScore -= iBigBuff;
+				iSecondaryScore -= iBigBuff;
 			}
 		}
 		//Improvement? Let's not default to great person improvements here.
@@ -2191,13 +2190,13 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				if (m_pCurrentPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
 				{
 					if (!m_bNoPermanentsAdjacentCity || m_pCurrentPlot->GetAdjacentCity() == NULL)
-						iScore += iBigBuff;
+						iSecondaryScore += iBigBuff;
 					else
-						iScore -= iSmallBuff;
+						iSecondaryScore -= iSmallBuff;
 				}
 				else
 				{
-					iScore -= iBigBuff;
+					iSecondaryScore -= iBigBuff;
 				}
 			}
 		}
@@ -2225,7 +2224,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					}
 					if(iResult > 0)
 					{
-						iScore += iResult;
+						iSecondaryScore += iResult;
 					}
 				}
 			}
@@ -2242,7 +2241,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			{
 				if(!m_bEvaluateAdjacent || !pkImprovementInfo->IsInAdjacentFriendly())
 				{
-					iScore += iBigBuff;
+					iSecondaryScore += iBigBuff;
 				}
 				else if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (m_pCurrentPlot->getOwner() != m_pPlayer->GetID()))
 				{
@@ -2274,7 +2273,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 								if((pAdjacentPlot->getOwner() == m_pPlayer->GetID()) && (pAdjacentPlot->getImprovementType() == eImprovement))
 								{
 									//Is the plot outside our land, but we can build on it, and get an adjacency bonus? Let's capitalize on this.
-									iScore += iSmallBuff;
+									iSecondaryScore += iSmallBuff;
 									if(m_bLogging)
 									{
 										CvString strTemp;
@@ -2288,7 +2287,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 						}
 						if(!bAdjacent)
 						{
-							iScore += iSmallBuff;
+							iSecondaryScore += iSmallBuff;
 							if(m_bLogging)
 							{
 								CvString strTemp;
@@ -2301,7 +2300,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 					else
 					{
 						//Is the plot outside our land, but we can build on it? Let's do this after everything else.
-						iScore -= iSmallBuff;
+						iSecondaryScore -= iSmallBuff;
 						if(m_bLogging)
 						{
 							CvString strTemp;
@@ -2313,11 +2312,11 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				// if it's Iroquois building forests give it even more weight since it connects cities.
 				else if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && pkImprovementInfo->GetCreatedFeature() != NO_FEATURE)
 				{
-					iScore += iBigBuff;
+					iSecondaryScore += iBigBuff;
 				}
 				else
 				{
-					iScore += iSmallBuff;
+					iSecondaryScore += iSmallBuff;
 					if(m_bLogging)
 					{
 						CvString strTemp;
@@ -2399,27 +2398,27 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 
 			if(iAdjacentValue > 0)
 			{
-				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
+				iYieldScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
 			}
 			if(iAdjacentTwoValue > 0)
 			{
-				iScore += (100 * m_pCurrentPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
+				iYieldScore += (100 * m_pCurrentPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
 			}
 			if(iAdjacentOtherValue > 0)
 			{
-				iScore += (100 * m_pCurrentPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
+				iYieldScore += (100 * m_pCurrentPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
 			}
 			if(iAdjacentTerrainValue > 0)
 			{
-				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
+				iYieldScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
 			}
 			if(iAdjacentResourceValue > 0)
 			{
-				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
+				iYieldScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
 			}
 			if (iAdjacentFeatureValue > 0)
 			{
-				iScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
+				iYieldScore += (100 * m_pCurrentPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
 			}
 
 		}
@@ -2438,52 +2437,80 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		}
 		if(iAdjacentGood > 0)
 		{
-			iScore += 100 * iAdjacentGood;
+			iSecondaryScore += 100 * iAdjacentGood;
 		}
 	}
 #endif
 
+	//feature considerations...
+	if (m_pCurrentPlot->getFeatureType() != NO_FEATURE)
+	{
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if (pkBuild)
+		{
+			//we remove this feature?
+			if (pkBuild->isFeatureRemove(m_pCurrentPlot->getFeatureType()))
+			{
+				//how many do we have left?
+				CvCity* pCity = m_pCurrentPlot->getOwningCity();
+				if (pCity)
+				{
+					//we don't want to remove all features, we might need them later!
+					int iNumFeatureRemaining = pCity->CountFeature(m_pCurrentPlot->getFeatureType());
+					if (iNumFeatureRemaining <= 10)
+					{
+						iSecondaryScore -= (10 - iNumFeatureRemaining) * 100;
+					}
+				}
+			}
+			else
+			{
+				//bump to encourage these in cities with lots of features
+				//how many do we have left?
+				CvCity* pCity = m_pCurrentPlot->getOwningCity();
+				if (pCity)
+				{
+					int iNumFeatureRemaining = pCity->CountFeature(m_pCurrentPlot->getFeatureType());
+					iSecondaryScore += iNumFeatureRemaining * 50;
+				}
+			}
+		}
+	}
+
 	//Let's get route things on routes, and not elsewhere.
-	bool bRouteBenefit = false;
+	int iRouteScore = 0;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
+
+		iRouteScore += pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) * 100;
 			
-		if(pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) > 0)
+		if (iRouteScore > 0)
 		{
-			bRouteBenefit = true;
-			break;
+			iYieldScore += iRouteScore;
 		}
-		else if(pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) > 0)
+
+		iRouteScore += pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) * 100;
+		if (iRouteScore > 0)
 		{
-			bRouteBenefit = true;
-			break;
+			iYieldScore += iRouteScore;
 		}
 	}
-	if(bRouteBenefit)
+	if (iRouteScore > 0)
 	{
 		if (m_pCurrentPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
 		{
 			if (m_pCurrentPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pCurrentPlot->IsRouteRailroad() || m_pCurrentPlot->IsRouteRoad()))
-				iScore += iBigBuff;
+				iSecondaryScore += iRouteScore;
 			else
-				iScore -= iSmallBuff;
-		}
-		else
-		{
-			if (m_pCurrentPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pCurrentPlot->IsRouteRailroad() || m_pCurrentPlot->IsRouteRoad()))
-			{
-				iScore += iMedBuff;
-			}
-			else
-				iScore -= iSmallBuff;
+				iSecondaryScore -= iRouteScore;
 		}
 	}
 
 	//City adjacenct improvement? Ramp it up!
 	if(pImprovement->IsAdjacentCity() && m_pCurrentPlot->GetAdjacentCity() != NULL)
 	{
-		iScore += iBigBuff;
+		iSecondaryScore += iBigBuff;
 	}
 	//Holy Sites should be built near Holy Cities.
 	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
@@ -2494,7 +2521,7 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		{
 			if(m_pCurrentPlot->getOwningCity() != NULL && m_pCurrentPlot->getOwningCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
-				iScore += iBigBuff;
+				iSecondaryScore += iBigBuff;
 			}
 		}
 	}
@@ -2504,20 +2531,41 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 	{
 		if(pImprovement->IsImprovementResourceMakesValid(eResource))
 		{
-			iScore += iBigBuff;
+			iYieldScore += iBigBuff;
+			//a new one? really buff it!!
+			if (m_pPlayer->getNumResourceAvailable(eResource) <= 0)
+				iYieldScore += iBigBuff;
+
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			//amp up monopoly alloc!
+			if (pkResource && pkResource->isMonopoly())
+			{
+				if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+						iYieldScore += iBigBuff + m_pPlayer->GetMonopolyPercent(eResource);
+				}
+				else
+				{
+					if (m_pPlayer->GetMonopolyPercent(eResource) > 0 && m_pPlayer->GetMonopolyPercent(eResource) <= GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD())
+						iYieldScore += iBigBuff + m_pPlayer->GetMonopolyPercent(eResource);
+					else if (m_pPlayer->GetMonopolyPercent(eResource) >= GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD() && m_pPlayer->GetMonopolyPercent(eResource) <= GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+						iYieldScore += iBigBuff + m_pPlayer->GetMonopolyPercent(eResource);
+				}
+			}
 		}
 	}
 	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
 	if(m_pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && !pImprovement->IsAdjacentCity())
 	{
 		//first off, reduce the value, because this is time consuming. It had better be worth it!
-		iScore -= iMedBuff;
+		iYieldScore -= iMedBuff;
 
 		//If our current improvement is obsolete, let's half it's value, so that the potential replacement is stronger.
 		CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(m_pCurrentPlot->getImprovementType());
 		if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
 		{
-			iScore -= iMedBuff;
+			iYieldScore -= iMedBuff;
 		}
 		int iNumWorkedPlots = 0;
 		int iNumImprovedPlots = 0;
@@ -2537,11 +2585,11 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			//one will remove penalty above - more than that and it becomes useful.
 			if (iNumWorkedPlots > iNumImprovedPlots)
 			{
-				iScore -= ((iNumWorkedPlots - iNumImprovedPlots) * iSmallBuff);
+				iSecondaryScore -= ((iNumWorkedPlots - iNumImprovedPlots) * iSmallBuff);
 			}
 			else
 			{
-				iScore += iSmallBuff * (iNumImprovedPlots - iNumWorkedPlots);
+				iSecondaryScore += iSmallBuff * (iNumImprovedPlots - iNumWorkedPlots);
 			}
 		}
 	}
@@ -2561,8 +2609,8 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 				if(iDefense==0)
 					return -1;
 
-				if(iDefense > iScore)
-					iScore = iDefense;
+				if (iDefense > iSecondaryScore)
+					iSecondaryScore = iDefense;
 			}
 		}
 	}
@@ -2574,12 +2622,18 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 			//looking to replace a fort
 			iDefense = m_pCurrentPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 		}
-		if((iDefense * 3) > (iScore * 2))
+		if ((iDefense * 3) > (iSecondaryScore * 2))
 		{
 			return -1;
 		}
 	}
 #endif
+	//if we're doing this solely for the secondary benefit, let's not overweight it. We need yields first and foremost.
+	if (iYieldScore < iSecondaryScore)
+		iSecondaryScore /= 2;
+
+	iScore = iYieldScore + iSecondaryScore;
+
 	return iScore;
 }
 
