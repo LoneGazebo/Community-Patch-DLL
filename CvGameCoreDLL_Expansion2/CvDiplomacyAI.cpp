@@ -14911,17 +14911,13 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	// Find out what the average is (minus the player we're looking at)
 	PlayerTypes eLoopPlayer;
 	CvPlayer* pPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		pPlayer = &GET_PLAYER(eLoopPlayer);
 		
-		// Dead, haven't met them, no cities, etc.
-		if (!IsPlayerValid(eLoopPlayer, true))
-			continue;
-		
-		// Only count City-States that have more than 1 city
-		if (pPlayer->isMinorCiv() && pPlayer->getNumCities() <= 1)
+		// Dead or no cities
+		if (!GET_PLAYER(ePlayer).isMajorCiv() || !GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).getNumCities() == 0)
 			continue;
 
 		// Not the guy we're looking at
@@ -14935,7 +14931,7 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	fAverageNumCities /= max(1,iNumPlayers);
 
 	// Must have way more cities than the average player in the game
-	if (iNumCities < fAverageNumCities * 1.5)
+	if (iNumCities < fAverageNumCities * 1.8)
 		return false;
 
 	return true;

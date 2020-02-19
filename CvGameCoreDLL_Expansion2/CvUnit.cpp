@@ -2380,7 +2380,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
-		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
+		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian() && ePlayer != getOwner())
 		{
 			// Notify Diplo AI that damage has been done
 			// Best unit that can be built now is given value of 100
