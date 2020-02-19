@@ -2380,7 +2380,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
-		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
+		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian() && ePlayer != getOwner())
 		{
 			// Notify Diplo AI that damage has been done
 			// Best unit that can be built now is given value of 100
@@ -2430,8 +2430,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
-			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
+			// Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
+			if (!plot()->isCity())
 			{
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
 			}
@@ -7284,6 +7284,15 @@ void CvUnit::SetTurnProcessed(bool bValue)
 //	--------------------------------------------------------------------------------
 void CvUnit::setTacticalMove(AITacticalMove eMove)
 {
+#ifdef VPDEBUG
+	//sanity check
+	if (m_eTacticalMove != AI_TACTICAL_MOVE_NONE && eMove != AI_TACTICAL_MOVE_NONE)
+	{
+		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove] );
+		OutputDebugString(msg.c_str());
+	}
+#endif
+
 	//clear homeland move, can't have both ...
 	m_eHomelandMove = AI_HOMELAND_MOVE_NONE;
 	m_iTacticalMoveSetTurn = GC.getGame().getGameTurn();
@@ -7360,13 +7369,19 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	if (hasCurrentTacticalMove())
 	{
-		if (eMove==AI_HOMELAND_MOVE_NONE)
-			return;
-
 			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
 			GetID(), tacticalMoveNames[m_eTacticalMove], homelandMoveNames[eMove]);
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
 		}
+
+#ifdef VPDEBUG
+	//sanity check
+	if (m_eHomelandMove != AI_HOMELAND_MOVE_NONE && eMove != AI_HOMELAND_MOVE_NONE)
+	{
+		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove] );
+		OutputDebugString(msg.c_str());
+	}
+#endif
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
@@ -27998,8 +28013,7 @@ CvString CvUnit::getTacticalZoneInfo() const
 	{
 		const char* dominance[] = { "no units", "friendly", "hostile", "contested" };
 		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
-			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "no posture");
+		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], postureNames[posture]);
 	}
 
 	return CvString("no tactical zone");

@@ -306,6 +306,10 @@ public:
 	void SetNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange);
 
+	// Military Rating: How skilled is ePlayer at war?
+	int ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer = NO_PLAYER);
+	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer);
+
 	// Military Strength: How strong is ePlayer compared to US?
 	StrengthTypes GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer, StrengthTypes eMilitaryStrength);
@@ -342,7 +346,7 @@ public:
 	// War Value Lost: the int value of damage ePlayer has inflicted on us in war
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
-	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
+	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange, bool bNoRatingChange = false);
 
 	// Other Player War Damage Level: how much damage we've inflicted UPON ePlayer
 	WarDamageLevelTypes GetOtherPlayerWarDamageLevel(PlayerTypes ePlayer, PlayerTypes eLostToPlayer) const;

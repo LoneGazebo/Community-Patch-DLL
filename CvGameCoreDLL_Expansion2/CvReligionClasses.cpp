@@ -11216,7 +11216,6 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
 					if (eBuilding != NO_BUILDING)
 					{
-						CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
 						int iValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, iLandRoutes, iWaterRoutes, iGPT, false, false, true, true);
 						if (iValue > iBest)
 						{

@@ -664,10 +664,9 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	m_FormationEntries[iSlotNum].SetUnitID(iUnitID);
 	pThisUnit->setArmyID(GetID());
 
-#if defined(MOD_BALANCE_CORE)
-	//just for avoiding confusion
+	//do this in two steps to avoid triggering the sanity check
 	pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
-#endif
+	pThisUnit->setTacticalMove(AI_TACTICAL_OPERATION);
 
 	// Finally, compute when we think this unit will arrive at the next checkpoint
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
@@ -708,6 +707,9 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				pThisUnit->setArmyID(-1);
 				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
 
+				//just for avoiding confusion
+				pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+
 				// Tell the associate operation that a unit was lost
 				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
 				if(pThisOperation)
@@ -715,21 +717,6 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 
 				return true;
 			}
-		}
-	}
-
-	return false;
-}
-
-/// Is this part of an operation that allows units to be poached by tactical AI?
-bool CvArmyAI::CanTacticalAIInterruptUnit(int /* iUnitId */) const
-{
-	if(m_eOwner >=0 && m_eOwner < MAX_PLAYERS)
-	{
-		CvAIOperation* op = GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID);
-		if(op)
-		{
-			return op->CanTacticalAIInterruptOperation();
 		}
 	}
 

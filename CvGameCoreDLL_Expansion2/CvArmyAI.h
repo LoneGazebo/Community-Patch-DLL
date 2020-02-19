@@ -145,7 +145,6 @@ public:
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum);
 	bool RemoveUnit(int iUnitId);
-	bool CanTacticalAIInterruptUnit(int iUnitId) const;
 	CvUnit* GetFirstUnit();
 	CvUnit* GetNextUnit(CvUnit* pCurUnit);
 

@@ -448,40 +448,17 @@ void CvHomelandAI::FindHomelandTargets()
 					int iWeight = pLoopPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 					if(iWeight > 0)
 					{
-						if(pLoopPlot->getResourceType(eTeam) != NO_RESOURCE)
-						{
-							iWeight += 25;
-						}
 						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-						{
-							iWeight += 25;
-						}
+							iWeight += 10;
 						if(pLoopPlot->isHills())
-						{
 							iWeight += 25;
-						}
 
-						CvCity* pOwningCity = pLoopPlot->getOwningCity();
-
-						if (pOwningCity && m_pPlayer->IsAtWar())
-						{
-							if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
-							{
-								iWeight *= 10;
-							}
-							if (pOwningCity->getDamage() > 0)
-							{
-								iWeight *= 2;
-							}
-						}
 						if(pLoopPlot->getNumUnits() > 0)
 						{
 							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-							if((pUnit != NULL) && pUnit->IsCivilianUnit())
-							{
+							if(pUnit && pUnit->IsCivilianUnit())
 								iWeight += 100;
 							}
-						}
 
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
@@ -538,26 +515,16 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 
 
-					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetThreatRank() != -1)
+					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetCoastalThreatRank() != -1)
 					{
 						//More cities = more threat.
-						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetThreatRank()) * 10;
+						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
 						if (iThreat > 0)
 						{
 							iWeight += iThreat;
 						}
 					}
-					if (m_pPlayer->IsAtWar())
-					{
-						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
-						{
-							iWeight *= 10;
-						}
-						if (pOwningCity->getDamage() > 0)
-						{
-							iWeight *= 2;
-						}
-					}
+
 					if (iWeight > 0)
 					{
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
@@ -826,7 +793,7 @@ void CvHomelandAI::PlotMovesToSafety()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit)
+		if (!pUnit || pUnit->TurnProcessed())
 			continue;
 
 		int iDangerLevel = pUnit->GetDanger();
@@ -966,7 +933,7 @@ void CvHomelandAI::PlotSentryMoves()
 					pSentry->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestNeighbor->getX(), pBestNeighbor->getY());
 			}
 
-			ExecuteMoveToTarget(pSentry, pTarget, 0, true);
+		ExecuteMoveToTarget(pSentry, pTarget, 0);
 			UnitProcessed(pSentry->GetID());
 
 			if(GC.getLogging() && GC.getAILogging())
@@ -1492,7 +1459,7 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 			if (pUnit->canMove())
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
-			pUnit->SetTurnProcessed(true);
+			UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -2320,7 +2287,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if(pUnit && !pUnit->TurnProcessed())
 		{
 			//safety check. in case we have a unit with queued missions, 
 			//don't finish its moves, else it won't be able to execute the mission
@@ -2339,15 +2306,13 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					m_CurrentMoveUnits.push_back(unit);
 				}
 				else
-				{
-					pUnit->SetTurnProcessed(true);
-				}
+					UnitProcessed(pUnit->GetID());
 			}
 			else if(pUnit->getDomainType() == DOMAIN_SEA)
 			{
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
-					pUnit->SetTurnProcessed(true);
+					UnitProcessed(pUnit->GetID());
 
 					CvString strTemp;
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -2358,6 +2323,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						strLogString.Format("Unassigned %s %d at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
+
 					continue;
 				}
 				else
@@ -2390,7 +2356,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					{
 						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 42))
 						{
-							pUnit->SetTurnProcessed(true);
 							CvString strTemp;
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 							if(pkUnitInfo)
@@ -2401,10 +2366,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 								LogHomelandMessage(strLogString);
 							}
 							bStuck = false;
+
+							UnitProcessed(pUnit->GetID());
 							continue;
 						}
 					}
+
 					//Stuck and not at home? Scrap it.
+					//todo: maybe wait a few turns in case we're simply boxed in by enemy units?
 					if(bStuck)
 					{
 						CvString strTemp;
@@ -2416,11 +2385,12 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							strLogString.Format("Unassigned %s %d SCRAPPED, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
-						pUnit->SetTurnProcessed(true);
+
 						if (pUnit->canScrap())
 							pUnit->scrap();
 						else
 							pUnit->kill(true);
+
 						continue;
 					}
 				}

@@ -173,7 +173,6 @@ public:
 	//virtual methods with a sane default
 	virtual int GetMaximumRecruitTurnsBase() const;
 	virtual int GetMaximumRecruitTurns() const;
-	virtual bool CanTacticalAIInterruptOperation() const { return false; }
 	virtual bool IsOffensive() const { return false; }
 	virtual bool IsAllowedDuringPeace() const { return false; }
 	virtual bool IsDefensive() const { return false; }
@@ -508,10 +507,6 @@ public:
 		return MUFORMATION_FAST_PILLAGERS;
 	}
 	virtual int GetDeployRange() const;
-	virtual bool CanTacticalAIInterruptOperation() const
-	{
-		return true;
-	}
 	virtual void OnSuccess() const;
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
@@ -744,10 +739,6 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
-	virtual bool CanTacticalAIInterruptOperation() const
-	{
-		return true;
-	}
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:
@@ -932,10 +923,6 @@ public:
 	{
 		return MUFORMATION_CITY_STATE_ATTACK_FORCE;
 	}
-	virtual bool CanTacticalAIInterruptOperation() const
-	{
-		return true;
-	}
 	virtual int GetDeployRange() const
 	{ 
 		return 4;
@@ -969,10 +956,6 @@ public:
 	virtual MultiunitFormationTypes GetFormation() const
 	{
 		return MUFORMATION_NAVAL_SQUADRON;
-	}
-	virtual bool CanTacticalAIInterruptOperation() const
-	{
-		return true;
 	}
 	virtual int GetDeployRange() const
 	{ 

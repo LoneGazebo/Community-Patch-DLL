@@ -2192,7 +2192,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 
 	if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(YIELD_FOOD) > 0)
 	{
-		iValue /= 5;
+		iValue /= 10;
 	}
 
 	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
