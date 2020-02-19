@@ -307,7 +307,7 @@ public:
 	void ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange);
 	
 	// Military Rating: How skilled is ePlayer at war?
-	int ComputeAverageMajorMilitaryRating();
+	int ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer = NO_PLAYER);
 	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer);
 
 	// Military Strength: How strong is ePlayer compared to US?

@@ -12516,7 +12516,7 @@ void CvDiplomacyAI::ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange)
 }
 
 /// What is the average (living) major civ's military rating?
-int CvDiplomacyAI::ComputeAverageMajorMilitaryRating()
+int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer /* = NO_PLAYER */)
 {
 	int iTotalRating = 0;
 	int iNumCivs = 0;
@@ -12524,6 +12524,9 @@ int CvDiplomacyAI::ComputeAverageMajorMilitaryRating()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+		if (eLoopPlayer == eExcludedPlayer)
+			continue;
 		
 		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 		{
@@ -12545,7 +12548,7 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 		return 0;
 	
 	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
-	int iAverageRating = ComputeAverageMajorMilitaryRating();
+	int iAverageRating = ComputeAverageMajorMilitaryRating(/*eExcludedPlayer*/ ePlayer);
 	
 	if (iAverageRating == 0)
 		iAverageRating = 1;
