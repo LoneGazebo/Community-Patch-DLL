@@ -21164,7 +21164,7 @@ bool CvCity::DoRazingTurn()
 		// My viewpoint
 		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
 		// Bad guy's viewpoint
-		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue);
+		GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeWarValueLost(getOwner(), iValue, /*bNoRatingChange*/ true);
 
 		int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
 		if(iEra <= 0)

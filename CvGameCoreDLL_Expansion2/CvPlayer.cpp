@@ -304,6 +304,7 @@ CvPlayer::CvPlayer() :
 	, m_iConversionTimer("CvPlayer::m_iConversionTimer", m_syncArchive)
 	, m_iCapitalCityID("CvPlayer::m_iCapitalCityID", m_syncArchive)
 	, m_iCitiesLost("CvPlayer::m_iCitiesLost", m_syncArchive)
+	, m_iMilitaryRating("CvPlayer::m_iMilitaryRating", m_syncArchive)
 	, m_iMilitaryMight("CvPlayer::m_iMilitaryMight", m_syncArchive)
 	, m_iEconomicMight("CvPlayer::m_iEconomicMight", m_syncArchive)
 	, m_iProductionMight("CvPlayer::m_iProductionMight", m_syncArchive)
@@ -1618,6 +1619,7 @@ void CvPlayer::uninit()
 	m_iConversionTimer = 0;
 	m_iCapitalCityID = -1;
 	m_iCitiesLost = 0;
+	m_iMilitaryRating = 0;
 	m_iMilitaryMight = 0;
 	m_iEconomicMight = 0;
 	m_iProductionMight = 0;
@@ -32954,6 +32956,29 @@ void CvPlayer::changeCitiesLost(int iChange)
 {
 	m_iCitiesLost = (m_iCitiesLost + iChange);
 }
+
+//	--------------------------------------------------------------------------------
+
+int CvPlayer::GetMilitaryRating() const
+{
+	return m_iMilitaryRating;
+}
+
+//	--------------------------------------------------------------------------------
+
+void CvPlayer::SetMilitaryRating(int iValue)
+{
+	m_iMilitaryRating = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+
+void CvPlayer::ChangeMilitaryRating(int iChange)
+{
+	SetMilitaryRating(GetMilitaryRating() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
 
 void CvPlayer::updateMightStatistics()
 {

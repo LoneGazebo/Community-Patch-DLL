@@ -2430,10 +2430,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
-			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
+			// Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
+			if (!plot()->isCity())
 			{
-			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
 			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();

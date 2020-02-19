@@ -4280,36 +4280,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 
-	// Base weight for Opinion to curb AI aggression a bit - not an elegant solution, but will be OK temporarily
-	switch (GetMajorCivOpinion(ePlayer))
-	{
-	case MAJOR_CIV_OPINION_ALLY:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 3);
-		break;
-	case MAJOR_CIV_OPINION_FRIEND:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
-		break;
-	case MAJOR_CIV_OPINION_FAVORABLE:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
-		break;
-	case MAJOR_CIV_OPINION_NEUTRAL:
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
-		break;
-	case MAJOR_CIV_OPINION_COMPETITOR:
-		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-		break;
-	case MAJOR_CIV_OPINION_ENEMY:
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-		break;
-	case MAJOR_CIV_OPINION_UNFORGIVABLE:
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		break;
-	}
-
 	// If we're planning a war then give it a bias so that we don't get away from it too easily
 	if (eOldApproach == MAJOR_CIV_APPROACH_WAR && GetWarGoal(ePlayer) == WAR_GOAL_PREPARE)
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -12545,6 +12515,73 @@ void CvDiplomacyAI::ChangeNumWarsDeclaredOnUs(PlayerTypes ePlayer, int iChange)
 	}
 }
 
+/// What is the average (living) major civ's military rating?
+int CvDiplomacyAI::ComputeAverageMajorMilitaryRating()
+{
+	int iTotalRating = 0;
+	int iNumCivs = 0;
+	
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+		{
+			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
+			iNumCivs++;
+		}
+	}
+	
+	// Prevent division by zero, just in case
+	if (iNumCivs == 0)
+		return 1;
+	
+	return (iTotalRating / iNumCivs);
+}
+
+int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv())
+		return 0;
+	
+	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
+	int iAverageRating = ComputeAverageMajorMilitaryRating();
+	
+	if (iAverageRating == 0)
+		iAverageRating = 1;
+	
+	if (iCivRating == iAverageRating)
+		return 0;
+
+	// Calculate the percentage difference from the average
+	int iDifference = iCivRating - iAverageRating;
+	if (iDifference < 0)
+		iDifference *= -1; // need the absolute value
+	
+	int iAverage = ((iCivRating + iAverageRating) / 2);
+	
+	int iValue = iDifference / max(iAverage, 1);
+	iValue *= 100;
+	
+	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
+	if (iCivRating > iAverageRating)
+	{
+		return min(iValue, 100);
+	}
+	// If below average, apply half the % difference as a negative modifier to strength, cap below at -50%
+	else if (iCivRating < iAverageRating)
+	{
+		iValue *= -1; // flip the sign
+		iValue /= 2;
+		return max(iValue, -50);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+
 /// What is our assessment of this player's overall Military Strength?
 StrengthTypes CvDiplomacyAI::GetPlayerMilitaryStrengthComparedToUs(PlayerTypes ePlayer) const
 {
@@ -12586,76 +12623,93 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 
 	int iBase = /*30*/ GC.getMILITARY_STRENGTH_BASE();
 	int iMilitaryStrength = iBase + GetPlayer()->GetMilitaryMight();
+	
+	// Modify strength based on military rating (combat skill)
+	iMilitaryStrength *= (100 + ComputeRatingStrengthAdjustment(GetPlayer()->GetID()));
+	iMilitaryStrength /= 100;
 
-	int iOtherPlayerMilitary;
+	int iOtherPlayerMilitaryStrength;
 	int iMilitaryRatio;
 
-	if(IsPlayerValid(ePlayer, /*bMyTeamIsValid*/ true))
+	if (IsPlayerValid(ePlayer, /*bMyTeamIsValid*/ true))
 	{
-		// Look at player's Military Strength
-		//if (GetPlayer()->GetMilitaryMight() > 0)
-		{
-			iOtherPlayerMilitary = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
+		iOtherPlayerMilitaryStrength = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
+		
+		// Modify strength based on military rating (combat skill)
+		iOtherPlayerMilitaryStrength *= (100 + ComputeRatingStrengthAdjustment(ePlayer));
+		iOtherPlayerMilitaryStrength /= 100;
 #if defined(MOD_BALANCE_CORE)
-			PlayerTypes eLoopPlayer;
-			int iDPUs = 0;
-			int iDPThem = 0;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		PlayerTypes eLoopPlayer;
+		int iDPUs = 0;
+		int iDPThem = 0;
+		int iLoopPlayerStrength = 0;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if (eLoopPlayer == GetPlayer()->GetID())
-					continue;
-
-				if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != ePlayer)
+				if ((GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam()) || (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam())))
 				{
-					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
-					{
-						iDPThem += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
-					}
-					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
-					{
-						iDPUs += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
-					}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					if (MOD_DIPLOMACY_CIV4_FEATURES)
-					{
-						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
-						{
-							iDPThem += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
-						}
-					}
-					if (MOD_DIPLOMACY_CIV4_FEATURES)
-					{
-						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
-						{
-							iDPUs += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
-						}
-					}
-#endif
+					iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight() + iBase;
+
+					// Modify strength based on military rating (combat skill)
+					iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
+					iLoopPlayerStrength /= 100;
+
+					iDPThem += iLoopPlayerStrength;
 				}
-			}
-			if(iDPThem > 0)
-			{
-				iOtherPlayerMilitary *= (int)((iDPThem * .1f) + 100);
-				iOtherPlayerMilitary /= 100;
-			}
-			if(iDPUs > 0)
-			{
-				iMilitaryStrength *= (int)((iDPUs * .1f) + 100);
-				iMilitaryStrength /= 100;
-			}
+				if ((GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam()) || (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam())))
+				{
+					iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight() + iBase;
+
+					// Modify strength based on military rating (combat skill)
+					iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
+					iLoopPlayerStrength /= 100;
+					
+					iDPUs += iLoopPlayerStrength;
+				}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if (MOD_DIPLOMACY_CIV4_FEATURES)
+				{
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+					{
+						iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight() + iBase;
+
+						// Modify strength based on military rating (combat skill)
+						iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
+						iLoopPlayerStrength /= 100;
+
+						iDPThem += iLoopPlayerStrength;
+					}
+
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+					{
+						iLoopPlayerStrength = GET_PLAYER(eLoopPlayer).GetMilitaryMight() + iBase;
+
+						// Modify strength based on military rating (combat skill)
+						iLoopPlayerStrength *= (100 + ComputeRatingStrengthAdjustment(eLoopPlayer));
+						iLoopPlayerStrength /= 100;
+						
+						iDPUs += iLoopPlayerStrength;
+					}
+				}
 #endif
-			// Example: If another player has double the Military strength of us, the Ratio will be 200
-			iMilitaryRatio = iOtherPlayerMilitary* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMilitaryStrength;
+			}
 		}
-
-		//else
-		//{
-		//	iMilitaryRatio = /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER();
-		//}
-
-		//iMilitaryStrength += iMilitaryRatio;
+		if(iDPThem > 0)
+		{
+			iOtherPlayerMilitaryStrength *= (int)((iDPThem * .1f) + 100);
+			iOtherPlayerMilitaryStrength /= 100;
+		}
+		if(iDPUs > 0)
+		{
+			iMilitaryStrength *= (int)((iDPUs * .1f) + 100);
+			iMilitaryStrength /= 100;
+		}
+#endif
+		// Example: If another player has double the Military strength of us, the Ratio will be 200
+		iMilitaryRatio = iOtherPlayerMilitaryStrength * /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMilitaryStrength;
 
 		// Now do the final assessment
 		if(iMilitaryRatio >= /*300*/ GC.getMILITARY_STRENGTH_IMMENSE_THRESHOLD())
@@ -19264,7 +19318,7 @@ void CvDiplomacyAI::DoWarDamageDecay()
 					// Make sure it's changing by at least 1
 					iValue = max(1, iValue);
 
-					ChangeWarValueLost(eLoopPlayer, -iValue);
+					ChangeWarValueLost(eLoopPlayer, -iValue, /*bNoRatingChange*/ true);
 				}
 			}
 
@@ -19341,23 +19395,30 @@ void CvDiplomacyAI::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 }
 
 // Changes the value of stuff (Units & Cities) lost in a war against a particular player
-void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
+void CvDiplomacyAI::ChangeWarValueLost(PlayerTypes ePlayer, int iChange, bool bNoRatingChange /* = false */)
 {
 	SetWarValueLost(ePlayer, GetWarValueLost(ePlayer) + iChange);
+	
+	// Update military rating for both players
+	if (!bNoRatingChange)
+	{
+		GET_PLAYER(ePlayer).ChangeMilitaryRating(iChange); // rating up for winner (them)
+		GetPlayer()->ChangeMilitaryRating(-iChange); // rating down for loser (us)
+	}
 
-	if(iChange > 0)
+	if (iChange > 0)
 	{
 		// Loop through all the other major civs and see if any of them are fighting us.  If so, they are happy this player damaged us.
 		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if(eLoopPlayer != ePlayer && eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
+			if (eLoopPlayer != ePlayer && eLoopPlayer != m_pPlayer->GetID() && IsPlayerValid(eLoopPlayer))
 			{
 				// Are they at war with me too?
 				CvPlayer& kOtherPlayer = GET_PLAYER(eLoopPlayer);
-				if(IsAtWar(eLoopPlayer))
+				if (IsAtWar(eLoopPlayer))
 				{
 					kOtherPlayer.GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iChange);
 				}
