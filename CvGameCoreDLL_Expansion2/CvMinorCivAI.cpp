@@ -2117,8 +2117,8 @@ bool CvMinorCivQuest::IsExpired()
 			{
 				return true;
 			}
-			// We conquered the city-state. Oops.
-			if(!pTargetCityState->isAlive() && (pPlot->getOwner() == m_eAssignedPlayer))
+			// We conquered the city-state (or the city-state itself did). Oops.
+			if(!pTargetCityState->isAlive() && (pPlot->getOwner() == m_eAssignedPlayer || pPlot->getOwner() == m_eMinor))
 			{
 				return true;
 			}
@@ -6880,7 +6880,7 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 		if(!MOD_DIPLOMACY_CITYSTATES_QUESTS || GC.getQUEST_DISABLED_CIRCUMNAVIGATION() == 1)
 			return false;
 	}
-	// Circumnavigation
+	// Liberate City-State
 	else if(eQuest == MINOR_CIV_QUEST_LIBERATION)
 	{
 		if(!MOD_DIPLOMACY_CITYSTATES_QUESTS || GC.getQUEST_DISABLED_LIBERATION() == 1)
@@ -9703,6 +9703,10 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 			continue;
 
 		if(!GET_PLAYER(eTarget).isMinorCiv())
+			continue;
+
+		CvPlot* pPlot = GET_PLAYER(eTarget).getStartingPlot();
+		if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 			continue;
 
 		if (GET_PLAYER(eTarget).GetCapitalConqueror() == eForPlayer)
