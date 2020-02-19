@@ -12552,9 +12552,6 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	
 	if (iAverageRating == 0)
 		iAverageRating = 1;
-	
-	if (iCivRating == iAverageRating)
-		return 0;
 
 	// Calculate the percentage difference from the average
 	int iDifference = iCivRating - iAverageRating;
@@ -12650,7 +12647,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
+			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer && eLoopPlayer != GetPlayer()->GetID())
 			{
 				if ((GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam()) || (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam())))
 				{
