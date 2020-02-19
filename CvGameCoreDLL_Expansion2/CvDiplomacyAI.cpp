@@ -12537,7 +12537,7 @@ int CvDiplomacyAI::ComputeAverageMajorMilitaryRating(PlayerTypes eExcludedPlayer
 	
 	// Prevent division by zero, just in case
 	if (iNumCivs == 0)
-		return 1;
+		iNumCivs = 1;
 	
 	return (iTotalRating / iNumCivs);
 }
