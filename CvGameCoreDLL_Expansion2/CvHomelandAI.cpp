@@ -801,7 +801,7 @@ void CvHomelandAI::PlotMovesToSafety()
 			continue;
 
 		// civilian always ready to flee
-		if (pUnit->IsCivilianUnit())
+		if (pUnit->IsCivilianUnit() && iDangerLevel > 20)
 		{
 			//allow workers to clean fallout (at home)
 			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
@@ -1339,7 +1339,7 @@ void CvHomelandAI::PlotPatrolMoves()
 
 void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 {
-	//check what kind of units we have
+//check what kind of units we have
 	int iUnitsSea = 0, iUnitsLand = 0;
 	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
@@ -2323,7 +2323,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						strLogString.Format("Unassigned %s %d at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
-
 					continue;
 				}
 				else
@@ -2371,7 +2370,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							continue;
 						}
 					}
-
 					//Stuck and not at home? Scrap it.
 					//todo: maybe wait a few turns in case we're simply boxed in by enemy units?
 					if(bStuck)
@@ -2390,7 +2388,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							pUnit->scrap();
 						else
 							pUnit->kill(true);
-
 						continue;
 					}
 				}
@@ -5929,7 +5926,6 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 					break;
 				}
 			}
-
 			if(!bFoundAdjacent)
 			{
 				m_TargetedSentryPoints.push_back(*it);

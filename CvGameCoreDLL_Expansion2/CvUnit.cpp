@@ -2380,7 +2380,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
-		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
+		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian() && ePlayer != getOwner())
 		{
 			// Notify Diplo AI that damage has been done
 			// Best unit that can be built now is given value of 100
@@ -2430,8 +2430,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			// Don't apply the diplo penalty for units stationed in one of the owner's cities, since civilians aren't being targeted in particular
-			if (!plot()->isCity() || (plot()->isCity() && plot()->getOwner() != getOwner()))
+			// Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
+			if (!plot()->isCity())
 			{
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
 			}
@@ -10149,6 +10149,10 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 		return false;
 
 	if(pPlot->getDomain() != getDomainType())
+		return false;
+
+	//barbs can't pillage camps yo
+	if (isBarbarian() && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		return false;
 
 	if(pPlot->getOwner() == NO_PLAYER && pPlot->isRoute())
@@ -27597,6 +27601,13 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 			const CvUnit* pDefender = rangeStrikeTarget(*pTargetPlot, bNoncombatAllowed);
 			if(NULL == pDefender)
 			{
+#if defined(MOD_EVENTS_UNIT_RANGEATTACK)
+				if (MOD_EVENTS_UNIT_RANGEATTACK) {
+					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_UnitCanRangeAttackAt, getOwner(), GetID(), iX, iY, bNeedWar) == GAMEEVENTRETURN_TRUE) {
+						return true;
+					}
+				}
+#endif
 				return false;
 			}
 
@@ -27668,6 +27679,13 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 			if(!bFoundUnit)
 			{
+#if defined(MOD_EVENTS_UNIT_RANGEATTACK)
+				if (MOD_EVENTS_UNIT_RANGEATTACK) {
+					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_UnitCanRangeAttackAt, getOwner(), GetID(), iX, iY, bNeedWar) == GAMEEVENTRETURN_TRUE) {
+						return true;
+					}
+				}
+#endif
 				return false;
 			}
 		}

@@ -291,7 +291,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_cBuilderAIScratchPadPlayer = 0;
 	m_sBuilderAIScratchPadTurn = 0;
-	m_sBuilderAIScratchPadValue = 0;
+	m_iBuilderAIScratchPadValue = 0;
 	m_eBuilderAIScratchPadRoute = NO_ROUTE;
 
 	m_plotCity.reset();
@@ -2798,51 +2798,19 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 								//Let's check for Embassies.
 								if(GC.getImprovementInfo(eImprovement)->IsEmbassy())
 								{
-									if(GET_PLAYER(getOwner()).getNumCities() > 1)
+									int iCityLoop;
+									for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
 									{
-										CvCity* pLoopCity;
-										int iCityLoop;
-										// Not owned by this player, so we have to check things the hard way, and see how close the Plot is to any of this Player's Cities
-										for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+										if(pLoopCity != NULL)
 										{
-											if(pLoopCity != NULL)
+											for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
 											{
+												CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-												for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+												if(pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
 												{
-													CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-													if(pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
-													{
-														ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
-														ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
-														if(CSImprovement == eEmbassy)
-														{
-															return false;
-														}
-													}
-												}
-											}
-										}
-									}
-									else
-									{
-										CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
-										if(pCity != NULL)
-										{
-
-											for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-											{
-												CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-												if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
-												{
-													ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
-													ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
-													if(CSImprovement == eEmbassy)
-													{
+													if (pCityPlot->IsImprovementEmbassy())
 														return false;
-													}
 												}
 											}
 										}
@@ -3337,7 +3305,15 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 			if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
 				continue;
 
-			int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBestAttackStrength();
+			// we're fine with truncation here; take promotions boosting intercept strength into account
+			int attackStrength = (pInterceptorUnit->GetBestAttackStrength() * (100 + pInterceptorUnit->GetInterceptionCombatModifier())) / 100;
+			
+			// interceptionProbability contains product of actual intercept chance and health percentage; lets be careful with air units at low health in case of air sweeps
+			int healthFactor = pInterceptorUnit->interceptionProbability();
+			if (pInterceptorUnit->getDomainType() == DOMAIN_AIR)
+				healthFactor = (healthFactor * (pInterceptorUnit->GetCurrHitPoints() * 100) / pInterceptorUnit->GetMaxHitPoints()) / 100;
+			
+			int iValue = attackStrength * healthFactor;
 
 			if (iValue>0 && piNumPossibleInterceptors)
 				(*piNumPossibleInterceptors)++;
@@ -6567,16 +6543,22 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					// Add vote
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
-					if (pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
+					if (pImprovementInfo != NULL)
 					{
-						if (GetPlayerThatBuiltImprovement() != NO_PLAYER)
+						if (pImprovementInfo->GetCityStateExtraVote() > 0)
 						{
-							if (GET_PLAYER(eNewValue).isMinorCiv())
+							if (GetPlayerThatBuiltImprovement() != NO_PLAYER)
 							{
-								GET_PLAYER(GetPlayerThatBuiltImprovement()).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote());
-								SetImprovementEmbassy(true);
+								if (GET_PLAYER(eNewValue).isMinorCiv())
+								{
+									GET_PLAYER(GetPlayerThatBuiltImprovement()).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote());
+								}
 							}
 						}
+						if (pImprovementInfo->IsEmbassy())
+							SetImprovementEmbassy(true);
+						else
+							SetImprovementEmbassy(false);
 					}
 				}
 #endif
@@ -7581,7 +7563,7 @@ ImprovementTypes CvPlot::getImprovementType() const
 }
 
 //	--------------------------------------------------------------------------------
-ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner)
+ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bNonSpecialOnly)
 {
 	CvAssertMsg(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -7600,6 +7582,9 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 	{
 		return NO_IMPROVEMENT;
 	}
+
+	if (IsResourceLinkedCityActive() && getImprovementType() != NO_IMPROVEMENT)
+		return getImprovementType();		
 
 	ImprovementTypes eImprovementNeeded = NO_IMPROVEMENT;
 
@@ -7630,7 +7615,9 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 		if(pImprovementInfo == NULL)
 			continue;
 
-		if (!pImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
+		if (bNonSpecialOnly && !pImprovementInfo->IsImprovementResourceTrade(eResource))
+			continue;
+		else if (pImprovementInfo->IsExpandedImprovementResourceTrade(eResource, true))
 			continue;
 
 		if(pImprovementInfo->IsWater() != isWater())
@@ -7887,6 +7874,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 			}
+			if (oldImprovementEntry.IsEmbassy())
+				SetImprovementEmbassy(false);
 		}
 
 		if(getImprovementType() == NO_IMPROVEMENT)
@@ -8176,10 +8165,13 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						if (owningPlayer.getImprovementCount(eNewValue) <= 1)
 						{
 							GET_PLAYER(eBuilder).ChangeImprovementLeagueVotes(newImprovementEntry.GetCityStateExtraVote());
-							SetImprovementEmbassy(true);
 						}
 					}
 				}
+				if (newImprovementEntry.IsEmbassy())
+					SetImprovementEmbassy(true);
+				else
+					SetImprovementEmbassy(false);
 #endif
 			}
 #if defined(MOD_BALANCE_CORE)
@@ -12896,7 +12888,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iResourceNum;
 	kStream >> m_cBuilderAIScratchPadPlayer;
 	kStream >> m_sBuilderAIScratchPadTurn;
-	kStream >> m_sBuilderAIScratchPadValue;
+	kStream >> m_iBuilderAIScratchPadValue;
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
 	kStream >> m_uiCityConnectionBitFlags;
@@ -13109,7 +13101,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iResourceNum;
 	kStream << m_cBuilderAIScratchPadPlayer;
 	kStream << m_sBuilderAIScratchPadTurn;
-	kStream << m_sBuilderAIScratchPadValue;
+	kStream << m_iBuilderAIScratchPadValue;
 	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
 	kStream << m_uiCityConnectionBitFlags;
@@ -13830,15 +13822,15 @@ void CvPlot::SetBuilderAIScratchPadRoute(RouteTypes eRoute)
 }
 
 //	--------------------------------------------------------------------------------
-short CvPlot::GetBuilderAIScratchPadValue() const
+int CvPlot::GetBuilderAIScratchPadValue() const
 {
-	return m_sBuilderAIScratchPadValue;
+	return m_iBuilderAIScratchPadValue;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadValue(short sNewValue)
+void CvPlot::SetBuilderAIScratchPadValue(int sNewValue)
 {
-	m_sBuilderAIScratchPadValue = sNewValue;
+	m_iBuilderAIScratchPadValue = sNewValue;
 }
 
 void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
@@ -15476,7 +15468,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 		return iScore;
 	}
-
 	return 0;
 }
 

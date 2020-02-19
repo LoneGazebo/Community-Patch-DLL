@@ -2218,7 +2218,7 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bNotConverting;
 	FAutoVariable<bool, CvUnit> m_bAirCombat;
 	//to be removed
-	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
+		FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bPromotedFromGoody;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;

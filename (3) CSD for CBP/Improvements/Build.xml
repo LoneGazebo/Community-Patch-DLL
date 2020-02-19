@@ -25,7 +25,7 @@
 		<Row>
 			<BuildType>BUILD_EMBASSY</BuildType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<PrereqTech>TECH_MINING</PrereqTech>
 			<Remove>true</Remove>
 		</Row>
 		<Row>

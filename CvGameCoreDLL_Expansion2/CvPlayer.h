@@ -2337,6 +2337,9 @@ public:
 	int GetYieldChangesNaturalWonder(YieldTypes eYield) const;
 	void ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange);
 
+	int GetYieldChangesPerReligionTimes100(YieldTypes eYield) const;
+	void ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange);
+
 	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
 	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
 
@@ -2516,6 +2519,11 @@ public:
 	void ChangeCityWorkingChange(int iChange);
 #endif
 
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	int GetCityAutomatonWorkersChange() const;
+	void ChangeCityAutomatonWorkersChange(int iChange);
+#endif
+
 	int GetPlotCultureCostModifier() const;
 	void ChangePlotCultureCostModifier(int iChange);
 	int GetPlotCultureExponentModifier() const;
@@ -2553,6 +2561,9 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
+	int GetMilitaryRating() const;
+	void SetMilitaryRating(int iValue);
+	void ChangeMilitaryRating(int iChange);
 	void UpdateMilitaryStats();
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
@@ -3355,6 +3366,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iConversionTimer;
 	FAutoVariable<int, CvPlayer> m_iCapitalCityID;
 	FAutoVariable<int, CvPlayer> m_iCitiesLost;
+	FAutoVariable<int, CvPlayer> m_iMilitaryRating;
 	FAutoVariable<int, CvPlayer> m_iMilitaryMight;
 	FAutoVariable<int, CvPlayer> m_iEconomicMight;
 	FAutoVariable<int, CvPlayer> m_iProductionMight;
@@ -3391,6 +3403,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iPlotGoldCostMod;
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	FAutoVariable<int, CvPlayer> m_iCityWorkingChange;
+#endif
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	FAutoVariable<int, CvPlayer> m_iCityAutomatonWorkersChange;
 #endif
 	FAutoVariable<int, CvPlayer> m_iPlotCultureCostModifier;
 	FAutoVariable<int, CvPlayer> m_iPlotCultureExponentModifier;
@@ -3585,6 +3600,7 @@ protected:
 	std::vector<int> m_piYieldFromBarbarianKills;
 	std::vector<int> m_piYieldChangeTradeRoute;
 	std::vector<int> m_piYieldChangesNaturalWonder;
+	std::vector<int> m_piYieldChangesPerReligion;
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;

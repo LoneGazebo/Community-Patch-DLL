@@ -2091,7 +2091,6 @@ void CvTacticalAI::PlotCampDefenseMoves()
 				LogTacticalMessage(strLogString);
 			}
 		}
-
 		pTarget = GetNextZoneTarget();
 	}
 }
@@ -2104,7 +2103,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 	while(pTarget != NULL)
 	{
-		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+		CvTacticalTarget* pCurrentTarget = pTarget;
+		pTarget = GetNextZoneTarget();
+		CvPlot* pPlot = GC.getMap().plot(pCurrentTarget->GetTargetX(), pCurrentTarget->GetTargetY());
 		CvCity* pCity = pPlot->getPlotCity();
 
 		if(!pCity)
@@ -2141,7 +2142,6 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				//do not call finishMoves() else the garrison will not heal!
 				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			}
-
 			UnitProcessed(pGarrison->GetID());
 		}
 		else if ( !pCity->isInDangerOfFalling() )
@@ -2154,7 +2154,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
+					strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pCurrentTarget->GetTargetX(), pCurrentTarget->GetTargetY(), pCurrentTarget->GetAuxIntData(), iNumTurnsAway);
 					LogTacticalMessage(strLogString);
 				}
 			}
@@ -2163,7 +2163,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
+					strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pCurrentTarget->GetTargetX(), pCurrentTarget->GetTargetY());
 					LogTacticalMessage(strLogString);
 				}
 			}

@@ -362,6 +362,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityWorkingChange);
 	Method(ChangeCityWorkingChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	Method(GetCityAutomatonWorkersChange);
+	Method(ChangeCityAutomatonWorkersChange);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetRemainingFreeSpecialists);
 	Method(GetTheoreticalUnhappinessDecrease);
@@ -3714,6 +3718,22 @@ int CvLuaCity::lGetCityWorkingChange(lua_State* L)
 int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::changeCityWorkingChange);
+}
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+//------------------------------------------------------------------------------
+//int getCityAutomatonWorkersChange();
+int CvLuaCity::lGetCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetCityAutomatonWorkersChange);
+}
+
+//------------------------------------------------------------------------------
+//void changeCityAutomatonWorkersChange(int iChange);
+int CvLuaCity::lChangeCityAutomatonWorkersChange(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::changeCityAutomatonWorkersChange);
 }
 #endif
 

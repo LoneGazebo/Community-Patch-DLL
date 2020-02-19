@@ -357,6 +357,12 @@ UPDATE Improvements
 SET MakesPassable = '1'
 WHERE Type = 'IMPROVEMENT_CITADEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
+-- Camps need defense!
+
+UPDATE Improvements
+SET DefenseModifier = '25'
+WHERE Type = 'IMPROVEMENT_BARBARIAN_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
 -- Trading Post also going to be 'no two adjacent'
 
 UPDATE Improvements

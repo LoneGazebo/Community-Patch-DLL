@@ -586,7 +586,7 @@ public:
 #endif
 
 	ImprovementTypes getImprovementType() const;
-	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true);
+	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool IsImprovementEmbassy() const;
@@ -864,8 +864,8 @@ public:
 	RouteTypes GetBuilderAIScratchPadRoute() const;
 	void SetBuilderAIScratchPadRoute(RouteTypes eRoute);
 
-	short GetBuilderAIScratchPadValue() const;
-	void SetBuilderAIScratchPadValue(short sNewValue);
+	int GetBuilderAIScratchPadValue() const;
+	void SetBuilderAIScratchPadValue(int sNewValue);
 
 	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
 	bool IsStrategicRoute(TeamTypes eTeam) const;
@@ -1089,7 +1089,7 @@ protected:
 	int m_iScratchPad;
 	char m_cBuilderAIScratchPadPlayer;
 	short m_sBuilderAIScratchPadTurn;
-	short m_sBuilderAIScratchPadValue;
+	int m_iBuilderAIScratchPadValue;
 	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
 
 	short m_iOwnershipDuration;

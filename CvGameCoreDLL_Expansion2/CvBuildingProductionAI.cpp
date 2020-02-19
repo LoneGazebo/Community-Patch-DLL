@@ -238,7 +238,7 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 /// Do all building sanity stuff here.
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
 	int iNumLandConnection, int iNumSeaConnection, int iGPT, 
-	bool bInterruptBuildings, bool bNationalWonderCheck, bool bFreeBuilding)
+	bool bInterruptBuildings, bool bNationalWonderCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
 	if(m_pCity == NULL)
 		return 0;
@@ -316,7 +316,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 
-		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding)
+		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding && !bIgnoreSituational)
 		{
 			iValue += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
 
@@ -360,30 +360,32 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////////////////
 	////QUESTS
 	////////////////
-
-	//Minor Check
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	if (!bIgnoreSituational)
 	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		if(eMinor != NO_PLAYER)
+		//Minor Check
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			CvPlayer* pMinor = &GET_PLAYER(eMinor);
-			if(pMinor)
+			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			if (eMinor != NO_PLAYER)
 			{
-				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
+				CvPlayer* pMinor = &GET_PLAYER(eMinor);
+				if (pMinor)
 				{
-					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
+					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
 					{
-						iBonus += 10;
-					}
-					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
-					{
-						iBonus += 10;
-					}
-					if((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
-					{
-						iBonus += 10;
+						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
+						{
+							iBonus += 10;
+						}
+						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
+						{
+							iBonus += 10;
+						}
+						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
+						{
+							iBonus += 10;
+						}
 					}
 				}
 			}
@@ -704,7 +706,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 100);
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 25);
 	}
 	if (m_pCity->isCoastal())
 	{
@@ -741,8 +743,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	else if (kPlayer.IsAtWarAnyMajor())
 		iDefenseMod += 150;
-
-	bool bDesperate = m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege();
+	bool bDesperate = !bIgnoreSituational && (m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege());
 
 	if (bDesperate || m_pCity->IsPuppet())
 		iDefenseMod += 1000;
@@ -796,7 +797,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	
 
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreSituational)
 	{
 		//Virtually force this.
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
@@ -935,12 +936,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
 					{
-						iBonus += iTempBonus * iTempBonus;
+						iBonus += iTempBonus;
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus += (iTempBonus / 2) * (iTempBonus/2);
+						iBonus += iTempBonus / 2;
 					}
 				}
 			}
@@ -969,12 +970,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our production/experience buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(eUnitCombatClass))
 					{
-						iBonus += iTempBonus * iTempBonus;
+						iBonus += iTempBonus;
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus += (iTempBonus / 2) * (iTempBonus / 2);
+						iBonus += (iTempBonus / 2);
 					}
 				}
 			}
@@ -1242,7 +1243,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//WAR
 	///////
 	//Fewer buildings while at war.
-	if (!bCourthouse)
+	if (!bCourthouse && !bIgnoreSituational)
 	{
 		int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
@@ -1351,14 +1352,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 
 	//Danger? Prioritize units!
-	if (!bFreeBuilding && bDesperate && iDefense <= 0)
+	if (!bFreeBuilding && !bIgnoreSituational && bDesperate && iDefense <= 0)
 	{
 		iBonus -= 1000;
 	}
 
 	if (m_pCity->isProductionBuilding() && m_pCity->getProductionBuilding() == eBuilding)
 	{
-		iBonus += max(1, 100 - m_pCity->getProductionTurnsLeft());
+		iBonus += max(1, 250 - m_pCity->getProductionTurnsLeft());
 	}
 
 	/////

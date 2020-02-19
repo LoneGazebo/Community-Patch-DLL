@@ -2218,7 +2218,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 		}
 		case ADVANCED_ACTION_GOLD_THEFT:
 		{
-			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateGrossGoldTimes100() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
+			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateGrossGold() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
 			if (iSetback > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
 			{
 				iSetback = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();
@@ -4562,7 +4562,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 #if defined(MOD_BALANCE_CORE)
 			//not being able to counterspy is lame.
 			if (GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
-				uiMaxGWAdjusted *= 2;
+				uiMaxGWAdjusted *= 3;
 
 			if (GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{

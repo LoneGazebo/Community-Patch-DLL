@@ -146,6 +146,11 @@ protected:
 	LUAAPIEXTN(IsCityWorkingChange, bool);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
+	LUAAPIEXTN(IsCityAutomatonWorkersChange, bool);
+	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
+#endif
 	static int lGetBridgeBuildingCount(lua_State* L);
 	static int lIsBridgeBuilding(lua_State* L);
 	static int lChangeBridgeBuildingCount(lua_State* L);

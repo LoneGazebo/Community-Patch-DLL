@@ -304,6 +304,7 @@ CvPlayer::CvPlayer() :
 	, m_iConversionTimer("CvPlayer::m_iConversionTimer", m_syncArchive)
 	, m_iCapitalCityID("CvPlayer::m_iCapitalCityID", m_syncArchive)
 	, m_iCitiesLost("CvPlayer::m_iCitiesLost", m_syncArchive)
+	, m_iMilitaryRating("CvPlayer::m_iMilitaryRating", m_syncArchive)
 	, m_iMilitaryMight("CvPlayer::m_iMilitaryMight", m_syncArchive)
 	, m_iEconomicMight("CvPlayer::m_iEconomicMight", m_syncArchive)
 	, m_iProductionMight("CvPlayer::m_iProductionMight", m_syncArchive)
@@ -644,6 +645,9 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	, m_iCityWorkingChange("CvPlayer::m_iCityWorkingChange", m_syncArchive)
 #endif
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	, m_iCityAutomatonWorkersChange("CvPlayer::m_iCityAutomatonWorkersChange", m_syncArchive)
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiJFDPoliticPercent("CvPlayer::m_paiJFDPoliticPercent", m_syncArchive)
 	, m_paiResourceFromCSAlliances("CvPlayer::m_paiResourceFromCSAlliances", m_syncArchive)
@@ -737,6 +741,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldFromBarbarianKills(NULL)
 	, m_piYieldChangeTradeRoute(NULL)
 	, m_piYieldChangesNaturalWonder(NULL)
+	, m_piYieldChangesPerReligion(NULL)
 	, m_piYieldChangeWorldWonder(NULL)
 	, m_piYieldFromMinorDemand(NULL)
 	, m_piYieldFromWLTKD(NULL)
@@ -978,6 +983,9 @@ void CvPlayer::init(PlayerTypes eID)
 		ChangePlotGoldCostMod(GetPlayerTraits()->GetPlotBuyCostModifier());
 #if defined(MOD_TRAITS_CITY_WORKING)
 		ChangeCityWorkingChange(GetPlayerTraits()->GetCityWorkingChange());
+#endif
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
+		ChangeCityAutomatonWorkersChange(GetPlayerTraits()->GetCityAutomatonWorkersChange());
 #endif
 		ChangePlotCultureCostModifier(GetPlayerTraits()->GetPlotCultureCostModifier());
 		GetTreasury()->ChangeCityConnectionTradeRouteGoldChange(GetPlayerTraits()->GetCityConnectionTradeRouteChange());
@@ -1611,6 +1619,7 @@ void CvPlayer::uninit()
 	m_iConversionTimer = 0;
 	m_iCapitalCityID = -1;
 	m_iCitiesLost = 0;
+	m_iMilitaryRating = 0;
 	m_iMilitaryMight = 0;
 	m_iEconomicMight = 0;
 	m_iProductionMight = 0;
@@ -1649,6 +1658,9 @@ void CvPlayer::uninit()
 	m_iPlotGoldCostMod = 0;
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
+#endif
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+	m_iCityAutomatonWorkersChange = 0;
 #endif
 	m_iPlotCultureCostModifier = 0;
 	m_iPlotCultureExponentModifier = 0;
@@ -2241,6 +2253,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_piYieldChangesNaturalWonder.clear();
 		m_piYieldChangesNaturalWonder.resize(NUM_YIELD_TYPES, 0);
+
+		m_piYieldChangesPerReligion.clear();
+		m_piYieldChangesPerReligion.resize(NUM_YIELD_TYPES, 0);
 
 		m_piYieldChangeWorldWonder.clear();
 		m_piYieldChangeWorldWonder.resize(NUM_YIELD_TYPES, 0);
@@ -11222,14 +11237,14 @@ void CvPlayer::doTurn()
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
 						}
 					}
 					else if (pkUnitInfo != NULL && pkUnitInfo->IsFoundMid())
 					{
 						if (pkUnitInfo->IsFoodProduction())
 						{
-							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 2));
+							setUnitExtraCost(eUnitClass, getNewCityProductionValue() * (GetCurrentEra() + 1));
 						}
 					}
 					else
@@ -17170,6 +17185,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangeCityWorkingChange(pBuildingInfo->GetGlobalCityWorkingChange() * iChange);
 #endif
 
+#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+	ChangeCityAutomatonWorkersChange(pBuildingInfo->GetGlobalCityAutomatonWorkersChange() * iChange);
+#endif
+
 	// City Culture Mod
 	ChangeJONSCultureCityModifier(pBuildingInfo->GetGlobalCultureRateModifier() * iChange);
 
@@ -19874,14 +19893,9 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	{	
 		if (eHistoricEvent == HISTORIC_EVENT_ERA)
 			iYieldHandicap *= 2;
-		else if (eHistoricEvent == HISTORIC_EVENT_GP)
-			iYieldHandicap /= 3;
-		else if (eHistoricEvent != NO_HISTORIC_EVENT_TYPE)
-			iYieldHandicap /= 2;
 
 		bool IncludeCities = true;
 		if (eHistoricEvent == HISTORIC_EVENT_GP ||
-			eHistoricEvent == HISTORIC_EVENT_WONDER ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
 		{
@@ -19904,7 +19918,7 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 		GetTreasury()->ChangeGold(iYieldHandicap);
 		ChangeGoldenAgeProgressMeter(iYieldHandicap);
-		changeJONSCulture(iYieldHandicap / 2);
+		changeJONSCulture(iYieldHandicap);
 		
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
@@ -31495,7 +31509,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 1)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 0)
 	{
 		int iYieldHandicap = DoDifficultyBonus(eHistoricEvent);
 		if (GC.getLogging() && GC.getAILogging())
@@ -32942,6 +32956,29 @@ void CvPlayer::changeCitiesLost(int iChange)
 	m_iCitiesLost = (m_iCitiesLost + iChange);
 }
 
+//	--------------------------------------------------------------------------------
+
+int CvPlayer::GetMilitaryRating() const
+{
+	return m_iMilitaryRating;
+}
+
+//	--------------------------------------------------------------------------------
+
+void CvPlayer::SetMilitaryRating(int iValue)
+{
+	m_iMilitaryRating = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+
+void CvPlayer::ChangeMilitaryRating(int iChange)
+{
+	SetMilitaryRating(GetMilitaryRating() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+
 void CvPlayer::updateMightStatistics()
 {
 	m_iTurnSliceMightRecomputed = GC.getGame().getTurnSlice();
@@ -34100,7 +34137,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			}
 			// RED >>>>>
 #endif
-
+#if defined(MOD_EVENTS_PLAYER_TURN)
+			if (MOD_EVENTS_PLAYER_TURN) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID());
+			}
+#endif
 			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
@@ -38288,7 +38329,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 							bValid = true;
 					}
 					else
@@ -38342,7 +38383,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 							bValid = true;
 					}
 					else
@@ -39952,6 +39993,29 @@ void CvPlayer::ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetYieldChangesPerReligionTimes100(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	return m_piYieldChangesPerReligion[eYield];
+}
+
+void CvPlayer::ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_piYieldChangesPerReligion[eYield] += iChange;
+
+		updateYield();
+	}
+}
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetYieldChangeWorldWonder(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -43197,6 +43261,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeTRSpeedBoost(pPolicy->GetTRSpeedBoost() * iChange);
 	ChangeExtraHappinessPerXPoliciesFromPolicies(pPolicy->GetHappinessPerXPolicies() * iChange);
 	ChangeHappinessPerXGreatWorks(pPolicy->GetHappinessPerXGreatWorks() * iChange);
+	ChangeMissionaryExtraStrength(pPolicy->GetExtraMissionaryStrength() * iChange);
+	ChangeNumMissionarySpreads(pPolicy->GetExtraMissionarySpreads() * iChange);
+
 	ChangePositiveWarScoreTourismMod(pPolicy->GetPositiveWarScoreTourismMod() * iChange);
 
 	ChangeIsNoCSDecayAtWar(pPolicy->IsNoCSDecayAtWar() * iChange);
@@ -43288,8 +43355,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeAlwaysSeeBarbCampsCount(pPolicy->IsAlwaysSeeBarbCamps() * iChange);
 	ChangeMaxNumBuilders(pPolicy->GetNumExtraBuilders() * iChange);
 	ChangePlotGoldCostMod(pPolicy->GetPlotGoldCostMod() * iChange);
-#if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
+#if defined(MOD_POLICIES_CITY_WORKING)
 	ChangeCityWorkingChange(pPolicy->GetCityWorkingChange() * iChange);
+#endif
+#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
+	ChangeCityAutomatonWorkersChange(pPolicy->GetCityAutomatonWorkersChange() * iChange);
 #endif
 	ChangePlotCultureCostModifier(pPolicy->GetPlotCultureCostModifier() * iChange);
 	ChangePlotCultureExponentModifier(pPolicy->GetPlotCultureExponentModifier() * iChange);
@@ -43669,6 +43739,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetYieldChangesNaturalWonder(iI) * iChange;
 		if(iMod != 0)
 			ChangeYieldChangesNaturalWonder(eYield, iMod);
+
+		iMod = pPolicy->GetYieldChangesPerReligionTimes100(iI) * iChange;
+		if (iMod != 0)
+			ChangeYieldChangesPerReligionTimes100(eYield, iMod);
 
 		iMod = pPolicy->GetYieldChangeWorldWonder(iI) * iChange;
 		if(iMod != 0)
@@ -45537,6 +45611,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piYieldFromBarbarianKills;
 	kStream >> m_piYieldChangeTradeRoute;
 	kStream >> m_piYieldChangesNaturalWonder;
+	kStream >> m_piYieldChangesPerReligion;
 	kStream >> m_piYieldChangeWorldWonder;
 	kStream >> m_piYieldFromMinorDemand;
 	kStream >> m_piYieldFromWLTKD;
@@ -45725,6 +45800,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piYieldFromBarbarianKills;
 	kStream << m_piYieldChangeTradeRoute;
 	kStream << m_piYieldChangesNaturalWonder;
+	kStream << m_piYieldChangesPerReligion;
 	kStream << m_piYieldChangeWorldWonder;
 	kStream << m_piYieldFromMinorDemand;
 	kStream << m_piYieldFromWLTKD;
@@ -46642,6 +46718,32 @@ void CvPlayer::ChangeCityWorkingChange(int iChange)
 		}
 
 		m_iCityWorkingChange += iChange;
+	}
+}
+#endif
+
+#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+//	--------------------------------------------------------------------------------
+/// How many more automatons does each city have?
+int CvPlayer::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes how many more automatons each city has
+void CvPlayer::ChangeCityAutomatonWorkersChange(int iChange)
+{
+	if (iChange != 0)
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+			pLoopCity->changeCityAutomatonWorkersChange(iChange);
+		}
+
+		m_iCityAutomatonWorkersChange += iChange;
 	}
 }
 #endif

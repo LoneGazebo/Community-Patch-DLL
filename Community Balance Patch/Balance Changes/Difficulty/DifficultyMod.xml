@@ -63,9 +63,9 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>0</ResistanceCap>
 			<DifficultyBonusBase>0</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
+			<DifficultyBonusA>280</DifficultyBonusA>
+			<DifficultyBonusB>170</DifficultyBonusB>
+			<DifficultyBonusC>70</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>40</EarliestBarbarianReleaseTurn>
@@ -148,9 +148,9 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>15</ResistanceCap>
 			<DifficultyBonusBase>1</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
+			<DifficultyBonusA>290</DifficultyBonusA>
+			<DifficultyBonusB>180</DifficultyBonusB>
+			<DifficultyBonusC>85</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>40</EarliestBarbarianReleaseTurn>
@@ -233,8 +233,8 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>25</ResistanceCap>
 			<DifficultyBonusBase>2</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
+			<DifficultyBonusA>300</DifficultyBonusA>
+			<DifficultyBonusB>190</DifficultyBonusB>
 			<DifficultyBonusC>100</DifficultyBonusC>
 
 			<!-- Barbarians -->
@@ -318,9 +318,9 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>35</ResistanceCap>
 			<DifficultyBonusBase>3</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
+			<DifficultyBonusA>310</DifficultyBonusA>
+			<DifficultyBonusB>200</DifficultyBonusB>
+			<DifficultyBonusC>115</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>35</EarliestBarbarianReleaseTurn>
@@ -403,9 +403,9 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>45</ResistanceCap>
 			<DifficultyBonusBase>4</DifficultyBonusBase>
-			<DifficultyBonusA>325</DifficultyBonusA>
-			<DifficultyBonusB>175</DifficultyBonusB>
-			<DifficultyBonusC>100</DifficultyBonusC>
+			<DifficultyBonusA>320</DifficultyBonusA>
+			<DifficultyBonusB>220</DifficultyBonusB>
+			<DifficultyBonusC>130</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
@@ -488,9 +488,9 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>55</ResistanceCap>
 			<DifficultyBonusBase>5</DifficultyBonusBase>
-			<DifficultyBonusA>350</DifficultyBonusA>
-			<DifficultyBonusB>200</DifficultyBonusB>
-			<DifficultyBonusC>125</DifficultyBonusC>
+			<DifficultyBonusA>330</DifficultyBonusA>
+			<DifficultyBonusB>230</DifficultyBonusB>
+			<DifficultyBonusC>145</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
@@ -573,9 +573,9 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>65</ResistanceCap>
 			<DifficultyBonusBase>7</DifficultyBonusBase>
-			<DifficultyBonusA>375</DifficultyBonusA>
-			<DifficultyBonusB>225</DifficultyBonusB>
-			<DifficultyBonusC>165</DifficultyBonusC>
+			<DifficultyBonusA>340</DifficultyBonusA>
+			<DifficultyBonusB>240</DifficultyBonusB>
+			<DifficultyBonusC>160</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
@@ -658,7 +658,7 @@
 			<!-- CBP Difficulty Bonus -->
 			<ResistanceCap>75</ResistanceCap>
 			<DifficultyBonusBase>9</DifficultyBonusBase>
-			<DifficultyBonusA>400</DifficultyBonusA>
+			<DifficultyBonusA>350</DifficultyBonusA>
 			<DifficultyBonusB>250</DifficultyBonusB>
 			<DifficultyBonusC>175</DifficultyBonusC>
 
