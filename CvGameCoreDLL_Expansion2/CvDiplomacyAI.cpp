@@ -16247,50 +16247,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += 10;
 				break;
 			}
-			
-			// What about their (estimated) Approach towards us?
-			if (!GET_PLAYER(ePlayer).isHuman())
-			{
-				switch (GetApproachTowardsUsGuess(ePlayer))
-			{
-			case MAJOR_CIV_APPROACH_WAR:
-			case MAJOR_CIV_APPROACH_HOSTILE:
-				iEnemyWeight += 10;
-				iDPWeight += -15;
-				iDoFWeight += -15;
-				break;
-			case MAJOR_CIV_APPROACH_DECEPTIVE:
-				iEnemyWeight += 5;
-				iDPWeight += -5;
-				iDoFWeight += -5;
-				break;
-			case MAJOR_CIV_APPROACH_GUARDED:
-				iEnemyWeight -= 1;
-				iDPWeight -= 1;
-				iDoFWeight -= 1;
-				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
-				iEnemyWeight += -15;
-				iDPWeight += -10;
-				iDoFWeight += 7;
-				break;
-			case MAJOR_CIV_APPROACH_FRIENDLY:
-				iEnemyWeight += -3;
-				iDPWeight += 2;
-				iDoFWeight += 2;
-				break;
-			case MAJOR_CIV_APPROACH_NEUTRAL:
-				iEnemyWeight += -3;
-				iDPWeight += 1;
-				iDoFWeight += 1;
-				break;
-			default:
-				iEnemyWeight += -3;
-				iDPWeight += 1;
-				iDoFWeight += 1;
-				break;
-			}
-			}
 
 			// Military Strength compared to us
 			switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
@@ -17585,6 +17541,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			iDoFWeight -= (GetNumDoF() * 15);
 
 			//He hates who we hate? We love this guy!
+			/* try commenting this out to see if it results in more DPs for humans
 			if (!GET_PLAYER(ePlayer).isHuman())
 			{
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBiggestCompetitor() == GetBiggestCompetitor())
@@ -17594,6 +17551,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					iEnemyWeight += -5;
 				}
 			}
+			*/
 
 			if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) == INFLUENCE_LEVEL_POPULAR)
 			{
@@ -17670,6 +17628,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					}
 
 					//We dislike the same people? Good!
+					/* try commenting this out to see if it results in more DPs for humans
 					if (!GET_PLAYER(ePlayer).isHuman())
 					{
 						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMajorCompetitor(eOtherPlayer) && IsMajorCompetitor(eOtherPlayer))
@@ -17679,6 +17638,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 							iEnemyWeight += -5;
 						}
 					}
+					*/
 
 					//We have defensive pacts with the same people? Good!
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()) && GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
