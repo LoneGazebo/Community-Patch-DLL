@@ -3124,7 +3124,7 @@ void CvMilitaryAI::UpdateBaseData()
 	CvCity *pLoopCity;
 	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->isPotentiallyInDanger()))
+		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isBorderCity()))
 		{
 			fMultiplier += .25f;
 		}
@@ -6513,7 +6513,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 	CvCity *pLoopCity;
 	for (pLoopCity = pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->isPotentiallyInDanger()))
+		if (pLoopCity && pLoopCity->isCoastal() && pLoopCity->isUnderSiege())
 		{
 			dMultiplier += .25f;
 		}

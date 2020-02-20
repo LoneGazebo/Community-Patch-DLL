@@ -3796,7 +3796,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 	return iPassable;
 }
 
-bool CvPlot::IsWorthDefending(PlayerTypes eDefendingPlayer) const
+bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
 	//check distance to all major players
 	//if homefront for more than one ...

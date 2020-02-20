@@ -10885,7 +10885,7 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit)
 		if (pCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion))
 			iScore *= 2;
 
-		if (pCity->isPotentiallyInDanger())
+		if (pCity->isBorderCity() || pCity->isCoastal())
 			iScore *= 2;
 	}
 

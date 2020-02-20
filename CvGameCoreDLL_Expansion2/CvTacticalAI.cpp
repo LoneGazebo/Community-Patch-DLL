@@ -107,7 +107,6 @@ bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 	case AI_TACTICAL_TARGET_BARBARIAN_CAMP:
 	case AI_TACTICAL_TARGET_IMPROVEMENT:
 	case AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND:
-	case AI_TACTICAL_TARGET_ANCIENT_RUINS:
 	case AI_TACTICAL_TARGET_TRADE_UNIT_LAND:
 	case AI_TACTICAL_TARGET_CITADEL:
 	case AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE:
@@ -423,18 +422,15 @@ CvCity* CvTacticalAI::GetNearestTargetCity(CvPlot* pPlot)
 	if(pPlot == NULL)
 		return pBestCity;
 	
-	CvTacticalDominanceZone* pZone;
-	CvCity* pClosestCity = NULL;
-
 	// Loop through all the zones we have this turn
 	for(int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 	{
-		pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
+		CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 		// Check to make sure we want to use this zone
 		if(UseThisDominanceZone(pZone))
 		{
-			pClosestCity = pZone->GetZoneCity();
+			CvCity* pClosestCity = pZone->GetZoneCity();
 
 			if(pClosestCity != NULL && pClosestCity->getOwner() != m_pPlayer->GetID() && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pClosestCity->getTeam()))
 			{
@@ -534,15 +530,12 @@ bool CvTacticalAI::IsTemporaryZoneCity(CvCity* pCity)
 /// Establish postures for each dominance zone (taking into account last posture)
 void CvTacticalAI::UpdatePostures()
 {
-	CvTacticalDominanceZone* pZone;
-	AITacticalPosture eLastPosture, eNewPosture;
-
 	std::vector<CvTacticalPosture> newPostures;
 
 	// Loop through all the zones we have this turn
 	for(int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 	{
-		pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
+		CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 		// Check to make sure we want to use this zone
 		if(UseThisDominanceZone(pZone))
@@ -553,8 +546,8 @@ void CvTacticalAI::UpdatePostures()
 				iCityID = pZone->GetZoneCity()->GetID();
 			}
 
-			eLastPosture = FindPosture(pZone);
-			eNewPosture = SelectPosture(pZone, eLastPosture);
+			AITacticalPosture eLastPosture = FindPosture(pZone);
+			AITacticalPosture eNewPosture = SelectPosture(pZone, eLastPosture);
 			newPostures.push_back(CvTacticalPosture(pZone->GetOwner(), pZone->IsWater(), iCityID, eNewPosture));
 
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
@@ -690,10 +683,8 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 
-		if (eOverallDominance >= TACTICAL_DOMINANCE_ENEMY || (pZone->GetOverallEnemyStrength() > 0 && pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isPotentiallyInDanger()))
-		{
+		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY)
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-		}	
 
 		break;
 	}
@@ -765,7 +756,7 @@ void CvTacticalAI::FindTacticalTargets()
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if (pCity != NULL)
 			{
-				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->isPotentiallyInDanger() || pCity->isUnderSiege() || pLoopPlot->IsWorthDefending(m_pPlayer->GetID())))
+				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->isBorderCity() || pCity->isUnderSiege()))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 					newTarget.SetAuxIntData(pCity->getThreatValue());
@@ -840,14 +831,6 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 
-				// ... goody hut?
-				if (m_pPlayer->isMajorCiv() && pLoopPlot->isRevealedGoody(m_pPlayer->getTeam()))
-				{
-					newTarget.SetTargetType(AI_TACTICAL_TARGET_ANCIENT_RUINS);
-					newTarget.SetAuxIntData(150);
-					m_AllTargets.push_back(newTarget);
-				}
-
 				// Or citadels!
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
@@ -904,12 +887,12 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... defensive bastion?
-				if (m_pPlayer->GetID() == pLoopPlot->getOwner() && pLoopPlot->IsWorthDefending( m_pPlayer->GetID() ) &&
+				if (m_pPlayer->GetID() == pLoopPlot->getOwner() && pLoopPlot->IsBorderLand( m_pPlayer->GetID() ) &&
 					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
 					)
 				{
 					CvCity* pDefenseCity = pLoopPlot->getOwningCity();
-					if ((pDefenseCity && (pDefenseCity->isPotentiallyInDanger() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
+					if ((pDefenseCity && (pDefenseCity->isBorderCity() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 						if (pDefenseCity)
@@ -944,7 +927,7 @@ void CvTacticalAI::FindTacticalTargets()
 					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody() &&
 					pLoopPlot->getBestDefender(m_pPlayer->GetID()))
 				{
-					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
+					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isBorderCity())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 						newTarget.SetAuxIntData(1);
@@ -1142,7 +1125,6 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotEscortEmbarkedMoves();
 
 	//score some goodies
-	PlotAncientRuinMoves(1);
 	PlotBarbarianCampMoves();
 
 	//harass the enemy (plundering also happens during combat sim ...)
@@ -2228,32 +2210,6 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 			{
 				CvString strLogString;
 				strLogString.Format("Guard Improvement, X: %d, Y: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), iNumTurnsAway);
-				LogTacticalMessage(strLogString);
-			}
-		}
-		pTarget = GetNextZoneTarget();
-	}
-}
-
-/// Pop goody huts nearby
-void CvTacticalAI::PlotAncientRuinMoves(int iNumTurnsAway)
-{
-	ClearCurrentMoveUnits(AI_TACTICAL_GOODY);
-
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_ANCIENT_RUINS);
-	while(pTarget != NULL)
-	{
-		// Grab units that make sense for this move type
-		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GOODY, pPlot, iNumTurnsAway);
-
-		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true))
-		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Moving to goody hut, X: %d, Y: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), iNumTurnsAway);
 				LogTacticalMessage(strLogString);
 			}
 		}
@@ -7944,29 +7900,29 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	//for melee units we check if the damage received is worth it ...
 	if (iDamageReceived > 0)
 	{
-	float fAggFactor = GC.getCOMBAT_AI_OFFENSE_DAMAGEWEIGHT() / 100.f;
-	int iHPbelowHalf = pUnit->GetMaxHitPoints()/2 - (pUnit->GetCurrHitPoints() - iDamageReceived);
-	switch (eAggLvl)
-	{
-	case AL_LOW:
-		fAggFactor *= 0.4f+fAggBias/10; //bias is at least 0.9
-		if ( iHPbelowHalf>0 )
-			iExtraScore -= 4 * min(iDamageReceived,iHPbelowHalf);
-		break;
-	case AL_MEDIUM:
-		fAggFactor *= 0.8f+fAggBias/10; //bias is at least 0.9
-		if ( iHPbelowHalf>0 )
-			iExtraScore -= 2 * min(iDamageReceived,iHPbelowHalf);
-		break;
-	case AL_HIGH:
-		//don't care how much damage we do but we want to be able to survive a counterattack ...
-		if ( (iDamageReceived+23) < pUnit->GetCurrHitPoints()*fAggBias )
-			fAggFactor *= 2.3f;
-		break;
-	default:
-		result.iScore = -INT_MAX;
-		return;
-	}
+		float fAggFactor = GC.getCOMBAT_AI_OFFENSE_DAMAGEWEIGHT() / 100.f;
+		int iHPbelowHalf = pUnit->GetMaxHitPoints()/2 - (pUnit->GetCurrHitPoints() - iDamageReceived);
+		switch (eAggLvl)
+		{
+		case AL_LOW:
+			fAggFactor *= 0.5f+fAggBias/10; //bias is at least 0.9
+			if ( iHPbelowHalf>0 )
+				iExtraScore -= 4 * min(iDamageReceived,iHPbelowHalf);
+			break;
+		case AL_MEDIUM:
+			fAggFactor *= 0.90f+fAggBias/10; //bias is at least 0.9
+			if ( iHPbelowHalf>0 )
+				iExtraScore -= 2 * min(iDamageReceived,iHPbelowHalf);
+			break;
+		case AL_HIGH:
+			//don't care how much damage we do but we want to be able to survive a counterattack ...
+			if ( (iDamageReceived+23) < pUnit->GetCurrHitPoints()*fAggBias )
+				fAggFactor *= 2.3f;
+			break;
+		default:
+			result.iScore = -INT_MAX;
+			return;
+		}
 
 		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
 		if ( iScaledDamage - iDamageReceived + iExtraScore < 0)

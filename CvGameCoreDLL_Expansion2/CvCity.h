@@ -1286,7 +1286,7 @@ public:
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 
-	bool isPotentiallyInDanger() const;
+	bool isBorderCity() const;
 
 	void DoBarbIncursion();
 #endif

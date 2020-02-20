@@ -26704,10 +26704,10 @@ int CvCity::GetNoUnhappfromXSpecialists() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::isPotentiallyInDanger() const
+bool CvCity::isBorderCity() const
 {
 	VALIDATE_OBJECT
-	return isCoastal() || plot()->IsWorthDefending(m_eOwner);
+	return plot()->IsBorderLand(m_eOwner);
 }
 
 void CvCity::DoBarbIncursion()

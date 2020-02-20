@@ -5552,18 +5552,20 @@ bool CvUnit::jumpToNearestValidPlot()
 				pBestPlot = pTestPlot;
 				break;
 			}
-
-			// "quick" heuristic check to make sure this is not a dead end
-			// alternatively we could verify against all plots reachable from owner's capital?
-			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
-
-			//seems to be fine
-			if (plots2.size() > 23)
+			else if (pTestPlot->getOwner()==NO_PLAYER)
 			{
-				pBestPlot = pTestPlot;
-				break;
+				// "quick" heuristic check to make sure this is not a dead end
+				// alternatively we could verify against all plots reachable from owner's capital?
+				SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+				data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+				ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
+
+				//seems to be fine
+				if (plots2.size() > 23)
+				{
+					pBestPlot = pTestPlot;
+					break;
+				}
 			}
 		}
 
@@ -7286,7 +7288,7 @@ void CvUnit::setTacticalMove(AITacticalMove eMove)
 {
 #ifdef VPDEBUG
 	//sanity check
-	if (m_eTacticalMove != AI_TACTICAL_MOVE_NONE && eMove != AI_TACTICAL_MOVE_NONE)
+	if (m_eTacticalMove != AI_TACTICAL_MOVE_NONE && eMove != AI_TACTICAL_MOVE_NONE && m_eTacticalMove != eMove)
 	{
 		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove] );
 		OutputDebugString(msg.c_str());
@@ -7376,7 +7378,7 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 #ifdef VPDEBUG
 	//sanity check
-	if (m_eHomelandMove != AI_HOMELAND_MOVE_NONE && eMove != AI_HOMELAND_MOVE_NONE)
+	if (m_eHomelandMove != AI_HOMELAND_MOVE_NONE && eMove != AI_HOMELAND_MOVE_NONE && m_eHomelandMove != eMove)
 	{
 		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove] );
 		OutputDebugString(msg.c_str());

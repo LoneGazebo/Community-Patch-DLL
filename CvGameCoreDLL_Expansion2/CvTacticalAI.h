@@ -571,7 +571,6 @@ private:
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
 
-	void PlotAncientRuinMoves(int iNumTurnsAway);
 	void PlotEscortEmbarkedMoves();
 	void ReviewUnassignedUnits();
 

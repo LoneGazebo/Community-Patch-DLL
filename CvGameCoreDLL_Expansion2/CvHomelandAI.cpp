@@ -405,7 +405,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... unpopped goody hut?
-			else if(!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
+			else if(!m_pPlayer->isMinorCiv() && pLoopPlot->isRevealedGoody(m_pPlayer->getTeam()))
 			{
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
@@ -430,7 +430,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && 
 				pLoopPlot->getOwningCity() != NULL && 
-				pLoopPlot->getOwningCity()->isPotentiallyInDanger())
+				pLoopPlot->getOwningCity()->isBorderCity())
 			{
 				if (pLoopPlot->isRevealedFortification(m_pPlayer->getTeam()))
 				{
@@ -474,7 +474,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				CvCity* pOwningCity = pLoopPlot->getOwningCity();
-				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal() && pOwningCity->isPotentiallyInDanger())
+				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
 					if (iDistance > 3)
@@ -536,21 +536,6 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #endif
-			// ... road segment in friendly territory?
-			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isPotentiallyInDanger())
-			{
-				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
-				int iWeight = pLoopPlot->defenseModifier(eTeam, false, false);
-				iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot, false);
-				if(iWeight > 0)
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxIntData(iWeight);
-					m_TargetedHomelandRoads.push_back(newTarget);
-				}
-			}
 		}
 	}
 
@@ -1655,13 +1640,10 @@ void CvHomelandAI::PlotAncientRuinMoves()
 			if(pIndy)
 			{
 				ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
-
-#if defined(MOD_BALANCE_CORE)
-				TacticalAIHelpers::PerformRangedOpportunityAttack(pIndy,true);
 				if (pIndy->canMove())
 					pIndy->PushMission(CvTypes::getMISSION_SKIP());
+
 				UnitProcessed(pIndy->GetID());
-#endif
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
