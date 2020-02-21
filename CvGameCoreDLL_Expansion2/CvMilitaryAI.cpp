@@ -4381,7 +4381,7 @@ void CvMilitaryAI::UpdateOperations()
 	int iBestValue;
 	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, false);
 
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
+	vector<OptionWithScore<PlayerTypes>> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
@@ -4408,44 +4408,37 @@ void CvMilitaryAI::UpdateOperations()
 			if(!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand, iBestValue));
+			veLandThreatWeights.push_back( OptionWithScore<PlayerTypes>(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand, iBestValue)) );
 		}
 	}
 
-	if(veLandThreatWeights.size() > 0)
+	std::sort(veLandThreatWeights.begin(), veLandThreatWeights.end());
+	for(size_t iThreatCivs = 0; iThreatCivs < veLandThreatWeights.size(); iThreatCivs++)
 	{
-		veLandThreatWeights.SortItems();
-		for(int iThreatCivs = 0; iThreatCivs < (int) veLandThreatWeights.size(); iThreatCivs++)
+		PlayerTypes eLoopPlayer = veLandThreatWeights[iThreatCivs].option;
+		//Defense check.
+		if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) veLandThreatWeights.GetElement(iThreatCivs);
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				//Defense check.
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-				{
-					if(pThreatenedCityA == NULL)
-						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+			if(pThreatenedCityA == NULL)
+				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
 
-					CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
-					CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
-				}
-
-				DoNuke(eLoopPlayer);
-
-				if(veLandThreatWeights.GetWeight(iThreatCivs) > 0)
-				{
-					DoLandAttacks(eLoopPlayer);
-				}
-			}
+			CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
+			CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
 		}
+
+		DoNuke(eLoopPlayer);
+
+		if(veLandThreatWeights[iThreatCivs].score > 0)
+			DoLandAttacks(eLoopPlayer);
 	}
 
+	//same for naval  ...
 	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
 	CvCity* pThreatenedCoastalCityB = m_pPlayer->GetThreatenedCityByRank(1, true);
 
 	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, false);
 
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veSeaThreatWeights;
+	vector<OptionWithScore<PlayerTypes>> veSeaThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
@@ -4458,33 +4451,26 @@ void CvMilitaryAI::UpdateOperations()
 			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea, iBestValue));
+			veSeaThreatWeights.push_back( OptionWithScore<PlayerTypes>(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea, iBestValue)) );
 		}
 	}
 
-	if(veSeaThreatWeights.size() > 0)
+	std::sort(veSeaThreatWeights.begin(), veSeaThreatWeights.end());
+	for(int iThreatCivs = 0; iThreatCivs < (int)veSeaThreatWeights.size(); iThreatCivs++)
 	{
-		veSeaThreatWeights.SortItems();
-		for(int iThreatCivs = 0; iThreatCivs < (int)veSeaThreatWeights.size(); iThreatCivs++)
+		PlayerTypes eLoopPlayer = veSeaThreatWeights[iThreatCivs].option;
+		//Defense check.
+		if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) veSeaThreatWeights.GetElement(iThreatCivs);
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				//Defense check.
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-				{
-					if (pThreatenedCoastalCityA == NULL)
-						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+			if (pThreatenedCoastalCityA == NULL)
+				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
 
-					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityA);
-					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityB);
-				}
-				if(veSeaThreatWeights.GetWeight(iThreatCivs) > 0)
-				{
-					DoSeaAttacks(eLoopPlayer);
-				}
-			}
+			CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityA);
+			CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityB);
 		}
+
+		if(veSeaThreatWeights[iThreatCivs].score > 0)
+			DoSeaAttacks(eLoopPlayer);
 	}
 }
 

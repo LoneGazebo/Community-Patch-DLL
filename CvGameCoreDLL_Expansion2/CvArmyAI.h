@@ -80,7 +80,7 @@ public:
 	virtual ~CvArmyAI();
 
 	// Initialization/destruction routines
-	void ReleaseUnits(bool bAddUnitsToTacticalAI=false);
+	void ReleaseAllUnits();
 	void Reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iOperationID = -1);
 	void Kill();
 

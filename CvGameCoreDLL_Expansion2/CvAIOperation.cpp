@@ -914,7 +914,7 @@ bool CvAIOperation::Move()
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );
-		pThisArmy->ReleaseUnits(true);
+		pThisArmy->ReleaseAllUnits();
 		return false;
 	}
 

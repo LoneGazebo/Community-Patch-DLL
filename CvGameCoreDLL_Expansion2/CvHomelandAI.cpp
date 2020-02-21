@@ -551,9 +551,6 @@ void CvHomelandAI::AssignHomelandMoves()
 {
 	//most of these functions are very specific, so their order is not so important ...
 
-	///------------------------------
-	//	these deal with military units only, could be moved to tactical AI
-	///------------------------------
 	//call it twice in case the unit reaches the end of it's sight with moves left
 	PlotExplorerMoves(false);
 	PlotExplorerMoves(true);
@@ -562,30 +559,38 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotExplorerSeaMoves(false);
 	PlotExplorerSeaMoves(true);
 
+	//military only
+	PlotUpgradeMoves();
 	PlotGarrisonMoves();
 	PlotMobileReserveMoves();
 	PlotSentryMoves();
 	PlotSentryNavalMoves();
 
-	PlotPatrolMoves();
-	PlotAircraftRebase();
-	PlotAirliftMoves();
-	PlotUpgradeMoves();
-	///------------------------------
-
-	PlotFirstTurnSettlerMoves();
+	//civilian and military
 	PlotHealMoves();
 	PlotMovesToSafety();
+	PlotAncientRuinMoves();
+
+	//military again
+	PlotAircraftRebase();
+	PlotAirliftMoves();
+	PlotPatrolMoves();
+
+	//civilians again
+	PlotFirstTurnSettlerMoves();
 	PlotWorkerMoves();
 	PlotWorkerSeaMoves();
-
-	PlotAncientRuinMoves();
 	PlotWriterMoves();
 	PlotArtistMoves();
 	PlotMusicianMoves();
 	PlotScientistMoves();
 	PlotEngineerMoves();
 	PlotMerchantMoves();
+	PlotGeneralMoves();
+	PlotAdmiralMoves();
+	PlotProphetMoves();
+	PlotMissionaryMoves();
+	PlotInquisitorMoves();
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//this is for embassies - diplomatic missions are handled via AI operation
@@ -595,12 +600,6 @@ void CvHomelandAI::AssignHomelandMoves()
 		PlotMessengerMoves();
 	}
 #endif
-
-	PlotGeneralMoves();
-	PlotAdmiralMoves();
-	PlotProphetMoves();
-	PlotMissionaryMoves();
-	PlotInquisitorMoves();
 
 	PlotSSPartAdds();
 	PlotSSPartMoves();
@@ -1309,9 +1308,6 @@ void CvHomelandAI::PlotPatrolMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned())
 		{
-			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
-				continue;
-
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
 			m_CurrentMoveUnits.push_back(unit);
@@ -1324,7 +1320,7 @@ void CvHomelandAI::PlotPatrolMoves()
 
 void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 {
-//check what kind of units we have
+	//check what kind of units we have
 	int iUnitsSea = 0, iUnitsLand = 0;
 	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{

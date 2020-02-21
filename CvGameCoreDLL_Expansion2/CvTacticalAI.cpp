@@ -304,9 +304,6 @@ void CvTacticalAI::CommandeerUnits()
 		if (pLoopUnit->GetMissionAIType()!=MISSIONAI_EXPLORE)
 			pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
 
-		//if we cannot heal in the capital, we can heal nowhere ...
-		CvCity* pCapital = m_pPlayer->getCapitalCity();
-		bool bCanHeal = pCapital ? pLoopUnit->healRate( pCapital->plot() ) > 0 : false;
 		//does it need healing? unless barbarian or japanese!
 		bool bNeedHeal = (pLoopUnit->getDamage() > 80 && !m_pPlayer->isBarbarian()) ||
 			(pLoopUnit->isProjectedToDieNextTurn() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged());
@@ -315,14 +312,14 @@ void CvTacticalAI::CommandeerUnits()
 		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
 		{
 			bool bHasTarget = (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit,true,true)!=NULL);
-			if ( pLoopUnit->getDamage()>40 && bCanHeal && !bHasTarget )
+			if ( pLoopUnit->getDamage()>40 && !bHasTarget )
 				//need to continue healing
 				continue;
 			else
 				//done healing
 				m_HealingUnits.erase( pLoopUnit->GetID() );
 		}
-		else if (bCanHeal && bNeedHeal)
+		else if (bNeedHeal)
 		{
 			//don't force healing if there is a target around. but there's a chance the unit can't be used an will be picked up by PlotHealingMoves anyway
 			bool bHasTarget = (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit,true,true)!=NULL);
@@ -1105,10 +1102,10 @@ void CvTacticalAI::ProcessDominanceZones()
 /// Choose which tactics to run and assign units to it
 void CvTacticalAI::AssignGlobalHighPrioMoves()
 {
+	//make some space near the frontline
+	PlotHealMoves(true);
 	//move armies first
 	PlotOperationalArmyMoves();
-	//make some space near the frontline
-	PlotHealMoves();
 }
 
 /// Choose which tactics to run and assign units to it
@@ -1123,6 +1120,9 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotMovesToSafety(true);
 	PlotMovesToSafety(false);
 	PlotEscortEmbarkedMoves();
+
+	//try again now that other blocking units might have moved
+	PlotHealMoves(false);
 
 	//score some goodies
 	PlotBarbarianCampMoves();
@@ -1967,7 +1967,7 @@ void CvTacticalAI::ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType)
 }
 
 /// Assigns units to heal
-void CvTacticalAI::PlotHealMoves()
+void CvTacticalAI::PlotHealMoves(bool bFirstPass)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_HEAL);
 
@@ -1988,16 +1988,23 @@ void CvTacticalAI::PlotHealMoves()
 		if (pUnitPlot == NULL)
 			continue;
 
+		//we might lack a resource ...
+		CvCity* pCapital = m_pPlayer->getCapitalCity();
+		bool bCanHeal = pCapital ? pUnit->healRate( pCapital->plot() ) > 0 : false;
+		int iHpLimit = bCanHeal ? pUnit->GetMaxHitPoints() / 2 : pUnit->GetMaxHitPoints() / 4;
+
+		//sometimes we should heal but don't want to 
+		if (bFirstPass && pUnit->GetCurrHitPoints() > iHpLimit && TacticalAIHelpers::GetFirstTargetInRange(pUnit))
+			continue;
+
 		//allow some more damage outside of our borders
 		int iAcceptableDamage = (pUnitPlot->getOwner() == pUnit->getOwner()) ? 20 : 40;
-
-		if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
+		if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1)
 			m_HealingUnits.insert(pUnit->GetID());
 
 		//units with area damage if fortified should fortify as much as possible if near enemies
 		if (pUnit->GetDamageAoEFortified() > 0 && pUnit->canFortify(pUnitPlot) &&
 			pUnit->getDamage() >= pUnit->healRate(pUnitPlot) && pUnit->GetDanger()<pUnit->GetCurrHitPoints() &&
-			pUnitPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL)==false &&
 			pUnitPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType()) > 0)
 		{
 			passiveAggressive.insert(pUnit->GetID());
@@ -2010,7 +2017,7 @@ void CvTacticalAI::PlotHealMoves()
 		UnitProcessed(*it);
 
 	if(m_HealingUnits.size() > 0)
-		ExecuteHeals();
+		ExecuteHeals(bFirstPass);
 }
 
 /// Assigns a barbarian to go protect an undefended camp
@@ -2480,6 +2487,14 @@ void CvTacticalAI::PlotAttritFromRangeMoves(CvTacticalDominanceZone* /*pZone*/)
 		ExecuteSafeBombards(*pTarget);
 		pTarget = GetNextZoneTarget();
 	}
+
+	//if there is a city, don' t forget to bombard it as well
+	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
+	{
+		ExecuteSafeBombards(*pTarget);
+		pTarget = GetNextZoneTarget();
+	}
 }
 
 /// Defeat enemy units by using our advantage in numbers
@@ -2487,15 +2502,33 @@ void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_FLANKATTACK);
 
-	// Loop through unit targets finding attack for this turn
-	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
+	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
 	{
-		if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-		        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-		        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-		{
-			ExecuteFlankAttack(m_ZoneTargets[iI]);
-		}
+		ExecuteFlankAttack(*pTarget);
+		pTarget = GetNextZoneTarget();
+	}
+
+	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
+	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
+	{
+		ExecuteFlankAttack(*pTarget);
+		pTarget = GetNextZoneTarget();
+	}
+
+	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
+	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
+	{
+		ExecuteFlankAttack(*pTarget);
+		pTarget = GetNextZoneTarget();
+	}
+
+	//if there is a city, don' t forget to bombard it as well
+	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
+	{
+		ExecuteFlankAttack(*pTarget);
+		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -2509,7 +2542,7 @@ void CvTacticalAI::PlotSteamrollMoves(CvTacticalDominanceZone* /*pZone*/)
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
-	// We have superiority, so a let's attack high prio targets even with bad odds
+	// We have superiority, so let's attack high prio targets even with bad odds
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
@@ -2658,7 +2691,9 @@ void CvTacticalAI::ReviewUnassignedUnits()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && !pUnit->TurnProcessed()) //important, don't move units which have been processed already even if they have movement left!
 		{
-			pUnit->setTacticalMove(AI_TACTICAL_UNASSIGNED);
+			//don't overwrite army moves ... everything else is fair game
+			if (pUnit->getArmyID()!=-1)
+				pUnit->setTacticalMove(AI_TACTICAL_UNASSIGNED);
 
 			//there shouldn't be any danger but just in case
 			CvPlot* pSafePlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
@@ -4641,7 +4676,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 }
 
 /// Heal chosen units
-void CvTacticalAI::ExecuteHeals()
+void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 {
 	std::vector<int> killedUnits;
 	for (std::set<int>::iterator it=m_HealingUnits.begin(); it!=m_HealingUnits.end(); ++it)
@@ -4758,6 +4793,12 @@ void CvTacticalAI::ExecuteHeals()
 			}
 			else //plot should be free
 				ExecuteMoveToPlot(pUnit, pBetterPlot, true);
+		}
+		else if (bFirstPass)
+		{
+			//if we're not desparate yet, this is it
+			//we'll try again later
+			continue;
 		}
 		else if (!pBetterPlot && pUnit->getDomainType()!=DOMAIN_AIR && pUnit->GetDanger()>0)
 		{
@@ -7131,6 +7172,9 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	vector<OptionWithScore<CvPlot*>> aCoverList;
 	vector<OptionWithScore<CvPlot*>> aDangerList;
 
+	//for current plot
+	int iCurrentHealRate = pUnit->healRate(pUnit->plot());
+
 	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); //embarkation allowed for now, we sort it out below
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
@@ -7176,8 +7220,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger = 10000;
 
 		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
-		if (pPlot != pUnit->plot() && pUnit->canHeal(pUnit->plot()))
-			iDanger += 11;
+		if (pPlot != pUnit->plot() && iCurrentHealRate>0)
+			iDanger += iCurrentHealRate-3; //everything else equal it looks stupid to stand around while being shot at
 
 		//heal rate is higher here and danger lower
 		if (!bIsInTerritory)
@@ -7769,6 +7813,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 	const CvPlot* pUnitPlot = assumedPlot.getPlot();
 	const CvPlot* pTestPlot = tactPlot.getPlot();
+	bool bBarbScoreReduction = false;
 
 	if (tactPlot.isEnemyCity()) //a plot can be both a city and a unit - in that case we would attack the city
 	{
@@ -7844,6 +7889,10 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		//don't be as aggressive when attacking embarked units
 		if (!pEnemy->IsCanAttack())
 			fAggBias /= 2;
+
+		//don't be distracted by attacks on barbarians when there are real enemies around
+		if (pEnemy->isBarbarian())
+			bBarbScoreReduction = true;
 	}
 
 	//fake general bonus
@@ -7936,7 +7985,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	//add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
 	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
-	result.iScore = iDamageDealt + iExtraScore; 
+	result.iScore = iDamageDealt + iExtraScore;
+	if (bBarbScoreReduction)
+	{
+		result.iScore *= 3;
+		result.iScore /= 2;
+	}
+
 	result.iDamage = iDamageDealt;
 	result.iSelfDamage = iDamageReceived;
 }

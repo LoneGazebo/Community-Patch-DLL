@@ -36,25 +36,18 @@ CvArmyAI::CvArmyAI()
 /// Destructor
 CvArmyAI::~CvArmyAI()
 {
-	ReleaseUnits();
+	ReleaseAllUnits();
 }
 
 /// Deallocate memory
-void CvArmyAI::ReleaseUnits(bool bAddUnitsToTacticalAI)
+void CvArmyAI::ReleaseAllUnits()
 {
 	for (size_t i = 0; i<m_FormationEntries.size(); i++)
 	{
 		if (!m_FormationEntries[i].IsUsed())
 			continue;
 
-		CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(m_FormationEntries[i].GetUnitID());
-		if (pThisUnit)
-		{
-			pThisUnit->setArmyID(-1);
-			pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
-			if (bAddUnitsToTacticalAI) //for stupid reasons we first recruit units and then disband armies ...
-				GET_PLAYER(GetOwner()).GetTacticalAI()->AddCurrentTurnUnit(pThisUnit);
-		}
+		RemoveUnit( m_FormationEntries[i].GetUnitID() );
 	}
 
 	m_FormationEntries.clear();
@@ -63,7 +56,7 @@ void CvArmyAI::ReleaseUnits(bool bAddUnitsToTacticalAI)
 /// Initializes data members that are serialize
 void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 {
-	ReleaseUnits();
+	ReleaseAllUnits();
 
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -88,7 +81,7 @@ void CvArmyAI::Kill()
 	CvAssert(GetOwner() != NO_PLAYER);
 	CvAssertMsg(GetID() != -1, "GetID() is not expected to be equal with -1");
 
-	ReleaseUnits();
+	ReleaseAllUnits();
 
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
 	if (pOperation)
@@ -359,7 +352,7 @@ void CvArmyAI::SetFormationIndex(int iFormationIndex)
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iFormationIndex);
 	if(m_iFormationIndex != iFormationIndex && thisFormation)
 	{
-		ReleaseUnits();
+		ReleaseAllUnits();
 
 		m_iFormationIndex = iFormationIndex;
 		m_FormationEntries = vector<CvArmyFormationSlot>(thisFormation->getNumFormationSlotEntries());
@@ -693,6 +686,9 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 /// Remove a unit from the army
 bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 {
+	if (iUnitToRemoveID == -1)
+		return false;
+
 	for(size_t iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
 		CvArmyFormationSlot& slot = m_FormationEntries[iI];
@@ -707,13 +703,14 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				pThisUnit->setArmyID(-1);
 				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
 
-				//just for avoiding confusion
-				pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
-
 				// Tell the associate operation that a unit was lost
 				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
 				if(pThisOperation)
 					pThisOperation->UnitWasRemoved(GetID(), iI);
+
+				// Make the unit available for tactical moves
+				pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+				GET_PLAYER(GetOwner()).GetTacticalAI()->AddCurrentTurnUnit(pThisUnit);
 
 				return true;
 			}

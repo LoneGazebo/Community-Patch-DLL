@@ -543,7 +543,7 @@ private:
 	void PlotBlockadeMoves();
 	void PlotCivilianAttackMoves();
 	void ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType);
-	void PlotHealMoves();
+	void PlotHealMoves(bool bFirstPass);
 	void PlotCampDefenseMoves();
 	void PlotBarbarianMove(bool bAggressive);
 
@@ -607,7 +607,7 @@ private:
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
-	void ExecuteHeals();
+	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianMoves(bool bAggressive);
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
