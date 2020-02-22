@@ -30221,6 +30221,8 @@ void CvUnit::AI_promote()
 			{
 				const PromotionTypes eNextPromotion(static_cast<PromotionTypes>(iJ));
 				CvPromotionEntry* pkNextPromotionEntry = GC.getPromotionInfo(eNextPromotion);
+				if (!pkNextPromotionEntry)
+					continue;
 
 				//for some basic forward planning, look at promotions this promotion unlocks and add those to the value.
 				if (   pkNextPromotionEntry->GetPrereqOrPromotion1() == ePromotion
