@@ -357,16 +357,13 @@ void CvHomelandAI::FindHomelandTargets()
 			// Have a ...
 			// ... friendly city?
 			CvCity* pCity = pLoopPlot->getPlotCity();
-			if(pCity != NULL)
+			if(pCity && m_pPlayer->GetID() == pCity->getOwner())
 			{
-				if(m_pPlayer->GetID() == pCity->getOwner() && !pCity->HasGarrison())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxIntData(pCity->getThreatValue());
-					m_TargetedCities.push_back(newTarget);
-				}
+				newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
+				newTarget.SetTargetX(pLoopPlot->getX());
+				newTarget.SetTargetY(pLoopPlot->getY());
+				newTarget.SetAuxIntData(pCity->getThreatValue());
+				m_TargetedCities.push_back(newTarget);
 			}
 			// ... naval resource?
 			else if(pLoopPlot->isWater() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -470,8 +467,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible naval sentry point?
-			else if (pLoopPlot->isWater() &&
-				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
+			else if (pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				CvCity* pOwningCity = pLoopPlot->getOwningCity();
 				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
@@ -480,49 +476,19 @@ void CvHomelandAI::FindHomelandTargets()
 					if (iDistance > 3)
 						continue;
 
-					int iWeight = 0;
+					int iWeight = iDistance;
 					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						iWeight += 50;
-					}
+						iWeight += 23;
 
-					if (iDistance == 3)
-					{
-						iWeight += 50;
-					}
-					else if (iDistance == 2)
-					{
-						iWeight += 100;
-					}
-					else if (iDistance == 1)
-					{
-						iWeight += 25;
-					}
-					if (pLoopPlot->getNumUnits() > 0)
-					{
-						CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-						if (pUnit != NULL)
-						{
-							if (pUnit->IsCivilianUnit())
-							{
-								iWeight += 100;
-							}
-							else if (pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
-							{
-								iWeight += 50;
-							}
-						}
-					}
-
+					if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(),true))
+						iWeight += 42;
 
 					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetCoastalThreatRank() != -1)
 					{
 						//More cities = more threat.
 						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
 						if (iThreat > 0)
-						{
 							iWeight += iThreat;
-						}
 					}
 
 					if (iWeight > 0)
@@ -821,23 +787,27 @@ void CvHomelandAI::PlotGarrisonMoves()
 	{
 		CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
 		CvCity* pCity = pTarget->getPlotCity();
+		if (!pCity)
+			continue;
 
-		//don't move into a doomed city
-		if(pCity && !pCity->HasGarrison() && !pCity->isInDangerOfFalling() )
+		if (pCity->HasGarrison())
+		{
+			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+			if (pGarrison->CanUpgradeRightNow(false))
+			{
+				CvUnit* pNewUnit = pGarrison->DoUpgrade();
+				UnitProcessed(pNewUnit->GetID());
+			}
+			else
+				UnitProcessed(pGarrison->GetID());
+		}
+		else
 		{
 			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 			if(pGarrison)
 			{
 				ExecuteMoveToTarget(pGarrison, pTarget, 0);
-				TacticalAIHelpers::PerformRangedOpportunityAttack(pGarrison);
-
-				if (pGarrison->CanUpgradeRightNow(false))
-				{
-					CvUnit* pNewUnit = pGarrison->DoUpgrade();
-					UnitProcessed(pNewUnit->GetID());
-				}
-				else
-					UnitProcessed(pGarrison->GetID());
+				UnitProcessed(pGarrison->GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -1456,15 +1426,13 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
 		{
-#if defined(MOD_BALANCE_CORE)
 			//Let's only worry about units in our land.
 			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
 				continue;
 
-			//And on land.
+			//And not embarked.
 			if(!pUnit->isNativeDomain(pUnit->plot()))
 				continue;
-#endif
 
 			// Can this unit be upgraded?
 			UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
@@ -4240,7 +4208,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				UnitProcessed(pUnit->GetID());
 				//make sure our defender doesn't run away
 				CvUnit* pDefender = pBestPlot->getBestDefender(pUnit->getOwner());
-				if (pDefender)
+				if (pDefender && !pDefender->TurnProcessed())
 				{
 					TacticalAIHelpers::PerformRangedOpportunityAttack(pDefender);
 					pDefender->PushMission(CvTypes::getMISSION_SKIP());
@@ -5273,7 +5241,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		}
 
 		//only combat-ready units for now
-		if(m_pPlayer->GetTacticalAI()->IsUnitHealing(it->GetID()))
+		if(pUnit->shouldHeal())
 			vHealingUnits.push_back(pUnit);
 		else
 			vCombatReadyUnits.push_back(pUnit);
@@ -5919,8 +5887,7 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 	std::stable_sort(m_TargetedNavalSentryPoints.begin(), m_TargetedNavalSentryPoints.end());
 
 	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedNavalSentryPoints;
+	std::vector<CvHomelandTarget> tempPoints(m_TargetedNavalSentryPoints);
 
 	// Clear out main list
 	m_TargetedNavalSentryPoints.clear();
@@ -6005,7 +5972,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 			switch(eMove)
 			{
 			case AI_HOMELAND_MOVE_GARRISON:
-			case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 				//Don't poach garrisons for garrisons.
 				if(pLoopUnit->IsGarrisoned())
 					continue;
@@ -6744,7 +6710,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_PATROL",
 	"H_MOVE_UPGRADE",
 	"H_MOVE_ANCIENT_RUINS",
-	"H_MOVE_GARRISON_CITY_STATE",
 	"H_MOVE_WRITER",
 	"H_MOVE_ARTIST_GOLDEN_AGE",
 	"H_MOVE_MUSICIAN",
@@ -6861,7 +6826,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	if (bIsCarrier)
 	{
 		CvUnit* pDefender = pBasePlot->getBestDefender(ePlayer);
-		if(!pDefender || pDefender->isProjectedToDieNextTurn() || kPlayer.GetTacticalAI()->IsUnitHealing(pDefender->GetID()))  
+		if(!pDefender || pDefender->isProjectedToDieNextTurn() || pDefender->shouldHeal())  
 			return -1;
 
 		iBaseScore += 10;

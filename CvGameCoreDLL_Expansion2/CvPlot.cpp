@@ -3459,7 +3459,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 		if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
 			//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
-			if(bForHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
+			if(bForHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || getTeam() == eDefender)))
 			{
 				CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
 				if (pkImprovement)
@@ -3588,18 +3588,16 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam) const
+bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot != NULL)
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
 		{
-			if(pAdjacentPlot->getTeam() != NO_TEAM && pAdjacentPlot->getTeam() != eTeam)
-			{
-				return true;
-			}
+			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
+				return true; 
 		}
 	}
 

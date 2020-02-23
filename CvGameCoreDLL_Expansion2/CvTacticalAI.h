@@ -499,7 +499,6 @@ public:
 	bool IsTemporaryZoneCity(CvCity* pCity);
 
 #if defined(MOD_BALANCE_CORE)
-	bool IsUnitHealing(int iUnitID) const;
 	bool ShouldRebase(CvUnit* pUnit) const;
 	CvCity* GetNearestTargetCity(CvPlot* pPlot);
 #endif
@@ -1082,6 +1081,8 @@ namespace TacticalAIHelpers
 	int CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
+	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, bool bWater);
+
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);

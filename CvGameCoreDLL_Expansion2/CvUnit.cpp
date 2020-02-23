@@ -4650,37 +4650,24 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	VALIDATE_OBJECT
 
 	if(eTeam == NO_TEAM)
-	{
 		return true;
-	}
 
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-	if(kMyTeam.isFriendlyTerritory(eTeam))
-	{
-		return true;
-	}
-
 	if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
-	{
 		return true;
-	}
 
 	if(isEnemy(eTeam))
-	{
 		return true;
-	}
 
 	if(isRivalTerritory())
-	{
 		return true;
-	}
 
 		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
-		{
+	{
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
@@ -4689,25 +4676,25 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		if (!bEndTurn)
 			return true;
 
-			// If we haven't yet met the Minor we can move in
-			if(!kMyTeam.isHasMet(eTeam))
-				return true;
+		// If we haven't yet met the Minor we can move in
+		if(!kMyTeam.isHasMet(eTeam))
+			return true;
 
 		// Is this an excluded unit that doesn't cause anger?
 		if (IsAngerFreeUnit())
 			return true;
 
-			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 #if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
 			// If the minor is allied, treat the plot as being owned by their ally
 		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
-					return true;
+			return true;
 #endif
 
-				// If already intruding on this minor, okay to do it some more
-				if (pMinorAI->IsMajorIntruding(getOwner()))
-					return true;
+		// If already intruding on this minor, okay to do it some more
+		if (pMinorAI->IsMajorIntruding(getOwner()))
+			return true;
 	}
 
 	//city states may enter their ally's territory - may help for defense
@@ -5507,24 +5494,28 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (plot() && canMoveInto(*plot(), CvUnit::MOVEFLAG_DESTINATION))
 		return true;
 
-	//remember we're calling this because the unit is trapped, so use really permissive flags
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | 
-									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_IGNORE_DANGER, 3);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	//remember we're calling this because the unit is trapped, so use the stepfinder
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 9);
+	data.ePathType = PT_GENERIC_REACHABLE_PLOTS;
 
 	//for performance reasons, start with a small search range and gradually increase it
-	vector<SPlotWithScore> candidates;
 	CvPlot* pBestPlot = NULL;
-	for (int i = 0; i < 3 && pBestPlot == NULL; i++)
+	vector<SPlotWithScore> candidates;
+	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
+
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
-		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+		//plot must be empty even of civilians (don't use CanMoveInto() here)
+		if (pLoopPlot->getNumUnits() == 0 && !pLoopPlot->isCity() && !pLoopPlot->isImpassable(getTeam()))
 		{
-			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-
-			//plot must be empty even of civilians (don't use CanMoveInto() here)
-			if (pLoopPlot->getNumUnits()==0)
+			if (pLoopPlot->IsFriendlyTerritory(getOwner()))
+			{
+				pBestPlot = pLoopPlot;
+				break;
+			}
+			else if (pLoopPlot->getOwner() == NO_PLAYER)
 			{
 				int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
@@ -5535,42 +5526,45 @@ bool CvUnit::jumpToNearestValidPlot()
 
 				//avoid embarkation
 				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 400;
+					iValue += 1000;
 
-				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
+				candidates.push_back(SPlotWithScore(pLoopPlot, iValue));
 			}
 		}
+	}
 
+	if (!pBestPlot && !candidates.empty())
+	{
 		//we want lowest scores first
 		std::sort(candidates.begin(), candidates.end());
 
-		for (size_t i=0; i<candidates.size(); i++)
+		for (size_t i = 0; i < candidates.size(); i++)
 		{
 			CvPlot* pTestPlot = candidates[i].pPlot;
-			if (pTestPlot->IsFriendlyTerritory(getOwner()))
+
+			// check to make sure this is not a dead end
+			// alternatively we could verify against all plots reachable from owner's capital?
+			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
+
+			//want to sort by ascending area size
+			candidates[i].score = GC.getMap().numPlots() - plots2.size();
+
+			//if we have lots of room here, use the plot immediately
+			if (plots2.size() > 23)
 			{
 				pBestPlot = pTestPlot;
 				break;
 			}
-			else if (pTestPlot->getOwner()==NO_PLAYER)
-			{
-				// "quick" heuristic check to make sure this is not a dead end
-				// alternatively we could verify against all plots reachable from owner's capital?
-				SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-				data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-				ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
-
-				//seems to be fine
-				if (plots2.size() > 23)
-				{
-					pBestPlot = pTestPlot;
-					break;
-				}
-			}
 		}
 
-		//double the search range for next iteration
-		data.iMaxTurns *= 2; 
+		if (!pBestPlot)
+		{
+			//try again if there are only bad places
+			std::sort(candidates.begin(), candidates.end());
+			pBestPlot = candidates.front().pPlot;
+		}
 	}
 
 	if(GC.getLogging() && GC.getAILogging())
@@ -7786,7 +7780,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	if(pPlot->isCity())
 	{
 		iBaseHeal = GC.getCITY_HEAL_RATE();
-		iExtraHeal += (GET_TEAM(getTeam()).isFriendlyTerritory(pPlot->getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal);
+		iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
 		if(pCity)
 		{
 			iExtraHeal += pCity->getHealRate();
@@ -27985,6 +27979,30 @@ bool CvUnit::isAlwaysHostile(const CvPlot& plot) const
 	return (getAlwaysHostileCount() > 0);
 }
 
+bool CvUnit::shouldHeal(bool bBeforeAttacks) const
+{
+	if (isDelayedDeath() || !IsHurt())
+		return false;
+
+	//we might lack a resource for healing
+	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+	int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
+	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || isBarbarian();
+
+	//sometimes we should heal but we have to fight instead
+	int iHpLimit = GetMaxHitPoints() / 10;
+	if (bBeforeAttacks && GetCurrHitPoints() > iHpLimit && TacticalAIHelpers::GetFirstTargetInRange(this))
+		return false;
+
+	//typically want to start healing before health becomes critical
+	int iAcceptableDamage = 20;
+	if (bAllowMoreDamage)
+		iAcceptableDamage = 50;
+	if (iMaxHealRate == 0)
+		iAcceptableDamage = 80;
+
+	return getDamage() > iAcceptableDamage;
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getArmyID() const
@@ -27999,7 +28017,7 @@ void CvUnit::setArmyID(int iNewArmyID)
 {
 	VALIDATE_OBJECT
 
-	if (iNewArmyID!=-1 && GET_PLAYER(getOwner()).GetTacticalAI()->IsUnitHealing(GetID()))
+	if (iNewArmyID!=-1 && shouldHeal())
 	{
 		//shouldn't happen
 		OutputDebugString("warning: damaged unit recruited into army!\n");

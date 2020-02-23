@@ -1710,6 +1710,7 @@ public:
 	int getArmyID() const;
 	void setArmyID(int iNewArmyID);
 	CvString getTacticalZoneInfo() const;
+	bool shouldHeal(bool bBeforeAttacks = false) const;
 
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;

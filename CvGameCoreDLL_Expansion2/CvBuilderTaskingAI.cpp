@@ -1809,7 +1809,8 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		break;
 	}
 
-	if(pUnit->GetDanger(pPlot) >= 20 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
+	int iDanger = pUnit->GetDanger(pPlot);
+	if(iDanger > pUnit->GetCurrHitPoints()/2 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))

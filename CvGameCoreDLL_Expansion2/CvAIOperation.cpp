@@ -1789,6 +1789,10 @@ void CvAIOperationCityBasicAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 	if (!pMuster || !pTarget)
 		return;
 
+	//don't muster forever when our units can fight!
+	if (plotDistance(*pMuster->plot(), *pTarget->plot()) < 6)
+		pMuster = pTarget;
+
 	SetupWithSingleArmy(pMuster->plot(),pTarget->plot());
 }
 
@@ -3951,7 +3955,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		return false;
 
 	//don't recruit if currently healing
-	if (GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
+	if (pLoopUnit->shouldHeal())
 	{
 		/*
 		if (GC.getLogging() && GC.getAILogging())

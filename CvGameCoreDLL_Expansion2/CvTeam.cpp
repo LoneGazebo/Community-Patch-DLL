@@ -8380,23 +8380,6 @@ void CvTeam::cancelDefensivePacts()
 	}
 }
 
-
-//	--------------------------------------------------------------------------------
-bool CvTeam::isFriendlyTerritory(TeamTypes eOtherTeam) const
-{
-	if(eOtherTeam == NO_TEAM)
-	{
-		return false;
-	}
-
-	if(eOtherTeam == GetID())
-	{
-		return true;
-	}
-
-	return false;
-}
-
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAtWarWithHumans() const
 {//are we currently fighting a war with a human controlled civ?
