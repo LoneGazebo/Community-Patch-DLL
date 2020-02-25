@@ -1274,7 +1274,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam)
 		{
 			if (!kToNodeCacheData.bCanEnterTerrainPermanent || !kToNodeCacheData.bCanEnterTerritoryPermanent || kToNodeCacheData.bIsNonEnemyCity)
-			return -1; //forbidden
+				return -1; //forbidden
 		}
 
 		// check stacking (if visible)

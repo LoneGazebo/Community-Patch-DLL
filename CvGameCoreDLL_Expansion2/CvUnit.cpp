@@ -28584,7 +28584,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 				CvPathNode& kNode = m_kLastPath[iIndex];
 				CvPlot* pkPlot = kMap.plot(kNode.m_iX, kNode.m_iY);
 				if (pkPlot && !pkPlot->isVisible(eTeam))
-					kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
+					kNode.m_bInvisibleWhenGenerated = true;
 			}
 		}
 
@@ -28610,46 +28610,14 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 //	---------------------------------------------------------------------------
 bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns)
 {
-	bool bHaveValidPath = false;
-
-	// this method is only called from ContinueMission and that all previous path data is deleted when a mission is started
+	// this method is only called from ContinueMission
+	// all previous path data is deleted when a mission is started
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
 		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
 
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	bool bCheckCivilianStacking = !MOD_GLOBAL_BREAK_CIVILIAN_1UPT;
-#else
-	bool bCheckCivilianStacking = true;
-#endif
-
-	if (IsCombatUnit() || bCheckCivilianStacking || !isHuman())
-	{
-		// Was the next plot invisible at the time of generation? See if it is visible now.
-		CvPlot* pkNextPlot = m_kLastPath.GetFirstPlot();
-		if (m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
-		{
-			//did we just reveal a unit? if so, abort movement
-			bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
-
-			//for AI don't abort if we will move on
-			if (!isHuman())
-				bHaveValidPath |= (m_kLastPath.front().m_iMoves>0 && m_kLastPath.size()>1);
-		}
-		else
-		{
-			// The path is still good, just use the next node
-			bHaveValidPath = IsCachedPathValid();
-		}
-	}
-	else
-	{
-		// The path is still good, just use the next node
-		bHaveValidPath = IsCachedPathValid();
-	}
-
-	return bHaveValidPath;
+	return IsCachedPathValid();
 }
 
 bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
@@ -28847,13 +28815,9 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 
 //	---------------------------------------------------------------------------
 // Returns the number of turns it will take to reach the target or a MOVE_RESULT indicating a problem
-int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
+int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 {
 	VALIDATE_OBJECT
-	CvAssert(!IsBusy());
-	CvAssert(getOwner() != NO_PLAYER);
-	CvAssertMsg(canMove(), "canAllMove is expected to be true");
-	LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("UnitPathTo() : player ") << GET_PLAYER(getOwner()).getName() << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << iX << std::string(", ") << iY);
 
 	CvPlot* pPathPlot = NULL;
 	CvMap& kMap = GC.getMap();
@@ -28893,40 +28857,38 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 			return MOVE_RESULT_CANCEL;
 	}
 
+	bool bDone = (pPathPlot == pDestPlot);
 	bool bRejectMove = false;
 
 	if(!m_kLastPath.empty())
 	{
-		const CvPathNode& kDestNode = m_kLastPath.back();
-		// If we were provided with a previous ETA, check against the new one and if it is greater, cancel the move.
-		// We probably revealed something that is causing the unit to take longer to reach the target.
-		if(iPrevETA >= 0 && kDestNode.m_iTurns > iPrevETA)
+		if (m_kLastPath.front().m_bInvisibleWhenGenerated && pPathPlot->isVisible(getTeam()))
 		{
-			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move iPrevETA=") << iPrevETA << std::string(", m_iTurns=") << kNode.m_iTurns);
-			bRejectMove = true;
+			//did we just reveal a unit? if so, may want to abort movement
+			if (pPathPlot->isVisibleOtherUnit(getOwner()))
+			{
+				//for AI don't abort if we will move on
+				if (isHuman() || m_kLastPath.front().m_iMoves == 0 || m_kLastPath.size() < 1)
+					bRejectMove = true;
+			}
 		}
+
 		// if we should end our turn there this turn, but can't move into that tile
-		else if(kDestNode.m_iTurns == 0 && !canMoveInto(*pDestPlot,iFlags|MOVEFLAG_DESTINATION))  
+		if(m_kLastPath.front().m_iMoves == 0 && !canMoveInto(*pPathPlot,iFlags|MOVEFLAG_DESTINATION))  
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
 			// Since we can't move into the tile, there may be an enemy unit there
 			// We can't move into tiles with enemy combat units, so getBestDefender should return null on the tile
 			// If there is no defender but we can attack move into the tile, then we know that it is a civilian unit and we should be able to move into it
-			const CvUnit* pDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
-			if(!pDefender && !pDestPlot->isEnemyCity(*this) && canMoveInto(*pDestPlot, MOVEFLAG_ATTACK))
+			const CvUnit* pDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
+			if(!pDefender && !pPathPlot->isEnemyCity(*this) && canMoveInto(*pPathPlot, MOVEFLAG_ATTACK))
 			{
 				// Turn on ability to move into enemy units in this case so we can capture civilians
 				iFlags |= MOVEFLAG_IGNORE_STACKING;
 			}
-
-			const MissionData* pkMissionData = GetHeadMissionData();
-			CvAssertMsg(pkMissionData, "Unit mission is null. Need to rethink this code!");
-			if(pkMissionData != NULL && pkMissionData->iPushTurn != GC.getGame().getGameTurn())
-			{
-				LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move pkMissionData->iPushTurn=") << pkMissionData->iPushTurn << std::string(", GC.getGame().getGameTurn()=") << GC.getGame().getGameTurn());
+			else
 				bRejectMove = true;
-			}
 		}
 
 		if(bRejectMove)
@@ -28937,8 +28899,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 		}
 	}
 
-	bool bEndMove = (pPathPlot == pDestPlot);
-	if ((iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) && (pPathPlot == m_kLastPath.GetTurnDestinationPlot(0) && !bEndMove))
+	if ((iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) && (pPathPlot == m_kLastPath.GetTurnDestinationPlot(0) && !bDone))
 	{
 		int iOldDanger = GetDanger();
 		int iNewDanger = GetDanger(pPathPlot);
@@ -28955,7 +28916,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
-	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
+	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
 
 	vector<CvUnit*> attackersAfterMove;
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
@@ -28969,7 +28930,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA)
 		}
 	}
 
-	int iETA = 1;
+	int iETA = 0;
 	if (!m_kLastPath.empty())
 	{
 		iETA = m_kLastPath.back().m_iTurns;

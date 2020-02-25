@@ -1930,7 +1930,7 @@ protected:
 
 	bool CheckDOWNeededForMove(int iX, int iY);
 	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
-	int UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1);
+	int UnitPathTo(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);
 	bool UnitBuild(BuildTypes eBuild);

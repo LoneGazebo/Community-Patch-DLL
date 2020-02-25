@@ -272,28 +272,13 @@ public:
 		m_iY = -1;
 		m_iMoves = 0;
 		m_iTurns = 0;
-		m_iFlags = 0;
+		m_bInvisibleWhenGenerated = false;
 	}
-
-	enum Flags
-	{
-		// If set the plot that the path node points to was not visible to the team that generated the path at the time of creation.  
-		// For efficiency, all further nodes should be assumed to have been possibly invisible as well.
-		PLOT_INVISIBLE						= (1 << 0),
-		// A convenience flag, signifying that the next plot in the path was invisible at the time of generation.  It is at this plot you most likely need to regenerated the path
-		// if the unit is going to continue into the 'invisible' plots, this is because if you wait until you enter an invisible plot, you may need to stop because it reveals a blocking
-		// plot and the unit may be stop on a plot it is not allowed to stop on.
-		PLOT_ADJACENT_INVISIBLE				= (1 << 1)
-	};
 
 	int m_iMoves;
 	int m_iTurns;
-	int m_iFlags;
-	short m_iX, m_iY;         // Coordinate position
-
-	bool GetFlag(int eFlag) const { return (m_iFlags & eFlag) != 0; }
-	void SetFlag(int eFlag) { m_iFlags |= eFlag; }
-	void ClearFlag(int eFlag) { m_iFlags = (m_iFlags & ~eFlag); }
+	bool m_bInvisibleWhenGenerated;
+	short m_iX, m_iY;
 
 	CvPathNode(const SPathNode& rhs)
 	{
@@ -301,7 +286,7 @@ public:
 		m_iY = rhs.y;
 		m_iTurns = rhs.turns;
 		m_iMoves = rhs.moves;
-		m_iFlags = 0;
+		m_bInvisibleWhenGenerated = false;
 	}
 };
 
