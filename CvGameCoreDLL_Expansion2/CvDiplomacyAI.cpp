@@ -7843,6 +7843,50 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	return eApproach;
 }
 
+/// What is our Diplomatic Approach towards this Major Civ?
+MajorCivApproachTypes CvDiplomacyAI::GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	MajorCivApproachTypes eApproach = (MajorCivApproachTypes) m_paeMajorCivApproach[ePlayer];
+
+	// If we're hiding our true feelings then use the War Face or Friendly if we're Deceptive
+	if(bHideTrueFeelings)
+	{
+		// Deceptive = Friendly
+		if(eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
+		{
+			eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
+		}
+
+		// War Face
+		else if(eApproach == MAJOR_CIV_APPROACH_WAR)
+		{
+			switch(GetWarFaceWithPlayer(ePlayer))
+			{
+			case WAR_FACE_HOSTILE:
+				eApproach = MAJOR_CIV_APPROACH_HOSTILE;
+				break;
+			case WAR_FACE_FRIENDLY:
+				eApproach = MAJOR_CIV_APPROACH_FRIENDLY;
+				break;
+			case WAR_FACE_NEUTRAL:
+				eApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+				break;
+			case WAR_FACE_GUARDED:
+				eApproach = MAJOR_CIV_APPROACH_GUARDED;
+				break;
+			default:
+				CvAssert(false);
+				break;
+			}
+		}
+	}
+
+	return eApproach;
+}
+
 /// Sets what our Diplomatic Approach is towards a Major Civ
 void CvDiplomacyAI::SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach)
 {
