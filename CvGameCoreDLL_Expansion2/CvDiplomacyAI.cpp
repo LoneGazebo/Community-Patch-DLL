@@ -142,6 +142,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiOtherPlayerNumMinorsConquered()
 	, m_aiOtherPlayerNumMajorsAttacked()
 	, m_aiOtherPlayerNumMajorsConquered()
+	, m_apaeApproachValues()
 	, m_apaeOtherPlayerMajorCivOpinion()
 	, m_apaeOtherPlayerMajorCivApproach()
 	, m_apaiOtherPlayerMajorCivApproachCounter()
@@ -159,6 +160,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	//, m_apaiWorkingAgainstPlayerCounter()
 	, m_apacCoopWarAcceptedState()
 	, m_apaiCoopWarCounter()
+	, m_aaeApproachValues()
 	, m_aaeOtherPlayerMajorCivOpinion()
 	, m_aaeOtherPlayerMajorCivApproach()
 	, m_aaiOtherPlayerMajorCivApproachCounter()
@@ -232,6 +234,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pDiploData(NULL),
 	m_paDiploLogStatementTurnCountScratchPad(NULL),
 	m_paeMajorCivOpinion(NULL),
+	m_ppaaeApproachValues(NULL),
 	m_ppaaeOtherPlayerMajorCivOpinion(NULL),
 	m_ppaaeOtherPlayerMajorCivApproach(NULL),
 	m_ppaaiOtherPlayerMajorCivApproachCounter(NULL),
@@ -756,6 +759,13 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 #endif
 	//Init 2D array pointers
 	int iI;
+
+	m_ppaaeApproachValues = &m_pDiploData->m_apaeApproachValues[0];
+	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		m_ppaaeApproachValues[iI] = &m_pDiploData->m_aaeApproachValues[NUM_MAJOR_CIV_APPROACHES*iI];
+	}
+
 	m_ppaaeOtherPlayerMajorCivOpinion = &m_pDiploData->m_apaeOtherPlayerMajorCivOpinion[0];
 	for(iI = 0; iI <MAX_MAJOR_CIVS; iI++)
 	{
@@ -950,6 +960,7 @@ void CvDiplomacyAI::Uninit()
 	m_paiCommonFoeValue = NULL;
 	m_paiAssistValue = NULL;
 
+	m_ppaaeApproachValues = NULL;
 	m_ppaaeOtherPlayerMajorCivOpinion = NULL;
 	m_ppaaeOtherPlayerMajorCivApproach = NULL;
 	m_ppaaiOtherPlayerMajorCivApproachCounter = NULL;
@@ -1353,6 +1364,14 @@ void CvDiplomacyAI::Reset()
 	{
 		m_paeMinorCivApproach[iI] = NO_MINOR_CIV_APPROACH;
 		m_pabWantToRouteToMinor[iI] = true;
+	}
+
+	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		for (iJ = 0; iJ < NUM_MAJOR_CIV_APPROACHES; iJ++)
+		{
+			m_ppaaeApproachValues[iI][iJ] = 0;
+		}
 	}
 
 	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -7909,6 +7928,23 @@ int CvDiplomacyAI::GetNumMajorCivApproach(MajorCivApproachTypes eApproach) const
 	return iCount;
 }
 
+int CvDiplomacyAI::GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index (< 0) when calling function GetPlayerApproachValue.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index (>= MAX_MAJOR_CIVS) when calling function GetPlayerApproachValue.");
+	CvAssertMsg(eApproach >= 0, "DIPLOMACY_AI: Trying to query invalid Major Approach (< 0) when calling function GetPlayerApproachValue.");
+	CvAssertMsg(eApproach < NUM_MAJOR_CIV_APPROACHES, "DIPLOMACY_AI: Trying to query invalid Major Approach (>= NUM_MAJOR_CIV_APPROACHES) when calling function GetPlayerApproachValue.");
+	return (int) m_ppaaeApproachValues[ePlayer][eApproach];
+}
+
+void CvDiplomacyAI::SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index (< 0) when calling function SetPlayerApproachValue.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index (>= MAX_MAJOR_CIVS) when calling function SetPlayerApproachValue.");
+	CvAssertMsg(eApproach >= 0, "DIPLOMACY_AI: Trying to query invalid Major Approach (< 0) when calling function SetPlayerApproachValue.");
+	CvAssertMsg(eApproach < NUM_MAJOR_CIV_APPROACHES, "DIPLOMACY_AI: Trying to query invalid Major Approach (>= NUM_MAJOR_CIV_APPROACHES) when calling function SetPlayerApproachValue.");
+	m_ppaaeApproachValues[ePlayer][eApproach] = iValue;
+}
 
 /// Determine our general Approach to each Minor Civ we've met
 void CvDiplomacyAI::DoUpdateMinorCivApproaches()
