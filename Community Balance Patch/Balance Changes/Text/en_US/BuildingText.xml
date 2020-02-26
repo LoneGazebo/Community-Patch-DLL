@@ -330,7 +330,7 @@
 			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations and Camps.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to fresh water.</Text>
+			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Can only be built in a City next to fresh water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty, and +1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).</Text>
@@ -345,7 +345,7 @@
 			<Text>Produces 1 [ICON_RES_COAL] Coal and 1 [ICON_RES_IRON] Iron.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. City must be built on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
@@ -379,7 +379,7 @@
 			<Text>Slater Mill</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
-			<Text>City must be built next to a River. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and a large boost to [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
+			<Text>Can only be built in a City next to a River. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and a large boost to [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT">
 			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>

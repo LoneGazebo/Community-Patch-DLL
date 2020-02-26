@@ -12,7 +12,7 @@ SET Text = '+25 [ICON_FOOD] Food when completed. 15% of [ICON_FOOD] Food is carr
 WHERE Tag = 'TXT_KEY_BUILDING_GRANARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must be built next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Well[ENDCOLOR].'
+SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Can only be built in a City next to a River. Cannot be built if the City already has a [COLOR_NEGATIVE_TEXT]Well[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -124,7 +124,7 @@ SET Text = 'Stone Works can only be constructed in a city near an improved [ICON
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food. Increases Military Units Supply Cap by 1.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Lighthouses.[NEWLINE][NEWLINE]Must be constructed in a coastal City.'
+SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food. Increases Military Units Supply Cap by 1.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Lighthouses.[NEWLINE][NEWLINE]Can only be constructed in a coastal City.'
 WHERE Tag = 'TXT_KEY_BUILDING_LIGHTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 		
 UPDATE Language_en_US
@@ -136,7 +136,7 @@ SET Text = 'If a city is connected by a road and/or Lighthouse to your capital c
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Sea Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, and increases Military Units Supply Cap by 2.[NEWLINE][NEWLINE]Must be constructed in a coastal City.'
+SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Sea Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, and increases Military Units Supply Cap by 2.[NEWLINE][NEWLINE]Can only be constructed in a coastal City.'
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -144,7 +144,7 @@ SET Text = 'The Harbor is a Medieval-era building, requiring a Lighthouse. It im
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Ocean and Coastal Tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. Increases the Military Unit Supply Cap from Population in the City by 20%.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. Must be constructed in a coastal City, and cannot have a [COLOR_NEGATIVE_TEXT]Train Station[ENDCOLOR] in the City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Ocean and Coastal Tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. Increases the Military Unit Supply Cap from Population in the City by 20%.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. Can only be constructed in a coastal City, and cannot have a [COLOR_NEGATIVE_TEXT]Train Station[ENDCOLOR] in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -497,7 +497,7 @@ SET Text = '25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonder
 WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be constructed in a coastal City. Gains 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route slot and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Cargo Ship in the City in which it is built. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.'
+SET Text = 'Can only be constructed in a coastal City. Gains 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route slot and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Cargo Ship in the City in which it is built. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.'
 WHERE Tag = 'TXT_KEY_WONDER_COLOSSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -517,7 +517,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Herbalist in the City
 WHERE Tag = 'TXT_KEY_WONDER_TEMPLE_ARTEMIS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must be built on or next to Desert. Gains 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route slot and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Caravan appears in the City in which it is built. +1 [ICON_GOLD] Gold on all Desert tiles worked by this City. +6 [ICON_CULTURE] Culture once [COLOR_CYAN]Archaeology[ENDCOLOR] is discovered.'
+SET Text = 'Can only be built in a City on or next to Desert. Gains 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route slot and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Caravan appears in the City in which it is built. +1 [ICON_GOLD] Gold on all Desert tiles worked by this City. +6 [ICON_CULTURE] Culture once [COLOR_CYAN]Archaeology[ENDCOLOR] is discovered.'
 WHERE Tag = 'TXT_KEY_WONDER_PETRA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -525,7 +525,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology and a [COLO
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be constructed in a coastal City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Lighthouse in the City in which it is built. All Military Naval Units receive +1 [ICON_MOVES] Movement and +1 Sight.'
+SET Text = 'Can only be constructed in a coastal City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Lighthouse in the City in which it is built. All Military Naval Units receive +1 [ICON_MOVES] Movement and +1 Sight.'
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIGHTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -574,7 +574,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_PROPHET] Great P
 WHERE Tag = 'TXT_KEY_WONDER_HAGIA_SOPHIA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be built in a Holy City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Orders building in the City in which it is built. Enables you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR] at 5% below its normal Global [ICON_RELIGION] Follower requirement (20% on Standard).'
+SET Text = 'Can only be built in a Holy City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Orders building in the City in which it is built. Enables you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR] at 5% below its normal Global [ICON_RELIGION] Follower requirement (20% on Standard).'
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -586,7 +586,7 @@ SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be built in a Holy City. Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_MISSIONARY] Missionaries and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stupa in the City in which it is built. All new and existing [ICON_MISSIONARY] Missionaries gain 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] Religous Spread action.'
+SET Text = 'Can only be built in a Holy City. Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_MISSIONARY] Missionaries and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stupa in the City in which it is built. All new and existing [ICON_MISSIONARY] Missionaries gain 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] Religous Spread action.'
 WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -594,7 +594,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Castle in the City in
 WHERE Tag = 'TXT_KEY_WONDER_HIMEJI_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must be built within 2 tiles of a Mountain that is inside your territory. +15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City.'
+SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is inside your territory. +15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City.'
 WHERE Tag = 'TXT_KEY_WONDER_MACHU_PICHU_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -665,7 +665,7 @@ SET Text = 'Palace of Westminster'
 WHERE Tag = 'TXT_KEY_BUILDING_BIG_BEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must be built within 2 tiles of a Mountain that is inside your territory. +1 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_HAPPINESS_1] Happiness from every Castle.'
+SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is inside your territory. +1 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_HAPPINESS_1] Happiness from every Castle.'
 WHERE Tag = 'TXT_KEY_WONDER_NEUSCHWANSTEIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -673,7 +673,7 @@ SET Text = 'Requires completion of [COLOR_MAGENTA]Industry[ENDCOLOR] Branch. Rec
 WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires [COLOR_MAGENTA]Autocracy[ENDCOLOR] and must be constructed in a coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy. +1 [ICON_HAPPINESS_1] Happiness in [ICON_CAPITAL] Capital for every 2 Policies you have adopted. Enemy [ICON_SPY] Spies cannot disrupt World Wonder [ICON_PRODUCTION] Production in this City. Receive 25 [ICON_CULTURE] Culture when any owned Unit pillages a tile, scaling with Era.'
+SET Text = 'Requires [COLOR_MAGENTA]Autocracy[ENDCOLOR] and can only be constructed in a coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy. +1 [ICON_HAPPINESS_1] Happiness in [ICON_CAPITAL] Capital for every 2 Policies you have adopted. Enemy [ICON_SPY] Spies cannot disrupt World Wonder [ICON_PRODUCTION] Production in this City. Receive 25 [ICON_CULTURE] Culture when any owned Unit pillages a tile, scaling with Era.'
 WHERE Tag = 'TXT_KEY_WONDER_PRORA_RESORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- added line for Statue of Liberty
@@ -704,7 +704,7 @@ SET Text = '+25 [ICON_TOURISM] Tourism. Hotels provide +2 [ICON_GOLDEN_AGE] Gold
 WHERE Tag = 'TXT_KEY_WONDER_CRISTO_REDENTOR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be constructed in a coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and +25% [ICON_CULTURE] Culture in this City. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Music. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Can only be constructed in a coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and +25% [ICON_CULTURE] Culture in this City. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Music. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
