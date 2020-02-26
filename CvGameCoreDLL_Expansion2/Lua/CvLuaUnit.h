@@ -663,6 +663,7 @@ protected:
 	LUAAPIEXTN(IsAdjacentToUnitClass, iUnitClassType, bool, bool);
 	LUAAPIEXTN(IsAdjacentToUnitCombatType, iUnitCombatType, bool, bool);
 	LUAAPIEXTN(IsAdjacentToUnitPromotion, iPromotionType, bool, bool);
+	LUAAPIEXTN(IsWithinDistanceOfCity, iDistance, bool, bool);
 #endif
 	LUAAPIEXTN(IsOnImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsAdjacentToImprovement, bool, iImprovementType);
