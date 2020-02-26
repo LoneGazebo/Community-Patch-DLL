@@ -185,7 +185,7 @@
 
 		<!-- WLTKD LUA -->
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
-			<Text>[NEWLINE] [ICON_BULLET]Building/Policy Modifier from 'We Love the King Day:' {1_Num}%</Text>
+			<Text>[NEWLINE] [ICON_BULLET]Building/Policy Modifier from "We Love the King Day:" {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE">
 			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes</Text>
@@ -688,7 +688,7 @@
 			<Text>[NEWLINE] [ICON_BULLET]Modifier from [ICON_GOLDEN_AGE] Golden Age: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BELIEF">
-			<Text>[NEWLINE] [ICON_BULLET]Belief Modifier from 'We Love the King Day:' {1_Num}%</Text>
+			<Text>[NEWLINE] [ICON_BULLET]Belief Modifier from "We Love the King Day:" {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_GOLDEN_AGE">
 			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GOLDEN_AGE] Golden Age</Text>
