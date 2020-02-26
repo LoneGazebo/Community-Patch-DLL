@@ -14225,12 +14225,17 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	kPlayer.setCapitalCity(pStartingCity);
 	// get the plot before transferring ownership
 	CvPlot *pPlot = pStartingCity->plot();
+
+	// setStartingPlot needs to be before acquireCity, otherwise if this is a maritime city
+	// state, it will crash when the game tries to use the starting plot to look for the
+	// closest city to grant the bonus food for the civ first meeting this city state, before
+	// this function has finished executing.
+	kPlayer.setStartingPlot(pPlot);
 	kPlayer.acquireCity(pStartingCity, false/*bConquest*/, true/*bGift*/);
 	kPlayer.setFoundedFirstCity(true);
 
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
-	kPlayer.setStartingPlot(pPlot);
 	kPlayer.getCapitalCity()->ChangeNumTimesOwned(eNewPlayer, 1);
 	kPlayer.getCapitalCity()->setName(kPlayer.getName());
 	kPlayer.getCapitalCity()->SetOccupied(false);
