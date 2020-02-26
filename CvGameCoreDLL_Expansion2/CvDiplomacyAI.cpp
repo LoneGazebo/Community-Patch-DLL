@@ -7541,20 +7541,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// RECENT LIBERATION - Don't declare war on a player who's liberating our cities!
+	// RECENT LIBERATION - Don't declare war on a player who's liberating our cities! (if we care, that is)
 	////////////////////////////////////
 	
 	if (bRecentLiberation)
 	{
-		if (!IsCapitalCapturedBy(ePlayer) && !IsHolyCityCapturedBy(ePlayer) && !bUntrustworthy && (!bTheyAreCloseToAnyVictory || bNoVictoryCompetition))
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-			viScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
-		}
-		else
-		{
-			bRecentLiberation = false;
-		}
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+		viScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
 	}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -7700,7 +7693,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				GetPlayer()->SetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop, iAverage);
 			}
 		}
-		else // ignoring the approach curve for some reason, so just use this turn's value as the average
+		else if (bUpdate) // ignoring the approach curve for some reason, so just use this turn's value as the average
 		{
 			GetPlayer()->SetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop, viApproachWeights[iApproachLoop]);
 		}
@@ -7737,7 +7730,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	// Don't bother being friendly (real or fake) if there's been a denouncement or they're untrustworthy
 	bool bNoFriendly = false;
-	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eMyPlayer) || IsUntrustworthyFriend(ePlayer))
+	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eMyPlayer) || bUntrustworthy)
 	{
 		bNoFriendly = true;
 	}
