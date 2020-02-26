@@ -1038,7 +1038,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 
 				if (pThisArmy->GetNumSlotsFilled() < iNumRequiredSlots / 2)
 				{
-					SetToAbort( AI_ABORT_HALF_STRENGTH);
+					SetToAbort(AI_ABORT_HALF_STRENGTH);
 				}
 
 				//special for escorted ops
@@ -1837,6 +1837,14 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
 				LogOperationSpecialMessage("Transition to gathering stage");
 				bStateChanged = true;
+			}
+			else if (pThisArmy->GetNumSlotsFilled() > 3)
+			{
+				//if we already have a significant amount of units and they are close together, move the muster plot there
+				float fX = 0, fY = 0;
+				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
+				if (fX < 10 && fY < 10)
+					SetMusterPlot(pCoM);
 			}
 			break;
 		}

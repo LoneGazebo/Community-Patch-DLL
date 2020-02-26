@@ -1701,7 +1701,6 @@ public:
 	bool attemptGroundAttacks(const CvPlot& pPlot);
 
 	bool potentialWarAction(const CvPlot* pPlot) const;
-	bool willRevealByMove(const CvPlot& pPlot) const;
 
 	bool isAlwaysHostile(const CvPlot& pPlot) const;
 	void changeAlwaysHostileCount(int iValue);
@@ -1722,7 +1721,7 @@ public:
 
 	int GetPower() const;
 
-	bool AreUnitsOfSameType(const CvUnit& pUnit2) const;
+	bool AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked = false) const;
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
 

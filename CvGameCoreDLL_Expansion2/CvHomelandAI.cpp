@@ -1311,7 +1311,8 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 	if (iUnitsSea>0)
 		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, bAtWar, iUnitsSea);
 
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,23);
+	int iUnitMoveRange = 12; //determines how far a unit can move for a patrol
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
 		mapReachablePlots[vLandTargets[i]] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i],data);
@@ -1338,7 +1339,8 @@ void CvHomelandAI::ExecutePatrolMoves(bool bAtWar)
 			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
 			{
 				//try not to create a unit carpet without any space to move
-				for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+				int iMaxDistance = pUnit->isRanged() ? 4 : 5;
+				for(int iJ = RING2_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
 					if(pLoopPlot == NULL)

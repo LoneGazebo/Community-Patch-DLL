@@ -5044,36 +5044,8 @@ TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::willRevealByMove(const CvPlot& plot) const
-{
-	VALIDATE_OBJECT
-	int iVisRange = visibilityRange();
-	TeamTypes eTeam = getTeam();
-	int iRange = iVisRange + 1;
-	for(int i = -iRange; i <= iRange; ++i)
-	{
-		for(int j = -iRange; j <= iRange; ++j)
-		{
-			CvPlot* pLoopPlot = ::plotXYWithRangeCheck(plot.getX(), plot.getY(), i, j, iRange);
-			if(NULL != pLoopPlot)
-			{
-				if(!pLoopPlot->isRevealed(eTeam) && plot.canSeePlot(pLoopPlot, eTeam, iVisRange, NO_DIRECTION))
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 {
-	VALIDATE_OBJECT
-	TeamTypes ePlotTeam;
-
 	// do not check this, the current plot may well be invalid!
 	/*
 	// nothing to do
@@ -5083,21 +5055,15 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 	}
 	*/
 
-	// Cannot move around in unrevealed land freely
-	if(!(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_UNEMBARKED) && isNoRevealMap() && willRevealByMove(plot))
-	{
-		return false;
-	}
-
 	// Barbarians have special restrictions early in the game
-	if(isBarbarian() && (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn()) && (plot.isOwned()))
+	if(isBarbarian() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn() && plot.isOwned())
 	{
 		return false;
 	}
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || !IsCivilianUnit()))
+	if((iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS || !IsCivilianUnit() || plot.needsEmbarkation(this)))
 #else
 	if(iMoveFlags & CvUnit::MOVEFLAG_DESTINATION)
 #endif
@@ -5338,7 +5304,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 			}
 		}
 
-		ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
+		TeamTypes ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
 		bool bCanEnterTerritory = (iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_DESTINATION);
 		if (!bCanEnterTerritory)
@@ -19397,7 +19363,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	FStaticVector<IDInfo, 10, true, c_eCiv5GameplayDLL, 0> oldUnitList;
 	FStaticVector<CvUnitCaptureDefinition, 8, true, c_eCiv5GameplayDLL, 0> kCaptureUnitList;
 	ActivityTypes eOldActivityType = NO_ACTIVITY;
-	int iI;
 	TeamTypes activeTeam = GC.getGame().getActiveTeam();
 	TeamTypes eOurTeam = getTeam();
 
@@ -19967,10 +19932,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		}
 #endif
 		// Can someone can see the plot we moved our Unit into?
-		TeamTypes eTeamLoop;
-		for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 		{
-			eTeamLoop = (TeamTypes) iI;
+			TeamTypes eTeamLoop = (TeamTypes) iI;
 
 			CvTeam& kLoopTeam = GET_TEAM(eTeamLoop);
 
@@ -20029,7 +19993,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		// If a Unit is adjacent to someone's borders, meet them
 		CvPlot* pAdjacentPlot;
-		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
 			pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
 
@@ -20186,10 +20150,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	if(pOldPlot != NULL)
 	{
 #if defined(MOD_BALANCE_CORE)
-		CvPlot* pAdjacentOldPlot;
-		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
-			pAdjacentOldPlot = plotDirection(pOldPlot->getX(), pOldPlot->getY(), ((DirectionTypes)iI));
+			CvPlot* pAdjacentOldPlot = plotDirection(pOldPlot->getX(), pOldPlot->getY(), ((DirectionTypes)iI));
 
 			if(pAdjacentOldPlot != NULL)
 			{
@@ -20534,17 +20497,21 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	//Dr. Livingstone I presume?
 	if (isHuman() && !isDelayedDeath())
 	{
-		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0){
+		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0)
+		{
 			UnitTypes eExplorer = (UnitTypes) GC.getInfoTypeForString("UNIT_EXPLORER", true /*bHideAssert*/); 
-			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), "TXT_KEY_EXPLORER_STANLEY") == 0 ){
-				CvPlot* pAdjacentPlot;
-				for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), "TXT_KEY_EXPLORER_STANLEY") == 0 )
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
-					pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
+					CvPlot* pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
 
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL){
-						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++){
-							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0){
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+					{
+						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
+						{
+							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0)
+							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP2_52);
 							}
 						}
@@ -27170,17 +27137,34 @@ bool CvUnit::potentialWarAction(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2) const
+bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked) const
 {
-	// 2 embarked units are considered the same type, regardless of circumstances
-	if(isEmbarked() && pUnit2.isEmbarked())
+	// embarked units are considered the same type, independent of their domain/combat type
+	bool bUnit1isEmbarked = isEmbarked();
+	bool bUnit2isEmbarked = pUnit2.isEmbarked() || bPretendUnit2Embarked;
+
+	//unless civilians may stack
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+	if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+	{
+		if(IsCivilianUnit())
+		{
+			bUnit1isEmbarked = false;
+		}
+		if(pUnit2.IsCivilianUnit())
+		{
+			bUnit2isEmbarked = false;
+		}
+	}
+#endif
+
+	if(bUnit1isEmbarked && bUnit2isEmbarked)
 	{
 		return true;
 	}
 
 	return CvGameQueries::AreUnitsSameType(getUnitType(), pUnit2.getUnitType());
 }
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {

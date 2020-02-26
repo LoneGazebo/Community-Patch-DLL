@@ -4942,7 +4942,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 			{
 				// Units of the same type OR Units belonging to different civs
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit) && (pLoopUnit->getNumberStackingUnits() != -1)))
+				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit,needsEmbarkation(pUnit)) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #else
 				if(pUnit->getOwner() != pLoopUnit->getOwner() || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #endif
