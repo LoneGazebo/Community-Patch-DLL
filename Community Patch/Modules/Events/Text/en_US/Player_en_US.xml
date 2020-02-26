@@ -558,7 +558,7 @@
 			<Text>Baby Boom!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BABY_BOOM_CHOICE_1_HELP">
-			<Text>Your population is growing exponentially, thanks to a large upswing in births as of late. All Cities gain +1 [ICON_CITIZEN] Population and experience 5 turns of 'We Love the King Day.'</Text>
+			<Text>Your population is growing exponentially, thanks to a large upswing in births as of late. All Cities gain +1 [ICON_CITIZEN] Population and experience 5 turns of "We Love the King Day."</Text>
 		</Row>
 
 		<!-- Plague -->

@@ -45,7 +45,7 @@ SET Text = '[NEWLINE][ICON_BULLET][ICON_RELIGION_PANTHEON] Religious Beliefs Mod
 WHERE Tag = 'TXT_KEY_FOODMOD_RELIGION';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] We Love the King Day Modifier: {1_Num}%'
+SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] "We Love the King Day" Modifier: {1_Num}%'
 WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 
