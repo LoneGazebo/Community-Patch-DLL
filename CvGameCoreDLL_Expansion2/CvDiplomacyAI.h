@@ -130,7 +130,7 @@ public:
 
 	// Major Civs
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, bool bIgnoreApproachCurve = false);
+	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, bool bIgnoreApproachCurve = false);
 	
 	// Niche cases for approach updates
 	//void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
