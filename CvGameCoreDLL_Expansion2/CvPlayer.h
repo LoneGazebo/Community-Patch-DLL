@@ -1691,8 +1691,7 @@ public:
 	void setConversionTimer(int iNewValue);
 	void changeConversionTimer(int iChange);
 
-	CvCity* getCapitalCity();
-	const CvCity* getCapitalCity() const;
+	CvCity* getCapitalCity() const;
 	void setCapitalCity(CvCity* pNewCapitalCity);
 
 	int GetOriginalCapitalX() const;
@@ -2584,9 +2583,6 @@ public:
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
-
-	int getCitySupplyModifierGlobal() const;
-	void changeCitySupplyModifierGlobal(int iChange);
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);

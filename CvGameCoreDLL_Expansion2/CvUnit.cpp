@@ -5461,7 +5461,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		return true;
 
 	//remember we're calling this because the unit is trapped, so use the stepfinder
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 9);
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 12);
 	data.ePathType = PT_GENERIC_REACHABLE_PLOTS;
 
 	//for performance reasons, start with a small search range and gradually increase it
@@ -5473,8 +5473,8 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-		//plot must be empty even of civilians (don't use CanMoveInto() here)
-		if (pLoopPlot->getNumUnits() == 0 && !pLoopPlot->isCity() && !pLoopPlot->isImpassable(getTeam()))
+		//plot must be empty even of civilians
+		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
 			if (pLoopPlot->IsFriendlyTerritory(getOwner()))
 			{
@@ -7340,7 +7340,7 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 	//sanity check
 	if (m_eHomelandMove != AI_HOMELAND_MOVE_NONE && eMove != AI_HOMELAND_MOVE_NONE && m_eHomelandMove != eMove)
 	{
-		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove] );
+		CvString msg = CvString::format("Warning, overwriting homeland move %s with %s\n", homelandMoveNames[m_eTacticalMove], homelandMoveNames[eMove] );
 		OutputDebugString(msg.c_str());
 	}
 #endif

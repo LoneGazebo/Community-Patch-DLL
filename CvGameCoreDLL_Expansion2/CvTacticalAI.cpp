@@ -4480,6 +4480,9 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 				if(pUnit->getArmyID() == -1 && pUnit->plot()->getOwner() != pUnit->getOwner())
 				{
 					CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+					if (m_pPlayer->isMinorCiv())
+						pClosestCity = m_pPlayer->getCapitalCity();
+
 					CvPlot* pMovePlot = pClosestCity ? pClosestCity->plot() : NULL;
 					if(pMovePlot != NULL)
 					{
@@ -5142,6 +5145,9 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			{
 				// Compute moves to nearest city and use as sort criteria
 				CvCity* pNearestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+				if (m_pPlayer->isMinorCiv())
+					pNearestCity = m_pPlayer->getCapitalCity();
+
 				if (pNearestCity)
 					pTargetPlot = pNearestCity->plot();
 

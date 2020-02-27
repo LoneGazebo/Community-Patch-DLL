@@ -265,6 +265,7 @@ void CvTacticalAnalysisMap::Init(PlayerTypes ePlayer)
 int CvTacticalDominanceZone::GetBorderScore() const
 {
 	int iCount = 0;
+
 	for (size_t i = 0; i < m_vNeighboringZones.size(); i++)
 	{
 		CvTacticalDominanceZone* pNeighbor = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByID(m_vNeighboringZones[i]);
@@ -275,7 +276,20 @@ int CvTacticalDominanceZone::GetBorderScore() const
 			iCount+=8;
 
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL)
+		{
 			iCount+=2;
+
+			//similar to GetPlayersAtWarWithInFuture() ...
+			if (pNeighbor->GetOwner() != NO_PLAYER && GET_PLAYER(pNeighbor->GetOwner()).isMajorCiv())
+			{
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetApproachTowardsUsGuess(pNeighbor->GetOwner()) <= MAJOR_CIV_APPROACH_GUARDED)
+					iCount++;
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(pNeighbor->GetOwner()) <= MAJOR_CIV_APPROACH_GUARDED)
+					iCount++;
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighbor->GetOwner()) == MAJOR_CIV_OPINION_ENEMY)
+					iCount++;
+			}
+		}
 
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER)
 			iCount+=1;

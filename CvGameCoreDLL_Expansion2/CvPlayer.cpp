@@ -32171,13 +32171,7 @@ void CvPlayer::changeConversionTimer(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-CvCity* CvPlayer::getCapitalCity()
-{
-	return getCity(m_iCapitalCityID);
-}
-
-//	--------------------------------------------------------------------------------
-const CvCity* CvPlayer::getCapitalCity() const
+CvCity* CvPlayer::getCapitalCity() const
 {
 	return getCity(m_iCapitalCityID);
 }
@@ -40735,22 +40729,47 @@ void CvPlayer::deleteCity(int iID)
 
 int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
-	return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
+	if ( isMajorCiv() )
+		return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
+
+	//for minors we fake it
+	CvCity* pCapital = getCapitalCity();
+	if (pCapital && pPlot)
+		return plotDistance(*pPlot, *pCapital->plot()) / 2;
+
+	return INT_MAX;
 }
 
 CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
-	return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
+	//careful, player-specific GetClosestCity only works for majors (because of performance)
+	if ( isMajorCiv() )
+		return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
+
+	//for minors just assume they have only one city (99% correct)
+	return getCapitalCity();
 }
 
 int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 {
-	return GC.getGame().GetClosestCityDistanceInPlots( pPlot, GetID() );
+	if ( isMajorCiv() )
+		return GC.getGame().GetClosestCityDistanceInPlots( pPlot, GetID() );
+
+	//for minors we fake it
+	CvCity* pCapital = getCapitalCity();
+	if (pCapital && pPlot)
+		return plotDistance(*pPlot, *pCapital->plot()) / 2;
+
+	return INT_MAX;
 }
 
 CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
 {
-	return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
+	if ( isMajorCiv() )
+		return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
+
+	//for minors just assume they have only one city (99% correct)
+	return getCapitalCity();
 }
 
 //	--------------------------------------------------------------------------------
@@ -47330,9 +47349,12 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 
 			//how is the general diplomatic climate?
 			MajorCivApproachTypes eApproach = GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+			MajorCivApproachTypes eTheirApproach = GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer);
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
-			if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || 
-				eApproach == MAJOR_CIV_APPROACH_AFRAID || eOpinion == MAJOR_CIV_OPINION_ENEMY)
+			if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE || 
+				eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_GUARDED ||
+				eTheirApproach == MAJOR_CIV_APPROACH_HOSTILE || eTheirApproach == MAJOR_CIV_APPROACH_GUARDED ||
+				eOpinion == MAJOR_CIV_OPINION_ENEMY)
 				bWarMayBeComing = true;
 
 			if (bWarMayBeComing)
