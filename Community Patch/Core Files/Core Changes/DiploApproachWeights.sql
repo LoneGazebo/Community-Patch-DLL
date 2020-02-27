@@ -107,22 +107,22 @@ SELECT 'APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '50';
 -- Conquest Multiplier (proximity multiplier if AI is going for domination or just really wants to conquer this player)
 -- 115
 UPDATE Defines
-SET Value = '250'
+SET Value = '300'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_NEIGHBORS';
 
 -- 100
 UPDATE Defines
-SET Value = '200'
+SET Value = '250'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_CLOSE';
 
 -- 60
 UPDATE Defines
-SET Value = '150'
+SET Value = '200'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_FAR';
 
 -- 50
 UPDATE Defines
-SET Value = '100'
+SET Value = '150'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_DISTANT';
 
 
