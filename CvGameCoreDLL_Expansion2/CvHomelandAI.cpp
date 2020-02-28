@@ -1304,8 +1304,8 @@ void CvHomelandAI::ExecutePatrolMoves()
 		}
 	}
 	
-	//get the most exposed cities and their surrounding plots
-	std::vector<CvPlot*> vLandTargets, vWaterTargets;
+	//get the most exposed cities and the most threatening neighbor cities
+	vector< pair<CvPlot*,CvPlot*> > vLandTargets, vWaterTargets;
 	if (iUnitsLand>0)
 		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, iUnitsLand);
 	if (iUnitsSea>0)
@@ -1315,11 +1315,11 @@ void CvHomelandAI::ExecutePatrolMoves()
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
-		mapReachablePlots[vLandTargets[i]] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i],data);
+		mapReachablePlots[vLandTargets[i].first] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].first,data);
 	for (size_t i=0; i<vWaterTargets.size(); i++)
 		//the stepfinder works for both land and water, so do the work only if necessary
-		if (mapReachablePlots.find(vWaterTargets[i])==mapReachablePlots.end())
-				mapReachablePlots[vWaterTargets[i]] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i],data);
+		if (mapReachablePlots.find(vWaterTargets[i].first)==mapReachablePlots.end())
+				mapReachablePlots[vWaterTargets[i].first] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i].first,data);
 
 	//for each unit, check which city is closest
 	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
@@ -1329,48 +1329,72 @@ void CvHomelandAI::ExecutePatrolMoves()
 			continue;
 
 		//the target we're looking at depends on the domain of the unit
-		std::vector<CvPlot*>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
+		vector< pair<CvPlot*,CvPlot*> >& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
 
 		int iBestTurns = INT_MAX;
-		CvPlot* pBestTarget = NULL;
+		CvPlot* pBestCity = NULL;
+		CvPlot* pWorstEnemy = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
-			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(pUnit->plot()->GetPlotIndex());
-			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
+			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i].first].find(pUnit->plot()->GetPlotIndex());
+			if (itPlot!=mapReachablePlots[vTargets[i].first].end() && itPlot->iTurns<iBestTurns)
 			{
-				//try not to create a unit carpet without any space to move
-				int iMaxDistance = pUnit->isRanged() ? 4 : 5;
-				for(int iJ = RING2_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
+				iBestTurns = itPlot->iTurns;
+				pBestCity = vTargets[i].first;
+				pWorstEnemy = vTargets[i].second;
+			}
+		}
+
+		int iBestScore = INT_MAX;
+		CvPlot* pBestPlot = NULL;
+		if (pBestCity && pWorstEnemy)
+		{
+			int iCityDistance = plotDistance(*pBestCity, *pWorstEnemy) + 1;
+
+			//try not to create a unit carpet without any space to move
+			int iMaxDistance = pUnit->isRanged() ? 4 : 5;
+			for (int iJ = RING2_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(pBestCity, iJ);
+				if (pLoopPlot == NULL)
+					continue;
+
+				//must be to the right side of our city
+				if (plotDistance(*pLoopPlot, *pWorstEnemy) > iCityDistance)
+					continue;
+
+				//only native domain
+				if (pLoopPlot->getDomain() != pUnit->getDomainType())
+					continue;
+
+				//todo: consolidate the next three checks into one neighbor iteration ...
+
+				//don't go to border plots, too dangerous
+				if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
+					continue;
+
+				//don't get lost in ice etc
+				if (pLoopPlot->countPassableNeighbors() < 3)
+					continue;
+
+				//lots of adjacent units? Ignore.
+				if (pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 3)
+					continue;
+
+				//naturally
+				if (!pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
+					continue;
+
+				int iScore = plotDistance(*pLoopPlot, *pBestCity) + plotDistance(*pLoopPlot, *pWorstEnemy);
+				if (iScore < iBestScore)
 				{
-					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
-					if(pLoopPlot == NULL)
-						continue;
-
-					if (pLoopPlot->getDomain() != pUnit->getDomainType())
-						continue;
-
-					//don't go to border plots, too dangerous
-					if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
-						continue;
-
-					//Don't patrol into cities.
-					if(pLoopPlot->isCity())
-						continue;
-
-					//Lots of adjacent units? Ignore.
-					if(pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 3)
-						continue;
-
-					if (pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
-					{
-						iBestTurns = itPlot->iTurns;
-						pBestTarget = GC.getMap().plotByIndexUnchecked(pLoopPlot->GetPlotIndex());
-					}
+					iBestScore = iScore;
+					pBestPlot = pLoopPlot;
 				}
 			}
 		}
 
-		if(pBestTarget)
+		if(pBestPlot)
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -1378,11 +1402,11 @@ void CvHomelandAI::ExecutePatrolMoves()
 				CvString strTemp;
 
 				strTemp = pUnit->getUnitInfo().GetDescription();
-				strLogString.Format("%s (%d) patrolling to, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY(), pUnit->getX(), pUnit->getY());
+				strLogString.Format("%s (%d) patrolling to, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
 
-			if (pBestTarget == pUnit->plot() && !pUnit->IsHurt())
+			if (pBestPlot == pUnit->plot() && !pUnit->IsHurt())
 			{
 				//check our immediate neighbors if we can increase our visibility
 				int iBestCount = 0;
@@ -1405,9 +1429,9 @@ void CvHomelandAI::ExecutePatrolMoves()
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestNeighbor->getX(), pBestNeighbor->getY());
 			}
 
-			if (pUnit->canMove() && pUnit->plot() != pBestTarget)
+			if (pUnit->canMove() && pUnit->plot() != pBestPlot)
 				//use the exact target location - GetPatrolTarget makes sure there is a free spot
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 
 			if (pUnit->canMove())
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
@@ -6909,14 +6933,14 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 }
 
 //check all tactical zones to find the one we need to support most
-std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
+vector< pair<CvPlot*,CvPlot*> > HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
 {
 	if (ePlayer==NO_PLAYER)
-		return std::vector<CvPlot*>();
+		return vector<pair<CvPlot*,CvPlot*>>();
 
 	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
 
-	std::vector<SPlotWithScore> vTargets;
+	vector<OptionWithScore<pair<CvPlot*,CvPlot*>>> vTargets;
 	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iI);
@@ -6933,18 +6957,20 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		if (!pZoneCity)
 			continue;
 
-		vTargets.push_back( SPlotWithScore(pZoneCity->plot(),pZone->GetBorderScore()) );
+		CvCity* pWorstNeighborCity = NULL;
+		int iBorderScore = pZone->GetBorderScore(&pWorstNeighborCity);
+
+		vTargets.push_back( OptionWithScore<pair<CvPlot*,CvPlot*>> ( std::make_pair(pZoneCity->plot(),pWorstNeighborCity ? pWorstNeighborCity->plot() : NULL), iBorderScore ) );
 	}
 
-	//sort descending!
+	//default sort is descending!
 	std::sort( vTargets.begin(), vTargets.end() );
-	std::reverse( vTargets.begin(), vTargets.end() );
 
-	std::vector<CvPlot*> vResult;
+	vector<pair<CvPlot*,CvPlot*>> vResult;
 	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)
 		//copy the top N results, take care not to have duplicate cities in there
-		if (std::find(vResult.begin(),vResult.end(),vTargets[i].pPlot)==vResult.end())
-			vResult.push_back( vTargets[i].pPlot );
+		if (std::find(vResult.begin(),vResult.end(),vTargets[i].option)==vResult.end())
+			vResult.push_back( vTargets[i].option );
 
 	return vResult;
 }

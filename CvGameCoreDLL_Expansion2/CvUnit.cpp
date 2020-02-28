@@ -5533,6 +5533,14 @@ bool CvUnit::jumpToNearestValidPlot()
 		}
 	}
 
+	//last chance
+	if (!pBestPlot)
+	{
+		CvCity* pClosestCity = GET_PLAYER(getOwner()).GetClosestCityByPlots( plot() );
+		if (pClosestCity)
+			return jumpToNearestValidPlotWithinRange(5, pClosestCity->plot());
+	}
+
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strLogString;
@@ -5568,7 +5576,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
+bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 {
 	VALIDATE_OBJECT
 	CvPlot* pBestPlot = NULL;
@@ -5576,10 +5584,13 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
+	if (!pStartPlot)
+		pStartPlot = plot();
+
 	iRange = min(max(1,iRange),5);
 	for(int i=1; i<RING_PLOTS[iRange]; i++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots( plot(), i );
+		CvPlot* pLoopPlot = iterateRingPlots( pStartPlot, i );
 
 		//needs to be visible so we don't run into problems with stacking
 		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
@@ -7278,7 +7289,7 @@ bool CvUnit::canRecruitFromTacticalAI() const
 	if (IsGarrisoned())
 	{
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
-		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>5)
+		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>7)
 			return false;
 	}
 

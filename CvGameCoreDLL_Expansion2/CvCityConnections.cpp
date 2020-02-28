@@ -152,37 +152,36 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		PlayerTypes ePlayer = vTeamPlayers[i];
 
 		//cities
-			int iLoop;
-			for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-			{
-				int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
+		int iLoop;
+		for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		{
+			int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
 			m_plotIdsToConnect.push_back(iPlotIndex);
 		}
 
 		//citadels etc
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		for (size_t j=0; j<vPlots.size(); j++)
-				{
+		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
 
 			if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-						continue;
+				continue;
 						
 			//ignore plots which are not exposed
 			CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopPlot);
-			if (!pZone || pZone->GetBorderScore() == 0)
-						continue;
+			if (!pZone || pZone->GetBorderScore() < 2)
+				continue;
 
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 50)
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
-
-							}
-						}
+		}
+	}
 					
 	//quests
 	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)
-					{
+	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
 		if(ShouldConnectToOtherPlayer(ePlayer))
 		{

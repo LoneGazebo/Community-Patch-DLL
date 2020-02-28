@@ -231,7 +231,7 @@ public:
 	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
-	bool jumpToNearestValidPlotWithinRange(int iRange);
+	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot = NULL);
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();

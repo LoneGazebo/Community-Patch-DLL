@@ -265,7 +265,7 @@ public:
 	const std::vector<int>& GetNeighboringZones() const { return m_vNeighboringZones; }
 	void AddNeighboringZone(int iZoneID);
 	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
-	int GetBorderScore() const;
+	int GetBorderScore(CvCity** ppWorstNeighborCity=NULL) const;
 #endif
 
 private:
