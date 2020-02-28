@@ -792,17 +792,14 @@ void CvHomelandAI::PlotGarrisonMoves()
 
 		if (pCity->HasGarrison())
 		{
+			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-			if (pGarrison->CanUpgradeRightNow(false))
-			{
-				CvUnit* pNewUnit = pGarrison->DoUpgrade();
-				UnitProcessed(pNewUnit->GetID());
-			}
-			else
+			if (!pGarrison->TurnProcessed())
 				UnitProcessed(pGarrison->GetID());
 		}
 		else
 		{
+			//try to find a new garrison
 			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
 			if(pGarrison)
 			{
@@ -1349,11 +1346,12 @@ void CvHomelandAI::ExecutePatrolMoves()
 		CvPlot* pBestPlot = NULL;
 		if (pBestCity && pWorstEnemy)
 		{
+			//or should we iterate around the half-way plot instead?
 			int iCityDistance = plotDistance(*pBestCity, *pWorstEnemy) + 1;
 
 			//try not to create a unit carpet without any space to move
 			int iMaxDistance = pUnit->isRanged() ? 4 : 5;
-			for (int iJ = RING2_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
+			for (int iJ = RING1_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pBestCity, iJ);
 				if (pLoopPlot == NULL)

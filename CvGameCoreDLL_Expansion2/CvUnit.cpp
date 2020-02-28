@@ -7351,7 +7351,7 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 	//sanity check
 	if (m_eHomelandMove != AI_HOMELAND_MOVE_NONE && eMove != AI_HOMELAND_MOVE_NONE && m_eHomelandMove != eMove)
 	{
-		CvString msg = CvString::format("Warning, overwriting homeland move %s with %s\n", homelandMoveNames[m_eTacticalMove], homelandMoveNames[eMove] );
+		CvString msg = CvString::format("Warning, overwriting homeland move %s with %s\n", homelandMoveNames[m_eHomelandMove], homelandMoveNames[eMove] );
 		OutputDebugString(msg.c_str());
 	}
 #endif

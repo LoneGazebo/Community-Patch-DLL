@@ -3194,7 +3194,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (!pUnit->isDelayedDeath() && plotDistance(*pTurnTarget,*pUnit->plot())<pUnit->maxMoves()*3)
+		if (!pUnit->isDelayedDeath() && !pUnit->canMove() && plotDistance(*pTurnTarget,*pUnit->plot())<pUnit->maxMoves()*3)
 			vUnits.push_back(pUnit);
 
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -10659,10 +10659,13 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = pUnit->canMove() && (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
 #ifdef TACTDEBUG
-			//see if we can indeed reach the target plot this turn ... 
-			pUnit->ClearPathCache(); pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, INT_MAX, NULL, true);
-			if (pUnit->GetPathEndFirstTurnPlot() != pToPlot)
-				OutputDebugString("ouch, pathfinding problem\n");
+			if (bPrecondition)
+			{
+				//see if we can indeed reach the target plot this turn ... 
+				pUnit->ClearPathCache(); pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_STOPNODES, INT_MAX, NULL, true);
+				if (pUnit->GetPathEndFirstTurnPlot() != pToPlot)
+					OutputDebugString("ouch, pathfinding problem\n");
+			}
 #endif
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER|CvUnit::MOVEFLAG_NO_STOPNODES, false, false, MISSIONAI_OPMOVE); 
