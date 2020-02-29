@@ -1273,7 +1273,7 @@ void CvHomelandAI::PlotPatrolMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned())
+		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 		{
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
@@ -1308,7 +1308,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 	if (iUnitsSea>0)
 		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
 
-	int iUnitMoveRange = 12; //determines how far a unit can move for a patrol
+	int iUnitMoveRange = 9; //determines how far a unit can move for a patrol
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
@@ -1361,22 +1361,8 @@ void CvHomelandAI::ExecutePatrolMoves()
 				if (plotDistance(*pLoopPlot, *pWorstEnemy) > iCityDistance)
 					continue;
 
-				//only native domain
-				if (pLoopPlot->getDomain() != pUnit->getDomainType())
-					continue;
-
-				//todo: consolidate the next three checks into one neighbor iteration ...
-
-				//don't go to border plots, too dangerous
-				if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
-					continue;
-
-				//don't get lost in ice etc
-				if (pLoopPlot->countPassableNeighbors() < 3)
-					continue;
-
-				//lots of adjacent units? Ignore.
-				if (pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 3)
+				//avoid confrontations with other players, dead ends etc
+				if (!TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pLoopPlot, pUnit->getDomainType()))
 					continue;
 
 				//naturally

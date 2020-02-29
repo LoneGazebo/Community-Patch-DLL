@@ -316,7 +316,7 @@ public:
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
-	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
+	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;

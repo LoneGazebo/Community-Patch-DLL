@@ -4338,7 +4338,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			continue;
 
 		//already close ...
-		if (plotDistance(*pTarget, *pUnit->plot()) < 5 && TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pUnit->plot(), pUnit->getDomainType() == DOMAIN_SEA))
+		if (plotDistance(*pTarget, *pUnit->plot()) < 5 && TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pUnit->plot(), pUnit->getDomainType()))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(m_CurrentMoveUnits[iI].GetID());
@@ -4356,7 +4356,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				if (pTestPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
 					continue;
 
-			if (TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pTestPlot, pUnit->getDomainType() == DOMAIN_SEA))
+			if (TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pTestPlot, pUnit->getDomainType()))
 			{
 				if(GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv())
 				{
@@ -7115,31 +7115,55 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 	m_vec.push_back(unit);
 }
 
-bool TacticalAIHelpers::IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, bool bWater)
+bool TacticalAIHelpers::IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain)
 {
 	if (!pPlayer || !pCandidate)
 		return false;
 
-	//we want a plot that is
-	//- not too close and not too far from our cities
-	//- is not a route (don't block roads)
-	//- doesn't have too many other units around (don't build impenetrable walls of units)
+	if (pCandidate->getBestDefender(pPlayer->GetID())!=NULL)
+		return false;
 
-	if (pCandidate->getNumUnits()>0)
+	if (eDomain != NO_DOMAIN && pCandidate->getDomain() != eDomain)
 		return false;
 
 	int iCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pCandidate);
-	if (iCityDistance<2 || iCityDistance>3)
+	if (iCityDistance<1 || iCityDistance>4)
 		return false;
 
 	if (pCandidate->getRouteType()!=NO_ROUTE)
 		return false;
 
-	int iNeighboringUnits = pCandidate->GetNumSpecificPlayerUnitsAdjacent(pPlayer->GetID(),NULL,NULL,true);
-	if (iNeighboringUnits>2)
+	int iFriendlyCombatUnitsAdjacent = 0;
+	int iPassableNeighbors = 0;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pNeighbor = plotDirection(pCandidate->getX(), pCandidate->getY(), ((DirectionTypes)iI));
+		if (!pNeighbor)
+			continue;
+
+		//don't want to provoke other players, stay away from their units
+		if (pNeighbor->isNeutralUnit(pPlayer->GetID(),true,true,true) || pNeighbor->isEnemyUnit(pPlayer->GetID(),true,true,true))
+			return false;
+
+		//stay away from their borders as well
+		if (pNeighbor->isOwned() && pNeighbor->getTeam() != pPlayer->getTeam())
+			if (GET_PLAYER(pNeighbor->getOwner()).isMajorCiv())
+				return false;
+
+		if (pNeighbor->getBestDefender(pPlayer->GetID()) != NULL)
+			iFriendlyCombatUnitsAdjacent++;
+
+		if (eDomain == NO_DOMAIN || eDomain == pNeighbor->getDomain())
+			if (!pNeighbor->isImpassable(pPlayer->getTeam()))
+				iPassableNeighbors++;
+	}
+
+	//don't build a wall of units
+	if (iFriendlyCombatUnitsAdjacent>3)
 		return false;
 
-	if (pCandidate->countPassableNeighbors(bWater?DOMAIN_SEA:DOMAIN_LAND)<3)
+	//don't move into dead ends
+	if (iPassableNeighbors<3)
 		return false;
 
 	return true;

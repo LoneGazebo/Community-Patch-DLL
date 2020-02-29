@@ -11779,11 +11779,19 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
+	//some statistics
+	static int tactMovesCount[NUM_AI_TACTICAL_MOVES] = { 0 };
+	static int homeMovesCount[NUM_AI_HOMELAND_MOVES] = { 0 };
+
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		// First heal the unit
 		pLoopUnit->doHeal();
+
+		//collect some stats
+		tactMovesCount[pLoopUnit->getTacticalMove()]++;
+		homeMovesCount[pLoopUnit->getHomelandMove()]++;
 
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)
@@ -33970,7 +33978,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 	{
 		CvGame& kGame = GC.getGame();
 		CvMap& theMap = GC.getMap();
+
 		m_bTurnActive = bNewValue; // R: this is causing the AI playing twice in one turn bug
+
 #if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 		// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
 		// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
