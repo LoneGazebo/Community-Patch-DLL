@@ -1036,6 +1036,7 @@ protected:
 
 	short m_iX;
 	short m_iY;
+	int m_iPlotIndex;
 	//save memory, enum is uint32 ...
 	char /*PlayerTypes*/  m_eOwner;
 	char /*PlotTypes*/    m_ePlotType;
@@ -1066,7 +1067,6 @@ protected:
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
-	int m_iPlotIndex;
 #endif
     // memory allocated by the plot object itself
 #if defined(MOD_API_EXTENSIONS)

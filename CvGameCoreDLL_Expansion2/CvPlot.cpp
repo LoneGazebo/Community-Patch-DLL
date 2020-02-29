@@ -12873,6 +12873,8 @@ void CvPlot::read(FDataStream& kStream)
 
 	kStream >> m_iX;
 	kStream >> m_iY;
+	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
+
 	kStream >> m_iArea;
 	kStream >> m_iFeatureVariety;
 	kStream >> m_iOwnershipDuration;
@@ -12890,10 +12892,6 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
 	kStream >> m_uiCityConnectionBitFlags;
-
-#if defined(MOD_BALANCE_CORE)
-	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
-#endif
 
 	// the following members specify bit packing and do not resolve to
 	// any serializable type.
@@ -13848,11 +13846,7 @@ bool CvPlot::IsStrategicRoute(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 int CvPlot::GetPlotIndex() const
 {
-#if defined(MOD_BALANCE_CORE)
 	return m_iPlotIndex;
-#else
-	return GC.getMap().plotNum(getX(),getY());
-#endif
 }
 
 //	--------------------------------------------------------------------------------

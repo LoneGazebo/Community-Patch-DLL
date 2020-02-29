@@ -645,7 +645,7 @@ private:
 	CvPlot* FindBestBarbarianSeaMove(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianGankTradeRouteTarget(CvUnit* pUnit);
-	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, bool bAllowDefensiveTargets=false);
+	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, bool bAllowDefensiveTargets=false);
 	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
 	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
@@ -681,7 +681,6 @@ private:
 	int m_iRecruitRange;
 	int m_iLandBarbarianRange;
 	int m_iSeaBarbarianRange;
-	int m_iRepositionRange;
 	int m_iDeployRadius;
 
 	// Dominance zone info

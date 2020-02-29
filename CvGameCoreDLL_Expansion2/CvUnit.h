@@ -1943,6 +1943,14 @@ protected:
 	FAutoVariable<int, CvUnit> m_iY;
 	FAutoVariable<int, CvUnit> m_iID;
 
+	FAutoVariable<int, CvUnit> m_iDamage;
+	FAutoVariable<int, CvUnit> m_iMoves;
+	FAutoVariable<int, CvUnit> m_iArmyId;
+	FAutoVariable<int, CvUnit> m_iBaseCombat;
+#if defined(MOD_API_EXTENSIONS)
+	FAutoVariable<int, CvUnit> m_iBaseRangedCombat;
+#endif
+
 	FAutoVariable<int, CvUnit> m_iHotKeyNumber;
 	FAutoVariable<int, CvUnit> m_iDeployFromOperationTurn;
 	FAutoVariable<int, CvUnit> m_iLastMoveTurn;
@@ -1950,8 +1958,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iReconY;
 	FAutoVariable<int, CvUnit> m_iReconCount;
 	FAutoVariable<int, CvUnit> m_iGameTurnCreated;
-	FAutoVariable<int, CvUnit> m_iDamage;
-	FAutoVariable<int, CvUnit> m_iMoves;
 	FAutoVariable<bool, CvUnit> m_bImmobile;
 	FAutoVariable<int, CvUnit> m_iExperience;
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -2067,12 +2073,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAirSweepCapableCount;
 	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
-	FAutoVariable<int, CvUnit> m_iBaseCombat;
-#if defined(MOD_API_EXTENSIONS)
-	FAutoVariable<int, CvUnit> m_iBaseRangedCombat;
-#endif
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
-	FAutoVariable<int, CvUnit> m_iArmyId;
 
 	FAutoVariable<int, CvUnit> m_iIgnoreTerrainCostCount;
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
