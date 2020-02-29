@@ -129,12 +129,22 @@ public:
 	/////////////////////////////////////////////////////////
 
 	// Major Civs
-	void DoUpdateMajorCivApproaches();
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, int& iHighestWeight, bool bLookAtOtherPlayers, bool bLog, WarFaceTypes& eWarFace);
+	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
+	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, bool bIgnoreApproachCurve = false);
+	
+	// Niche cases for approach updates
+	//void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
+	//void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	//void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	//void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
+	//void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
 	int GetNumMajorCivApproach(MajorCivApproachTypes eApproach) const;
+
+	int GetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach) const;
+	void SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproachTypes eApproach, int iValue);
 
 	// Minor Civs
 	void DoUpdateMinorCivApproaches();
@@ -548,8 +558,9 @@ public:
 	int GetCompetitorValue(PlayerTypes ePlayer) const;
 	PlayerTypes GetBiggestCompetitor() const;
 	
+	bool IsStrategicTradePartner(PlayerTypes ePlayer) const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
-	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate);
+	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate = false);
 #endif
 
 	// Victory Dispute
@@ -1034,6 +1045,7 @@ public:
 
 	// Problems between friends
 	bool IsUntrustworthyFriend(PlayerTypes ePlayer) const;
+	bool IsTeamUntrustworthy(TeamTypes eTeam) const;
 	void SetUntrustworthyFriend(PlayerTypes ePlayer, bool bValue);
 	void DoTestUntrustworthyFriends();
 	bool DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer);
@@ -1621,6 +1633,7 @@ private:
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
+	bool IsTeammate(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 
 	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);
@@ -1937,6 +1950,7 @@ private:
 		short m_aiOtherPlayerTurnsSinceTheySupportedOurHosting[MAX_MAJOR_CIVS];
 
 		//2D Arrays
+		char* m_apaeApproachValues[MAX_MAJOR_CIVS];
 		char* m_apaeOtherPlayerMajorCivOpinion[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerMajorCivApproach[REALLY_MAX_PLAYERS];
 		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
@@ -1957,6 +1971,7 @@ private:
 		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
 
+		char m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
 		char m_aaeOtherPlayerMajorCivOpinion[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		char m_aaeOtherPlayerMajorCivApproach[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiOtherPlayerMajorCivApproachCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -2048,6 +2063,7 @@ private:
 	short* m_paDiploLogStatementTurnCountScratchPad;
 
 	char* m_paeMajorCivOpinion;
+	char** m_ppaaeApproachValues;
 	char** m_ppaaeOtherPlayerMajorCivOpinion;
 	char** m_ppaaeOtherPlayerMajorCivApproach;
 	short** m_ppaaiOtherPlayerMajorCivApproachCounter;

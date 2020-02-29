@@ -45,7 +45,7 @@ SET Text = '[NEWLINE][ICON_BULLET][ICON_RELIGION_PANTHEON] Religious Beliefs Mod
 WHERE Tag = 'TXT_KEY_FOODMOD_RELIGION';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] We Love the King Day Modifier: {1_Num}%'
+SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] "We Love the King Day" Modifier: {1_Num}%'
 WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 
@@ -353,6 +353,9 @@ UPDATE Language_en_US
 SET Text = 'Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, the City of {1_CityName} has revolted and joined {2_CivName}!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT';
 
+UPDATE Language_en_US
+SET Text = 'Because the empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, an uprising has occurred in our territory!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS';
 
 -- Religion
 

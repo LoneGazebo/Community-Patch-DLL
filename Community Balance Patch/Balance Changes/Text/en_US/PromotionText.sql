@@ -256,7 +256,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_COVER_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when adjacent to a friendly Unit.'
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength when adjacent to a friendly Unit.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

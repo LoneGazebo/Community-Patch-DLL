@@ -2118,7 +2118,7 @@ bool CvMinorCivQuest::IsExpired()
 				return true;
 			}
 			// We conquered the city-state. Oops.
-			if(!pTargetCityState->isAlive() && (pPlot->getOwner() == m_eAssignedPlayer))
+			if(!pTargetCityState->isAlive() && pPlot != NULL && (pPlot->getOwner() == m_eAssignedPlayer))
 			{
 				return true;
 			}
