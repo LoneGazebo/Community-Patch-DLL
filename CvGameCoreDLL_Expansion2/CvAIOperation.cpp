@@ -1789,10 +1789,6 @@ void CvAIOperationCityBasicAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 	if (!pMuster || !pTarget)
 		return;
 
-	//don't muster forever when our units can fight!
-	if (plotDistance(*pMuster->plot(), *pTarget->plot()) < 6)
-		pMuster = pTarget;
-
 	SetupWithSingleArmy(pMuster->plot(),pTarget->plot());
 }
 
