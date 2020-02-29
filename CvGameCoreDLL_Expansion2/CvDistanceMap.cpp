@@ -113,7 +113,7 @@ int CvDistanceMapWrapper::GetDistance(const CvPlot& plot, bool bMajorsOnly, Play
 		Update();
 
 #ifdef VPDEBUG
-	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer >= majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size())
 		OutputDebugString("warning: GetFeatureOwner called for invalid player\n");
 #endif
 
@@ -131,7 +131,7 @@ int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bMajorsOnly, Pla
 		Update();
 
 #ifdef VPDEBUG
-	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer >= majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size())
 		OutputDebugString("warning: GetFeatureOwner called for invalid player\n");
 #endif
 
