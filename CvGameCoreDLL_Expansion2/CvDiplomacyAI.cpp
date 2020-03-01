@@ -42318,24 +42318,23 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(IsPlayerRecklessExpander(ePlayer))
+	if (IsPlayerRecklessExpander(ePlayer))
+	{
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
 	
-	int iCityDifference = GET_PLAYER(ePlayer).getNumCities() - GetPlayer()->getNumCities();
-	if (iCityDifference > 0)
-	{
-		iOpinionWeight += (iCityDifference * /*5*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
-	}
+		int iCityDifference = GET_PLAYER(ePlayer).getNumCities() - GetPlayer()->getNumCities();
+		if (iCityDifference > 0)
+		{
+			iOpinionWeight += (iCityDifference * /*5*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
+		}
 	
 #if defined(MOD_BALANCE_CORE)
-	if (iOpinionWeight > 0)
-	{
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
 			iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD();
 		}
-	}
 #endif
+	}
 	
 	return iOpinionWeight;
 }
