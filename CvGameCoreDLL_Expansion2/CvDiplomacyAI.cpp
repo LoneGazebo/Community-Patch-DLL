@@ -15121,23 +15121,6 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			else if(iContestedScore >= /*1*/ GC.getLAND_DISPUTE_WEAK_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
-			// If they're expanding recklessly, raise the level by one
-			if (eDisputeLevel < DISPUTE_LEVEL_FIERCE && IsPlayerRecklessExpander(ePlayer))
-			{
-				if (eDisputeLevel == DISPUTE_LEVEL_NONE)
-				{
-					eDisputeLevel = DISPUTE_LEVEL_WEAK;
-				}
-				else if (eDisputeLevel == DISPUTE_LEVEL_WEAK)
-				{
-					eDisputeLevel = DISPUTE_LEVEL_STRONG;
-				}
-				else
-				{
-					eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-				}
-			}
-
 			// Actually set the Level
 			if (GetLandDisputeLevel(ePlayer) != eDisputeLevel)
 			{
@@ -15289,7 +15272,7 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	fAverageNumCities /= max(1,iNumPlayers);
 
 	// Must have way more cities than the average player in the game
-	if (iNumCities < fAverageNumCities * 1.8)
+	if (iNumCities < fAverageNumCities * 2)
 		return false;
 
 	return true;
@@ -42336,7 +42319,13 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	if(IsPlayerRecklessExpander(ePlayer))
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
+	
+	int iCityDifference = GET_PLAYER(ePlayer).getNumCities() - GetPlayer()->getNumCities();
+	if (iCityDifference > 0)
+	{
+		iOpinionWeight += (iCityDifference * /*5*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
+	}
 	
 #if defined(MOD_BALANCE_CORE)
 	if (iOpinionWeight > 0)
