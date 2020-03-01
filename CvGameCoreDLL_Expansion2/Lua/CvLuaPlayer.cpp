@@ -8813,12 +8813,11 @@ int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
-	int iTargetVal = (PlayerTypes)luaL_optint(L, 3, 0);
 
-	if (iTargetVal > 0)
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
 		int iScore = pkPlayer->GetMinorCivAI()->CalculateBullyMetric(eMajor, /*bForUnit*/ false);
-		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor, (iScore-iTargetVal));
+		const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor, iScore);
 		lua_pushboolean(L, bResult);
 		return 1;
 	}

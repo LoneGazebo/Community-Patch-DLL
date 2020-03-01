@@ -21,7 +21,7 @@ class CvUnitMission
 public:
 	static bool CanStartMission(CvUnit* hUnit, int iMission, int iData1, int iData2, CvPlot* pPlot = NULL, bool bTestVisible = false);
 	static void StartMission(CvUnit* hUnit);
-	static void ContinueMission(CvUnit* hUnit, int iSteps = 0, int iETA = -1);
+	static void ContinueMission(CvUnit* hUnit, int iSteps = 0);
 	static void AutoMission(CvUnit* hUnit);
 	static void UpdateMission(CvUnit* hUnit);
 	static CvPlot* LastMissionPlot(CvUnit* hUnit);

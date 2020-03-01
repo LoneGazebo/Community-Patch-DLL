@@ -209,7 +209,7 @@ public:
 
 	bool isAdjacentOwned() const;
 	bool isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly = false) const;
-	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam) const;
+	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam=false) const;
 	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
@@ -219,7 +219,7 @@ public:
 	int GetSeaBlockadeScore(PlayerTypes ePlayer) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
-	bool IsWorthDefending(PlayerTypes eDefendingPlayer) const;
+	bool IsBorderLand(PlayerTypes eDefendingPlayer) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif
@@ -316,7 +316,7 @@ public:
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
-	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
+	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
@@ -864,8 +864,8 @@ public:
 	RouteTypes GetBuilderAIScratchPadRoute() const;
 	void SetBuilderAIScratchPadRoute(RouteTypes eRoute);
 
-	int GetBuilderAIScratchPadValue() const;
-	void SetBuilderAIScratchPadValue(int sNewValue);
+	short GetBuilderAIScratchPadValue() const;
+	void SetBuilderAIScratchPadValue(short sNewValue);
 
 	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
 	bool IsStrategicRoute(TeamTypes eTeam) const;
@@ -1036,6 +1036,7 @@ protected:
 
 	short m_iX;
 	short m_iY;
+	int m_iPlotIndex;
 	//save memory, enum is uint32 ...
 	char /*PlayerTypes*/  m_eOwner;
 	char /*PlotTypes*/    m_ePlotType;
@@ -1066,7 +1067,6 @@ protected:
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
-	int m_iPlotIndex;
 #endif
     // memory allocated by the plot object itself
 #if defined(MOD_API_EXTENSIONS)
@@ -1089,7 +1089,7 @@ protected:
 	int m_iScratchPad;
 	char m_cBuilderAIScratchPadPlayer;
 	short m_sBuilderAIScratchPadTurn;
-	int m_iBuilderAIScratchPadValue;
+	short m_sBuilderAIScratchPadValue;
 	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
 
 	short m_iOwnershipDuration;

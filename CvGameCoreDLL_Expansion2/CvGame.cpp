@@ -14209,6 +14209,8 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	if (bJustChecking)
 		return true;
 
+	CvString strCityName = pStartingCity->getNameKey();
+
 	CvPreGame::setSlotStatus(eNewPlayer, SS_COMPUTER);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(eNewPlayer);
@@ -14222,28 +14224,38 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 
 	kPlayer.GetMinorCivAI()->DoPickInitialItems();
 	
-	kPlayer.setCapitalCity(pStartingCity);
 	// get the plot before transferring ownership
 	CvPlot *pPlot = pStartingCity->plot();
-	kPlayer.acquireCity(pStartingCity, false/*bConquest*/, true/*bGift*/);
-	kPlayer.setFoundedFirstCity(true);
 
+	// setStartingPlot needs to be before acquireCity, otherwise if this is a maritime city
+	// state, it will crash when the game tries to use the starting plot to look for the
+	// closest city to grant the bonus food for the civ first meeting this city state, before
+	// this function has finished executing.
+	kPlayer.setStartingPlot(pPlot);
+	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false/*bConquest*/, true/*bGift*/);
+	kPlayer.setFoundedFirstCity(true);
+	kPlayer.setCapitalCity(pNewCity);
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
-	kPlayer.setStartingPlot(pPlot);
-	kPlayer.getCapitalCity()->ChangeNumTimesOwned(eNewPlayer, 1);
-	kPlayer.getCapitalCity()->setName(kPlayer.getName());
-	kPlayer.getCapitalCity()->SetOccupied(false);
 
-	if(!kPlayer.getCapitalCity()->IsNoOccupiedUnhappiness())
-		kPlayer.getCapitalCity()->ChangeNoOccupiedUnhappinessCount(1);
+	if (strCityName != "")
+	{
+		CvString localizedText = "TXT_KEY_FREE_CITY";
+		pNewCity->setName(strCityName, false, true);
+	}
+
+	pNewCity->ChangeNumTimesOwned(eNewPlayer, 1);
+	pNewCity->SetOccupied(false);
+
+	if (!pNewCity->IsNoOccupiedUnhappiness())
+		pNewCity->ChangeNoOccupiedUnhappinessCount(1);
 
 	kPlayer.GetMinorCivAI()->SetTurnLiberated(getGameTurn());
 
 	//update our techs!
 	GET_TEAM(kPlayer.getTeam()).DoMinorCivTech();
 
-	DoSpawnUnitsAroundTargetCity(eNewPlayer, kPlayer.getCapitalCity(), GC.getGame().getCurrentEra()+2, false, true, false, false);
+	DoSpawnUnitsAroundTargetCity(eNewPlayer, pNewCity, GC.getGame().getCurrentEra() + 2, false, true, false, false);
 
 	// Move Units from player that don't belong here
 	if (pPlot->getNumUnits() > 0)

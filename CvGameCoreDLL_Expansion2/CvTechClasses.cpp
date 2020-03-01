@@ -2126,7 +2126,12 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 		int iCurrentFlavorValue = GetLatestFlavorValue((FlavorTypes) iFlavor);
 
 		// Scale the current to the same scale as the personality
+#if defined(MOD_BUGFIX_NULL_CURRENT_FLAVORS)
+		// Prevent a divide by zero
+		iCurrentFlavorValue = iBiggestFlavor > 0 ? (iCurrentFlavorValue * 10) / iBiggestFlavor : 0;
+#else
 		iCurrentFlavorValue = (iCurrentFlavorValue * 10) / iBiggestFlavor;
+#endif
 
 #if defined(MOD_AI_SMART_V3)
 		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor, MOD_AI_SMART_V3 /*bBoostGSMainFlavor*/);

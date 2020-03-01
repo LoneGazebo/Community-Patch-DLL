@@ -168,7 +168,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						iModifier += iThreat;
 					}
 				}
-				if (m_pCity->isPotentiallyInDanger())
+				if (m_pCity->isBorderCity())
 				{
 					iModifier += 25;
 				}

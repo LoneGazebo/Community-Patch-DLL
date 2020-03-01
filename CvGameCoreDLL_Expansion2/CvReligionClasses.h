@@ -467,7 +467,7 @@ public:
 	ReligionTypes GetSimulatedReligiousMajority();
 	ReligionTypes GetSecondaryReligion();
 	BeliefTypes GetSecondaryReligionPantheonBelief();
-	int GetFollowersOtherReligions(ReligionTypes eReligion);
+	int GetFollowersOtherReligions(ReligionTypes eReligion, bool bIncludePantheons = false);
 #if !defined(MOD_BALANCE_CORE)
 	bool HasPaidAdoptionBonus() const
 	{

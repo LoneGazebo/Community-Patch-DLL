@@ -135,6 +135,20 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- Allows you to define any belief to grant 1 yield per x active trade routes, in capital. -->
+	<Table name="Belief_YieldPerActiveTR">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Allows you to define any belief to grant x yield per constructed building. -->
+	<Table name="Belief_YieldPerConstruction">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X gpt, where X is the number below. -->
 	<Table name="Belief_YieldPerGPT">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>

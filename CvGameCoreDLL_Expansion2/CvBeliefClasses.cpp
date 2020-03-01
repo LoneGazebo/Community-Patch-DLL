@@ -79,6 +79,8 @@ CvBeliefEntry::CvBeliefEntry() :
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iHappinessFromForeignSpies(0),
 	m_iGetPressureChangeTradeRoute(0),
+	m_piYieldPerActiveTR(NULL),
+	m_piYieldPerConstruction(NULL),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
 	m_piYieldPerLux(NULL),
@@ -528,6 +530,19 @@ int CvBeliefEntry::GetPressureChangeTradeRoute() const
 	return m_iGetPressureChangeTradeRoute;
 }
 /// Accessor:: Yield Per Pop
+int CvBeliefEntry::GetYieldPerActiveTR(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerActiveTR ? m_piYieldPerActiveTR[i] : -1;
+}
+
+int CvBeliefEntry::GetYieldPerConstruction(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerConstruction ? m_piYieldPerConstruction[i] : -1;
+}
 int CvBeliefEntry::GetYieldPerPop(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -1240,6 +1255,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Belief_YieldChangeWorldWonder", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldModifierNaturalWonder, "Belief_YieldModifierNaturalWonder", "BeliefType", szBeliefType);
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	kUtility.SetYields(m_piYieldPerActiveTR, "Belief_YieldPerActiveTR", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldPerConstruction, "Belief_YieldPerConstruction", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerPop, "Belief_YieldPerPop", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerGPT, "Belief_YieldPerGPT", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerLux, "Belief_YieldPerLux", "BeliefType", szBeliefType);
@@ -3812,6 +3829,47 @@ bool CvReligionBeliefs::RequiresResource(PlayerTypes ePlayer, bool bHolyCityOnly
 	return false;
 }
 #endif
+int CvReligionBeliefs::GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	int iNumTRs = GET_PLAYER(ePlayer).GetTrade()->GetNumberOfTradeRoutes();
+	if (iNumTRs <= 0)
+		return 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerActiveTR(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			iValue *= iNumTRs;
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetYieldPerConstruction(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerConstruction(eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+
+
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 /// Get yield modifier from beliefs for pop
 int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const

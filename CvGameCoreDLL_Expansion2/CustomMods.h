@@ -963,6 +963,8 @@
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 // Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
+// Fixes crashing when the AI's latest flavours are all 0, due to division by zero in CvPlayerTechs::AddFlavorAsStrategies
+#define MOD_BUGFIX_NULL_CURRENT_FLAVORS				(true)
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1299,6 +1301,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
 #define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
 #define GAMEEVENT_FreeCitySelector			"SetFreeCityType", "ii"
+#define GAMEEVENT_PlayerAnarchy				"PlayerAnarchyBegins", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE

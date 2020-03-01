@@ -112,6 +112,11 @@ int CvDistanceMapWrapper::GetDistance(const CvPlot& plot, bool bMajorsOnly, Play
 	if (IsDirty())
 		Update();
 
+#ifdef VPDEBUG
+	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size())
+		OutputDebugString("warning: GetFeatureOwner called for invalid player\n");
+#endif
+
 	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureDistance(plot);
 	else if (bMajorsOnly)
@@ -124,6 +129,11 @@ int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bMajorsOnly, Pla
 {
 	if (IsDirty())
 		Update();
+
+#ifdef VPDEBUG
+	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size())
+		OutputDebugString("warning: GetFeatureOwner called for invalid player\n");
+#endif
 
 	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureID(plot);

@@ -5582,7 +5582,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		if (pCity != NULL)
 		{
-			if (pCity->isPotentiallyInDanger())
+			if (pCity->isBorderCity())
 			{
 				iConquestValue += 200;
 			}

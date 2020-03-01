@@ -291,7 +291,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_cBuilderAIScratchPadPlayer = 0;
 	m_sBuilderAIScratchPadTurn = 0;
-	m_iBuilderAIScratchPadValue = 0;
+	m_sBuilderAIScratchPadValue = 0;
 	m_eBuilderAIScratchPadRoute = NO_ROUTE;
 
 	m_plotCity.reset();
@@ -3459,7 +3459,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 		if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
 			//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
-			if(bForHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
+			if(bForHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || getTeam() == eDefender)))
 			{
 				CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
 				if (pkImprovement)
@@ -3588,20 +3588,18 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam) const
+bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot != NULL)
-		{
-			if(pAdjacentPlot->getTeam() != NO_TEAM && pAdjacentPlot->getTeam() != eTeam)
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
 			{
+			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
 				return true;
 			}
 		}
-	}
 
 	return false;
 }
@@ -3796,7 +3794,7 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 	return iPassable;
 }
 
-bool CvPlot::IsWorthDefending(PlayerTypes eDefendingPlayer) const
+bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
 	//check distance to all major players
 	//if homefront for more than one ...
@@ -4818,7 +4816,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 }
 
 
-bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const
+bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreMinors) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -4837,6 +4835,9 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if (bCombat != pLoopUnit->IsCanDefend())
+					continue;
+
+				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && !isEnemy(pLoopUnit,eTeam,false))
@@ -4944,7 +4945,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 			{
 				// Units of the same type OR Units belonging to different civs
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit) && (pLoopUnit->getNumberStackingUnits() != -1)))
+				if((!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && pUnit->getOwner() != pLoopUnit->getOwner()) || (pLoopUnit->AreUnitsOfSameType(*pUnit,needsEmbarkation(pUnit)) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #else
 				if(pUnit->getOwner() != pLoopUnit->getOwner() || (pLoopUnit->AreUnitsOfSameType(*pUnit, bPretendEmbarked) && (pLoopUnit->getNumberStackingUnits() != -1)))
 #endif
@@ -12875,6 +12876,8 @@ void CvPlot::read(FDataStream& kStream)
 
 	kStream >> m_iX;
 	kStream >> m_iY;
+	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
+
 	kStream >> m_iArea;
 	kStream >> m_iFeatureVariety;
 	kStream >> m_iOwnershipDuration;
@@ -12888,14 +12891,10 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iResourceNum;
 	kStream >> m_cBuilderAIScratchPadPlayer;
 	kStream >> m_sBuilderAIScratchPadTurn;
-	kStream >> m_iBuilderAIScratchPadValue;
+	kStream >> m_sBuilderAIScratchPadValue;
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
 	kStream >> m_uiCityConnectionBitFlags;
-
-#if defined(MOD_BALANCE_CORE)
-	m_iPlotIndex = GC.getMap().plotNum(m_iX,m_iY);
-#endif
 
 	// the following members specify bit packing and do not resolve to
 	// any serializable type.
@@ -13101,7 +13100,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iResourceNum;
 	kStream << m_cBuilderAIScratchPadPlayer;
 	kStream << m_sBuilderAIScratchPadTurn;
-	kStream << m_iBuilderAIScratchPadValue;
+	kStream << m_sBuilderAIScratchPadValue;
 	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
 	kStream << m_uiCityConnectionBitFlags;
@@ -13822,15 +13821,15 @@ void CvPlot::SetBuilderAIScratchPadRoute(RouteTypes eRoute)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetBuilderAIScratchPadValue() const
+short CvPlot::GetBuilderAIScratchPadValue() const
 {
-	return m_iBuilderAIScratchPadValue;
+	return m_sBuilderAIScratchPadValue;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadValue(int sNewValue)
+void CvPlot::SetBuilderAIScratchPadValue(short sNewValue)
 {
-	m_iBuilderAIScratchPadValue = sNewValue;
+	m_sBuilderAIScratchPadValue = sNewValue;
 }
 
 void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
@@ -13850,11 +13849,7 @@ bool CvPlot::IsStrategicRoute(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 int CvPlot::GetPlotIndex() const
 {
-#if defined(MOD_BALANCE_CORE)
 	return m_iPlotIndex;
-#else
-	return GC.getMap().plotNum(getX(),getY());
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -15468,7 +15463,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 		return iScore;
 	}
-
 	return 0;
 }
 

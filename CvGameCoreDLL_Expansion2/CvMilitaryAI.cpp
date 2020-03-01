@@ -3124,7 +3124,7 @@ void CvMilitaryAI::UpdateBaseData()
 	CvCity *pLoopCity;
 	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->isPotentiallyInDanger()))
+		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isBorderCity()))
 		{
 			fMultiplier += .25f;
 		}
@@ -4381,7 +4381,7 @@ void CvMilitaryAI::UpdateOperations()
 	int iBestValue;
 	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, false);
 
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
+	vector<OptionWithScore<PlayerTypes>> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
@@ -4408,18 +4408,14 @@ void CvMilitaryAI::UpdateOperations()
 			if(!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			veLandThreatWeights.push_back(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand, iBestValue));
+			veLandThreatWeights.push_back( OptionWithScore<PlayerTypes>(eLoopPlayer, GetEnemyLandValue(eLoopPlayer, bestTargetLand, iBestValue)) );
 		}
 	}
 
-	if(veLandThreatWeights.size() > 0)
-	{
-		veLandThreatWeights.SortItems();
-		for(int iThreatCivs = 0; iThreatCivs < (int) veLandThreatWeights.size(); iThreatCivs++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) veLandThreatWeights.GetElement(iThreatCivs);
-			if(eLoopPlayer != NO_PLAYER)
+	std::sort(veLandThreatWeights.begin(), veLandThreatWeights.end());
+	for(size_t iThreatCivs = 0; iThreatCivs < veLandThreatWeights.size(); iThreatCivs++)
 			{
+		PlayerTypes eLoopPlayer = veLandThreatWeights[iThreatCivs].option;
 				//Defense check.
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 				{
@@ -4432,20 +4428,17 @@ void CvMilitaryAI::UpdateOperations()
 
 				DoNuke(eLoopPlayer);
 
-				if(veLandThreatWeights.GetWeight(iThreatCivs) > 0)
-				{
+		if(veLandThreatWeights[iThreatCivs].score > 0)
 					DoLandAttacks(eLoopPlayer);
 				}
-			}
-		}
-	}
 
+	//same for naval  ...
 	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
 	CvCity* pThreatenedCoastalCityB = m_pPlayer->GetThreatenedCityByRank(1, true);
 
 	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, false);
 
-	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veSeaThreatWeights;
+	vector<OptionWithScore<PlayerTypes>> veSeaThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
@@ -4458,18 +4451,14 @@ void CvMilitaryAI::UpdateOperations()
 			if (!m_pPlayer->IsAtWarWith(eLoopPlayer))
 				continue;
 
-			veSeaThreatWeights.push_back(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea, iBestValue));
+			veSeaThreatWeights.push_back( OptionWithScore<PlayerTypes>(eLoopPlayer, GetEnemySeaValue(eLoopPlayer, bestTargetSea, iBestValue)) );
 		}
 	}
 
-	if(veSeaThreatWeights.size() > 0)
-	{
-		veSeaThreatWeights.SortItems();
+	std::sort(veSeaThreatWeights.begin(), veSeaThreatWeights.end());
 		for(int iThreatCivs = 0; iThreatCivs < (int)veSeaThreatWeights.size(); iThreatCivs++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) veSeaThreatWeights.GetElement(iThreatCivs);
-			if(eLoopPlayer != NO_PLAYER)
-			{
+		PlayerTypes eLoopPlayer = veSeaThreatWeights[iThreatCivs].option;
 				//Defense check.
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 				{
@@ -4479,14 +4468,11 @@ void CvMilitaryAI::UpdateOperations()
 					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityA);
 					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityB);
 				}
-				if(veSeaThreatWeights.GetWeight(iThreatCivs) > 0)
-				{
+
+		if(veSeaThreatWeights[iThreatCivs].score > 0)
 					DoSeaAttacks(eLoopPlayer);
 				}
 			}
-		}
-	}
-}
 
 /// Spend money on units/buildings for military contingencies
 //  NOTE: The defensive side of this is done in dominance zone processing in the Tactical AI; this is spending to speed operations
@@ -6482,7 +6468,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 
 	iNumUnitsWanted += iNumCoastalCities;
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.75 to 2.0)
-	dMultiplier = (float)0.50 + (((float)(pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon)) / (float)100.0);
+	dMultiplier = (float)0.25 + (((float)(pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon)) / (float)100.0);
 
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
 	PlayerTypes eOtherPlayer;
@@ -6498,11 +6484,11 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 				{
 					if(pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						dMultiplier += 0.20f;
+						dMultiplier += 0.10f;
 					}
 					else if(pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						dMultiplier += 0.20f;
+						dMultiplier += 0.10f;
 					}
 				}
 			}
@@ -6513,7 +6499,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 	CvCity *pLoopCity;
 	for (pLoopCity = pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->isPotentiallyInDanger()))
+		if (pLoopCity && pLoopCity->isCoastal() && pLoopCity->isUnderSiege())
 		{
 			dMultiplier += .25f;
 		}
@@ -6524,18 +6510,18 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer, int iMinSiz
 	iNumUnitsWanted = max(1,iNumUnitsWanted);
 
 	//want more as game goes along, for all units.
-	iNumUnitsWanted += pPlayer->GetCurrentEra() * 2;
+	iNumUnitsWanted += pPlayer->GetCurrentEra();
 
 	EconomicAIStrategyTypes eStrategyNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
 	EconomicAIStrategyTypes eExpandOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNavalMap) || pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOtherContinents))
 	{
-		iNumUnitsWanted *= 3;
+		iNumUnitsWanted *= 2;
 	}
 
 	if (pPlayer->getCivilizationInfo().isCoastalCiv())
 	{
-		iNumUnitsWanted *= 3;
+		iNumUnitsWanted *= 2;
 	}
 
 	// if we are going for conquest we want at least one more task force

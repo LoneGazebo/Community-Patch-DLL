@@ -734,7 +734,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	int iDefenseMod = 100;
-	if (m_pCity->isPotentiallyInDanger())
+	if (m_pCity->isBorderCity() || m_pCity->isCoastal(12) )
 	{
 		if (kPlayer.IsAtWarAnyMajor())
 			iDefenseMod += 1000;
@@ -1251,27 +1251,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		//Tiny army? Eek!
 		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 3))
 		{
-			WarPenalty += max(1, iNumWar) * 25;
+			WarPenalty += 75;
 		}
 		if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
 		{
-			WarPenalty += iNumWar * 5;
+			WarPenalty += 50;
 			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 			{
 				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank());
+				int iThreat = m_pCity->GetThreatRank();
 				if (iThreat > 0)
 				{
-					WarPenalty += iThreat * 5;
+					WarPenalty += max(1, (20 - iThreat));
 				}
 			}
 			if (bDesperate)
 			{
-				WarPenalty += iNumWar * 10;
+				WarPenalty += 25;
 			}
 			if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
 			{
-				WarPenalty += iNumWar * 10;
+				WarPenalty += 25;
 			}
 
 			int iCityLoop;
@@ -1279,11 +1279,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
 				{
-					WarPenalty += iNumWar * 5;
+					WarPenalty += 25;
 				}
 				if ((pLoopCity->isCoastal() && pLoopCity->IsBlockaded(true)) || ((!pLoopCity->isCoastal() && pLoopCity->IsBlockaded(false))))
 				{
-					WarPenalty += iNumWar * 5;
+					WarPenalty += 25;
 				}
 			}
 
@@ -1295,7 +1295,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
 					{
-						WarPenalty += iNumWar * 10;
+						WarPenalty += 25;
 					}
 				}
 			}

@@ -1286,7 +1286,7 @@ public:
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 
-	bool isPotentiallyInDanger() const;
+	bool isBorderCity() const;
 
 	void DoBarbIncursion();
 #endif
@@ -1401,7 +1401,7 @@ public:
 	const CvString getName() const;
 	const CvString getNameNoSpace() const;
 	const char* getNameKey() const;
-	void setName(const char* szNewValue, bool bFound = false);
+	void setName(const char* szNewValue, bool bFound = false, bool bForceChange = false);
 	void doFoundMessage();
 
 	bool IsExtraLuxuryResources();

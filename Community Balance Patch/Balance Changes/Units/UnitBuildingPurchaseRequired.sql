@@ -25,7 +25,6 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_KOREAN_HWACHA','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_KNIGHT','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_LONGSWORDSMAN','BUILDINGCLASS_BARRACKS'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SONGHAI_MUSLIMCAVALRY','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MOUNTED_BOWMAN','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SIAMESE_WARELEPHANT','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_PORTUGUESE_NAU','BUILDINGCLASS_HARBOR'; 

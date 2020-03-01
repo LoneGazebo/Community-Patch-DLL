@@ -716,6 +716,7 @@ void CvPlayerAI::AI_considerAnnex()
 
 		if (!pCity->IsPuppet())
 			continue;
+
 		//Original City and puppeted? Stop!
 		if(pCity->getOriginalOwner() == GetID())
 		{
@@ -729,7 +730,7 @@ void CvPlayerAI::AI_considerAnnex()
 			return;
 		}
 
-		if (pCity->isPotentiallyInDanger())
+		if (pCity->isBorderCity() || pCity->isCoastal())
 		{
 			pCity->DoAnnex();
 			return;

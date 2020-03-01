@@ -124,7 +124,7 @@ public:
 	CvString getNewCityName() const;
 	CvString GetBorrowedCityName(CivilizationTypes eCivToBorrowFrom) const;
 	void getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCivilization) const;
-	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true) const;
+	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true, bool bForce = false) const;
 
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance() const;
@@ -581,7 +581,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
-	int DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
+	void DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1691,8 +1691,7 @@ public:
 	void setConversionTimer(int iNewValue);
 	void changeConversionTimer(int iChange);
 
-	CvCity* getCapitalCity();
-	const CvCity* getCapitalCity() const;
+	CvCity* getCapitalCity() const;
 	void setCapitalCity(CvCity* pNewCapitalCity);
 
 	int GetOriginalCapitalX() const;
@@ -2584,9 +2583,6 @@ public:
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
-
-	int getCitySupplyModifierGlobal() const;
-	void changeCitySupplyModifierGlobal(int iChange);
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);

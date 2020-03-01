@@ -25,7 +25,6 @@ enum AIHomelandTargetType
 	AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL,
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
-	AI_HOMELAND_TARGET_HOME_ROAD,
 	AI_HOMELAND_TARGET_ANCIENT_RUIN,
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
@@ -245,7 +244,7 @@ private:
 	void PlotAirliftMoves();
 
 	void ExecuteAircraftMoves();
-	void ExecutePatrolMoves(bool bAtWar);
+	void ExecutePatrolMoves();
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
@@ -369,7 +368,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
-std::vector<CvPlot*> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, bool bAtWar, int nMaxTargets = 5);
+vector< pair<CvPlot*,CvPlot*> > GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 }
 
 #endif //CIV5_HOMELAND_AI_H

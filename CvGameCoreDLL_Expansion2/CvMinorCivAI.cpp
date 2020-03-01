@@ -2118,7 +2118,7 @@ bool CvMinorCivQuest::IsExpired()
 				return true;
 			}
 			// We conquered the city-state. Oops.
-			if(!pTargetCityState->isAlive() && (pPlot->getOwner() == m_eAssignedPlayer))
+			if(!pTargetCityState->isAlive() && pPlot != NULL && (pPlot->getOwner() == m_eAssignedPlayer))
 			{
 				return true;
 			}
@@ -15208,6 +15208,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 			//do not set a player - that way we can traverse unrevealed plots and foreign territory
 			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, MINOR_POWER_COMPARISON_RADIUS);
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
+			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
 		}
 		else
 			m_bullyRelevantPlots.clear();
@@ -16484,7 +16485,7 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, boo
 	}
 
 	if (iValue <= 0)
-		iValue = -1;
+		iValue = 0;
 
 	return iValue;
 }

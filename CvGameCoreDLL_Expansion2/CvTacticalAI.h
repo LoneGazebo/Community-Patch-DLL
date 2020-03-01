@@ -499,7 +499,6 @@ public:
 	bool IsTemporaryZoneCity(CvCity* pCity);
 
 #if defined(MOD_BALANCE_CORE)
-	bool IsUnitHealing(int iUnitID) const;
 	bool ShouldRebase(CvUnit* pUnit) const;
 	CvCity* GetNearestTargetCity(CvPlot* pPlot);
 #endif
@@ -543,7 +542,7 @@ private:
 	void PlotBlockadeMoves();
 	void PlotCivilianAttackMoves();
 	void ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType);
-	void PlotHealMoves();
+	void PlotHealMoves(bool bFirstPass);
 	void PlotCampDefenseMoves();
 	void PlotBarbarianMove(bool bAggressive);
 
@@ -571,7 +570,6 @@ private:
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
 
-	void PlotAncientRuinMoves(int iNumTurnsAway);
 	void PlotEscortEmbarkedMoves();
 	void ReviewUnassignedUnits();
 
@@ -608,7 +606,7 @@ private:
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
-	void ExecuteHeals();
+	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianMoves(bool bAggressive);
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
@@ -647,7 +645,7 @@ private:
 	CvPlot* FindBestBarbarianSeaMove(CvUnit* pUnit);
 	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
 	CvPlot* FindBarbarianGankTradeRouteTarget(CvUnit* pUnit);
-	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, bool bAllowDefensiveTargets=false);
+	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, bool bAllowDefensiveTargets=false);
 	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
 	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
@@ -683,7 +681,6 @@ private:
 	int m_iRecruitRange;
 	int m_iLandBarbarianRange;
 	int m_iSeaBarbarianRange;
-	int m_iRepositionRange;
 	int m_iDeployRadius;
 
 	// Dominance zone info
@@ -1083,6 +1080,8 @@ namespace TacticalAIHelpers
 	int CountDeploymentPlots(const CvPlot* pTarget, int iRange, TeamTypes eTeam, bool bForNavalOp);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
+	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
+
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);

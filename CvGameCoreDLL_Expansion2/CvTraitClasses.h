@@ -94,6 +94,7 @@ public:
 	int GetSeaBarbarianConversionPercent() const;
 	int GetCapitalBuildingModifier() const;
 	int GetPlotBuyCostModifier() const;
+	int GetNationalPopReqModifier() const;
 #if defined(MOD_TRAITS_CITY_WORKING)
 	int GetCityWorkingChange() const;
 #endif
@@ -460,6 +461,7 @@ protected:
 	int m_iSeaBarbarianConversionPercent;
 	int m_iCapitalBuildingModifier;
 	int m_iPlotBuyCostModifier;
+	int m_iNationalPopReqModifier;
 #if defined(MOD_TRAITS_CITY_WORKING)
 	int m_iCityWorkingChange;
 #endif
@@ -960,6 +962,10 @@ public:
 	int GetPlotBuyCostModifier() const
 	{
 		return m_iPlotBuyCostModifier;
+	};
+	int GetNationalPopReqModifier() const
+	{
+		return m_iNationalPopReqModifier;
 	};
 #if defined(MOD_TRAITS_CITY_WORKING)
 	int GetCityWorkingChange() const
@@ -2044,6 +2050,7 @@ private:
 	int m_iSeaBarbarianConversionPercent;
 	int m_iCapitalBuildingModifier;
 	int m_iPlotBuyCostModifier;
+	int m_iNationalPopReqModifier;
 #if defined(MOD_TRAITS_CITY_WORKING)
 	int m_iCityWorkingChange;
 #endif

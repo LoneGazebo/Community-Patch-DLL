@@ -170,15 +170,14 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 						
 			//ignore plots which are not exposed
 			CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopPlot);
-			if (!pZone || pZone->GetBorderScore() == 0)
+			if (!pZone || pZone->GetBorderScore() < 2)
 						continue;
 
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 50)
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
-
-							}
-						}
+		}
+	}
 					
 	//quests
 	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)

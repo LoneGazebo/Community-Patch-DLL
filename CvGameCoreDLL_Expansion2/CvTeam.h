@@ -423,7 +423,6 @@ public:
 	int getImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	bool isFriendlyTerritory(TeamTypes eTeam) const;
 	bool isAtWarWithHumans() const;
 	bool isSimultaneousTurns() const;
 

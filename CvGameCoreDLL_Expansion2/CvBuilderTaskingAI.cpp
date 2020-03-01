@@ -312,10 +312,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	bool bIndustrialRoute = (GC.getGame().GetIndustrialRoute() == eRoute);
 	if(bIndustrialRoute)
 	{
-		if (pTargetCity->IsIndustrialRouteToCapitalConnected())
+		if (m_pPlayer->GetCityConnections()->AreCitiesDirectlyConnected(pPlayerCapital, pTargetCity, CvCityConnections::CONNECTION_RAILROAD))
 			return;
 	}
-	else if(pTargetCity->IsConnectedToCapital())
+	else if (m_pPlayer->GetCityConnections()->AreCitiesDirectlyConnected(pPlayerCapital, pTargetCity, CvCityConnections::CONNECTION_ROAD))
 	{
 		return;
 	}
@@ -391,10 +391,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iSideBenefits = iRoadLength * 25;
 		// give an additional bump if we're almost done (don't get distracted)
 		if (iPlotsNeeded<=3)
-			iSideBenefits += 1000 - (iPlotsNeeded * 20);
+			iSideBenefits += 2000;
 
 		//assume one unhappiness is worth .5 gold per turn per city
-		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 100 : 50;
+		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 200 : 100;
 
 		if(bIndustrialRoute)
 		{
@@ -427,17 +427,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			
 			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 				continue;
-		}
-
-		// if we already know about this plot, continue on
-		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
-		{
-			if (iValue > pPlot->GetBuilderAIScratchPadValue())
-			{
-				pPlot->SetBuilderAIScratchPadValue(iValue);
-				pPlot->SetBuilderAIScratchPadRoute(eRoute);
-			}
-			continue;
 		}
 
 		// mark nodes and reset values
@@ -478,8 +467,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 				continue;
 
-			// if we already know about this plot, continue on
-			if(pPlot->GetBuilderAIScratchPadTurn() == iGameTurn && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
+			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+				continue;
+
+			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 				continue;
 
 			// mark nodes and reset values
@@ -1374,7 +1365,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	}
 
 	//we want to be aggressive with this because of the cost.
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES()/4;
+	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES()/3;
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	//if in debt, bump it up.
 	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
@@ -1809,7 +1800,8 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		break;
 	}
 
-	if(pUnit->GetDanger(pPlot) >= 20 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
+	int iDanger = pUnit->GetDanger(pPlot);
+	if(iDanger > pUnit->GetCurrHitPoints()/2 && pPlot->getBestDefender(pUnit->getOwner()) == NULL)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
@@ -2484,27 +2476,14 @@ int CvBuilderTaskingAI::ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTyp
 		YieldTypes eYield = (YieldTypes) iI;
 
 		iRouteScore += pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) * 100;
-			
-		if (iRouteScore > 0)
-		{
-			iYieldScore += iRouteScore;
-		}
-
 		iRouteScore += pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) * 100;
-		if (iRouteScore > 0)
-		{
-			iYieldScore += iRouteScore;
-		}
 	}
 	if (iRouteScore > 0)
 	{
-		if (m_pCurrentPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
-		{
-			if (m_pCurrentPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pCurrentPlot->IsRouteRailroad() || m_pCurrentPlot->IsRouteRoad()))
-				iSecondaryScore += iRouteScore;
-			else
-				iSecondaryScore -= iRouteScore;
-		}
+		if (m_pCurrentPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pCurrentPlot->IsRouteRailroad() || m_pCurrentPlot->IsRouteRoad()))
+			iSecondaryScore += iRouteScore;
+		else
+			iSecondaryScore -= iRouteScore;
 	}
 
 	//City adjacenct improvement? Ramp it up!

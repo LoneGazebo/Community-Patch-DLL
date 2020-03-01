@@ -231,7 +231,7 @@ public:
 	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
-	bool jumpToNearestValidPlotWithinRange(int iRange);
+	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot = NULL);
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();
@@ -1701,7 +1701,6 @@ public:
 	bool attemptGroundAttacks(const CvPlot& pPlot);
 
 	bool potentialWarAction(const CvPlot* pPlot) const;
-	bool willRevealByMove(const CvPlot& pPlot) const;
 
 	bool isAlwaysHostile(const CvPlot& pPlot) const;
 	void changeAlwaysHostileCount(int iValue);
@@ -1710,6 +1709,7 @@ public:
 	int getArmyID() const;
 	void setArmyID(int iNewArmyID);
 	CvString getTacticalZoneInfo() const;
+	bool shouldHeal(bool bBeforeAttacks = false) const;
 
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
@@ -1721,7 +1721,7 @@ public:
 
 	int GetPower() const;
 
-	bool AreUnitsOfSameType(const CvUnit& pUnit2) const;
+	bool AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked = false) const;
 	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
 	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
 
@@ -1929,7 +1929,7 @@ protected:
 
 	bool CheckDOWNeededForMove(int iX, int iY);
 	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
-	int UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1);
+	int UnitPathTo(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);
 	bool UnitBuild(BuildTypes eBuild);

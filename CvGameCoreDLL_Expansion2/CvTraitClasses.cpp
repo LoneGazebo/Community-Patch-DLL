@@ -40,6 +40,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iSeaBarbarianConversionPercent(0),
 	m_iCapitalBuildingModifier(0),
 	m_iPlotBuyCostModifier(0),
+	m_iNationalPopReqModifier(0),
 #if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange(0),
 #endif
@@ -496,6 +497,10 @@ int CvTraitEntry::GetGGGARateFromDenunciationsAndWars() const
 int CvTraitEntry::GetPlotBuyCostModifier() const
 {
 	return m_iPlotBuyCostModifier;
+}
+int CvTraitEntry::GetNationalPopReqModifier() const
+{
+	return m_iNationalPopReqModifier;
 }
 
 #if defined(MOD_TRAITS_CITY_WORKING)
@@ -2280,6 +2285,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iSeaBarbarianConversionPercent        = kResults.GetInt("SeaBarbarianConversionPercent");
 	m_iCapitalBuildingModifier				= kResults.GetInt("CapitalBuildingModifier");
 	m_iPlotBuyCostModifier					= kResults.GetInt("PlotBuyCostModifier");
+	m_iNationalPopReqModifier				= kResults.GetInt("NationalPopReqModifier");
 #if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange					= kResults.GetInt("CityWorkingChange");
 #endif
@@ -4148,6 +4154,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iSeaBarbarianConversionPercent += trait->GetSeaBarbarianConversionPercent();
 			m_iCapitalBuildingModifier += trait->GetCapitalBuildingModifier();
 			m_iPlotBuyCostModifier += trait->GetPlotBuyCostModifier();
+			m_iNationalPopReqModifier += trait->GetNationalPopReqModifier();
 #if defined(MOD_TRAITS_CITY_WORKING)
 			m_iCityWorkingChange += trait->GetCityWorkingChange();
 #endif
@@ -5004,6 +5011,7 @@ void CvPlayerTraits::Reset()
 	m_iSeaBarbarianConversionPercent = 0;
 	m_iCapitalBuildingModifier = 0;
 	m_iPlotBuyCostModifier = 0;
+	m_iNationalPopReqModifier = 0;
 #if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
 #endif
@@ -7185,6 +7193,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_iSeaBarbarianConversionPercent;
 	kStream >> m_iCapitalBuildingModifier;
 	kStream >> m_iPlotBuyCostModifier;
+	kStream >> m_iNationalPopReqModifier;
 #if defined(MOD_TRAITS_CITY_WORKING)
     MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
 #endif
@@ -7864,6 +7873,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iSeaBarbarianConversionPercent;
 	kStream << m_iCapitalBuildingModifier;
 	kStream << m_iPlotBuyCostModifier;
+	kStream << m_iNationalPopReqModifier;
 #if defined(MOD_TRAITS_CITY_WORKING)
     MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
 #endif

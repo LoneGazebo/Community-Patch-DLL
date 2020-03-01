@@ -914,7 +914,7 @@ bool CvAIOperation::Move()
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );
-		pThisArmy->ReleaseUnits(true);
+		pThisArmy->ReleaseAllUnits();
 		return false;
 	}
 
@@ -1833,6 +1833,14 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
 				LogOperationSpecialMessage("Transition to gathering stage");
 				bStateChanged = true;
+			}
+			else if (pThisArmy->GetNumSlotsFilled() > 3)
+			{
+				//if we already have a significant amount of units and they are close together, move the muster plot there
+				float fX = 0, fY = 0;
+				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
+				if (fX < 10 && fY < 10)
+					SetMusterPlot(pCoM);
 			}
 			break;
 		}
@@ -3951,7 +3959,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		return false;
 
 	//don't recruit if currently healing
-	if (GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
+	if (pLoopUnit->shouldHeal())
 	{
 		/*
 		if (GC.getLogging() && GC.getAILogging())

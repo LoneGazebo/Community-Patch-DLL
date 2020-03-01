@@ -75,19 +75,19 @@
 -- Base increase of threshold values based on # of citizens in cities you own (1 citizen = 1%). Modifier increases as cities grow. 50 is default. Is a % modifier, so 25 would be a 25% increase over 1%.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-100'
+	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is modified based on the remaining population
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '40'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is modified based on the remaining population
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '50'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '40'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is modified based on the remaining population

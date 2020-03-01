@@ -399,7 +399,7 @@ void CvUnitMission::UpdateMission(CvUnit* hUnit)
 
 //	---------------------------------------------------------------------------
 /// Yes, please hit me again. I like pain.
-void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
+void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 {
 	bool bContinueMissionRestart = true;	// to make this function no longer recursive
 	while(bContinueMissionRestart)
@@ -576,16 +576,12 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
 						//nothing to attack, continue movement
-						int iThisETA = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, iETA);
-						if(iThisETA >= 0) //normal movement
+						int iResult = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
+						if(iResult >= 0) //normal movement
 						{
 							bAction = true;
-							// Save off the initial ETA, we will feed it back into the UnitPathTo so it can check to see if our ETA grows while we are in the loop.
-							// This can happen as terrain gets revealed.
-							if (iSteps == 0)
-								iETA = iThisETA;
 						}
-						else if (iThisETA == CvUnit::MOVE_RESULT_NEXT_TURN)
+						else if (iResult == CvUnit::MOVE_RESULT_NEXT_TURN)
 						{
 							bAction = true;
 						}
@@ -639,7 +635,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 								//move the new unit in
 								int iResult = 0;
 								while (iResult >= 0)
-									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
+									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING);
 
 								//make sure to delete any previous missions, there's a check later for conflicts
 								pUnit2->ClearMissionQueue(true);
@@ -647,7 +643,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 								//move the old unit out
 								int iResult2 = 0;
 								while (iResult2 >= 0)
-									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
+									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING);
 
 								bAction = true;
 								bDone = true;
@@ -747,6 +743,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 			{
 				//in case we loaded a savegame, the cached path is gone. try to regenerate it before cancelling the mission
 				CvPlot* pDestPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
+
+				//if this fails m_kLastPath will be empty
+				//todo: is the non-persistency of the path a problem for reproducability?
 				hUnit->VerifyCachedPath(pDestPlot, kMissionData.iFlags, INT_MAX);
 
 				//don't check against the target plot directly in case of approximate pathfinding

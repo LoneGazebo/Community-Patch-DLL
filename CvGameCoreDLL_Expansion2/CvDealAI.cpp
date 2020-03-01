@@ -1795,7 +1795,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 10;
+	int iItemValue = 10 * GC.getGame().getCurrentEra();
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1958,7 +1958,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity * iNumTurns);
-			iItemValue /= 30;
+			iItemValue /= 10;
 
 			return iItemValue;
 		}
@@ -2109,7 +2109,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity * iNumTurns);
-			iItemValue /= 30;
+			iItemValue /= 10;
 
 			return iItemValue;
 		}
