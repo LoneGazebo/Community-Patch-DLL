@@ -5186,7 +5186,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 			// My viewpoint
 			m_pPlayer->GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eOwningPlayer, m_pPlayer->GetID(), iValue);
 			// Bad guy's viewpoint
-			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue);
+			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarValueLost(m_pPlayer->GetID(), iValue, /*bNoRatingChange*/ true);
 		}
 	}
 	// Temporary diplo penalty (including if at war) for killing a civilian unit
