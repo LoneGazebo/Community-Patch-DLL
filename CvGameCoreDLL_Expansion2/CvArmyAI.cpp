@@ -660,7 +660,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	//do this in two steps to avoid triggering the sanity check
 	pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
 	pThisUnit->setTacticalMove(AI_TACTICAL_OPERATION);
-	pThisUnit->TurnProcessed(); //ignore for tactical moves from now
+	pThisUnit->SetTurnProcessed(true); //ignore for tactical moves from now
 
 	// Finally, compute when we think this unit will arrive at the next checkpoint
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());

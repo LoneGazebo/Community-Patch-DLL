@@ -665,8 +665,6 @@ private:
 	std::vector<CvTacticalUnit> m_CurrentAirSweepUnits;
 #endif
 
-	std::set<int> m_HealingUnits; //persistent!
-
 	CTacticalUnitArray m_CurrentMoveUnits;
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 

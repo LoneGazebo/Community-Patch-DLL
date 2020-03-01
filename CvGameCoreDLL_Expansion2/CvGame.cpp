@@ -83,6 +83,9 @@
 //------------------------------------------------------------------------------
 const int g_CurrentCvGameVersion = 1;
 
+//some statistics
+int gTactMovesCount[NUM_AI_TACTICAL_MOVES] = { 0 };
+int gHomeMovesCount[NUM_AI_HOMELAND_MOVES] = { 0 };
 
 CvGameInitialItemsOverrides::CvGameInitialItemsOverrides()
 {
@@ -165,6 +168,19 @@ CvGame::CvGame() :
 //	--------------------------------------------------------------------------------
 CvGame::~CvGame()
 {
+#ifdef VPDEBUG
+	FILogFile* pLog=LOGFILEMGR.GetLog( "UnitMoveStats.txt", FILogFile::kDontTimeStamp );
+	if (pLog)
+	{
+		pLog->Msg("#move and count @ turn %d\n",getGameTurn());
+		for (int i = 0; i < NUM_AI_TACTICAL_MOVES; i++)
+			pLog->Msg(CvString::format("%s:%d\n", tacticalMoveNames[i], gTactMovesCount[i]).c_str());
+		for (int i = 0; i < NUM_AI_HOMELAND_MOVES; i++)
+			pLog->Msg(CvString::format("%s:%d\n", homelandMoveNames[i], gHomeMovesCount[i]).c_str());
+		pLog->Close();
+	}
+#endif
+
 	uninit();
 
 	SAFE_DELETE_ARRAY(m_aiEndTurnMessagesReceived);

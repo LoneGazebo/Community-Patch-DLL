@@ -943,4 +943,7 @@ protected:
 
 };
 
+extern int gTactMovesCount[NUM_AI_TACTICAL_MOVES];
+extern int gHomeMovesCount[NUM_AI_HOMELAND_MOVES];
+
 #endif

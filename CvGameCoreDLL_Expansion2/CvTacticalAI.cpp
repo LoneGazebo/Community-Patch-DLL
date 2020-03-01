@@ -234,14 +234,6 @@ void CvTacticalAI::Read(FDataStream& kStream)
 
 #if defined(MOD_BALANCE_CORE)
 	int iCount;
-	m_HealingUnits.clear();
-	kStream >> iCount;
-	for (int i=0; i<iCount; i++)
-	{
-		int iTemp;
-		kStream >> iTemp;
-		m_HealingUnits.insert(iTemp);
-	}
 	m_Postures.clear();
 	kStream >> iCount;
 	for (int i=0; i<iCount; i++)
@@ -271,10 +263,6 @@ void CvTacticalAI::Write(FDataStream& kStream)
 	kStream << m_tacticalMap;
 
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_HealingUnits.size();
-	for (std::set<int>::iterator it=m_HealingUnits.begin(); it!=m_HealingUnits.end(); ++it)
-		kStream << *it;
-
 	kStream << m_Postures.size();
 	for(unsigned int iI = 0; iI < m_Postures.size(); iI++)
 	{
@@ -1109,18 +1097,15 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//harass the enemy (plundering also happens during combat sim ...)
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, true);
+	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
+	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
+	PlotCivilianAttackMoves();
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, true);
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT, true);
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, false);
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, false);
 	PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT, false);
-
-	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
-	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
 	PlotBlockadeMoves();
-
-	//try to capture
-	PlotCivilianAttackMoves();
 
 	//pure defense
 	PlotGarrisonMoves(2);
@@ -1143,9 +1128,6 @@ void CvTacticalAI::AssignBarbarianMoves()
 	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
 	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
 	PlotBlockadeMoves();
-	
-	//capturing civilians
-	PlotCivilianAttackMoves();
 
 	//normal roaming unless in camp
 	PlotCampDefenseMoves();
@@ -1540,7 +1522,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && !pUnit->TurnProcessed())
+		if(pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Danger value of plot must be greater than 0
 			int iDangerLevel = pUnit->GetDanger();
@@ -1637,14 +1619,8 @@ void CvTacticalAI::PlotRepositionMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed()) //important, don't move units which have been processed already even if they have movement left!
+		if (pUnit && pUnit->canUseForTacticalAI()) //important, don't move units which have been processed already even if they have movement left!
 		{
-			if (!pUnit->canMove())
-				continue;
-			
-			if (pUnit->hasCurrentTacticalMove())
-				continue;
-
 			// Never use this (default) move for Great Admirals or Generals
 			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
 				continue;
@@ -1671,7 +1647,7 @@ void CvTacticalAI::PlotBarbarianMove(bool bAggressive)
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed())
+		if (pUnit && pUnit->canUseForTacticalAI())
 			m_CurrentMoveUnits.push_back(CvTacticalUnit(pUnit->GetID()));
 	}
 
@@ -1958,7 +1934,7 @@ void CvTacticalAI::PlotHealMoves(bool bFirstPass)
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit || pUnit->TurnProcessed())
+		if (!pUnit || !pUnit->canUseForTacticalAI())
 			continue;
 
 		if (pUnit->shouldHeal(bFirstPass))
@@ -2191,7 +2167,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed())
+		if (pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Am I eligible to intercept? We only commandeered units which won't be rebased
 			if(pUnit->canAirPatrol(NULL))
@@ -2240,7 +2216,7 @@ void CvTacticalAI::PlotAirSweepMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 #if defined(MOD_UNITS_MAX_HP)
-		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints() && !pUnit->TurnProcessed())
+		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints() && pUnit->canUseForTacticalAI())
 #else
 		if(pUnit && (pUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
 #endif
@@ -2328,49 +2304,49 @@ void CvTacticalAI::PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone)
 	if (!pZone)
 		return;
 
-	vector<int> aProcessedUnits;
+	ClearCurrentMoveUnits(AI_TACTICAL_AIRLIFT);
+
 	CvCity* pCity = pZone->GetZoneCity();
-	if(pCity && pCity->getOwner() == m_pPlayer->GetID() && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pCity->CanAirlift()&& pZone->GetTotalEnemyUnitCount() > 0)
+	if (pCity && pCity->getOwner() == m_pPlayer->GetID() && pCity->CanAirlift())
 	{
 		// Loop through all recruited units
 		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if (pUnit && !pUnit->TurnProcessed())
+			if (pUnit && pUnit->canUseForTacticalAI())
 			{
 				// If there a hex adjacent to city they can airlift to?
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
 					CvPlot *pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-					if (pLoopPlot != NULL)
+					if (pLoopPlot != NULL && pUnit->canAirliftAt(pUnit->plot(), pLoopPlot->getX(), pLoopPlot->getY()))
 					{
-						if (pUnit->canAirliftAt(pUnit->plot(), pLoopPlot->getX(), pLoopPlot->getY()))
-						{
-							pUnit->airlift(pLoopPlot->getX(), pLoopPlot->getY());
-							pUnit->setTacticalMove(AI_TACTICAL_AIRLIFT);
-
-							aProcessedUnits.push_back(pUnit->GetID());
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Airlifting %s to city of %s, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pCity->getNameNoSpace().GetCString(), pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
-
-							break;
-						}
+						CvTacticalUnit unit(pUnit->GetID());
+						//evil hack ...
+						unit.SetAttackStrength( pLoopPlot->GetPlotIndex() );
+						m_CurrentMoveUnits.push_back( unit );
 					}
 				}
 			}
 		}
 	}
 
-	// Mark units processed
-	vector<int>::const_iterator unitIt;
-	for (unitIt = aProcessedUnits.begin(); unitIt != aProcessedUnits.end(); unitIt++)
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
-		UnitProcessed(*unitIt);
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if (pUnit)
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Airlifting %s to city of %s, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pCity->getNameNoSpace().GetCString(), pUnit->getX(), pUnit->getY());
+				LogTacticalMessage(strLogString);
+			}
+
+			CvPlot* pTarget = GC.getMap().plotByIndexUnchecked( m_CurrentMoveUnits[iI].GetAttackStrength() );
+			pUnit->airlift(pTarget->getX(), pTarget->getY());
+			UnitProcessed(pUnit->GetID());
+		}
 	}
 }
 
@@ -2391,7 +2367,7 @@ void CvTacticalAI::PlotEscortEmbarkedMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed())
+		if (pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Am I a naval combat unit?
 			if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCombatUnit())
@@ -2560,7 +2536,7 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed())
+		if (pUnit && pUnit->canUseForTacticalAI())
 		{
 			//Recent, healthy deployments need to attack!
 			if (pUnit->IsRecentlyDeployedFromOperation() && (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2))
@@ -2616,7 +2592,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->TurnProcessed()) //important, don't move units which have been processed already even if they have movement left!
+		if (pUnit && pUnit->canUseForTacticalAI())
 		{
 			//don't overwrite army moves ... everything else is fair game
 			if (pUnit->getArmyID()==-1)
@@ -4380,7 +4356,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit && pUnit->canMove() && !pUnit->TurnProcessed())
+		if(pUnit && pUnit->canUseForTacticalAI())
 		{
 			//see if we can do damage before retreating
 			if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>1 && pUnit->canRangeStrike())
@@ -4865,7 +4841,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if (pUnit && !pUnit->TurnProcessed())
+		if (pUnit && pUnit->canUseForTacticalAI())
 		{
 			//see if we can harrass the enemy first
 			if (pUnit->shouldPillage(pUnit->plot()))
@@ -5042,7 +5018,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath() && pUnit->canMove() && !pUnit->TurnProcessed())
+		if(pUnit && pUnit->canUseForTacticalAI())
 		{
 			// Proper domain of unit?
 			if ((pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA) ||
@@ -5323,7 +5299,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 	for (it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end() && interceptionsOnPlot > 0; ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if (pLoopUnit && !pLoopUnit->TurnProcessed())
+		if (pLoopUnit && pLoopUnit->canUseForTacticalAI())
 		{
 			// Is an air unit.
 			if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->canMove())
@@ -5458,7 +5434,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(!pLoopUnit || pLoopUnit->isDelayedDeath() || pLoopUnit->TurnProcessed())
+		if(!pLoopUnit || !pLoopUnit->canUseForTacticalAI())
 			continue;
 
 		//Don't grab civilians for this!
@@ -5619,7 +5595,7 @@ bool CvTacticalAI::FindEmbarkedUnitsAroundTarget(CvPlot* pTarget, int iMaxDistan
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && !pLoopUnit->TurnProcessed() && pLoopUnit->IsCombatUnit() && pLoopUnit->isEmbarked() && plotDistance(*pLoopUnit->plot(),*pTarget)<=iMaxDistance )
+		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCombatUnit() && pLoopUnit->isEmbarked() && plotDistance(*pLoopUnit->plot(),*pTarget)<=iMaxDistance )
 		{
 			CvTacticalUnit unit(pLoopUnit->GetID());
 			unit.SetAttackStrength(pLoopUnit->GetBaseCombatStrength());
@@ -5642,7 +5618,7 @@ bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool 
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && !pLoopUnit->TurnProcessed() && 
+		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && 
 			pLoopUnit->canParadropAt(pLoopUnit->plot(), pTarget->getX(), pTarget->getY()) &&
 			(!bCheckDanger || pLoopUnit->GetDanger(pTarget) < pLoopUnit->GetCurrHitPoints()))
 		{
@@ -5668,7 +5644,7 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && !pLoopUnit->TurnProcessed() && pLoopUnit->IsCombatUnit()) //ignore generals and the like!
+		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCombatUnit()) //ignore generals and the like!
 		{
 			//these units are too fragile for the moves we have in mind
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)

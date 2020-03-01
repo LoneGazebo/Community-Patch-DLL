@@ -7301,6 +7301,27 @@ bool CvUnit::canRecruitFromTacticalAI() const
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::canUseForTacticalAI() const
+{
+	if (isDelayedDeath())
+		return false;
+
+	if (getArmyID() != -1)
+		return false;
+
+	if (!canMove() || TurnProcessed())
+		return false;
+
+	if (AI_getUnitAIType() == UNITAI_EXPLORE)
+		return false;
+
+	if (IsGarrisoned() && GetGarrisonedCity()->isBorderCity())
+		return false;
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
 /// Set a destination plot for multi-turn tactical moves
 void CvUnit::SetTacticalAIPlot(CvPlot* pPlot)
 {
@@ -21615,7 +21636,7 @@ void CvUnit::SetGarrisonedCity(int iCityID)
 }
 
 //	--------------------------------------------------------------------------------
-CvCity* CvUnit::GetGarrisonedCity()
+CvCity* CvUnit::GetGarrisonedCity() const
 {
 	if(IsGarrisoned())
 		return GET_PLAYER(getOwner()).getCity(m_iGarrisonCityID);

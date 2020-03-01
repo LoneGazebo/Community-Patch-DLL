@@ -1059,7 +1059,7 @@ public:
 	bool CanGarrison() const;
 	bool IsGarrisoned(void) const;
 	void SetGarrisonedCity(int iCityID);
-	CvCity* GetGarrisonedCity();
+	CvCity* GetGarrisonedCity() const;
 	void triggerFortifyAnimation(bool bState);
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
@@ -1714,6 +1714,8 @@ public:
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;
+	bool canUseForTacticalAI() const;
+
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;
 

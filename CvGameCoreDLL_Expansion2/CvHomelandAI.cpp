@@ -335,7 +335,6 @@ void CvHomelandAI::FindHomelandTargets()
 	m_TargetedCities.clear();
 	m_TargetedSentryPoints.clear();
 	m_TargetedNavalResources.clear();
-	m_TargetedHomelandRoads.clear();
 	m_TargetedAncientRuins.clear();
 	m_TargetedAntiquitySites.clear();
 #if defined(MOD_BALANCE_CORE)
@@ -508,7 +507,6 @@ void CvHomelandAI::FindHomelandTargets()
 	// Post-processing on targets
 	EliminateAdjacentSentryPoints();
 	EliminateAdjacentNavalSentryPoints();
-	EliminateAdjacentHomelandRoads();
 	std::stable_sort(m_TargetedCities.begin(), m_TargetedCities.end());
 }
 
@@ -528,7 +526,6 @@ void CvHomelandAI::AssignHomelandMoves()
 	//military only
 	PlotUpgradeMoves();
 	PlotGarrisonMoves();
-	PlotMobileReserveMoves();
 	PlotSentryMoves();
 	PlotSentryNavalMoves();
 
@@ -539,7 +536,6 @@ void CvHomelandAI::AssignHomelandMoves()
 
 	//military again
 	PlotAircraftRebase();
-	PlotAirliftMoves();
 	PlotPatrolMoves();
 
 	//civilians again
@@ -810,35 +806,6 @@ void CvHomelandAI::PlotGarrisonMoves()
 				{
 					CvString strLogString;
 					strLogString.Format("Moving %s %d to garrison, X: %d, Y: %d, Priority: %d", pGarrison->getName().c_str(), pGarrison->GetID(), m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
-					LogHomelandMessage(strLogString);
-				}
-			}
-		}
-	}
-}
-
-/// Send units to roads for quick movement to face any threat
-void CvHomelandAI::PlotMobileReserveMoves()
-{
-	// Do we have any targets of this type?
-	if(!m_TargetedHomelandRoads.empty())
-	{
-		FindUnitsForThisMove(AI_HOMELAND_MOVE_MOBILE_RESERVE);
-
-		// See how many moves of this type we can execute
-		for(unsigned int iI = 0; iI < m_TargetedHomelandRoads.size(); iI++)
-		{
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedHomelandRoads[iI].GetTargetX(), m_TargetedHomelandRoads[iI].GetTargetY());
-			CvUnit *pReserve = GetBestUnitToReachTarget(pTarget, 15);
-			if(pReserve)
-			{
-				ExecuteMoveToTarget(pReserve, pTarget, 0, true);
-				UnitProcessed(pReserve->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Moving %s %d to mobile reserve muster pt, X: %d, Y: %d", pReserve->getName().c_str(), pReserve->GetID(), m_TargetedHomelandRoads[iI].GetTargetX(), m_TargetedHomelandRoads[iI].GetTargetY());
 					LogHomelandMessage(strLogString);
 				}
 			}
@@ -2102,14 +2069,11 @@ void CvHomelandAI::PlotTradeUnitMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if(pUnit && pUnit->AI_getUnitAIType() == UNITAI_TRADE_UNIT)
 		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_TRADE_UNIT)
-			{
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				m_CurrentMoveUnits.push_back(unit);
-			}
+			CvHomelandUnit unit;
+			unit.SetID(pUnit->GetID());
+			m_CurrentMoveUnits.push_back(unit);
 		}
 	}
 
@@ -2146,91 +2110,6 @@ void CvHomelandAI::PlotArchaeologistMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteArchaeologistMoves();
-	}
-}
-
-/// Send spare units to cities that can airlift
-void CvHomelandAI::PlotAirliftMoves()
-{
-	if (m_pPlayer->isHuman())
-		return;
-
-	// Need at least 2 cities with airports
-	vector<CvCity *> aAirliftCities;
-	vector<CvCity *> aNeedAirliftCities;
-
-	int iCityLoop;
-	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-	{
-		//Let's see if we have airlifts.
-		if (pLoopCity->CanAirlift())
-		{
-			//Let's see if there are cities that need an airlift.
-			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
-			{
-				aNeedAirliftCities.push_back(pLoopCity);
-			}
-			aAirliftCities.push_back(pLoopCity);
-		}
-	}
-
-	if (aAirliftCities.size() < 2 || aNeedAirliftCities.size() <= 0)
-		return;
-
-	// Create list of empty land plots we own adjacent to airlift cities that are not endangered
-	vector<CvPlot *> aAirliftPlots;
-	CvTacticalAnalysisMap* pTactMap = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
-
-	for (vector<CvCity *>::const_iterator it = aAirliftCities.begin(); it != aAirliftCities.end(); it++)
-	{
-		CvTacticalDominanceZone *pZone = pTactMap->GetZoneByCity(*it, false);
-		if (pZone && (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE))
-		{
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				CvPlot *pLoopPlot = plotDirection((*it)->getX(), (*it)->getY(), ((DirectionTypes)iI));
-				if (pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && pLoopPlot->getOwner() == m_pPlayer->GetID())
-				{
-					CvUnit* pBestDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
-					if (pBestDefender)
-					{
-						if (std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pBestDefender->GetID()) != m_CurrentTurnUnits.end())
-						{
-							pBestDefender->PushMission(CvTypes::getMISSION_SKIP());
-							UnitProcessed(pBestDefender->GetID());
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Remaining in place for future airlift - %s, X: %d, Y: %d", pBestDefender->getName().GetCString(), pBestDefender->getX(), pBestDefender->getY());
-								LogHomelandMessage(strLogString);
-							}
-						}
-					}
-					else
-					{
-						aAirliftPlots.push_back(pLoopPlot);
-					}
-				}
-			}
-		}
-	}
-
-	FindUnitsForThisMove(AI_HOMELAND_MOVE_AIRLIFT);
-	for (vector<CvPlot *>::const_iterator plotIt = aAirliftPlots.begin(); plotIt != aAirliftPlots.end(); plotIt++)
-	{
-		CvPlot *pTarget = *plotIt;
-		CvUnit *pUnit = GetBestUnitToReachTarget(pTarget, 12);
-		if(pUnit)
-		{
-			ExecuteMoveToTarget(pUnit,pTarget,0, true);
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Moving %s %d to airlift origin plot, X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTarget->getX(), pTarget->getY());
-				LogHomelandMessage(strLogString);
-			}
-		}
 	}
 }
 
@@ -5616,21 +5495,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 // Get a trade unit and send it to a city!
 void CvHomelandAI::ExecuteTradeUnitMoves()
 {
-	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
-
 	TradeConnectionList aTradeConnections;
+	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
 	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections,true);
-
-	//don't start all routes from the same city, try to spread them out
-	//note this is only for this turn - next turn it's a new game
-	std::set<int> originCities;
 	
 	//stats to decide whether to disband a unit
 	int iWaterRoutes = 0;
 	int iLandRoutes = 0;
-#if defined(MOD_BALANCE_CORE)
-	int iDupes = 0;
-#endif
+
 	//for the N best trade routes, find a suitable unit
 	//check at least the 8 best routes, at max 3 times the number of free trade units
 	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
@@ -5644,32 +5516,13 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		if (aTradeConnections[ui].m_eDomain==DOMAIN_LAND)
 			iLandRoutes++;
 
-#if defined(MOD_BALANCE_CORE)	
-		//if we already made 3 routes from here this turn, then skip it
-		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
-			iDupes++;
-
-		if(iDupes >= 3)
-			continue;
-#else
-		//if we already made a route from here this turn, then skip it
-		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
-			continue;
-#endif
-
 		//we don't really care about the distance but not having to re-base is good
 		CvUnit *pBestUnit = NULL;
 		int iBestDistance = INT_MAX;
-
-		MoveUnitsArray::iterator it;
-		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-#if defined(MOD_BALANCE_CORE)
 			if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed() || pUnit->IsAutomated())
-#else
-			if(!pUnit || !pUnit->canMove())
-#endif
 				continue;
 
 			if (aTradeConnections[ui].m_eDomain != pUnit->getDomainType())
@@ -5694,9 +5547,6 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		{
 			CvCity* pOriginCity = CvGameTrade::GetOriginCity(aTradeConnections[ui]);
 			CvCity* pDestCity = CvGameTrade::GetDestCity(aTradeConnections[ui]);
-
-			//remember this city
-			originCities.insert(pOriginCity->GetID());
 
 			if (pOriginPlot != pBestUnit->plot())
 			{
@@ -5739,14 +5589,14 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 
 					LogHomelandMessage(strLogString);
 				}
-				UnitProcessed(pBestUnit->GetID());
 			}
+
+			UnitProcessed(pBestUnit->GetID());
 		}
 	}
 
 	//unassigned trade units?
-	MoveUnitsArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed())
@@ -5768,6 +5618,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 				strLogString.Format("Disbanding %s trade unit %d because no suitable target",pUnit->getDomainType()==DOMAIN_SEA?"sea":"land",pUnit->GetID());
 				LogHomelandMessage(strLogString);
 			}
+
 			pUnit->kill(true);
 		}
 	}
@@ -5925,41 +5776,6 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 }
 #endif
 
-/// Don't allow adjacent tiles to both be mobile reserve muster points
-void CvHomelandAI::EliminateAdjacentHomelandRoads()
-{
-	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedHomelandRoads;
-
-	// Clear out main list
-	m_TargetedHomelandRoads.clear();
-
-	// Loop through all points in copy
-	std::vector<CvHomelandTarget>::iterator it, it2;
-	for(it = tempPoints.begin(); it != tempPoints.end(); ++it)
-	{
-		int nAdjacent = 0;
-
-		// Is it adjacent to a point in the main list?
-		for(it2 = m_TargetedHomelandRoads.begin(); it2 != m_TargetedHomelandRoads.end(); ++it2)
-		{
-			if(plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
-			{
-				nAdjacent++;
-				if (nAdjacent>1)
-					break;
-			}
-		}
-
-		//just make sure some road plots remain free so other units can move
-		if(nAdjacent<2)
-		{
-			m_TargetedHomelandRoads.push_back(*it);
-		}
-	}
-}
-
 /// Finds both high and normal priority units we can use for this homeland move (returns true if at least 1 unit found)
 bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 {
@@ -6038,22 +5854,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				}
 				break;
 #endif
-			case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-				// Ranged units are excellent in the mobile reserve as are fast movers
-				if (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->IsGarrisoned())
-				{
-					if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
-					{
-						bSuitableUnit = true;
-						bHighPriority = true;
-					}
-					else if (pLoopUnit->IsCanAttack())
-					{
-						bSuitableUnit = true;
-					}
-				}
-				break;
-
 			case AI_HOMELAND_MOVE_ANCIENT_RUINS:
 				// Fast movers are top priority
 				if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
@@ -6713,7 +6513,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_GARRISON",
 	"H_MOVE_HEAL",
 	"H_MOVE_TO_SAFETY",
-	"H_MOVE_MOBILE_RESERVE",
 	"H_MOVE_SENTRY",
 	"H_MOVE_SENTRY_NAVAL",
 	"H_MOVE_WORKER",
@@ -6738,7 +6537,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_TRADE_UNIT",
 	"H_MOVE_ARCHAEOLOGIST",
 	"H_MOVE_ADD_SPACESHIP_PART",
-	"H_MOVE_AIRLIFT",
 	"H_MOVE_DIPLOMAT_EMBASSY",
 	"H_MOVE_MESSENGER",
 	"H_MOVE_SECONDARY_SETTLER",

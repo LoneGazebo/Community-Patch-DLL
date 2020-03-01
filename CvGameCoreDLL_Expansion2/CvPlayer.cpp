@@ -11779,10 +11779,6 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
-	//some statistics
-	static int tactMovesCount[NUM_AI_TACTICAL_MOVES] = { 0 };
-	static int homeMovesCount[NUM_AI_HOMELAND_MOVES] = { 0 };
-
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -11790,8 +11786,8 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		//collect some stats
-		tactMovesCount[pLoopUnit->getTacticalMove()]++;
-		homeMovesCount[pLoopUnit->getHomelandMove()]++;
+		gTactMovesCount[pLoopUnit->getTacticalMove()]++;
+		gHomeMovesCount[pLoopUnit->getHomelandMove()]++;
 
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)

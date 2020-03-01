@@ -1839,7 +1839,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				//if we already have a significant amount of units and they are close together, move the muster plot there
 				float fX = 0, fY = 0;
 				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
-				if (fX < 10 && fY < 10)
+				if (fX < 10 && fY < 10 && plotDistance(*pCoM,*GetTargetPlot())<plotDistance(*GetMusterPlot(),*GetTargetPlot()))
 					SetMusterPlot(pCoM);
 			}
 			break;

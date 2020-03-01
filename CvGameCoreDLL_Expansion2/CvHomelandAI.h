@@ -235,13 +235,11 @@ private:
 	void PlotExplorerMoves(bool bSecondPass);
 	void PlotExplorerSeaMoves(bool bSecondPass);
 	void PlotGarrisonMoves();
-	void PlotMobileReserveMoves();
 	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
 	void PlotAircraftRebase();
-	void PlotAirliftMoves();
 
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves();
@@ -322,7 +320,6 @@ private:
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
 
-	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
@@ -351,7 +348,6 @@ private:
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
-	std::vector<CvHomelandTarget> m_TargetedHomelandRoads;
 	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };
