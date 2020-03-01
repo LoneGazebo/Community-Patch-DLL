@@ -1301,6 +1301,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
 #define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
 #define GAMEEVENT_FreeCitySelector			"SetFreeCityType", "ii"
+#define GAMEEVENT_PlayerAnarchy				"PlayerAnarchyBegins", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE

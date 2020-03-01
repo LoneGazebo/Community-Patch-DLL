@@ -291,7 +291,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	m_cBuilderAIScratchPadPlayer = 0;
 	m_sBuilderAIScratchPadTurn = 0;
-	m_iBuilderAIScratchPadValue = 0;
+	m_sBuilderAIScratchPadValue = 0;
 	m_eBuilderAIScratchPadRoute = NO_ROUTE;
 
 	m_plotCity.reset();
@@ -7590,30 +7590,30 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 	ImprovementTypes eImprovementNeeded = NO_IMPROVEMENT;
 
 	// see if we can improve the resource
-	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		BuildTypes eBuild = (BuildTypes) iBuildIndex;
+		BuildTypes eBuild = (BuildTypes)iBuildIndex;
 		CvBuildInfo* pBuildInfo = GC.getBuildInfo(eBuild);
-		if(pBuildInfo == NULL)
+		if (pBuildInfo == NULL)
 			continue;
 
-		if(!canBuild(eBuild, ePlayer, false /*bTestVisible*/, bTestPlotOwner))
+		if (!canBuild(eBuild, ePlayer, false /*bTestVisible*/, bTestPlotOwner))
 			continue;
 
-		if(ePlayer != NO_PLAYER)
+		if (ePlayer != NO_PLAYER)
 		{
-			if(!GET_PLAYER(ePlayer).canBuild(this, eBuild, false /*bTestEra*/, false /*bTestVisible*/, false /*bTestGold*/, bTestPlotOwner))
+			if (!GET_PLAYER(ePlayer).canBuild(this, eBuild, false /*bTestEra*/, false /*bTestVisible*/, false /*bTestGold*/, bTestPlotOwner))
 			{
 				continue;
 			}
 		}
 
-		ImprovementTypes eImprovement = (ImprovementTypes) pBuildInfo->getImprovement();
-		if(eImprovement == NO_IMPROVEMENT)
+		ImprovementTypes eImprovement = (ImprovementTypes)pBuildInfo->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if(pImprovementInfo == NULL)
+		if (pImprovementInfo == NULL)
 			continue;
 
 		if (bNonSpecialOnly && !pImprovementInfo->IsImprovementResourceTrade(eResource))
@@ -12891,7 +12891,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_iResourceNum;
 	kStream >> m_cBuilderAIScratchPadPlayer;
 	kStream >> m_sBuilderAIScratchPadTurn;
-	kStream >> m_iBuilderAIScratchPadValue;
+	kStream >> m_sBuilderAIScratchPadValue;
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
 	kStream >> m_uiCityConnectionBitFlags;
@@ -13100,7 +13100,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_iResourceNum;
 	kStream << m_cBuilderAIScratchPadPlayer;
 	kStream << m_sBuilderAIScratchPadTurn;
-	kStream << m_iBuilderAIScratchPadValue;
+	kStream << m_sBuilderAIScratchPadValue;
 	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
 	kStream << m_uiCityConnectionBitFlags;
@@ -13821,15 +13821,15 @@ void CvPlot::SetBuilderAIScratchPadRoute(RouteTypes eRoute)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetBuilderAIScratchPadValue() const
+short CvPlot::GetBuilderAIScratchPadValue() const
 {
-	return m_iBuilderAIScratchPadValue;
+	return m_sBuilderAIScratchPadValue;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetBuilderAIScratchPadValue(int sNewValue)
+void CvPlot::SetBuilderAIScratchPadValue(short sNewValue)
 {
-	m_iBuilderAIScratchPadValue = sNewValue;
+	m_sBuilderAIScratchPadValue = sNewValue;
 }
 
 void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
@@ -15390,16 +15390,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			{
 				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopAdjacentPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-					iBadAdjacent++;
-			}
+							iBadAdjacent++;
+						}
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv())
 			{
 				iAdjacentOwnedOther++;
 				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopAdjacentPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-					iBadAdjacent++;
-			}
-		}
-	}
+							iBadAdjacent++;
+						}
+					}
+				}
 
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
 	if(iAdjacentUnowned + iAdjacentOwnedOther > 2 || iBadAdjacent > 0)
@@ -15421,22 +15421,22 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 					{
 						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pLoopNearbyPlot->getOwner()) <= MAJOR_CIV_OPINION_NEUTRAL)
-							iBadNearby++;
-					}
+								iBadNearby++;
+							}
 					else if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv())
 					{
 						iNearbyOwnedOther++;
 						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pLoopNearbyPlot->getOwner()) >= MINOR_CIV_APPROACH_CONQUEST)
-							iBadNearby++;
-					}
-				}
+								iBadNearby++;
+							}
+						}
 
-				//Let's check for owned nearby forts as well
+					//Let's check for owned nearby forts as well
 				if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
 					if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
-						iNearbyForts++;
-			}
-		}
+							iNearbyForts++;
+						}
+					}
 
 		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
 		if (iBadNearby == 0 || iNearbyForts > 2)
@@ -15463,6 +15463,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 		return iScore;
 	}
+
 	return 0;
 }
 

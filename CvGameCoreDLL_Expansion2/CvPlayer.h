@@ -124,7 +124,7 @@ public:
 	CvString getNewCityName() const;
 	CvString GetBorrowedCityName(CivilizationTypes eCivToBorrowFrom) const;
 	void getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCivilization) const;
-	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true) const;
+	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true, bool bForce = false) const;
 
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance() const;
@@ -581,7 +581,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
-	int DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
+	void DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)

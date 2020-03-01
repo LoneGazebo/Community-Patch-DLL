@@ -1405,8 +1405,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		else if (kPlayer.getNumCities() > 1)
 			iFlavorExpansion -= 5;
 
-		//and bump it for next time (do this once per turn, and no more)
-
 		//todo: is 10 the right number here?
 		if (m_pCity->isCapital() && iFlavorExpansion >= 10)
 		{
@@ -1417,12 +1415,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver();
 		
 		//Higher-level AI should expand more quickly.
-		int iExpansionVal = 300;
 		if (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() > 0)
 		{
-			iExpansionVal += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase();
+			iFlavorExpansion += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 10;
 		}
 
+		//250
+		int iExpansionVal = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER();
 		iBonus += (iFlavorExpansion * iExpansionVal);
 	}
 	if(!kPlayer.isMinorCiv())
@@ -1566,12 +1565,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 			if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 			{
-				iBonus += (500 * iCurrentNumCities);
+				iBonus += (750 * iCurrentNumCities);
 			}
 			AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 			{
-				iBonus += (1000 * iCurrentNumCities);
+				iBonus += (1250 * iCurrentNumCities);
 			}
 
 			if (!kPlayer.IsAtWar())

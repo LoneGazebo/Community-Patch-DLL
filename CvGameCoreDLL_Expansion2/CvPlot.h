@@ -864,8 +864,8 @@ public:
 	RouteTypes GetBuilderAIScratchPadRoute() const;
 	void SetBuilderAIScratchPadRoute(RouteTypes eRoute);
 
-	int GetBuilderAIScratchPadValue() const;
-	void SetBuilderAIScratchPadValue(int sNewValue);
+	short GetBuilderAIScratchPadValue() const;
+	void SetBuilderAIScratchPadValue(short sNewValue);
 
 	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
 	bool IsStrategicRoute(TeamTypes eTeam) const;
@@ -1089,7 +1089,7 @@ protected:
 	int m_iScratchPad;
 	char m_cBuilderAIScratchPadPlayer;
 	short m_sBuilderAIScratchPadTurn;
-	int m_iBuilderAIScratchPadValue;
+	short m_sBuilderAIScratchPadValue;
 	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
 
 	short m_iOwnershipDuration;

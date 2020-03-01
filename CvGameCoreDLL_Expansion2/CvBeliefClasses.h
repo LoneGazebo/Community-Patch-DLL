@@ -90,6 +90,8 @@ public:
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetHappinessFromForeignSpies() const;
 	int GetPressureChangeTradeRoute() const;
+	int GetYieldPerActiveTR(int i) const;
+	int GetYieldPerConstruction(int i) const;
 	int GetYieldPerPop(int i) const;
 	int GetYieldPerGPT(int i) const;
 	int GetYieldPerLux(int i) const;
@@ -326,6 +328,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int m_iHappinessFromForeignSpies;
 	int m_iGetPressureChangeTradeRoute;
+	int* m_piYieldPerActiveTR;
+	int* m_piYieldPerConstruction;
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
 	int* m_piYieldPerLux;
@@ -550,6 +554,8 @@ public:
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetHappinessFromForeignSpies(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPressureChangeTradeRoute(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerConstruction(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

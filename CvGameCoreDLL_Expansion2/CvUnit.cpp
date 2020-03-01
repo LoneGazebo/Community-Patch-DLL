@@ -508,7 +508,7 @@ CvUnit::CvUnit() :
 	, m_iTacticalMoveSetTurn("CvUnit::m_iTacticalMoveSetTurn", m_syncArchive)
 	, m_eHomelandMove("CvUnit::m_eHomelandMove", m_syncArchive)
 	, m_iHomelandMoveSetTurn("CvUnit::m_iHomelandMoveSetTurn", m_syncArchive)
-	{
+{
 	initPromotions();
 	OBJECT_ALLOCATED
 	FSerialization::unitsToCheck.push_back(this);
@@ -4667,7 +4667,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 
 		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
-	{
+		{
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
@@ -4676,25 +4676,25 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		if (!bEndTurn)
 			return true;
 
-		// If we haven't yet met the Minor we can move in
-		if(!kMyTeam.isHasMet(eTeam))
-			return true;
+			// If we haven't yet met the Minor we can move in
+			if(!kMyTeam.isHasMet(eTeam))
+				return true;
 
 		// Is this an excluded unit that doesn't cause anger?
 		if (IsAngerFreeUnit())
 			return true;
 
-		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 #if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
 			// If the minor is allied, treat the plot as being owned by their ally
 		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
-			return true;
+					return true;
 #endif
 
-		// If already intruding on this minor, okay to do it some more
-		if (pMinorAI->IsMajorIntruding(getOwner()))
-			return true;
+				// If already intruding on this minor, okay to do it some more
+				if (pMinorAI->IsMajorIntruding(getOwner()))
+					return true;
 	}
 
 	//city states may enter their ally's territory - may help for defense
@@ -5469,9 +5469,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	vector<SPlotWithScore> candidates;
 	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
 
-	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+		{
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//plot must be empty even of civilians
 		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
@@ -5494,7 +5494,7 @@ bool CvUnit::jumpToNearestValidPlot()
 				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
 					iValue += 1000;
 
-				candidates.push_back(SPlotWithScore(pLoopPlot, iValue));
+				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 			}
 		}
 	}
@@ -5508,7 +5508,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		{
 			CvPlot* pTestPlot = candidates[i].pPlot;
 
-			// check to make sure this is not a dead end
+			// "quick" heuristic check to make sure this is not a dead end
 			// alternatively we could verify against all plots reachable from owner's capital?
 			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
 			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
@@ -7363,10 +7363,10 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	if (hasCurrentTacticalMove())
 	{
-		CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
+			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
 			GetID(), tacticalMoveNames[m_eTacticalMove], homelandMoveNames[eMove]);
-		GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
-	}
+			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
+		}
 
 #ifdef VPDEBUG
 	//sanity check
@@ -7379,9 +7379,9 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 
 	//clear tactical move, can't have both ...
 	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
-	m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
-	m_eHomelandMove = eMove;
-}
+		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
+		m_eHomelandMove = eMove;
+	}
 
 //	--------------------------------------------------------------------------------
 AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
@@ -11301,7 +11301,7 @@ bool CvUnit::DoSpreadReligion()
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 			if (pCity->getOwner() != m_eOwner)
 			{
-				int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
+				int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion, true);
 				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
 			}
 
@@ -11493,22 +11493,27 @@ bool CvUnit::DoRemoveHeresy()
 			}
 
 			ReligionTypes eBeforeMajority = pCity->GetCityReligions()->GetReligiousMajority();
-			pCity->GetCityReligions()->RemoveOtherReligions(GetReligionData()->GetReligion(), getOwner());
-			ReligionTypes eAfterMajority = pCity->GetCityReligions()->GetReligiousMajority();
-
-			if (eBeforeMajority != eAfterMajority)
+			if (eBeforeMajority != NO_RELIGION)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eAfterMajority, getOwner());
-				if (pReligion)
+				int iBeforePop = pCity->GetCityReligions()->GetNumFollowers(eBeforeMajority);
+				pCity->GetCityReligions()->RemoveOtherReligions(GetReligionData()->GetReligion(), getOwner());
+				int iAfterPop = pCity->GetCityReligions()->GetNumFollowers(eBeforeMajority);
+				int iDelta = iBeforePop - iAfterPop;
+				if (iDelta > 0)
 				{
-					CvCity* pHolyCity = NULL;
-					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-					if (pHolyCityPlot)
+					
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
+					if (pReligion)
 					{
-						pHolyCity = pHolyCityPlot->getPlotCity();
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						if (pHolyCity != NULL)
+							GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REMOVE_HERESY, false, NO_GREATPERSON, NO_BUILDING, iDelta, true, NO_PLAYER, NULL, false, pHolyCity);
 					}
-					if (pHolyCity != NULL)
-						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REMOVE_HERESY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
 				}
 			}
 
@@ -20529,8 +20534,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	//Dr. Livingstone I presume?
 	if (isHuman() && !isDelayedDeath())
 	{
-		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0)
-		{
+		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0){
 			UnitTypes eExplorer = (UnitTypes) GC.getInfoTypeForString("UNIT_EXPLORER", true /*bHideAssert*/); 
 			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), "TXT_KEY_EXPLORER_STANLEY") == 0 )
 			{
@@ -20538,12 +20542,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					CvPlot* pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
 
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
-					{
-						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
-						{
-							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0)
-							{
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL){
+						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++){
+							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0){
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP2_52);
 							}
 						}
@@ -27197,6 +27198,7 @@ bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked
 
 	return CvGameQueries::AreUnitsSameType(getUnitType(), pUnit2.getUnitType());
 }
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {
@@ -29237,18 +29239,18 @@ const char* CvUnit::GetMissionInfo()
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
-	m_strMissionInfoString += " // ";
+		m_strMissionInfoString += " // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-		m_strMissionInfoString += "no move assigned";
-	else
-	{
-		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-			m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
+			m_strMissionInfoString += "no move assigned";
+		else
+		{
+			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
 		if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
-			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
-	}
+				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
+		}
 
 	if (IsCombatUnit())
 	{
@@ -29256,28 +29258,28 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += getTacticalZoneInfo();
 	}
 	else if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		m_strMissionInfoString += " // ";
-		m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
-	}
-	else if (isTrade())
-	{
-		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-		int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
-		if (iTrIndex>=0)
 		{
-			const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
-			if (pTradeConnection)
+			m_strMissionInfoString += " // ";
+			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+		}
+		else if (isTrade())
+		{
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
+			if (iTrIndex>=0)
 			{
-				CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
-				CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
-				CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
-					pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
-					pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
-					pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
+				const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
+				if (pTradeConnection)
+				{
+					CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
+					CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
+					CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
+						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
+						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
+						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
 
-				m_strMissionInfoString += " // ";
-				m_strMissionInfoString += strTemp0;
+					m_strMissionInfoString += " // ";
+					m_strMissionInfoString += strTemp0;
 			}
 		}
 	}

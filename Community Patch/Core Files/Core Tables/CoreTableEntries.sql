@@ -195,6 +195,10 @@ ALTER TABLE Traits ADD COLUMN 'CombatBonusVsHigherPop' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'NumFreeBuildings' INTEGER DEFAULT 0;
 
+-- Reduce national pop requirements for national wonders.
+
+ALTER TABLE Traits ADD COLUMN 'NationalPopReqModifier' INTEGER DEFAULT 0;
+
 -- Adds a tech requirement to the free buildings.
 
 ALTER TABLE Traits ADD COLUMN 'FreeBuildingPrereqTech' TEXT DEFAULT NULL;

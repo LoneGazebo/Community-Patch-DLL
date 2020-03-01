@@ -1047,32 +1047,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Do this only after the capital has been chosen
 	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
-		int iYieldHandicap = owningPlayer.DoDifficultyBonus();
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
-
-			CvString strTemp;
-
-			CvString strFileName = "DifficultyHandicapLog.csv";
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-			CvString strPlayerName;
-			strPlayerName = GET_PLAYER(getOwner()).getCivilizationShortDescription();
-			strTemp += strPlayerName;
-			strTemp += ", ";
-
-			CvString strTurn;
-
-			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
-			strTemp += strTurn;
-
-			strTemp += strLogString;
-
-			pLog->Msg(strTemp);
-		}
+		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? HISTORIC_EVENT_CITY_FOUND_CAPITAL : HISTORIC_EVENT_CITY_FOUND);
 	}
 #endif
 
@@ -24337,6 +24312,8 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 					}
 				}
 			}
+
+			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this, true);
 		}
 	}
 	SetSpecialReligionYields(eYield, iYieldValue);
@@ -27629,7 +27606,7 @@ const CvString CvCity::getNameNoSpace() const
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::setName(const char* szNewValue, bool bFound)
+void CvCity::setName(const char* szNewValue, bool bFound, bool bForceChange)
 {
 	VALIDATE_OBJECT
 	CvString strName(szNewValue);
@@ -27637,7 +27614,7 @@ void CvCity::setName(const char* szNewValue, bool bFound)
 
 	if(!strName.IsEmpty())
 	{
-		if(GET_PLAYER(getOwner()).isCityNameValid(strName, false))
+		if (GET_PLAYER(getOwner()).isCityNameValid(strName, true, bForceChange))
 		{
 			m_strName = strName;
 

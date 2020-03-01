@@ -7551,7 +7551,6 @@
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<!-- Great person rate modifiers -->
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
 			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>

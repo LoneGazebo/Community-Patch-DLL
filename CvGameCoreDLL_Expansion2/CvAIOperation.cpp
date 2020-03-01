@@ -1038,7 +1038,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 
 				if (pThisArmy->GetNumSlotsFilled() < iNumRequiredSlots / 2)
 				{
-					SetToAbort(AI_ABORT_HALF_STRENGTH);
+					SetToAbort( AI_ABORT_HALF_STRENGTH);
 				}
 
 				//special for escorted ops

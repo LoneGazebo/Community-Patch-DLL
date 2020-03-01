@@ -616,6 +616,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			GET_PLAYER(eDestPlayer).CalculateNetHappiness();
 		}
 	}
+	GET_PLAYER(eOriginPlayer).UpdateReligion();
+	if (eOriginPlayer != eDestPlayer)
+		GET_PLAYER(eDestPlayer).UpdateReligion();
 #endif
 
 	if(GC.getLogging())
@@ -1083,6 +1086,10 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
+
+	GET_PLAYER(eOriginPlayer).UpdateReligion();
+	if (eOriginPlayer != eDestPlayer)
+		GET_PLAYER(eDestPlayer).UpdateReligion();
 
 	gDLL->TradeVisuals_DestroyRoute(iIndex, eOriginPlayer);
 #if defined(MOD_BALANCE_CORE)

@@ -5226,8 +5226,11 @@ void CvPlayer::getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCi
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed) const
+bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed, bool bForce) const
 {
+	if (bForce)
+		return true;
+
 	const CvCity* pLoopCity;
 	int iLoop;
 
@@ -11779,6 +11782,10 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
+	//some statistics
+	static int tactMovesCount[NUM_AI_TACTICAL_MOVES] = { 0 };
+	static int homeMovesCount[NUM_AI_HOMELAND_MOVES] = { 0 };
+
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -19869,11 +19876,8 @@ void CvPlayer::DoWarVictoryBonuses()
 		}
 	}
 }
-int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
+void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
-	if (eHistoricEvent == HISTORIC_EVENT_DIG || eHistoricEvent == HISTORIC_EVENT_TRADE_CS)
-		return 0;
-
 	int iEra = GetCurrentEra();
 	if(iEra <= 0)
 	{
@@ -19884,6 +19888,9 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	int iHandicapB = 0;
 	int iHandicapC = 0;
 	int iYieldHandicap = 0;
+
+	CvString strLogString;
+
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 	if(pHandicapInfo)
 	{
@@ -19894,47 +19901,187 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iYieldHandicap = iHandicapBase * ((iHandicapC * iEra * iEra) + (iHandicapB * iEra) + iHandicapA) / 100;
 	}
 	if (iYieldHandicap > 0)
-	{	
-		if (eHistoricEvent == HISTORIC_EVENT_ERA)
-			iYieldHandicap *= 2;
-
-		bool IncludeCities = true;
-		if (eHistoricEvent == HISTORIC_EVENT_GP ||
-			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
-			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
+	{
+		switch (eHistoricEvent)
 		{
-			IncludeCities = false;
-		}
-
-		if (IncludeCities)
-		{
-			int iLoop;
-			CvCity* pLoopCity;
-			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			case HISTORIC_EVENT_ERA:
 			{
-				if (pLoopCity != NULL)
+				iYieldHandicap *= 3;
+				int iLoop;
+				CvCity* pLoopCity;
+				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					pLoopCity->changeFood(iYieldHandicap);
-					pLoopCity->changeProduction(iYieldHandicap);
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->changeFood(iYieldHandicap);
+						pLoopCity->changeProduction(iYieldHandicap);
+					}
 				}
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				changeJONSCulture(iYieldHandicap);
+
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iYieldHandicap);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
+				}
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: ERA - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_WONDER:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: WONDER - Received Handicap Bonus (%d in Yields): GOLD, GAP.", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_GP:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GP - Received Handicap Bonus (%d in Yields): GOLD, GAP", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_WAR:
+			{
+				int iLoop;
+				CvCity* pLoopCity;
+				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->changeFood(iYieldHandicap);
+						pLoopCity->changeProduction(iYieldHandicap);
+					}
+				}
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				changeJONSCulture(iYieldHandicap);
+
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iYieldHandicap);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
+				}
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: WAR - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_GA:
+			{
+				int iLoop;
+				CvCity* pLoopCity;
+				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->changeFood(iYieldHandicap);
+						pLoopCity->changeProduction(iYieldHandicap);
+					}
+				}
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				changeJONSCulture(iYieldHandicap);
+
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iYieldHandicap);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
+				}
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GA - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_DIG:
+			case HISTORIC_EVENT_TRADE_CS:
+			case HISTORIC_EVENT_TRADE_LAND:
+			case HISTORIC_EVENT_TRADE_SEA:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: DIG/TRADE - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
+			{
+				int iLoop;
+				CvCity* pLoopCity;
+				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->changeFood(iYieldHandicap);
+						pLoopCity->changeProduction(iYieldHandicap);
+					}
+				}
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CAPITAL - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP", iYieldHandicap);
+				break;
+			}
+			case HISTORIC_EVENT_CITY_FOUND:
+			{
+				int iLoop;
+				CvCity* pLoopCity;
+				for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->changeFood(iYieldHandicap);
+						pLoopCity->changeProduction(iYieldHandicap);
+					}
+				}
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				changeJONSCulture(iYieldHandicap);
+
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iYieldHandicap);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
+				}
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CITY - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+				break;
 			}
 		}
-
-		GetTreasury()->ChangeGold(iYieldHandicap);
-		ChangeGoldenAgeProgressMeter(iYieldHandicap);
-		changeJONSCulture(iYieldHandicap);
-		
-		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-		if(eCurrentTech == NO_TECH)
-		{
-			changeOverflowResearch(iYieldHandicap);
-		}
-		else
-		{
-			GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
-		}	
 	}
-	return iYieldHandicap;
+
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strTemp;
+
+		CvString strFileName = "DifficultyHandicapLog.csv";
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+		CvString strPlayerName;
+		strPlayerName = getCivilizationShortDescription();
+		strTemp += strPlayerName;
+		strTemp += ", ";
+
+		CvString strTurn;
+
+		strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+		strTemp += strTurn;
+
+		strTemp += strLogString;
+
+		pLog->Msg(strTemp);
+	}
 }
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -24463,6 +24610,11 @@ void CvPlayer::SetAnarchyNumTurns(int iValue)
 {
 	if(iValue != GetAnarchyNumTurns())
 	{
+		if (iValue > 0 && m_iAnarchyNumTurns <= 0)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAnarchy, GetID(), true, iValue);
+		else if (iValue <= 0 && GetAnarchyNumTurns() > 0)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAnarchy, GetID(), false, 0);
+
 		m_iAnarchyNumTurns = iValue;
 
 		if(GetID() == GC.getGame().getActivePlayer())
@@ -26310,6 +26462,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_CONSTRUCTION:
 				{
 					iValue += pLoopCity->GetYieldFromConstruction(eYield) + getYieldFromConstruction(eYield);
+					if (pReligion)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldPerConstruction(eYield, GetID(), pLoopCity);
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
@@ -26895,11 +27051,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromRemoveHeresy(eYield, GetID(), pLoopCity, true);
-						iValue *= 100;
-						iValue /= max(1, iEra * 50);
-						if (iValue <= 0)
-							iValue = 0;
+						int iTempVal = pReligion->m_Beliefs.GetYieldFromRemoveHeresy(eYield, GetID(), pLoopCity, true);
+						iTempVal *= iPassYield;
+						if (iTempVal > 0)
+							iValue += iTempVal;
 					}
 
 					break;
@@ -31515,33 +31670,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 0)
 	{
-		int iYieldHandicap = DoDifficultyBonus(eHistoricEvent);
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			int EventID = (int)eHistoricEvent;
-			strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT %d: Received Handicap Bonus (%d in Yields).", EventID, iYieldHandicap);
-
-			CvString strTemp;
-
-			CvString strFileName = "DifficultyHandicapLog.csv";
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-			CvString strPlayerName;
-			strPlayerName = getCivilizationShortDescription();
-			strTemp += strPlayerName;
-			strTemp += ", ";
-
-			CvString strTurn;
-
-			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
-			strTemp += strTurn;
-
-			strTemp += strLogString;
-
-			pLog->Msg(strTemp);
-		}
+		DoDifficultyBonus(eHistoricEvent);
 	}
 #endif
 }
@@ -33974,9 +34103,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 	{
 		CvGame& kGame = GC.getGame();
 		CvMap& theMap = GC.getMap();
-
 		m_bTurnActive = bNewValue; // R: this is causing the AI playing twice in one turn bug
-
 #if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 		// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
 		// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
@@ -36261,12 +36388,17 @@ int CvPlayer::GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) con
 				int iScaler = (getNumCities() * pkBuildingInfo->GetNumCityCostMod());
 				iNationalPop *= (100 + iScaler);
 				iNationalPop /= 100;
-				//If OCC... 1/3 the value, as three cities is 'roughly' average for a game.
-				if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-				{
-					iNationalPop /= 3;
-				}
-				return iNationalPop;
+
+				int iModifier = 100 - GetPlayerTraits()->GetNationalPopReqModifier();
+
+				//If OCC... 1/2 the value
+				if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					iModifier -= 50;
+
+				iNationalPop *= iModifier;
+				iNationalPop /= 100;
+				
+				return max(0, iNationalPop);
 			}
 		}
 	}
@@ -36813,6 +36945,18 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 	//default
 	PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
 
+	//can't embark? non-continent members are distant.
+	if (!GET_TEAM(getTeam()).canEmbark())
+	{
+		CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
+		CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
+		if (pA->getArea() != pB->getArea())
+		{
+			SetProximityToPlayer(ePlayer, PLAYER_PROXIMITY_DISTANT);
+			return;
+		}
+	}
+
 	// Closest Cities must be within a certain range
 	int iDistance = plotDistance(closestCities.first,closestCities.second);
 	if(iDistance < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
@@ -36828,6 +36972,22 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 	else if(iDistance < /*18*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
 	{
 		eProximity = PLAYER_PROXIMITY_FAR;
+	}
+
+	//can embark, but not oceanic? non-continent members are one pip less.
+	if (GET_TEAM(getTeam()).canEmbark() && !GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+	{
+		CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
+		CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
+		if (pA->getArea() != pB->getArea())
+		{
+			if (eProximity == PLAYER_PROXIMITY_FAR)
+				eProximity = PLAYER_PROXIMITY_DISTANT;
+			else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+				eProximity = PLAYER_PROXIMITY_FAR;
+			else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				eProximity = PLAYER_PROXIMITY_CLOSE;
+		}
 	}
 
 	SetProximityToPlayer(ePlayer, eProximity);

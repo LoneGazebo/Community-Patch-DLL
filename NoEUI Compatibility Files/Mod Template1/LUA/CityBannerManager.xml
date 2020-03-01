@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Anton Strenger (Firaxis Games) -->
+<Context>
+	<Container ID="CityBanners" Hidden="0"/>
+	<Container ID="StrategicViewStrikeButtons" Hidden="1"/>
+	<Instance Name="TeamCityBanner">
+		<WorldAnchor ID="Anchor">
+			<!-- CityBannerBackgroundArch -->
+			<Image Anchor="C,C" Offset="0,-7" Size="64,64" Texture="Assets/UI/Art/Icons/CityBannerGrowthColor.dds" ID="CityBannerBackgroundArch" Hidden="1"/>
+			<!-- CityBannerButton -->
+			<Button Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="160,40" ID="BannerButton" ToolTip="TXT_KEY_CITY_ENTER_CITY_SCREEN">
+				<ShowOnMouseOver>
+					<Image ID="CityBannerBackgroundIcon" Anchor="C,C" Size="111,32" Color="PlayerColor2,100" Texture="Assets/UI/Art/Icons/CityBannerBackground.dds"/>
+					<Image ID="CityBannerBGRightHL" Anchor="R,C" AnchorSide="O,I" Color="PlayerColor2,100" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerRightBackground.dds"/>
+					<Image ID="CityBannerBGLeftHL" Anchor="L,C" AnchorSide="O,I" Color="PlayerColor2,100" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerLeftBackground.dds"/>
+					<AlphaAnim ID="CityBannerButtonGlow" Size="111,64" Offset="0,-12" Texture="Assets/UI/Art/Icons/CityBannerButtonGlow.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="2" AlphaEnd=".50"/>
+					<AlphaAnim Size="48,64" Anchor="L,C" AnchorSide="O.I" Texture="Assets/UI/Art/Icons/CityBannerButtonGlowLeft.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="2" AlphaEnd=".50"/>
+					<AlphaAnim Size="48,64" Anchor="R,C" AnchorSide="O.I" Texture="Assets/UI/Art/Icons/CityBannerButtonGlowRight.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="2" AlphaEnd=".50"/>
+				</ShowOnMouseOver>
+				<Image ID="CityBannerButtonBase" Anchor="C,C" AnchorSide="O.I" Offset="0,0" TextureOffset="0,0" Size="140,64" Texture="Assets/UI/Art/Icons/CityBannerButtonBase.dds"/>
+				<Image Anchor="L,C" AnchorSide="O.I" Offset="0,0" TextureOffset="0,0" Size="48,64" Texture="Assets/UI/Art/Icons/CityBannerButtonBaseLeft.dds"/>
+				<Image Anchor="R,C" AnchorSide="O.I" Offset="0,0" TextureOffset="0,0" Size="48,64" Texture="Assets/UI/Art/Icons/CityBannerButtonBaseRight.dds"/>
+			</Button>
+			<!-- CityBannerBackground -->
+			<Image Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="111,32" Texture="Assets/UI/Art/Icons/CityBannerBackground.dds" ID="CityBannerBackground">
+				<Image Anchor="R,C" AnchorSide="O,I" Color="PlayerColor2,180" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerRightBackground.dds" ID="CityBannerLeftBackground" ToolTip="">
+					<Image Anchor="C,C" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerRightBackgroundHL.dds" Hidden="0"/>
+					<Button NoStateChange="1" Anchor="L,C" Size="48,64" Texture="Assets/UI/Art/Icons/CityBannerProductionBackground.dds" Hidden="0" ID="CityBannerProductionButton"/>
+					<Image NoStateChange="1" Anchor="C,C" Offset="0,0" Size="45,45" Texture="Assets/UI/Art/Icons/CityBannerProductionImage.dds" Hidden="0" ID="CityBannerProductionImage"/>
+				</Image>
+				<Image Anchor="L,C" AnchorSide="O,I" Color="PlayerColor2,180" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerLeftBackground.dds" ID="CityBannerRightBackground" ToolTip="">
+					<Image Anchor="C,C" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerLeftBackgroundHL.dds" Hidden="0"/>
+					<!-- CityPopulation  -->
+					<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT20" Color0="255,255,200,255" Color1="Black,255" FontStyle="Stroke" ID="CityPopulation" Hidden="0" ForceNonIME="1"/>
+				</Image>
+			</Image>
+			<!-- CityBannerBackgroundHL -->
+			<Image Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="111,32" Texture="Assets/UI/Art/Icons/CityBannerBackgroundHL.dds" ID="CityBannerBackgroundHL" Hidden="0">
+				<!-- GrowthMeter CityBannerGrowthBackground -->
+				<Box Anchor="L,C" Offset="0,0" Size="6,30" Color="0,0,0,255" Hidden="0" ID="GrowthBox">
+					<Bar Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Food,128" Hidden="0" ID="GrowthBarShadow" Direction="Up"/>
+					<Bar Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Food,255" Hidden="0" ID="GrowthBar" Direction="Up"/>
+					<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64" Hidden="0"/>
+					<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64" Hidden="0"/>
+					<Label Anchor="R,B" AnchorSide="O.I" Offset="1,2" Color0="Food,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" ID="CityGrowth" Hidden="0"/>
+				</Box>
+				<!-- ProductionMeter  -->
+				<Box Anchor="R,C" Offset="0,0" Size="6,30" Color="0,0,0,255" Hidden="0">
+					<Bar Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Production,128" Hidden="0" ID="ProductionBarShadow" Direction="Up"/>
+					<Bar Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Production,255" Hidden="0" ID="ProductionBar" Direction="Up"/>
+					<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64" Hidden="0"/>
+					<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64" Hidden="0"/>
+					<Label Anchor="L,B" AnchorSide="O.I" Offset="1,2" Color0="Production,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" ID="BuildGrowth" Hidden="0"/>
+				</Box>
+			</Image>
+			<!-- CityProductionName -->
+			<Label Anchor="C,C" Offset="0,6" Font="TwCenMT14" FontStyle="Base" ID="CityProductionName" Hidden="1"/>
+			<Box Color="0,0,0,0" Size="160,40" Anchor="C,C">
+				<!-- CityName -->
+				<Stack ID="NameStack" Anchor="C,C" Offset="0,0" StackGrowth="Right" Padding="2">
+					<Label Anchor="L,C" Offset="0,-1" Font="TwCenMT18" FontStyle="Shadow" ID="CityName" Hidden="0"/>
+					<Container Size="32,32" Hidden="0" ID="ReligiousIconContainer">
+						<Image Anchor="L,C" ID="ReligiousIconShadow" Offset="1,1" Color="0,0,0,255" Size="32,32" Texture="assets\DLC\Expansion\UI\Art\Icons\ReligiousSymbolsWhite32_Expansion.dds"/>
+						<Image Anchor="L,C" ID="ReligiousIcon" Offset="0,0" Color="255,255,255,255" Size="32,32" Texture="assets\DLC\Expansion\UI\Art\Icons\ReligiousSymbolsWhite32_Expansion.dds"/>
+					</Container>
+				</Stack>
+			</Box>
+		
+			<Button Style="Button_128" Offset="0,40" Anchor="C,T" ID="EjectGarrison" Hidden="1"/>
+			<!--  CityBannerHealthBar GarrisonFrame CityBannerStrengthFrame CityCapitalIcon CityStrength CityRangeStrikeButton -->
+			<Box Anchor="C,C" Offset="0,-32" Size="128,48" Color="0.0.0.0" Hidden="0">
+				<!-- CityBannerHealthBarBase color needs Color="255,255,0,255" when its the Capital -->
+				<Box Anchor="C,B" Offset="0,1" Size="102,7" Color="255,255,200,255" ID="CityBannerHealthBarBase" Hidden="1">
+					<Box Anchor="C,C" Offset="0,0" Size="100,5" Color="0,0,0,255" Hidden="0"/>
+					<Bar Anchor="C,C" Offset="0,0" Size="98,3" Direction="Right" FGColor="Green,255" ID="CityBannerHealthBar" Hidden="0"/>
+					<Box Anchor="C,T" Offset="0,1" Size="98,1" Color="255,255,255,64" Hidden="0"/>
+					<Box Anchor="C,B" Offset="0,0" Size="98,2" Color="0,0,0,64" Hidden="0"/>
+				</Box>
+				<!-- GarrisonFrame -->
+				<Image Anchor="C,C" Offset="-42,-8" Size="64,64" Texture="Assets/UI/Art/Icons/GarrisonFrame.dds" Hidden="0" ID="GarrisonFrame"/>
+				<!-- CityBannerStrengthFrame  -->
+				<Image Anchor="C,C" Offset="0,0" Size="128,48" Texture="Assets/UI/Art/Icons/CityBannerStrengthFrame.dds" Hidden="0" ID="CityBannerStrengthFrame" ConsumeMouse="0"/>
+				<Box Anchor="C,C" Offset="0,6" Size="64,24" Color="0,0,0,0" Hidden="0" ConsumeMouse="0" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
+				<!--  CityStrength -->
+				<Label Anchor="C,C" Offset="6,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" ForceNonIME="1" ID="CityStrength" Hidden="0"/>
+				<!--  CityRangeStrikeButton -->
+				<Button Anchor="C,C" Offset="0,64" Size="64,64" Texture="Assets/UI/Art/Icons/CityBombard.dds" ID="CityRangeStrikeButton" Hidden="0" ToolTip="TXT_KEY_CITY_MAKE_RANGED_ATTACK">
+					<AlphaAnim Anchor="C,C" Size="64,64" Texture="Assets/UI/Art/Icons/CityBannerStrengthAlpha.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="1" AlphaEnd="0"/>
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Size="64,64" Texture="Assets/UI/Art/Icons/CityBannerStrengthAlpha.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="1" AlphaEnd="0"/>
+					</ShowOnMouseOver>
+				</Button>
+				<AlphaAnim Anchor="C,C" Offset="0,64" Size="64,64" Texture="Assets/UI/Art/Icons/CityBannerStrengthAlpha.dds" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="1" AlphaEnd="0" ID="CityRangeStrikeAnim" Hidden="0"/>
+			</Box>
+			<!-- List of Icons -->
+			<Stack ID="IconsStack" Anchor="C,C" Offset="0,30" StackGrowth="Right" Padding="3">
+				<Label ID="RazingIcon" Anchor="C,C" Offset="0,0" String="[ICON_RAZING]" Hidden="1"/>
+				<Label ID="ResistanceIcon" Anchor="C,C" Offset="0,0" String="[ICON_RESISTANCE]" Hidden="1"/>
+				<Label ID="ConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_CONNECTED]" Hidden="1"/>
+				<Label ID="BlockadedIcon" Anchor="C,C" Offset="0,0" String="[ICON_BLOCKADED]" Hidden="1"/>
+				<Label ID="PuppetIcon" Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" Hidden="1"/>
+				<Label ID="OccupiedIcon" Anchor="C,C" Offset="0,0" String="[ICON_OCCUPIED]" Hidden="1"/>
+				<Label ID="UnhappyIcon" Anchor="C,C" Offset="0,0" String="[ICON_HAPPINESS_3]" Hidden="1"/>
+				<Label ID="SpyIcon" Anchor="C,C" Offset="0,0" String="[ICON_SPY]" Hidden="0" />
+        <Label ID="DiplomatIcon" Anchor="C,C" Offset="0,0" String="[ICON_DIPLOMAT]" Hidden="0" />
+			</Stack>
+		</WorldAnchor>
+	</Instance>
+	<!--   =========================================================== OtherCityBanner ===========================================================   -->
+	<Instance Name="OtherCityBanner">
+		<WorldAnchor ID="Anchor">
+			<!-- CityBannerButton -->
+			<Button Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="257,48" ID="BannerButton">
+				<!-- OtherCityBanner CityBannerBackground -->
+				<Image Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerBackground.dds" ID="CityBannerBackground"/>
+				<Image Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerBackgroundHL.dds" ID="CityBannerBackgroundHL"/>
+				<Image Anchor="C,C" Offset="0,0" TextureOffset="0,0" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerFrame.dds" ID="CityBannerBaseFrame"/>
+				<Image Anchor="L,C" AnchorSide="O,I" Size="32,32" Color="Black.180" Texture="Assets/UI/Art/Icons/CityBannerLeftBackground.dds" ID="LeftBackground">
+					<Image Anchor="C,C" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerLeftBackgroundHL.dds"/>
+					<Image Anchor="C,C" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerFrameLeft.dds"/>
+					<!-- OtherCityBanner CityPopulation -->
+					<Label Anchor="C,C" Offset="0,-2" Font="TwCenMT20" Color0="255,255,200,255" Color1="0,0,0,200" FontStyle="Stroke" ID="CityPopulation" ForceNonIME="1" Hidden="0"/>
+				</Image>
+				<Image Anchor="R,C" AnchorSide="O,I" Size="32,32" Color="Black.180" Texture="Assets/UI/Art/Icons/CityBannerRightBackground.dds" ID="RightBackground">
+					<Image Anchor="C,C" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerRightBackgroundHL.dds"/>
+					<Image Anchor="C,C" Size="32,32" Texture="Assets/UI/Art/Icons/CityBannerFrameRight.dds"/>
+					<!-- OtherCityBanner CivilizationSymbols -->
+					<!-- City State Meters-->
+					<Image ID="StatusIconBG" Anchor="L,T" Texture="Assets/UI/Art/Notification/CityStateMeterBlack32.dds" Size="32.32" Hidden="1"/>
+					<Image ID="StatusIcon" Anchor="L,T" Texture="Assets/UI/Art/Notification/CityStateMilitaristic.dds" Size="32.32" Hidden="0"/>
+          
+				</Image>
+
+				<!-- OtherCityBanner CityName -->
+				<!-- Status Meter-->
+				<Image ID="StatusMeterFrame" Anchor="C,B" Offset="0.2" AnchorSide="O.I" Texture="Assets/UI/Art/Notification/CityStateMeterBase.dds" Size="161.7" Hidden="1">
+					<TextureBar ID="NegativeStatusMeter" Anchor="L,C" Size="81.7" Direction="Left" Texture="Assets/UI/Art/Notification/CityStateMeterBaseRed.dds" Hidden="0"/>
+					<TextureBar ID="PositiveStatusMeter" Anchor="R,C" Size="81.7" Direction="Right" Texture="Assets/UI/Art/Notification/CityStateMeterBaseBlue.dds" Hidden="0"/>
+					<Image Anchor="C,C" Texture="Assets/UI/Art/Notification/CityStateMeterFrameQuartered_Black.dds" Size="161.7" Hidden="0"/>
+					<Image ID="StatusMeterMarker" Anchor="C,C" Offset="0,1" AnchorSide="O.I" Texture="Assets/UI/Art/Notification/CityStateMeterFrameIcon16.dds" Size="16,16" Hidden="0"/>
+				</Image>
+				<Stack ID="NameStack" Anchor="C,C" Offset="0,1" StackGrowth="Right" Padding="2">
+          <Image Anchor="L,C" Offset="0,0" Size="32,32" Texture="Assets/UI/Art/Icons/CivSymbolAtlas32.dds" Color="201,248,255,255" ID="MinorIndicator"/>
+          <Label Anchor="L,C" Offset="0,-1" Font="TwCenMT18" FontStyle="Shadow" ID="CityName" Hidden="0"/>
+          <Container Anchor="L,C" Size="32,32" Hidden="0" ID="ReligiousIconContainer">
+            <Image Anchor="L,C" ID="ReligiousIconShadow" Offset="1,1" Color="0,0,0,255" Size="32,32" Texture="assets\DLC\Expansion\UI\Art\Icons\ReligiousSymbolsWhite32_Expansion.dds"/>
+            <Image Anchor="L,C" ID="ReligiousIcon" Offset="0,0" Color="255,255,255,255" Size="32,32" Texture="assets\DLC\Expansion\UI\Art\Icons\ReligiousSymbolsWhite32_Expansion.dds"/>
+          </Container>
+				</Stack>
+				<!-- OtherCityBanner CityBannerHealthBar -->
+				<Box Anchor="C,C" Offset="0,-12" Size="100,5" Color="0,0,0,255" ID="CityBannerHealthBarBase" Hidden="1">
+					<Bar Anchor="C,C" Offset="0,0" Size="98,3" Direction="Right" FGColor="Green,255" ID="CityBannerHealthBar" Hidden="0"/>
+					<Box Anchor="C,T" Offset="0,1" Size="98,1" Color="255,255,255,64" Hidden="0"/>
+					<Box Anchor="C,B" Offset="0,0" Size="98,2" Color="0,0,0,64" Hidden="0"/>
+				</Box>
+				<!-- CityBannerStrengthFrame  -->
+				<Image Anchor="C,C" Offset="0,-29" Size="128,48" Texture="Assets/UI/Art/Icons/CityBannerStrengthFrameOther.dds" Hidden="0"/>
+				<!--  CityStrength -->
+				<Label Anchor="C,C" Offset="6,-24" Font="TwCenMT16" Color0="255,255,200,255" Color1="0,0,0,200" ForceNonIME="1" FontStyle="Stroke" ID="CityStrength" Hidden="0"/>
+				<!-- STUFF NOT USED -->
+				<Label Anchor="C,C" Offset="0,5" Font="TwCenMT14" FontStyle="Base" ID="CityProductionName" Hidden="1"/>
+				<Label Anchor="C,C" Offset="0,-22" Color0="219,110,38,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ID="BuildGrowth" Hidden="1"/>
+			</Button>
+			<!-- List of Icons -->
+			<Stack ID="IconsStack" Anchor="C,C" Offset="0,30" StackGrowth="Right" Padding="3">
+				<Label ID="RazingIcon" Anchor="C,C" Offset="0,0" String="[ICON_RAZING]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="ResistanceIcon" Anchor="C,C" Offset="0,0" String="[ICON_RESISTANCE]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="ConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_CONNECTED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="BlockadedIcon" Anchor="C,C" Offset="0,0" String="[ICON_BLOCKADED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="PuppetIcon" Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="OccupiedIcon" Anchor="C,C" Offset="0,0" String="[ICON_OCCUPIED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="UnhappyIcon" Anchor="C,C" Offset="0,0" String="[ICON_HAPPINESS_3]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="SpyIcon" Anchor="C,C" Offset="0,0" String="[ICON_SPY]" Font="TwCenMT18" FontStyle="Shadow" Hidden="0"/>
+        <Label ID="DiplomatIcon" Anchor="C,C" Offset="0,0" String="[ICON_DIPLOMAT]" Font="TwCenMT18" FontStyle="Shadow" Hidden="0"/>
+			</Stack>
+		</WorldAnchor>
+	</Instance>
+	<!--   =========================================================== Strategic View Range Strike Buttons ===========================================================   -->
+	<Instance Name="SVRangeStrikeButton">
+		<WorldAnchor ID="Anchor">
+			<!--  CityRangeStrikeButton -->
+			<Button Anchor="C,C" Offset="0,21" Size="48,48" Texture="Assets/UI/Art/Icons/CityBombard_Small.dds" ID="CityRangeStrikeButton" Sampler="Linear" Hidden="0" ToolTip="TXT_KEY_CITY_MAKE_RANGED_ATTACK">
+				<AlphaAnim Anchor="C,C" Size="48,48" Texture="Assets/UI/Art/Icons/CityBannerStrengthAlpha_Small.dds" ID="StrengthAlpha" Sampler="Linear" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="1" AlphaEnd="0"/>
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="C,C" Size="48,48" Texture="Assets/UI/Art/Icons/CityBannerStrengthAlpha_Small.dds" ID="MouseOver" Sampler="Linear" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="1" AlphaEnd="0"/>
+				</ShowOnMouseOver>
+			</Button>
+			<AlphaAnim Anchor="C,C" Offset="0,21" Size="48,48" Texture="Assets/UI/Art/Icons/CityBannerStrengthAlpha_Small.dds" Sampler="Linear" Pause="0" Cycle="Bounce" Speed="2" AlphaStart="1" AlphaEnd="0" ID="CityRangeStrikeAnim" Hidden="0"/>
+		</WorldAnchor>
+	</Instance>
+</Context>
