@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Messenger of the Gods (Now God of Commerce)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection. Capital/Holy City gains +2 [ICON_GREAT_PERSON] Great Merchant Points and +2 [ICON_GOLD] Gold and [ICON_PEACE] Faith in [ICON_CAPITAL] per active Trade Route.'
+SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection. Capital/Holy City gains +2 [ICON_GREAT_PEOPLE] Great Merchant Points and +2 [ICON_GOLD] Gold and [ICON_PEACE] Faith in [ICON_CAPITAL] per active Trade Route.'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -46,7 +46,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Liturgy (Now Goddess of Wisdom)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith in every City, and +2 [ICON_GREAT_PERSON] Great Scientist Points in Capital/Holy City. +1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in any City with a Specialist'
+SET Text = '+1 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith in every City, and +1 [ICON_GREAT_PEOPLE] Great Scientist Points in Capital/Holy City. +1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in any City with a Specialist'
 WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
