@@ -5474,63 +5474,52 @@ bool CvUnit::jumpToNearestValidPlot()
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//plot must be empty even of civilians
-		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
+		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
 		{
-			if (pLoopPlot->IsFriendlyTerritory(getOwner()))
-			{
-				pBestPlot = pLoopPlot;
-				break;
-			}
-			else if (pLoopPlot->getOwner() == NO_PLAYER)
-			{
-				int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
-				//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
-				if (getDomainType() == DOMAIN_SEA)
-					if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-						iValue += 2000;
+			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
+			if (getDomainType() == DOMAIN_SEA)
+				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+					iValue += 2000;
 
-				//avoid embarkation
-				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-					iValue += 1000;
+			//avoid embarkation
+			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+				iValue += 1000;
 
-				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
-			}
+			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
+		}
+	}
+
+	//we want lowest scores first
+	std::sort(candidates.begin(), candidates.end());
+
+	for (size_t i = 0; i < candidates.size(); i++)
+	{
+		CvPlot* pTestPlot = candidates[i].pPlot;
+
+		// "quick" heuristic check to make sure this is not a dead end
+		// alternatively we could verify against all plots reachable from owner's capital?
+		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+		data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
+
+		//want to sort by ascending area size
+		candidates[i].score = GC.getMap().numPlots() - plots2.size();
+
+		//if we have lots of room here, use the plot immediately
+		if (plots2.size() > 23)
+		{
+			pBestPlot = pTestPlot;
+			break;
 		}
 	}
 
 	if (!pBestPlot && !candidates.empty())
 	{
-		//we want lowest scores first
+		//try again if there are only bad places
 		std::sort(candidates.begin(), candidates.end());
-
-		for (size_t i = 0; i < candidates.size(); i++)
-		{
-			CvPlot* pTestPlot = candidates[i].pPlot;
-
-			// "quick" heuristic check to make sure this is not a dead end
-			// alternatively we could verify against all plots reachable from owner's capital?
-			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
-
-			//want to sort by ascending area size
-			candidates[i].score = GC.getMap().numPlots() - plots2.size();
-
-			//if we have lots of room here, use the plot immediately
-			if (plots2.size() > 23)
-			{
-				pBestPlot = pTestPlot;
-				break;
-			}
-		}
-
-		if (!pBestPlot)
-		{
-			//try again if there are only bad places
-			std::sort(candidates.begin(), candidates.end());
-			pBestPlot = candidates.front().pPlot;
-		}
+		pBestPlot = candidates.front().pPlot;
 	}
 
 	//last chance
@@ -7377,8 +7366,8 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 	}
 #endif
 
-	//clear tactical move, can't have both ...
-	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
+		//clear tactical move, can't have both ...
+		m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
 		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
 		m_eHomelandMove = eMove;
 	}
@@ -7388,7 +7377,7 @@ AIHomelandMove CvUnit::getHomelandMove(int* pTurnSet) const
 {
 	VALIDATE_OBJECT
 	if (pTurnSet)
-		*pTurnSet = m_iTacticalMoveSetTurn;
+		*pTurnSet = m_iHomelandMoveSetTurn;
 
 	return m_eHomelandMove;
 }

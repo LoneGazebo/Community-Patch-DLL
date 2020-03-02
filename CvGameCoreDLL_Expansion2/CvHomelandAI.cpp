@@ -1508,16 +1508,19 @@ void CvHomelandAI::PlotUpgradeMoves()
 			{
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
 				UnitProcessed(pUnit->GetID());
-				UnitProcessed(pNewUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
+				if (pNewUnit)
 				{
-					CvString strLogString;
-					CvString strTemp1, strTemp2;
-					strTemp1 = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-					strTemp2 = GC.getUnitInfo(pNewUnit->getUnitType())->GetDescription();
-					strLogString.Format("Upgrading unit from type %s to type %s, X: %d, Y: %d", strTemp1.GetCString(), strTemp2.GetCString(), pNewUnit->getX(), pNewUnit->getY());
-					LogHomelandMessage(strLogString);
+					UnitProcessed(pNewUnit->GetID());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						CvString strTemp1, strTemp2;
+						strTemp1 = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+						strTemp2 = GC.getUnitInfo(pNewUnit->getUnitType())->GetDescription();
+						strLogString.Format("Upgrading unit from type %s to type %s, X: %d, Y: %d", strTemp1.GetCString(), strTemp2.GetCString(), pNewUnit->getX(), pNewUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
 				}
 			}
 			else if (pFirstNonUpgradedUnit == NULL)
@@ -6121,7 +6124,7 @@ void CvHomelandAI::UnitProcessed(int iID)
 	}
 
 	pUnit->setHomelandMove(m_CurrentMoveUnits.getCurrentHomelandMove());
-		pUnit->SetTurnProcessed(true);
+	pUnit->SetTurnProcessed(true);
 }
 
 //returns the target plot if sucessful, null otherwise

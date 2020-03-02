@@ -1974,9 +1974,11 @@ void CvTacticalAI::PlotCampDefenseMoves()
 		CvUnit* currentDefender = pPlot->getBestDefender(BARBARIAN_PLAYER);
 		if (currentDefender)
 		{
-			if (currentDefender->CanUpgradeRightNow(true))
+			if (currentDefender->CanUpgradeRightNow(true) && !currentDefender->IsHurt())
 			{
-				currentDefender->DoUpgrade(true);
+				CvUnit* pNewUnit = currentDefender->DoUpgrade(true);
+				if (pNewUnit)
+					UnitProcessed(pNewUnit->GetID());
 			}
 			else if (currentDefender->isRanged())
 			{
@@ -2044,8 +2046,15 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 		if (pGarrison)
 		{
+			if (pGarrison->CanUpgradeRightNow(false) && !pGarrison->IsHurt())
+			{
+				CvUnit* pNewUnit = pGarrison->DoUpgrade();
+				if (pNewUnit)
+					UnitProcessed(pNewUnit->GetID());
+			}
+
 			//sometimes we have an accidental garrison ...
-			if (pGarrison->AI_getUnitAIType() == UNITAI_EXPLORE || pGarrison->TurnProcessed() || pGarrison->getArmyID()!=-1)
+			if (pGarrison->AI_getUnitAIType() == UNITAI_EXPLORE || pGarrison->isDelayedDeath() || pGarrison->TurnProcessed() || pGarrison->getArmyID()!=-1)
 				continue;
 
 			//first check how many enemies are around
@@ -2109,10 +2118,11 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
 		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 		{
-			if (pUnit->CanUpgradeRightNow(false))
+			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
-				UnitProcessed(pNewUnit->GetID());
+				if (pNewUnit)
+					UnitProcessed(pNewUnit->GetID());
 			}
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -2140,10 +2150,11 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
 		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 		{
-			if (pUnit->CanUpgradeRightNow(false))
+			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
-				UnitProcessed(pNewUnit->GetID());
+				if (pNewUnit)
+					UnitProcessed(pNewUnit->GetID());
 			}
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -2602,10 +2613,11 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			CvPlot* pSafePlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
 			if (pSafePlot)
 			{
-				if (pUnit->CanUpgradeRightNow(false))
+				if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 				{
 					CvUnit* pNewUnit = pUnit->DoUpgrade();
-					UnitProcessed(pNewUnit->GetID());
+					if (pNewUnit)
+						UnitProcessed(pNewUnit->GetID());
 				}
 				else
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
