@@ -35096,18 +35096,19 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	if(!IsPlayerValid(eTargetPlayer))
 		return 0;
 	
-	// If we think our "friend" is planning something sneaky, don't fall for the bait.
-	/*
-	if (GetTrueApproachTowardsUsGuess(ePlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+	// Not our friends or DPs
+	if (IsDoFAccepted(eTargetPlayer))
 		return 0;
-	*/
+	
+	if (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayer).getTeam()))
+		return 0;
 	
 	// Let's not go to war if we're very unhappy or losing all our wars
 	if (GetPlayer()->IsEmpireVeryUnhappy() || GetStateAllWars() == STATE_ALL_WARS_LOSING)
 		return 0;
 
-	// They betrayed us? Nope.
-	if (IsFriendDenouncedUs(ePlayer) || IsFriendDeclaredWarOnUs(ePlayer) || IsPlayerBrokenMilitaryPromise(ePlayer))
+	// Don't start wars with backstabbers.
+	if (IsUntrustworthyFriend(ePlayer))
 		return 0;
 	
 	// AI teammates of humans should never do this on their own.
