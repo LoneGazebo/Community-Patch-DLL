@@ -7350,6 +7350,7 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 {
 	VALIDATE_OBJECT
 
+#ifdef VPDEBUG
 	if (hasCurrentTacticalMove())
 	{
 			CvString msg = CvString::format("Warning: Unit %d with current tactical move %s used for homeland move %s\n",
@@ -7357,7 +7358,6 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(msg);
 		}
 
-#ifdef VPDEBUG
 	//sanity check
 	if (m_eHomelandMove != AI_HOMELAND_MOVE_NONE && eMove != AI_HOMELAND_MOVE_NONE && m_eHomelandMove != eMove)
 	{
@@ -29228,18 +29228,18 @@ const char* CvUnit::GetMissionInfo()
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
-		m_strMissionInfoString += " // ";
+	m_strMissionInfoString += " // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-			m_strMissionInfoString += "no move assigned";
-		else
-		{
-			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
+		m_strMissionInfoString += "no move assigned";
+	else
+	{
+		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+			m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
 		if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
-				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
-		}
+			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
+	}
 
 	if (IsCombatUnit())
 	{

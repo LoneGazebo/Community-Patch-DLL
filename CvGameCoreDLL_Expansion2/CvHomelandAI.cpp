@@ -177,11 +177,6 @@ void CvHomelandAI::FindAutomatedUnits()
 	}
 }
 
-/// Set up for a turn of tactical moves
-void CvHomelandAI::DoTurn()
-{
-}
-
 /// Update the AI for units
 void CvHomelandAI::Update()
 {
@@ -199,9 +194,6 @@ void CvHomelandAI::Update()
 	// Make sure we have a unit to handle
 	if(!m_CurrentTurnUnits.empty())
 	{
-		// Start by establishing the priority order for moves this turn
-		EstablishHomelandPriorities();
-
 		// Put together lists of places we may want to move toward
 		FindHomelandTargets();
 
@@ -329,386 +321,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 }
 
 // PRIVATE METHODS
-
-/// Choose which moves to emphasize this turn
-void CvHomelandAI::EstablishHomelandPriorities()
-{
-	int iPriority = 0;
-	int iFlavorDefense = 0;
-	int iFlavorOffense = 0;
-	int iFlavorExpand = 0;
-	int iFlavorImprove = 0;
-	int iFlavorNavalImprove = 0;
-	int iFlavorExplore = 0;
-	int iFlavorGold = 0;
-	int iFlavorScience = 0;
-	int iFlavorWonder = 0;
-	int iFlavorMilitaryTraining = 0;
-	int iFlavorCulture = 0;
-#if defined(MOD_BALANCE_CORE)
-	int iFlavorNaval = 0;
-	int iFlavorNavalMelee = 0;
-#endif
-
-	m_MovePriorityList.clear();
-
-#if defined(MOD_AI_SMART_UPGRADES)
-	// On even turns upgrades acquire more priority in order to be able to upgrade air units.
-	int iTurnUpgradePriority = MOD_AI_SMART_UPGRADES ? (GC.getGame().getGameTurn() % 2) * 50 : 0;
-#endif
-
-	float fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
-
-	// Find required flavor values
-	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
-		{
-			iFlavorDefense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorDefense = (int)(iFlavorDefense * fFlavorDampening);
-		}
-		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
-		{
-			iFlavorOffense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorOffense = (int)(iFlavorOffense * fFlavorDampening);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
-		{
-			iFlavorExpand = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RECON")
-		{
-			iFlavorExplore = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorExplore = (int)(iFlavorExplore * fFlavorDampening);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
-		{
-			iFlavorGold = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_SCIENCE")
-		{
-			iFlavorScience = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_WONDER")
-		{
-			iFlavorWonder = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
-		{
-			iFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CULTURE")
-		{
-			iFlavorCulture = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-#if defined(AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS)
-		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
-		{
-			iFlavorImprove = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_TILE_IMPROVEMENT")
-		{
-			iFlavorNavalImprove = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-#endif // AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
-#if defined(MOD_BALANCE_CORE)
-		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL")
-		{
-			iFlavorNaval = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_RECON")
-		{
-			iFlavorNavalMelee = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-		}
-#endif
-	}
-
-	// Loop through each possible homeland move (other than "none" or "unassigned")
-	for(int iI = AI_HOMELAND_MOVE_UNASSIGNED + 1; iI < NUM_AI_HOMELAND_MOVES; iI++)
-	{
-		// Set base value
-		switch((AIHomelandMove)iI)
-		{
-		case AI_HOMELAND_MOVE_EXPLORE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_EXPLORE();
-			break;
-		case AI_HOMELAND_MOVE_EXPLORE_SEA:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_EXPLORE_SEA();
-			break;
-		case AI_HOMELAND_MOVE_SETTLE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SETTLE();
-			break;
-		case AI_HOMELAND_MOVE_GARRISON:
-			// Garrisons must beat out sentries if policies encourage garrisoning
-			if(m_pPlayer->GetPlayerPolicies()->HasPolicyEncouragingGarrisons() || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-			{
-				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON() * 2;
-			}
-
-			else
-			{
-				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON();
-			}
-			break;
-		case AI_HOMELAND_MOVE_HEAL:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_HEAL();
-			break;
-		case AI_HOMELAND_MOVE_TO_SAFETY:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_TO_SAFETY();
-			break;
-		case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_MOBILE_RESERVE();
-			break;
-		case AI_HOMELAND_MOVE_SENTRY:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY();
-			break;
-#if defined(MOD_BALANCE_CORE)
-		case AI_HOMELAND_MOVE_SENTRY_NAVAL:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY();
-			break;
-#endif
-		case AI_HOMELAND_MOVE_WORKER:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_WORKER();
-			break;
-		case AI_HOMELAND_MOVE_WORKER_SEA:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_WORKER_SEA();
-			break;
-		case AI_HOMELAND_MOVE_PATROL:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_PATROL();
-			break;
-		case AI_HOMELAND_MOVE_UPGRADE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_UPGRADE();
-			break;
-		case AI_HOMELAND_MOVE_ANCIENT_RUINS:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_ANCIENT_RUINS();
-			break;
-		case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON_CITY_STATE();
-			break;
-		case AI_HOMELAND_MOVE_WRITER:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_WRITER();
-			break;
-		case AI_HOMELAND_MOVE_ARTIST_GOLDEN_AGE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_ARTIST();
-			break;
-		case AI_HOMELAND_MOVE_MUSICIAN:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_MUSICIAN();
-			break;
-		case AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SCIENTIST_FREE_TECH();
-			break;
-		case AI_HOMELAND_MOVE_ENGINEER_HURRY:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_ENGINEER_HURRY();
-			break;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		case AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_DIPLOMAT();
-			break;
-		case AI_HOMELAND_MOVE_MESSENGER:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_MESSENGER();
-			break;
-#endif
-		case AI_HOMELAND_MOVE_GENERAL_GARRISON:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GENERAL_GARRISON();
-			break;
-		case AI_HOMELAND_MOVE_ADMIRAL_GARRISON:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_ADMIRAL_GARRISON();
-			break;
-		case AI_HOMELAND_MOVE_PROPHET_RELIGION:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_PROPHET_RELIGION();
-			break;
-		case AI_HOMELAND_MOVE_MISSIONARY:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_MISSIONARY();
-			break;
-		case AI_HOMELAND_MOVE_INQUISITOR:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_INQUISITOR();
-			break;
-		case AI_HOMELAND_MOVE_SPACESHIP_PART:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SPACESHIP_PART();
-			break;
-		case AI_HOMELAND_MOVE_ADD_SPACESHIP_PART:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_ADD_SPACESHIP_PART();
-			break;
-		case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_AIRCRAFT_TO_THE_FRONT();
-			break;
-		case AI_HOMELAND_MOVE_TREASURE:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_TREASURE();
-			break;
-		case AI_HOMELAND_MOVE_TRADE_UNIT:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_TRADE_UNIT();
-			break;
-		case AI_HOMELAND_MOVE_ARCHAEOLOGIST:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_ARCHAEOLOGIST();
-			break;
-		case AI_HOMELAND_MOVE_AIRLIFT:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_AIRLIFT();
-			break;
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-		case AI_HOMELAND_MOVE_SECONDARY_SETTLER:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SECONDARY_SETTLER();
-			break;
-#endif
-#if defined(MOD_AI_SECONDARY_WORKERS)
-		case AI_HOMELAND_MOVE_SECONDARY_WORKER:
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SECONDARY_WORKER();
-			break;
-#endif
-		}
-
-		// Make sure base priority is not negative
-		if(iPriority >= 0)
-		{
-			// Now add in the appropriate flavor value
-			switch((AIHomelandMove)iI)
-			{
-				// Defensive moves
-			case AI_HOMELAND_MOVE_GARRISON:
-#if defined(MOD_BALANCE_CORE)
-				if(m_pPlayer->IsAtWarAnyMajor())
-				{
-					iPriority *= iFlavorDefense;
-				}
-				break;
-#endif
-			case AI_HOMELAND_MOVE_HEAL:
-#if defined(MOD_BALANCE_CORE)
-				iPriority += iFlavorDefense;
-				break;
-#endif
-			case AI_HOMELAND_MOVE_TO_SAFETY:
-#if defined(MOD_BALANCE_CORE)
-				if(m_pPlayer->IsAtWarAnyMajor())
-				{
-					iPriority *= iFlavorImprove;
-				}
-				break;
-#endif
-			case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-#if defined(MOD_BALANCE_CORE)
-				iPriority += iFlavorDefense;
-				break;
-#endif
-			case AI_HOMELAND_MOVE_SENTRY:
-#if defined(MOD_BALANCE_CORE)
-				if(m_pPlayer->IsAtWarAnyMajor())
-				{
-					iPriority = 1;
-				}
-				break;
-			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
-				if(m_pPlayer->IsAtWarAnyMajor())
-				{
-					iPriority = 1;
-				}
-				break;
-#endif
-			case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
-			case AI_HOMELAND_MOVE_GENERAL_GARRISON:
-			case AI_HOMELAND_MOVE_ADMIRAL_GARRISON:
-#if defined(MOD_BALANCE_CORE)
-				iPriority += iFlavorDefense;
-				break;
-#endif
-			case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
-#if defined(MOD_BALANCE_CORE)
-				if(m_pPlayer->IsAtWarAnyMajor())
-				{
-					iPriority *= iFlavorOffense;
-				}
-				break;
-#endif
-			case AI_HOMELAND_MOVE_TREASURE:
-
-				// Here so they remain same priority relative to AI_HOMELAND_MOVE_TO_SAFETY
-			case AI_HOMELAND_MOVE_MISSIONARY:
-			case AI_HOMELAND_MOVE_INQUISITOR:
-			case AI_HOMELAND_MOVE_PROPHET_RELIGION:
-			case AI_HOMELAND_MOVE_SPACESHIP_PART:
-			case AI_HOMELAND_MOVE_ADD_SPACESHIP_PART:
-				iPriority += iFlavorDefense;
-				break;
-
-				// Other miscellaneous types
-			case AI_HOMELAND_MOVE_EXPLORE:
-				iPriority += iFlavorExplore;
-			case AI_HOMELAND_MOVE_EXPLORE_SEA:
-				iPriority += iFlavorExplore;
-				iPriority += iFlavorNavalMelee;
-				break;
-
-			case AI_HOMELAND_MOVE_SETTLE:
-				iPriority += iFlavorExpand;
-				break;
-
-			case AI_HOMELAND_MOVE_WORKER:
-				iPriority += iFlavorImprove;
-				break;
-
-			case AI_HOMELAND_MOVE_WORKER_SEA:
-				iPriority += iFlavorNavalImprove;
-				break;
-
-			case AI_HOMELAND_MOVE_UPGRADE:
-#if defined(MOD_AI_SMART_UPGRADES)
-				iPriority += (iFlavorMilitaryTraining + iTurnUpgradePriority);
-#else
-				iPriority += iFlavorMilitaryTraining;
-#endif
-				break;
-
-			case AI_HOMELAND_MOVE_WRITER:
-				iPriority += iFlavorCulture;
-				break;
-
-			case AI_HOMELAND_MOVE_ARTIST_GOLDEN_AGE:
-				iPriority += iFlavorCulture;
-				break;
-
-			case AI_HOMELAND_MOVE_MUSICIAN:
-				iPriority += iFlavorCulture;
-				break;
-
-			case AI_HOMELAND_MOVE_ANCIENT_RUINS:
-				iPriority += iFlavorExplore;
-				break;
-
-			case AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH:
-				iPriority += iFlavorScience;
-				break;
-
-			case AI_HOMELAND_MOVE_ENGINEER_HURRY:
-				iPriority += iFlavorWonder;
-				break;
-
-			case AI_HOMELAND_MOVE_TRADE_UNIT:
-				iPriority += iFlavorGold;
-				break;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-			case AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY:
-				iPriority += iFlavorCulture;
-				break;
-			case AI_HOMELAND_MOVE_MESSENGER:
-				iPriority += iFlavorCulture;
-				break;
-#endif
-			}
-
-			// Store off this move and priority
-			CvHomelandMove move;
-			move.m_eMoveType = (AIHomelandMove)iI;
-			move.m_iPriority = iPriority;
-			m_MovePriorityList.push_back(move);
-
-			//if (m_pPlayer->isMajorCiv())
-			//	OutputDebugString( CvString::format("Player %d, Move %s, Prio %d\n",m_pPlayer->GetID(),homelandMoveNames[iI],iPriority).c_str() );
-		}
-	}
-
-	// Now sort the moves in priority order
-	std::stable_sort(m_MovePriorityList.begin(), m_MovePriorityList.end());
-}
 
 /// Make lists of everything we might want to target with the homeland AI this turn
 void CvHomelandAI::FindHomelandTargets()
@@ -940,150 +552,74 @@ void CvHomelandAI::FindHomelandTargets()
 /// Choose which moves to run and assign units to it
 void CvHomelandAI::AssignHomelandMoves()
 {
-	// Proceed in priority order
-	for(vector< CvHomelandMove >::iterator it = m_MovePriorityList.begin(); it != m_MovePriorityList.end() && !m_CurrentTurnUnits.empty(); ++it)
-	{
-		CvHomelandMove move = *it;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		m_CurrentMoveUnits.setCurrentHomelandMove(move.m_eMoveType);
-		m_CurrentMoveHighPriorityUnits.setCurrentHomelandMove(move.m_eMoveType);
+	//fixme
+	m_CurrentMoveUnits.setCurrentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
 #endif
 
-		AI_PERF_FORMAT("AI-perf-tact.csv", ("Homeland Move: %d, Turn %03d, %s", (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
+	//most of these functions are very specific, so their order is not so important ...
 
-		switch(move.m_eMoveType)
-		{
-		case AI_HOMELAND_MOVE_EXPLORE:
-			//call it twice in case the unit reaches the end of it's sight with moves left
-			PlotExplorerMoves(false);
-			PlotExplorerMoves(true);
-			break;
-		case AI_HOMELAND_MOVE_EXPLORE_SEA:
-			//call it twice in case the unit reaches the end of it's sight with moves left
-			PlotExplorerSeaMoves(false);
-			PlotExplorerSeaMoves(true);
-			break;
-		case AI_HOMELAND_MOVE_SETTLE:
-			PlotFirstTurnSettlerMoves();
-			break;
-		case AI_HOMELAND_MOVE_HEAL:
-			PlotHealMoves();
-			break;
-		case AI_HOMELAND_MOVE_TO_SAFETY:
-			PlotMovesToSafety();
-			break;
-///0------------------------------
-//	move these to tactical AI
-///0------------------------------
-		case AI_HOMELAND_MOVE_GARRISON:
-			PlotGarrisonMoves();
-			break;
-		case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-			break;
-		case AI_HOMELAND_MOVE_SENTRY:
-			PlotSentryMoves();
-			break;
-#if defined(MOD_BALANCE_CORE)
-		case AI_HOMELAND_MOVE_SENTRY_NAVAL:
-			PlotSentryNavalMoves();
-			break;
-#endif
-		case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
-			PlotGarrisonMoves(true /*bCityStateOnly*/);
-			break;
-		case AI_HOMELAND_MOVE_PATROL:
-			PlotPatrolMoves();
-			break;
-///0------------------------------
+	//call it twice in case the unit reaches the end of it's sight with moves left
+	PlotExplorerMoves(false);
+	PlotExplorerMoves(true);
 
-		case AI_HOMELAND_MOVE_WORKER:
-			PlotWorkerMoves();
-			break;
-		case AI_HOMELAND_MOVE_WORKER_SEA:
-			PlotWorkerSeaMoves();
-			break;
-		case AI_HOMELAND_MOVE_UPGRADE:
-			PlotUpgradeMoves();
-			break;
-		case AI_HOMELAND_MOVE_ANCIENT_RUINS:
-			PlotAncientRuinMoves();
-			break;
-		case AI_HOMELAND_MOVE_WRITER:
-			PlotWriterMoves();
-			break;
-		case AI_HOMELAND_MOVE_ARTIST_GOLDEN_AGE:
-			PlotArtistMoves();
-			break;
-		case AI_HOMELAND_MOVE_MUSICIAN:
-			PlotMusicianMoves();
-			break;
-		case AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH:
-			PlotScientistMoves();
-			break;
-		case AI_HOMELAND_MOVE_ENGINEER_HURRY:
-			PlotEngineerMoves();
-			break;
-		case AI_HOMELAND_MOVE_MERCHANT_TRADE:
-			PlotMerchantMoves();
-			break;
+	//call it twice in case the unit reaches the end of it's sight with moves left
+	PlotExplorerSeaMoves(false);
+	PlotExplorerSeaMoves(true);
+
+	//military only
+	PlotUpgradeMoves();
+	PlotGarrisonMoves();
+	PlotSentryMoves();
+	PlotSentryNavalMoves();
+
+	//civilian and military
+	PlotHealMoves();
+	PlotMovesToSafety();
+	PlotAncientRuinMoves();
+
+	//military again
+	PlotAircraftRebase();
+	PlotPatrolMoves();
+
+	//civilians again
+	PlotFirstTurnSettlerMoves();
+	PlotWorkerMoves();
+	PlotWorkerSeaMoves();
+	PlotWriterMoves();
+	PlotArtistMoves();
+	PlotMusicianMoves();
+	PlotScientistMoves();
+	PlotEngineerMoves();
+	PlotMerchantMoves();
+	PlotGeneralMoves();
+	PlotAdmiralMoves();
+	PlotProphetMoves();
+	PlotMissionaryMoves();
+	PlotInquisitorMoves();
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-		case AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY:
-			//this is for embassies - diplomatic missions are handled via AI operation
-			if (MOD_DIPLOMACY_CITYSTATES) PlotDiplomatMoves();
-			break;
-		case AI_HOMELAND_MOVE_MESSENGER:
-			if (MOD_DIPLOMACY_CITYSTATES) PlotMessengerMoves();
-			break;
-#endif
-		case AI_HOMELAND_MOVE_GENERAL_GARRISON:
-			PlotGeneralMoves();
-			break;
-		case AI_HOMELAND_MOVE_ADMIRAL_GARRISON:
-			PlotAdmiralMoves();
-			break;
-		case AI_HOMELAND_MOVE_PROPHET_RELIGION:
-			PlotProphetMoves();
-			break;
-		case AI_HOMELAND_MOVE_MISSIONARY:
-			PlotMissionaryMoves();
-			break;
-		case AI_HOMELAND_MOVE_INQUISITOR:
-			PlotInquisitorMoves();
-			break;
-		case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
-			PlotAircraftMoves();
-			break;
-		case AI_HOMELAND_MOVE_ADD_SPACESHIP_PART:
-			PlotSSPartAdds();
-			break;
-		case AI_HOMELAND_MOVE_SPACESHIP_PART:
-			PlotSSPartMoves();
-			break;
-		case AI_HOMELAND_MOVE_TREASURE:
-			PlotTreasureMoves();
-			break;
-		case AI_HOMELAND_MOVE_TRADE_UNIT:
-			PlotTradeUnitMoves();
-			break;
-		case AI_HOMELAND_MOVE_ARCHAEOLOGIST:
-			PlotArchaeologistMoves();
-			break;
-		case AI_HOMELAND_MOVE_AIRLIFT:
-			break;
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-		case AI_HOMELAND_MOVE_SECONDARY_SETTLER:
-			PlotOpportunisticSettlementMoves();
-			break;
-#endif
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-		case AI_HOMELAND_MOVE_SECONDARY_WORKER:
-			PlotWorkerMoves(true);
-			PlotWorkerSeaMoves(true);
-			break;
-#endif
-		}
+	//this is for embassies - diplomatic missions are handled via AI operation
+	if (MOD_DIPLOMACY_CITYSTATES)
+	{
+		PlotDiplomatMoves();
+		PlotMessengerMoves();
 	}
+#endif
+
+	PlotSSPartAdds();
+	PlotSSPartMoves();
+
+	PlotTreasureMoves();
+	PlotTradeUnitMoves();
+	PlotArchaeologistMoves();
+
+#if defined(MOD_AI_SECONDARY_SETTLERS)
+	PlotOpportunisticSettlementMoves();
+	PlotWorkerMoves(true);
+	PlotWorkerSeaMoves(true);
+#endif
 
 	ReviewUnassignedUnits();
 }
@@ -2615,7 +2151,7 @@ void CvHomelandAI::PlotAdmiralMoves()
 }
 
 /// Send units to cities near the front (or carriers)
-void CvHomelandAI::PlotAircraftMoves()
+void CvHomelandAI::PlotAircraftRebase()
 {
 	ClearCurrentMoveUnits();
 
@@ -7274,6 +6810,7 @@ int g_currentHomelandUnitToTrack = 0;
 
 const char* homelandMoveNames[] =
 {
+	"H_MOVE_NONE",
 	"H_MOVE_UNASSIGNED",
 	"H_MOVE_EXPLORE",
 	"H_MOVE_EXPLORE_SEA",
@@ -7341,7 +6878,7 @@ void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)
 			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
 			OutputDebugString( CvString::format("turn %03d: using %s %s %d for homeland move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
 				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentHomelandUnitToTrack,
-				homelandMoveNames[(int)m_currentHomelandMove+1], 
+				homelandMoveNames[m_currentHomelandMove], 
 				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
 		}
 	}

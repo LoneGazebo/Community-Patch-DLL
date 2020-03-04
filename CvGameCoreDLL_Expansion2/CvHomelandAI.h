@@ -30,25 +30,6 @@ enum AIHomelandTargetType
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
 
-// Object stored in the list of move priorities (m_MovePriorityList)
-class CvHomelandMove
-{
-public:
-	CvHomelandMove()
-	{
-		m_eMoveType = AI_HOMELAND_MOVE_NONE;
-		m_iPriority = 0;
-	}
-
-	bool operator<(const CvHomelandMove& move) const
-	{
-		return (m_iPriority > move.m_iPriority);
-	}
-
-	AIHomelandMove m_eMoveType;
-	int m_iPriority;
-};
-
 // Object stored in the list of current move units (m_CurrentMoveUnits)
 class CvHomelandUnit
 {
@@ -227,7 +208,6 @@ public:
 	// Public turn update routines
 	void RecruitUnits();
 	void FindAutomatedUnits();
-	void DoTurn();
 	void Update();
 
 	// Public exploration routines
@@ -247,7 +227,6 @@ private:
 	typedef CHomelandUnitArray MoveUnitsArray;
 
 	// Internal turn update routines - commandeered unit processing
-	void EstablishHomelandPriorities();
 	void FindHomelandTargets();
 	void AssignHomelandMoves();
 
@@ -269,7 +248,7 @@ private:
 	void PlotSentryNavalMoves();
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
-	void PlotAircraftMoves();
+	void PlotAircraftRebase();
 
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves(bool bAtWar);
@@ -369,10 +348,7 @@ private:
 	std::list<int> m_CurrentTurnUnits;
 	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
 
-	MoveUnitsArray m_CurrentMoveUnits;
-	MoveUnitsArray m_CurrentMoveHighPriorityUnits;
-
-	vector< CvHomelandMove > m_MovePriorityList;
+	MoveUnitsArray m_CurrentMoveUnits, m_CurrentMoveHighPriorityUnits;
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
