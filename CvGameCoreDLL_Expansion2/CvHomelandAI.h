@@ -265,16 +265,12 @@ private:
 //------------------------------------- move to tactical AI
 #if defined(MOD_BALANCE_CORE)
 	void PlotGarrisonMoves(bool bCityStateOnly = false);
-	void PlotMobileReserveMoves();
 	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
 	void PlotAircraftMoves();
-	void PlotAircraftInterceptions();
-	void PlotAirliftMoves();
 
-	void ExecuteAircraftInterceptions();
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves(bool bAtWar);
 
@@ -348,7 +344,6 @@ private:
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
 
-	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
@@ -382,7 +377,6 @@ private:
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
-	std::vector<CvHomelandTarget> m_TargetedHomelandRoads;
 	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };

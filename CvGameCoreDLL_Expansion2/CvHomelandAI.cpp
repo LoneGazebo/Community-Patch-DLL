@@ -719,12 +719,9 @@ void CvHomelandAI::FindHomelandTargets()
 	m_TargetedCities.clear();
 	m_TargetedSentryPoints.clear();
 	m_TargetedNavalResources.clear();
-	m_TargetedHomelandRoads.clear();
 	m_TargetedAncientRuins.clear();
 	m_TargetedAntiquitySites.clear();
-#if defined(MOD_BALANCE_CORE)
 	m_TargetedNavalSentryPoints.clear();
-#endif
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
@@ -752,8 +749,9 @@ void CvHomelandAI::FindHomelandTargets()
 					m_TargetedCities.push_back(newTarget);
 				}
 			}
+
 			// ... naval resource?
-			else if(pLoopPlot->isWater() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+			if(pLoopPlot->isWater() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
 				ResourceTypes eNonObsoleteResource = pLoopPlot->getResourceType(eTeam);
 				if(eNonObsoleteResource != NO_RESOURCE)
@@ -789,7 +787,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... unpopped goody hut?
-			else if(!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
+			if(!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
 			{
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
@@ -797,7 +795,7 @@ void CvHomelandAI::FindHomelandTargets()
 				m_TargetedAncientRuins.push_back(newTarget);
 			}
 			// ... antiquity site?
-			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
+			if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
 			{
 				if( pLoopPlot->getOwner() == NO_PLAYER ||
 					pLoopPlot->getOwner() == m_pPlayer->GetID() || 
@@ -810,11 +808,11 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... possible sentry point?
-			else if( !pLoopPlot->isWater() && 
+			if( !pLoopPlot->isWater() && 
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && 
 				pLoopPlot->getOwningCity() != NULL && 
-				pLoopPlot->getOwningCity()->isUnderSiege())
+				pLoopPlot->getOwningCity()->isBorderCity())
 			{
 				if (pLoopPlot->isRevealedFortification(m_pPlayer->getTeam()))
 				{
@@ -844,28 +842,6 @@ void CvHomelandAI::FindHomelandTargets()
 							iWeight += 25;
 						}
 
-						CvCity* pOwningCity = pLoopPlot->getOwningCity();
-
-						if (pOwningCity && m_pPlayer->IsAtWar())
-						{
-							if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
-							{
-								iWeight *= 10;
-							}
-							if (pOwningCity->getDamage() > 0)
-							{
-								iWeight *= 2;
-							}
-						}
-						if(pLoopPlot->getNumUnits() > 0)
-						{
-							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-							if((pUnit != NULL) && pUnit->IsCivilianUnit())
-							{
-								iWeight += 100;
-							}
-						}
-
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
 						newTarget.SetTargetY(pLoopPlot->getY());
@@ -876,8 +852,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible naval sentry point?
-			else if (pLoopPlot->isWater() &&
-				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
+			if (pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				CvCity* pOwningCity = pLoopPlot->getOwningCity();
 				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal() && pOwningCity->isUnderSiege())
@@ -952,40 +927,21 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #endif
-			// ... road segment in friendly territory?
-			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isUnderSiege())
-			{
-				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
-				int iWeight = pLoopPlot->defenseModifier(eTeam, false, false);
-				iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot, false);
-				if(iWeight > 0)
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxIntData(iWeight);
-					m_TargetedHomelandRoads.push_back(newTarget);
-				}
-			}
 		}
 	}
 
 	// Post-processing on targets
 	EliminateAdjacentSentryPoints();
-#if defined(MOD_BALANCE_CORE)
 	EliminateAdjacentNavalSentryPoints();
-#endif
-	EliminateAdjacentHomelandRoads();
+
 	std::stable_sort(m_TargetedCities.begin(), m_TargetedCities.end());
 }
 
 /// Choose which moves to run and assign units to it
 void CvHomelandAI::AssignHomelandMoves()
 {
-	vector< CvHomelandMove >::iterator it;
-
 	// Proceed in priority order
-	for(it = m_MovePriorityList.begin(); it != m_MovePriorityList.end() && !m_CurrentTurnUnits.empty(); ++it)
+	for(vector< CvHomelandMove >::iterator it = m_MovePriorityList.begin(); it != m_MovePriorityList.end() && !m_CurrentTurnUnits.empty(); ++it)
 	{
 		CvHomelandMove move = *it;
 
@@ -1024,7 +980,6 @@ void CvHomelandAI::AssignHomelandMoves()
 			PlotGarrisonMoves();
 			break;
 		case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-			PlotMobileReserveMoves();
 			break;
 		case AI_HOMELAND_MOVE_SENTRY:
 			PlotSentryMoves();
@@ -1098,7 +1053,6 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 		case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
 			PlotAircraftMoves();
-			PlotAircraftInterceptions();
 			break;
 		case AI_HOMELAND_MOVE_ADD_SPACESHIP_PART:
 			PlotSSPartAdds();
@@ -1116,7 +1070,6 @@ void CvHomelandAI::AssignHomelandMoves()
 			PlotArchaeologistMoves();
 			break;
 		case AI_HOMELAND_MOVE_AIRLIFT:
-			PlotAirliftMoves();
 			break;
 #if defined(MOD_AI_SECONDARY_SETTLERS)
 		case AI_HOMELAND_MOVE_SECONDARY_SETTLER:
@@ -1418,41 +1371,6 @@ void CvHomelandAI::PlotMovesToSafety()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteMovesToSafestPlot();
-	}
-}
-
-/// Send units to roads for quick movement to face any threat
-void CvHomelandAI::PlotMobileReserveMoves()
-{
-	// Do we have any targets of this type?
-	if(!m_TargetedHomelandRoads.empty())
-	{
-		// Prioritize them (LATER)
-
-		// See how many moves of this type we can execute
-		for(unsigned int iI = 0; iI < m_TargetedHomelandRoads.size(); iI++)
-		{
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedHomelandRoads[iI].GetTargetX(), m_TargetedHomelandRoads[iI].GetTargetY());
-
-			FindUnitsForThisMove(AI_HOMELAND_MOVE_MOBILE_RESERVE, (iI == 0)/*bFirstTime*/);
-
-			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
-			{
-				CvUnit *pReserve = GetBestUnitToReachTarget(pTarget, 15);
-				if(pReserve)
-				{
-					ExecuteMoveToTarget(pReserve, pTarget, 0, true);
-					UnitProcessed(pReserve->GetID());
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving %s %d to mobile reserve muster pt, X: %d, Y: %d", pReserve->getName().c_str(), pReserve->GetID(), m_TargetedHomelandRoads[iI].GetTargetX(), m_TargetedHomelandRoads[iI].GetTargetY());
-						LogHomelandMessage(strLogString);
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -2722,36 +2640,6 @@ void CvHomelandAI::PlotAircraftMoves()
 	}
 }
 
-void CvHomelandAI::PlotAircraftInterceptions()
-{
-	ClearCurrentMoveUnits();
-
-	// Loop through all recruited units
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit)
-		{
-			if (pUnit->getDomainType() == DOMAIN_AIR)
-			{
-				if (pUnit->canIntercept() && pUnit->isOutOfInterceptions())
-				{
-					CvHomelandUnit unit;
-					unit.SetID(pUnit->GetID());
-					unit.SetAuxIntData(pUnit->getInterceptChance() + pUnit->GetInterceptionCombatModifier());
-					m_CurrentMoveUnits.push_back(unit);
-				}
-			}
-		}
-	}
-
-	if (m_CurrentMoveUnits.size() > 0)
-	{
-		std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end(), HomelandAIHelpers::CvHomelandUnitAuxIntSort);
-		ExecuteAircraftInterceptions();
-	}
-}
-
 /// Send trade units on their way
 void CvHomelandAI::PlotTradeUnitMoves()
 {
@@ -2805,102 +2693,6 @@ void CvHomelandAI::PlotArchaeologistMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteArchaeologistMoves();
-	}
-}
-
-/// Send spare units to cities that can airlift
-void CvHomelandAI::PlotAirliftMoves()
-{
-	if (m_pPlayer->isHuman())
-	{
-		return;
-	}
-
-	// Need at least 2 cities with airports
-	vector<CvCity *> aAirliftCities;
-	vector<CvCity *> aNeedAirliftCities;
-	CvCity *pLoopCity;
-	int iCityLoop;
-	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-	{
-		//Let's see if we have airlifts.
-		if (pLoopCity->CanAirlift())
-		{
-			//Let's see if there are cities that need an airlift.
-			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
-			{
-				aNeedAirliftCities.push_back(pLoopCity);
-			}
-			aAirliftCities.push_back(pLoopCity);
-		}
-	}
-	if (aAirliftCities.size() < 2 || aNeedAirliftCities.size() <= 0)
-	{
-		return;
-	}
-
-	// Create list of empty land plots we own adjacent to airlift cities that are not endangered
-	vector<CvPlot *> aAirliftPlots;
-	CvTacticalAnalysisMap* pTactMap = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
-
-	CvTacticalDominanceZone *pZone;
-	vector<CvCity *>::const_iterator it;
-	for (it = aAirliftCities.begin(); it != aAirliftCities.end(); it++)
-	{
-		pZone = pTactMap->GetZoneByCity(*it, false);
-		if (pZone && (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE))
-		{
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				CvPlot *pLoopPlot = plotDirection((*it)->getX(), (*it)->getY(), ((DirectionTypes)iI));
-				if (pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && pLoopPlot->getOwner() == m_pPlayer->GetID())
-				{
-					CvUnit* pBestDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
-					if (pBestDefender)
-					{
-						if (std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pBestDefender->GetID()) != m_CurrentTurnUnits.end())
-						{
-							pBestDefender->PushMission(CvTypes::getMISSION_SKIP());
-							UnitProcessed(pBestDefender->GetID());
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Remaining in place for future airlift - %s, X: %d, Y: %d", pBestDefender->getName().GetCString(), pBestDefender->getX(), pBestDefender->getY());
-								LogHomelandMessage(strLogString);
-							}
-						}
-					}
-					else
-					{
-						aAirliftPlots.push_back(pLoopPlot);
-					}
-				}
-			}
-		}
-	}
-
-	vector<CvPlot *>::const_iterator plotIt;
-	for (plotIt = aAirliftPlots.begin(); plotIt != aAirliftPlots.end(); plotIt++)
-	{
-		FindUnitsForThisMove(AI_HOMELAND_MOVE_MOBILE_RESERVE, true);
-
-		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
-		{
-			CvPlot *pTarget = *plotIt;
-
-			CvUnit *pUnit = GetBestUnitToReachTarget(pTarget, 12);
-			if(pUnit)
-			{
-				ExecuteMoveToTarget(pUnit,pTarget,0, true);
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Moving %s %d to airlift origin plot, X: %d, Y: %d", pUnit->getName().c_str(), pUnit->GetID(), pTarget->getX(), pTarget->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-		}
 	}
 }
 
@@ -5824,56 +5616,6 @@ void CvHomelandAI::ExecuteTreasureMoves()
 	}
 }
 
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-// Similar to interception moves on tacticalAI, grant some interceptions based on number of enemies
-void CvHomelandAI::ExecuteAircraftInterceptions()
-{
-	MoveUnitsArray::iterator it;
-	std::vector<CvPlot*> checkedPlotList;
-
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-
-		if(pUnit)
-		{
-			// Am I eligible to intercept?
-			if(pUnit->canAirPatrol(NULL) && !m_pPlayer->GetTacticalAI()->ShouldRebase(pUnit))
-			{
-				CvPlot* pUnitPlot = pUnit->plot();
-				int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
-				int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
-				int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
-
-				if (iNumNearbyBombers == 1)
-				{
-					// To at least intercept once if only one bomber found.
-					iNumNearbyBombers++;
-				}
-
-				int maxInterceptorsWanted = ((iNumNearbyBombers / 2) + (iNumNearbyFighters / 4));
-
-				if (iNumPlotNumAlreadySet < maxInterceptorsWanted)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strTemp;
-						strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-						CvString strLogString;
-						strLogString.Format("(%d of %d) - Ready to intercept enemy air units at, X: %d, Y: %d", iNumPlotNumAlreadySet, maxInterceptorsWanted, pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					checkedPlotList.push_back(pUnitPlot);
-					pUnit->PushMission(CvTypes::getMISSION_AIRPATROL());
-					UnitProcessed(pUnit->GetID());
-				}
-			}
-		}
-	}
-}
-#endif
-
 /// Moves an aircraft into an important city near the front to aid its defense (or offense)
 void CvHomelandAI::ExecuteAircraftMoves()
 {
@@ -6655,41 +6397,6 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 	}
 }
 #endif
-
-/// Don't allow adjacent tiles to both be mobile reserve muster points
-void CvHomelandAI::EliminateAdjacentHomelandRoads()
-{
-	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedHomelandRoads;
-
-	// Clear out main list
-	m_TargetedHomelandRoads.clear();
-
-	// Loop through all points in copy
-	std::vector<CvHomelandTarget>::iterator it, it2;
-	for(it = tempPoints.begin(); it != tempPoints.end(); ++it)
-	{
-		int nAdjacent = 0;
-
-		// Is it adjacent to a point in the main list?
-		for(it2 = m_TargetedHomelandRoads.begin(); it2 != m_TargetedHomelandRoads.end(); ++it2)
-		{
-			if(plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
-			{
-				nAdjacent++;
-				if (nAdjacent>1)
-					break;
-			}
-		}
-
-		//just make sure some road plots remain free so other units can move
-		if(nAdjacent<2)
-		{
-			m_TargetedHomelandRoads.push_back(*it);
-		}
-	}
-}
 
 /// Finds both high and normal priority units we can use for this homeland move (returns true if at least 1 unit found)
 bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
