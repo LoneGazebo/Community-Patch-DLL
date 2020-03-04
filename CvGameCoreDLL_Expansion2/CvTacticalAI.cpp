@@ -1093,7 +1093,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotHealMoves(false);
 
 	//score some goodies
-	PlotBarbarianCampMoves();
+	PlotCaptureBarbCamp();
 
 	//harass the enemy (plundering also happens during combat sim ...)
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, true);
@@ -1130,9 +1130,8 @@ void CvTacticalAI::AssignBarbarianMoves()
 	PlotBlockadeMoves();
 
 	//normal roaming unless in camp
-	PlotCampDefenseMoves();
-	PlotBarbarianMove(true);
-	PlotBarbarianMove(false);
+	PlotBarbarianCampDefense();
+	PlotBarbarianMoves();
 
 	//safety comes last for the barbarians ...
 	PlotMovesToSafety(true /*bCombatUnits*/);
@@ -1143,8 +1142,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 void CvTacticalAI::ExecuteCaptureCityMoves()
 {
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY, AL_HIGH);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY, AL_HIGH); pTarget!=NULL; pTarget = GetNextZoneTarget(AL_HIGH))
 	{
 		//mark the target whether the attack happened or not - we won't have a better chance this turn
 		pTarget->SetLastAggLvl(AL_HIGH);
@@ -1175,7 +1173,6 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 						LogTacticalMessage(strLogString);
 					}
 
-					pTarget = GetNextZoneTarget();
 					continue;
 				}
 			}
@@ -1198,7 +1195,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 							pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str(), iRequiredDamage, iExpectedDamagePerTurn);
 						LogTacticalMessage(strLogString);
 					}
-					pTarget = GetNextZoneTarget();
+
 					continue;
 				}
 
@@ -1231,7 +1228,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 						strLogString.Format("Zone %d, no melee units to capture %s", pZone ? pZone->GetZoneID() : -1, pCity->getNameNoSpace().c_str());
 						LogTacticalMessage(strLogString);
 					}
-					pTarget = GetNextZoneTarget();
+
 					continue;
 				}
 
@@ -1263,19 +1260,16 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 					ExecuteLandingOperation(pPlot);
 			}
 		}
-
-		pTarget = GetNextZoneTarget(AL_HIGH);
 	}
 }
 
 /// Assign a unit to capture an undefended barbarian camp
-void CvTacticalAI::PlotBarbarianCampMoves()
+void CvTacticalAI::PlotCaptureBarbCamp()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GOODY);
 
 	bool bLog = GC.getLogging() && GC.getAILogging();
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -1290,50 +1284,6 @@ void CvTacticalAI::PlotBarbarianCampMoves()
 			}
 			DeleteTemporaryZone(pPlot);
 		}
-		pTarget = GetNextZoneTarget();
-	}
-}
-
-void CvTacticalAI::ExecuteDamageCivilianMoves(AITacticalTargetType targetType)
-{
-	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType);
-	while(pTarget != NULL)
-	{
-		// See what units we have who can reach targets this turn
-		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		CvUnit* pVictim = pPlot->getUnitByIndex(0);
-		if(pVictim && m_pPlayer->IsAtWarWith(pVictim->getOwner()))
-		{
-			if(FindUnitsWithinStrikingDistance(pPlot))
-			{
-				// First loop is ranged units only
-				for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-				{
-					CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-					// Only ranged units, otherwise this would be a capture move
-					if(!pUnit || !pUnit->IsCanAttackRanged())
-						continue;
-
-					// Are we in range and do we have LOS to the target?
-					if(pUnit->canRangeStrikeAt(pPlot->getX(), pPlot->getY()))
-					{
-						if( pUnit->getDomainType() != DOMAIN_AIR)
-							pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pTarget->GetTargetX(), pTarget->GetTargetY());
-						else
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->GetTargetX(), pTarget->GetTargetY());
-
-						if (!pUnit->canMove())
-							UnitProcessed(pUnit->GetID());
-
-						if (pVictim->isDelayedDeath())
-							break;
-					}
-				}
-			}
-		}
-
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -1359,8 +1309,7 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 	eAggressionLevel aggLvl = bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM;
 
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType, aggLvl);
-	while (pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType, aggLvl); pTarget!=NULL; pTarget = GetNextZoneTarget(aggLvl))
 	{
 		bool bUnitCanAttack = false;
 		bool bCityCanAttack = false;
@@ -1385,8 +1334,6 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 				targets.push_back(STargetWithTwoScoresTiebreak(pTarget,pPlot,iExpectedDamage-iRequiredDamage,iTiebreak) );
 			}
 		}
-
-		pTarget = GetNextZoneTarget(aggLvl);
 	}
 
 	//we want to attacks the one we can do most damage to first
@@ -1636,12 +1583,12 @@ void CvTacticalAI::PlotRepositionMoves()
 }
 
 /// Move barbarians across the map
-void CvTacticalAI::PlotBarbarianMove(bool bAggressive)
+void CvTacticalAI::PlotBarbarianMoves()
 {
 	if (!m_pPlayer->isBarbarian())
 		return;
 
-	ClearCurrentMoveUnits(bAggressive ? AI_TACTICAL_BARBARIAN_AGGRESSIVE_MOVE : AI_TACTICAL_BARBARIAN_PASSIVE_MOVE);
+	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_ROAM);
 
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -1652,7 +1599,7 @@ void CvTacticalAI::PlotBarbarianMove(bool bAggressive)
 	}
 
 	if(m_CurrentMoveUnits.size() > 0)
-		ExecuteBarbarianMoves(bAggressive);
+		ExecuteBarbarianMoves();
 }
 
 //attack military units and civilians without regard for tactical zones
@@ -1663,14 +1610,6 @@ void CvTacticalAI::PlotBarbarianAttacks()
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
 	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
-	
-	//barbarians range-attack civilians, they are barbarians!
-	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_EMBARKED_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN);
-	ExecuteDamageCivilianMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
 }
 
 /// Plunder trade routes
@@ -1680,8 +1619,7 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 
 	AITacticalTargetType eTargetType = (eDomain == DOMAIN_LAND) ? AI_TACTICAL_TARGET_TRADE_UNIT_LAND : AI_TACTICAL_TARGET_TRADE_UNIT_SEA;
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(eTargetType);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(eTargetType); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -1698,8 +1636,6 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 				LogTacticalMessage(strLogString);
 			}
 		}
-
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -1751,7 +1687,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		}
 	}
 
-	for(CvTacticalTarget* pTarget = GetFirstZoneTarget(eTarget); pTarget != NULL; pTarget = GetNextZoneTarget())
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(eTarget); pTarget != NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -1835,8 +1771,7 @@ void CvTacticalAI::PlotBlockadeMoves()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_BLOCKADE);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BLOCKADE_POINT);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BLOCKADE_POINT); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -1852,7 +1787,6 @@ void CvTacticalAI::PlotBlockadeMoves()
 				LogTacticalMessage(strLogString);
 			}
 		}
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -1868,8 +1802,7 @@ void CvTacticalAI::PlotCivilianAttackMoves()
 /// Assigns units to capture undefended civilians
 void CvTacticalAI::ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType)
 {
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(eTargetType);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(eTargetType); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -1918,7 +1851,6 @@ void CvTacticalAI::ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType)
 				}
 			}
 		}
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -1961,12 +1893,11 @@ void CvTacticalAI::PlotHealMoves(bool bFirstPass)
 }
 
 /// Assigns a barbarian to go protect an undefended camp
-void CvTacticalAI::PlotCampDefenseMoves()
+void CvTacticalAI::PlotBarbarianCampDefense()
 {
-	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CAMPDEFENSE);
+	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CAMP);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
@@ -2022,7 +1953,6 @@ void CvTacticalAI::PlotCampDefenseMoves()
 				LogTacticalMessage(strLogString);
 			}
 		}
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -2031,12 +1961,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GARRISON);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY_TO_DEFEND); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
-		CvTacticalTarget* pCurrentTarget = pTarget;
-		pTarget = GetNextZoneTarget();
-		CvPlot* pPlot = GC.getMap().plot(pCurrentTarget->GetTargetX(), pCurrentTarget->GetTargetY());
+		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		CvCity* pCity = pPlot->getPlotCity();
 
 		if(!pCity)
@@ -2084,7 +2011,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pCurrentTarget->GetTargetX(), pCurrentTarget->GetTargetY(), pCurrentTarget->GetAuxIntData(), iNumTurnsAway);
+					strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
 					LogTacticalMessage(strLogString);
 				}
 			}
@@ -2093,13 +2020,11 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pCurrentTarget->GetTargetX(), pCurrentTarget->GetTargetY());
+					strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
 					LogTacticalMessage(strLogString);
 				}
 			}
 		}
-
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -2108,8 +2033,7 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GUARD);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_DEFENSIVE_BASTION); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -2131,7 +2055,6 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 				LogTacticalMessage(strLogString);
 			}
 		}
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -2140,8 +2063,7 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GUARD);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -2163,7 +2085,6 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 				LogTacticalMessage(strLogString);
 			}
 		}
-		pTarget = GetNextZoneTarget();
 	}
 }
 
@@ -2410,34 +2331,18 @@ void CvTacticalAI::PlotAttritFromRangeMoves(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_ATTRITION);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteSafeBombards(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteSafeBombards(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteSafeBombards(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 
 	//if there is a city, don' t forget to bombard it as well
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteSafeBombards(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 }
 
 /// Defeat enemy units by using our advantage in numbers
@@ -2445,34 +2350,18 @@ void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_FLANKATTACK);
 
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 
 	//if there is a city, don' t forget to bombard it as well
-	pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
-	while(pTarget != NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()))
-	{
+	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
-		pTarget = GetNextZoneTarget();
-	}
 }
 
 /// We have more overall strength than enemy, defeat his army first
@@ -3244,11 +3133,10 @@ void CvTacticalAI::IdentifyPriorityTargets()
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		// Compile a list of units that can attack it this turn and what their expected damage is
-		vector<CvTacticalTarget> possibleAttackers;
+		vector<CvTacticalTarget*> possibleAttackers;
 		int iExpectedTotalDamage = 0;
 
-		CvTacticalTarget* pTarget = GetFirstUnitTarget();
-		while(pTarget != NULL)
+		for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextZoneTarget())
 		{
 			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
@@ -3289,62 +3177,30 @@ void CvTacticalAI::IdentifyPriorityTargets()
 				if(iExpectedDamage > 0)
 				{
 					iExpectedTotalDamage += iExpectedDamage;
-					possibleAttackers.push_back(*pTarget);
+					possibleAttackers.push_back(pTarget);
 				}
 			}
-			pTarget = GetNextUnitTarget();
 		}
 
 		// If they can take the city down and they are a melee unit, then they are a high priority target
-		if(iExpectedTotalDamage > (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()))
+		if (iExpectedTotalDamage > (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()))
 		{
-			unsigned int iAttackerIndex = 0;
-
-			// Loop until we've found all the attackers in the unit target list
-			pTarget = GetFirstUnitTarget();
-			while(iAttackerIndex < possibleAttackers.size() && pTarget != NULL)
+			for (size_t i = 0; i < possibleAttackers.size(); i++)
 			{
-				// Match based on X, Y
-				if(pTarget->GetTargetX() == possibleAttackers[iAttackerIndex].GetTargetX() &&
-				        pTarget->GetTargetY() == possibleAttackers[iAttackerIndex].GetTargetY())
-				{
-					CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-					CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-					if(pEnemyUnit && pEnemyUnit->IsCanAttackRanged())
-					{
-						pTarget->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-					}
-					else
-					{
-						pTarget->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-					}
-					iAttackerIndex++;
-				}
-				pTarget = GetNextUnitTarget();
+				CvPlot* pPlot = GC.getMap().plot( possibleAttackers[i]->GetTargetX(), possibleAttackers[i]->GetTargetY() );
+				CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+				if (pEnemyUnit && pEnemyUnit->IsCanAttackRanged())
+					possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
+				else
+					possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 			}
 		}
-
 		// If they can damage a city they are a medium priority target
 		else if(possibleAttackers.size() > 0)
 		{
-			unsigned int iAttackerIndex = 0;
-
-			// Loop until we've found all the attackers in the unit target list
-			pTarget = GetFirstUnitTarget();
-			while(iAttackerIndex < possibleAttackers.size() && pTarget != NULL)
-			{
-				// Match based on X, Y
-				if(pTarget->GetTargetX() == possibleAttackers[iAttackerIndex].GetTargetX() &&
-				        pTarget->GetTargetY() == possibleAttackers[iAttackerIndex].GetTargetY())
-				{
-					if(pTarget->GetTargetType() != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-					{
-						pTarget->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-					}
-					iAttackerIndex++;
-				}
-				pTarget = GetNextUnitTarget();
-			}
+			for (size_t i = 0; i < possibleAttackers.size(); i++)
+				if(possibleAttackers[i]->GetTargetType() != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+					possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 		}
 	}
 }
@@ -3354,13 +3210,11 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 {
 	if (!m_pPlayer->isBarbarian())
 	{
-		CvTacticalTarget* pTarget = GetFirstUnitTarget();
-		while(pTarget != NULL)
+		for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextZoneTarget())
 		{
 			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			if (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 				pTarget->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-			pTarget = GetNextUnitTarget();
 		}
 	}
 	else
@@ -3370,8 +3224,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 			if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
-				CvTacticalTarget* pTarget = GetFirstUnitTarget();
-				while(pTarget != NULL)
+				for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextZoneTarget())
 				{
 					bool bPriorityTarget = false;
 
@@ -3399,7 +3252,6 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 							pTarget->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 						}
 					}
-					pTarget = GetNextUnitTarget();
 				}
 			}
 		}
@@ -3408,8 +3260,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 
 void CvTacticalAI::DumpTacticalTargets(const char* hint)
 {
-	CvTacticalTarget* pTarget = GetFirstUnitTarget();
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		const char* prio;
 		switch (pTarget->GetTargetType())
@@ -3432,8 +3283,6 @@ void CvTacticalAI::DumpTacticalTargets(const char* hint)
 		strMsg.Format("Enemy unit (%s) at (%d,%d) with prio %s, score %d (%s with %d hp)", hint, pTarget->GetTargetX(), pTarget->GetTargetY(), 
 			prio, pTarget->GetAuxIntData(), pUnit->getName().c_str(), pUnit->GetCurrHitPoints());
 		LogTacticalMessage(strMsg);
-
-		pTarget = GetNextUnitTarget();
 	}
 }
 
@@ -4654,7 +4503,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 }
 
 /// Move barbarian to a new location
-void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
+void CvTacticalAI::ExecuteBarbarianMoves()
 {
 	CvPlot* pBestPlot = NULL;
 
@@ -4673,20 +4522,14 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					CvPlot* pPlot = pUnit->plot();
 					if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
 					{
-						pUnit->setTacticalMove(AI_TACTICAL_BARBARIAN_CAMPDEFENSE);
+						pUnit->setTacticalMove(AI_TACTICAL_BARBARIAN_CAMP);
 						pUnit->PushMission(CvTypes::getMISSION_SKIP());
 						UnitProcessed(pUnit->GetID());
 						continue;
 					}
 
-					if(bAggressive && pUnit->IsCanDefend())
-					{
-						pBestPlot = FindBestBarbarianLandMove(pUnit);
-					}
-					else
-					{
-						pBestPlot = FindPassiveBarbarianLandMove(pUnit);
-					}
+					//combat units are active, civilians (captured) are passive
+					pBestPlot = pUnit->IsCanDefend() ? FindBestBarbarianLandMove(pUnit) : FindPassiveBarbarianLandMove(pUnit);
 
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
 					{
@@ -5943,15 +5786,13 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 {
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = MAX_INT;
-	CvTacticalTarget* pTarget;
 
 	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange/3); //assume 3 moves per turn
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	ReachablePlots movePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 
 	// Loop through all unit targets to find the closest
-	pTarget = GetFirstUnitTarget();
-	while(pTarget != NULL)
+	for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
@@ -5961,8 +5802,6 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 			iBestValue = itPlot->iTurns;
 			pBestMovePlot = pPlot;
 		}
-
-		pTarget = GetNextUnitTarget();
 	}
 
 	// move toward trade routes
@@ -5978,8 +5817,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 		int iBestCampDistance = MAX_INT;
 
 		// Start by finding the very nearest camp
-		pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-		while(pTarget != NULL)
+		for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 		{
 			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			if (pCamp->isAdjacentToShallowWater())
@@ -5991,13 +5829,10 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 					iBestCampDistance = iDistance;
 				}
 			}
-
-			pTarget = GetNextZoneTarget();
 		}
 
 		// Try to sail to the second closest camp - this should result in patrolling behavior
-		pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-		while(pTarget != NULL)
+		for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 		{
 			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			if(pCamp != pNearestCamp && pCamp->isAdjacentToShallowWater())
@@ -6016,7 +5851,6 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 					}
 				}
 			}
-			pTarget = GetNextZoneTarget();
 		}
 	}
 
@@ -10803,10 +10637,8 @@ const char* tacticalMoveNames[] =
 	"T_BLOCKADE",
 	"T_CAPTURE",
 
-	"B_CAMP_DEFENSE",
-	"B_CIVILIAN_ATTACK",
-	"B_AGGRESSIVE_MOVE", 
-	"B_PASSIVE_MOVE",
+	"B_CAMP",
+	"B_ROAM",
 	"B_HUNT",
 };
 

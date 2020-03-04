@@ -531,20 +531,19 @@ private:
 
 	// Routines to manage identifying and implementing tactical moves
 	void ExecuteCaptureCityMoves();
-	void PlotBarbarianCampMoves();
-	void ExecuteDamageCivilianMoves(AITacticalTargetType targetType);
+	void PlotCaptureBarbCamp();
 	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
-	void PlotBarbarianAttacks();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotBlockadeMoves();
 	void PlotCivilianAttackMoves();
 	void ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType);
 	void PlotHealMoves(bool bFirstPass);
-	void PlotCampDefenseMoves();
-	void PlotBarbarianMove(bool bAggressive);
+	void PlotBarbarianAttacks();
+	void PlotBarbarianCampDefense();
+	void PlotBarbarianMoves();
 
 ///------------------------------
 //	unify these?
@@ -607,7 +606,7 @@ private:
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals(bool bFirstPass);
-	void ExecuteBarbarianMoves(bool bAggressive);
+	void ExecuteBarbarianMoves();
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
