@@ -251,7 +251,7 @@ private:
 	void PlotAircraftRebase();
 
 	void ExecuteAircraftMoves();
-	void ExecutePatrolMoves(bool bAtWar);
+	void ExecutePatrolMoves();
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
@@ -368,7 +368,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
-std::vector<CvPlot*> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, bool bAtWar, int nMaxTargets = 5);
+vector< pair<CvPlot*,CvPlot*> > GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 }
 
 #endif //CIV5_HOMELAND_AI_H
