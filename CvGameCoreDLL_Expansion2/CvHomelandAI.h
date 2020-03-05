@@ -91,7 +91,7 @@ private:
 class CHomelandUnitArray
 {
 public:
-	CHomelandUnitArray() : m_owner(NULL), m_currentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED) {}
+	CHomelandUnitArray() : m_currentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED) {}
 
 	std::vector<CvHomelandUnit>::iterator begin() { return m_vec.begin(); }
 	std::vector<CvHomelandUnit>::iterator end() { return m_vec.end(); }
@@ -101,14 +101,13 @@ public:
 	std::vector<CvHomelandUnit>::iterator erase(std::vector<CvHomelandUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
 	void push_back(const CvHomelandUnit& unit);
 	void clear() { m_vec.clear(); }
-	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentHomelandMove(AIHomelandMove move) { m_currentHomelandMove=move; }
+	AIHomelandMove getCurrentHomelandMove() const { return m_currentHomelandMove; }
 
 	typedef std::vector<CvHomelandUnit>::iterator iterator; 
 
 private:
 	std::vector<CvHomelandUnit> m_vec;
-	CvPlayer* m_owner;
 	AIHomelandMove m_currentHomelandMove;
 };
 
@@ -323,7 +322,7 @@ private:
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
 
-	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
+	bool FindUnitsForThisMove(AIHomelandMove eMove);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns);
@@ -336,8 +335,8 @@ private:
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
-	void ClearCurrentMoveUnits();
-	void ClearCurrentMoveHighPriorityUnits();
+	void ClearCurrentMoveUnits(AIHomelandMove eNextMove);
+	void ClearCurrentMoveHighPriorityUnits(AIHomelandMove eNextMove);
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;

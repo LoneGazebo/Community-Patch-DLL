@@ -202,10 +202,6 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_iLandBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianLandTargetRange();
 	m_iSeaBarbarianRange = GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange();
 	m_iDeployRadius = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	m_CurrentMoveUnits.setPlayer(pPlayer);
-#endif
 }
 
 /// Deallocate memory created in initialize
@@ -3034,7 +3030,7 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	//do we have additional units around?
 	if (FindUnitsWithinStrikingDistance(pClosestEnemyPlot))
 		for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
-			vUnitsFinal.push_back( m_CurrentMoveUnits.getUnit(i) );
+			vUnitsFinal.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
 	//don't be too aggressive
 	if (vUnitsFinal.size() < allEnemyPlots.size())
@@ -3875,7 +3871,7 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 	vector<CvUnit*> vCandidates;
 	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 	{
-		CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
+		CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
 
 		// we want fast units or tanks
 		// (unitai defense includes ranged units ... don't use it here)
@@ -3953,7 +3949,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	vector<CvUnit*> vUnits;
 	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 		if (m_CurrentMoveUnits[i].GetAttackStrength()>0) //sometimes we mark units as not desired
-			vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
+			vUnits.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
 	int iCount = 0;
 	bool bSuccess = false;
@@ -3986,7 +3982,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 	vector<CvUnit*> vUnits;
 	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 	{
-		CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
+		CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
 		//if the unit is too far out we move it later
 		if ( m_CurrentMoveUnits[i].GetMovesToTarget()<3 )
 			vUnits.push_back(pUnit);

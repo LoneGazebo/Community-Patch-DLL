@@ -444,7 +444,7 @@ typedef vector<CvTacticalTarget> TacticalList;
 class CTacticalUnitArray
 {
 public:
-	CTacticalUnitArray() : m_owner(NULL) {}
+	CTacticalUnitArray() : m_eCurrentMoveType(AI_TACTICAL_MOVE_NONE) {}
 
 	std::vector<CvTacticalUnit>::const_iterator begin() const { return m_vec.begin(); }
 	std::vector<CvTacticalUnit>::const_iterator end() const { return m_vec.end(); }
@@ -455,14 +455,11 @@ public:
 	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
 	void push_back(const CvTacticalUnit& unit);
 	void clear() { m_vec.clear(); }
-	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType=move; }
 	AITacticalMove getCurrentTacticalMove() const { return m_eCurrentMoveType; }
-	CvUnit* getUnit(size_t i) const { return m_owner ? m_owner->getUnit( m_vec[i].GetID() ) : NULL; }
-	PlayerTypes getOwner() const { return m_owner ? m_owner->GetID() : NO_PLAYER; }
+
 private:
 	std::vector<CvTacticalUnit> m_vec;
-	CvPlayer* m_owner;
 	AITacticalMove m_eCurrentMoveType;
 };
 #endif
