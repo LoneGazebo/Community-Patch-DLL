@@ -243,7 +243,7 @@ private:
 
 //------------------------------------- move to tactical AI
 #if defined(MOD_BALANCE_CORE)
-	void PlotGarrisonMoves(bool bCityStateOnly = false);
+	void PlotGarrisonMoves();
 	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
 	void PlotPatrolMoves();
@@ -336,7 +336,6 @@ private:
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
-	bool GetClosestUnitByTurnsToTarget(MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns);
 	void ClearCurrentMoveUnits();
 	void ClearCurrentMoveHighPriorityUnits();
 

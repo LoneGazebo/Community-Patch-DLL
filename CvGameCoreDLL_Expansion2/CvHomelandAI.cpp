@@ -350,16 +350,13 @@ void CvHomelandAI::FindHomelandTargets()
 			// Have a ...
 			// ... friendly city?
 			CvCity* pCity = pLoopPlot->getPlotCity();
-			if(pCity != NULL)
+			if(pCity != NULL && m_pPlayer->GetID() == pCity->getOwner())
 			{
-				if(m_pPlayer->GetID() == pCity->getOwner() && !pCity->HasGarrison())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxIntData(pCity->getThreatValue());
-					m_TargetedCities.push_back(newTarget);
-				}
+				newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
+				newTarget.SetTargetX(pLoopPlot->getX());
+				newTarget.SetTargetY(pLoopPlot->getY());
+				newTarget.SetAuxIntData(pCity->getThreatValue());
+				m_TargetedCities.push_back(newTarget);
 			}
 
 			// ... naval resource?
@@ -399,7 +396,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... unpopped goody hut?
-			if(!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
+			if(!m_pPlayer->isMinorCiv() && pLoopPlot->isRevealedGoody(m_pPlayer->getTeam()))
 			{
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
 				newTarget.SetTargetX(pLoopPlot->getX());
@@ -740,98 +737,45 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 }
 
 /// Send units to garrison cities
-void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
+void CvHomelandAI::PlotGarrisonMoves()
 {
-	// City state garrisoning has a separate priority, so only do it when the flag is on
-	if(bCityStateOnly != m_pPlayer->isMinorCiv())
-	{
-		return;
-	}
+	// Grab units that make sense for this move type
+	FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON,true);
 
-	//No cities? Let's guard our settler!
-	if (m_TargetedCities.size() <= 0)
+	for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
 	{
-		int iUnitLoop = 0;
-		int iSettlers = 0;
-		for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
+		CvCity* pCity = pTarget->getPlotCity();
+		if (!pCity)
+			continue;
+
+		if (pCity->HasGarrison())
 		{
-			if (pLoopUnit != NULL && pLoopUnit->isFound())
-			{
-				// Grab units that make sense for this move type
-				FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iSettlers == 0)/*bFirstTime*/);
-				iSettlers++;
-
-				if (m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
-				{
-					CvUnit *pGarrison = GetBestUnitToReachTarget(pLoopUnit->plot(), GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
-					if (pGarrison)
-					{
-						ExecuteMoveToTarget(pGarrison, pLoopUnit->plot(), 0);
-						if (pGarrison->CanUpgradeRightNow(false))
-						{
-							CvUnit* pNewUnit = pGarrison->DoUpgrade();
-							UnitProcessed(pNewUnit->GetID());
-						}
-						UnitProcessed(pGarrison->GetID());
-						if (GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Moving %s %d to defend settler (first turn most likely), X: %d, Y: %d, Priority: %d", pGarrison->getName().c_str(), pGarrison->GetID(), pGarrison->getX(), pGarrison->getY(), -1);
-							LogHomelandMessage(strLogString);
-						}
-					}
-				}
-			}
+			//nothing to do really
+			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+			if (!pGarrison->TurnProcessed())
+				UnitProcessed(pGarrison->GetID());
 		}
-	}
-
-	// Do we have any targets of this type?
-	if(
-		m_TargetedCities.size() > 0)
-	{
-		for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
+		else
 		{
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-			CvCity* pCity = pTarget->getPlotCity();
-
-			//don't move into a doomed city
-			if(pCity && !pCity->HasGarrison() && !pCity->isInDangerOfFalling() )
+			//try to find a new garrison
+			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
+			if(pGarrison)
 			{
-				// Grab units that make sense for this move type
-				FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
+				ExecuteMoveToTarget(pGarrison, pTarget, 0);
+				UnitProcessed(pGarrison->GetID());
 
-				if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS());
-					if(pGarrison)
-					{
-						ExecuteMoveToTarget(pGarrison, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedOpportunityAttack(pGarrison);
-
-						if (m_pPlayer->isMinorCiv())
-						{
-							if (pGarrison->CanUpgradeRightNow(false))
-							{
-								CvUnit* pNewUnit = pGarrison->DoUpgrade();
-								UnitProcessed(pNewUnit->GetID());
-							}
-						}
-						
-						UnitProcessed(pGarrison->GetID());
-#endif
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Moving %s %d to garrison, X: %d, Y: %d, Priority: %d", pGarrison->getName().c_str(), pGarrison->GetID(), m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
-							LogHomelandMessage(strLogString);
-						}
-					}
+					CvString strLogString;
+					strLogString.Format("Moving %s %d to garrison, X: %d, Y: %d, Priority: %d", pGarrison->getName().c_str(), pGarrison->GetID(), m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
+					LogHomelandMessage(strLogString);
 				}
 			}
 		}
 	}
 }
+
 
 /// Find out which units would like to heal
 void CvHomelandAI::PlotHealMoves()
@@ -6101,25 +6045,61 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 }
 
 //	---------------------------------------------------------------------------
-/// Get the closest 
-bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns)
-{
+/// Compute the best unit to reach a target in the current normal and high priority move list
+CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
+	{
+	// Get the raw distance for all units
+	int iTargetX = pTarget->getX();
+	int iTargetY = pTarget->getY();
+
+	// first check raw distance
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	{
+		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
+		if(pLoopUnit)
+		{
+			// Make sure domain matches
+			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
+				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
+			{
+				it->SetMovesToTarget(MAX_INT);
+				continue;
+			}
+
+			if (pLoopUnit->TurnProcessed() || !pLoopUnit->canMove())
+			{
+				it->SetMovesToTarget(MAX_INT);
+				continue;
+		}
+
+			if (pLoopUnit->plot() == pTarget)
+		{
+				return pLoopUnit;
+			}
+			else
+			{
+				// Make sure we can move into the destination.  The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
+				if (pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
+					it->SetMovesToTarget(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iTargetX, iTargetY));
+				else
+					it->SetMovesToTarget(MAX_INT);
+			}
+		}
+	}
+
 	// Sort by raw distance
-	std::stable_sort(kMoveUnits.begin(), kMoveUnits.end());
+	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
 
 	CvUnit* pBestUnit = NULL;
-	int iMinTurns = iMaxTurns;
-	MoveUnitsArray::iterator it;
+	int iBestTurns = iMaxTurns;
 
 	int iFailedPaths = 0;
 	// If we see this many failed pathing attempts, we assume no unit can get to the target
 	const int MAX_FAILED_PATHS = 2;
-	// If the last failed pathing attempt was this far (raw distance) from the target, we assume no one can reach the target, even if we have not reached MAX_FAILED_PATHS
-	const int EARLY_OUT_FAILED_PATH_DISTANCE = 12;
 
 	// Now go through and figure out the actual number of turns, and as a result, even if it can get there at all.
 	// We will try and do as few as possible by stopping if we find a unit that can make it in one turn.
-	for(it = kMoveUnits.begin(); it != kMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if (pLoopUnit)
@@ -6129,151 +6109,26 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 				continue;
 			
 			//pretent turns are "moves" here
-			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iMinTurns);
-			it->SetMovesToTarget(iMoves);
+			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iMaxTurns);
+			it->SetMovesToTarget(iTurns);
+
 			// Did we make it at all?
-			if (iMoves != MAX_INT)
-			{
-				// Reasonably close?
-#if defined(MOD_BALANCE_CORE)
-				if (iDistance == 0 || iMoves == 0)
-				{
-					pBestUnit = pLoopUnit;
-					iMinTurns = iMoves;
-					break;
-				}
-				if (iMoves <= iDistance && iMoves <= iMaxTurns && iMoves < iMinTurns)
-#else
-				if (iDistance == 0 || (iMoves <= iDistance && iMoves <= iMaxTurns && iMoves < iMinTurns))
-#endif
-				{
-					pBestUnit = pLoopUnit;
-					iMinTurns = iMoves;
-					break;
-				}
-
-				if (iMoves < iMinTurns)
-				{
-					pBestUnit = pLoopUnit;
-					iMinTurns = iMoves;
-				}
-
-				// Were we far away?  If so, this is probably the best we are going to do
-				if (iDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
-					break;
-			}
-			else
+			if (iTurns == MAX_INT)
 			{
 				++iFailedPaths;
 				if (iFailedPaths >= MAX_FAILED_PATHS)
 					break;
-				if (iDistance >= EARLY_OUT_FAILED_PATH_DISTANCE)
+				}
+
+			// Take the first one ...
+			if (iTurns < iBestTurns)
+				{
+					pBestUnit = pLoopUnit;
+				iBestTurns = iTurns;
 					break;
 			}
-		}
-	}
-
-	*ppClosestUnit = pBestUnit;
-	*piClosestTurns = iMinTurns;
-	return pBestUnit != NULL;
-}
-
-//	---------------------------------------------------------------------------
-/// Compute the best unit to reach a target in the current normal and high priority move list
-CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
-{
-	AI_PERF_FORMAT("Homeland-GetBest-perf.csv", ("GetBestUnitToReachTarget, %d, %d, Turn %03d, %s", pTarget->getX(), pTarget->getY(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-	CvUnit* pLoopUnit;
-	MoveUnitsArray::iterator it;
-
-	// Get the raw distance for all units
-	int iTargetX = pTarget->getX();
-	int iTargetY = pTarget->getY();
-	
-	// Normal priority units
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		pLoopUnit = m_pPlayer->getUnit(it->GetID());
-		if(pLoopUnit)
-		{
-			// Make sure domain matches
-			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
-				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
-			{
-				it->SetMovesToTarget(MAX_INT);
-				continue;
-			}
-			
-			if (pLoopUnit->plot() == pTarget)
-			{
-				return pLoopUnit;
-			}
-			else
-			{
-				// Make sure we can move into the destination.  The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
-				if (!pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
-				{
-					it->SetMovesToTarget(MAX_INT);
-					continue;
-				}
-
-				int iPlotDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iTargetX, iTargetY);
-				it->SetMovesToTarget(iPlotDistance);
 			}
 		}
-	}
-
-	// High priority units
-	for(it = m_CurrentMoveHighPriorityUnits.begin(); it != m_CurrentMoveHighPriorityUnits.end(); ++it)
-	{
-		pLoopUnit = m_pPlayer->getUnit(it->GetID());
-		if(pLoopUnit)
-		{
-			// Make sure domain matches
-			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
-				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
-			{
-				it->SetMovesToTarget(MAX_INT);
-				continue;
-			}
-
-			if (pLoopUnit->plot() == pTarget)
-			{
-				return pLoopUnit;
-			}
-			else
-			{
-				// Make sure we can move into the destination.  The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
-				if (!pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
-				{
-					it->SetMovesToTarget(MAX_INT);
-					continue;
-				}
-
-				int iPlotDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iTargetX, iTargetY);
-				it->SetMovesToTarget(iPlotDistance);
-			}
-		}
-	}
-
-	// Find the one with the best true moves distance
-	CvUnit *pHighPrio=0,*pNormalPrio=0;
-	int iHighPrioMoves=INT_MAX,iNormalPrioMoves=INT_MAX;
-	GetClosestUnitByTurnsToTarget(m_CurrentMoveHighPriorityUnits, pTarget, iMaxTurns, &pHighPrio, &iHighPrioMoves);
-	GetClosestUnitByTurnsToTarget(m_CurrentMoveUnits, pTarget, iMaxTurns, &pNormalPrio, &iNormalPrioMoves);
-
-	CvUnit* pBestUnit = NULL;
-	if (pHighPrio)
-	{
-		// Don't move high priority unit if regular priority unit is closer
-		if (pNormalPrio && iNormalPrioMoves < iHighPrioMoves)
-			pBestUnit = pNormalPrio;
-		else
-			pBestUnit = pHighPrio;
-	}
-	else
-		pBestUnit = pNormalPrio;
 
 	return pBestUnit;
 }
