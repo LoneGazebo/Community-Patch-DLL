@@ -435,21 +435,21 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 				else
 				{
+					//todo: shouldn't we be looking at visibility here?
 					int iWeight = pLoopPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 					if(iWeight > 0)
 					{
-						if(pLoopPlot->getResourceType(eTeam) != NO_RESOURCE)
-						{
-							iWeight += 25;
-						}
 						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-						{
-							iWeight += 25;
-						}
+							iWeight += 10;
 						if(pLoopPlot->isHills())
-						{
 							iWeight += 25;
-						}
+
+						if(pLoopPlot->getNumUnits() > 0)
+						{
+							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+							if(pUnit && pUnit->IsCivilianUnit())
+								iWeight += 100;
+							}
 
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
@@ -459,72 +459,31 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
 			// ... possible naval sentry point?
 			if (pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				CvCity* pOwningCity = pLoopPlot->getOwningCity();
-				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal() && pOwningCity->isUnderSiege())
+				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
 					if (iDistance > 3)
 						continue;
 
-					int iWeight = 0;
+					int iWeight = iDistance;
 					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						iWeight += 50;
-					}
+						iWeight += 23;
 
-					if (iDistance == 3)
-					{
-						iWeight += 50;
-					}
-					else if (iDistance == 2)
-					{
-						iWeight += 100;
-					}
-					else if (iDistance == 1)
-					{
-						iWeight += 25;
-					}
-					if (pLoopPlot->getNumUnits() > 0)
-					{
-						CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-						if (pUnit != NULL)
-						{
-							if (pUnit->IsCivilianUnit())
-							{
-								iWeight += 100;
-							}
-							else if (pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
-							{
-								iWeight += 50;
-							}
-						}
-					}
+					if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(),true))
+						iWeight += 42;
 
-
-					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetThreatRank() != -1)
+					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetCoastalThreatRank() != -1)
 					{
 						//More cities = more threat.
-						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetThreatRank()) * 10;
+						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetCoastalThreatRank()) * 10;
 						if (iThreat > 0)
-						{
 							iWeight += iThreat;
-						}
 					}
-					if (m_pPlayer->IsAtWar())
-					{
-						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
-						{
-							iWeight *= 10;
-						}
-						if (pOwningCity->getDamage() > 0)
-						{
-							iWeight *= 2;
-						}
-					}
+
 					if (iWeight > 0)
 					{
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
@@ -535,14 +494,12 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
-#endif
 		}
 	}
 
 	// Post-processing on targets
 	EliminateAdjacentSentryPoints();
 	EliminateAdjacentNavalSentryPoints();
-
 	std::stable_sort(m_TargetedCities.begin(), m_TargetedCities.end());
 }
 
@@ -5561,21 +5518,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 // Get a trade unit and send it to a city!
 void CvHomelandAI::ExecuteTradeUnitMoves()
 {
-	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
-
 	TradeConnectionList aTradeConnections;
+	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
 	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections,true);
-
-	//don't start all routes from the same city, try to spread them out
-	//note this is only for this turn - next turn it's a new game
-	std::set<int> originCities;
 	
 	//stats to decide whether to disband a unit
 	int iWaterRoutes = 0;
 	int iLandRoutes = 0;
-#if defined(MOD_BALANCE_CORE)
-	int iDupes = 0;
-#endif
+
 	//for the N best trade routes, find a suitable unit
 	//check at least the 8 best routes, at max 3 times the number of free trade units
 	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
@@ -5589,32 +5539,13 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		if (aTradeConnections[ui].m_eDomain==DOMAIN_LAND)
 			iLandRoutes++;
 
-#if defined(MOD_BALANCE_CORE)	
-		//if we already made 3 routes from here this turn, then skip it
-		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
-			iDupes++;
-
-		if(iDupes >= 3)
-			continue;
-#else
-		//if we already made a route from here this turn, then skip it
-		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
-			continue;
-#endif
-
 		//we don't really care about the distance but not having to re-base is good
 		CvUnit *pBestUnit = NULL;
 		int iBestDistance = INT_MAX;
-
-		MoveUnitsArray::iterator it;
-		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-#if defined(MOD_BALANCE_CORE)
 			if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed() || pUnit->IsAutomated())
-#else
-			if(!pUnit || !pUnit->canMove())
-#endif
 				continue;
 
 			if (aTradeConnections[ui].m_eDomain != pUnit->getDomainType())
@@ -5639,9 +5570,6 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		{
 			CvCity* pOriginCity = CvGameTrade::GetOriginCity(aTradeConnections[ui]);
 			CvCity* pDestCity = CvGameTrade::GetDestCity(aTradeConnections[ui]);
-
-			//remember this city
-			originCities.insert(pOriginCity->GetID());
 
 			if (pOriginPlot != pBestUnit->plot())
 			{
@@ -5684,14 +5612,14 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 
 					LogHomelandMessage(strLogString);
 				}
-				UnitProcessed(pBestUnit->GetID());
 			}
+
+			UnitProcessed(pBestUnit->GetID());
 		}
 	}
 
 	//unassigned trade units?
-	MoveUnitsArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed())
@@ -5803,26 +5731,24 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 	std::stable_sort(m_TargetedSentryPoints.begin(), m_TargetedSentryPoints.end());
 
 	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedSentryPoints;
+	std::vector<CvHomelandTarget> tempPoints(m_TargetedSentryPoints);
 
 	// Clear out main list
 	m_TargetedSentryPoints.clear();
 
 	// Loop through all points in copy
-	std::vector<CvHomelandTarget>::iterator it, it2;
-	for(it = tempPoints.begin(); it != tempPoints.end(); ++it)
+	for(std::vector<CvHomelandTarget>::iterator it = tempPoints.begin(); it != tempPoints.end(); ++it)
 	{
-		bool bFoundAdjacent = false;
-		//Let's make sure that we exclude forts here. If the first is a sentry, then we can make the check.
-		if((it->GetTargetType() == AI_HOMELAND_TARGET_FORT))
+		//always take forts
+		if(it->GetTargetType() == AI_HOMELAND_TARGET_FORT)
 		{
 			m_TargetedSentryPoints.push_back(*it);
 		}
 		else
 		{
 			// Is it adjacent to a point in the main list?
-			for(it2 = m_TargetedSentryPoints.begin(); it2 != m_TargetedSentryPoints.end(); ++it2)
+			bool bFoundAdjacent = false;
+			for(std::vector<CvHomelandTarget>::iterator it2 = m_TargetedSentryPoints.begin(); it2 != m_TargetedSentryPoints.end(); ++it2)
 			{
 				if(plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
 				{
@@ -5830,6 +5756,7 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 					break;
 				}
 			}
+
 			if(!bFoundAdjacent)
 			{
 				m_TargetedSentryPoints.push_back(*it);
@@ -5837,7 +5764,7 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// Don't allow adjacent tiles to both be sentry points
 void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 {
@@ -5845,8 +5772,7 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 	std::stable_sort(m_TargetedNavalSentryPoints.begin(), m_TargetedNavalSentryPoints.end());
 
 	// Create temporary copy of list
-	std::vector<CvHomelandTarget> tempPoints;
-	tempPoints = m_TargetedNavalSentryPoints;
+	std::vector<CvHomelandTarget> tempPoints(m_TargetedNavalSentryPoints);
 
 	// Clear out main list
 	m_TargetedNavalSentryPoints.clear();
@@ -5871,7 +5797,6 @@ void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
 		}
 	}
 }
-#endif
 
 /// Finds both high and normal priority units we can use for this homeland move (returns true if at least 1 unit found)
 bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
