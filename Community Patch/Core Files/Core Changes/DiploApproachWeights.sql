@@ -93,36 +93,36 @@ SELECT 'APPROACH_WAR_BASE_AI_PERCENT', '0';
 -- Proximity Multipliers to Approach Weights
 -- Normal Proximity Multiplier
 INSERT INTO Defines (Name, Value)
-SELECT 'APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS', '125';
+SELECT 'APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS', '150';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'APPROACH_MULTIPLIER_PROXIMITY_CLOSE', '100';
+SELECT 'APPROACH_MULTIPLIER_PROXIMITY_CLOSE', '125';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'APPROACH_MULTIPLIER_PROXIMITY_FAR', '75';
+SELECT 'APPROACH_MULTIPLIER_PROXIMITY_FAR', '100';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '50';
+SELECT 'APPROACH_MULTIPLIER_PROXIMITY_DISTANT', '75';
 
--- Conquest Multiplier (proximity multiplier if AI is going for domination or just really wants to conquer this player)
+-- Conquest Multiplier (proximity multiplier to WAR and HOSTILE approaches if AI is going for domination or just really wants to conquer this player)
 -- 115
 UPDATE Defines
-SET Value = '150'
+SET Value = '200'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_NEIGHBORS';
 
 -- 100
 UPDATE Defines
-SET Value = '125'
+SET Value = '150'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_CLOSE';
 
 -- 60
 UPDATE Defines
-SET Value = '100'
+SET Value = '125'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_FAR';
 
 -- 50
 UPDATE Defines
-SET Value = '75'
+SET Value = '100'
 WHERE Name = 'APPROACH_WAR_PROXIMITY_DISTANT';
 
 
