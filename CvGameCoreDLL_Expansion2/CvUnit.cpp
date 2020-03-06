@@ -5469,9 +5469,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	vector<SPlotWithScore> candidates;
 	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
 
-		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
-		{
-			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//plot must be empty even of civilians
 		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
@@ -5481,11 +5481,11 @@ bool CvUnit::jumpToNearestValidPlot()
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
 				if (pLoopPlot->area()->getNumTiles() < GC.getMIN_WATER_SIZE_FOR_OCEAN() || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-					iValue += 2000;
+					iValue += 20000;
 
 			//avoid embarkation
 			if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-				iValue += 1000;
+				iValue += 10000;
 
 			candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
@@ -28580,21 +28580,6 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			m_kLastPath.push_back(nextNode);
 		}
 
-		if (!m_kLastPath.empty())
-		{
-			CvMap& kMap = GC.getMap();
-			TeamTypes eTeam = getTeam();
-
-			// Get the state of the plots in the path, they determine how much of the path is re-usable.
-			for (size_t iIndex = 0; iIndex < m_kLastPath.size(); iIndex++)
-			{
-				CvPathNode& kNode = m_kLastPath[iIndex];
-				CvPlot* pkPlot = kMap.plot(kNode.m_iX, kNode.m_iY);
-				if (pkPlot && !pkPlot->isVisible(eTeam))
-					kNode.m_bInvisibleWhenGenerated = true;
-			}
-		}
-
 		// This helps in preventing us from trying to re-path to the same unreachable location.
 		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
 		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
@@ -28869,17 +28854,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 	if(!m_kLastPath.empty())
 	{
-		if (m_kLastPath.front().m_bInvisibleWhenGenerated && pPathPlot->isVisible(getTeam()))
-		{
-			//did we just reveal a unit? if so, may want to abort movement
-			if (pPathPlot->isVisibleOtherUnit(getOwner()))
-			{
-				//for AI don't abort if we will move on
-				if (isHuman() || m_kLastPath.front().m_iMoves == 0 || m_kLastPath.size() < 1)
-					bRejectMove = true;
-			}
-		}
-
 		// if we should end our turn there this turn, but can't move into that tile
 		if(m_kLastPath.front().m_iMoves == 0 && !canMoveInto(*pPathPlot,iFlags|MOVEFLAG_DESTINATION))  
 		{
@@ -29357,6 +29331,10 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		OutputDebugString("illegal range strike target!\n");
 		return;
 	}
+
+	//comfort feature for civilians
+	if (!IsCanAttack())
+		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//any mission resets the cache
  	ClearReachablePlots();
