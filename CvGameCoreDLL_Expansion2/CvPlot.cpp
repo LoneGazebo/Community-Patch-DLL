@@ -11004,13 +11004,10 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				for (size_t iI = 0; iI < aePlayers.size(); iI++)
 				{
 					PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
-					if (ePlayer == NO_PLAYER)
+					if (ePlayer != NO_PLAYER)
 					{
-						continue;
-					}
-					else
-					{
-						GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit);
+						if (GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit) && pUnit)
+							pUnit->SetSpottedEnemy(true);
 					}
 				}
 			}

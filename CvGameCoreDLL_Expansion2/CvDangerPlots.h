@@ -161,7 +161,7 @@ public:
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const;
 	void ResetDangerCache(const CvPlot* pCenterPlot, int iRange);
 	bool IsKnownAttacker(const CvUnit* pUnit) const;
-	void AddKnownAttacker(const CvUnit* pUnit);
+	bool AddKnownAttacker(const CvUnit* pUnit);
 
 	void SetDirty();
 	bool IsDirty() const

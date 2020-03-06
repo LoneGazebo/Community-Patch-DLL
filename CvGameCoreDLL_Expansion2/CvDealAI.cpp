@@ -1483,6 +1483,12 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			return MAX_INT;
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
+
+		//let's assume an interest rate of 0.5% per turn, no compounding
+		int iInterestPercent = 100 * (iNumTurns * 5) / 1000;
+
+		//subtract interest. 100 gold now is better than 100 gold in the future
+		iValueTimes100 -= (iValueTimes100*iInterestPercent) / 100;
 	}
 
 	// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)

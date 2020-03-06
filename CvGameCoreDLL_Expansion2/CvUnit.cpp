@@ -428,9 +428,9 @@ CvUnit::CvUnit() :
 	, m_iNearbyUnitClassBonus("CvUnit::m_iNearbyUnitClassBonus", m_syncArchive)
 	, m_bNearbyPromotion("CvUnit::m_bNearbyPromotion", m_syncArchive)
 	, m_iNearbyUnitPromotionRange("CvUnit::m_iNearbyUnitPromotionRange", m_syncArchive)
-	, m_inearbyCityCombatMod("CvUnit::m_inearbyCityCombatMod", m_syncArchive)
-	, m_inearbyFriendlyCityCombatMod("CvUnit::m_inearbyFriendlyCityCombatMod", m_syncArchive)
-	, m_inearbyEnemyCityCombatMod("CvUnit::m_inearbyEnemyCityCombatMod", m_syncArchive)
+	, m_iNearbyCityCombatMod("CvUnit::m_iNearbyCityCombatMod", m_syncArchive)
+	, m_iNearbyFriendlyCityCombatMod("CvUnit::m_iNearbyFriendlyCityCombatMod", m_syncArchive)
+	, m_iNearbyEnemyCityCombatMod("CvUnit::m_iNearbyEnemyCityCombatMod", m_syncArchive)
 	, m_iPillageBonusStrengthPercent("CvUnit::m_iPillageBonusStrengthPercent", m_syncArchive)
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
@@ -441,23 +441,23 @@ CvUnit::CvUnit() :
 	, m_iGiveCombatMod("CvUnit::m_iGiveCombatMod", m_syncArchive)
 	, m_iGiveHPIfEnemyKilled("CvUnit::m_iGiveHPIfEnemyKilled", m_syncArchive)
 	, m_iGiveExperiencePercent("CvUnit::m_iGiveExperiencePercent", m_syncArchive)
-	, m_igiveOutsideFriendlyLandsModifier("CvUnit::m_igiveOutsideFriendlyLandsModifier", m_syncArchive)
+	, m_iGiveOutsideFriendlyLandsModifier("CvUnit::m_iGiveOutsideFriendlyLandsModifier", m_syncArchive)
 	, m_eGiveDomain("CvUnit::m_eGiveDomain", m_syncArchive)
-	, m_igiveExtraAttacks("CvUnit::m_igiveExtraAttacks", m_syncArchive)
-	, m_igiveDefenseMod("CvUnit::m_igiveDefenseMod", m_syncArchive)
-	, m_bgiveInvisibility("CvUnit::m_bgiveInvisibility", m_syncArchive)
-	, m_bconvertUnit("CvUnit::m_bconvertUnit", m_syncArchive)
+	, m_iGiveExtraAttacks("CvUnit::m_iGiveExtraAttacks", m_syncArchive)
+	, m_iGiveDefenseMod("CvUnit::m_iGiveDefenseMod", m_syncArchive)
+	, m_bGiveInvisibility("CvUnit::m_bGiveInvisibility", m_syncArchive)
+	, m_bConvertUnit("CvUnit::m_bConvertUnit", m_syncArchive)
 	, m_eConvertDomain("CvUnit::m_eConvertDomain", m_syncArchive)
 	, m_eConvertDomainUnit("CvUnit::m_eConvertDomainUnit", m_syncArchive)
-	, m_bconvertEnemyUnitToBarbarian("CvUnit::m_bconvertEnemyUnitToBarbarian", m_syncArchive)
-	, m_bconvertOnFullHP("CvUnit::m_bconvertOnFullHP", m_syncArchive)
-	, m_bconvertOnDamage("CvUnit::m_bconvertOnDamage", m_syncArchive)
-	, m_idamageThreshold("CvUnit::m_idamageThreshold", m_syncArchive)
-	, m_econvertDamageOrFullHPUnit("CvUnit::m_econvertDamageOrFullHPUnit", m_syncArchive)
-	, m_inumberOfCultureBombs("CvUnit::m_inumberOfCultureBombs", m_syncArchive)
-	, m_inearbyHealEnemyTerritory("CvUnit::m_inearbyHealEnemyTerritory", m_syncArchive)
-	, m_inearbyHealNeutralTerritory("CvUnit::m_inearbyHealNeutralTerritory", m_syncArchive)
-	, m_inearbyHealFriendlyTerritory("CvUnit::m_inearbyHealFriendlyTerritory", m_syncArchive)
+	, m_bConvertEnemyUnitToBarbarian("CvUnit::m_bConvertEnemyUnitToBarbarian", m_syncArchive)
+	, m_bConvertOnFullHP("CvUnit::m_bConvertOnFullHP", m_syncArchive)
+	, m_bConvertOnDamage("CvUnit::m_bConvertOnDamage", m_syncArchive)
+	, m_iDamageThreshold("CvUnit::m_iDamageThreshold", m_syncArchive)
+	, m_eConvertDamageOrFullHPUnit("CvUnit::m_eConvertDamageOrFullHPUnit", m_syncArchive)
+	, m_iNumberOfCultureBombs("CvUnit::m_iNumberOfCultureBombs", m_syncArchive)
+	, m_iNearbyHealEnemyTerritory("CvUnit::m_iNearbyHealEnemyTerritory", m_syncArchive)
+	, m_iNearbyHealNeutralTerritory("CvUnit::m_iNearbyHealNeutralTerritory", m_syncArchive)
+	, m_iNearbyHealFriendlyTerritory("CvUnit::m_iNearbyHealFriendlyTerritory", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -1559,9 +1559,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCombatBonusFromNearbyUnitClass = NO_UNITCLASS;
 	m_bNearbyPromotion = false;
 	m_iNearbyUnitPromotionRange = 0;
-	m_inearbyCityCombatMod = 0;
-	m_inearbyFriendlyCityCombatMod = 0;
-	m_inearbyEnemyCityCombatMod = 0;
+	m_iNearbyCityCombatMod = 0;
+	m_iNearbyFriendlyCityCombatMod = 0;
+	m_iNearbyEnemyCityCombatMod = 0;
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
 	m_bIsHighSeaRaider = false;
@@ -1573,22 +1573,22 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGiveCombatMod = 0;
 	m_iGiveHPIfEnemyKilled = 0;
 	m_iGiveExperiencePercent = 0;
-	m_igiveOutsideFriendlyLandsModifier = 0;
-	m_igiveExtraAttacks = 0;
-	m_igiveDefenseMod = 0;
-	m_bgiveInvisibility = false;
-	m_bconvertUnit = false;
+	m_iGiveOutsideFriendlyLandsModifier = 0;
+	m_iGiveExtraAttacks = 0;
+	m_iGiveDefenseMod = 0;
+	m_bGiveInvisibility = false;
+	m_bConvertUnit = false;
 	m_eConvertDomainUnit = NO_UNIT;
 	m_eConvertDomain = NO_DOMAIN;
-	m_bconvertEnemyUnitToBarbarian = false;
-	m_bconvertOnFullHP = false;
-	m_bconvertOnDamage = false;
-	m_idamageThreshold = 0;
-	m_econvertDamageOrFullHPUnit = NO_UNIT;
-	m_inumberOfCultureBombs = 0;
-	m_inearbyHealEnemyTerritory = 0;
-	m_inearbyHealNeutralTerritory = 0;
-	m_inearbyHealFriendlyTerritory = 0;
+	m_bConvertEnemyUnitToBarbarian = false;
+	m_bConvertOnFullHP = false;
+	m_bConvertOnDamage = false;
+	m_iDamageThreshold = 0;
+	m_eConvertDamageOrFullHPUnit = NO_UNIT;
+	m_iNumberOfCultureBombs = 0;
+	m_iNearbyHealEnemyTerritory = 0;
+	m_iNearbyHealNeutralTerritory = 0;
+	m_iNearbyHealFriendlyTerritory = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -4667,7 +4667,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 
 		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
-		{
+	{
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
@@ -4676,25 +4676,25 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		if (!bEndTurn)
 			return true;
 
-			// If we haven't yet met the Minor we can move in
-			if(!kMyTeam.isHasMet(eTeam))
-				return true;
+		// If we haven't yet met the Minor we can move in
+		if(!kMyTeam.isHasMet(eTeam))
+			return true;
 
 		// Is this an excluded unit that doesn't cause anger?
 		if (IsAngerFreeUnit())
 			return true;
 
-			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 #if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-			// If the minor is allied, treat the plot as being owned by their ally
+		// If the minor is allied, treat the plot as being owned by their ally
 		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
-					return true;
+			return true;
 #endif
 
-				// If already intruding on this minor, okay to do it some more
-				if (pMinorAI->IsMajorIntruding(getOwner()))
-					return true;
+		// If already intruding on this minor, okay to do it some more
+		if (pMinorAI->IsMajorIntruding(getOwner()))
+			return true;
 	}
 
 	//city states may enter their ally's territory - may help for defense
@@ -6204,8 +6204,8 @@ int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
 	m_iDamageTakenThisTurn+=iDamage;
 
-	if (pAttacker)
-		//remember the attacker for our danger calculation - in case he came out of nowhere, now moves and becomes invisible again
+	//remember the attacker for AI danger calculation - in case he came out of nowhere, now moves and becomes invisible again
+	if (pAttacker && !isHuman())
 		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
 
 	return m_iDamageTakenThisTurn;
@@ -13934,14 +13934,14 @@ void CvUnit::setBuilderStrength(const int newPower)
 #if defined(MOD_BALANCE_CORE)
 int CvUnit::getNumberOfCultureBombs() const
 {
-	return m_inumberOfCultureBombs;
+	return m_iNumberOfCultureBombs;
 }
 void CvUnit::setNumberOfCultureBombs(const int iBombs)
 {
-	m_inumberOfCultureBombs = iBombs;
+	m_iNumberOfCultureBombs = iBombs;
 
-	if (m_inumberOfCultureBombs < 0)
-		m_inumberOfCultureBombs = 0;
+	if (m_iNumberOfCultureBombs < 0)
+		m_iNumberOfCultureBombs = 0;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -17643,32 +17643,32 @@ void CvUnit::ChangeNearbyUnitPromotionRange(int iBonusRange)
 void CvUnit::ChangeNearbyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_inearbyCityCombatMod += iValue;
+	m_iNearbyCityCombatMod += iValue;
 }
 int CvUnit::getNearbyCityCombatMod() const
 {
 	VALIDATE_OBJECT
-	return	m_inearbyCityCombatMod;
+	return	m_iNearbyCityCombatMod;
 }
 void CvUnit::ChangeNearbyFriendlyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_inearbyFriendlyCityCombatMod += iValue;
+	m_iNearbyFriendlyCityCombatMod += iValue;
 }
 int CvUnit::getNearbyFriendlyCityCombatMod() const
 {
 	VALIDATE_OBJECT
-	return	m_inearbyFriendlyCityCombatMod;
+	return	m_iNearbyFriendlyCityCombatMod;
 }
 void CvUnit::ChangeNearbyEnemyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_inearbyEnemyCityCombatMod += iValue;
+	m_iNearbyEnemyCityCombatMod += iValue;
 }
 int CvUnit::getNearbyEnemyCityCombatMod() const
 {
 	VALIDATE_OBJECT
-	return m_inearbyEnemyCityCombatMod;
+	return m_iNearbyEnemyCityCombatMod;
 }
 int CvUnit::getPillageBonusStrengthPercent() const
 {
@@ -17778,12 +17778,12 @@ void CvUnit::ChangeGiveExperiencePercent(int iValue)
 int CvUnit::getGiveOutsideFriendlyLandsModifier() const
 {
 	VALIDATE_OBJECT
-	return m_igiveOutsideFriendlyLandsModifier;
+	return m_iGiveOutsideFriendlyLandsModifier;
 }
 void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 {
 	VALIDATE_OBJECT
-	m_igiveOutsideFriendlyLandsModifier += iValue;
+	m_iGiveOutsideFriendlyLandsModifier += iValue;
 }
 const DomainTypes CvUnit::getGiveDomain() const
 {
@@ -17798,62 +17798,62 @@ void CvUnit::ChangeGiveDomain(DomainTypes eDomain)
 int CvUnit::getGiveExtraAttacks() const
 {
 	VALIDATE_OBJECT
-	return m_igiveExtraAttacks;
+	return m_iGiveExtraAttacks;
 }
 void CvUnit::ChangeGiveExtraAttacks(int iValue)
 {
 	VALIDATE_OBJECT
-	m_igiveExtraAttacks += iValue;
+	m_iGiveExtraAttacks += iValue;
 }
 int CvUnit::getGiveDefenseMod() const
 {
 	VALIDATE_OBJECT
-	return m_igiveDefenseMod;
+	return m_iGiveDefenseMod;
 }
 void CvUnit::ChangeGiveDefenseMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_igiveDefenseMod += iValue;
+	m_iGiveDefenseMod += iValue;
 }
 int CvUnit::getNearbyHealEnemyTerritory() const
 {
 	VALIDATE_OBJECT
-	return m_inearbyHealEnemyTerritory;
+	return m_iNearbyHealEnemyTerritory;
 }
 void CvUnit::ChangeNearbyHealEnemyTerritory(int iValue)
 {
 	VALIDATE_OBJECT
-	m_inearbyHealEnemyTerritory += iValue;
+	m_iNearbyHealEnemyTerritory += iValue;
 }
 int CvUnit::getNearbyHealNeutralTerritory() const
 {
 	VALIDATE_OBJECT
-	return m_inearbyHealNeutralTerritory;
+	return m_iNearbyHealNeutralTerritory;
 }
 void CvUnit::ChangeNearbyHealNeutralTerritory(int iValue)
 {
 	VALIDATE_OBJECT
-	m_inearbyHealNeutralTerritory += iValue;
+	m_iNearbyHealNeutralTerritory += iValue;
 }
 int CvUnit::getNearbyHealFriendlyTerritory() const
 {
 	VALIDATE_OBJECT
-	return m_inearbyHealFriendlyTerritory;
+	return m_iNearbyHealFriendlyTerritory;
 }
 void CvUnit::ChangeNearbyHealFriendlyTerritory(int iValue)
 {
 	VALIDATE_OBJECT
-	m_inearbyHealFriendlyTerritory += iValue;
+	m_iNearbyHealFriendlyTerritory += iValue;
 }
 void CvUnit::ChangeIsGiveInvisibility(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bgiveInvisibility += iValue;
+	m_bGiveInvisibility += iValue;
 }
 int CvUnit::GetIsGiveInvisibility() const
 {
 	VALIDATE_OBJECT
-	return	m_bgiveInvisibility;
+	return	m_bGiveInvisibility;
 }
 bool CvUnit::isGiveInvisibility() const
 {
@@ -17863,12 +17863,12 @@ bool CvUnit::isGiveInvisibility() const
 void CvUnit::ChangeIsConvertUnit(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bconvertUnit += iValue;
+	m_bConvertUnit += iValue;
 }
 int CvUnit::getIsConvertUnit() const
 {
 	VALIDATE_OBJECT
-	return	m_bconvertUnit;
+	return	m_bConvertUnit;
 }
 bool CvUnit::isConvertUnit() const
 {
@@ -17898,12 +17898,12 @@ void CvUnit::ChangeConvertDomainUnit(UnitTypes eUnit)
 void CvUnit::ChangeIsConvertEnemyUnitToBarbarian(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bconvertEnemyUnitToBarbarian += iValue;
+	m_bConvertEnemyUnitToBarbarian += iValue;
 }
 int CvUnit::getIsConvertEnemyUnitToBarbarian() const
 {
 	VALIDATE_OBJECT
-	return m_bconvertEnemyUnitToBarbarian;
+	return m_bConvertEnemyUnitToBarbarian;
 }
 bool CvUnit::isConvertEnemyUnitToBarbarian() const
 {
@@ -17913,12 +17913,12 @@ bool CvUnit::isConvertEnemyUnitToBarbarian() const
 void CvUnit::ChangeIsConvertOnFullHP(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bconvertOnFullHP += iValue;
+	m_bConvertOnFullHP += iValue;
 }
 int CvUnit::getIsConvertOnFullHP() const
 {
 	VALIDATE_OBJECT
-	return m_bconvertOnFullHP;
+	return m_bConvertOnFullHP;
 }
 bool CvUnit::isConvertOnFullHP() const
 {
@@ -17928,12 +17928,12 @@ bool CvUnit::isConvertOnFullHP() const
 void CvUnit::ChangeIsConvertOnDamage(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bconvertOnDamage += iValue;
+	m_bConvertOnDamage += iValue;
 }
 int CvUnit::getIsConvertOnDamage() const
 {
 	VALIDATE_OBJECT
-	return	m_bconvertOnDamage;
+	return	m_bConvertOnDamage;
 }
 bool CvUnit::isConvertOnDamage() const
 {
@@ -17943,23 +17943,23 @@ bool CvUnit::isConvertOnDamage() const
 int CvUnit::getDamageThreshold() const
 {
 	VALIDATE_OBJECT
-	return m_idamageThreshold;
+	return m_iDamageThreshold;
 }
 void CvUnit::ChangeDamageThreshold(int iValue)
 {
 	VALIDATE_OBJECT
-	m_idamageThreshold += iValue;
+	m_iDamageThreshold += iValue;
 }
 const UnitTypes CvUnit::getConvertDamageOrFullHPUnit() const
 {
 	VALIDATE_OBJECT
-	return m_econvertDamageOrFullHPUnit;
+	return m_eConvertDamageOrFullHPUnit;
 }
 
 void CvUnit::ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit)
 {
 	VALIDATE_OBJECT
-	m_econvertDamageOrFullHPUnit = eUnit;
+	m_eConvertDamageOrFullHPUnit = eUnit;
 }
 
 int CvUnit::GetAirInterceptRange() const
@@ -18078,6 +18078,18 @@ int CvUnit::GetNumTilesRevealedThisTurn()
 {
 	VALIDATE_OBJECT
 	return m_iNumTilesRevealedThisTurn;
+}
+
+bool CvUnit::HasSpottedEnemy() const
+{
+	VALIDATE_OBJECT
+	return m_bSpottedEnemy;
+}
+
+void CvUnit::SetSpottedEnemy(bool bValue)
+{
+	VALIDATE_OBJECT
+	m_bSpottedEnemy = bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28892,19 +28904,15 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		}
 	}
 
-	vector<CvUnit*> attackersBeforeMove;
-	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
-		 attackersBeforeMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
+	//hack ...
+	SetSpottedEnemy(false);
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
 
-	vector<CvUnit*> attackersAfterMove;
 	if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
 	{
-		attackersAfterMove = GET_PLAYER(getOwner()).GetPossibleAttackers(*pPathPlot,getTeam());
-
-		if (attackersAfterMove.size() > attackersBeforeMove.size() && GetDanger(pPathPlot) > GetCurrHitPoints())
+		if (HasSpottedEnemy())
 		{
 			ClearPathCache();
 			return MOVE_RESULT_CANCEL;
@@ -29332,8 +29340,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		return;
 	}
 
-	//comfort feature for civilians
-	if (!IsCanAttack())
+	//comfort feature for civilians and humans
+	if (!IsCanAttack() || isHuman())
 		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//any mission resets the cache

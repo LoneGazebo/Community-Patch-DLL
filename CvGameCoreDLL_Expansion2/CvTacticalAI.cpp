@@ -1049,7 +1049,7 @@ void CvTacticalAI::ProcessDominanceZones()
 			if (!pZone || !UseThisDominanceZone(pZone))
 				continue;
 
-			PlotCloseOnTarget(pZone);
+			PlotReinforcementMoves(pZone);
 		}
 
 		AssignGlobalLowPrioMoves();
@@ -2461,24 +2461,66 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 }
 
 /// Close units in on primary target of this dominance zone
-void CvTacticalAI::PlotCloseOnTarget(CvTacticalDominanceZone* pZone)
+void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_CLOSE_ON_TARGET);
 
-	if (!pZone)
+	if (!pTargetZone)
 		return;
 
 	//sometimes there is nothing to do ...
-	if (pZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+	if (pTargetZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
-	CvTacticalTarget target;
-	target.SetTargetType(AI_TACTICAL_TARGET_CITY);
-	target.SetTargetX(pZone->GetCenterX());
-	target.SetTargetY(pZone->GetCenterY());
-	target.SetDominanceZone(pZone->GetZoneID());
+	int iAlreadyInZone = 0;
+	CvPlot* pTargetPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if(pUnit && pUnit->canUseForTacticalAI())
+		{
+			// Proper domain of unit?
+			if ((pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA) ||
+				(!pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND) ||
+				(pTargetZone->IsNavalInvasion()) )
+			{	
+				// we want units which are somewhat close (so we don't deplete other combat zones) 
+				int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRangeTurns();
 
-	ExecuteCloseOnTarget(target, pZone);
+				// rough distance check first
+				if (plotDistance(*pUnit->plot(), *pTargetPlot) > iMaxTurns * 2)
+					continue;
+
+				//don't run away if there's other work to do (will eventually be handled by ExecuteAttackWithUnits)
+				CvPlot* pAlternativeTarget = TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false);
+				if (pAlternativeTarget && plotDistance(*pAlternativeTarget,*pTargetPlot)>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+					continue;
+
+				//finally detailed pathfinding
+				int iTurns = 0;
+				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2||CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
+				{
+					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
+					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())
+					{
+						CvTacticalUnit unit(pUnit->GetID());
+						unit.SetMovesToTarget(iTurns);
+						m_CurrentMoveUnits.push_back(unit);
+
+						if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot()) == pTargetZone)
+							iAlreadyInZone++;
+					}
+				}
+			}
+		}
+	}
+
+	//if we only have a single unit to work with in total, this is a case for pillage moves or the like
+	if (pTargetZone->GetTotalFriendlyUnitCount() + m_CurrentMoveUnits.size() - iAlreadyInZone < 2)
+		return;
+
+	if (m_CurrentMoveUnits.size()>0)
+		PositionUnitsAroundTarget(pTargetPlot);
 }
 
 /// Log that we couldn't find assignments for some units
@@ -3024,7 +3066,7 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	}
 
 	//don't get sidetracked
-	if (iMinDistGlobal>3 || pClosestEnemyPlot ==NULL)
+	if (iMinDistGlobal>3 || pClosestEnemyPlot==NULL)
 		return false;
 
 	//do we have additional units around?
@@ -3032,15 +3074,14 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 			vUnitsFinal.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
-	//don't be too aggressive
-	if (vUnitsFinal.size() < allEnemyPlots.size())
-		return false;
+	//don't be too agressive if we're weak
+	eAggressionLevel eLvl = vUnitsFinal.size() > allEnemyPlots.size() ? AL_MEDIUM : AL_LOW;
 
 	int iCount = 0;
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pClosestEnemyPlot, AL_HIGH, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pClosestEnemyPlot, eLvl, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -3062,7 +3103,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget)
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (!pUnit->isDelayedDeath() && !pUnit->canMove() && plotDistance(*pTurnTarget,*pUnit->plot())<pUnit->maxMoves()*3)
+		if (!pUnit->isDelayedDeath() && pUnit->canMove())
 			vUnits.push_back(pUnit);
 
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -3983,8 +4024,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(CvPlot* pTargetPlot)
 	for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
-		//if the unit is too far out we move it later
-		if ( m_CurrentMoveUnits[i].GetMovesToTarget()<3 )
+		if (!pUnit->isDelayedDeath() && pUnit->canMove())
 			vUnits.push_back(pUnit);
 	}
 
@@ -4492,9 +4532,10 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 
 		//finish this up
 		if (pUnit->canHeal(pUnit->plot()))
+		{
 			pUnit->PushMission(CvTypes::getMISSION_HEAL());
-
-		UnitProcessed(pUnit->GetID());
+			UnitProcessed(pUnit->GetID());
+		}
 	}
 }
 
@@ -4842,72 +4883,6 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 		return ExecuteAttackWithUnits(pTargetPlot, AL_MEDIUM);
 
 	return false;
-}
-
-/// Move forces in toward our target
-void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone)
-{
-	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
-
-	//cities have two zones ...
-	CvTacticalDominanceZone* pTargetZone = NULL, *pTargetZoneWater = NULL;
-	if (pTargetPlot->isCity())
-	{
-		pTargetZone = GetTacticalAnalysisMap()->GetZoneByCity(pTargetPlot->getPlotCity(),false);
-		pTargetZoneWater = GetTacticalAnalysisMap()->GetZoneByCity(pTargetPlot->getPlotCity(),true);
-
-		//failsafe 
-		if (!pTargetZone)
-			pTargetZone = pTargetZoneWater;
-	}
-	else
-		pTargetZone = GetTacticalAnalysisMap()->GetZoneByPlot(pTargetPlot);
-
-	if (!pTargetZone)
-		return;
-
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && pUnit->canUseForTacticalAI())
-		{
-			// Proper domain of unit?
-			if ((pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA) ||
-				(!pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND) ||
-				(pTargetZoneWater && pUnit->getDomainType() == DOMAIN_SEA) ||
-				(pTargetZoneWater && pTargetZoneWater->IsNavalInvasion()) ||
-				(pZone && pZone->IsNavalInvasion()) ) //might be temporary zone, so check separately!
-			{	
-				// we want units which are somewhat close (so we don't deplete other combat zones) 
-				int iMaxTurns = GetTacticalAnalysisMap()->GetTacticalRangeTurns();
-
-				// rough distance check first
-				if (plotDistance(*pUnit->plot(), *pTargetPlot) > iMaxTurns * 2)
-					continue;
-
-				//don't run away if there's other work to do (will eventually be handled by ExecuteAttackWithUnits)
-				CvPlot* pAlternativeTarget = TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false);
-				if (pAlternativeTarget && plotDistance(*pAlternativeTarget,*pTargetPlot)>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
-					continue;
-
-				//finally detailed pathfinding
-				int iTurns = 0;
-				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2||CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
-				{
-					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
-					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())
-					{
-						CvTacticalUnit unit(pUnit->GetID());
-						unit.SetMovesToTarget(iTurns);
-						m_CurrentMoveUnits.push_back(unit);
-					}
-				}
-			}
-		}
-	}
-
-	if (m_CurrentMoveUnits.size()>0)
-		PositionUnitsAroundTarget(pTargetPlot);
 }
 
 /// Move units out of current dominance zone

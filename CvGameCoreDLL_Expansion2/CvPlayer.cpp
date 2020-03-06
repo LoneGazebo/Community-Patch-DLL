@@ -47082,12 +47082,12 @@ bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)
 	return m_pDangerPlots->IsKnownAttacker(pAttacker);
 }
 
-void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
+bool CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	m_pDangerPlots->AddKnownAttacker(pAttacker);
+	return m_pDangerPlots->AddKnownAttacker(pAttacker);
 }
 
 //	--------------------------------------------------------------------------------

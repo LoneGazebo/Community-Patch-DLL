@@ -561,7 +561,7 @@ private:
 	void PlotHedgehogMoves(CvTacticalDominanceZone* pZone);
 	void PlotCounterattackMoves(CvTacticalDominanceZone* pZone);
 	void PlotWithdrawMoves(CvTacticalDominanceZone* pZone);
-	void PlotCloseOnTarget(CvTacticalDominanceZone* pZone);
+	void PlotReinforcementMoves(CvTacticalDominanceZone* pZone);
 
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
@@ -611,7 +611,6 @@ private:
 	void ExecuteAirSweepMoves();
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
-	void ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves();
 

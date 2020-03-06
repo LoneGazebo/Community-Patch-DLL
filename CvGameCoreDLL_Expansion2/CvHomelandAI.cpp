@@ -1002,7 +1002,7 @@ void CvHomelandAI::PlotWorkerMoves()
 	if(bSecondary && !MOD_AI_SECONDARY_WORKERS)
 		return;
 
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SECONDARY_WORKER);
+	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER);
 
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
@@ -1063,7 +1063,7 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 void CvHomelandAI::PlotWorkerSeaMoves()
 #endif
 {
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_WORKER_SEA);
+	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER_SEA);
 
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
@@ -2414,9 +2414,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
-
-	MoveUnitsArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove())
@@ -2436,8 +2434,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			SPlotWithScore dummy(pDestPlot,0);
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), 
-					iMoveFlags, false, false, MISSIONAI_EXPLORE, pDestPlot);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pDestPlot);
 
 				if (!pUnit->canMove())
 				{
@@ -2526,7 +2523,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(!pEvalPlot)
 				continue;
 
-			if(pEvalPlot->isCity() && (pEvalPlot->getOwner() != pUnit->getOwner()))
+			//we can pass through a minor's territory but we don't want to stay there
+			//this check shouldn't be necessary because of IsValidExplorerEndTurnPlot() but sometimes it is
+			if(pEvalPlot->isOwned() && GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv())
 				continue;
 
 			//don't embark to reach a close-range target
@@ -6361,9 +6360,8 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 		return false;
 	}
 
-	// don't let the auto-explore end it's turn in a city
-	CvCity* pCity = pPlot->getPlotCity();
-	if(pCity && pCity->getOwner() != pUnit->getOwner())
+	//some plot we can enter but we cannot stay there
+	if (!pUnit->canEnterTerritory(pPlot->getTeam()))
 	{
 		return false;
 	}

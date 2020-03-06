@@ -2546,7 +2546,7 @@ public:
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);
-	void AddKnownAttacker(const CvUnit* pAttacker);
+	bool AddKnownAttacker(const CvUnit* pAttacker);
 
 	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
 

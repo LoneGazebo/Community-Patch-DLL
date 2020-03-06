@@ -785,6 +785,9 @@ public:
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
 
+	bool HasSpottedEnemy() const;
+	void SetSpottedEnemy(bool bValue);
+
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
@@ -2095,9 +2098,9 @@ protected:
 	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
 	FAutoVariable<int, CvUnit> m_bNearbyPromotion;
 	FAutoVariable<int, CvUnit> m_iNearbyUnitPromotionRange;
-	FAutoVariable<int, CvUnit> m_inearbyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyFriendlyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyEnemyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
@@ -2108,23 +2111,23 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveCombatMod;
 	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
 	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
-	FAutoVariable<int, CvUnit> m_igiveOutsideFriendlyLandsModifier;
+	FAutoVariable<int, CvUnit> m_iGiveOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_eGiveDomain;
-	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
-	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
-	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
-	FAutoVariable<int, CvUnit> m_bconvertUnit;
+	FAutoVariable<int, CvUnit> m_iGiveExtraAttacks;
+	FAutoVariable<int, CvUnit> m_iGiveDefenseMod;
+	FAutoVariable<int, CvUnit> m_bGiveInvisibility;
+	FAutoVariable<int, CvUnit> m_bConvertUnit;
 	FAutoVariable<int, CvUnit> m_eConvertDomain;
 	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
-	FAutoVariable<int, CvUnit> m_bconvertEnemyUnitToBarbarian;
-	FAutoVariable<int, CvUnit> m_bconvertOnFullHP;
-	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
-	FAutoVariable<int, CvUnit> m_idamageThreshold;
-	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
-	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
-	FAutoVariable<int, CvUnit> m_inearbyHealEnemyTerritory;
-	FAutoVariable<int, CvUnit> m_inearbyHealNeutralTerritory;
-	FAutoVariable<int, CvUnit> m_inearbyHealFriendlyTerritory;
+	FAutoVariable<int, CvUnit> m_bConvertEnemyUnitToBarbarian;
+	FAutoVariable<int, CvUnit> m_bConvertOnFullHP;
+	FAutoVariable<int, CvUnit> m_bConvertOnDamage;
+	FAutoVariable<int, CvUnit> m_iDamageThreshold;
+	FAutoVariable<UnitTypes, CvUnit> m_eConvertDamageOrFullHPUnit;
+	FAutoVariable<int, CvUnit> m_iNumberOfCultureBombs;
+	FAutoVariable<int, CvUnit> m_iNearbyHealEnemyTerritory;
+	FAutoVariable<int, CvUnit> m_iNearbyHealNeutralTerritory;
+	FAutoVariable<int, CvUnit> m_iNearbyHealFriendlyTerritory;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2137,7 +2140,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
-	FAutoVariable<int, CvUnit> m_bSpottedEnemy; //unused
+	FAutoVariable<int, CvUnit> m_bSpottedEnemy;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
