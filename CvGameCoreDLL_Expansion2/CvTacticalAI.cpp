@@ -2526,7 +2526,8 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 /// Log that we couldn't find assignments for some units
 void CvTacticalAI::ReviewUnassignedUnits()
 {
-	// Loop through all remaining units
+	// Loop through all remaining units.
+	// Do not call UnitProcessed() from here as it may invalidate our iterator
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
@@ -2544,7 +2545,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 				{
 					CvUnit* pNewUnit = pUnit->DoUpgrade();
 					if (pNewUnit)
-						UnitProcessed(pNewUnit->GetID());
+						pNewUnit->SetTurnProcessed(true);
 				}
 				else
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());

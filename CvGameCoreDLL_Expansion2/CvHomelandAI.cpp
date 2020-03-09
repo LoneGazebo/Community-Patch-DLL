@@ -2119,17 +2119,19 @@ void CvHomelandAI::PlotArchaeologistMoves()
 /// Log that we couldn't find assignments for some units - this is the catchall, last-resort handler that makes sure we can end the turn
 void CvHomelandAI::ReviewUnassignedUnits()
 {
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_UNASSIGNED);
-
-	// Loop through all remaining units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	// Loop through all remaining units.
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if (pUnit)
 		{
+			// Do not call UnitProcessed() from inside this loop, it can invalidate the iterator!
+			// Therefore we set the last move manually
+			pUnit->setHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
+
 			//safety check. in case we have a unit with queued missions, 
 			//don't finish its moves, else it won't be able to execute the mission
-			if (pUnit->GetLengthMissionQueue()>0)
+			if (pUnit->GetLengthMissionQueue() > 0)
 			{
 				pUnit->SetTurnProcessed(true);
 				continue;
@@ -2139,31 +2141,32 @@ void CvHomelandAI::ReviewUnassignedUnits()
 			{
 				if (pUnit->getMoves() > 0)
 				{
-					CvHomelandUnit unit;
-					unit.SetID(pUnit->GetID());
-					m_CurrentMoveUnits.push_back(unit);
+					CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
+					if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
+						ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+					else if (m_pPlayer->getCapitalCity() && pUnit->GeneratePath(m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23) )
+						ExecuteMoveToTarget(pUnit, m_pPlayer->getCapitalCity()->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+					else
+						pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				}
-				else
-				{
-					UnitProcessed(pUnit->GetID());
-				}
+
+				pUnit->SetTurnProcessed(true);
 			}
-			else if(pUnit->getDomainType() == DOMAIN_SEA)
+			else if (pUnit->getDomainType() == DOMAIN_SEA)
 			{
-				if(pUnit->plot()->getOwner() == pUnit->getOwner())
+				if (pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
-					UnitProcessed(pUnit->GetID());
+					pUnit->SetTurnProcessed(true);
 
 					CvString strTemp;
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-					if(pkUnitInfo)
+					if (pkUnitInfo)
 					{
 						strTemp = pkUnitInfo->GetDescription();
 						CvString strLogString;
 						strLogString.Format("Unassigned %s %d at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
-					continue;
 				}
 				else
 				{
@@ -2171,18 +2174,16 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					CvPlot* pBestPlot = NULL;
 					int iBestDistance = MAX_INT;
 					int iLoop;
-					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
+					for (CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
 						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTestCity->plot());
-						if(pPlot != NULL)
+						if (pPlot != NULL)
 						{
-							if(pPlot->getArea() != pUnit->getArea())
-							{
+							if (pPlot->getArea() != pUnit->getArea())
 								continue;
-							}
-							int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY());
 
-							if(iDistance < iBestDistance)
+							int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY());
+							if (iDistance < iBestDistance)
 							{
 								iBestDistance = iDistance;
 								pBestPlot = pPlot;
@@ -2190,32 +2191,32 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 					}
 
-					bool bStuck = true;
-					if(pBestPlot != NULL)
+					if (pBestPlot != NULL)
 					{
-						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 42))
+						if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 42))
 						{
-							UnitProcessed(pUnit->GetID());
+							pUnit->SetTurnProcessed(true);
+
 							CvString strTemp;
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-							if(pkUnitInfo)
+							if (pkUnitInfo)
 							{
 								strTemp = pkUnitInfo->GetDescription();
 								CvString strLogString;
 								strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
 								LogHomelandMessage(strLogString);
 							}
-							bStuck = false;
+
 							continue;
 						}
 					}
 
 					//Stuck and not at home? Scrap it.
-					if(bStuck && GC.getGame().getGameTurn() - pUnit->getLastMoveTurn() > 7)
+					if (GC.getGame().getGameTurn() - pUnit->getLastMoveTurn() > 7)
 					{
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-						if(pkUnitInfo)
+						if (pkUnitInfo)
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
@@ -2223,40 +2224,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							LogHomelandMessage(strLogString);
 						}
 
-						UnitProcessed(pUnit->GetID());
-
 						if (pUnit->canScrap())
 							pUnit->scrap();
 						else
 							pUnit->kill(true);
-
-						continue;
 					}
 				}
 			}
 		}
-	}
-	if (m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteUnassignedUnitMoves();
-	}
-}
-
-void CvHomelandAI::ExecuteUnassignedUnitMoves()
-{
-	for (MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if (!pUnit || pUnit->isDelayedDeath())
-			continue;
-
-		CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
-		if (pClosestCity && pUnit->GeneratePath(pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, 23))
-			ExecuteMoveToTarget(pUnit, pClosestCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
-		else
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-
-		UnitProcessed(pUnit->GetID());
 	}
 }
 

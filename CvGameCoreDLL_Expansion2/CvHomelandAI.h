@@ -290,7 +290,6 @@ private:
 	void PlotTradeUnitMoves();
 	void PlotArchaeologistMoves();
 	void ReviewUnassignedUnits();
-	void ExecuteUnassignedUnitMoves();
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
