@@ -180,7 +180,7 @@ void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRan
 			for (int j = 0; j < RING_PLOTS[2]; j++)
 			{
 				CvPlot* pAttackPlot = iterateRingPlots(pPotentialHiddedUnitPlot, j);
-				if (pAttackPlot)
+				if (pAttackPlot && pAttackPlot->getDomain() == pOrigin->getDomain())
 					//note: we accept duplicate indices in m_fogDanger by design
 					//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
 					m_DangerPlots[pAttackPlot->GetPlotIndex()].m_fogDanger.push_back(pPotentialHiddedUnitPlot->GetPlotIndex());
@@ -546,9 +546,11 @@ void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 
 	DangerUnitVector& v = m_DangerPlots[pPlot->GetPlotIndex()].m_apUnits;
 
+#ifdef VPDEBUG
 	for (size_t i = 0; i < v.size(); i++)
 		if (v[i].second == pUnit->GetID())
 			OutputDebugString("problem in danger update!\n");
+#endif
 
 	v.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
 }

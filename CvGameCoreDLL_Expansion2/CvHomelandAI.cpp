@@ -1122,19 +1122,19 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			// See what units we have who can reach target this turn
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalResources[iI].GetTargetX(), m_TargetedNavalResources[iI].GetTargetY());
 
-			if (!pTarget->getArea()==pUnit->getArea())
+			if (pTarget->getArea()!=pUnit->getArea())
 				continue;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			if(MOD_AI_SECONDARY_WORKERS && bSecondary)
 			{
-				if(pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA  ||
-			   pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD)
+				if(pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA ||
+					(pUnit->IsAutomated() && pUnit->getDomainType() == DOMAIN_SEA && pUnit->GetAutomateType() == AUTOMATE_BUILD))
 				{
 					if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 						continue;
 
-					if (pUnit->GetDanger(pTarget)>0)
+					if (pUnit->GetDanger(pTarget)>20)
 						continue;
 				}
 				else if(MOD_AI_SECONDARY_WORKERS && !pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
@@ -1166,7 +1166,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 					continue;
 
-				if (pUnit->GetDanger(pTarget)>0)
+				if (pUnit->GetDanger(pTarget)>20)
 					continue;
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			}
@@ -2193,7 +2193,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 					if (pBestPlot != NULL)
 					{
-						if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 42))
+						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
 						{
 							pUnit->SetTurnProcessed(true);
 
@@ -6482,22 +6482,6 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 
 		return false;
 	}
-}
-/// Move up to our target (this time within 2 spaces) avoiding our own units if possible
-bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns)
-{
-	if (!pUnit || !pTarget)
-		return false;
-
-	int iFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
-	if (eDomain == pTarget->getDomain())
-		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-
-	int iTurns = pUnit->TurnsToReachTarget(pTarget, iFlags, iMaxTurns);
-	if (iTurns <= iMaxTurns)
-		return MoveToTargetButDontEndTurn(pUnit, pTarget, iFlags);
-
-	return false;
 }
 
 const char* homelandMoveNames[] =

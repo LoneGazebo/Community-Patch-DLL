@@ -4543,46 +4543,58 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 /// Move barbarian to a new location
 void CvTacticalAI::ExecuteBarbarianMoves()
 {
-	CvPlot* pBestPlot = NULL;
-
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit)
+		if(pUnit && pUnit->isBarbarian()) //combat and captured civilians both
 		{
-			if(pUnit->isBarbarian()) //combat and captured civilians both
+			CvString strTemp = pUnit->getUnitInfo().GetDescription();
+
+			// LAND MOVES
+			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
-				CvString strTemp = pUnit->getUnitInfo().GetDescription();
-
-				// LAND MOVES
-				if(pUnit->getDomainType() == DOMAIN_LAND)
+				CvPlot* pPlot = pUnit->plot();
+				if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
 				{
-					CvPlot* pPlot = pUnit->plot();
-					if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
-					{
-						pUnit->setTacticalMove(AI_TACTICAL_BARBARIAN_CAMP);
-						pUnit->PushMission(CvTypes::getMISSION_SKIP());
-						UnitProcessed(pUnit->GetID());
-						continue;
-					}
-
-					//combat units are active, civilians (captured) are passive
-					pBestPlot = pUnit->IsCanDefend() ? FindBestBarbarianLandMove(pUnit) : FindPassiveBarbarianLandMove(pUnit);
-
-					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
-					{
-						if(pUnit->shouldPillage(pUnit->plot()))
-							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
-					}
+					pUnit->setTacticalMove(AI_TACTICAL_BARBARIAN_CAMP);
+					pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					UnitProcessed(pUnit->GetID());
+					continue;
 				}
-				// NAVAL MOVES
-				else
+
+				//combat units are active, civilians (captured) are passive
+				CvPlot* pBestPlot = pUnit->IsCanDefend() ? FindBestBarbarianLandMove(pUnit) : FindPassiveBarbarianLandMove(pUnit);
+				if(!pBestPlot)
+					continue;
+					
+				//civilian to capture?
+				bool bMoved = false;
+				if (pBestPlot->isEnemyUnit(BARBARIAN_PLAYER, false, true))
 				{
-					pBestPlot = FindBestBarbarianSeaMove(pUnit);
-					//no naval pillaging, it's just too annoying
-					if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
-						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+					bMoved = pUnit->at(pBestPlot->getX(), pBestPlot->getY());
+				}
+				else
+					bMoved = MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_LAND, 12);
+
+				if (bMoved)
+				{
+					if (pUnit->shouldPillage(pUnit->plot()))
+						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+					TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+				}
+			}
+			// NAVAL MOVES
+			else
+			{
+				CvPlot* pBestPlot = FindBestBarbarianSeaMove(pUnit);
+				//no naval pillaging, it's just too annoying
+				if (MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
+				{
+					TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+					UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 				}
 			}
 		}
@@ -5706,21 +5718,15 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandMove(CvUnit* pUnit)
 
 	// move toward trade routes
 	if (pBestMovePlot == NULL)
-	{
 		pBestMovePlot = FindBarbarianGankTradeRouteTarget(pUnit);
-	}
 
 	// explore wander
 	if(pBestMovePlot == NULL)
-	{
 		pBestMovePlot = FindBarbarianExploreTarget(pUnit);
-	}
 
 	// if nothing to explore, go back to camp
 	if (pBestMovePlot == NULL)
-	{
 		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-	}
 
 	return pBestMovePlot;
 }
