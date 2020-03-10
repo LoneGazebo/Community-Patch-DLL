@@ -236,7 +236,7 @@ SET Text = 'Hydroelectric Power'
 WHERE Tag = 'TXT_KEY_BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Specialists in the City produce +2 of their base yield and generate [ICON_GREAT_PEOPLE] Great People 25% more quickly. Requires 1 [ICON_RES_URANIUM] Uranium. City must not contain another energy-producing Plant.'
+SET Text = 'Specialists in the City produce +2 of their base yield and generate [ICON_GREAT_PEOPLE] Great People 25% more quickly.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_URANIUM] Uranium. City must not contain another energy-producing Plant.'
 WHERE Tag = 'TXT_KEY_BUILDING_NUCLEAR_PLANT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
