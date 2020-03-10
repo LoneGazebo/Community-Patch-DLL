@@ -2498,7 +2498,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 
 				//finally detailed pathfinding
 				int iTurns = 0;
-				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2||CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
+				if (pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, iMaxTurns, &iTurns, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) < pUnit->GetCurrHitPoints())
