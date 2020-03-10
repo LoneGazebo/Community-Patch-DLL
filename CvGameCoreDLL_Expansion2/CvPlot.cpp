@@ -932,20 +932,14 @@ bool CvPlot::isAdjacentToArea(const CvArea* pArea) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::shareAdjacentArea(const CvPlot* pPlot) const
 {
-	int iCurrArea;
-	int iLastArea;
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-	iLastArea = -1;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	int iLastArea = -1;
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
-			iCurrArea = pAdjacentPlot->getArea();
+			int iCurrArea = pAdjacentPlot->getArea();
 
 			if(iCurrArea != iLastArea)
 			{

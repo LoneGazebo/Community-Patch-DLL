@@ -1104,7 +1104,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	PlotBlockadeMoves();
 
 	//pure defense
-	PlotGarrisonMoves(2);
+	PlotGarrisonMoves(4);
 	PlotBastionMoves(2);
 	PlotGuardImprovementMoves(1);
 	PlotRepositionMoves();
@@ -2719,7 +2719,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		if(pCivilian->plot() == pOperation->GetTargetPlot())
 			return;
 
-		int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+		int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 		//if necessary and possible, avoid plots where our escort cannot follow
 		if (pEscort && !pOperation->GetTargetPlot()->isNeutralUnit(pEscort->getOwner(),true,true))
 			iMoveFlags |= CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL;
@@ -5202,6 +5202,12 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				continue;
 			}
 
+			//performance optimization ... careful because zero is a valid turn value
+			if(iNumTurnsAway>1 && plotDistance(*pLoopUnit->plot(),*pTarget)>3*iNumTurnsAway)
+			{
+				continue;
+			}
+
 			int iExtraScore = 0;
 
 			if(eMove == AI_TACTICAL_GARRISON)
@@ -5239,20 +5245,20 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				return pLoopUnit;
 
 			//otherwise collect and sort
-			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
-			if(iMoves != MAX_INT)
+			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+			if(iTurns != MAX_INT)
 			{
-				int iScore = 100 - 10 * iMoves + iExtraScore;
+				int iScore = 100 - 10 * iTurns + iExtraScore;
 				possibleUnits.push_back(SUnitWithScore(pLoopUnit, iScore));
 			}
 		}
 	}
 
-	std::stable_sort(possibleUnits.begin(), possibleUnits.end());
 	if (possibleUnits.empty())
 		return NULL;
 	else
 	{
+		std::stable_sort(possibleUnits.begin(), possibleUnits.end());
 		CheckDebugTrigger(possibleUnits.back().unit->GetID());
 		return possibleUnits.back().unit;
 	}

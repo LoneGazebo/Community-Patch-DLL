@@ -264,7 +264,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	ReachablePlots reachablePlots;
 	if (pUnit)
 	{
-		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, iMaxTurns);
+		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, iMaxTurns);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(iRefX, iRefY, data);
 	}
@@ -363,10 +363,9 @@ void CvHomelandAI::FindHomelandTargets()
 					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
 					{
 						// Find proper improvement
-						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
-							eBuild = ((BuildTypes)iJ);
+							BuildTypes eBuild = ((BuildTypes)iJ);
 							if(eBuild == NO_BUILD)
 								continue;
 
@@ -384,7 +383,9 @@ void CvHomelandAI::FindHomelandTargets()
 								newTarget.SetTargetX(pLoopPlot->getX());
 								newTarget.SetTargetY(pLoopPlot->getY());
 								newTarget.SetAuxIntData(eBuild);
-								m_TargetedNavalResources.push_back(newTarget);								
+								m_TargetedNavalResources.push_back(newTarget);
+								//once is enough ... apparently multiple builds are valid?
+								break;
 							}
 						}
 					}
@@ -551,9 +552,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	}
 #endif
 
-	PlotSSPartAdds();
 	PlotSSPartMoves();
-
 	PlotTreasureMoves();
 	PlotTradeUnitMoves();
 	PlotArchaeologistMoves();
@@ -1122,7 +1121,8 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			// See what units we have who can reach target this turn
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalResources[iI].GetTargetX(), m_TargetedNavalResources[iI].GetTargetY());
 
-			if (pTarget->getArea()!=pUnit->getArea())
+			//boat may be in city so water area is only adjacent
+			if (!pTarget->shareAdjacentArea(pUnit->plot()))
 				continue;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
@@ -1896,7 +1896,7 @@ void CvHomelandAI::PlotInquisitorMoves()
 	}
 }
 
-/// Find moves for spaceship parts
+/// Find spaceship parts ready to add to spaceship
 void CvHomelandAI::PlotSSPartMoves()
 {
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SPACESHIP_PART);
@@ -1905,46 +1905,17 @@ void CvHomelandAI::PlotSSPartMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if(pUnit && pUnit->AI_getUnitAIType() == UNITAI_SPACESHIP_PART)
 		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_SPACESHIP_PART)
-			{
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				m_CurrentMoveUnits.push_back(unit);
-			}
+			CvHomelandUnit unit;
+			unit.SetID(pUnit->GetID());
+			m_CurrentMoveUnits.push_back(unit);
 		}
 	}
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteSSPartMoves();
-	}
-}
-
-/// Find spaceship parts ready to add to spaceship
-void CvHomelandAI::PlotSSPartAdds()
-{
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_ADD_SPACESHIP_PART);
-
-	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
-		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_SPACESHIP_PART)
-			{
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				m_CurrentMoveUnits.push_back(unit);
-			}
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteSSPartAdds();
 	}
 }
 
@@ -2037,7 +2008,7 @@ void CvHomelandAI::PlotAdmiralMoves()
 /// Send units to cities near the front (or carriers)
 void CvHomelandAI::PlotAircraftRebase()
 {
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT);
+	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_AIRCRAFT_REBASE);
 
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
@@ -2193,7 +2164,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 					if (pBestPlot != NULL)
 					{
-						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
+						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
 						{
 							pUnit->SetTurnProcessed(true);
 
@@ -2396,7 +2367,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			continue;
 
 		//should be the same everywhere so we can reuse paths
-		int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+		int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
 		if (!pUnit->isEmbarked())
 			iMoveFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
@@ -2486,7 +2457,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		//if the scout is already embarked, we need to allow it so we don't get stuck!
-		int iMoveFlagsLocal = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+		int iMoveFlagsLocal = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 		if (!pUnit->isEmbarked())
 			iMoveFlagsLocal |= CvUnit::MOVEFLAG_NO_EMBARK;
 
@@ -2784,7 +2755,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 		if (iTurnLimit >= iBuildTimeLeft)
 		{
-			SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iTurnLimit-iBuildTimeLeft);
+			SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iTurnLimit-iBuildTimeLeft);
 			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->getX(), pUnit->getY(), data);
 	
@@ -2999,7 +2970,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
@@ -3020,7 +2991,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 							else
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), 
-									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+									CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
@@ -3115,7 +3086,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
@@ -3135,7 +3106,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 							else
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), 
-									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+									CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
@@ -3229,7 +3200,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
@@ -3250,7 +3221,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 							else
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), 
-									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+									CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
@@ -3409,7 +3380,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 							if(pEng)
 							{
-								ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
+								ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true);
 
 								if(GC.getLogging() && GC.getAILogging())
 								{
@@ -3428,7 +3399,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 						if(pEng)
 						{
-							ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
+							ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true);
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
@@ -3491,7 +3462,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 								if(pEng)
 								{
-									ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
+									ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true);
 
 									if(GC.getLogging() && GC.getAILogging())
 									{
@@ -3510,7 +3481,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 							if(pEng)
 							{
-								ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
+								ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true);
 
 								if(GC.getLogging() && GC.getAILogging())
 								{
@@ -3559,7 +3530,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 			if (pTarget)
 			{
 				if (pUnit->plot() != pTarget)
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 
 				if (pUnit->plot() == pTarget && pUnit->canMove())
 				{
@@ -3607,7 +3578,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			//not at target yet?
 			if( ((pUnit->plot() != pTarget) && (pUnit->plot()->getOwner() != pTarget->getOwner())) || !pUnit->canTrade(pUnit->plot()) )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 				
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -3803,7 +3774,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 
 				if(pBestCityPlot)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestCityPlot->getX(), pBestCityPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestCityPlot->getX(), pBestCityPlot->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 					UnitProcessed(pUnit->GetID());
 
 					if(GC.getLogging() && GC.getAILogging())
@@ -3852,7 +3823,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 					}
 					else
 					{
-						ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
+						ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -3944,7 +3915,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if(pUnit->plot() != pTargetPlot)
 				{
 					//continue moving to target
-					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY))
 					{
 						vPlotsToAvoid.push_back(pTargetPlot);
 						UnitProcessed(pUnit->GetID());
@@ -4295,7 +4266,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				// Move normally to this city
 				else if(pChosenCity)
 				{
-					MoveToTargetButDontEndTurn(pUnit,pChosenCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+					MoveToTargetButDontEndTurn(pUnit,pChosenCity->plot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 					UnitProcessed(pUnit->GetID());
 
 					if(GC.getLogging() && GC.getAILogging())
@@ -4432,7 +4403,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				{
 					CvCity *pChosenCity = weightedCityList.GetElement(0);
 				
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 					UnitProcessed(pUnit->GetID());
 
 					if(GC.getLogging() && GC.getAILogging())
@@ -4676,7 +4647,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			// Move normally to this city
 			else
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 				UnitProcessed(pUnit->GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -4748,7 +4719,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
+				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -4816,7 +4787,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 				}
 				else
 				{
-					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
+					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
 
 					if (GC.getLogging() && GC.getAILogging())
 					{
@@ -4846,7 +4817,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 				}
 				else
 				{
-					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
+					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
 
 					if (GC.getLogging() && GC.getAILogging())
 					{
@@ -4860,147 +4831,62 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 	}
 }
 
-/// Moves a spaceship part to the capital (or into the spaceship if already there)
+/// Moves a spaceship part into the spaceship if already there
 void CvHomelandAI::ExecuteSSPartMoves()
 {
-	CvCity* pLoopCity;
-	CvCity* pCapitalCity = NULL;
-	int iLoopCity = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
+	if (pCapitalCity == NULL)
+		return;
+
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
-		if(pLoopCity->isCapital())
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+		if(!pUnit)
+			continue;
+
+		ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+
+		if(pUnit->plot() == pCapitalCity->plot() && pUnit->canMove())
 		{
-			pCapitalCity = pLoopCity;
-			break;
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				CvString strTemp;
+				strTemp = pUnit->getUnitInfo().GetDescription();
+				strLogString.Format("Adding %s to spaceship, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+
+			pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
 		}
-	}
 
-	if(pCapitalCity != NULL)
-	{
-		MoveUnitsArray::iterator it;
-		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-		{
-			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-			if(!pUnit)
-			{
-				continue;
-			}
-
-			if(pUnit->plot() != pCapitalCity->plot())
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pCapitalCity->getX(), pCapitalCity->getY());
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("Moving %s to spaceship - now at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-		}
-	}
-}
-
-/// Moves a spaceship part into the spaceship if already there
-void CvHomelandAI::ExecuteSSPartAdds()
-{
-	CvCity* pLoopCity;
-	CvCity* pCapitalCity = NULL;
-	int iLoopCity = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-	{
-		if(pLoopCity->isCapital())
-		{
-			pCapitalCity = pLoopCity;
-			break;
-		}
-	}
-
-	if(pCapitalCity != NULL)
-	{
-		MoveUnitsArray::iterator it;
-		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-		{
-			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-			if(!pUnit)
-			{
-				continue;
-			}
-
-			if(pUnit->plot() == pCapitalCity->plot())
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("Adding %s to spaceship, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-
-				pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
-				UnitProcessed(pUnit->GetID());
-			}
-
-			else if (pUnit->TurnsToReachTarget(pCapitalCity->plot(),CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN,1) == 0)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pCapitalCity->getX(), pCapitalCity->getY());
-				pUnit->PushMission(CvTypes::getMISSION_SPACESHIP());
-				UnitProcessed(pUnit->GetID());
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("Moving %s to spaceship and adding it directly in", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-		}
+		UnitProcessed(pUnit->GetID());
 	}
 }
 
 /// Moves a treasure to the capital
 void CvHomelandAI::ExecuteTreasureMoves()
 {
-	CvCity* pLoopCity;
-	CvCity* pCapitalCity = NULL;
-	int iLoopCity = 0;
-	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
+	if (pCapitalCity == NULL)
+		return;
+
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
-		if(pLoopCity->isCapital())
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+		if(!pUnit)
+			continue;
+
+		ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
+		UnitProcessed(pUnit->GetID());
+
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			pCapitalCity = pLoopCity;
-			break;
-		}
-	}
-
-	if(pCapitalCity != NULL)
-	{
-		MoveUnitsArray::iterator it;
-		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-		{
-			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-			if(!pUnit)
-			{
-				continue;
-			}
-
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pCapitalCity->getX(), pCapitalCity->getY());
-			UnitProcessed(pUnit->GetID());
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				CvString strTemp;
-				strTemp = pUnit->getUnitInfo().GetDescription();
-				strLogString.Format("Moving %s to capital - now at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-				LogHomelandMessage(strLogString);
-			}
+			CvString strLogString;
+			CvString strTemp;
+			strTemp = pUnit->getUnitInfo().GetDescription();
+			strLogString.Format("Moving %s to capital - now at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+			LogHomelandMessage(strLogString);
 		}
 	}
 }
@@ -5375,7 +5261,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 			return true;
 		}
 	}
@@ -5620,7 +5506,7 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 		CvPlot* pTarget = FindArchaeologistTarget(pUnit);
 		if (pTarget)
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -5779,7 +5665,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 			switch(eMove)
 			{
 			case AI_HOMELAND_MOVE_GARRISON:
-			case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 				//Don't poach garrisons for garrisons.
 				if(pLoopUnit->IsGarrisoned())
 					continue;
@@ -5832,22 +5717,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					}
 				}
 				break;
-			case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-				// Ranged units are excellent in the mobile reserve as are fast movers
-				if (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->IsGarrisoned())
-				{
-					if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
-					{
-						bSuitableUnit = true;
-						bHighPriority = true;
-					}
-					else if (pLoopUnit->IsCanAttack())
-					{
-						bSuitableUnit = true;
-					}
-				}
-				break;
-
 			case AI_HOMELAND_MOVE_ANCIENT_RUINS:
 				// Fast movers are top priority
 				if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
@@ -5945,7 +5814,7 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 				continue;
 			
 			//pretent turns are "moves" here
-			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iMaxTurns);
+			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
 			it->SetMovesToTarget(iTurns);
 
 			// Did we make it at all?
@@ -6024,7 +5893,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				}
 			}
 
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns);
+			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns);
 			if (iTurns < iBestTurns)
 			{
 				pBestTarget = pTarget;
@@ -6227,7 +6096,7 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,Reachab
 
 			if(eMission == CvTypes::getMISSION_MOVE_TO())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective.m_sX, aDirective.m_sY, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, false, false, MISSIONAI_BUILD, pPlot);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective.m_sX, aDirective.m_sY, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, false, false, MISSIONAI_BUILD, pPlot);
 
 				//do we have movement left?
 				if (pUnit->getMoves()>0)
@@ -6357,7 +6226,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 /// Move an exploring unit to a designated target (special function exposed to Lua)
 bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 {
-	int iFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER;
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER;
 
 	SPathFinderUserData data(pUnit,iFlags);
 	SPath path = GC.GetPathFinder().GetPath(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
@@ -6494,7 +6363,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_GARRISON",
 	"H_MOVE_HEAL",
 	"H_MOVE_TO_SAFETY",
-	"H_MOVE_MOBILE_RESERVE",
 	"H_MOVE_SENTRY",
 	"H_MOVE_SENTRY_NAVAL",
 	"H_MOVE_WORKER",
@@ -6502,7 +6370,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_PATROL",
 	"H_MOVE_UPGRADE",
 	"H_MOVE_ANCIENT_RUINS",
-	"H_MOVE_GARRISON_CITY_STATE",
 	"H_MOVE_WRITER",
 	"H_MOVE_ARTIST_GOLDEN_AGE",
 	"H_MOVE_MUSICIAN",
@@ -6519,8 +6386,6 @@ const char* homelandMoveNames[] =
 	"H_MOVE_INQUISITOR",
 	"H_MOVE_TRADE_UNIT",
 	"H_MOVE_ARCHAEOLOGIST",
-	"H_MOVE_ADD_SPACESHIP_PART",
-	"H_MOVE_AIRLIFT",
 	"H_MOVE_DIPLOMAT_EMBASSY",
 	"H_MOVE_MESSENGER",
 	"H_MOVE_SECONDARY_SETTLER",

@@ -1460,7 +1460,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 
 		//normally we would be able to enter enemy territory if at war
-		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY )
+		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY )
 		{
 			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
 				return FALSE;
@@ -1720,7 +1720,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	{
 		if (pToPlot->getOwner() != eEnemy)
 		{
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY) && GET_TEAM(pToPlot->getTeam()).isAtWar(eMyTeam))
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY) && GET_TEAM(pToPlot->getTeam()).isAtWar(eMyTeam))
 				return FALSE;
 
 			if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) && !pToPlot->IsFriendlyTerritory(ePlayer))
@@ -2447,8 +2447,8 @@ void CvTwoLayerPathFinder::SanitizeFlags()
 		return;
 
 	//ignore this flag if we'd be stuck otherwise
-	if (m_sData.iFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
-		m_sData.iFlags &= ~CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+	if (m_sData.iFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
+		m_sData.iFlags &= ~CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 
 }
 

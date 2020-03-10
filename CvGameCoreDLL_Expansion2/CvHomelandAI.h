@@ -284,7 +284,6 @@ private:
 	void PlotAdmiralMoves();
 	void PlotMissionaryMoves();
 	void PlotInquisitorMoves();
-	void PlotSSPartAdds();
 	void PlotSSPartMoves();
 	void PlotTreasureMoves();
 	void PlotTradeUnitMoves();
@@ -315,7 +314,6 @@ private:
 	void ExecuteAdmiralMoves();
 	void ExecuteMissionaryMoves();
 	void ExecuteInquisitorMoves();
-	void ExecuteSSPartAdds();
 	void ExecuteSSPartMoves();
 	void ExecuteTreasureMoves();
 	void ExecuteTradeUnitMoves();
