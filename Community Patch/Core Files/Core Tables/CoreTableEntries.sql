@@ -706,7 +706,9 @@ ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' BOOLEAN DEFAULT 0;
 -- Creates a resource unique to this civ (i.e. Indonesian Candi) in the territory around the city. To make this work with a civ, you'll need to create a new resource modelled on the Indonesian resources and assign them to the civ. Value is indicative of the number of resources that will be granted.
 ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' INTEGER DEFAULT 0;
 
--- Quantity of Resources to place in your Territory. Must be used with 'Building_ResourcePlotsToPlace'. Works like "GrantsRandomResourceTerritory", but any resource in table Resources can be used.
+-- Deprecated. Now inside the Building_ResourcePlotsToPlace table itself. DLL no longer reads/saves this value.
+-- Left in for mod compatibility.
+-- OLD: Quantity of Resources to place in your Territory. Must be used with 'Building_ResourcePlotsToPlace'. Works like "GrantsRandomResourceTerritory", but any resource in table Resources can be used.
 ALTER TABLE Buildings ADD COLUMN 'ResourceQuantityToPlace' INTEGER DEFAULT 0;
 
 -- Boosts trade route religious pressure on buildings
