@@ -438,11 +438,7 @@ void CvTacticalAI::AddTemporaryZone(CvPlot* pPlot, int iDuration)
 /// Remove a temporary dominance zone we no longer need to track
 void CvTacticalAI::DeleteTemporaryZone(CvPlot* pPlot)
 {
-	std::vector<CvTemporaryZone> zonesCopy;
-
-	// Copy zones over
-	zonesCopy = m_TempZones;
-
+	std::vector<CvTemporaryZone> zonesCopy(m_TempZones);
 	m_TempZones.clear();
 
 	// Copy back to original vector any whose coords don't match
@@ -459,11 +455,7 @@ void CvTacticalAI::DeleteTemporaryZone(CvPlot* pPlot)
 /// Remove temporary zones that have expired
 void CvTacticalAI::DropObsoleteZones()
 {
-	std::vector<CvTemporaryZone> zonesCopy;
-
-	// Copy zones over
-	zonesCopy = m_TempZones;
-
+	std::vector<CvTemporaryZone> zonesCopy(m_TempZones);
 	m_TempZones.clear();
 
 	// Copy back to original vector any that haven't expired
@@ -1264,7 +1256,6 @@ void CvTacticalAI::PlotCaptureBarbCamp()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GOODY);
 
-	bool bLog = GC.getLogging() && GC.getAILogging();
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
@@ -1272,13 +1263,12 @@ void CvTacticalAI::PlotCaptureBarbCamp()
 		if (FindUnitsForHarassing(pPlot,4,-1,-1,DOMAIN_LAND,false))
 		{
 			ExecuteBarbarianCampMove(pPlot);
-			if(bLog)
+			if( GC.getLogging() && GC.getAILogging() )
 			{
 				CvString strLogString;
 				strLogString.Format("Trying to remove barbarian camp, X: %d, Y: %d", pPlot->getX(), pPlot->getY());
 				LogTacticalMessage(strLogString);
 			}
-			DeleteTemporaryZone(pPlot);
 		}
 	}
 }
@@ -3624,11 +3614,29 @@ CvTacticalTarget* CvTacticalAI::GetNextUnitTarget()
 /// Capture the gold from a barbarian camp
 void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 {
-	// Move first one to target
-	CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-	if(pUnit)
+	size_t iMaxUnits = min(2u,m_CurrentMoveUnits.size());
+	for (size_t i=0; i<iMaxUnits; i++)
 	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID());
+		if (!pUnit)
+			continue;
+
+		if (!pTargetPlot->isVisible(m_pPlayer->getTeam()) || pUnit->isRanged())
+			ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+		else
+		{
+			//guarded camp?
+			if (pTargetPlot->isEnemyUnit(m_pPlayer->GetID(), true, true))
+			{
+				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN);
+				//assumption: next turn we will have a unit as target and do a real attack ... for now just a quick snipe if possible
+				TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+			}
+			else //empty camp
+			{
+				ExecuteMoveToPlot(pUnit, pTargetPlot, true);
+			}
+		}
 
 		// Delete this unit from those we have to move
 		if (!pUnit->canMove())
@@ -6557,7 +6565,7 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 //see if there is a possible target around the unit
 bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement)
 {
-	if (!pUnit || !pUnit->IsCanAttack())
+	if (!pUnit || !pUnit->IsCanAttack() || !pUnit->canMove())
 		return false;
 
 	//for ranged we have a readymade method

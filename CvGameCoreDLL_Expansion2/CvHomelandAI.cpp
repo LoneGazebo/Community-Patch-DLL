@@ -6497,7 +6497,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	{
 		CvCity* pCity = pBasePlot->getPlotCity();
 		//careful in cities we might lose
-		if(pCity->isInDangerOfFalling() || (GC.getGame().getGameTurn() - pCity->getGameTurnAcquired())<2)
+		if(pCity->isInDangerOfFalling() || (GC.getGame().getGameTurn() - pCity->getGameTurnAcquired())<3)
 			return -1;
 		if (pCity->IsRazing() && pCity->getPopulation() < 3)
 			return -1;
