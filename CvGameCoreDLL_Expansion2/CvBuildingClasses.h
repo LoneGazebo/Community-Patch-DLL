@@ -157,7 +157,6 @@ public:
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
 	bool IsDummy() const;
-	int GetResourceQuantityToPlace() const;
 	int GetLandmarksTourismPercentGlobal() const;
 	int GetGreatWorksTourismModifierGlobal() const;
 	int GetEventRequiredActive() const;
@@ -578,7 +577,8 @@ public:
 	bool IsBuildingClassNeededAnywhere(int i) const;
 	bool IsBuildingClassNeededNowhere(int i) const;
 	int GetNumFreeSpecialUnits(int i) const;
-	int GetNumResourcesToPlace(int i) const;
+	std::map<int, int> GetResourcePlotsToPlace(int i) const;
+	bool IsResourcePlotsToPlace() const;
 	int GetYieldPerFriend(int i) const;
 	int GetYieldPerAlly(int i) const;
 #endif
@@ -672,7 +672,6 @@ private:
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
 	bool m_bDummy;
-	int m_iResourceQuantityToPlace;
 	int m_iLandmarksTourismPercentGlobal;
 	int m_iGreatWorksTourismModifierGlobal;
 #endif
@@ -1027,7 +1026,7 @@ private:
 	bool* m_pbBuildingClassNeededAnywhere;
 	bool* m_pbBuildingClassNeededNowhere;
 	int* m_piNumSpecFreeUnits;
-	int* m_piNumResourceToPlace;
+	std::map<int, std::map<int, int>> m_ppiResourcePlotsToPlace;
 	int* m_piYieldPerFriend;
 	int* m_piYieldPerAlly;
 #endif
