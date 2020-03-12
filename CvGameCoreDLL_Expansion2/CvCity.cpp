@@ -10117,24 +10117,39 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 int CvCity::getFoodTurnsLeft(int iCorpMod) const
 {
 	VALIDATE_OBJECT
-	int iFoodLeft = (growthThreshold() * 100 - getFoodTimes100());
 	int iDeltaPerTurn = foodDifferenceTimes100(true, iCorpMod);
+	int iFoodStored = getFoodTimes100();
+	int iFoodNeededToGrow = (growthThreshold() * 100 - iFoodStored);
 
-	if(iDeltaPerTurn <= 0)
+	//growing
+	if (iDeltaPerTurn > 0)
 	{
-		return iFoodLeft;
+		if (iFoodNeededToGrow > 0)
+		{
+			int iTurnsLeft = iFoodNeededToGrow / iDeltaPerTurn;
+			//correct for truncation
+			if (iTurnsLeft * iDeltaPerTurn < iFoodNeededToGrow)
+				iTurnsLeft++;
+
+			return iTurnsLeft;
+		}
+		else //already over the threshold
+			return 0;
+	}
+	//starving
+	else if (iDeltaPerTurn < 0)
+	{
+		int iTurnsLeft = iFoodStored / iDeltaPerTurn;
+		//correct for truncation
+		if (iTurnsLeft * iDeltaPerTurn < iFoodStored)
+			iTurnsLeft++;
+
+		return -iTurnsLeft;
 	}
 
-	int iTurnsLeft = (iFoodLeft / iDeltaPerTurn);
-
-	if((iTurnsLeft * iDeltaPerTurn) <  iFoodLeft)
-	{
-		iTurnsLeft++;
-	}
-
-	return std::max(1, iTurnsLeft);
+	//stagnation, let's assume this is a large number
+	return iFoodNeededToGrow;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvCity::isProduction() const
@@ -32049,7 +32064,7 @@ void CvCity::doGrowth()
 	{
 		if(GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
 		{
-			setFood(growthThreshold());
+			setFood(iFoodReqForGrowth);
 		}
 		else
 		{

@@ -545,14 +545,14 @@ void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 		return;
 
 	DangerUnitVector& v = m_DangerPlots[pPlot->GetPlotIndex()].m_apUnits;
+	DangerUnitVector::value_type element(pUnit->getOwner(), pUnit->GetID());
 
-#ifdef VPDEBUG
-	for (size_t i = 0; i < v.size(); i++)
-		if (v[i].second == pUnit->GetID())
-			OutputDebugString("problem in danger update!\n");
-#endif
-
-	v.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+	//it may happen that we try to add an attacker that is already noted
+	//the IsKnownAttacker() does not contain the units we didn't want to remember for next turn
+	//because technically they are invisible, AI only tracks them because they were visible the turn before
+	//but now we rediscovered the attacker. so, do a double check:
+	if (std::find(v.begin(),v.end(),element) == v.end())
+		v.push_back(element);
 }
 
 //	-----------------------------------------------------------------------------------------------

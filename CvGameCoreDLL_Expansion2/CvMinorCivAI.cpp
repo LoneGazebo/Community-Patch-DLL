@@ -4171,9 +4171,6 @@ void CvMinorCivAI::Reset()
 
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
 		m_aiAngerFreeIntrusionCounter[iI] = 0;
-		m_aiPlayerQuests[iI] = NO_MINOR_CIV_QUEST_TYPE;
-		m_aiQuestData1[iI] = -1;
-		m_aiQuestData2[iI] = -1;
 		m_aiQuestCountdown[iI] = -1;
 		m_aiUnitSpawnCounter[iI] = -1;
 		m_aiNumUnitsGifted[iI] = 0;
@@ -4182,13 +4179,11 @@ void CvMinorCivAI::Reset()
 		m_aiTurnLastPledged[iI] = -1;
 		m_aiTurnLastBrokePledge[iI] = -1;
 		m_abUnitSpawningDisabled[iI] = false;
-		m_abMajorIntruding[iI] = false;
 		m_abEverFriends[iI] = false;
 #if defined(MOD_CITY_STATE_SCALE)
 		m_abFriends[iI] = false;
 #endif
 		m_abPledgeToProtect[iI] = false;
-		m_aiMajorScratchPad[iI] = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
 		m_abSiphoned[iI] = false;
@@ -4279,9 +4274,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 
 	kStream >> m_aiAngerFreeIntrusionCounter;
 
-	kStream >> m_aiPlayerQuests;
-	kStream >> m_aiQuestData1;
-	kStream >> m_aiQuestData2;
 	kStream >> m_aiQuestCountdown;
 	kStream >> m_aiUnitSpawnCounter;
 
@@ -4295,7 +4287,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_aiTurnLastBrokePledge;
 
 	kStream >> m_abUnitSpawningDisabled;
-	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
 #if defined(MOD_CITY_STATE_SCALE)
 	kStream >> m_abFriends;
@@ -4387,9 +4378,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 
 	kStream << m_aiFriendshipWithMajorTimes100;
 	kStream << m_aiAngerFreeIntrusionCounter;
-	kStream << m_aiPlayerQuests;
-	kStream << m_aiQuestData1;
-	kStream << m_aiQuestData2;
 	kStream << m_aiQuestCountdown;
 	kStream << m_aiUnitSpawnCounter;
 	kStream << m_aiNumUnitsGifted;
@@ -4398,7 +4386,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_aiTurnLastPledged;
 	kStream << m_aiTurnLastBrokePledge;
 	kStream << m_abUnitSpawningDisabled;
-	kStream << m_abMajorIntruding;
 	kStream << m_abEverFriends;
 #if defined(MOD_CITY_STATE_SCALE)
 	kStream << m_abFriends;
@@ -4905,24 +4892,6 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 /// First contact
 void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessages)
 {
-	// Set intrusion flag (used for unit movement)
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(ePlayer).getTeam() == eTeam)
-		{
-			if(GET_PLAYER(ePlayer).isHuman())
-			{
-				// Humans intrude automatically upon meeting (allowing them to enter our territory if they choose)
-				SetMajorIntruding(ePlayer, true);
-			}
-			else
-			{
-				SetMajorIntruding(ePlayer, false);
-			}
-		}
-	}
-
 	// This guy's a warmonger or at war with our ally, so we DoW him
 	if(IsPeaceBlocked(eTeam))
 	{
@@ -12305,47 +12274,26 @@ void CvMinorCivAI::DoIntrusion()
 	if(GetNumThreateningBarbarians() > 0)
 		return;
 
-	CvPlot* pLoopPlot;
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-
-	// Set up scratch pad so that we can use it to send out Notifications
-	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		eMajor = (PlayerTypes) iMajorLoop;
-		SetMajorScratchPad(eMajor, 0);
-	}
+	vector<PlayerTypes> vIntruders;
 
 	// Look at how many Units each Major Civ has in the Minor's Territory
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		// Plot owned by this Minor?
 		if(pLoopPlot->getOwner() == GetPlayer()->GetID())
 		{
-			pUnitNode = pLoopPlot->headUnitNode();
+			const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// Does this unit not cause anger?
 				if(pLoopUnit && pLoopUnit->IsAngerFreeUnit())
 					continue;
-
-				//// Don't look at Unit's this Minor wants for a Quest!
-				//if (!IsPeaceQuestCompletedByMajor((PlayerTypes) pLoopUnit->getOwner()))
-				//{
-				//	if (GetPeaceQuestWidget() == MINORCIVQUESTWIDGET_UNITCLASS || GetWarQuestWidget() == MINORCIVQUESTWIDGET_UNITCLASS)
-				//	{
-				//		if (GetPeaceQuestWidgetID() == pLoopUnit->getUnitClassType() || GetWarQuestWidgetID() == pLoopUnit->getUnitClassType())
-				//		{
-				//			continue;
-				//		}
-				//	}
-				//}
 
 				// Does this Unit belong to a Major?
 				if(pLoopUnit && pLoopUnit->getOwner() < MAX_MAJOR_CIVS)
@@ -12364,14 +12312,8 @@ void CvMinorCivAI::DoIntrusion()
 								// only modify if the unit isn't automated nor having a pending order
 								if(!pLoopUnit->IsAutomated() && pLoopUnit->GetLengthMissionQueue() == 0)
 								{
-									SetMajorScratchPad(pLoopUnit->getOwner(), 1);
+									vIntruders.push_back(pLoopUnit->getOwner());
 								}
-
-								//if (!IsMajorIntruding((PlayerTypes) pLoopUnit->getOwner()))
-								//{
-								//	SetMajorIntruding((PlayerTypes) pLoopUnit->getOwner(), true);
-								//	ChangeNumTurnsMajorHasIntruded((PlayerTypes) pLoopUnit->getOwner(), 1);
-								//}
 							}
 						}
 					}
@@ -12384,19 +12326,14 @@ void CvMinorCivAI::DoIntrusion()
 	Localization::String strMessage;
 	Localization::String strSummary;
 
-	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	for (size_t i=0; i<vIntruders.size(); i++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_INTRUSION");
+		strMessage << GetPlayer()->getNameKey();
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_INTRUSION");
+		strSummary << GetPlayer()->getNameKey();
 
-		if(GetMajorScratchPad(eMajor) > 0)
-		{
-			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_INTRUSION");
-			strMessage << GetPlayer()->getNameKey();
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_INTRUSION");
-			strSummary << GetPlayer()->getNameKey();
-
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-		}
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), vIntruders[i]);
 	}
 }
 
@@ -12478,30 +12415,6 @@ void CvMinorCivAI::DoDefection()
 
 }
 #endif
-
-/// Is a Major Civ mackin on our turf?
-bool CvMinorCivAI::IsMajorIntruding(PlayerTypes eMajor) const
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor< 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-
-	return m_abMajorIntruding[eMajor];
-}
-
-/// Sets a Major to be intruding in our territory
-void CvMinorCivAI::SetMajorIntruding(PlayerTypes eMajor, bool bValue)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-
-	if(IsMajorIntruding(eMajor) != bValue)
-	{
-		m_abMajorIntruding[eMajor] = bValue;
-	}
-}
-
 
 /// Is a player allowed to be inside someone else's borders?
 bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
@@ -18825,25 +18738,6 @@ CvString CvMinorCivAI::GetNamesListAsString(CivsList veNames)
 		}
 	}
 	return s;
-}
-
-/// Get Scratch Pad for Major Civs
-int CvMinorCivAI::GetMajorScratchPad(PlayerTypes ePlayer) const
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
-	return m_aiMajorScratchPad[ePlayer];
-}
-
-/// Set Scratch Pad for Major Civs
-void CvMinorCivAI::SetMajorScratchPad(PlayerTypes ePlayer, int iNum)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-
-	m_aiMajorScratchPad[ePlayer] = iNum;
 }
 
 /// Have notifications been (temporarily) disabled?

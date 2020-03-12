@@ -5985,40 +5985,38 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 {
 	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
 
-	// Copy list
-	ReligionInCityList tempList;
-	ReligionInCityList::iterator it;
-	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
-	{
-		tempList.push_back(*it);
-	}
+	// Copy old list
+	ReligionInCityList tempList(m_ReligionStatus);
 
 	// Erase old list
 	m_ReligionStatus.clear();
 
-	// Recopy just what we want to keep
-	for(it = tempList.begin(); it != tempList.end(); it++)
+	// Copy just what we want to keep
+	for(ReligionInCityList::iterator it = tempList.begin(); it != tempList.end(); it++)
 	{
-		int iPressureRetained = 0;
-
 		ReligionTypes eLoopReligion = it->m_eReligion;
+
+		//keep the given religion and heathens
+		if (eLoopReligion == NO_RELIGION || eLoopReligion == eReligion)
+		{
+			m_ReligionStatus.push_back(*it);
+			continue;
+		}
+
+		//throw away all others except if it has PressureRetention
 		if (eLoopReligion > RELIGION_PANTHEON && eLoopReligion != eReligion)
 		{
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eLoopReligion, m_pCity->getOwner());
 			if (pReligion)
 			{
-				iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
+				 // Normally 0
+				int iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner()); 
+				if (iPressureRetained > 0)
+				{
+					it->m_iPressure = it->m_iPressure * iPressureRetained / 100;
+					m_ReligionStatus.push_back(*it);
+				}
 			}
-		}
-
-		if (eLoopReligion == NO_RELIGION || eLoopReligion == eReligion || iPressureRetained > 0)
-		{
-			if (iPressureRetained > 0)
-			{
-				it->m_iPressure = it->m_iPressure * iPressureRetained / 100;
-			}
-
-			m_ReligionStatus.push_back(*it);
 		}
 	}
 
