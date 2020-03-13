@@ -25180,7 +25180,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	CvPlayer* pMinor;
 	CvMinorCivAI* pMinorCivAI;
 
-	bool bIntruding;
 
 	int iOtherMajorLoop;
 	PlayerTypes eOtherMajor;
@@ -25267,21 +25266,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						bWantsToConnect = true;
 				}
 			}
-
-			bIntruding = true;
-
-			// We have open borders so we're definitely not intruding
-			if(pMinorCivAI->IsPlayerHasOpenBorders(eID))
-				bIntruding = false;
-
-			else
-			{
-				// Cares and doesn't yet have enough friendship for Open Borders
-				if(eApproach == MINOR_CIV_APPROACH_PROTECTIVE || eApproach == MINOR_CIV_APPROACH_FRIENDLY)
-					bIntruding = false;
-			}
-
-			pMinorCivAI->SetMajorIntruding(eID, bIntruding);
 
 			// Calculate desirability to buyout this minor
 			if(bWantsToBuyout)
