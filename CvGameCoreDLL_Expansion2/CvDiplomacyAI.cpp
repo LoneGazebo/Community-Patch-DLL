@@ -25180,7 +25180,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	CvPlayer* pMinor;
 	CvMinorCivAI* pMinorCivAI;
 
-
 	int iOtherMajorLoop;
 	PlayerTypes eOtherMajor;
 	int iFriendshipWithMinor;
