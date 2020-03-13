@@ -1198,28 +1198,6 @@ public:
 	//void DoUpdateGlobalStates();
 	//void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
 #endif
-
-	// Working Against Player
-	//bool DoTestWorkingAgainstPlayersDesire(PlayerTypes ePlayer, PlayerTypes &eChosenAgainstPlayer);
-
-	//int GetWorkingAgainstPlayerAcceptableScore(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bAskedByPlayer);
-	//bool IsWorkingAgainstPlayerMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-
-	//bool IsWorkingAgainstPlayerEverAsked(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-
-	//bool IsWorkingAgainstPlayerRejected(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-	//bool IsWorkingAgainstPlayerAccepted(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-	//void SetWorkingAgainstPlayerAccepted(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bValue);
-
-	//short GetWorkingAgainstPlayerCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const;
-	//void SetWorkingAgainstPlayerCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iValue);
-	//void ChangeWorkingAgainstPlayerCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iChange);
-
-	//bool DoTestContinueWorkingAgainstPlayersDesire(PlayerTypes ePlayer, PlayerTypes &eAgainstPlayer);
-	//bool IsContinueWorkingAgainstPlayer(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
-
-	//bool IsWorkingAgainstPlayer(PlayerTypes ePlayer);
-
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJustChecking = false);
 	
@@ -1965,9 +1943,6 @@ private:
 		char* m_apaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS];
 		DiploLogData* m_apaDiploStatementsLog[MAX_MAJOR_CIVS];
 
-		//bool* m_apabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS];
-		//short* m_apaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS];
-
 		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
 
@@ -1983,9 +1958,6 @@ private:
 		bool m_aabSentAttackMessageToMinorCivProtector[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		char m_aaeOtherPlayerMilitaryThreat[REALLY_MAX_PLAYERS* REALLY_MAX_PLAYERS];
 		DiploLogData m_aaDiploStatementsLog[MAX_MAJOR_CIVS* MAX_DIPLO_LOG_STATEMENTS];
-
-		//bool m_aabWorkingAgainstPlayerAccepted[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
-		//short m_aaiWorkingAgainstPlayerCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 
 		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -2227,9 +2199,6 @@ private:
 
 	bool* m_pabPlayerLiberatedCapital;
 	short* m_paiNumCitiesLiberated;
-
-	//bool** m_ppaabWorkingAgainstPlayerAccepted;
-	//short** m_ppaaiWorkingAgainstPlayerCounter;
 
 	char** m_ppaacCoopWarAcceptedState;
 	short** m_ppaaiCoopWarCounter;

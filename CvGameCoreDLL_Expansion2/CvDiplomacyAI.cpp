@@ -156,8 +156,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_apabSentAttackMessageToMinorCivProtector()
 	, m_apaeOtherPlayerMilitaryThreat()
 	, m_apaDiploStatementsLog()
-	//, m_apabWorkingAgainstPlayerAccepted()
-	//, m_apaiWorkingAgainstPlayerCounter()
 	, m_apacCoopWarAcceptedState()
 	, m_apaiCoopWarCounter()
 	, m_aaeApproachValues()
@@ -172,8 +170,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aabSentAttackMessageToMinorCivProtector()
 	, m_aaeOtherPlayerMilitaryThreat()
 	, m_aaDiploStatementsLog()
-	//, m_aabWorkingAgainstPlayerAccepted()
-	//, m_aaiWorkingAgainstPlayerCounter()
 	, m_aacCoopWarAcceptedState()
 	, m_aaiCoopWarCounter()
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -338,9 +334,6 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiTradeValue(NULL),
 	m_paiCommonFoeValue(NULL),
 	m_paiAssistValue(NULL),
-
-	//m_ppaabWorkingAgainstPlayerAccepted(NULL),
-	//m_ppaaiWorkingAgainstPlayerCounter(NULL),
 
 	m_ppaacCoopWarAcceptedState(NULL),
 	m_ppaaiCoopWarCounter(NULL),
@@ -832,20 +825,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_ppaDiploStatementsLog[iI] = &m_pDiploData->m_aaDiploStatementsLog[iI * MAX_DIPLO_LOG_STATEMENTS];
 	}
 
-	/*
-	m_ppaabWorkingAgainstPlayerAccepted = &m_pDiploData->m_apabWorkingAgainstPlayerAccepted[0];
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		m_ppaabWorkingAgainstPlayerAccepted[iI] = &m_pDiploData->m_aabWorkingAgainstPlayerAccepted[iI * MAX_MAJOR_CIVS];
-	}
-
-	m_ppaaiWorkingAgainstPlayerCounter = &m_pDiploData->m_apaiWorkingAgainstPlayerCounter[0];
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		m_ppaaiWorkingAgainstPlayerCounter[iI] = &m_pDiploData->m_aaiWorkingAgainstPlayerCounter[iI * MAX_MAJOR_CIVS];
-	}
-	*/
-
 	m_ppaacCoopWarAcceptedState = &m_pDiploData->m_apacCoopWarAcceptedState[0];
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
@@ -964,9 +943,6 @@ void CvDiplomacyAI::Uninit()
 	m_ppaaeOtherPlayerMajorCivOpinion = NULL;
 	m_ppaaeOtherPlayerMajorCivApproach = NULL;
 	m_ppaaiOtherPlayerMajorCivApproachCounter = NULL;
-
-	//m_ppaabWorkingAgainstPlayerAccepted = NULL;
-	//m_ppaaiWorkingAgainstPlayerCounter = NULL;
 
 	m_ppaacCoopWarAcceptedState = NULL;
 	m_ppaaiCoopWarCounter = NULL;
@@ -1153,8 +1129,6 @@ void CvDiplomacyAI::Reset()
 			m_ppaaeOtherPlayerMajorCivOpinion[iI][iJ] = NO_MAJOR_CIV_OPINION_TYPE;
 			m_ppaaeOtherPlayerMajorCivApproach[iI][iJ] = NO_MAJOR_CIV_APPROACH;
 			m_ppaaiOtherPlayerMajorCivApproachCounter[iI][iJ] = 0;
-			//m_ppaabWorkingAgainstPlayerAccepted[iI][iJ] = false;
-			//m_ppaaiWorkingAgainstPlayerCounter[iI][iJ] = -1;
 			m_ppaacCoopWarAcceptedState[iI][iJ] = NO_COOP_WAR_STATE;
 			m_ppaaiCoopWarCounter[iI][iJ] = -1;
 		}
@@ -1508,14 +1482,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 		
 		ArrayWrapper<short> wrapOtherMajorApproachCounter(MAX_MAJOR_CIVS, m_ppaaiOtherPlayerMajorCivApproachCounter[iI]);
 		kStream >> wrapOtherMajorApproachCounter;
-
-		/*
-		ArrayWrapper<bool> wrapWorkingAgainstPlayerAccepted(MAX_MAJOR_CIVS, m_ppaabWorkingAgainstPlayerAccepted[iI]);
-		kStream >> wrapWorkingAgainstPlayerAccepted;
-
-		ArrayWrapper<short> workingAgainstPlayerCounter(MAX_MAJOR_CIVS, m_ppaaiWorkingAgainstPlayerCounter[iI]);
-		kStream >> workingAgainstPlayerCounter;
-		*/
 
 		ArrayWrapper<char> wrapCoopWarAcceptedState(MAX_MAJOR_CIVS, m_ppaacCoopWarAcceptedState[iI]);
 		kStream >> wrapCoopWarAcceptedState;
@@ -2217,10 +2183,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 		kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_ppaaeOtherPlayerMajorCivOpinion[iI]);
 		kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_ppaaeOtherPlayerMajorCivApproach[iI]);
 		kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_ppaaiOtherPlayerMajorCivApproachCounter[iI]);
-		/*
-		kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_ppaabWorkingAgainstPlayerAccepted[iI]);
-		kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_ppaaiWorkingAgainstPlayerCounter[iI]);
-		*/
 		kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_ppaacCoopWarAcceptedState[iI]);
 		kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_ppaaiCoopWarCounter[iI]);
 	}
@@ -3361,10 +3323,6 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 			eOpinion = MAJOR_CIV_OPINION_FRIEND;
 		else
 			eOpinion = MAJOR_CIV_OPINION_ALLY;
-
-		// If we've agreed to work against someone, then the worst we can feel towards this guy is enemy
-		//if (IsWorkingAgainstPlayer(ePlayer) && eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
-		//	eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
@@ -20481,8 +20439,6 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 					eThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
 
 					SetCoopWarAcceptedState(eThirdPlayer, ePeacePlayer, NO_COOP_WAR_STATE);
-					//SetWorkingAgainstPlayerAccepted(eThirdPlayer, ePeacePlayer, false);
-					//SetWorkingAgainstPlayerCounter(eThirdPlayer, ePeacePlayer, -666);
 				}
 
 				// If we made peace with someone, set our Approach with them to Neutral to bias against another war
@@ -20601,13 +20557,6 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 					{
 						eThirdParty = (PlayerTypes) iThirdPartyLoop;
-
-						// WAS working with the guy we're now at war with against someone else
-						//if (IsWorkingAgainstPlayerAccepted(ePlayer, eThirdParty))
-						//{
-						//	SetWorkingAgainstPlayerAccepted(ePlayer, eThirdParty, false);
-						//	SetWorkingAgainstPlayerCounter(ePlayer, eThirdParty, -666);
-						//}
 						
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 						// If they broke a coop war promise, penalize them for it
@@ -22827,29 +22776,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 		}
 	}
-
-	// We no longer want to work with a player against someone else
-	//else if (eStatement == DIPLO_STATEMENT_END_WORK_AGAINST_SOMEONE)
-	//{
-	//	PlayerTypes eAgainstPlayer = (PlayerTypes) iData1;
-
-	//	SetWorkingAgainstPlayerAccepted(ePlayer, eAgainstPlayer, false);
-	//	SetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer, -666);
-
-	//	// Send message to human
-	//	if (bShouldShowLeaderScene)
-	//	{
-	//		const char* strAgainstPlayerKey = GET_PLAYER(eAgainstPlayer).getNameKey();
-	//		szText = GetDiploStringForMessage(DIPLO_MESSAGE_END_WORK_AGAINST_SOMEONE, ePlayer, strAgainstPlayerKey);
-
-	//		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_NEGATIVE);
-	//	}
-	//	else if (!bHuman)
-	//	{
-	//		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWorkingAgainstPlayerAccepted(GetPlayer()->GetID(), eAgainstPlayer, false);
-	//		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetWorkingAgainstPlayerCounter(GetPlayer()->GetID(), eAgainstPlayer, -666);
-	//	}
-	//}
 
 	// We'd like to declare war on someone
 	else if(eStatement == DIPLO_STATEMENT_COOP_WAR_REQUEST)
@@ -27043,71 +26969,6 @@ void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploS
 		}
 	}
 }
-
-/// Possible Contact Statement
-//void CvDiplomacyAI::DoWorkAgainstSomeoneStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement, int &iData1)
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//
-//	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
-//	{
-//		PlayerTypes eTargetPlayer;
-//
-//		if (DoTestWorkingAgainstPlayersDesire(ePlayer, eTargetPlayer))
-//		{
-//			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_DENOUNCE;
-//
-//			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
-//				GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_DENOUNCE_RANDFAILED) >= 10)
-//			{
-//				bool bSendStatement = true;
-//
-//				// 1 in 2 chance we don't actually send the message (don't want full predictability)
-//				//if (50 < GC.getGame().getJonRandNum(100, "Diplomacy AI: rand roll to see if we ask to work with a player"))
-//				//	bSendStatement = false;
-//
-//				if (bSendStatement)
-//				{
-//					eStatement = eTempStatement;
-//					iData1 = eTargetPlayer;
-//				}
-//
-//				// Add this statement to the log so we don't evaluate it again until time has passed
-//				else
-//					DoAddNewStatementToDiploLog(ePlayer, DIPLO_STATEMENT_DENOUNCE_RANDFAILED);
-//			}
-//		}
-//	}
-//}
-
-/// Possible Contact Statement
-//void CvDiplomacyAI::DoEndWorkAgainstSomeoneStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement, int &iData1)
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//
-//	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
-//	{
-//		PlayerTypes eTargetPlayer;
-//
-//		if (!DoTestContinueWorkingAgainstPlayersDesire(ePlayer, eTargetPlayer))
-//		{
-//			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_END_WORK_AGAINST_SOMEONE;
-//			int iTurnsBetweenStatements = 1;
-//
-//			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-//			{
-//				eStatement = eTempStatement;
-//				iData1 = eTargetPlayer;
-//			}
-//
-//			// Add this statement to the log so we don't evaluate it again until time has passed
-//			//else
-//			//	DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
-//		}
-//	}
-//}
 
 /// Possible Contact Statement - Luxury Trade
 void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
@@ -32657,43 +32518,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #endif
 
 	// *********************************************
-	// AI asked human if he'd like to work against someone
-	// *********************************************
-	//case FROM_UI_DIPLO_EVENT_WORK_AGAINST_SOMEONE_RESPONSE:
-	//	{
-	//		// **** NOTE **** - iArg1 is BUTTON ID from DiscussionDialog.lua
-
-	//		PlayerTypes eAgainstPlayer = (PlayerTypes) iArg2;
-
-	//		SetWorkingAgainstPlayerCounter(eFromPlayer, eAgainstPlayer, 0);
-	//		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetWorkingAgainstPlayerCounter(eMyPlayer, eAgainstPlayer, 0);
-
-	//		// Human says sorry, no
-	//		if (iArg1 == 1 || iArg1 == 2)
-	//		{
-	//			if (bActivePlayer)
-	//			{
-	//				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
-	//				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
-	//			}
-	//		}
-	//		// Human agrees
-	//		else if (iArg1 == 3)
-	//		{
-	//			SetWorkingAgainstPlayerAccepted(eFromPlayer, eAgainstPlayer, true);
-	//			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetWorkingAgainstPlayerAccepted(eMyPlayer, eAgainstPlayer, true);
-
-	//			if (bActivePlayer)
-	//			{
-	//				strText = GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
-	//				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
-	//			}
-	//		}
-
-	//		break;
-	//	}
-
-	// *********************************************
 	// Human denounced us!
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_DENOUNCE:
@@ -33935,17 +33759,6 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	if(IsDoFAccepted(eHuman))
 		veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_WORKING_WITH);
 
-	// Working against anyone?
-	//for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
-	//{
-	//	// Must be alive
-	//	if (!GET_PLAYER((PlayerTypes) iThirdPartyLoop).isAlive())
-	//		continue;
-
-	//	if (IsWorkingAgainstPlayerAccepted(eHuman, (PlayerTypes) iThirdPartyLoop))
-	//		veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_WORKING_AGAINST);
-	//}
-
 	// Coop War against anyone?
 	for(int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 	{
@@ -34042,33 +33855,6 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 		DiploMessageTypes eGreetingType = veValidGreetings[iIndex];
 		const char* strOptionalKey = "";
 		bool bFoundPlayer = false;
-
-		// Working against someone picked?
-		//if (eGreetingType == DIPLO_MESSAGE_GREETING_WORKING_AGAINST)
-		//{
-		//	int iThirdPartyLoop = 0;
-
-		//	// Loop until we've picked a random guy
-		//	do
-		//	{
-		//		// Reset to beginning of list
-		//		if (iThirdPartyLoop >= MAX_MAJOR_CIVS)
-		//			iThirdPartyLoop = 0;
-
-		//		if (IsWorkingAgainstPlayerAccepted(eHuman, (PlayerTypes) iThirdPartyLoop))
-		//		{
-		//			// Rand roll
-		//			if (GC.getGame().getAsyncRandNum(100, "Diplomacy AI: Random against player greeting.") < 33)
-		//			{
-		//				strOptionalKey = GET_PLAYER((PlayerTypes) iThirdPartyLoop).getNameKey();
-		//				bFoundPlayer = true;
-		//			}
-		//		}
-
-		//		iThirdPartyLoop++;
-
-		//	} while (!bFoundPlayer);
-		//}
 
 		// Coop War picked?
 		if(eGreetingType == DIPLO_MESSAGE_GREETING_COOP_WAR)
@@ -35376,10 +35162,6 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	// If we're working with ePlayer then increase weight (if we're already willing to work Target this guy)
 	if(iWeight > 0 && IsDoFAccepted(ePlayer))
 		iWeight += 5;
-
-	// If we're working with ePlayer then increase weight (if we're already willing to work Target this guy)
-	//if (iWeight > 0 && IsWorkingAgainstPlayer(eTargetPlayer))
-	//	iWeight += 4;
 
 	// Base Personality value; ranges from 0 to 10 (ish)
 	//iWeight += GetWorkTargetWillingness();
@@ -38381,337 +38163,6 @@ int CvDiplomacyAI::GetWeDeclaredWarOnFriendCount()
 
 	return iNum;
 }
-
-///////////////////////////////
-// Working Against Player
-///////////////////////////////
-
-
-
-/// Do we want to work against anyone with ePlayer?
-//bool CvDiplomacyAI::DoTestWorkingAgainstPlayersDesire(PlayerTypes ePlayer, PlayerTypes &eChosenAgainstPlayer)
-//{
-//	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-//
-//	// If player is planning War, always say no
-//	if (eApproach == MAJOR_CIV_APPROACH_WAR)
-//		return false;
-//	// If player is Hostile, always say no
-//	else if (eApproach == MAJOR_CIV_APPROACH_HOSTILE)
-//		return false;
-//
-//	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
-//
-//	// If player is unforgivable, always say no
-//	if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
-//		return false;
-//	// If player is an enemy, always say no
-//	//else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
-//	//	return false;
-//
-//	PlayerTypes eBestPlayer = NO_PLAYER;
-//	int iBestPlayerScore = 0;
-//
-//	CvTeam* pOtherTeam = &GET_TEAM(GET_PLAYER(ePlayer).getTeam());
-//
-//	int iTempScore;
-//
-//	// Loop through all players to see if we can find a good target
-//	PlayerTypes eAgainstPlayerLoop;
-//	for (int iAgainstPlayerLoop = 0; iAgainstPlayerLoop < MAX_MAJOR_CIVS; iAgainstPlayerLoop++)
-//	{
-//		eAgainstPlayerLoop = (PlayerTypes) iAgainstPlayerLoop;
-//
-//		// Player must be valid
-//		if (!IsPlayerValid(eAgainstPlayerLoop))
-//			continue;
-//
-//		// Don't test player against himself
-//		if (eAgainstPlayerLoop == ePlayer)
-//			continue;
-//
-//		// Players must have met one another
-//		if (!pOtherTeam->isHasMet(GET_PLAYER(eAgainstPlayerLoop).getTeam()))
-//			continue;
-//
-//		// Have we already made the agreement?
-//		if (IsWorkingAgainstPlayerAccepted(ePlayer, eAgainstPlayerLoop))
-//			continue;
-//
-//		// 15 turn buffer if we've been rejected before
-//		if (GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayerLoop) >= 0 && GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayerLoop) < 15)
-//			continue;
-//
-//		iTempScore = GetWorkingAgainstPlayerAcceptableScore(ePlayer, eAgainstPlayerLoop, /*bAskedByPlayer*/ false);
-//
-//		if (iTempScore > iBestPlayerScore)
-//		{
-//			iBestPlayerScore = iTempScore;
-//			eBestPlayer = eAgainstPlayerLoop;
-//		}
-//	}
-//
-//	// Found someone?
-//	if (eBestPlayer != NO_PLAYER)
-//	{
-//		eChosenAgainstPlayer = eBestPlayer;
-//		return true;
-//	}
-//
-//	return false;
-//}
-//
-///// Is this AI willing to work Against ePlayer?
-//int CvDiplomacyAI::GetWorkingAgainstPlayerAcceptableScore(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bAskedByPlayer)
-//{
-//	MajorCivApproachTypes eApproachTowardsPlayer = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-//	MajorCivOpinionTypes eOpinionTowardsPlayer = GetMajorCivOpinion(ePlayer);
-//	MajorCivOpinionTypes eOpinionTowardsAgainst = GetMajorCivOpinion(eAgainstPlayer);
-//
-//	// If player is planning War, always say no
-//	if (eApproachTowardsPlayer == MAJOR_CIV_APPROACH_WAR)
-//		return 0;
-//	// If player is Hostile, always say no
-//	else if (eApproachTowardsPlayer == MAJOR_CIV_APPROACH_HOSTILE)
-//		return 0;
-//
-//	// If player is unforgivable, always say no
-//	if (eOpinionTowardsPlayer == MAJOR_CIV_OPINION_UNFORGIVABLE)
-//		return 0;
-//	// If player is an enemy, always say no
-//	else if (eOpinionTowardsPlayer == MAJOR_CIV_OPINION_ENEMY)
-//		return 0;
-//
-//	// Are we working AGAINST ePlayer with someone else?
-//	if (IsWorkingAgainstPlayer(ePlayer))
-//		return 0;
-//
-//	// Only players we've met, are alive, etc.
-//	if (!IsPlayerValid(eAgainstPlayer))
-//		return 0;
-//
-//	// Don't work against people we're working WITH!
-//	if (IsDoFAccepted(eAgainstPlayer))
-//		return 0;
-//
-//	int iWeight = 0;
-//
-//	// ePlayer asked us, so if we like him we're more likely to accept
-//	if (bAskedByPlayer)
-//	{
-//		if (eApproachTowardsPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
-//			iWeight += 2;
-//		else if (eOpinionTowardsPlayer <= MAJOR_CIV_OPINION_FAVORABLE)
-//			iWeight += 2;
-//	}
-//
-//	// Weight for Approach
-//	//if (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
-//	//	iWeight += 3;
-//	//else if (eApproach == MAJOR_CIV_APPROACH_GUARDED)
-//	//	iWeight += -1;
-//	//else if (eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
-//	//	iWeight += 3;
-//
-//	// Weight for Opinion
-//	if (eOpinionTowardsAgainst == MAJOR_CIV_OPINION_UNFORGIVABLE)
-//		iWeight += 10;
-//	else if (eOpinionTowardsAgainst == MAJOR_CIV_OPINION_ENEMY)
-//		iWeight += 7;
-//	else if (eOpinionTowardsAgainst == MAJOR_CIV_OPINION_COMPETITOR)
-//		iWeight += 4;
-//	else if (eOpinionTowardsAgainst == MAJOR_CIV_OPINION_FAVORABLE)
-//		iWeight += -1;
-//	else if (eOpinionTowardsAgainst == MAJOR_CIV_OPINION_FRIEND)
-//		iWeight += -5;
-//	else if (eOpinionTowardsAgainst == MAJOR_CIV_OPINION_ALLY)
-//		iWeight += -10;
-//
-//	// If we're working with ePlayer then increase weight (if we're already willing to work against this guy)
-//	if (iWeight > 0 && IsDoFAccepted(ePlayer))
-//		iWeight += 2;
-//
-//	// Base Personality value; ranges from 0 to 10 (ish)
-//	iWeight += GetDenounceWillingness();
-//
-//	// Rand
-//	iWeight += GC.getGame().getJonRandNum(5, "Diplomacy AI: Rand for whether AI wants to work Against player");
-//
-//	// Weight must be high enough for us to return a true desire
-//	if (iWeight >= 12)
-//		return iWeight;
-//
-//	return 0;
-//}
-//
-///// Has ePlayer asked to work Against eAgainstPlayer lately?
-//bool CvDiplomacyAI::IsWorkingAgainstPlayerMessageTooSoon(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const
-//{
-//	if (GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer) >= 0 &&
-//		GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer) < 30)
-//		return true;
-//
-//	return false;
-//}
-//
-///// Has ePlayer ever asked about working Against us?
-//bool CvDiplomacyAI::IsWorkingAgainstPlayerEverAsked(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const
-//{
-//	// Counter set to -1 at start. Gets reset to -666
-//	if (GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer) == -1)
-//		return false;
-//
-//	return true;
-//}
-//
-//bool CvDiplomacyAI::IsWorkingAgainstPlayerRejected(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const
-//{
-//	// If the counter is -1, it means he hasn't asked
-//	if (GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer) == -1)
-//		return false;
-//
-//	// Did the player actually accept?
-//	if (IsWorkingAgainstPlayerAccepted(ePlayer, eAgainstPlayer))
-//		return false;
-//
-//	return true;
-//}
-//
-//bool CvDiplomacyAI::IsWorkingAgainstPlayerAccepted(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	return m_ppaabWorkingAgainstPlayerAccepted[ePlayer][eAgainstPlayer];
-//}
-//
-//void CvDiplomacyAI::SetWorkingAgainstPlayerAccepted(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bValue)
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//
-//	if (bValue != IsWorkingAgainstPlayerAccepted(ePlayer, eAgainstPlayer))
-//	{
-//		m_ppaabWorkingAgainstPlayerAccepted[ePlayer][eAgainstPlayer] = bValue;
-//	}
-//}
-//
-//short CvDiplomacyAI::GetWorkingAgainstPlayerCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer) const
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	return m_ppaaiWorkingAgainstPlayerCounter[ePlayer][eAgainstPlayer];
-//}
-//
-//void CvDiplomacyAI::SetWorkingAgainstPlayerCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iValue)
-//{
-//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	CvAssertMsg(eAgainstPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//	m_ppaaiWorkingAgainstPlayerCounter[ePlayer][eAgainstPlayer] = iValue;
-//}
-//
-//void CvDiplomacyAI::ChangeWorkingAgainstPlayerCounter(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iChange)
-//{
-//	SetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer, GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer) + iChange);
-//}
-//
-///// Are we done working with anyone against someone else?
-//bool CvDiplomacyAI::DoTestContinueWorkingAgainstPlayersDesire(PlayerTypes ePlayer, PlayerTypes &eAgainstPlayer)
-//{
-//	// Loop through all players to see if we can find a good target
-//	PlayerTypes eAgainstPlayerLoop;
-//	for (int iAgainstPlayerLoop = 0; iAgainstPlayerLoop < MAX_MAJOR_CIVS; iAgainstPlayerLoop++)
-//	{
-//		eAgainstPlayerLoop = (PlayerTypes) iAgainstPlayerLoop;
-//
-//		if (IsWorkingAgainstPlayerAccepted(ePlayer, eAgainstPlayerLoop))
-//		{
-//			if (!IsContinueWorkingAgainstPlayer(ePlayer, eAgainstPlayerLoop))
-//			{
-//				eAgainstPlayer = eAgainstPlayerLoop;
-//				return false;
-//			}
-//		}
-//	}
-//
-//	return true;
-//}
-//
-///// Do we want to continue working Against ePlayer?
-//bool CvDiplomacyAI::IsContinueWorkingAgainstPlayer(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer)
-//{
-//	CvAssertMsg(IsWorkingAgainstPlayerAccepted(ePlayer, eAgainstPlayer), "Diplomacy AI: Testing whether we should continue working Against a player, but we aren't right now. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-//
-//	// If this guy is dead, don't get out of the agreement, as that looks weird
-//	if (!GET_PLAYER(eAgainstPlayer).isAlive())
-//		return true;
-//
-//	MajorCivApproachTypes eApproachTowardsPlayer = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-//	MajorCivOpinionTypes eOpinionTowardsPlayer = GetMajorCivOpinion(ePlayer);
-//	MajorCivApproachTypes eApproachTowardsAgainst = GetMajorCivApproach(eAgainstPlayer, /*bHideTrueFeelings*/ false);
-//	MajorCivOpinionTypes eOpinionTowardsAgainst = GetMajorCivOpinion(eAgainstPlayer);
-//
-//	// Locked in for at least 20 turns
-//	if (GetWorkingAgainstPlayerCounter(ePlayer, eAgainstPlayer) < 20)
-//		return true;
-//
-//	// If we're enemies or unforgivable then we're done working with this guy
-//	if (eOpinionTowardsPlayer <= MAJOR_CIV_OPINION_ENEMY)
-//		return false;
-//
-//	// Changed our approach towards ePlayer
-//	if (eApproachTowardsPlayer == MAJOR_CIV_APPROACH_HOSTILE ||
-//		GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true) == MAJOR_CIV_APPROACH_HOSTILE)
-//		return false;
-//
-//	// If we've decided we like the guy now, we're done
-//	if (eApproachTowardsAgainst == MAJOR_CIV_APPROACH_FRIENDLY)
-//		return false;
-//
-//	if (eOpinionTowardsAgainst >= MAJOR_CIV_OPINION_FRIEND)
-//		return false;
-//
-//	// If we've worked together for at least 20 turns, and are competitors, there's a chance we break things off
-//	//if (GetWorkingAgainstPlayerCounter(ePlayer) > 20)
-//	//{
-//	//	if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
-//	//	{
-//	//		int iChance = 10 - GetDenounceWillingness();
-//	//		int iRand = GC.getGame().getJonRandNum(100, "Diplomacy AI: Rand for whether AI wants to work Against player");
-//
-//	//		if (iRand < iChance)
-//	//			return false;
-//	//	}
-//	//}
-//
-//	return true;
-//}
-//
-///// Check everyone we know to see if we're working with them against ePlayer
-//bool CvDiplomacyAI::IsWorkingAgainstPlayer(PlayerTypes ePlayer)
-//{
-//	PlayerTypes eLoopPlayer;
-//	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-//	{
-//		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-//
-//		if (IsPlayerValid(eLoopPlayer))
-//		{
-//			if (IsWorkingAgainstPlayerAccepted(eLoopPlayer, ePlayer))
-//				return true;
-//		}
-//	}
-//
-//	return false;
-//}
-
 
 
 /////////////////////////////////////////////////////////
@@ -45632,12 +45083,6 @@ void CvDiplomacyAI::LogStatus()
 					else
 						strOutBuf += ", ";
 #endif
-
-					//if (IsWorkingAgainstPlayer(eLoopPlayer))
-					//	strOutBuf += ", WA";
-					//else
-					//	strOutBuf += ", ";
-
 					if(GetGlobalCoopWarAcceptedState(eLoopPlayer) == COOP_WAR_STATE_ACCEPTED)
 						strOutBuf += ", CW";
 					else if(GetGlobalCoopWarAcceptedState(eLoopPlayer) == COOP_WAR_STATE_SOON)
