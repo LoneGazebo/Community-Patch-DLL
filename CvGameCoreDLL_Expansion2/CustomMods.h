@@ -927,8 +927,8 @@
 #define MOD_BUGFIX_NAVAL_FREE_UNITS                 gCustomMods.isBUGFIX_NAVAL_FREE_UNITS()
 // Fixes the bug where the naval units jump to the nearest city and not the nearest available non-lake water plot
 #define MOD_BUGFIX_NAVAL_NEAREST_WATER              gCustomMods.isBUGFIX_NAVAL_NEAREST_WATER()
-// Fixes the bug where stacked ranged units may attack out of cities but melee units may not
-#define MOD_BUGFIX_CITY_STACKING                    gCustomMods.isBUGFIX_CITY_STACKING()
+// Enable legacy special treatment of human units with regards to minor territory
+#define MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS	gCustomMods.isCORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS()
 // Fixes the bug in goody hut messages that have parameters (v38)
 #define MOD_BUGFIX_GOODY_HUT_MESSAGES               (true)
 // Fixes the bug where Barb Camps ignore the ValidTerrains and ValidFeatures tables
@@ -963,8 +963,6 @@
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 // Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
-// Fixes crashing when the AI's latest flavours are all 0, due to division by zero in CvPlayerTechs::AddFlavorAsStrategies
-#define MOD_BUGFIX_NULL_CURRENT_FLAVORS				(true)
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1704,7 +1702,7 @@ public:
 	MOD_OPT_DECL(BUGFIX_FREE_FOOD_BUILDING);
 	MOD_OPT_DECL(BUGFIX_NAVAL_FREE_UNITS);
 	MOD_OPT_DECL(BUGFIX_NAVAL_NEAREST_WATER);
-	MOD_OPT_DECL(BUGFIX_CITY_STACKING);
+	MOD_OPT_DECL(CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS);
 	MOD_OPT_DECL(BUGFIX_BARB_CAMP_TERRAINS);
 	MOD_OPT_DECL(BUGFIX_BARB_CAMP_SPAWNING);
 	MOD_OPT_DECL(BUGFIX_BARB_GP_XP);

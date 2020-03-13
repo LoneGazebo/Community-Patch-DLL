@@ -4668,9 +4668,14 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
+#ifdef MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS
+		if (isHuman() && MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS)
+			return true;
+#else
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
+#endif
 
 		// Allow AI players to pass through minors' territory
 		if (!bEndTurn)
@@ -5078,13 +5083,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
 #endif
 		{
-			// take care not to count ourself!
-			int iNumUnits = plot.getMaxFriendlyUnitsOfType(this) - (atPlot(plot) ? 1 : 0);
-#if defined(MOD_GLOBAL_STACKING_RULES)
-			if(plot.isVisible(getTeam()) && iNumUnits >= plot.getUnitLimit())
-#else
-			if(plot.isVisible(getTeam()) && iNumUnits >= GC.getPLOT_UNIT_LIMIT())
-#endif
+			if (!plot.CanStackUnitHere(this))
 			{
 				return FALSE;
 			}
@@ -6521,11 +6520,7 @@ bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 	VALIDATE_OBJECT
 	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
-#else
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
-#endif
+		if (!pPlot->CanStackUnitHere(this))
 		{
 			return false;
 		}
@@ -6547,11 +6542,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 
 	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
-#else
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
-#endif
+		if (!pPlot->CanStackUnitHere(this))
 		{
 			return false;
 		}
@@ -6564,11 +6555,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::canFortify(const CvPlot* pPlot) const
 {
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
-#else
-	if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
-#endif
+	if (!pPlot->CanStackUnitHere(this))
 	{
 		return false;
 	}
@@ -7611,11 +7598,7 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 	VALIDATE_OBJECT
 	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
-#else
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
-#endif
+		if (!pPlot->CanStackUnitHere(this))
 		{
 			return false;
 		}
@@ -14317,14 +14300,8 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	// Show the upgrade, but don't actually allow it
 	if(!bOnlyTestVisible)
 	{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
-#else
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
-#endif
-		{
+		if (!pPlot->CanStackUnitHere(this))
 			return false;
-		}
 
 #if defined(MOD_GLOBAL_CS_UPGRADES)
 		if (!CanUpgradeInTerritory(bOnlyTestVisible))
@@ -14334,12 +14311,12 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if(pPlot->getOwner() != getOwner())
 			return false;
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 		if(isEmbarked() || ((plot()->isWater() && getDomainType() != DOMAIN_SEA) && !isCargo()))
 		{
 			return false;
 		}
-
 
 		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
 		{
@@ -27219,11 +27196,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 				if (pEndTurnPlot == &swapPlot)
 				{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-					if (swapPlot.getMaxFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
-#else
-					if (swapPlot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
-#endif
+					if (!swapPlot.CanStackUnitHere(this))
 					{
 						const IDInfo* pUnitNode;
 						CvUnit* pLoopUnit;
@@ -27235,9 +27208,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 
 							// A unit can't swap with itself (slewis)
 							if (!pLoopUnit || pLoopUnit == this)
-							{
 								continue;
-							}
 
 							// Make sure units belong to the same player
 							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
@@ -27471,27 +27442,15 @@ bool CvUnit::canRangeStrike() const
 	*/
 
 	if(isOutOfAttacks())
-	{
 		return false;
-	}
+
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
     if(!isNativeDomain(plot()))
-    {
         return false;
-    }
 #endif
 
-#if defined(MOD_BUGFIX_CITY_STACKING)
-	// Can't attack out of Cities if there are more units of the same domain type than the stacking limit permits
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	if(MOD_BUGFIX_CITY_STACKING && plot()->isCity() && plot()->getMaxFriendlyUnitsOfType(this, true) > plot()->getUnitLimit())
-#else
-	if(MOD_BUGFIX_CITY_STACKING && plot()->isCity() && plot()->getMaxFriendlyUnitsOfType(this, true) > GC.getPLOT_UNIT_LIMIT())
-#endif
-	{
+	if (!plot()->CanStackUnitHere(this))
 		return false;
-	}
-#endif
 
 	return true;
 }
@@ -29624,11 +29583,7 @@ bool CvUnit::IsCanAttackWithMoveNow() const
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		return iCount <= pkPlot->getUnitLimit();
 #else
-#if defined(MOD_BUGFIX_CITY_STACKING)
 		return iCount <= GC.getPLOT_UNIT_LIMIT();
-#else
-		return iCount <= 1;	// Just us?  Then it is ok.
-#endif
 #endif
 	}
 

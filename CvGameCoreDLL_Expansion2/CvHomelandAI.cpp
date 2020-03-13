@@ -5187,13 +5187,6 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 		if(!pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			continue;
 
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) >= pLoopPlot->getUnitLimit())
-#else
-		if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
-			continue;
-
 		int iValue = 0; //default
 
 		//see if there is work to do

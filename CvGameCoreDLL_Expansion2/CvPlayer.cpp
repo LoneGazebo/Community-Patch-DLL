@@ -10545,14 +10545,8 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	if (pInitialCity && pInitialCity->isCoastal())
 	{
 		// Equal okay checking this plot because this is where the unit is right now
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if (pInitialPlot->getMaxFriendlyUnitsOfType(pUnit) <= pInitialPlot->getUnitLimit())
-#else
-		if (pInitialPlot->getMaxFriendlyUnitsOfType(pUnit) <= GC.getPLOT_UNIT_LIMIT())
-#endif
-		{
+		if (pInitialPlot->CanStackUnitHere(pUnit))
 			return pInitialPlot;
-		}
 	}
 
 	// Otherwise let's look at all our other cities
@@ -10560,30 +10554,21 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != pInitialCity)
+		if (pLoopCity != pInitialCity && pLoopCity->isCoastal())
 		{
-			if (pLoopCity->isCoastal())
+			if (pLoopCity->plot()->CanStackUnitHere(pUnit))
 			{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < pLoopCity->plot()->getUnitLimit())
-#else
-				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
-				{
-					return pLoopCity->plot();
-				}
+				return pLoopCity->plot();
 			}
 		}
 	}
 
 	// Don't have a coastal city, look for water plot THAT ISN'T A LAKE closest to our capital that isn't owned by an enemy
-	int iCapitalX;
-	int iCapitalY;
 	CvCity *pCapital = getCapitalCity();
 	if (pCapital)
 	{
-		iCapitalX = pCapital->getX();
-		iCapitalY = pCapital->getY();
+		int iCapitalX = pCapital->getX();
+		int iCapitalY = pCapital->getY();
 
 		CvPlot *pBestPlot = NULL;
 		int iBestDistance = MAX_INT;
@@ -10597,11 +10582,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 				{
 					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
 					{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
-#else
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
+						if (pPlot->CanStackUnitHere(pUnit))
 						{
 							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
 							if (iDistance < iBestDistance)
@@ -10630,11 +10611,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 				{
 					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
 					{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
-#else
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
+						if (pPlot->CanStackUnitHere(pUnit))
 						{
 							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
 							if (iDistance < iBestDistance)
@@ -11893,11 +11870,7 @@ void CvPlayer::RespositionInvalidUnits()
 			continue;
 		}
 
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(pLoopUnit) > pPlot->getUnitLimit())
-#else
-		if(pPlot->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
-#endif
+		if (!pPlot->CanStackUnitHere(pLoopUnit))
 		{
 			if (!pLoopUnit->jumpToNearestValidPlot())
 				pLoopUnit->kill(false);	// Could not find a valid location!
@@ -14284,38 +14257,28 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isMatchingDomain(pLoopPlot))
 							{
-								if(pNewUnit->canMoveInto(*pLoopPlot))
+								if(pNewUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY))
 								{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-									if(pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < pLoopPlot->getUnitLimit())
-#else
-									if(pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
+									if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit))
 									{
-										if(pNewUnit->canEnterTerritory(pLoopPlot->getTeam()) && !pNewUnit->isEnemy(pLoopPlot->getTeam(), pLoopPlot))
+										if(pLoopPlot->isRevealed(getTeam()))
 										{
-											if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit))
+											iValue = 1 + GC.getGame().getSmallFakeRandNum(6, *pLoopPlot); // okay, I'll admit it, not a great heuristic
+
+											if(plotDistance(pPlot->getX(),pPlot->getY(),pLoopPlot->getX(),pLoopPlot->getY()) > 1)
 											{
-												if(pLoopPlot->isRevealed(getTeam()))
-												{
-													iValue = 1 + GC.getGame().getSmallFakeRandNum(6, *pLoopPlot); // okay, I'll admit it, not a great heuristic
+												iValue += 12;
+											}
 
-													if(plotDistance(pPlot->getX(),pPlot->getY(),pLoopPlot->getX(),pLoopPlot->getY()) > 1)
-													{
-														iValue += 12;
-													}
+											if(pLoopPlot->area() != pPlot->area())  // jumped to a different land mass, cool
+											{
+												iValue *= 10;
+											}
 
-													if(pLoopPlot->area() != pPlot->area())  // jumped to a different land mass, cool
-													{
-														iValue *= 10;
-													}
-
-													if(iValue < iBestValue)
-													{
-														iBestValue = iValue;
-														pBestPlot = pLoopPlot;
-													}
-												}
+											if(iValue < iBestValue)
+											{
+												iBestValue = iValue;
+												pBestPlot = pLoopPlot;
 											}
 										}
 									}

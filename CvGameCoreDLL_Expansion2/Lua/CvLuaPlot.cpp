@@ -137,8 +137,12 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumVisiblePotentialEnemyDefenders);
 	Method(IsVisibleEnemyUnit);
 	Method(IsVisibleOtherUnit);
+
+	//---- wtf is going on here
 	Method(GetNumFriendlyUnitsOfType);
 	Method(getNumFriendlyUnitsOfType);
+	//---- this says it all
+
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -1047,8 +1051,8 @@ int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
-	bool bBreakOnUnitLimit = luaL_optbool(L, 3, true);
-	int iResult = pkPlot->getMaxFriendlyUnitsOfType(pkUnit, bBreakOnUnitLimit);
+	//hack this
+	int iResult = pkPlot->CanStackUnitHere(pkUnit) ? 0 : pkPlot->getUnitLimit();
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -1060,8 +1064,8 @@ int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
-	bool bBreakOnUnitLimit = luaL_optbool(L, 3, true);
-	int iResult = pkPlot->getMaxFriendlyUnitsOfType(pkUnit, bBreakOnUnitLimit);
+	//hack this
+	int iResult = pkPlot->CanStackUnitHere(pkUnit) ? 0 : pkPlot->getUnitLimit();
 
 	lua_pushinteger(L, iResult);
 	return 1;

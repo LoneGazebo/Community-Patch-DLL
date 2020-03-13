@@ -744,31 +744,16 @@ void CvPlot::verifyUnitValidPlot()
 {
 	FStaticVector<IDInfo, 50, true, c_eCiv5GameplayDLL, 0> oldUnitList;
 
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-
-	oldUnitList.clear();
-
-	pUnitNode = headUnitNode();
-
+	IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
 		oldUnitList.push_back(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 	}
 
-	int iUnitListSize = (int) oldUnitList.size();
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	// Bail out early if no units on the plot
-	if (iUnitListSize == 0)
+	for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 	{
-		return;
-	}
-#endif
-
-	for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
-	{
-		pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+		CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
 		if(pLoopUnit != NULL)
 		{
 			if(!pLoopUnit->isDelayedDeath())
@@ -780,11 +765,7 @@ void CvPlot::verifyUnitValidPlot()
 						if(!(pLoopUnit->isInCombat()))
 						{
 							// Unit not allowed to be here
-#if defined(MOD_GLOBAL_STACKING_RULES)
-							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit())
-#else
-							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
-#endif
+							if (!CanStackUnitHere(pLoopUnit))
 							{
 								if (!pLoopUnit->jumpToNearestValidPlot())
 								{
@@ -811,9 +792,9 @@ void CvPlot::verifyUnitValidPlot()
 	// Unit not allowed in a plot owned by someone?
 	if(isOwned())
 	{
-		for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
+		for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 		{
-			pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+			CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
 			if(pLoopUnit != NULL)
 			{
 				if(!pLoopUnit->isDelayedDeath())
@@ -842,45 +823,42 @@ void CvPlot::verifyUnitValidPlot()
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	else
 	{
-		if (iUnitListSize > 1)
+		for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 		{
-			for(int iVectorLoop = 0; iVectorLoop < (int) iUnitListSize; ++iVectorLoop)
+			CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
+			if(pLoopUnit != NULL)
 			{
-				pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-				if(pLoopUnit != NULL)
+				if(!pLoopUnit->isDelayedDeath())
 				{
-					if(!pLoopUnit->isDelayedDeath())
+					if(pLoopUnit->atPlot(*this))  // it may have jumped
 					{
-						if(pLoopUnit->atPlot(*this))  // it may have jumped
+						if(!(pLoopUnit->isInCombat()))
 						{
-							if(!(pLoopUnit->isInCombat()))
+							for(size_t iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < oldUnitList.size(); ++iVectorLoop2)
 							{
-								for(int iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < (int) iUnitListSize; ++iVectorLoop2)
+								CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
+								if(pLoopUnit2 != NULL)
 								{
-									CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
-									if(pLoopUnit2 != NULL)
+									if(!pLoopUnit2->isDelayedDeath())
 									{
-										if(!pLoopUnit2->isDelayedDeath())
+										if(pLoopUnit2->atPlot(*this))  // it may have jumped
 										{
-											if(pLoopUnit2->atPlot(*this))  // it may have jumped
+											if(!(pLoopUnit2->isInCombat()))
 											{
-												if(!(pLoopUnit2->isInCombat()))
+												if(atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
 												{
-													if(atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
+													// We have to evict the weaker of pLoopUnit and pLoopUnit2
+													if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
 													{
-														// We have to evict the weaker of pLoopUnit and pLoopUnit2
-														if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
-														{
-															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
-															if (!pLoopUnit->jumpToNearestValidPlot())
-																pLoopUnit->kill(true);
-														}
-														else
-														{
-															CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
-															if (!pLoopUnit2->jumpToNearestValidPlot())
-																pLoopUnit2->kill(true);
-														}
+														CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
+														if (!pLoopUnit->jumpToNearestValidPlot())
+															pLoopUnit->kill(true);
+													}
+													else
+													{
+														CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
+														if (!pLoopUnit2->jumpToNearestValidPlot())
+															pLoopUnit2->kill(true);
 													}
 												}
 											}
@@ -4900,32 +4878,20 @@ bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 }
 
 //	--------------------------------------------------------------------------------
-// Used to restrict number of units allowed on a plot at one time
-int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit) const
+bool CvPlot::CanStackUnitHere(const CvUnit* pUnit) const
 {
-	int iNumUnitsOfSameType = 0;
-
-	// slewis - trying to break the 1upt for trade units
+	//trade is always ok
 	if (pUnit->isTrade())
-	{
-		return 0;
-	}
+		return true;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	if (pUnit->getNumberStackingUnits() == -1)
-	{
-		return 0;
-	}
+		return true;
 #endif
+
+	int iNumUnitsOfSameType = 0;
 
 	CvTeam& kUnitTeam = GET_TEAM(pUnit->getTeam());
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	int iPlotUnitLimit = getUnitLimit();
-#else
-	int iPlotUnitLimit = GC.getPLOT_UNIT_LIMIT();
-#endif
-
 	const IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
@@ -4934,6 +4900,10 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 
 		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
 		{
+			//ignore the unit if it's already in the plot
+			if (pLoopUnit == pUnit)
+				continue;
+
 			// Don't include an enemy unit, or else it won't let us attack it :)
 			if(!kUnitTeam.isAtWar(pLoopUnit->getTeam()))
 			{
@@ -4985,19 +4955,15 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 					}
 #endif
 				}
-
-				// Does the calling function want us to break out? (saves processing time)
-				if(bBreakOnUnitLimit)
-				{
-					if(iNumUnitsOfSameType >= iPlotUnitLimit)
-					{
-						return iNumUnitsOfSameType;
-					}
-				}
 			}
 		}
 	}
-	return iNumUnitsOfSameType;
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	return iNumUnitsOfSameType < getUnitLimit();
+#else
+	return iNumUnitsOfSameType < GC.getPLOT_UNIT_LIMIT();
+#endif
 }
 
 //	---------------------------------------------------------------------------

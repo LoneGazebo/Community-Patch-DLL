@@ -854,6 +854,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bIsVisibleEnemyUnit = false;
 	kToNodeCacheData.bIsVisibleEnemyCombatUnit = false;
 	kToNodeCacheData.bIsVisibleNeutralCombatUnit = false;
+	kToNodeCacheData.bUnitStackingLimitReached = false;
 
 	bool bPlotOccupancyOverride = false;
 	if (kToNodeCacheData.bPlotVisibleToTeam)
@@ -871,13 +872,9 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 
 		kToNodeCacheData.bIsVisibleNeutralCombatUnit = pPlot->isNeutralUnit(pUnit->getOwner(), true, true);
+		kToNodeCacheData.bUnitStackingLimitReached = !pPlot->CanStackUnitHere(pUnit);
 	}
 
-	//ignore this unit when counting!
-	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
-	//for civilians we don't actually need to subtract one here, but it doesn't hurt
-	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
-	kToNodeCacheData.bUnitStackingLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 
 	//small hack to prevent civilians from stacking although they could
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL) && pPlot->isNeutralUnit(pUnit->getOwner(),true,true))

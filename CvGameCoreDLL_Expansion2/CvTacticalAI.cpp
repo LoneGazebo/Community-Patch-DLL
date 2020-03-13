@@ -4564,9 +4564,11 @@ void CvTacticalAI::ExecuteBarbarianMoves()
 				CvPlot* pPlot = pUnit->plot();
 				if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
 				{
-					pUnit->setTacticalMove(AI_TACTICAL_BARBARIAN_CAMP);
 					pUnit->PushMission(CvTypes::getMISSION_SKIP());
 					UnitProcessed(pUnit->GetID());
+					//do it this way to avoid a warning
+					pUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+					pUnit->setTacticalMove(AI_TACTICAL_BARBARIAN_CAMP);
 					continue;
 				}
 

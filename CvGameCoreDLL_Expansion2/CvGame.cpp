@@ -9296,48 +9296,40 @@ void CvGame::updateMoves()
 					}
 					while(bRepeatAutomoves && iRepeatPassCount--);
 
-					// check if the (for now human) player is overstacked and move the units
-					//if (player.isHuman())
-
 					// slewis - I changed this to only be the AI because human players should have the tools to deal with this now
 					if(!player.isHuman())
 					{
 						for(pLoopUnit = player.firstUnit(&iLoop); pLoopUnit; pLoopUnit = player.nextUnit(&iLoop))
 						{
-							if(pLoopUnit)
+							bool bMoveMe  = false;
+							IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
+							while(pUnitNodeInner != NULL && !bMoveMe)
 							{
-								bool bMoveMe  = false;
-								IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
-								while(pUnitNodeInner != NULL && !bMoveMe)
+								CvUnit* pLoopUnitInner = ::getUnit(*pUnitNodeInner);
+								if(pLoopUnitInner && pLoopUnit != pLoopUnitInner)
 								{
-									CvUnit* pLoopUnitInner = ::getUnit(*pUnitNodeInner);
-									if(pLoopUnitInner && pLoopUnit != pLoopUnitInner)
+									if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 									{
-										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
+										if (!pLoopUnit->plot()->CanStackUnitHere(pLoopUnit))
 										{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > pLoopUnit->plot()->getUnitLimit())
-#else
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
-#endif
+											if(pLoopUnitInner->IsFortified() && !pLoopUnit->IsFortified())
 											{
-												if(pLoopUnitInner->IsFortified() && !pLoopUnit->IsFortified())
-												{
-													bMoveMe = true;
-												}
+												bMoveMe = true;
 											}
 										}
 									}
-									pUnitNodeInner = pLoopUnit->plot()->nextUnitNode(pUnitNodeInner);
 								}
-								if(bMoveMe)
-								{
-									if (!pLoopUnit->jumpToNearestValidPlotWithinRange(1))
-										pLoopUnit->kill(false);
-									break;
-								}
-								pLoopUnit->doDelayedDeath();
+								pUnitNodeInner = pLoopUnit->plot()->nextUnitNode(pUnitNodeInner);
 							}
+
+							if(bMoveMe)
+							{
+								if (!pLoopUnit->jumpToNearestValidPlotWithinRange(1))
+									pLoopUnit->kill(false);
+								break;
+							}
+
+							pLoopUnit->doDelayedDeath();
 						}
 					}
 

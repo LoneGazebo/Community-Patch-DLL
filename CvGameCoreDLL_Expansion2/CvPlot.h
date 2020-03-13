@@ -321,7 +321,7 @@ public:
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
 
-	int getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit = true) const;
+	bool CanStackUnitHere(const CvUnit* pUnit) const;
 
 	bool isFighting() const;
 	bool isUnitFighting() const;
