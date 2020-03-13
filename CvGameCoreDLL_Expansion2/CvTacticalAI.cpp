@@ -4620,7 +4620,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		return false;
 
 	// Unit already at target plot?
-	if(pTarget == pUnit->plot())
+	if(pTarget == pUnit->plot() && pTarget->CanStackUnitHere(pUnit))
 	{
 		bResult = true;
 

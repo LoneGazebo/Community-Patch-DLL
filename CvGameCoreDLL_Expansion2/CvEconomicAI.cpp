@@ -1089,6 +1089,8 @@ int EconomicAIHelpers::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, Domai
 		iResultValue += iJackpot;
 	if(pPlot->HasBarbarianCamp() && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
 		iResultValue += iJackpot;
+	if (pPlot->isHills() || pPlot->isMountain()) //inca can enter mountains ...
+		iResultValue += iLargeScore;
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)

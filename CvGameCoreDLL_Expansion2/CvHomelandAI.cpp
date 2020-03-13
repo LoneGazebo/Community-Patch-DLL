@@ -2368,8 +2368,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		//should be the same everywhere so we can reuse paths
 		int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
-		if (!pUnit->isEmbarked())
-			iMoveFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
 		//performance: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 		if ( pUnit->GetMissionAIType()==MISSIONAI_EXPLORE && pUnit->GetMissionAIPlot() && plotDistance(*pUnit->plot(),*pUnit->GetMissionAIPlot())>10 )
@@ -2886,7 +2884,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 
 	AI_PERF_FORMAT("Homeland-ExecuteMove-perf.csv", ("ExecuteMoveToTarget, %d, %d, Turn %03d, %s", pTarget->getX(), pTarget->getY(), GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	if(pUnit->plot() == pTarget)
+	if(pUnit->plot() == pTarget && pTarget->CanStackUnitHere(pUnit))
 	{
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
