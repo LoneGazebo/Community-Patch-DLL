@@ -3021,10 +3021,9 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			//combat units
 			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot,m_pPlayer->getTeam());
 			for (size_t i = 0; i < vAttackers.size(); i++)
-				if (!vAttackers[i]->plot()->isCity())
-					allEnemyPlots.insert(vAttackers[i]->plot());
-			//there shouldn't be any cities, but if there is one and we have a chance to capture it ...
-			if (pTestPlot->isEnemyCity(*pUnit) && pTestPlot->getPlotCity()->isInDangerOfFalling())
+				allEnemyPlots.insert(vAttackers[i]->plot());
+			//there shouldn't be any cities, especially without garrison, but if there is one ...
+			if (pTestPlot->isEnemyCity(*pUnit))
 				allEnemyPlots.insert(pTestPlot);
 		}
 
