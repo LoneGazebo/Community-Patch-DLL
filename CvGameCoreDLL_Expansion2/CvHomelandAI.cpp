@@ -594,7 +594,7 @@ void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 
 	if(bSecondPass)
 	{
-		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 			if (pUnit && pUnit->GetDanger()==0) //don't freeze in danger in case pathfinding failed ...
@@ -634,7 +634,7 @@ void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 
 	if(bSecondPass)
 	{
-		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 			if (pUnit)
@@ -811,7 +811,7 @@ void CvHomelandAI::PlotSentryMoves()
 
 		CvPlot* pTarget = GC.getMap().plot(m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY());
 
-		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+		if(m_CurrentMoveUnits.size() > 0)
 		{
 			CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
 			if (!pSentry)
@@ -867,7 +867,7 @@ void CvHomelandAI::PlotSentryNavalMoves()
 			AI_PERF_FORMAT("Homeland-perf.csv", ("PlotNavalSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalSentryPoints[iI].GetTargetX(), m_TargetedNavalSentryPoints[iI].GetTargetY());
-			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+			if(m_CurrentMoveUnits.size() > 0)
 			{
 				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 15);
 				if(pSentry)
@@ -944,7 +944,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	}
 	
 	// Make a list of all combat units that can do this.
-	MoveUnitsArray PossibleSettlerUnits;
+	CHomelandUnitArray PossibleSettlerUnits;
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
@@ -976,7 +976,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	
 	if (PossibleSettlerUnits.size() > 0) 
 	{
-		MoveUnitsArray::iterator settlerUnitIt;
+		CHomelandUnitArray::iterator settlerUnitIt;
 		for (settlerUnitIt = PossibleSettlerUnits.begin(); settlerUnitIt != PossibleSettlerUnits.end(); ++settlerUnitIt) 
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(settlerUnitIt->GetID());
@@ -1109,7 +1109,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 		}
 	}
 
-	for(MoveUnitsArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
+	for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
 		int iTargetIndex = -1;
@@ -1253,7 +1253,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 {
 	//check what kind of units we have
 	int iUnitsSea = 0, iUnitsLand = 0;
-	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
+	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
 		if (pUnit && pUnit->IsCombatUnit())
@@ -1283,7 +1283,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 				mapReachablePlots[vWaterTargets[i].first] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i].first,data);
 
 	//for each unit, check which city is closest
-	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
+	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
 		if(!pUnit || pUnit->IsCivilianUnit() || pUnit->getDomainType()==DOMAIN_AIR)
@@ -1498,7 +1498,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 		CvUnit* pFirstNonUpgradedUnit = NULL;
 		// Try to find a unit that can upgrade immediately
-		for(MoveUnitsArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
+		for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
 			if(pUnit->CanUpgradeRightNow(false))
@@ -2209,7 +2209,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 /// Creates cities for AI civs on first turn
 void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 {
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(pUnit)
@@ -2360,7 +2360,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove())
@@ -2721,7 +2721,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	// where can our workers go
 	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
 
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if (!pUnit)
@@ -2827,7 +2827,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 /// Heal chosen units
 void CvHomelandAI::ExecuteHeals()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -2911,7 +2911,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 /// Great writer moves
 void CvHomelandAI::ExecuteWriterMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3027,7 +3027,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 /// Expends an artist to start a golden age
 void CvHomelandAI::ExecuteArtistMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3142,7 +3142,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 /// Expends an artist to start a golden age
 void CvHomelandAI::ExecuteMusicianMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3257,7 +3257,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 /// Expends a scientist to gain a free tech
 void CvHomelandAI::ExecuteScientistMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3303,7 +3303,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 	CvCity* pWonderCity;
 	int iTurnsToTarget;
 
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3507,7 +3507,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 void CvHomelandAI::ExecuteDiplomatMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3563,7 +3563,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 void CvHomelandAI::ExecuteMessengerMoves()
 {
 	vector<int> vIgnoreCities;
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove())
@@ -3632,7 +3632,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 
 void CvHomelandAI::ExecuteMerchantMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3685,7 +3685,7 @@ void CvHomelandAI::ExecuteMerchantMoves()
 
 void CvHomelandAI::ExecuteProphetMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3850,7 +3850,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 /// Moves a great general into an important city to aid its defense
 void CvHomelandAI::ExecuteGeneralMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	CvPlot* pHolyCityPlot = NULL;
 	CvCity* pHolyCity = NULL;
 
@@ -4292,7 +4292,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 /// Moves a great admiral into an important coastal city to aid its defense
 void CvHomelandAI::ExecuteAdmiralMoves()
 {
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	CvPlot* pHolyCityPlot = NULL;
 	CvCity* pHolyCity = NULL;
 	// Do we have an Apollo program to stay clear of?
@@ -4684,7 +4684,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 {
 	vector<pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_MISSIONARY];
 
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4750,7 +4750,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 {
 	vector<pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_INQUISITOR];
 
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4836,7 +4836,7 @@ void CvHomelandAI::ExecuteSSPartMoves()
 	if (pCapitalCity == NULL)
 		return;
 
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -4869,7 +4869,7 @@ void CvHomelandAI::ExecuteTreasureMoves()
 	if (pCapitalCity == NULL)
 		return;
 
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -4978,7 +4978,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	//healing units want to go to the backwaters
 	std::vector<CvUnit*> vCombatReadyUnits, vHealingUnits;
 
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
@@ -5374,7 +5374,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		//we don't really care about the distance but not having to re-base is good
 		CvUnit *pBestUnit = NULL;
 		int iBestDistance = INT_MAX;
-		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 			if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed() || pUnit->IsAutomated())
@@ -5451,7 +5451,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	}
 
 	//unassigned trade units?
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed())
@@ -5485,7 +5485,7 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 	int iUnassignedArchaeologists = 0;
 #endif
 
-	MoveUnitsArray::iterator it;
+	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -5636,7 +5636,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 	bool rtnValue = false;
 
 	ClearCurrentMoveUnits(eMove);
-	ClearCurrentMoveHighPriorityUnits(eMove);
 			
 	// Loop through all units available to homeland AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
@@ -5646,13 +5645,9 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 		{
 			// Civilians or units in armies aren't useful for any of these moves
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCombatUnit() || pLoopUnit->getArmyID() != -1)
-			{
 				continue;
-			}
 
 			bool bSuitableUnit = false;
-			bool bHighPriority = false;
-
 			switch(eMove)
 			{
 			case AI_HOMELAND_MOVE_GARRISON:
@@ -5660,25 +5655,14 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				if(pLoopUnit->IsGarrisoned())
 					continue;
 
-				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->getNumCities() > 0)
+				//don't use explorers
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack
 				if(pLoopUnit->isRanged())
-				{
 					bSuitableUnit = true;
-					bHighPriority = true;
-				}
 
-				// Don't use non-combatants
-				else if(pLoopUnit->IsCanAttack())
-				{
-					// Don't put units with a combat strength boosted from promotions in cities, these boosts are ignored
-					if(pLoopUnit->getDefenseModifier() == 0 )
-					{
-						bSuitableUnit = true;
-					}
-				}
 				break;
 
 			case AI_HOMELAND_MOVE_SENTRY:
@@ -5687,12 +5671,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || pLoopUnit->isUnitAI(UNITAI_COUNTER) ) )
 				{
 					bSuitableUnit = true;
-
-					// Units with extra defense are especially valuable
-					if((pLoopUnit->getDefenseModifier() > 0) || (pLoopUnit->getExtraRangedDefenseModifier() > 0) || (pLoopUnit->getExtraVisibilityRange() > 0))
-					{
-						bHighPriority = true;
-					}
 				}
 				break;
 			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
@@ -5700,20 +5678,12 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && (pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA) || pLoopUnit->isUnitAI(UNITAI_ASSAULT_SEA)))
 				{
 					bSuitableUnit = true;
-
-					// Units with extra defense are especially valuable
-					if(!pLoopUnit->isRanged() || (pLoopUnit->getDefenseModifier() > 0) || (pLoopUnit->getExtraRangedDefenseModifier() > 0) || (pLoopUnit->getExtraVisibilityRange() > 0))
-					{
-						bHighPriority = true;
-					}
 				}
 				break;
 			case AI_HOMELAND_MOVE_ANCIENT_RUINS:
 				// Fast movers are top priority
 				if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
-					bHighPriority = true;
-
-				bSuitableUnit = true;
+					bSuitableUnit = true;
 				break;
 			}
 
@@ -5722,16 +5692,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pLoopUnit->GetID());
-
-				if(bHighPriority)
-				{
-					m_CurrentMoveHighPriorityUnits.push_back(unit);
-				}
-				else
-				{
-					m_CurrentMoveUnits.push_back(unit);
-				}
-
+				m_CurrentMoveUnits.push_back(unit);
 				rtnValue = true;
 			}
 		}
@@ -5749,7 +5710,7 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 	int iTargetY = pTarget->getY();
 
 	// first check raw distance
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
@@ -5795,7 +5756,7 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 
 	// Now go through and figure out the actual number of turns, and as a result, even if it can get there at all.
 	// We will try and do as few as possible by stopping if we find a unit that can make it in one turn.
-	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if (pLoopUnit)
@@ -6305,14 +6266,6 @@ void CvHomelandAI::ClearCurrentMoveUnits(AIHomelandMove eNextMove)
 	m_CurrentMoveUnits.setCurrentHomelandMove(eNextMove);
 	m_CurrentMoveUnits.clear();
 }
-
-//	---------------------------------------------------------------------------
-void CvHomelandAI::ClearCurrentMoveHighPriorityUnits(AIHomelandMove eNextMove)
-{
-	m_CurrentMoveHighPriorityUnits.setCurrentHomelandMove(eNextMove);
-	m_CurrentMoveHighPriorityUnits.clear();
-}
-//	---------------------------------------------------------------------------
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 

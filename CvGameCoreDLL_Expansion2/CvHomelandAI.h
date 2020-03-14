@@ -222,9 +222,6 @@ public:
 	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 private:
-
-	typedef CHomelandUnitArray MoveUnitsArray;
-
 	// Internal turn update routines - commandeered unit processing
 	void FindHomelandTargets();
 	void AssignHomelandMoves();
@@ -331,7 +328,6 @@ private:
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
 	void ClearCurrentMoveUnits(AIHomelandMove eNextMove);
-	void ClearCurrentMoveHighPriorityUnits(AIHomelandMove eNextMove);
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
@@ -341,7 +337,7 @@ private:
 	std::list<int> m_CurrentTurnUnits;
 	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
 
-	MoveUnitsArray m_CurrentMoveUnits, m_CurrentMoveHighPriorityUnits;
+	CHomelandUnitArray m_CurrentMoveUnits;
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
