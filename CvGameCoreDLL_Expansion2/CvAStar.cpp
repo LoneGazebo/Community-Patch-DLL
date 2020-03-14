@@ -992,9 +992,6 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		//checking the destination!
 		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
-		if(pUnit->IsDeclareWar())
-			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
-
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{

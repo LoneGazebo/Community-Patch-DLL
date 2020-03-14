@@ -213,8 +213,6 @@ public:
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
 
-	bool IsDeclareWar() const;
-
 	RouteTypes GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL) const;
 	void PlayActionSound();
 
@@ -1702,8 +1700,6 @@ public:
 	bool airSweep(int iX, int iY);
 
 	bool attemptGroundAttacks(const CvPlot& pPlot);
-
-	bool potentialWarAction(const CvPlot* pPlot) const;
 
 	bool isAlwaysHostile(const CvPlot& pPlot) const;
 	void changeAlwaysHostileCount(int iValue);

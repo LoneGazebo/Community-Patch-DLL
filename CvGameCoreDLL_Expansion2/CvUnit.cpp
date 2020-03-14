@@ -10210,17 +10210,6 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 		return false;
 	}
 
-	if(pPlot->isOwned())
-	{
-		if(!potentialWarAction(pPlot))
-		{
-			if((eImprovementType == NO_IMPROVEMENT && !pPlot->isRoute()) || (pPlot->getOwner() != getOwner()))
-			{
-				return false;
-			}
-		}
-	}
-
 	// can no longer pillage our tiles
 	if(pPlot->getOwner() == getOwner())
 	{
@@ -27113,31 +27102,6 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 }
 
 //	--------------------------------------------------------------------------------
-// returns true if unit can initiate a war action with plot (possibly by declaring war)
-bool CvUnit::potentialWarAction(const CvPlot* pPlot) const
-{
-	VALIDATE_OBJECT
-	TeamTypes ePlotTeam = pPlot->getTeam();
-
-	if(ePlotTeam == NO_TEAM)
-	{
-		return false;
-	}
-
-	if(isEnemy(ePlotTeam, pPlot))
-	{
-		return true;
-	}
-
-	if(IsDeclareWar())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked) const
 {
 	// embarked units are considered the same type, independent of their domain/combat type
@@ -28369,83 +28333,6 @@ bool CvUnit::SentryAlert() const
 	}
 
 	return GetDanger() > iDangerLimit;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsDeclareWar() const
-{
-	VALIDATE_OBJECT
-	if(isHuman())
-	{
-		return false;
-	}
-	else
-	{
-		switch(AI_getUnitAIType())
-		{
-		case UNITAI_UNKNOWN:
-		case UNITAI_SETTLE:
-		case UNITAI_WORKER:
-			break;
-		case UNITAI_CITY_BOMBARD:
-			return true;
-			break;
-
-		case UNITAI_ATTACK:
-		case UNITAI_FAST_ATTACK:
-		case UNITAI_PARADROP:
-		case UNITAI_DEFENSE:
-		case UNITAI_COUNTER:
-		case UNITAI_RANGED:
-		case UNITAI_CITY_SPECIAL:
-		case UNITAI_EXPLORE:
-		case UNITAI_ARTIST:
-		case UNITAI_SCIENTIST:
-		case UNITAI_GENERAL:
-		case UNITAI_MERCHANT:
-		case UNITAI_ENGINEER:
-		case UNITAI_ICBM:
-		case UNITAI_WORKER_SEA:
-		case UNITAI_SPACESHIP_PART:
-		case UNITAI_TREASURE:
-		case UNITAI_PROPHET:
-		case UNITAI_MISSIONARY:
-		case UNITAI_INQUISITOR:
-		case UNITAI_ADMIRAL:
-		case UNITAI_TRADE_UNIT:
-		case UNITAI_ARCHAEOLOGIST:
-		case UNITAI_WRITER:
-		case UNITAI_MUSICIAN:
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		case UNITAI_DIPLOMAT:
-		case UNITAI_MESSENGER:
-#endif
-			break;
-
-		case UNITAI_ATTACK_SEA:
-		case UNITAI_RESERVE_SEA:
-		case UNITAI_ESCORT_SEA:
-		case UNITAI_EXPLORE_SEA:
-		case UNITAI_ASSAULT_SEA:
-			break;
-
-		case UNITAI_SETTLER_SEA:
-		case UNITAI_CARRIER_SEA:
-		case UNITAI_MISSILE_CARRIER_SEA:
-		case UNITAI_PIRATE_SEA:
-		case UNITAI_ATTACK_AIR:
-		case UNITAI_DEFENSE_AIR:
-		case UNITAI_CARRIER_AIR:
-		case UNITAI_MISSILE_AIR:
-			break;
-
-		default:
-			CvAssert(false);
-			break;
-		}
-	}
-
-	return false;
 }
 
 //	--------------------------------------------------------------------------------

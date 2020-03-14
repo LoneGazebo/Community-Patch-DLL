@@ -4140,6 +4140,9 @@ void CvMinorCivAI::Reset()
 	m_eAlly = NO_PLAYER;
 	m_iTurnAllied = -1;
 	m_eMajorBoughtOutBy = NO_PLAYER;
+	m_iNumThreateningBarbarians = 0;
+	m_bAllowMajorsToIntrude = false;
+
 	m_bDisableNotifications = false;
 	m_iBullyPlotsBuilt = 0;
 	m_bullyRelevantPlots.clear();
@@ -4170,7 +4173,6 @@ void CvMinorCivAI::Reset()
 		m_abRouteConnectionEstablished[iI] = false;
 
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
-		m_aiAngerFreeIntrusionCounter[iI] = 0;
 		m_aiQuestCountdown[iI] = -1;
 		m_aiUnitSpawnCounter[iI] = -1;
 		m_aiNumUnitsGifted[iI] = 0;
@@ -4263,6 +4265,8 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_iTurnAllied;
 
 	kStream >> m_eMajorBoughtOutBy;
+	kStream >> m_iNumThreateningBarbarians;
+	kStream >> m_bAllowMajorsToIntrude;
 
 	kStream >> m_abWarQuestAgainstMajor;
 
@@ -4271,8 +4275,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abRouteConnectionEstablished;
 
 	kStream >> m_aiFriendshipWithMajorTimes100;
-
-	kStream >> m_aiAngerFreeIntrusionCounter;
 
 	kStream >> m_aiQuestCountdown;
 	kStream >> m_aiUnitSpawnCounter;
@@ -4369,6 +4371,8 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_iTurnAllied;
 
 	kStream << m_eMajorBoughtOutBy; // Version 16
+	kStream << m_iNumThreateningBarbarians;
+	kStream << m_bAllowMajorsToIntrude;
 
 	kStream << m_abWarQuestAgainstMajor;
 
@@ -4377,7 +4381,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abRouteConnectionEstablished;
 
 	kStream << m_aiFriendshipWithMajorTimes100;
-	kStream << m_aiAngerFreeIntrusionCounter;
 	kStream << m_aiQuestCountdown;
 	kStream << m_aiUnitSpawnCounter;
 	kStream << m_aiNumUnitsGifted;
@@ -5954,8 +5957,6 @@ void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, i
 	if (IsThreateningBarbariansEventActiveForPlayer(eKillingPlayer))
 	{
 		ChangeFriendshipWithMajor(eKillingPlayer, /*12*/ GC.getFRIENDSHIP_PER_BARB_KILLED());
-
-		ChangeAngerFreeIntrusionCounter(eKillingPlayer, 5);
 
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BARB_KILLED");
 		strMessage << GetPlayer()->getNameKey();
@@ -11213,35 +11214,6 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 
 }
 
-/// How many turns left does this player have of anger-free intrusion?
-int CvMinorCivAI::GetAngerFreeIntrusionCounter(PlayerTypes ePlayer) const
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
-
-	return m_aiAngerFreeIntrusionCounter[ePlayer];
-}
-
-/// How many turns left does this player have of anger-free intrusion?
-void CvMinorCivAI::SetAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iNum)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-
-	m_aiAngerFreeIntrusionCounter[ePlayer] = iNum;
-}
-
-/// How many turns left does this player have of anger-free intrusion?
-void CvMinorCivAI::ChangeAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iChange)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-
-	SetAngerFreeIntrusionCounter(ePlayer, GetAngerFreeIntrusionCounter(ePlayer) + iChange);
-}
-
 /// Update Best Relations Resource Bonus
 void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly)
 {
@@ -12252,28 +12224,31 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 /// Major Civs intruding in our lands?
 void CvMinorCivAI::DoIntrusion()
 {
-	PlayerTypes eMajor;
+	int iNewBarbCount = GetNumThreateningBarbarians();
+	
+	//allow major players in our territory for one turn after the barbarians have been vanquished
+	if (iNewBarbCount > 0)
+		m_bAllowMajorsToIntrude = true;
+	else if (iNewBarbCount == 0 && m_iNumThreateningBarbarians == 0)
+		m_bAllowMajorsToIntrude = false;
+	
+	//remember for next turn
+	m_iNumThreateningBarbarians = iNewBarbCount;
+
 	int iMajorLoop;
 	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
 
-		if(GetAngerFreeIntrusionCounter(eMajor) > 0)
-		{
-			ChangeAngerFreeIntrusionCounter(eMajor, -1);
-		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_HORDE) || GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_REBELLION)))
 		{
-			return;
+			m_bAllowMajorsToIntrude = true;
 		}
 #endif
 	}
 
-	// If there are barbs nearby then don't worry about other players
-	if(GetNumThreateningBarbarians() > 0)
-		return;
-
+	// Should not happen if MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS is false
 	vector<PlayerTypes> vIntruders;
 
 	// Look at how many Units each Major Civ has in the Minor's Territory
@@ -12299,7 +12274,7 @@ void CvMinorCivAI::DoIntrusion()
 				if(pLoopUnit && pLoopUnit->getOwner() < MAX_MAJOR_CIVS)
 				{
 					// If player has been granted Open Borders or has a friendship with minors bonus, then the Minor doesn't care about intrusion
-					if(!IsPlayerHasOpenBorders(pLoopUnit->getOwner()) && GetAngerFreeIntrusionCounter(pLoopUnit->getOwner()) == 0)
+					if(!IsPlayerHasOpenBorders(pLoopUnit->getOwner()))
 					{
 						// If the player is at war with the Minor then don't bother
 						if(!IsAtWarWithPlayersTeam(pLoopUnit->getOwner()))
@@ -12421,6 +12396,9 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 {
 	// Special trait?
 	if(IsPlayerHasOpenBordersAutomatically(ePlayer))
+		return true;
+
+	if (m_bAllowMajorsToIntrude)
 		return true;
 
 	return IsFriends(ePlayer);

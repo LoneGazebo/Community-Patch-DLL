@@ -508,10 +508,6 @@ public:
 	
 	void ResetFriendshipWithMajor(PlayerTypes ePlayer);
 
-	int GetAngerFreeIntrusionCounter(PlayerTypes ePlayer) const;
-	void SetAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iNum);
-	void ChangeAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iChange);
-
 	void DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly);
 
 	int GetMostFriendshipWithAnyMajor(PlayerTypes& eBestPlayer);
@@ -838,9 +834,10 @@ private:
 	PlayerTypes m_eAlly;
 	int m_iTurnAllied;
 	PlayerTypes m_eMajorBoughtOutBy;
+	int m_iNumThreateningBarbarians;
+	bool m_bAllowMajorsToIntrude;
 
 	int m_aiFriendshipWithMajorTimes100[MAX_MAJOR_CIVS];
-	int m_aiAngerFreeIntrusionCounter[MAX_MAJOR_CIVS];
 	int m_aiQuestCountdown[MAX_MAJOR_CIVS];
 	int m_aiUnitSpawnCounter[MAX_MAJOR_CIVS];
 	int m_aiNumUnitsGifted[MAX_MAJOR_CIVS];
