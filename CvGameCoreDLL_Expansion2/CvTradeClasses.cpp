@@ -4950,10 +4950,25 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pConnection->m_eOriginOwner) >= MAJOR_CIV_OPINION_NEUTRAL)
-					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, true) >= MAJOR_CIV_APPROACH_AFRAID)
-					bIgnore = true;
+				else if (!m_pPlayer->isHuman())
+				{
+					MajorCivApproachTypes eApproach = m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, /*bHideTrueFeelings*/ true);
+					MajorCivOpinionTypes eOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pConnection->m_eOriginOwner);
+					
+					if (m_pPlayer->GetDiplomacyAI()->IsDoFAccepted(pConnection->m_eOriginOwner))
+						bIgnore = true;
+					else if (eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+						bIgnore = true;
+					else if (eApproach != MAJOR_CIV_APPROACH_HOSTILE && eApproach != MAJOR_CIV_APPROACH_GUARDED && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+						bIgnore = true;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(pConnection->m_eOriginOwner).getTeam())
+					{
+						if (m_pPlayer->GetDiplomacyAI()->GetVassalTreatmentLevel(pConnection->m_eOriginOwner) == VASSAL_TREATMENT_CONTENT)
+							bIgnore = true;
+					}
+#endif
+				}
 			}
 			else
 			{
