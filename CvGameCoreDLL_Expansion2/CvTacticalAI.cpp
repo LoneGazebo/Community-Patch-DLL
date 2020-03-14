@@ -8241,13 +8241,13 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	if (iMaxAttacks == 0)
 		return result;
 
-	//don't attack cities if the real target is something else (capturing is ok)
-	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
-		return result;
-
 	//check how much damage we could do
 	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), result);
 	if (result.iScore < 0)
+		return result;
+
+	//don't melee attack cities if the real target is something else (capturing is ok)
+	if (result.eAssignmentType != A_MELEEKILL && enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pEnemyPlot)
 		return result;
 
 	//what happens next? capturing a city always ends the turn
