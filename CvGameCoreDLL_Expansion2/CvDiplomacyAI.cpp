@@ -3478,6 +3478,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetLandDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetWonderDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetMinorCivDisputeLevelScore(ePlayer);
+	iOpinionWeight += GetTechDisputeLevelScore(ePlayer);
 	iOpinionWeight += GetWarmongerThreatScore(ePlayer);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if (MOD_BALANCE_CORE_DIPLOMACY)
@@ -3901,12 +3902,10 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 						
 						if (eEstimatedLandDisputeLevel > DISPUTE_LEVEL_NONE)
 						{
-#if defined(MOD_BALANCE_CORE)
-							if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsWarmonger())
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsConqueror())
 							{
 								iOpinionWeight += 10;
 							}
-#endif
 							if (iLoopPlayerEra == 0)
 							{
 								iOpinionWeight += 10;
@@ -3922,12 +3921,10 @@ void CvDiplomacyAI::DoEstimateOtherPlayerOpinions()
 							{
 								iOpinionWeight -= 5;
 							}
-#if defined(MOD_BALANCE_CORE)
-							else if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsWarmonger())
+							else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsConqueror())
 							{
 								iOpinionWeight -= 5;
 							}
-#endif
 						}
 
 						// Estimate Victory Competition Dispute
@@ -4226,7 +4223,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	int iNumTheirCaps = GET_PLAYER(ePlayer).GetNumCapitalCities();
 	int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
 	int iTheirTechs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-	int iTechDifference = iOurTechs - iTheirTechs;
 	int iOurNukes = GetPlayer()->getNumNukeUnits();
 	int iTheirNukes = GET_PLAYER(ePlayer).getNumNukeUnits();
 	bool bWeHaveUUTech = false;
@@ -4365,11 +4361,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	bool bTheyAreCloseToScienceVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory();
 	bool bTheyAreCloseToCultureVictory = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory();
 
-	// Leader traits
-	bool bWarmonger = GetPlayer()->GetPlayerTraits()->IsWarmonger();
-	bool bDiplomat = GetPlayer()->GetPlayerTraits()->IsDiplomat();
-	bool bNerd = GetPlayer()->GetPlayerTraits()->IsNerd();
-	bool bCultural = GetPlayer()->GetPlayerTraits()->IsTourism();
+	// Diplomatic type
+	bool bConqueror = IsConqueror();
+	bool bDiplomat = IsDiplomat();
+	bool bCultural = IsCultural();
+	bool bScientist = IsScientist();
 
 	// Vassalage (C4DF)
 	bool bIsMaster = false;
@@ -4480,7 +4476,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 	// Conquest bias: must be a stalemate or better to apply (or not at war yet)
-	if (bGoingForWorldConquest)
+	if (bConqueror || bGoingForWorldConquest)
 	{
 		if (eWarState == NO_WAR_STATE_TYPE || eWarState > WAR_STATE_DEFENSIVE)
 		{
@@ -4501,6 +4497,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// CITY-STATE QUESTS
 	////////////////////////////////////
+	
+	int iNumQuests = 0;
 
 	// If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -4518,8 +4516,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				{
 					if (pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_WAR) == ePlayer)
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-						break;
+						iNumQuests++;
 					}
 				}
 				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_LIBERATION))
@@ -4528,8 +4525,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					{
 						if (eConquerorTeam == eTeam)
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-							break;
+							iNumQuests++;
 						}
 					}
 				}
@@ -4543,13 +4539,21 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					{
 						if (pPlot->getOwner() == ePlayer)
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-							break;
+							iNumQuests++;
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	if (bDiplomat)
+	{
+		iNumQuests *= 2;
+	}
+	if (iNumQuests > 0)
+	{
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iNumQuests);
 	}
 #endif
 
@@ -5169,33 +5173,38 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 
 	int iMultiplier = 1;
-	bool bNoBonus = false;
-	if (bWarmonger)
-		iMultiplier++;
-	if (iEra <= 1)
-		iMultiplier += 2;
-	if (iEra >= 2 && bGoingForWorldConquest)
-		iMultiplier++;
-	if (bCloseToWorldConquest)
-		iMultiplier++;
-	if (!bNoVictoryCompetition)
+	bool bBonus = true; // territorial disputes should always play a major role ...
+	if (bConqueror)
 	{
-		if ((iNumTheirCaps + iNumTheirVassals) > 2)
-		{
-			bNoBonus = true;
-			iMultiplier++;
-		}
+		iMultiplier++;
+	}
+	if (iEra <= 1)
+	{
+		iMultiplier++;
+	}
+	if (iEra >= 2 && bGoingForWorldConquest)
+	{
+		iMultiplier++;
+	}
+	if (bCloseToWorldConquest)
+	{
+		iMultiplier++;
+	}
+	if (!bNoVictoryCompetition && ((iNumTheirCaps + iNumTheirVassals) > 2))
+	{
+		iMultiplier++;
+		bBonus = false;
 	}
 	if (IsPlayerRecklessExpander(ePlayer))
 	{
-		bNoBonus = true;
 		iMultiplier++;
+		bBonus = false;
 	}
 
 	switch (GetLandDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_NONE:
-		if (!bNoBonus)
+		if (bBonus)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
 			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier);
@@ -5231,32 +5240,37 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (HasMetValidMinorCiv())
 	{
 		iMultiplier = 1;
-		bNoBonus = false;
+		bBonus = false;
 		if (bDiplomat)
+		{
 			iMultiplier++;
+			bBonus = true;
+		}
 		if (iEra >= 3 && bGoingForDiploVictory)
+		{
 			iMultiplier++;
+			bBonus = true;
+		}
 		if (bCloseToDiploVictory)
+		{
 			iMultiplier++;
+			bBonus = true;
+		}
 		if (bTheyAreCloseToDiploVictory && !bNoVictoryCompetition)
 		{
-			bNoBonus = true;
 			iMultiplier++;
+			bBonus = false;
 		}
 		if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 		{
-			bNoBonus = true;
 			iMultiplier++;
-		}
-		if (iMultiplier <= 1 && iEra <= 2) // don't apply bonuses for this before the renaissance era (to prevent over-friendliness)
-		{
-			bNoBonus = true;
+			bBonus = false;
 		}
 
 		switch (GetMinorCivDisputeLevel(ePlayer))
 		{
 		case DISPUTE_LEVEL_NONE:
-			if (!bNoBonus)
+			if (bBonus)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
 				viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier);
@@ -5291,42 +5305,47 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 
 	iMultiplier = 1;
-	bNoBonus = false;
+	bBonus = false;
 	if (bCultural)
+	{
 		iMultiplier++;
+		bBonus = true;
+	}
 	if (iEra >= 3 && bGoingForCultureVictory)
+	{
 		iMultiplier++;
+		bBonus = true;
+	}
 	if (bCloseToCultureVictory)
+	{
 		iMultiplier++;
+		bBonus = true;
+	}
 	if (bTheyAreCloseToCultureVictory && !bNoVictoryCompetition)
 	{
-		bNoBonus = true;
 		iMultiplier++;
+		bBonus = false;
 	}
 	if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) >= INFLUENCE_LEVEL_INFLUENTIAL)
 	{
-		bNoBonus = true;
 		iMultiplier++;
+		bBonus = false;
 	}
 	else if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(eMyPlayer) == INFLUENCE_LEVEL_POPULAR && GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(eMyPlayer) == INFLUENCE_TREND_RISING)
 	{
-		bNoBonus = true;
 		iMultiplier++;
+		bBonus = false;
 	}
 	if (IsPlayerWonderSpammer(ePlayer))
 	{
-		bNoBonus = true;
 		iMultiplier++;
-	}
-	if (iMultiplier <= 1 && iEra <= 2) // don't apply bonuses for this before the renaissance era (to prevent over-friendliness)
-	{
-		bNoBonus = true;
+		bBonus = false;
 	}
 
 	switch (GetWonderDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_NONE:
-		if (!bNoBonus)
+		if (bBonus)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
 			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier);
@@ -5360,59 +5379,63 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 
 	iMultiplier = 1;
-	bNoBonus = false;
-	if (bNerd)
+	bBonus = false;
+	if (bScientist)
+	{
 		iMultiplier++;
+		bBonus = true;
+	}
 	if (iEra >= 3 && bGoingForScienceVictory)
+	{
 		iMultiplier++;
+		bBonus = true;
+	}
 	if (bCloseToScienceVictory)
+	{
 		iMultiplier++;
+		bBonus = true;
+	}
 	if (bTheyAreCloseToScienceVictory && !bNoVictoryCompetition)
 	{
-		bNoBonus = true;
 		iMultiplier++;
+		bBonus = false;
 	}
 	if (GetNumTimesRobbedBy(ePlayer) > 0)
 	{
-		bNoBonus = true;
 		iMultiplier++;
-	}
-	if (iMultiplier <= 1 && iEra <= 2) // don't apply bonuses for this before the renaissance era (to prevent over-friendliness)
-	{
-		bNoBonus = true;
+		bBonus = false;
 	}
 	
-	if (iTechDifference >= -1)
+	switch (GetTechDisputeLevel(ePlayer))
 	{
-		if (!bNoBonus)
+	case DISPUTE_LEVEL_NONE:
+		if (bBonus)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier);
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * iMultiplier);
+			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * iMultiplier);
 		}
-	}
-	else if (iTechDifference == -2 || iTechDifference == -3)
-	{
+		break;
+	case DISPUTE_LEVEL_WEAK:
 		if (iMultiplier > 1)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		}
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * iMultiplier);
-	}
-	else if (iTechDifference == -4 || iTechDifference == -5)
-	{
+		break;
+	case DISPUTE_LEVEL_STRONG:
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
-	}
-	else if (iTechDifference <= -6)
-	{
+		break;
+	case DISPUTE_LEVEL_FIERCE:
 		if (iMultiplier > 1)
 		{
 			iMultiplier *= 2;
 		}
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
+		break;
 	}
 	
 	////////////////////////////////////
@@ -6197,7 +6220,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (iEra >= 2 || bCloseToWorldConquest)
 	{
 		// Add some weight for leader flavors
-		if (bWarmonger || bGoingForWorldConquest || bCloseToWorldConquest)
+		if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += ((GetBoldness() + GetMeanness()) / 2);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += ((GetMeanness() + GetDenounceWillingness()) / 2);
@@ -6337,7 +6360,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Renaissance Era or later (or close to winning) for other victories
 	if (iEra >= 3 || bCloseToAnyVictory)
 	{
-		if (bNerd || bGoingForScienceVictory || bCloseToScienceVictory)
+		if (bScientist || bGoingForScienceVictory || bCloseToScienceVictory)
 		{
 			// Spaceship competitor?
 			if (GET_TEAM(eTeam).GetSSProjectCount() > 1 || (!bCloseToScienceVictory && bTheyAreCloseToScienceVictory))
@@ -6840,13 +6863,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-#if defined(MOD_BALANCE_CORE)
-		if (bWarmonger)
+
+		if (bConqueror)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		}
-#endif
+
 		if (bEasyTarget)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6862,13 +6885,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-#if defined(MOD_BALANCE_CORE)
-		if (bCultural || bWarmonger)
+
+		if (bConqueror || bCultural)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		}
-#endif
+
 		if (bEasyTarget)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -6914,9 +6937,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 			// Do we have bonuses towards war?
 			int iWarBonus = 0;
-			
-			// Leader traits?
-			if (bWarmonger)
+
+			// Natural war inclinations?
+			if (bConqueror || GetPlayer()->GetPlayerTraits()->IsWarmonger())
 			{
 				iWarBonus += 3;
 			
@@ -14845,6 +14868,12 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 	{
 		iDoFWillingness *= 2;
 	}
+	// Natural diplomatic inclinations?
+	else if (IsDiplomat())
+	{
+		iDoFWillingness *= 150;
+		iDoFWillingness /= 100;
+	}
 	
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	//Increase this to encourage more DoFs below.
@@ -14856,7 +14885,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 
 	//Capped?
 	if (iDoFWillingness <= (GetNumDoF() + iNumDoFsAlreadyWanted))
-				return false;
+		return false;
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	iValue = GetDoFValue(ePlayer);
@@ -15037,6 +15066,12 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	if (GetPlayer()->GetCurrentEra() >= 3 && (IsGoingForSpaceshipVictory() || IsCloseToSSVictory()))
 	{
 		iLoyalty *= 2;
+	}
+	// Natural scientific inclinations?
+	else if (IsScientist())
+	{
+		iLoyalty *= 150;
+		iLoyalty /= 100;
 	}
 	
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
@@ -18472,9 +18507,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 		return true;
 	
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
-	{
 		return true;
-	}
 	
 	if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
 		return false;
@@ -18582,25 +18615,25 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 				return true;
 			
 			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer)
-			return true;
+				return true;
 		
 			if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) >= INFLUENCE_LEVEL_POPULAR)
 			{
 				if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) >= INFLUENCE_LEVEL_INFLUENTIAL || GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetPlayer()->GetID()) != INFLUENCE_TREND_FALLING)
 				{
-			return true;
+					return true;
 				}
 			}
 		
 			if (GetPlayer()->GetCurrentEra() >= 5)
-		{
+			{
 				if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) <= INFLUENCE_LEVEL_FAMILIAR && (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) == INFLUENCE_LEVEL_POPULAR && GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) == INFLUENCE_TREND_FALLING))
 					return true;
 			}
 			else
 			{
 				if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) <= INFLUENCE_LEVEL_EXOTIC && (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) == INFLUENCE_LEVEL_FAMILIAR && GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) == INFLUENCE_TREND_FALLING))
-				return true;
+					return true;
 			}
 		}
 		
@@ -19285,7 +19318,6 @@ void CvDiplomacyAI::DoUpdateWonderDisputeLevels()
 	}
 }
 
-
 /// What is our level of Dispute with a player over Minor Civ Friendship?
 DisputeLevelTypes CvDiplomacyAI::GetMinorCivDisputeLevel(PlayerTypes ePlayer) const
 {
@@ -19531,6 +19563,44 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 			SetMinorCivDisputeLevel(ePlayer, eDisputeLevel);
 		}
 	}
+}
+
+/// What is our level of Dispute with a player over Technology?
+DisputeLevelTypes CvDiplomacyAI::GetTechDisputeLevel(PlayerTypes ePlayer) const
+{
+	int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+	int iTheirTechs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+	int iTechDifference = iOurTechs - iTheirTechs;
+	
+	// Spaceship competitor?
+	VictoryTypes eSpaceshipVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
+	
+	if (GC.getGame().isVictoryValid(eSpaceshipVictory) && !GC.getGame().IsGameWon() && eSpaceshipVictory != NO_VICTORY)
+	{
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount() > 1)
+		{
+			return DISPUTE_LEVEL_FIERCE;
+		}
+	}
+
+	if (iTechDifference <= -5)
+	{
+		return DISPUTE_LEVEL_FIERCE;
+	}
+	else if (iTechDifference == -4 || iTechDifference == -3)
+	{
+		return DISPUTE_LEVEL_STRONG;
+	}
+	else if (iTechDifference == -2 || iTechDifference == -1)
+	{
+		return DISPUTE_LEVEL_WEAK;
+	}
+	else
+	{
+		return DISPUTE_LEVEL_NONE;
+	}
+	
+	return DISPUTE_LEVEL_NONE;
 }
 
 /// How many World Wonders has ePlayer beaten us to?
@@ -40358,12 +40428,10 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 	// AI will care more about land if they're a warmonger or it's the early game.
 	if (iOpinionWeight > 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		if (IsConqueror())
 		{
 			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_LAND_WARMONGER();
 		}
-#endif
 		if (GetPlayer()->GetCurrentEra() == 0)
 		{
 			iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_LAND_ANCIENT_ERA();
@@ -40376,12 +40444,10 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 	
 	else if (iOpinionWeight < 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		if (IsConqueror())
 		{
 			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_WARMONGER();
 		}
-#endif
 		if (GetPlayer()->GetCurrentEra() <= 1)
 		{
 			iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_LAND_NONE_EARLY_GAME();
@@ -40411,8 +40477,7 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 		break;
 	}
 
-#if defined(MOD_BALANCE_CORE)	
-	if (GetPlayer()->GetPlayerTraits()->IsTourism())
+	if (IsCultural())
 	{
 		if (iOpinionWeight > 0)
 		{
@@ -40423,7 +40488,6 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_WONDER_NONE_CULTURAL();
 		}
 	}
-#endif
 	
 	return iOpinionWeight;
 }
@@ -40451,8 +40515,7 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 			break;
 		}
 
-#if defined(MOD_BALANCE_CORE)
-		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		if (IsDiplomat())
 		{
 			if (iOpinionWeight > 0)
 			{
@@ -40463,9 +40526,35 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 				iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
 			}
 		}
-#endif
 	}
 
+	return iOpinionWeight;
+}
+
+int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	
+	// Only scientific civs care about this.
+	if (!IsScientist() || IsTeammate(ePlayer))
+		return 0;
+	
+	switch (GetTechDisputeLevel(ePlayer))
+	{
+	case DISPUTE_LEVEL_FIERCE:
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_TECH_FIERCE();
+		break;
+	case DISPUTE_LEVEL_STRONG:
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_TECH_STRONG();
+		break;
+	case DISPUTE_LEVEL_WEAK:
+		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_TECH_WEAK();
+		break;
+	case DISPUTE_LEVEL_NONE:
+		iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_TECH_NONE();
+		break;
+	}
+	
 	return iOpinionWeight;
 }
 
@@ -41843,13 +41932,10 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += ((iCityDifference-1) * /*10*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
 		}
-	
-#if defined(MOD_BALANCE_CORE)
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		if (IsConqueror())
 		{
 			iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD();
 		}
-#endif
 	}
 	
 	return iOpinionWeight;
@@ -41867,13 +41953,10 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		{
 			iOpinionWeight += ((iWonderDifference-1) * /*10*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
 		}
-	
-#if defined(MOD_BALANCE_CORE)	
-		if (GetPlayer()->GetPlayerTraits()->IsWarmonger() || GetPlayer()->GetPlayerTraits()->IsTourism())
+		if (IsConqueror() || IsCultural())
 		{
 			iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_STRATEGIC_MOD();
 		}
-#endif
 	}
 
 	return iOpinionWeight;
@@ -42377,6 +42460,30 @@ int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 	}
 
 	return iAtWarCount;
+}
+
+/// Is this player a natural conqueror?
+bool CvDiplomacyAI::IsConqueror() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CONQUEROR);
+}
+
+/// Is this player a natural diplomat?
+bool CvDiplomacyAI::IsDiplomat() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_DIPLOMAT);
+}
+
+/// Is this player naturally cultural?
+bool CvDiplomacyAI::IsCultural() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CULTURAL);
+}
+
+/// Is this player naturally scientific?
+bool CvDiplomacyAI::IsScientist() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_SCIENTIFIC);
 }
 
 /// Does this player want to conquer the world?
