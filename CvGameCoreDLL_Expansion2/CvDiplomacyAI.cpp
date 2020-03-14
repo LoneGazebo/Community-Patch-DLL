@@ -2663,6 +2663,112 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 	return range(iRtnValue,iMin,iMax);
 }
 
+/// Retrieves this civ's "diplo type" - its diplomatic inclination towards a certain victory condition based on other flavors
+MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
+{
+	// Failsafe
+	if (!GetPlayer()->isMajorCiv())
+		return NO_MAJOR_DIPLO_TYPE;
+	
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	CvPlayerAI& kPlayer = GET_PLAYER(eMyPlayer);
+	
+	int iConquestWeight = GetBoldness() + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	int iDiplomacyWeight = GetDiploBalance() + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+	int iCultureWeight = GetWonderCompetitiveness() + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iScienceWeight = (10 - GetDoFWillingness()) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) + kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+
+#if defined(MOD_BALANCE_CORE)
+	// Add weight for leader traits
+	if (MOD_BALANCE_CORE)
+	{
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		{
+			iConquestWeight += 3;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			iDiplomacyWeight += 3;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsTourism())
+		{
+			iCultureWeight += 3;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsNerd())
+		{
+			iScienceWeight += 3;
+		}
+	}
+#endif
+
+	bool bTie = false;
+	int iBestWeight = 0;
+	MajorDiploTypes eBestDiploType = NO_MAJOR_DIPLO_TYPE;
+	
+	if (iConquestWeight > iBestWeight)
+	{
+		iBestWeight = iConquestWeight;
+		eBestDiploType = MAJOR_DIPLO_TYPE_CONQUEROR;
+	}
+
+	if (iDiplomacyWeight > iBestWeight)
+	{
+		iBestWeight = iDiplomacyWeight;
+		eBestDiploType = MAJOR_DIPLO_TYPE_DIPLOMAT;
+		bTie = false;
+	}
+	else if (iDiplomacyWeight == iBestWeight)
+	{
+		bTie = true;
+	}
+
+	if (iCultureWeight > iBestWeight)
+	{
+		iBestWeight = iCultureWeight;
+		eBestDiploType = MAJOR_DIPLO_TYPE_CULTURAL;
+		bTie = false;
+	}
+	else if (iCultureWeight == iBestWeight)
+	{
+		bTie = true;
+	}
+
+	if (iScienceWeight > iBestWeight)
+	{
+		iBestWeight = iScienceWeight;
+		eBestDiploType = MAJOR_DIPLO_TYPE_SCIENTIFIC;
+		bTie = false;
+	}
+	else if (iScienceWeight == iBestWeight)
+	{
+		bTie = true;
+	}
+	
+#if defined(MOD_BALANCE_CORE)
+	// In the event of a tie, use the civ's leader traits
+	if (MOD_BALANCE_CORE && bTie)
+	{
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+		{
+			eBestDiploType = MAJOR_DIPLO_TYPE_CONQUEROR;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		{
+			eBestDiploType = MAJOR_DIPLO_TYPE_DIPLOMAT;
+		}
+		else if (GetPlayer()->GetPlayerTraits()->IsTourism())
+		{
+			eBestDiploType = MAJOR_DIPLO_TYPE_CULTURAL;
+		}
+		else
+		{
+			eBestDiploType = MAJOR_DIPLO_TYPE_SCIENTIFIC;
+		}
+	}
+#endif
+
+	return eBestDiploType;
+}
 
 
 // ************************************

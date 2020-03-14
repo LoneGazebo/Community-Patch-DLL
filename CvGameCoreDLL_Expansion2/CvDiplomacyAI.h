@@ -94,6 +94,8 @@ public:
 
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
+	
+	MajorDiploTypes GetMajorDiploType() const;
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
