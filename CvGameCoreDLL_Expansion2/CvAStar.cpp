@@ -910,8 +910,20 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
-	kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam,false) || finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR);
-	kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam,true) || finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR);
+
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR))
+	{
+		//ensure we can get a path into not-yet-enemy territory but prefer to avoid it
+		kToNodeCacheData.bCanEnterTerritoryIntermediate = true;
+		kToNodeCacheData.bCanEnterTerritoryPermanent = true;
+		kToNodeCacheData.bIsAvoidPlot = !pUnit->canEnterTerritory(ePlotTeam, true);
+	}
+	else
+	{
+		kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, false);
+		kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, true);
+		kToNodeCacheData.bIsAvoidPlot = false;
+	}
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
 	kToNodeCacheData.plotMovementCostMultiplier = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit,pPlot);
@@ -1256,6 +1268,10 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	
 	//when in doubt prefer the shorter path
 	iCost += PATH_STEP_WEIGHT;
+
+	//paths through "forbidden" territory should be expensive
+	if (kFromNodeCacheData.bIsAvoidPlot)
+		iCost += PATH_BASE_COST;
 
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
