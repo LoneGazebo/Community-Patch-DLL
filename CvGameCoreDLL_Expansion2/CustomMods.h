@@ -226,8 +226,6 @@
 #define MOD_GLOBAL_CS_GIFTS                         gCustomMods.isGLOBAL_CS_GIFTS()
 // Units gifted from City States receive XP from their spawning city, not the CS capital (v84)
 #define MOD_GLOBAL_CS_GIFTS_LOCAL_XP                gCustomMods.isGLOBAL_CS_GIFTS_LOCAL_XP()
-// City States allied to a major behave as an overseas territory of that major (v39)
-#define MOD_GLOBAL_CS_OVERSEAS_TERRITORY            gCustomMods.isGLOBAL_CS_OVERSEAS_TERRITORY()
 // City States at war with each other but allied to the same major will declare peace (v39)
 #define MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES          gCustomMods.isGLOBAL_CS_NO_ALLIED_SKIRMISHES()
 // Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22)

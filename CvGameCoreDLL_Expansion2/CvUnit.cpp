@@ -4686,16 +4686,13 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 			return true;
 
 		// Is this an excluded unit that doesn't cause anger?
-		if (IsAngerFreeUnit())
+		if (IsAngerFreeUnit() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAngerFreeIntrusionOfCityStates())
 			return true;
 
+		// If we are friends etc we may go there
 		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
-
-#if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-		// If the minor is allied, treat the plot as being owned by their ally
-		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && pMinorAI->GetAlly() != getOwner())
+		if (pMinorAI->IsPlayerHasOpenBorders(getOwner()))
 			return true;
-#endif
 	}
 
 	//city states may enter their ally's territory - may help for defense
@@ -4883,18 +4880,15 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 
 		if(eRevealedTeam != NO_TEAM)
 		{
-			if(!GET_TEAM(eRevealedTeam).isMinorCiv() || plot.isCity())
+			if(!canEnterTerritory(eRevealedTeam))
 			{
-				if(!canEnterTerritory(eRevealedTeam))
-				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
+				if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
 #else
-					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam()))
+				if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam()))
 #endif
-					{
-						return eRevealedTeam;
-					}
+				{
+					return eRevealedTeam;
 				}
 			}
 		}
@@ -5078,9 +5072,9 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 		// Check to see if any units are present at this full-turn move plot (borrowed from CvGameCoreUtils::pathDestValid())
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && plot.getUnitLimit() > 0)
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && plot.getUnitLimit() > 0)
 #else
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) GC.getPLOT_UNIT_LIMIT() > 0)
 #endif
 		{
 			if (!plot.CanStackUnitHere(this))
@@ -29296,8 +29290,17 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	}
 
 	//comfort feature for civilians and humans
-	if (!IsCanAttack() || isHuman())
-		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+	if (eMission == CvTypes::getMISSION_MOVE_TO())
+	{
+		if (!IsCanAttack())
+			iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+
+		if (isHuman())
+		{
+			iFlags |= MOVEFLAG_DECLARE_WAR;
+			iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+		}
+	}
 
 	//any mission resets the cache
  	ClearReachablePlots();
