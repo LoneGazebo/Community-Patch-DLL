@@ -150,6 +150,7 @@ CvPlayer::CvPlayer() :
 	, m_iJONSCultureCityModifier("CvPlayer::m_iJONSCultureCityModifier", m_syncArchive)
 	, m_iJONSCulture("CvPlayer::m_iJONSCulture", m_syncArchive, true)
 	, m_iJONSCultureEverGenerated("CvPlayer::m_iJONSCultureEverGenerated", m_syncArchive)
+	, m_iWondersConstructed("CvPlayer::m_iWondersConstructed", m_syncArchive)
 	, m_iCulturePerWonder("CvPlayer::m_iCulturePerWonder", m_syncArchive)
 	, m_iCultureWonderMultiplier("CvPlayer::m_iCultureWonderMultiplier", m_syncArchive)
 	, m_iCulturePerTechResearched("CvPlayer::m_iCulturePerTechResearched", m_syncArchive)
@@ -1251,6 +1252,7 @@ void CvPlayer::uninit()
 	m_iJONSCultureCityModifier = 0;
 	m_iJONSCulture = 0;
 	m_iJONSCultureEverGenerated = 0;
+	m_iWondersConstructed = 0;
 	m_iCulturePerWonder = 0;
 	m_iCultureWonderMultiplier = 0;
 	m_iCulturePerTechResearched = 0;
@@ -19155,6 +19157,25 @@ int CvPlayer::GetJONSCulturePerCityPerTurn() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlayer::GetWondersConstructed() const
+{
+	return m_iWondersConstructed;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetWondersConstructed(int iNewValue)
+{
+	m_iWondersConstructed = iNewValue;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeWondersConstructed(int iChange)
+{
+	SetWondersConstructed(GetWondersConstructed() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
 /// Amount of extra Culture per Wonder
 int CvPlayer::GetCulturePerWonder() const
 {
@@ -31546,7 +31567,7 @@ int CvPlayer::GetEventTourismCS() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iChange)
 {
-	if(isMinorCiv())
+	if (!isMajorCiv())
 	{
 		return;
 	}
