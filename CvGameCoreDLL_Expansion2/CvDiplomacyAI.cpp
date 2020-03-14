@@ -16822,7 +16822,6 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				break;
 			}
 #endif
-
 			// We denounced them
 			if (IsDenouncedPlayer(ePlayer))
 			{
@@ -17158,7 +17157,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			// Must be at least in the Medieval Era (or close to winning) to add weight for Domination Victory
 			if (iEra >= 2 || IsCloseToDominationVictory())
 			{
-				if (IsGoingForWorldConquest() || IsCloseToDominationVictory() || GetPlayer()->GetPlayerTraits()->IsWarmonger())
+				if (IsConqueror() || IsGoingForWorldConquest() || IsCloseToDominationVictory())
 				{
 					int iNumCaps = GET_PLAYER(ePlayer).GetNumCapitalCities();
 					if (iNumCaps > 0)
@@ -17278,7 +17277,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			// Renaissance Era or later (or close to winning) for other victories
 			if (iEra >= 3 || IsCloseToAnyVictoryCondition())
 			{
-				if (IsGoingForSpaceshipVictory() || IsCloseToSSVictory() || GetPlayer()->GetPlayerTraits()->IsNerd())
+				if (IsScientist() || IsGoingForSpaceshipVictory() || IsCloseToSSVictory())
 				{
 					// Spaceship competitor?
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount() > 1 || (!IsCloseToSSVictory() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory()))
@@ -17379,7 +17378,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					}
 				}
 				
-				if (IsGoingForDiploVictory() || IsCloseToDiploVictory() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+				if (IsDiplomat() || IsGoingForDiploVictory() || IsCloseToDiploVictory())
 				{
 					// Increase friendship willingness with all civs (that aren't close to winning)
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
@@ -17416,13 +17415,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						iEnemyWeight += -10;
 						iDPWeight += 10;
 						iDoFWeight += 10;
-				break;
+						break;
 					case DOF_TYPE_BATTLE_BROTHERS:
 						iEnemyWeight += -20;
 						iDPWeight += 20;
 						iDoFWeight += 20;
-				break;
-			}
+						break;
+					}
 
 					// Place extra weight on global politics and alliances
 					if (!bUntrustworthyFriend)
@@ -17474,22 +17473,22 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					if (HasMetValidMinorCiv())
 					{
 						switch (GetMinorCivDisputeLevel(ePlayer))
-			{
-			case DISPUTE_LEVEL_NONE:
-				iEnemyWeight += -5;
+						{
+						case DISPUTE_LEVEL_NONE:
+							iEnemyWeight += -5;
 							iDPWeight += 5;
 							iDoFWeight += 5;
-				break;
-			case DISPUTE_LEVEL_WEAK:
-				iEnemyWeight += 5;
-				iDPWeight += -5;
-				iDoFWeight += -5;
-				break;
+							break;
+						case DISPUTE_LEVEL_WEAK:
+							iEnemyWeight += 5;
+							iDPWeight += -5;
+							iDoFWeight += -5;
+							break;
 						case DISPUTE_LEVEL_STRONG:
-				iEnemyWeight += 10;
-				iDPWeight += -10;
-				iDoFWeight += -10;
-				break;
+							iEnemyWeight += 10;
+							iDPWeight += -10;
+							iDoFWeight += -10;
+							break;
 						case DISPUTE_LEVEL_FIERCE:
 							iEnemyWeight += 15;
 							iDPWeight += -15;
@@ -17555,7 +17554,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 								if (iVotes > iBestVotes)
 									iBestVotes = iVotes;
 							}
-			}
+						}
 			
 						// Prime competitor?
 						if (GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
@@ -17568,15 +17567,15 @@ void CvDiplomacyAI::DoRelationshipPairing()
 							
 							// Easy target?
 							if (bEasyTarget)
-			{
+							{
 								iEnemyWeight += 25;
 								iDPWeight += -25;
 								iDoFWeight += -25;
-			}
+							}
 			
 							// Especially so if we're close to winning
 							if (IsCloseToDiploVictory())
-			{
+							{
 								iEnemyWeight += 100;
 								iDPWeight += -100;
 								iDoFWeight += -100;
@@ -17584,14 +17583,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						}
 						// More votes than us?
 						if (GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) > GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID()))
-				{
+						{
 							iEnemyWeight += 10;
 							iDPWeight += -5;
 							iDoFWeight += -5;
 							
 							// Easy target?
 							if (bEasyTarget)
-					{
+							{
 								iEnemyWeight += 10;
 								iDPWeight += -10;
 								iDoFWeight += -10;
@@ -17599,16 +17598,16 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						
 							// Especially so if we're close to winning
 							if (IsCloseToDiploVictory())
-						{
+							{
 								iEnemyWeight += 50;
 								iDPWeight += -50;
 								iDoFWeight += -50;
 							}
 						}
-						}
 					}
+				}
 					
-				if (IsGoingForCultureVictory() || IsCloseToCultureVictory() || GetPlayer()->GetPlayerTraits()->IsTourism())
+				if (IsCultural() || IsGoingForCultureVictory() || IsCloseToCultureVictory())
 				{
 					switch (GetWonderDisputeLevel(ePlayer))
 					{
@@ -17638,14 +17637,14 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) >= INFLUENCE_LEVEL_POPULAR && !IsNoVictoryCompetition())
 					{
 						if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) >= INFLUENCE_LEVEL_INFLUENTIAL || GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetPlayer()->GetID()) != INFLUENCE_TREND_FALLING)
-				{
+						{
 							iEnemyWeight += 15;
 							iDoFWeight -= 15;
 							iDPWeight -= 15;
 							
 							// Easy target? Tourism begone!
 							if (bEasyTarget)
-					{
+							{
 								iEnemyWeight += 15;
 								iDoFWeight -= 15;
 								iDPWeight -= 15;
@@ -17668,15 +17667,15 @@ void CvDiplomacyAI::DoRelationshipPairing()
 								iDPWeight += 3;
 								iDoFWeight += 6;
 							}
-					}
+						}
 						
 						// Weight for vassalage
 						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetPlayer()->GetID()))
-					{
+						{
 							iEnemyWeight += -30;
 							iDoFWeight += 30;
+						}
 					}
-				}
 				
 					// The civ we have the lowest influence on is nearby and an easy target? Let's get 'em!
 					if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer && bEasyTarget && !IsNoVictoryCompetition())
@@ -17694,10 +17693,10 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						}
 					}
 					else
-				{
+					{
 						// If we need influence over them, we should be more friendly, but they're also a greater competitor
 						switch (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer))
-					{
+						{
 						case INFLUENCE_LEVEL_UNKNOWN:
 							iDoFWeight += 8;
 							iDPWeight -= 4;
@@ -17712,12 +17711,12 @@ void CvDiplomacyAI::DoRelationshipPairing()
 							iDoFWeight += 4;
 							iDPWeight -= 2;
 							iEnemyWeight += 4;
-						break;
+							break;
 						case INFLUENCE_LEVEL_POPULAR:
 							iDoFWeight += 5;
 							iDPWeight += 5;
-						iEnemyWeight += 3;
-						break;
+							iEnemyWeight += 3;
+							break;
 						case INFLUENCE_LEVEL_INFLUENTIAL:
 							if (GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) != INFLUENCE_TREND_RISING) // don't let our influence slip!
 							{
@@ -17737,7 +17736,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 								iDPWeight -= 10;
 								iEnemyWeight -= 10;
 							}
-						break;
+							break;
 						case INFLUENCE_LEVEL_DOMINANT:
 							if (eApproach == MAJOR_CIV_APPROACH_FRIENDLY && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
 							{
@@ -17751,81 +17750,58 @@ void CvDiplomacyAI::DoRelationshipPairing()
 								iDPWeight -= 20;
 								iEnemyWeight -= 20;
 							}
-						break;
+							break;
+						}
 					}
-				}
 				}
 			}
 			
 			// For conquest and diplo victories, let's add a check for trade value
-			if (GetNumTimesTheyPlottedAgainstUs(ePlayer) <= 0 && GetVictoryDisputeLevel(ePlayer) < DISPUTE_LEVEL_FIERCE && GetVictoryBlockLevel(ePlayer) < BLOCK_LEVEL_FIERCE && (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()))
+			if (IsStrategicTradePartner(ePlayer))
 			{
-			if ((iEra >= 2 && IsGoingForWorldConquest() && !IsCloseToDominationVictory()) || (iEra >= 3 && (IsGoingForDiploVictory() || IsCloseToDiploVictory())))
-			{
-				bool bApplicable = false;
+				////////////////////////////////////
+				// Are we getting yields from trade with them?
+				////////////////////////////////////
+				int iCurrentGoldIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer);
+				int iCurrentGoldOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID());
 				
-					if (IsGoingForWorldConquest() && !IsCloseToDominationVictory())
-					{
-						if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
-							bApplicable = true;
-					}
+				int iCurrentScienceIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
+				int iCurrentScienceOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
 				
-					if ((IsGoingForDiploVictory() || IsCloseToDiploVictory()))
-					{
-						if (GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK && GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
-						{
-							if (GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL && !bPrimeLeagueCompetitor)
+				int iCurrentCultureIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer);
+				int iCurrentCultureOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID());
+				
+				int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100(false);
+				int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100(false);
+				int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100(false) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
+				
+				// Scale factor is hard to guess ...
+				int iGoldDelta = (3 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
+				int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
+				int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
+
+				// Now add in value from ongoing trade deals
+				int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), ePlayer);
+
+				// Scale based on personality - how much do we care about trade loyalty?
+				iTradeDealValue *= GetLoyalty() + GetDiploBalance();
+				iTradeDealValue /= 20;
+
+				// 20% of that passes on...
+				iTradeDealValue /= 5;
+				
+				int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
+				
+				if (bUntrustworthyFriend)
 				{
-								bApplicable = true;
-							}
-							else
-					{
-								bApplicable = true;
-					}
+					iTradeDelta /= 2;
 				}
-			}
-
-					if (bApplicable)
-					{
-						////////////////////////////////////
-						// Are we getting yields from trade with them?
-						////////////////////////////////////
-						int iCurrentGoldIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer);
-						int iCurrentGoldOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, GetPlayer()->GetID());
-						
-						int iCurrentScienceIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
-						int iCurrentScienceOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, GetPlayer()->GetID());
-						
-						int iCurrentCultureIn = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer);
-						int iCurrentCultureOut = GET_PLAYER(ePlayer).GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, GetPlayer()->GetID());
-						
-						int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100(false);
-						int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100(false);
-						int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100(false) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
-						
-						// Scale factor is hard to guess ...
-						int iGoldDelta = (3 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
-						int iScienceDelta = (5 * (iCurrentScienceIn - iCurrentScienceOut)) / max(iScienceEstimate,1);
-						int iCultureDelta = (5 * (iCurrentCultureIn - iCurrentCultureOut)) / max(iCultureEstimate,1);
-
-						// Now add in value from ongoing trade deals
-						int iTradeDealValue = GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), ePlayer);
-
-						// Scale based on personality - how much do we care about trade loyalty?
-						iTradeDealValue *= GetLoyalty() + GetDiploBalance();
-						iTradeDealValue /= 20;
-
-						// 20% of that passes on...
-						iTradeDealValue /= 5;
-						
-						int iTradeDelta = iGoldDelta + iScienceDelta + iCultureDelta + iTradeDealValue;
-						if (iTradeDelta > 0)
-			{
-							iEnemyWeight -= iTradeDelta;
-							iDPWeight += iTradeDelta;
-							iDoFWeight += iTradeDelta;
-						}
-					}
+				
+				if (iTradeDelta > 0)
+				{
+					iEnemyWeight -= iTradeDelta;
+					iDPWeight += iTradeDelta;
+					iDoFWeight += iTradeDelta;
 				}
 			}
 
@@ -18099,13 +18075,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone() || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
 			{
 				if (iDPWeight > 0)
-				iDPWeight = 0;
+					iDPWeight = 0;
 				
 				if (iDoFWeight > 0)
-				iDoFWeight /= 2;
+					iDoFWeight /= 2;
 				
 				if (iEnemyWeight > 0)
-				iEnemyWeight /= 2;
+					iEnemyWeight /= 2;
 			}
 			
 			// Sanctioned? Friendship is much less valuable.
@@ -18126,13 +18102,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				
 				if (iDoFWeight > 0)
 					iDoFWeight = 0;
-		}
-			
+			}
+
 		//Total it up and add it to the pool of values.
 		m_paiCompetitorValue[ePlayer] = iEnemyWeight;
 		m_paiDoFValue[ePlayer] = iDoFWeight;
 		m_paiDefensivePactValue[ePlayer] = iDPWeight;
-	}
+		}
 	}
 	
 	//Let's log this data
