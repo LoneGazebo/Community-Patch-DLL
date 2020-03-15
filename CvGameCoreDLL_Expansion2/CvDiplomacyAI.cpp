@@ -51736,7 +51736,7 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 				m_MasterTeam.push_back(&GET_PLAYER(eLoopPlayer));
 			}
 			// Vassal team
-			else if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsTeammate(ePlayer))
+			else if(GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
 			{
 				m_VassalTeam.push_back(&GET_PLAYER(eLoopPlayer));
 			}
