@@ -3041,16 +3041,16 @@ void CvDiplomacyAI::DoCounters()
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 				if (MOD_DIPLOMACY_CIV4_FEATURES)
 				{
-				if (m_pabPlayerBrokenVassalAgreement[(int)eLoopPlayer])
-				{
-					// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
-					iPenaltyTurns = (iDealDuration * 3);
-					
-					if ((iTurn - GetPlayerBrokenVassalAgreementTurn(eLoopPlayer)) >= iPenaltyTurns)
+					if (m_pabPlayerBrokenVassalAgreement[(int)eLoopPlayer])
 					{
-						SetPlayerBrokenVassalAgreement(eLoopPlayer, false);
+						// If it's been long enough (deal duration x 3; 150 turns on Standard), forget the betrayal
+						iPenaltyTurns = (iDealDuration * 3);
+						
+						if ((iTurn - GetPlayerBrokenVassalAgreementTurn(eLoopPlayer)) >= iPenaltyTurns)
+						{
+							SetPlayerBrokenVassalAgreement(eLoopPlayer, false);
+						}
 					}
-				}
 				}
 #endif
 #endif	
@@ -3083,9 +3083,9 @@ void CvDiplomacyAI::DoCounters()
 				}
 				
 				if (GetNegativeArchaeologyPoints(eLoopPlayer) > 0)
-					{
-						ChangeNegativeArchaeologyPoints(eLoopPlayer, -1);
-					}
+				{
+					ChangeNegativeArchaeologyPoints(eLoopPlayer, -1);
+				}
 
 				// Diplo Statement Log Counter
 				for(iItem = 0; iItem < MAX_DIPLO_LOG_STATEMENTS; iItem++)
