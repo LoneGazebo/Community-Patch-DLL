@@ -14867,12 +14867,6 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 	{
 		iDoFWillingness *= 2;
 	}
-	// Natural diplomatic inclinations?
-	else if (IsDiplomat())
-	{
-		iDoFWillingness *= 150;
-		iDoFWillingness /= 100;
-	}
 	
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	//Increase this to encourage more DoFs below.
@@ -15065,12 +15059,6 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	if (GetPlayer()->GetCurrentEra() >= 3 && (IsGoingForSpaceshipVictory() || IsCloseToSSVictory()))
 	{
 		iLoyalty *= 2;
-	}
-	// Natural scientific inclinations?
-	else if (IsScientist())
-	{
-		iLoyalty *= 150;
-		iLoyalty /= 100;
 	}
 	
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
