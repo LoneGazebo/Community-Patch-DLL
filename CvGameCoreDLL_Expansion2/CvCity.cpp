@@ -13818,6 +13818,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
 				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
+				owningPlayer.ChangeWondersConstructed(1);
 				if(iTourism > 0)
 				{
 					owningPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);

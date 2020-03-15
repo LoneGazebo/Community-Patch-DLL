@@ -94,6 +94,12 @@ public:
 
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
+	
+	MajorDiploTypes GetMajorDiploType() const;
+	bool IsConqueror() const;
+	bool IsDiplomat() const;
+	bool IsCultural() const;
+	bool IsScientist() const;
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -590,6 +596,9 @@ public:
 	DisputeLevelTypes GetMinorCivDisputeLevel(PlayerTypes ePlayer) const;
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
+	
+	// Tech Dispute (for scientific civs)
+	DisputeLevelTypes GetTechDisputeLevel(PlayerTypes ePlayer) const;
 	
 	// Advanced Diplo AI Options (defined in DiploAIOptions.sql)
 	bool IsAlwaysShowTrueApproaches() const;
@@ -1427,6 +1436,7 @@ public:
 	int GetLandDisputeLevelScore(PlayerTypes ePlayer);
 	int GetWonderDisputeLevelScore(PlayerTypes ePlayer);
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);
+	int GetTechDisputeLevelScore(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);

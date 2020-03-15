@@ -529,6 +529,10 @@ public:
 	void ChangeJONSCultureEverGenerated(int iChange);
 
 	int GetJONSCulturePerCityPerTurn() const;
+	
+	int GetWondersConstructed() const;
+	void SetWondersConstructed(int iNewValue);
+	void ChangeWondersConstructed(int iChange);
 
 	int GetCulturePerWonder() const;
 	void ChangeCulturePerWonder(int iChange);
@@ -2968,6 +2972,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iJONSCultureCityModifier;
 	FAutoVariable<int, CvPlayer> m_iJONSCulture;
 	FAutoVariable<int, CvPlayer> m_iJONSCultureEverGenerated;
+	FAutoVariable<int, CvPlayer> m_iWondersConstructed;
 	FAutoVariable<int, CvPlayer> m_iCulturePerWonder;
 	FAutoVariable<int, CvPlayer> m_iCultureWonderMultiplier;
 	FAutoVariable<int, CvPlayer> m_iCulturePerTechResearched;
