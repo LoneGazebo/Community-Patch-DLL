@@ -83,7 +83,6 @@ struct CvPathNodeCacheData
 	bool bIsVisibleNeutralCombatUnit:1;
 	bool bUnitStackingLimitReached:1;
 	bool bIsValidRoute:1;
-	bool bIsAvoidPlot:1;
 
 	int iMoveFlags;
 

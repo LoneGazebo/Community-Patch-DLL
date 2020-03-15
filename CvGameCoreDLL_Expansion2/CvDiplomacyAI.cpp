@@ -49072,7 +49072,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 		iTheirCapitals += GET_PLAYER(*it).GetNumCapitalCities();
 	}
-	iAverageOpinionScore /= aOurTeam.size();
+	iAverageOpinionScore /= max(1u,aOurTeam.size());
 	MajorCivOpinionTypes eOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 
 	if (eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
@@ -51756,9 +51756,9 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 		iAverageOpinionScore += (*it)->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
 	}
 
-	iAverageMeanness /= m_MasterTeam.size();
-	iAverageLoyalty /= m_MasterTeam.size();
-	iAverageOpinionScore /= m_MasterTeam.size();
+	iAverageMeanness /= max(1u,m_MasterTeam.size());
+	iAverageLoyalty /= max(1u,m_MasterTeam.size());
+	iAverageOpinionScore /= max(1u,m_MasterTeam.size());
 
 	eTeamOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 

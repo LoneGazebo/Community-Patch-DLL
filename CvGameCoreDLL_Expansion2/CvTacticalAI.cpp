@@ -4632,9 +4632,6 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 	}
 	else if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
 	{
-		//don't attack accidentally
-		iFlags |= CvUnit::MOVEFLAG_NO_ATTACKING;
-
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,NULL,true))
 		{
 			//pillage if it makes sense and we have movement points to spare
@@ -5687,7 +5684,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	if (!pUnit || !pTarget)
 		return false;
 
-	int iFlags = CvUnit::MOVEFLAG_NO_ATTACKING;
+	int iFlags = 0;
 	//can we move there directly? if not try to move to an adjacent plot
 	if (!pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
@@ -5701,7 +5698,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	//if not possible, try again with more leeway
 	if (iTurns==INT_MAX)
 	{
-		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
+		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
 		if (eDomain==pTarget->getDomain())
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);

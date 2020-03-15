@@ -4745,8 +4745,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			if(isConvertUnit())
 			{
-				bool bNoEnemy = !(iMoveFlags & MOVEFLAG_DECLARE_WAR);
-				if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), bNoEnemy)) && !enterPlot.isAdjacentToShallowWater())
+				if (!enterPlot.isWater() && !(enterPlot.isCityOrPassableImprovement(getOwner(), true)) && !enterPlot.isAdjacentToShallowWater())
 					return false;
 			}
 		}
@@ -4941,7 +4940,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 
 		if(plot.isActiveVisible(false))
 		{
-			if(canMoveInto(plot, MOVEFLAG_ATTACK | MOVEFLAG_DECLARE_WAR))
+			if(canMoveInto(plot, MOVEFLAG_ATTACK))
 			{
 				const CvUnit* pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 
@@ -5064,7 +5063,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 #endif
 	{
 		// Don't let another player's unit inside someone's city
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && !(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
+		if((iMoveFlags & CvUnit::MOVEFLAG_ATTACK)==0)
 		{
 			if(plot.isCity() && plot.getPlotCity()->getOwner() != getOwner())
 				return false;
@@ -5228,10 +5227,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 						// Prevent an attack from failing if a city is empty but still an "enemy" capable of being attacked (this wouldn't happen before in Civ 4)
 						if(!(iMoveFlags & CvUnit::MOVEFLAG_ATTACK) || !plot.isEnemyCity(*this))
 						{
-							if(!(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR) || (plot.isVisibleOtherUnit(getOwner()) != (iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && !((iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && plot.getPlotCity() && !isNoCapture())))
-							{
-								return false;
-							}
+							return false;
 						}
 					}
 				}
@@ -5243,7 +5239,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 			bool bEnemyUnitPresent = false;
 
 			// Without this code, Embarked Units can move on top of enemies because they have no visibility
-			if(isEmbarked() || (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_EMBARKED))
+			if(isEmbarked())
 			{
 				if(plotDistance(getX(), getY(), plot.getX(), plot.getY()) == 1)
 				{
@@ -5298,34 +5294,13 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		bool bCanEnterTerritory = (iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || canEnterTerritory(ePlotTeam, iMoveFlags&CvUnit::MOVEFLAG_DESTINATION);
 		if (!bCanEnterTerritory)
 		{
-			CvAssert(ePlotTeam != NO_TEAM);
-
-			if(isHuman())
-			{
-				if(!(iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			if(!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam, getOwner())))
-#else
-			if(!(GET_TEAM(getTeam()).canDeclareWar(ePlotTeam)))
-#endif
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	if (MOD_EVENTS_CAN_MOVE_INTO && m_pUnitInfo->IsSendCanMoveIntoEvent()) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanMoveInto, getOwner(), GetID(), plot.getX(), plot.getY(), ((iMoveFlags & CvUnit::MOVEFLAG_ATTACK) != 0), ((iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR) != 0)) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanMoveInto, getOwner(), GetID(), plot.getX(), plot.getY(), ((iMoveFlags & CvUnit::MOVEFLAG_ATTACK) != 0), false) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
@@ -28542,8 +28517,8 @@ CvUnit::MoveResult CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	if ( !bIsEnemyCity && !pBestDefender )
 		return CvUnit::MOVE_RESULT_NO_TARGET;
 
-	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
-	if (iFlags & MOVEFLAG_NO_ATTACKING)
+	//we only want to attack at the target plot, not random units we may reveal on the way
+	if (pPathPlot != pDestPlot)
 		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//can we even attack?
@@ -29179,14 +29154,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//comfort feature for civilians and humans
 	if (eMission == CvTypes::getMISSION_MOVE_TO())
 	{
-		if (!IsCanAttack())
+		if (!IsCanAttack() || isHuman())
 			iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-
-		if (isHuman())
-		{
-			iFlags |= MOVEFLAG_DECLARE_WAR;
-			iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-		}
 	}
 
 	//any mission resets the cache

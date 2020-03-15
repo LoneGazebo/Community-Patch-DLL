@@ -889,8 +889,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
 	if (bIsDestination)
 	{
-		//special checks for attack flag. if it's a human unit ignore the NO_ATTACKING flag so we don't leak information (shouldn't be set anyway)
-		if (pCacheData->IsCanAttack() && (!pCacheData->isAIControl() || !finder->HaveFlag(CvUnit::MOVEFLAG_NO_ATTACKING)))
+		//special checks for attack flag
+		if (pCacheData->IsCanAttack())
 		{
 			if (pUnit->isRanged())
 			{
@@ -910,20 +910,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
-
-	if (finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR))
-	{
-		//ensure we can get a path into not-yet-enemy territory but prefer to avoid it
-		kToNodeCacheData.bCanEnterTerritoryIntermediate = true;
-		kToNodeCacheData.bCanEnterTerritoryPermanent = true;
-		kToNodeCacheData.bIsAvoidPlot = !pUnit->canEnterTerritory(ePlotTeam, true);
-	}
-	else
-	{
-		kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, false);
-		kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, true);
-		kToNodeCacheData.bIsAvoidPlot = false;
-	}
+	kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, false);
+	kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, true);
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
 	kToNodeCacheData.plotMovementCostMultiplier = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit,pPlot);
@@ -1015,8 +1003,8 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 			}
 			else
 			{
-				//melee units can attack enemy cities and units, or neutral units if the DECLARE_WAR flag is set (should only for humans)
-				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit) || (finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR) && pToPlot->isNeutralUnit(pUnit->getOwner(),true,true)))
+				//melee units can attack enemy cities and units
+				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit))
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 		}
@@ -1268,10 +1256,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	
 	//when in doubt prefer the shorter path
 	iCost += PATH_STEP_WEIGHT;
-
-	//paths through "forbidden" territory should be expensive
-	if (kFromNodeCacheData.bIsAvoidPlot)
-		iCost += PATH_BASE_COST;
 
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
