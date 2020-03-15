@@ -4937,7 +4937,12 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 		}
 
 		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-		bool bPlotIsVisibleToOtherTeam = pPlot->isVisible(eOtherTeam);
+		
+		bool bPlotIsVisibleToOtherTeam = false;
+		// The caravan/cargo ship itself has visibility over the plot it's on (even though this visibility is updated after plundering)
+		// so we need to check if they have sight over it from any other source ...
+		if (pPlot->getVisibilityCount(eOtherTeam) > 1)
+			bPlotIsVisibleToOtherTeam = true;
 
 		bool bIgnore = false;
 		if (bExcludingMe && eOtherTeam == eMyTeam)
