@@ -48533,7 +48533,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		if(GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(GetPlayer()->GetDiplomacyAI()->IsTeammate(eLoopPlayer))
+			if(GET_PLAYER(eLoopPlayer).getTeam() == eMyTeam)
 				m_Masters.push_back(&GET_PLAYER(eLoopPlayer));
 			if(GET_PLAYER(eLoopPlayer).getTeam() == eVassalTeam)
 				m_Vassals.push_back(&GET_PLAYER(eLoopPlayer));
@@ -49053,7 +49053,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		PlayerTypes eLoopPlayer = (PlayerTypes) iI;
 		if(GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			if(IsTeammate(eLoopPlayer))
+			if(GET_PLAYER(eLoopPlayer).getTeam() == eOurTeam)
 				aOurTeam.push_back(eLoopPlayer);
 			if(GET_PLAYER(eLoopPlayer).getTeam() == eTheirTeam)
 				aTheirTeam.push_back(eLoopPlayer);
@@ -51731,7 +51731,7 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 		if(GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			// Master team
-			if(IsTeammate(eLoopPlayer))
+			if(GET_PLAYER(eLoopPlayer).getTeam() == GetPlayer()->getTeam())
 			{
 				m_MasterTeam.push_back(&GET_PLAYER(eLoopPlayer));
 			}
@@ -52298,27 +52298,23 @@ int CvDiplomacyAI::IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJust
 		{
 			eLoopPlayer = (PlayerTypes)iMajorLoop;
 
-			// Not us
-			if(GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID())
+			// Has to be on our team
+			if(IsTeammate(eLoopPlayer))
 			{
-				// Has to be on our team
-				if(IsTeammate(eLoopPlayer))
-				{
-					// bJustChecking = true to prevent infinite loop
-					iResponse = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsMoveTroopsRequestAcceptable(ePlayer, /*bJustChecking*/ true);
+				// bJustChecking = true to prevent infinite loop
+				iResponse = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsMoveTroopsRequestAcceptable(ePlayer, /*bJustChecking*/ true);
 
-					switch(iResponse)
-					{
-						case 0:
-							iYes++;
-							break;
-						case 1:
-							iNeutral++;
-							break;
-						case 2:
-							iNo++;
-							break;
-					}
+				switch(iResponse)
+				{
+					case 0:
+						iYes++;
+						break;
+					case 1:
+						iNeutral++;
+						break;
+					case 2:
+						iNo++;
+						break;
 				}
 			}
 		}
