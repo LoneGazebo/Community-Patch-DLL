@@ -2684,19 +2684,19 @@ MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
 	{
 		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
 		{
-			iConquestWeight += 3;
+			iConquestWeight += 2;
 		}
 		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
-			iDiplomacyWeight += 3;
+			iDiplomacyWeight += 2;
 		}
 		if (GetPlayer()->GetPlayerTraits()->IsTourism())
 		{
-			iCultureWeight += 3;
+			iCultureWeight += 2;
 		}
 		if (GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
-			iScienceWeight += 3;
+			iScienceWeight += 2;
 		}
 	}
 #endif
