@@ -4835,26 +4835,29 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		// If they've captured cities from us before, they're more likely to finish the job.
 		else if ((iCityDifference < 0) && (!bIsVassal || bAttackedOwnVassal))
 		{
+			// Flip it!
+			iCityDifference *= -1;
+			
 			// Easy target? Get our cities back!
 			if (bEasyTarget)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - (iCityDifference * 2));
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - (iCityDifference * 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iCityDifference * 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iCityDifference * 2));
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 			}
 			// Weaker than us? Let's get revenge!
 			else if (eMilitaryStrength < STRENGTH_AVERAGE)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] - iCityDifference);
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] - iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iCityDifference);
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
 			}
 			// As strong as us or stronger? Decrease desire for war, they've proven their might.
 			else
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iCityDifference*-1));
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iCityDifference*-1));
-				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] - iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iCityDifference);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iCityDifference);
 			}
 		}
 	}
@@ -4921,7 +4924,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		TeamTypes eLoopTeam = (TeamTypes) GET_PLAYER(eLoopPlayer).getTeam();
 		
 		// This player has a defensive pact with them? If the loop player's at least as strong as we are, let's reduce our war interest.
-		if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(eTeam))
+		if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eTeam))
 		{
 			if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 			{
@@ -4932,7 +4935,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 
 		// Is this guy at war with the other player?
-		if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(eTeam))
+		if (GET_TEAM(eLoopTeam).isAtWar(eTeam))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
 			if (GetBiggestCompetitor() == eLoopPlayer)
@@ -49072,7 +49075,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 		iTheirCapitals += GET_PLAYER(*it).GetNumCapitalCities();
 	}
-	iAverageOpinionScore /= aOurTeam.size();
+	iAverageOpinionScore /= max(1u,aOurTeam.size());
 	MajorCivOpinionTypes eOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 
 	if (eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
@@ -51756,9 +51759,9 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 		iAverageOpinionScore += (*it)->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
 	}
 
-	iAverageMeanness /= m_MasterTeam.size();
-	iAverageLoyalty /= m_MasterTeam.size();
-	iAverageOpinionScore /= m_MasterTeam.size();
+	iAverageMeanness /= (1u,m_MasterTeam.size());
+	iAverageLoyalty /= (1u,m_MasterTeam.size());
+	iAverageOpinionScore /= (1u,m_MasterTeam.size());
 
 	eTeamOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 
