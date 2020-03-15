@@ -32955,7 +32955,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetCoopWarAcceptedState(eFromPlayer, eAgainstPlayer, NO_COOP_WAR_STATE);
 			
 			// No penalty for teammates; otherwise, the AI gets mad
-			if (IsTeammate(eFromPlayer))
+			if (!IsTeammate(eFromPlayer))
 			{
 				SetPlayerBrokenCoopWarPromise(eFromPlayer, true);
 #if defined(MOD_BALANCE_CORE)
