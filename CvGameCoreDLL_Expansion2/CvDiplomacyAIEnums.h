@@ -200,6 +200,7 @@ enum DisputeLevelTypes
 
     NUM_DISPUTE_LEVELS,
 };
+
 #if defined(MOD_BALANCE_CORE)
 enum BlockLevelTypes
 {
@@ -229,7 +230,20 @@ enum DoFLevelTypes
 
     NUM_DOF_TYPES,
 };
+
+enum MajorDiploTypes
+{
+	NO_MAJOR_DIPLO_TYPE = -1,
+	
+	MAJOR_DIPLO_TYPE_CONQUEROR,
+	MAJOR_DIPLO_TYPE_DIPLOMAT,
+	MAJOR_DIPLO_TYPE_CULTURAL,
+	MAJOR_DIPLO_TYPE_SCIENTIFIC,
+	
+	NUM_MAJOR_DIPLO_TYPES,
+};
 #endif
+
 enum AgreementLevelTypes
 {
     NO_AGREEMENT_LEVEL = -1,
