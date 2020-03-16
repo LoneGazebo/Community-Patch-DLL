@@ -1084,13 +1084,18 @@ int EconomicAIHelpers::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, Domai
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
 		return 0;
 
+	//No value if there's a unit here.
+	if(pPlot->getNumUnits() > 0)
+		return 0;
+
 	//add goodies - they go away - do not add any permanent scores here - leads to loops
 	if(pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 		iResultValue += iJackpot;
 	if(pPlot->HasBarbarianCamp() && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
 		iResultValue += iJackpot;
 	if (pPlot->isHills() || pPlot->isMountain()) //inca can enter mountains ...
-		iResultValue += iLargeScore;
+		if (pPlot->isAdjacentNonrevealed(pPlayer->getTeam()))
+			iResultValue += iLargeScore;
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -1101,9 +1106,6 @@ int EconomicAIHelpers::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, Domai
 		{
 			//no value if revealed already
 			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
-				continue;
-			//No value if there's a unit here.
-			if(pLoopPlot->getNumUnits() > 0)
 				continue;
 
 			// "cheating" to look to see what the next tile is.

@@ -10063,28 +10063,30 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 {
 	VALIDATE_OBJECT
 	if(isEmbarked())
-	{
 		return false;
-	}
 
 	if(!(getUnitInfo().IsPillage()))
-	{
 		return false;
-	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (getMoves() <= iMovesOverride && !hasFreePillageMove())
 		return false;
 
-	if(pPlot->getOwner() == getOwner())
+	if(pPlot->isOwned() && !isEnemy(pPlot->getTeam(), pPlot))
 		return false;
 
 	if(pPlot->getDomain() != getDomainType())
 		return false;
 
-	//barbs can't pillage camps yo
-	if (isBarbarian() && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-		return false;
+	if (isBarbarian())
+	{
+		// barbarian boats not allowed to pillage, as they're too annoying :)
+		if (getDomainType() == DOMAIN_SEA)
+			return false;
+
+		// barbs can't pillage camps yo
+		if (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+			return false;
+	}
 
 	if(pPlot->getOwner() == NO_PLAYER && pPlot->isRoute())
 	{
@@ -10097,23 +10099,14 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 			}
 		}
 	}
-#endif
-	else
-	{
-		TechTypes ePillagePrereq = (TechTypes) getUnitInfo().GetPrereqPillageTech();
-		if(ePillagePrereq != NO_TECH)
-		{
-			if(!GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePillagePrereq))
-			{
-				return false;
-			}
-		}
-	}
 
-	// Barbarian boats not allowed to pillage, as they're too annoying :)
-	if(isBarbarian() && getDomainType() == DOMAIN_SEA)
+	TechTypes ePillagePrereq = (TechTypes) getUnitInfo().GetPrereqPillageTech();
+	if(ePillagePrereq != NO_TECH)
 	{
-		return false;
+		if(!GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePillagePrereq))
+		{
+			return false;
+		}
 	}
 
 	if(pPlot->isCity())
@@ -10122,14 +10115,15 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 	}
 
 	ImprovementTypes eImprovementType = pPlot->getImprovementType();
-	if(eImprovementType == NO_IMPROVEMENT)
+
+	// Either nothing to pillage or everything is pillaged to its max
+	if((eImprovementType == NO_IMPROVEMENT || pPlot->IsImprovementPillaged()) &&
+			(pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged() /* == GC.getPILLAGE_NUM_TURNS_DISABLED()*/))
 	{
-		if(!(pPlot->isRoute()))
-		{
-			return false;
-		}
+		return false;
 	}
-	else if(eImprovementType == (ImprovementTypes)GC.getRUINS_IMPROVEMENT())
+
+	if(eImprovementType == (ImprovementTypes)GC.getRUINS_IMPROVEMENT())
 	{
 		return false;
 	}
@@ -10176,24 +10170,6 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 				}
 			}
 		}
-	}
-
-	// Either nothing to pillage or everything is pillaged to its max
-	if((eImprovementType == NO_IMPROVEMENT || pPlot->IsImprovementPillaged()) &&
-			(pPlot->getRouteType() == NO_ROUTE || pPlot->IsRoutePillaged() /* == GC.getPILLAGE_NUM_TURNS_DISABLED()*/))
-	{
-		return false;
-	}
-
-	// can no longer pillage our tiles
-	if(pPlot->getOwner() == getOwner())
-	{
-		return false;
-	}
-
-	if(!(pPlot->isValidDomainForAction(*this)))
-	{
-		return false;
 	}
 	
 #if defined(MOD_EVENTS_UNIT_ACTIONS)
@@ -10265,18 +10241,6 @@ bool CvUnit::pillage()
 	if(!canPillage(pPlot))
 	{
 		return false;
-	}
-
-	if(pPlot->isOwned())
-	{
-		// we should not be calling this without declaring war first, so do not declare war here
-		if(!isEnemy(pPlot->getTeam(), pPlot))
-		{
-			if((pPlot->getImprovementType() == NO_IMPROVEMENT && !pPlot->isRoute()) || (pPlot->getOwner() != getOwner()))
-			{
-				return false;
-			}
-		}
 	}
 
 	bool bImprovement = false;
@@ -27819,7 +27783,7 @@ bool CvUnit::isEnemy(TeamTypes eTeam, const CvPlot* pPlot) const
 		pPlot = plot();
 	}
 
-	if(! pPlot)
+	if(!pPlot)
 	{
 		return false;
 	}
