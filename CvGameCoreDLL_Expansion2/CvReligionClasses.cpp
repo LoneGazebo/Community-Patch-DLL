@@ -7642,13 +7642,6 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
-
-	//Not enhanced, but getting there slowly?
-	if ((eReligion > RELIGION_PANTHEON || pReligions->GetNumReligionsStillToFound() > 0) && !pMyReligion->m_bEnhanced && IsProphetGainRateAcceptable())
-	{
-		return;
-	}
-
 	BuildingClassTypes eFaithBuilding = FaithBuildingAvailable(eReligion, pCity, true);
 	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();
 
@@ -7824,37 +7817,14 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 }
 #endif
 
-bool CvReligionAI::DoFaithPurchases()
+//do we even want to spread our religion?
+int CvReligionAI::GetSpreadScore() const
 {
-	ReligionTypes eReligionWeFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(); //founded or conquered
-	ReligionTypes eReligionToSpread = GetReligionToSpread(); //absolute or relative majority in our cities
-	if (eReligionWeFounded != NO_RELIGION)
-		eReligionToSpread = eReligionWeFounded;
+	int iScore = 0;
 
-	bool bAllConvertedCore = AreAllOurCitiesConverted(eReligionToSpread, false /*bIncludePuppets*/);
-	bool bAllConvertedInclPuppets = AreAllOurCitiesConverted(eReligionToSpread, true /*bIncludePuppets*/);
-
-	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();
-	CvPlayer &kPlayer = *m_pPlayer;
-	UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
-	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
-	int iMaxMissionaries = GC.getRELIGION_MAX_MISSIONARIES();
-	
-	// Count missionaries / prophets
-	int iNumMissionaries = 0;
-	int iLoop;
-	for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-	{
-		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0)
-			if ( pLoopUnit->GetReligionData()->GetReligion() == eReligionWeFounded || pLoopUnit->GetReligionData()->GetReligion() == eReligionToSpread)
-				iNumMissionaries++;
-	}
-	
 	//Do we have any useful beliefs to consider?
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-	int iBonusValue = 0;
-	const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-	for(int iI = 0; iI < iNumBeliefs; iI++)
+	for(int iI = 0; iI < pkBeliefs->GetNumBeliefs(); iI++)
 	{
 		const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 		CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
@@ -7864,55 +7834,34 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if(pEntry->GetYieldFromConversion((YieldTypes)iI) > 0)
 				{
-					iBonusValue++;
+					iScore++;
 				}
 				if (pEntry->GetYieldFromConversionExpo((YieldTypes)iI) > 0)
 				{
-					iBonusValue++;
+					iScore++;
 				}
 				if(pEntry->GetYieldFromForeignSpread((YieldTypes)iI) > 0)
 				{
-					iBonusValue++;
+					iScore++;
 				}
 				if(pEntry->GetYieldFromSpread((YieldTypes)iI) > 0)
 				{
-					iBonusValue++;
+					iScore++;
 				}
 				if(pEntry->GetYieldPerFollowingCity((YieldTypes)iI) > 0)
 				{
-					iBonusValue++;
+					iScore++;
 				}
 				if (pEntry->GetYieldPerXFollowers((YieldTypes)iI) > 0)
 				{
-					iBonusValue++;
+					iScore++;
 				}
 			}
 			if(pEntry->GetMissionaryInfluenceCS() > 0)
 			{
-				iBonusValue++;
+				iScore++;
 			}
 		}
-	}
-	iMaxMissionaries += iBonusValue;
-
-	//Let's see about our religious flavor...
-	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
-	int iFlavorReligion = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-	//Religion bonuses should artificially boost flavors.
-	iFlavorReligion += iBonusValue;
-
-	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)i;
-		if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isAlive())
-			continue;
-
-		if (!GC.getGame().GetGameReligions()->HasAddedReformationBelief(ePlayer))
-			continue;
-
-		//we want fewer missionaries if reformations are poppping up (this is a good way to judge if we have a chance to spread or not)
-		//we want even fewer if we're reformed.
-		iMaxMissionaries -= (m_pPlayer->GetID() == ePlayer ? 3 : 1);
 	}
 
 	if (MOD_BALANCE_CORE_QUEST_CHANGES)
@@ -7929,32 +7878,101 @@ bool CvReligionAI::DoFaithPurchases()
 
 					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_CONTEST_FAITH))
 					{
-						iMaxMissionaries += 1;
+						iScore += 1;
 					}
 				}
 			}
 		}
 	}
 
-	//minimum 1 (prevents overflow issues if we're on a big map with tons of religions).
-	iMaxMissionaries = max(1, iMaxMissionaries);
+	return iScore;
+}
+
+//count number of revealed cities with a majority of heathens, should be easy to convert
+int CvReligionAI::GetNumKnownHeathenCities(int iMaxTurns, ReligionTypes eReligionToSpread) const
+{
+	int iCount = 0;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		int iLoop = 0;
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		{
+			if (pLoopCity->plot()->isRevealed(m_pPlayer->getTeam()) && !m_pPlayer->IsAtWarWith(pLoopCity->getOwner()))
+			{
+				int iHeathens = pLoopCity->GetCityReligions()->GetNumFollowers(NO_RELIGION) + pLoopCity->GetCityReligions()->GetNumFollowers(RELIGION_PANTHEON);
+				int iPopMinusTrueReligion = pLoopCity->getPopulation() - pLoopCity->GetCityReligions()->GetNumFollowers(eReligionToSpread);
+
+				//conversion targets should be the majority, ignore cities which already have significant presence from other religions
+				if (iHeathens > iPopMinusTrueReligion / 2 && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot())<iMaxTurns)
+					iCount++;
+			}
+		}
+	}
+
+	return iCount;
+}
+
+bool CvReligionAI::DoFaithPurchases()
+{
+	ReligionTypes eReligionWeFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(); //founded or conquered
+	ReligionTypes eReligionToSpread = GetReligionToSpread(); //absolute or relative majority in our cities
+	if (eReligionWeFounded != NO_RELIGION)
+		eReligionToSpread = eReligionWeFounded;
+
+	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();
+	UnitTypes eProphetType = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
+	bool bAllConvertedCore = AreAllOurCitiesConverted(eReligionToSpread, false /*bIncludePuppets*/);
+	bool bAllConvertedInclPuppets = AreAllOurCitiesConverted(eReligionToSpread, true /*bIncludePuppets*/);
+
+	// Do we get benefits from spreading our religion?
+	int iDesireToSpread = GetSpreadScore();
+
+	// Count missionaries / prophets
+	int iNumMissionaries = 0;
+	int iLoop;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0)
+			if ( pLoopUnit->GetReligionData()->GetReligion() == eReligionWeFounded || pLoopUnit->GetReligionData()->GetReligion() == eReligionToSpread)
+				iNumMissionaries++;
+	}
+
+	//Let's see about our religious flavor...
+	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
+	int iFlavorReligion = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+
+	//Religion bonuses should artificially boost flavors.
+	iFlavorReligion += iDesireToSpread;
 
 	//exceptions from the rule
+	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
+	int iMaxMissionaries = GC.getRELIGION_MAX_MISSIONARIES();
 	if(m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary)) //india
 	{
 		iMaxMissionaries = 0;
 	}
-	else if (eReligionWeFounded == NO_RELIGION || eReligionToSpread != eReligionWeFounded) //don't be a pawn spreading others' religion
+	else if (eReligionWeFounded == NO_RELIGION || eReligionToSpread != eReligionWeFounded)
 	{
+		//don't be a pawn spreading others' religion
 		iMaxMissionaries = bAllConvertedInclPuppets ? 0 : 1;
 	}
+	else
+	{
+		//default
+		iMaxMissionaries += iDesireToSpread;
+	}
 
+	//should we spread or save up for a prophet?
 	bool bTooManyMissionaries = (iNumMissionaries >= iMaxMissionaries);
+	int iNumEasyTargets = GetNumKnownHeathenCities(9,eReligionToSpread);
+	bool bWantToEnhance = ((iNumEasyTargets < 2) && bAllConvertedCore && IsProphetGainRateAcceptable()) || bTooManyMissionaries;
 
 	//FIRST PRIORITY
 	//Let's make sure our faith is enhanced.
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionWeFounded, m_pPlayer->GetID());
-	if (pMyReligion && !pMyReligion->m_bEnhanced && IsProphetGainRateAcceptable() && eProphetType != NO_UNIT)
+	if (pMyReligion && !pMyReligion->m_bEnhanced && bWantToEnhance && eProphetType != NO_UNIT)
 	{
 		if (BuyGreatPerson(eProphetType, eReligionWeFounded))
 		{
@@ -8017,9 +8035,9 @@ bool CvReligionAI::DoFaithPurchases()
 
 	//THIRD PRIORITY
 	//Let's make sure all of our non-puppet cities are converted.
-	if (pMyReligion && !bAllConvertedCore && !bTooManyMissionaries)
+	if (pMyReligion && !bAllConvertedCore)
 	{
-		if ((eProphetType != NO_UNIT) && IsProphetGainRateAcceptable() && ChooseProphetConversionCity() && (m_pPlayer->GetReligions()->GetNumProphetsSpawned(true) <= iFlavorReligion))
+		if (!bTooManyMissionaries && (eProphetType != NO_UNIT) && IsProphetGainRateAcceptable() && ChooseProphetConversionCity() && (m_pPlayer->GetReligions()->GetNumProphetsSpawned(true) <= iFlavorReligion))
 		{
 			if (BuyGreatPerson(eProphetType, eReligionWeFounded))
 			{
@@ -8105,7 +8123,7 @@ bool CvReligionAI::DoFaithPurchases()
 		}
 	}
 
-	// FOREIGN UNITS
+	// FOREIGN CITIES
 	if (pMyReligion && !bTooManyMissionaries && bAllConvertedCore)
 	{
 		if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread())
