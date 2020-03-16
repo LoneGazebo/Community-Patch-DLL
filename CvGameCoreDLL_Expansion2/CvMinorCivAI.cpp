@@ -12248,7 +12248,6 @@ void CvMinorCivAI::DoIntrusion()
 #endif
 	}
 
-	// Should not happen if MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS is false
 	vector<PlayerTypes> vIntruders;
 
 	// Look at how many Units each Major Civ has in the Minor's Territory
@@ -12425,6 +12424,10 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	SetMajorBoughtOutBy(NO_PLAYER);
 #endif
 
+	//set this to a value > 0 so that it takes one turn until other players may not enter our territory
+	//prevents immediate teleport of AI units in the neighborhood
+	m_iNumThreateningBarbarians = 1;
+
 	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LIBERATION");
 	strMessage << GetPlayer()->getNameKey() << GET_PLAYER(eLiberator).getNameKey();
 	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_LIBERATION");
@@ -12518,6 +12521,7 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	strSummary << GetPlayer()->getNameKey();
 	AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eLiberator);
 }
+
 #if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::SetTurnLiberated(int iValue)
 {

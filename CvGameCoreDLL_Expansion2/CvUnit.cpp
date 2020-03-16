@@ -4668,14 +4668,9 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
-#ifdef MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS
-		if (isHuman() && MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS)
-			return true;
-#else
 		// Humans can always enter a minor's territory and bear the consequences
 		if (isHuman())
 			return true;
-#endif
 
 		// Allow AI players to pass through minors' territory
 		if (!bEndTurn)
