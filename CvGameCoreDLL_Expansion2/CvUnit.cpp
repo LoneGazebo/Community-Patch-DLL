@@ -10130,37 +10130,42 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 			if (!GET_PLAYER(getOwner()).IsAtWarWith(pPlot->getOwner()))
 				return false;
 
+		//some improvements cannot be pillaged
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
-		if(pImprovementInfo->IsPermanent())
+		if (pImprovementInfo)
 		{
+			if (pImprovementInfo->IsPermanent())
+			{
 #if defined(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
-			if(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
-			{
-				return true;
-			}
-			else
-				return false;
-#else
-			return false;
-#endif
-		}
-		else if(pImprovementInfo->IsGoody())
-		{
-			return false;
-		}
-
-		// Special case: Feitoria can be in a city-state's lands, don't allow pillaging unless at war with its owner
-		if(pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor() > 0)
-		{
-			PlayerTypes eOwner = pPlot->getOwner();
-			PlayerTypes eSiphoner = pPlot->GetPlayerThatBuiltImprovement();
-			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).isMinorCiv())
-			{
-				if (eSiphoner != NO_PLAYER && GET_PLAYER(eSiphoner).isAlive())
+				if (MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
 				{
-					if (!atWar(getTeam(), GET_PLAYER(eSiphoner).getTeam()))
+					return true;
+				}
+				else
+					return false;
+#else
+				return false;
+#endif
+			}
+			
+			if (pImprovementInfo->IsGoody())
+			{
+				return false;
+			}
+
+			// Special case: Feitoria can be in a city-state's lands, don't allow pillaging unless at war with its owner
+			if (pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor() > 0)
+			{
+				PlayerTypes eOwner = pPlot->getOwner();
+				PlayerTypes eSiphoner = pPlot->GetPlayerThatBuiltImprovement();
+				if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).isMinorCiv())
+				{
+					if (eSiphoner != NO_PLAYER && GET_PLAYER(eSiphoner).isAlive())
 					{
-						return false;
+						if (!atWar(getTeam(), GET_PLAYER(eSiphoner).getTeam()))
+						{
+							return false;
+						}
 					}
 				}
 			}
