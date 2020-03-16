@@ -4949,7 +4949,7 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 		}
 
 		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-		bool bPlotIsVisibleToOtherTeam = pPlot->isVisible(eOtherTeam);
+		bool bPlotIsVisibleToOtherTeam = pPlot->getVisibilityCount(eOtherTeam) > 1 ? true : false;
 
 		bool bIgnore = false;
 		if (bExcludingMe && eOtherTeam == eMyTeam)
