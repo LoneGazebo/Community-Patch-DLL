@@ -4981,12 +4981,12 @@ ReligionTypes CvCityReligions::GetReligionForHolyCity()
 }
 #endif
 /// Is there a "heretical" religion here that can be stomped out?
-bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion)
+bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers)
 {
 	ReligionInCityList::iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
-		if (it->m_eReligion != NO_RELIGION && it->m_eReligion != eReligion && it->m_iFollowers > 0)
+		if (it->m_eReligion != NO_RELIGION && it->m_eReligion != eReligion && it->m_iFollowers >= iMinFollowers)
 		{
 			return true;
 		}
@@ -5985,40 +5985,38 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 {
 	ReligionTypes eOldMajorityReligion = GetReligiousMajority();
 
-	// Copy list
-	ReligionInCityList tempList;
-	ReligionInCityList::iterator it;
-	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
-	{
-		tempList.push_back(*it);
-	}
+	// Copy old list
+	ReligionInCityList tempList(m_ReligionStatus);
 
 	// Erase old list
 	m_ReligionStatus.clear();
 
-	// Recopy just what we want to keep
-	for(it = tempList.begin(); it != tempList.end(); it++)
+	// Copy just what we want to keep
+	for(ReligionInCityList::iterator it = tempList.begin(); it != tempList.end(); it++)
 	{
-		int iPressureRetained = 0;
-
 		ReligionTypes eLoopReligion = it->m_eReligion;
+
+		//keep the given religion and heathens
+		if (eLoopReligion == NO_RELIGION || eLoopReligion == eReligion)
+		{
+			m_ReligionStatus.push_back(*it);
+			continue;
+		}
+
+		//throw away all others except if it has PressureRetention
 		if (eLoopReligion > RELIGION_PANTHEON && eLoopReligion != eReligion)
 		{
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eLoopReligion, m_pCity->getOwner());
 			if (pReligion)
 			{
-				iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
+				 // Normally 0
+				int iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner()); 
+				if (iPressureRetained > 0)
+				{
+					it->m_iPressure = it->m_iPressure * iPressureRetained / 100;
+					m_ReligionStatus.push_back(*it);
+				}
 			}
-		}
-
-		if (eLoopReligion == NO_RELIGION || eLoopReligion == eReligion || iPressureRetained > 0)
-		{
-			if (iPressureRetained > 0)
-			{
-				it->m_iPressure = it->m_iPressure * iPressureRetained / 100;
-			}
-
-			m_ReligionStatus.push_back(*it);
 		}
 	}
 
@@ -7369,7 +7367,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 	{
-		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX, piTurns) )
+		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX, piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -7410,7 +7408,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 	{
-		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN,INT_MAX,piTurns) )
+		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN,INT_MAX,piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -7585,7 +7583,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 
 	for (size_t i=0; i<vCandidates.size(); i++)
 	{
-		if (!pUnit || pUnit->GeneratePath(vCandidates[i].pPlot,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,piTurns))
+		if (!pUnit || pUnit->GeneratePath(vCandidates[i].pPlot,CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,piTurns))
 		{
 			return vCandidates[i].pPlot->getPlotCity();
 		}
@@ -9750,7 +9748,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				if (pLoopCity == NULL)
 					continue;
 
-				if (pLoopCity->GetCityReligions()->IsReligionHereOtherThan(eReligion))
+				if (pLoopCity->GetCityReligions()->IsReligionHereOtherThan(eReligion, 1))
 					iForeignReligions++;
 			}
 
@@ -10273,7 +10271,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 						int iSanity = pEntry->IsFollowerBelief() ? 6 : 1;
 
-						if (FaithBuildingAvailable(eReligion, pHolyCity == NULL ? m_pPlayer->getCapitalCity() : pHolyCity) == NO_BUILDING)
+						if (FaithBuildingAvailable(eReligion, pHolyCity == NULL ? m_pPlayer->getCapitalCity() : pHolyCity) == NO_BUILDINGCLASS)
 						{
 							iSanity = pEntry->IsFollowerBelief() ? 25 : 2;
 						}

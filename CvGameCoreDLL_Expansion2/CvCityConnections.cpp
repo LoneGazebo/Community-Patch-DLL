@@ -176,6 +176,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 50)
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
+
 		}
 	}
 					

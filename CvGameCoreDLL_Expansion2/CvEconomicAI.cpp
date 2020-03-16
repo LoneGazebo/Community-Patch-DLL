@@ -1089,6 +1089,8 @@ int EconomicAIHelpers::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, Domai
 		iResultValue += iJackpot;
 	if(pPlot->HasBarbarianCamp() && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
 		iResultValue += iJackpot;
+	if (pPlot->isHills() || pPlot->isMountain()) //inca can enter mountains ...
+		iResultValue += iLargeScore;
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -2322,9 +2324,7 @@ void CvEconomicAI::DoReconState()
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
 				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
-				if(pLoopUnit->getArmyID() == -1 &&
-					(pLoopUnit->getHomelandMove()==AI_HOMELAND_MOVE_MOBILE_RESERVE || pLoopUnit->getHomelandMove()==AI_HOMELAND_MOVE_UNASSIGNED) &&
-					pLoopUnit->canRecruitFromTacticalAI())
+				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 					eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );

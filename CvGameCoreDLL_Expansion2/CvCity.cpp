@@ -3528,7 +3528,7 @@ void CvCity::SetCoastalThreatRank(int iValue)
 int CvCity::GetCoastalThreatRank() const
 {
 	VALIDATE_OBJECT
-		return m_iCoastalThreatRank;
+	return m_iCoastalThreatRank;
 }
 
 void CvCity::SetTradePriorityLand(int iValue)
@@ -10117,24 +10117,39 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 int CvCity::getFoodTurnsLeft(int iCorpMod) const
 {
 	VALIDATE_OBJECT
-	int iFoodLeft = (growthThreshold() * 100 - getFoodTimes100());
 	int iDeltaPerTurn = foodDifferenceTimes100(true, iCorpMod);
+	int iFoodStored = getFoodTimes100();
+	int iFoodNeededToGrow = (growthThreshold() * 100 - iFoodStored);
 
-	if(iDeltaPerTurn <= 0)
+	//growing
+	if (iDeltaPerTurn > 0)
 	{
-		return iFoodLeft;
+		if (iFoodNeededToGrow > 0)
+		{
+			int iTurnsLeft = iFoodNeededToGrow / iDeltaPerTurn;
+			//correct for truncation
+			if (iTurnsLeft * iDeltaPerTurn < iFoodNeededToGrow)
+				iTurnsLeft++;
+
+			return iTurnsLeft;
+		}
+		else //already over the threshold
+			return 0;
+	}
+	//starving
+	else if (iDeltaPerTurn < 0)
+	{
+		int iTurnsLeft = iFoodStored / iDeltaPerTurn;
+		//correct for truncation
+		if (iTurnsLeft * iDeltaPerTurn < iFoodStored)
+			iTurnsLeft++;
+
+		return -iTurnsLeft;
 	}
 
-	int iTurnsLeft = (iFoodLeft / iDeltaPerTurn);
-
-	if((iTurnsLeft * iDeltaPerTurn) <  iFoodLeft)
-	{
-		iTurnsLeft++;
-	}
-
-	return std::max(1, iTurnsLeft);
+	//stagnation, let's assume this is a large number
+	return iFoodNeededToGrow;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvCity::isProduction() const
@@ -13818,6 +13833,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
 				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
+				owningPlayer.ChangeWondersConstructed(1);
 				if(iTourism > 0)
 				{
 					owningPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
@@ -15190,71 +15206,80 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 
 #if defined(MOD_BALANCE_CORE)
-			int iNumResourcePlotsGiven = 0;
-			int iNumResourceTotalPlots = pBuildingInfo->GetNumResourcesToPlace(iResourceLoop);
-			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0 && (iChange > 0) && bFirst)
+			if (pBuildingInfo->IsResourcePlotsToPlace())
 			{
-				//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
-				CvPlot* pLoopPlot;
-				for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+				std::map<int, int> piResourcePlotsToPlace = pBuildingInfo->GetResourcePlotsToPlace(iResourceLoop);
+
+				for (std::map<int, int>::const_iterator it = piResourcePlotsToPlace.begin(); it != piResourcePlotsToPlace.end(); ++it)
 				{
-					pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-					if(pLoopPlot != NULL && ((pLoopPlot->getOwner() == owningPlayer.GetID()) || (pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isValidMovePlot(getOwner()))) && !pLoopPlot->isCity())
+					int iNumResourcePlotsGiven = 0;
+					int iNumResourceTotalPlots = it->second;
+					if (iNumResourceTotalPlots > 0 && (iChange > 0) && bFirst)
 					{
-						if(pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
+						//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
+						CvPlot* pLoopPlot;
+						for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 						{
-							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-							pLoopPlot->setResourceType(eResource, pBuildingInfo->GetResourceQuantityToPlace(), false);
-							pLoopPlot->DoFindCityToLinkResourceTo();
-							iNumResourcePlotsGiven++;
-							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
+							if (pLoopPlot != NULL && ((pLoopPlot->getOwner() == owningPlayer.GetID()) || (pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isValidMovePlot(getOwner()))) && !pLoopPlot->isCity())
 							{
-								CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
 								{
-									if(ImprovementEntry)
+									int iResourceQuantityPerPlot = MAX(it->first, 1);
+									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
+									pLoopPlot->DoFindCityToLinkResourceTo();
+									iNumResourcePlotsGiven++;
+									if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 									{
-										if(ImprovementEntry->IsImprovementResourceMakesValid(eResource))
+										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 										{
-											owningPlayer.changeNumResourceTotal(eResource, pBuildingInfo->GetResourceQuantityToPlace());
+											if (ImprovementEntry)
+											{
+												if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
+												{
+													owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
+												}
+											}
 										}
 									}
-								}
-							}
-							if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
-							{
-								if(!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
-								{
-									CvString strBuffer;
-									CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-									CvAssert(pResourceInfo);
-									NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
-									strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
-									
-									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
-
-									switch(pResourceInfo->getResourceUsage())
+									if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 									{
-										case RESOURCEUSAGE_LUXURY:
-											eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
-											break;
-										case RESOURCEUSAGE_STRATEGIC:
-											eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
-											break;
-										case RESOURCEUSAGE_BONUS:
-											eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
-											break;
-									}
+										if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
+										{
+											CvString strBuffer;
+											CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+											CvAssert(pResourceInfo);
+											NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
-									CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-									if(pNotifications)
+											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+
+											switch (pResourceInfo->getResourceUsage())
+											{
+											case RESOURCEUSAGE_LUXURY:
+												eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+												break;
+											case RESOURCEUSAGE_STRATEGIC:
+												eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+												break;
+											case RESOURCEUSAGE_BONUS:
+												eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+												break;
+											}
+
+											CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+											if (pNotifications)
+											{
+												pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+											}
+										}
+									}
+									if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
 									{
-										pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+										break;
 									}
 								}
-							}
-							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-							{
-								break;
 							}
 						}
 					}
@@ -18778,6 +18803,9 @@ int CvCity::getJONSCulturePerTurn(bool bStatic) const
 	iCulture *= iModifier;
 	iCulture /= 100;
 
+	// Culture from having trade routes
+	iCulture += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
+
 	return iCulture;
 }
 
@@ -18845,8 +18873,6 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	if (getProductionToYieldModifier(YIELD_CULTURE)>0)
 		iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
 
-	// Culture from having trade routes
-	iCulturePerTurn += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -20498,12 +20524,12 @@ int CvCity::GetCityAutomatonWorkersChange() const
 void CvCity::changeCityAutomatonWorkersChange(int iChange)
 {
 	VALIDATE_OBJECT
-		if (iChange != 0)
-		{
-			changeAutomatons(iChange);
+	if (iChange != 0)
+	{
+		changeAutomatons(iChange);
 
-			m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
-		}
+		m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
+	}
 }
 #endif
 
@@ -24313,7 +24339,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
-			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this, true);
+			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this);
 		}
 	}
 	SetSpecialReligionYields(eYield, iYieldValue);
@@ -28189,32 +28215,25 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iValue -= iStrengthFromGarrison;
 			}
 
-			int iModifier = 0;
+			// buildings
+			int iModifier = getCityBuildingRangeStrikeModifier();
 			if (HasGarrison())
 			{
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 			}
 
-			// buildings
-			iModifier += getCityBuildingRangeStrikeModifier();
-
 			// Religion city strike mod
-			int iReligionCityStrikeMod = 0;
 			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 			if (eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if (pReligion)
 				{
-					iReligionCityStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+					iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
 					BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
-						iReligionCityStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-					}
-					if (iReligionCityStrikeMod > 0)
-					{
-						iModifier += iReligionCityStrikeMod;
+						iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
 					}
 				}
 			}
@@ -32049,7 +32068,7 @@ void CvCity::doGrowth()
 	{
 		if(GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
 		{
-			setFood(growthThreshold());
+			setFood(iFoodReqForGrowth);
 		}
 		else
 		{

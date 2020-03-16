@@ -64,6 +64,9 @@ Controls.Backdrop:SetSize( backdropSize );
 
 local listOfStrings = {};
 
+-- Is the mod for faith purchase buildings in puppets is activated?
+local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS");
+
 -------------------------------------------------
 -- Get the current city the popup is working with
 -- Can return nil
@@ -135,7 +138,7 @@ function ProductionSelected( ePurchaseEnum, iData)
 	g_bTheVeniceException = (player:MayNotAnnex()) and (not g_IsProductionMode);
 -- EDIT
 	--if (UI.IsCityScreenViewingMode() and (not g_bTheVeniceException)) then
-	if (UI.IsCityScreenViewingMode() and (not g_bTheVeniceException) and (not bIsBuildingOverride) and (not bIsUnitOverride) and (not bIsPuppetOverride)) then
+	if (UI.IsCityScreenViewingMode() and (not g_bTheVeniceException) and (not bIsBuildingOverride) and (not bIsUnitOverride) and (not bIsPuppetOverride) and (not g_isFaithPurchaseBuildingsInPuppetsMod)) then
 		return;
 	end
 	
@@ -1153,7 +1156,7 @@ function OnPopup( popupInfo )
 		if (player:MayNotAnnex() and not g_IsProductionMode) then
 			-- You're super-special Venice and are able to update the window. Congrats.
 -- EDIT
-		elseif (bIsUnitOverride or bIsBuildingOverride or bIsPuppetOverride) then
+		elseif (bIsUnitOverride or bIsBuildingOverride or bIsPuppetOverride or g_isFaithPurchaseBuildingsInPuppetsMod) then
 --END
 		else
 			return;

@@ -83,6 +83,7 @@ struct CvPathNodeCacheData
 	bool bIsVisibleNeutralCombatUnit:1;
 	bool bUnitStackingLimitReached:1;
 	bool bIsValidRoute:1;
+	bool bIsAvoidPlot:1;
 
 	int iMoveFlags;
 
@@ -272,12 +273,10 @@ public:
 		m_iY = -1;
 		m_iMoves = 0;
 		m_iTurns = 0;
-		m_bInvisibleWhenGenerated = false;
 	}
 
 	int m_iMoves;
 	int m_iTurns;
-	bool m_bInvisibleWhenGenerated;
 	short m_iX, m_iY;
 
 	CvPathNode(const SPathNode& rhs)
@@ -286,7 +285,6 @@ public:
 		m_iY = rhs.y;
 		m_iTurns = rhs.turns;
 		m_iMoves = rhs.moves;
-		m_bInvisibleWhenGenerated = false;
 	}
 };
 

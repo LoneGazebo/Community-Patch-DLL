@@ -1829,7 +1829,7 @@ protected:
 	FAutoVariable<bool, CvCity> m_bAllowPuppetPurchase;
 #endif
 #if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
-	FAutoVariable<bool, CvCity> m_iCityAutomatonWorkersChange;
+	FAutoVariable<int, CvCity> m_iCityAutomatonWorkersChange;
 #endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;

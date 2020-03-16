@@ -59,7 +59,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
 	m_bDummy(false),
-	m_iResourceQuantityToPlace(0),
 	m_iLandmarksTourismPercentGlobal(0),
 	m_iGreatWorksTourismModifierGlobal(0),
 #endif
@@ -384,7 +383,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pbBuildingClassNeededAnywhere(NULL),
 	m_pbBuildingClassNeededNowhere(NULL),
 	m_piNumSpecFreeUnits(NULL),
-	m_piNumResourceToPlace(NULL),
+	m_ppiResourcePlotsToPlace(),
 	m_piYieldPerFriend(NULL),
 	m_piYieldPerAlly(NULL),
 #endif
@@ -515,7 +514,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
-	SAFE_DELETE_ARRAY(m_piNumResourceToPlace);
+	m_ppiResourcePlotsToPlace.clear();
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
 	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
 	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
@@ -855,7 +854,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
-	m_iResourceQuantityToPlace = kResults.GetInt("ResourceQuantityToPlace");
 	m_iLandmarksTourismPercentGlobal = kResults.GetInt("GlobalLandmarksTourismPercent");
 	m_iGreatWorksTourismModifierGlobal = kResults.GetInt("GlobalGreatWorksTourismModifier");
 #endif
@@ -1002,7 +1000,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
 	kUtility.PopulateArrayByValue(m_paiSpecificGreatPersonRateModifier, "Specialists", "Building_SpecificGreatPersonRateModifier", "SpecialistType", "BuildingType", szBuildingType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piNumSpecFreeUnits, "Units", "Building_FreeSpecUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
-	kUtility.PopulateArrayByValue(m_piNumResourceToPlace, "Resources", "Building_ResourcePlotsToPlace", "ResourceType", "BuildingType", szBuildingType, "NumPlots");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
@@ -1461,6 +1458,32 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppiBuildingClassLocalYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
 		}
 	}
+
+	//Building_ResourcePlotsToPlace
+	{
+		std::string strKey("Building_ResourcePlotsToPlace");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, NumPlots, ResourceQuantityToPlace from Building_ResourcePlotsToPlace inner join Resources on Resources.Type = ResourceType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iResource = pResults->GetInt(0);
+			const int iNumPlots = pResults->GetInt(1);
+			const int iResourceQuantity = pResults->GetInt(2);
+
+			m_ppiResourcePlotsToPlace[iResource][iResourceQuantity] += iNumPlots;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_ppiResourcePlotsToPlace).swap(m_ppiResourcePlotsToPlace);
+	}
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_API_UNIFIED_YIELDS)
 	//Building_GreatPersonProgressFromConstruction
@@ -1783,10 +1806,6 @@ bool CvBuildingEntry::IsRequiresRail() const
 bool CvBuildingEntry::IsDummy() const
 {
 	return m_bDummy;
-}
-int CvBuildingEntry::GetResourceQuantityToPlace() const
-{
-	return m_iResourceQuantityToPlace;
 }
 int CvBuildingEntry::GetLandmarksTourismPercentGlobal() const
 {
@@ -3658,11 +3677,26 @@ int CvBuildingEntry::GetNumFreeSpecialUnits(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumSpecFreeUnits ? m_piNumSpecFreeUnits[i] : -1;
 }
-int CvBuildingEntry::GetNumResourcesToPlace(int i) const
+/// Building grants resource plots when built
+std::map<int, int> CvBuildingEntry::GetResourcePlotsToPlace(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piNumResourceToPlace ? m_piNumResourceToPlace[i] : -1;
+
+	std::map<int, std::map<int, int>>::const_iterator it = m_ppiResourcePlotsToPlace.find(i);
+	if (it != m_ppiResourcePlotsToPlace.end()) // find returns the iterator to map::end if the key bInternationalOnly is not present
+	{
+		return it->second;
+	}
+
+	std::map<int, int> piDefault;
+
+	return piDefault;
+}
+/// Check if this building grants resource plots
+bool CvBuildingEntry::IsResourcePlotsToPlace() const
+{
+	return !m_ppiResourcePlotsToPlace.empty();
 }
 int CvBuildingEntry::GetYieldPerFriend(int i) const
 {
@@ -4561,7 +4595,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
-	if(kBuilding.GetResourceQuantityToPlace())
+	if (kBuilding.IsResourcePlotsToPlace())
 	{
 		return false;
 	}

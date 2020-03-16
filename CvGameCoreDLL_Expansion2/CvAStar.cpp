@@ -854,6 +854,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bIsVisibleEnemyUnit = false;
 	kToNodeCacheData.bIsVisibleEnemyCombatUnit = false;
 	kToNodeCacheData.bIsVisibleNeutralCombatUnit = false;
+	kToNodeCacheData.bUnitStackingLimitReached = false;
 
 	bool bPlotOccupancyOverride = false;
 	if (kToNodeCacheData.bPlotVisibleToTeam)
@@ -871,13 +872,9 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 
 		kToNodeCacheData.bIsVisibleNeutralCombatUnit = pPlot->isNeutralUnit(pUnit->getOwner(), true, true);
+		kToNodeCacheData.bUnitStackingLimitReached = !pPlot->CanStackUnitHere(pUnit);
 	}
 
-	//ignore this unit when counting!
-	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
-	//for civilians we don't actually need to subtract one here, but it doesn't hurt
-	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
-	kToNodeCacheData.bUnitStackingLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 
 	//small hack to prevent civilians from stacking although they could
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL) && pPlot->isNeutralUnit(pUnit->getOwner(),true,true))
@@ -913,8 +910,20 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
-	kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam,false);
-	kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam,true);
+
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR))
+	{
+		//ensure we can get a path into not-yet-enemy territory but prefer to avoid it
+		kToNodeCacheData.bCanEnterTerritoryIntermediate = true;
+		kToNodeCacheData.bCanEnterTerritoryPermanent = true;
+		kToNodeCacheData.bIsAvoidPlot = !pUnit->canEnterTerritory(ePlotTeam, true);
+	}
+	else
+	{
+		kToNodeCacheData.bCanEnterTerritoryIntermediate = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, false);
+		kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, true);
+		kToNodeCacheData.bIsAvoidPlot = false;
+	}
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
 	kToNodeCacheData.plotMovementCostMultiplier = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit,pPlot);
@@ -995,9 +1004,6 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		//checking the destination!
 		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
-		if(pUnit->IsDeclareWar())
-			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
-
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{
@@ -1009,8 +1015,8 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 			}
 			else
 			{
-				//melee units attack enemy cities and units 
-				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit))
+				//melee units can attack enemy cities and units, or neutral units if the DECLARE_WAR flag is set (should only for humans)
+				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit) || (finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR) && pToPlot->isNeutralUnit(pUnit->getOwner(),true,true)))
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 		}
@@ -1263,6 +1269,10 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	//when in doubt prefer the shorter path
 	iCost += PATH_STEP_WEIGHT;
 
+	//paths through "forbidden" territory should be expensive
+	if (kFromNodeCacheData.bIsAvoidPlot)
+		iCost += PATH_BASE_COST;
+
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
 		iCost += PATH_STEP_WEIGHT;
@@ -1274,7 +1284,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam)
 		{
 			if (!kToNodeCacheData.bCanEnterTerrainPermanent || !kToNodeCacheData.bCanEnterTerritoryPermanent || kToNodeCacheData.bIsNonEnemyCity)
-			return -1; //forbidden
+				return -1; //forbidden
 		}
 
 		// check stacking (if visible)
@@ -1385,6 +1395,10 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			{
 				if (kFromNodeCacheData.bIsNonEnemyCity)
 					return FALSE;
+
+				//special: cannot attack out of a fort or city with melee ships (ranged ships cannot attack from cities as well)
+				if (kFromNodeCacheData.bIsNonNativeDomain && pUnit->getDomainType() == DOMAIN_SEA)
+					return FALSE;
 			}
 
 			// check stacking (if visible)
@@ -1456,7 +1470,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 
 		//normally we would be able to enter enemy territory if at war
-		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY )
+		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY )
 		{
 			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
 				return FALSE;
@@ -1716,7 +1730,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	{
 		if (pToPlot->getOwner() != eEnemy)
 		{
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY) && GET_TEAM(pToPlot->getTeam()).isAtWar(eMyTeam))
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY) && GET_TEAM(pToPlot->getTeam()).isAtWar(eMyTeam))
 				return FALSE;
 
 			if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) && !pToPlot->IsFriendlyTerritory(ePlayer))
@@ -2443,8 +2457,8 @@ void CvTwoLayerPathFinder::SanitizeFlags()
 		return;
 
 	//ignore this flag if we'd be stuck otherwise
-	if (m_sData.iFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
-		m_sData.iFlags &= ~CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+	if (m_sData.iFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
+		m_sData.iFlags &= ~CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 
 }
 

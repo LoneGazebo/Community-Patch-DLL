@@ -444,7 +444,7 @@ typedef vector<CvTacticalTarget> TacticalList;
 class CTacticalUnitArray
 {
 public:
-	CTacticalUnitArray() : m_owner(NULL) {}
+	CTacticalUnitArray() : m_eCurrentMoveType(AI_TACTICAL_MOVE_NONE) {}
 
 	std::vector<CvTacticalUnit>::const_iterator begin() const { return m_vec.begin(); }
 	std::vector<CvTacticalUnit>::const_iterator end() const { return m_vec.end(); }
@@ -455,14 +455,11 @@ public:
 	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
 	void push_back(const CvTacticalUnit& unit);
 	void clear() { m_vec.clear(); }
-	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentTacticalMove(AITacticalMove move) { m_eCurrentMoveType=move; }
 	AITacticalMove getCurrentTacticalMove() const { return m_eCurrentMoveType; }
-	CvUnit* getUnit(size_t i) const { return m_owner ? m_owner->getUnit( m_vec[i].GetID() ) : NULL; }
-	PlayerTypes getOwner() const { return m_owner ? m_owner->GetID() : NO_PLAYER; }
+
 private:
 	std::vector<CvTacticalUnit> m_vec;
-	CvPlayer* m_owner;
 	AITacticalMove m_eCurrentMoveType;
 };
 #endif
@@ -531,20 +528,19 @@ private:
 
 	// Routines to manage identifying and implementing tactical moves
 	void ExecuteCaptureCityMoves();
-	void PlotBarbarianCampMoves();
-	void ExecuteDamageCivilianMoves(AITacticalTargetType targetType);
+	void PlotCaptureBarbCamp();
 	void ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
-	void PlotBarbarianAttacks();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotBlockadeMoves();
 	void PlotCivilianAttackMoves();
 	void ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType);
 	void PlotHealMoves(bool bFirstPass);
-	void PlotCampDefenseMoves();
-	void PlotBarbarianMove(bool bAggressive);
+	void PlotBarbarianAttacks();
+	void PlotBarbarianCampDefense();
+	void PlotBarbarianMoves();
 
 ///------------------------------
 //	unify these?
@@ -565,7 +561,7 @@ private:
 	void PlotHedgehogMoves(CvTacticalDominanceZone* pZone);
 	void PlotCounterattackMoves(CvTacticalDominanceZone* pZone);
 	void PlotWithdrawMoves(CvTacticalDominanceZone* pZone);
-	void PlotCloseOnTarget(CvTacticalDominanceZone* pZone);
+	void PlotReinforcementMoves(CvTacticalDominanceZone* pZone);
 
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
@@ -607,7 +603,7 @@ private:
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals(bool bFirstPass);
-	void ExecuteBarbarianMoves(bool bAggressive);
+	void ExecuteBarbarianMoves();
 	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
@@ -615,7 +611,6 @@ private:
 	void ExecuteAirSweepMoves();
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
-	void ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves();
 
@@ -664,8 +659,6 @@ private:
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	std::vector<CvTacticalUnit> m_CurrentAirSweepUnits;
 #endif
-
-	std::set<int> m_HealingUnits; //persistent!
 
 	CTacticalUnitArray m_CurrentMoveUnits;
 	std::vector<CvTacticalCity> m_CurrentMoveCities;

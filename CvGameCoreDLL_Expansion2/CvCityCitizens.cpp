@@ -725,7 +725,7 @@ void CvCityCitizens::DoTurn()
 				{
 					iUnhappyAverage /= iNumCities;
 				}
-				if (iThisCityValue > iUnhappyAverage)
+				if ((iThisCityValue * 2) > (iUnhappyAverage * 3))
 				{
 					bLockCity = true;
 				}
@@ -740,6 +740,19 @@ void CvCityCitizens::DoTurn()
 				if (!IsNoAutoAssignSpecialists())
 				{
 					SetNoAutoAssignSpecialists(true);
+					bForceCheck = true;
+				}
+			}
+			else
+			{
+				if (IsForcedAvoidGrowth())
+				{
+					SetForcedAvoidGrowth(false);
+					bForceCheck = true;
+				}
+				if (IsNoAutoAssignSpecialists())
+				{
+					SetNoAutoAssignSpecialists(false);
 					bForceCheck = true;
 				}
 			}

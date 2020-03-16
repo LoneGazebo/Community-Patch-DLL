@@ -25,10 +25,10 @@ enum AIHomelandTargetType
 	AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL,
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
+	AI_HOMELAND_TARGET_HOME_ROAD,
 	AI_HOMELAND_TARGET_ANCIENT_RUIN,
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
-
 
 // Object stored in the list of current move units (m_CurrentMoveUnits)
 class CvHomelandUnit
@@ -91,7 +91,7 @@ private:
 class CHomelandUnitArray
 {
 public:
-	CHomelandUnitArray() : m_owner(NULL), m_currentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED) {}
+	CHomelandUnitArray() : m_currentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED) {}
 
 	std::vector<CvHomelandUnit>::iterator begin() { return m_vec.begin(); }
 	std::vector<CvHomelandUnit>::iterator end() { return m_vec.end(); }
@@ -101,7 +101,6 @@ public:
 	std::vector<CvHomelandUnit>::iterator erase(std::vector<CvHomelandUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
 	void push_back(const CvHomelandUnit& unit);
 	void clear() { m_vec.clear(); }
-	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
 	void setCurrentHomelandMove(AIHomelandMove move) { m_currentHomelandMove=move; }
 	AIHomelandMove getCurrentHomelandMove() const { return m_currentHomelandMove; }
 
@@ -109,7 +108,6 @@ public:
 
 private:
 	std::vector<CvHomelandUnit> m_vec;
-	CvPlayer* m_owner;
 	AIHomelandMove m_currentHomelandMove;
 };
 
@@ -224,24 +222,29 @@ public:
 	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 private:
-
-	typedef CHomelandUnitArray MoveUnitsArray;
-
 	// Internal turn update routines - commandeered unit processing
 	void FindHomelandTargets();
 	void AssignHomelandMoves();
 
-//---- move those to tactical AI eventually
+	// Routines to manage identifying and implementing homeland moves
 	void PlotExplorerMoves(bool bSecondPass);
 	void PlotExplorerSeaMoves(bool bSecondPass);
+	void PlotFirstTurnSettlerMoves();
+	void PlotHealMoves();
+	void PlotMovesToSafety();
+
+#if defined(MOD_AI_SECONDARY_SETTLERS)
+	void PlotOpportunisticSettlementMoves();
+#endif
+
+//------------------------------------- move to tactical AI
+#if defined(MOD_BALANCE_CORE)
 	void PlotGarrisonMoves();
-	void PlotMobileReserveMoves();
 	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
 	void PlotAircraftRebase();
-	void PlotAirliftMoves();
 
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves();
@@ -252,15 +255,9 @@ private:
 
 	std::vector<CvHomelandTarget> m_TargetedSentryPoints;
 	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
+#endif
 //-------------------------------------
 
-	// Routines to manage identifying and implementing homeland moves
-	void PlotFirstTurnSettlerMoves();
-	void PlotHealMoves();
-	void PlotMovesToSafety();
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-	void PlotOpportunisticSettlementMoves();
-#endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
 	void PlotWorkerSeaMoves(bool bSecondary = false);
@@ -284,13 +281,11 @@ private:
 	void PlotAdmiralMoves();
 	void PlotMissionaryMoves();
 	void PlotInquisitorMoves();
-	void PlotSSPartAdds();
 	void PlotSSPartMoves();
 	void PlotTreasureMoves();
 	void PlotTradeUnitMoves();
 	void PlotArchaeologistMoves();
 	void ReviewUnassignedUnits();
-	void ExecuteUnassignedUnitMoves();
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
@@ -316,17 +311,13 @@ private:
 	void ExecuteAdmiralMoves();
 	void ExecuteMissionaryMoves();
 	void ExecuteInquisitorMoves();
-	void ExecuteSSPartAdds();
 	void ExecuteSSPartMoves();
 	void ExecuteTreasureMoves();
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
 
-	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
-
-	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns);
 	bool MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
@@ -346,12 +337,11 @@ private:
 	std::list<int> m_CurrentTurnUnits;
 	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
 
-	MoveUnitsArray m_CurrentMoveUnits;
+	CHomelandUnitArray m_CurrentMoveUnits;
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
 	std::vector<CvHomelandTarget> m_TargetedNavalResources;
-	std::vector<CvHomelandTarget> m_TargetedHomelandRoads;
 	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };

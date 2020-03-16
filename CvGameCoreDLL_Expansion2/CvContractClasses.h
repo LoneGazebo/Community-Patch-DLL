@@ -5,7 +5,6 @@
 
 #if defined(MOD_BALANCE_CORE)
 
-#include "CvWeightedVector.h"
 #include "FAutoVariable.h"
 
 class CvContractEntry: public CvBaseInfo

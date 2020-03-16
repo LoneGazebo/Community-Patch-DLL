@@ -150,6 +150,7 @@ CvPlayer::CvPlayer() :
 	, m_iJONSCultureCityModifier("CvPlayer::m_iJONSCultureCityModifier", m_syncArchive)
 	, m_iJONSCulture("CvPlayer::m_iJONSCulture", m_syncArchive, true)
 	, m_iJONSCultureEverGenerated("CvPlayer::m_iJONSCultureEverGenerated", m_syncArchive)
+	, m_iWondersConstructed("CvPlayer::m_iWondersConstructed", m_syncArchive)
 	, m_iCulturePerWonder("CvPlayer::m_iCulturePerWonder", m_syncArchive)
 	, m_iCultureWonderMultiplier("CvPlayer::m_iCultureWonderMultiplier", m_syncArchive)
 	, m_iCulturePerTechResearched("CvPlayer::m_iCulturePerTechResearched", m_syncArchive)
@@ -1251,6 +1252,7 @@ void CvPlayer::uninit()
 	m_iJONSCultureCityModifier = 0;
 	m_iJONSCulture = 0;
 	m_iJONSCultureEverGenerated = 0;
+	m_iWondersConstructed = 0;
 	m_iCulturePerWonder = 0;
 	m_iCultureWonderMultiplier = 0;
 	m_iCulturePerTechResearched = 0;
@@ -9963,7 +9965,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
 				GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
 				GetDiplomacyAI()->DoUpdateOpinions();
-				GetDiplomacyAI()->DoUpdateMajorCivApproaches();
+				GetDiplomacyAI()->DoUpdateMajorCivApproaches(/*bIgnoreApproachCurve*/ true);
 			}
 		}
 	}
@@ -10545,14 +10547,8 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	if (pInitialCity && pInitialCity->isCoastal())
 	{
 		// Equal okay checking this plot because this is where the unit is right now
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if (pInitialPlot->getMaxFriendlyUnitsOfType(pUnit) <= pInitialPlot->getUnitLimit())
-#else
-		if (pInitialPlot->getMaxFriendlyUnitsOfType(pUnit) <= GC.getPLOT_UNIT_LIMIT())
-#endif
-		{
+		if (pInitialPlot->CanStackUnitHere(pUnit))
 			return pInitialPlot;
-		}
 	}
 
 	// Otherwise let's look at all our other cities
@@ -10560,30 +10556,21 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity != pInitialCity)
+		if (pLoopCity != pInitialCity && pLoopCity->isCoastal())
 		{
-			if (pLoopCity->isCoastal())
+			if (pLoopCity->plot()->CanStackUnitHere(pUnit))
 			{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < pLoopCity->plot()->getUnitLimit())
-#else
-				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
-				{
-					return pLoopCity->plot();
-				}
+				return pLoopCity->plot();
 			}
 		}
 	}
 
 	// Don't have a coastal city, look for water plot THAT ISN'T A LAKE closest to our capital that isn't owned by an enemy
-	int iCapitalX;
-	int iCapitalY;
 	CvCity *pCapital = getCapitalCity();
 	if (pCapital)
 	{
-		iCapitalX = pCapital->getX();
-		iCapitalY = pCapital->getY();
+		int iCapitalX = pCapital->getX();
+		int iCapitalY = pCapital->getY();
 
 		CvPlot *pBestPlot = NULL;
 		int iBestDistance = MAX_INT;
@@ -10597,11 +10584,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 				{
 					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
 					{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
-#else
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
+						if (pPlot->CanStackUnitHere(pUnit))
 						{
 							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
 							if (iDistance < iBestDistance)
@@ -10630,11 +10613,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 				{
 					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
 					{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
-#else
-						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
+						if (pPlot->CanStackUnitHere(pUnit))
 						{
 							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
 							if (iDistance < iBestDistance)
@@ -11793,8 +11772,8 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		//collect some stats
-		tactMovesCount[pLoopUnit->getTacticalMove()]++;
-		homeMovesCount[pLoopUnit->getHomelandMove()]++;
+		gTactMovesCount[pLoopUnit->getTacticalMove()]++;
+		gHomeMovesCount[pLoopUnit->getHomelandMove()]++;
 
 		// Sanity check
 		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetDanger() == INT_MAX && pLoopUnit->plot()->getNumUnits()==1)
@@ -11893,11 +11872,7 @@ void CvPlayer::RespositionInvalidUnits()
 			continue;
 		}
 
-#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(pLoopUnit) > pPlot->getUnitLimit())
-#else
-		if(pPlot->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
-#endif
+		if (!pPlot->CanStackUnitHere(pLoopUnit))
 		{
 			if (!pLoopUnit->jumpToNearestValidPlot())
 				pLoopUnit->kill(false);	// Could not find a valid location!
@@ -14284,38 +14259,28 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->isValidDomainForLocation(*pNewUnit) && pNewUnit->isMatchingDomain(pLoopPlot))
 							{
-								if(pNewUnit->canMoveInto(*pLoopPlot))
+								if(pNewUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY))
 								{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-									if(pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < pLoopPlot->getUnitLimit())
-#else
-									if(pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
-#endif
+									if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit))
 									{
-										if(pNewUnit->canEnterTerritory(pLoopPlot->getTeam()) && !pNewUnit->isEnemy(pLoopPlot->getTeam(), pLoopPlot))
+										if(pLoopPlot->isRevealed(getTeam()))
 										{
-											if((pNewUnit->getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*pNewUnit))
+											iValue = 1 + GC.getGame().getSmallFakeRandNum(6, *pLoopPlot); // okay, I'll admit it, not a great heuristic
+
+											if(plotDistance(pPlot->getX(),pPlot->getY(),pLoopPlot->getX(),pLoopPlot->getY()) > 1)
 											{
-												if(pLoopPlot->isRevealed(getTeam()))
-												{
-													iValue = 1 + GC.getGame().getSmallFakeRandNum(6, *pLoopPlot); // okay, I'll admit it, not a great heuristic
+												iValue += 12;
+											}
 
-													if(plotDistance(pPlot->getX(),pPlot->getY(),pLoopPlot->getX(),pLoopPlot->getY()) > 1)
-													{
-														iValue += 12;
-													}
+											if(pLoopPlot->area() != pPlot->area())  // jumped to a different land mass, cool
+											{
+												iValue *= 10;
+											}
 
-													if(pLoopPlot->area() != pPlot->area())  // jumped to a different land mass, cool
-													{
-														iValue *= 10;
-													}
-
-													if(iValue < iBestValue)
-													{
-														iBestValue = iValue;
-														pBestPlot = pLoopPlot;
-													}
-												}
+											if(iValue < iBestValue)
+											{
+												iBestValue = iValue;
+												pBestPlot = pLoopPlot;
 											}
 										}
 									}
@@ -19155,6 +19120,25 @@ int CvPlayer::GetJONSCulturePerCityPerTurn() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlayer::GetWondersConstructed() const
+{
+	return m_iWondersConstructed;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetWondersConstructed(int iNewValue)
+{
+	m_iWondersConstructed = iNewValue;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeWondersConstructed(int iChange)
+{
+	SetWondersConstructed(GetWondersConstructed() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
 /// Amount of extra Culture per Wonder
 int CvPlayer::GetCulturePerWonder() const
 {
@@ -19878,7 +19862,7 @@ void CvPlayer::DoWarVictoryBonuses()
 }
 void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
-	int iEra = GetCurrentEra();
+	int iEra = GC.getGame().getCurrentEra();
 	if(iEra <= 0)
 	{
 		iEra = 1;
@@ -26753,7 +26737,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									iKillYield += pAttackingUnit->getYieldFromKills(eYield);
 
 									// Do we get it for barbarians?
-									if (pUnit->getOwner() == BARBARIAN_PLAYER)
+									if (pUnit != NULL && pUnit->getOwner() == BARBARIAN_PLAYER)
 									{
 										iKillYield += pkAttackingUnitInfo->GetYieldFromBarbarianKills(eYield);
 										iKillYield += pAttackingUnit->getYieldFromBarbarianKills(eYield);
@@ -31546,7 +31530,7 @@ int CvPlayer::GetEventTourismCS() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iChange)
 {
-	if(isMinorCiv())
+	if (!isMajorCiv())
 	{
 		return;
 	}
@@ -34103,9 +34087,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 	{
 		CvGame& kGame = GC.getGame();
 		CvMap& theMap = GC.getMap();
-
 		m_bTurnActive = bNewValue; // R: this is causing the AI playing twice in one turn bug
-
 #if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
 		// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
 		// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
@@ -36388,7 +36370,6 @@ int CvPlayer::GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) con
 			if(iNationalPop > 0)
 			{
 				int iScaler = (getNumCities() * pkBuildingInfo->GetNumCityCostMod());
-
 				iNationalPop *= (100 + iScaler);
 				iNationalPop /= 100;
 
@@ -40899,7 +40880,7 @@ void CvPlayer::deleteCity(int iID)
 int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
 	if ( isMajorCiv() )
-	return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
+		return GC.getGame().GetClosestCityDistanceInTurns( pPlot, GetID() );
 
 	//for minors we fake it
 	CvCity* pCapital = getCapitalCity();
@@ -40913,7 +40894,7 @@ CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
 	//careful, player-specific GetClosestCity only works for majors (because of performance)
 	if ( isMajorCiv() )
-	return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
+		return GC.getGame().GetClosestCityByEstimatedTurns( pPlot, GetID() );
 
 	//for minors just assume they have only one city (99% correct)
 	return getCapitalCity();
@@ -40922,7 +40903,7 @@ CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 {
 	if ( isMajorCiv() )
-	return GC.getGame().GetClosestCityDistanceInPlots( pPlot, GetID() );
+		return GC.getGame().GetClosestCityDistanceInPlots( pPlot, GetID() );
 
 	//for minors we fake it
 	CvCity* pCapital = getCapitalCity();
@@ -40935,7 +40916,7 @@ int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
 {
 	if ( isMajorCiv() )
-	return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
+		return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
 
 	//for minors just assume they have only one city (99% correct)
 	return getCapitalCity();
@@ -47085,12 +47066,12 @@ bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)
 	return m_pDangerPlots->IsKnownAttacker(pAttacker);
 }
 
-void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
+bool CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	m_pDangerPlots->AddKnownAttacker(pAttacker);
+	return m_pDangerPlots->AddKnownAttacker(pAttacker);
 }
 
 //	--------------------------------------------------------------------------------

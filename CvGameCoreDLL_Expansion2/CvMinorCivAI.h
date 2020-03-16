@@ -508,10 +508,6 @@ public:
 	
 	void ResetFriendshipWithMajor(PlayerTypes ePlayer);
 
-	int GetAngerFreeIntrusionCounter(PlayerTypes ePlayer) const;
-	void SetAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iNum);
-	void ChangeAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iChange);
-
 	void DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly);
 
 	int GetMostFriendshipWithAnyMajor(PlayerTypes& eBestPlayer);
@@ -555,11 +551,6 @@ public:
 	void DoSack();
 	void DoDefection();
 #endif
-
-	// DEPRECATED
-	bool IsMajorIntruding(PlayerTypes eMajor) const;
-	void SetMajorIntruding(PlayerTypes eMajor, bool bValue);
-	// END DEPRECATED
 
 	bool IsPlayerHasOpenBorders(PlayerTypes ePlayer);
 	bool IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer);
@@ -792,9 +783,6 @@ public:
 	pair<CvString, CvString> GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly);
 	CvString GetNamesListAsString(CivsList veNames);
 
-	int GetMajorScratchPad(PlayerTypes ePlayer) const;
-	void SetMajorScratchPad(PlayerTypes ePlayer, int iNum);
-
 	bool IsDisableNotifications() const;
 	void SetDisableNotifications(bool bDisableNotifications);
 
@@ -846,12 +834,10 @@ private:
 	PlayerTypes m_eAlly;
 	int m_iTurnAllied;
 	PlayerTypes m_eMajorBoughtOutBy;
+	int m_iNumThreateningBarbarians;
+	bool m_bAllowMajorsToIntrude;
 
 	int m_aiFriendshipWithMajorTimes100[MAX_MAJOR_CIVS];
-	int m_aiAngerFreeIntrusionCounter[MAX_MAJOR_CIVS];
-	int m_aiPlayerQuests[MAX_MAJOR_CIVS]; //antonjs: DEPRECATED
-	int m_aiQuestData1[MAX_MAJOR_CIVS]; //antonjs: DEPRECATED
-	int m_aiQuestData2[MAX_MAJOR_CIVS]; //antonjs: DEPRECATED
 	int m_aiQuestCountdown[MAX_MAJOR_CIVS];
 	int m_aiUnitSpawnCounter[MAX_MAJOR_CIVS];
 	int m_aiNumUnitsGifted[MAX_MAJOR_CIVS];
@@ -860,7 +846,6 @@ private:
 	int m_aiTurnLastPledged[MAX_MAJOR_CIVS];
 	int m_aiTurnLastBrokePledge[MAX_MAJOR_CIVS];
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
-	bool m_abMajorIntruding[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
 #if defined(MOD_CITY_STATE_SCALE)
 	bool m_abFriends[MAX_MAJOR_CIVS];
@@ -869,7 +854,6 @@ private:
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];
 	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];
 
-	int m_aiMajorScratchPad[MAX_MAJOR_CIVS];
 	bool m_bDisableNotifications;
 
 	//not serialized, generated and cached on demand

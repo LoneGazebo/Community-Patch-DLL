@@ -2015,7 +2015,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 					return pCity;
 			}
 		}
@@ -2065,7 +2065,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 					return pCity;
 			}
 		}
@@ -2612,7 +2612,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
-	SPathFinderUserData data(pMusician, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 23);
+	SPathFinderUserData data(pMusician, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 23);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusician->getX(), pMusician->getY(), data);
 		

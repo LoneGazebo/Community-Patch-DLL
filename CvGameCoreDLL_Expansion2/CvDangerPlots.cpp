@@ -180,7 +180,7 @@ void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRan
 			for (int j = 0; j < RING_PLOTS[2]; j++)
 			{
 				CvPlot* pAttackPlot = iterateRingPlots(pPotentialHiddedUnitPlot, j);
-				if (pAttackPlot)
+				if (pAttackPlot && pAttackPlot->getDomain() == pOrigin->getDomain())
 					//note: we accept duplicate indices in m_fogDanger by design
 					//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
 					m_DangerPlots[pAttackPlot->GetPlotIndex()].m_fogDanger.push_back(pPotentialHiddedUnitPlot->GetPlotIndex());
@@ -209,7 +209,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 
 	//units we know from last turn (maintained only for AI, humans must remember on their own)
 	UnitSet previousKnownUnits = m_knownUnits;
-	if (!bKeepKnownUnits)
+	if (!bKeepKnownUnits || thisPlayer.isHuman())
 		m_knownUnits.clear();
 
 	// for each opposing civ
@@ -234,10 +234,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 		{
 			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
 			{
-				//remember for next turn in case they move out of sight (only for AI players)
-				if (!GET_PLAYER(m_ePlayer).isHuman())
-					m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
-
+				m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 1, false);
 			}
 		}
@@ -418,22 +415,18 @@ bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 	return m_knownUnits.find(std::make_pair(pUnit->getOwner(), pUnit->GetID())) != m_knownUnits.end();
 }
 
-void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
+bool CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 {
 	if (m_DangerPlots.empty()  || !pUnit)
-		return;
+		return false;
 
-	//don't do this for human players - they have to remember on their own
-	if (GET_PLAYER(m_ePlayer).isHuman())
-		return;
+	if (IsKnownAttacker(pUnit))
+		return false;
 
-	if (!IsKnownAttacker(pUnit))
-	{
-		UpdateDangerSingleUnit(pUnit, false, PlotIndexContainer()); //for simplicity, assume no ZOC by owned units
-		m_knownUnits.insert(std::make_pair(pUnit->getOwner(), pUnit->GetID()));
-
-		ResetDangerCache(pUnit->plot(), 3);
-	}
+	UpdateDangerSingleUnit(pUnit, false, PlotIndexContainer()); //for simplicity, assume no ZOC by owned units
+	m_knownUnits.insert(std::make_pair(pUnit->getOwner(), pUnit->GetID()));
+	ResetDangerCache(pUnit->plot(), 3);
+	return true;
 }
 
 /// Should this player be ignored when creating the danger plots?
@@ -552,12 +545,14 @@ void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 		return;
 
 	DangerUnitVector& v = m_DangerPlots[pPlot->GetPlotIndex()].m_apUnits;
+	DangerUnitVector::value_type element(pUnit->getOwner(), pUnit->GetID());
 
-	//for (size_t i = 0; i < v.size(); i++)
-	//	if (v[i].second == pUnit->GetID())
-	//		OutputDebugString("problem!\n");
-
-	v.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+	//it may happen that we try to add an attacker that is already noted
+	//the IsKnownAttacker() does not contain the units we didn't want to remember for next turn
+	//because technically they are invisible, AI only tracks them because they were visible the turn before
+	//but now we rediscovered the attacker. so, do a double check:
+	if (std::find(v.begin(),v.end(),element) == v.end())
+		v.push_back(element);
 }
 
 //	-----------------------------------------------------------------------------------------------

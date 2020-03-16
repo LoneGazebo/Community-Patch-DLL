@@ -275,7 +275,7 @@ int CvTacticalDominanceZone::GetBorderScore(CvCity** ppWorstNeighborCity) const
 		CvTacticalDominanceZone* pNeighbor = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByID(m_vNeighboringZones[i]);
 		if (!pNeighbor)
 			continue;
-		
+
 		int iScore = 0;
 
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)

@@ -4674,6 +4674,9 @@ void CvPlayerTrade::UpdateTradeStats()
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID())
 			m_tradeStats.nRoutesFromCity[connection.m_iOriginID]++;
+
+		if (connection.m_eDestOwner == m_pPlayer->GetID())
+			m_tradeStats.nRoutesToCity[connection.m_iDestID]++;
 	}
 
 	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
@@ -4716,6 +4719,15 @@ int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
 
 	UpdateTradeStats();
 	return m_tradeStats.nRoutesFromCity[pCity->GetID()];
+}
+
+int CvPlayerTrade::GetNumberOfTradeRoutesCity(const CvCity* pCity)
+{
+	if (!pCity)
+		return 0;
+
+	UpdateTradeStats();
+	return m_tradeStats.nRoutesToCity[pCity->GetID()];
 }
 
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)
@@ -4937,6 +4949,7 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 		}
 
 		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
+		bool bPlotIsVisibleToOtherTeam = pPlot->isVisible(eOtherTeam);
 
 		bool bIgnore = false;
 		if (bExcludingMe && eOtherTeam == eMyTeam)
@@ -4950,10 +4963,32 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pConnection->m_eOriginOwner) >= MAJOR_CIV_OPINION_NEUTRAL)
-					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, true) >= MAJOR_CIV_APPROACH_AFRAID)
-					bIgnore = true;
+				else if (!m_pPlayer->isHuman())
+				{
+					MajorCivApproachTypes eTrueApproach = m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, /*bHideTrueFeelings*/ false);
+					MajorCivApproachTypes eSurfaceApproach = m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(pConnection->m_eOriginOwner, /*bHideTrueFeelings*/ true);
+					MajorCivOpinionTypes eOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pConnection->m_eOriginOwner);
+					
+					if (m_pPlayer->GetDiplomacyAI()->IsDoFAccepted(pConnection->m_eOriginOwner))
+						bIgnore = true;
+					else if (eTrueApproach == MAJOR_CIV_APPROACH_AFRAID || eTrueApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+						bIgnore = true;
+					else if (eTrueApproach == MAJOR_CIV_APPROACH_NEUTRAL && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+						bIgnore = true;
+					// Morocco can plunder trade routes with no diplo penalty if the plot is not visible to the other team, so use this
+					else if (eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY && bPlotIsVisibleToOtherTeam)
+						bIgnore = true;
+					else if (eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE && bPlotIsVisibleToOtherTeam)
+						bIgnore = true;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					// Don't plunder our master's trade routes if they're treating us well
+					else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(pConnection->m_eOriginOwner).getTeam())
+					{
+						if (m_pPlayer->GetDiplomacyAI()->GetVassalTreatmentLevel(pConnection->m_eOriginOwner) == VASSAL_TREATMENT_CONTENT)
+							bIgnore = true;
+					}
+#endif
+				}
 			}
 			else
 			{

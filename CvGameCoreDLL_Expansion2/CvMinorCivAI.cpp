@@ -2868,29 +2868,28 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			pMinor->GetMinorCivAI()->SetHordeActive(true);
 		}
 
-			//Tell the AI to get over there!
-			if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		//Tell the AI to get over there!
+		if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		{
+			CvCity* pMinorCap = pMinor->getCapitalCity();
+			if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 			{
-				CvCity* pMinorCap = pMinor->getCapitalCity();
-				if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
-				{
-					CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
+				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
 
-					PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
-					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
+				PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+				if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
+				{
+					int iNumRequiredSlots;
+					int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
+						pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
+					// Not willing to build units to get this off the ground
+					if (iFilledSlots >= iNumRequiredSlots)
 					{
-						int iNumRequiredSlots;
-						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
-							pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
-						// Not willing to build units to get this off the ground
-						if (iFilledSlots >= iNumRequiredSlots)
-						{
-							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
-						}
+						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
 					}
 				}
 			}
-
+		}
 	}
 	// Rebellion
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -4141,6 +4140,9 @@ void CvMinorCivAI::Reset()
 	m_eAlly = NO_PLAYER;
 	m_iTurnAllied = -1;
 	m_eMajorBoughtOutBy = NO_PLAYER;
+	m_iNumThreateningBarbarians = 0;
+	m_bAllowMajorsToIntrude = false;
+
 	m_bDisableNotifications = false;
 	m_iBullyPlotsBuilt = 0;
 	m_bullyRelevantPlots.clear();
@@ -4171,10 +4173,6 @@ void CvMinorCivAI::Reset()
 		m_abRouteConnectionEstablished[iI] = false;
 
 		m_aiFriendshipWithMajorTimes100[iI] = 0;
-		m_aiAngerFreeIntrusionCounter[iI] = 0;
-		m_aiPlayerQuests[iI] = NO_MINOR_CIV_QUEST_TYPE;
-		m_aiQuestData1[iI] = -1;
-		m_aiQuestData2[iI] = -1;
 		m_aiQuestCountdown[iI] = -1;
 		m_aiUnitSpawnCounter[iI] = -1;
 		m_aiNumUnitsGifted[iI] = 0;
@@ -4183,13 +4181,11 @@ void CvMinorCivAI::Reset()
 		m_aiTurnLastPledged[iI] = -1;
 		m_aiTurnLastBrokePledge[iI] = -1;
 		m_abUnitSpawningDisabled[iI] = false;
-		m_abMajorIntruding[iI] = false;
 		m_abEverFriends[iI] = false;
 #if defined(MOD_CITY_STATE_SCALE)
 		m_abFriends[iI] = false;
 #endif
 		m_abPledgeToProtect[iI] = false;
-		m_aiMajorScratchPad[iI] = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
 		m_abIsMarried[iI] = false;
 		m_abSiphoned[iI] = false;
@@ -4269,6 +4265,8 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_iTurnAllied;
 
 	kStream >> m_eMajorBoughtOutBy;
+	kStream >> m_iNumThreateningBarbarians;
+	kStream >> m_bAllowMajorsToIntrude;
 
 	kStream >> m_abWarQuestAgainstMajor;
 
@@ -4278,11 +4276,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 
 	kStream >> m_aiFriendshipWithMajorTimes100;
 
-	kStream >> m_aiAngerFreeIntrusionCounter;
-
-	kStream >> m_aiPlayerQuests;
-	kStream >> m_aiQuestData1;
-	kStream >> m_aiQuestData2;
 	kStream >> m_aiQuestCountdown;
 	kStream >> m_aiUnitSpawnCounter;
 
@@ -4296,7 +4289,6 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_aiTurnLastBrokePledge;
 
 	kStream >> m_abUnitSpawningDisabled;
-	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
 #if defined(MOD_CITY_STATE_SCALE)
 	kStream >> m_abFriends;
@@ -4379,6 +4371,8 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_iTurnAllied;
 
 	kStream << m_eMajorBoughtOutBy; // Version 16
+	kStream << m_iNumThreateningBarbarians;
+	kStream << m_bAllowMajorsToIntrude;
 
 	kStream << m_abWarQuestAgainstMajor;
 
@@ -4387,10 +4381,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abRouteConnectionEstablished;
 
 	kStream << m_aiFriendshipWithMajorTimes100;
-	kStream << m_aiAngerFreeIntrusionCounter;
-	kStream << m_aiPlayerQuests;
-	kStream << m_aiQuestData1;
-	kStream << m_aiQuestData2;
 	kStream << m_aiQuestCountdown;
 	kStream << m_aiUnitSpawnCounter;
 	kStream << m_aiNumUnitsGifted;
@@ -4399,7 +4389,6 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_aiTurnLastPledged;
 	kStream << m_aiTurnLastBrokePledge;
 	kStream << m_abUnitSpawningDisabled;
-	kStream << m_abMajorIntruding;
 	kStream << m_abEverFriends;
 #if defined(MOD_CITY_STATE_SCALE)
 	kStream << m_abFriends;
@@ -4906,24 +4895,6 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 /// First contact
 void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessages)
 {
-	// Set intrusion flag (used for unit movement)
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(ePlayer).getTeam() == eTeam)
-		{
-			if(GET_PLAYER(ePlayer).isHuman())
-			{
-				// Humans intrude automatically upon meeting (allowing them to enter our territory if they choose)
-				SetMajorIntruding(ePlayer, true);
-			}
-			else
-			{
-				SetMajorIntruding(ePlayer, false);
-			}
-		}
-	}
-
 	// This guy's a warmonger or at war with our ally, so we DoW him
 	if(IsPeaceBlocked(eTeam))
 	{
@@ -5986,8 +5957,6 @@ void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, i
 	if (IsThreateningBarbariansEventActiveForPlayer(eKillingPlayer))
 	{
 		ChangeFriendshipWithMajor(eKillingPlayer, /*12*/ GC.getFRIENDSHIP_PER_BARB_KILLED());
-
-		ChangeAngerFreeIntrusionCounter(eKillingPlayer, 5);
 
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BARB_KILLED");
 		strMessage << GetPlayer()->getNameKey();
@@ -11245,35 +11214,6 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 
 }
 
-/// How many turns left does this player have of anger-free intrusion?
-int CvMinorCivAI::GetAngerFreeIntrusionCounter(PlayerTypes ePlayer) const
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
-
-	return m_aiAngerFreeIntrusionCounter[ePlayer];
-}
-
-/// How many turns left does this player have of anger-free intrusion?
-void CvMinorCivAI::SetAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iNum)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-
-	m_aiAngerFreeIntrusionCounter[ePlayer] = iNum;
-}
-
-/// How many turns left does this player have of anger-free intrusion?
-void CvMinorCivAI::ChangeAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iChange)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-
-	SetAngerFreeIntrusionCounter(ePlayer, GetAngerFreeIntrusionCounter(ePlayer) + iChange);
-}
-
 /// Update Best Relations Resource Bonus
 void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly)
 {
@@ -12284,75 +12224,57 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 /// Major Civs intruding in our lands?
 void CvMinorCivAI::DoIntrusion()
 {
-	PlayerTypes eMajor;
+	int iNewBarbCount = GetNumThreateningBarbarians();
+	
+	//allow major players in our territory for one turn after the barbarians have been vanquished
+	if (iNewBarbCount > 0)
+		m_bAllowMajorsToIntrude = true;
+	else if (iNewBarbCount == 0 && m_iNumThreateningBarbarians == 0)
+		m_bAllowMajorsToIntrude = false;
+	
+	//remember for next turn
+	m_iNumThreateningBarbarians = iNewBarbCount;
+
 	int iMajorLoop;
 	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
 
-		if(GetAngerFreeIntrusionCounter(eMajor) > 0)
-		{
-			ChangeAngerFreeIntrusionCounter(eMajor, -1);
-		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_HORDE) || GetPlayer()->GetMinorCivAI()->IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_REBELLION)))
 		{
-			return;
+			m_bAllowMajorsToIntrude = true;
 		}
 #endif
 	}
 
-	// If there are barbs nearby then don't worry about other players
-	if(GetNumThreateningBarbarians() > 0)
-		return;
-
-	CvPlot* pLoopPlot;
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-
-	// Set up scratch pad so that we can use it to send out Notifications
-	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		eMajor = (PlayerTypes) iMajorLoop;
-		SetMajorScratchPad(eMajor, 0);
-	}
+	// Should not happen if MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS is false
+	vector<PlayerTypes> vIntruders;
 
 	// Look at how many Units each Major Civ has in the Minor's Territory
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		// Plot owned by this Minor?
 		if(pLoopPlot->getOwner() == GetPlayer()->GetID())
 		{
-			pUnitNode = pLoopPlot->headUnitNode();
+			const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
 			while(pUnitNode != NULL)
 			{
-				pLoopUnit = ::getUnit(*pUnitNode);
+				const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// Does this unit not cause anger?
 				if(pLoopUnit && pLoopUnit->IsAngerFreeUnit())
 					continue;
 
-				//// Don't look at Unit's this Minor wants for a Quest!
-				//if (!IsPeaceQuestCompletedByMajor((PlayerTypes) pLoopUnit->getOwner()))
-				//{
-				//	if (GetPeaceQuestWidget() == MINORCIVQUESTWIDGET_UNITCLASS || GetWarQuestWidget() == MINORCIVQUESTWIDGET_UNITCLASS)
-				//	{
-				//		if (GetPeaceQuestWidgetID() == pLoopUnit->getUnitClassType() || GetWarQuestWidgetID() == pLoopUnit->getUnitClassType())
-				//		{
-				//			continue;
-				//		}
-				//	}
-				//}
-
 				// Does this Unit belong to a Major?
 				if(pLoopUnit && pLoopUnit->getOwner() < MAX_MAJOR_CIVS)
 				{
 					// If player has been granted Open Borders or has a friendship with minors bonus, then the Minor doesn't care about intrusion
-					if(!IsPlayerHasOpenBorders(pLoopUnit->getOwner()) && GetAngerFreeIntrusionCounter(pLoopUnit->getOwner()) == 0)
+					if(!IsPlayerHasOpenBorders(pLoopUnit->getOwner()))
 					{
 						// If the player is at war with the Minor then don't bother
 						if(!IsAtWarWithPlayersTeam(pLoopUnit->getOwner()))
@@ -12365,14 +12287,8 @@ void CvMinorCivAI::DoIntrusion()
 								// only modify if the unit isn't automated nor having a pending order
 								if(!pLoopUnit->IsAutomated() && pLoopUnit->GetLengthMissionQueue() == 0)
 								{
-									SetMajorScratchPad(pLoopUnit->getOwner(), 1);
+									vIntruders.push_back(pLoopUnit->getOwner());
 								}
-
-								//if (!IsMajorIntruding((PlayerTypes) pLoopUnit->getOwner()))
-								//{
-								//	SetMajorIntruding((PlayerTypes) pLoopUnit->getOwner(), true);
-								//	ChangeNumTurnsMajorHasIntruded((PlayerTypes) pLoopUnit->getOwner(), 1);
-								//}
 							}
 						}
 					}
@@ -12385,19 +12301,14 @@ void CvMinorCivAI::DoIntrusion()
 	Localization::String strMessage;
 	Localization::String strSummary;
 
-	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	for (size_t i=0; i<vIntruders.size(); i++)
 	{
-		eMajor = (PlayerTypes) iMajorLoop;
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_INTRUSION");
+		strMessage << GetPlayer()->getNameKey();
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_INTRUSION");
+		strSummary << GetPlayer()->getNameKey();
 
-		if(GetMajorScratchPad(eMajor) > 0)
-		{
-			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_INTRUSION");
-			strMessage << GetPlayer()->getNameKey();
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_INTRUSION");
-			strSummary << GetPlayer()->getNameKey();
-
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-		}
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), vIntruders[i]);
 	}
 }
 
@@ -12480,35 +12391,14 @@ void CvMinorCivAI::DoDefection()
 }
 #endif
 
-/// Is a Major Civ mackin on our turf?
-bool CvMinorCivAI::IsMajorIntruding(PlayerTypes eMajor) const
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor< 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-
-	return m_abMajorIntruding[eMajor];
-}
-
-/// Sets a Major to be intruding in our territory
-void CvMinorCivAI::SetMajorIntruding(PlayerTypes eMajor, bool bValue)
-{
-	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-
-	if(IsMajorIntruding(eMajor) != bValue)
-	{
-		m_abMajorIntruding[eMajor] = bValue;
-	}
-}
-
-
 /// Is a player allowed to be inside someone else's borders?
 bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 {
 	// Special trait?
 	if(IsPlayerHasOpenBordersAutomatically(ePlayer))
+		return true;
+
+	if (m_bAllowMajorsToIntrude)
 		return true;
 
 	return IsFriends(ePlayer);
@@ -18826,25 +18716,6 @@ CvString CvMinorCivAI::GetNamesListAsString(CivsList veNames)
 		}
 	}
 	return s;
-}
-
-/// Get Scratch Pad for Major Civs
-int CvMinorCivAI::GetMajorScratchPad(PlayerTypes ePlayer) const
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
-	return m_aiMajorScratchPad[ePlayer];
-}
-
-/// Set Scratch Pad for Major Civs
-void CvMinorCivAI::SetMajorScratchPad(PlayerTypes ePlayer, int iNum)
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-
-	m_aiMajorScratchPad[ePlayer] = iNum;
 }
 
 /// Have notifications been (temporarily) disabled?

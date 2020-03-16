@@ -130,7 +130,7 @@ public:
 		//these values are used internally only
 		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
-		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory, even if we could
+		MOVEFLAG_NO_ENEMY_TERRITORY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
@@ -212,8 +212,6 @@ public:
 	bool SentryAlert() const;
 
 	bool CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVisibility = false);
-
-	bool IsDeclareWar() const;
 
 	RouteTypes GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL) const;
 	void PlayActionSound();
@@ -785,6 +783,9 @@ public:
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
 
+	bool HasSpottedEnemy() const;
+	void SetSpottedEnemy(bool bValue);
+
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
@@ -1059,7 +1060,7 @@ public:
 	bool CanGarrison() const;
 	bool IsGarrisoned(void) const;
 	void SetGarrisonedCity(int iCityID);
-	CvCity* GetGarrisonedCity();
+	CvCity* GetGarrisonedCity() const;
 	void triggerFortifyAnimation(bool bState);
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
@@ -1700,8 +1701,6 @@ public:
 
 	bool attemptGroundAttacks(const CvPlot& pPlot);
 
-	bool potentialWarAction(const CvPlot* pPlot) const;
-
 	bool isAlwaysHostile(const CvPlot& pPlot) const;
 	void changeAlwaysHostileCount(int iValue);
 	int getAlwaysHostileCount() const;
@@ -1714,6 +1713,8 @@ public:
 	void setTacticalMove(AITacticalMove eMove);
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;
+	bool canUseForTacticalAI() const;
+
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;
 
@@ -1943,6 +1944,14 @@ protected:
 	FAutoVariable<int, CvUnit> m_iY;
 	FAutoVariable<int, CvUnit> m_iID;
 
+	FAutoVariable<int, CvUnit> m_iDamage;
+	FAutoVariable<int, CvUnit> m_iMoves;
+	FAutoVariable<int, CvUnit> m_iArmyId;
+	FAutoVariable<int, CvUnit> m_iBaseCombat;
+#if defined(MOD_API_EXTENSIONS)
+	FAutoVariable<int, CvUnit> m_iBaseRangedCombat;
+#endif
+
 	FAutoVariable<int, CvUnit> m_iHotKeyNumber;
 	FAutoVariable<int, CvUnit> m_iDeployFromOperationTurn;
 	FAutoVariable<int, CvUnit> m_iLastMoveTurn;
@@ -1950,8 +1959,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iReconY;
 	FAutoVariable<int, CvUnit> m_iReconCount;
 	FAutoVariable<int, CvUnit> m_iGameTurnCreated;
-	FAutoVariable<int, CvUnit> m_iDamage;
-	FAutoVariable<int, CvUnit> m_iMoves;
 	FAutoVariable<bool, CvUnit> m_bImmobile;
 	FAutoVariable<int, CvUnit> m_iExperience;
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -2067,12 +2074,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAirSweepCapableCount;
 	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
-	FAutoVariable<int, CvUnit> m_iBaseCombat;
-#if defined(MOD_API_EXTENSIONS)
-	FAutoVariable<int, CvUnit> m_iBaseRangedCombat;
-#endif
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
-	FAutoVariable<int, CvUnit> m_iArmyId;
 
 	FAutoVariable<int, CvUnit> m_iIgnoreTerrainCostCount;
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
@@ -2092,9 +2094,9 @@ protected:
 	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
 	FAutoVariable<int, CvUnit> m_bNearbyPromotion;
 	FAutoVariable<int, CvUnit> m_iNearbyUnitPromotionRange;
-	FAutoVariable<int, CvUnit> m_inearbyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyFriendlyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyEnemyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
@@ -2105,23 +2107,23 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveCombatMod;
 	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
 	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
-	FAutoVariable<int, CvUnit> m_igiveOutsideFriendlyLandsModifier;
+	FAutoVariable<int, CvUnit> m_iGiveOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_eGiveDomain;
-	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
-	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
-	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
-	FAutoVariable<int, CvUnit> m_bconvertUnit;
+	FAutoVariable<int, CvUnit> m_iGiveExtraAttacks;
+	FAutoVariable<int, CvUnit> m_iGiveDefenseMod;
+	FAutoVariable<int, CvUnit> m_bGiveInvisibility;
+	FAutoVariable<int, CvUnit> m_bConvertUnit;
 	FAutoVariable<int, CvUnit> m_eConvertDomain;
 	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
-	FAutoVariable<int, CvUnit> m_bconvertEnemyUnitToBarbarian;
-	FAutoVariable<int, CvUnit> m_bconvertOnFullHP;
-	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
-	FAutoVariable<int, CvUnit> m_idamageThreshold;
-	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
-	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
-	FAutoVariable<int, CvUnit> m_inearbyHealEnemyTerritory;
-	FAutoVariable<int, CvUnit> m_inearbyHealNeutralTerritory;
-	FAutoVariable<int, CvUnit> m_inearbyHealFriendlyTerritory;
+	FAutoVariable<int, CvUnit> m_bConvertEnemyUnitToBarbarian;
+	FAutoVariable<int, CvUnit> m_bConvertOnFullHP;
+	FAutoVariable<int, CvUnit> m_bConvertOnDamage;
+	FAutoVariable<int, CvUnit> m_iDamageThreshold;
+	FAutoVariable<UnitTypes, CvUnit> m_eConvertDamageOrFullHPUnit;
+	FAutoVariable<int, CvUnit> m_iNumberOfCultureBombs;
+	FAutoVariable<int, CvUnit> m_iNearbyHealEnemyTerritory;
+	FAutoVariable<int, CvUnit> m_iNearbyHealNeutralTerritory;
+	FAutoVariable<int, CvUnit> m_iNearbyHealFriendlyTerritory;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2134,7 +2136,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
-	FAutoVariable<int, CvUnit> m_bSpottedEnemy; //unused
+	FAutoVariable<int, CvUnit> m_bSpottedEnemy;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;

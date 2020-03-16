@@ -4046,7 +4046,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			if (MOD_EVENTS_UNIT_RANGEATTACK) {
 				int iValue = 0;
 				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitRangeAttackAt, kAttacker.getOwner(), kAttacker.GetID(), iX, iY) == GAMEEVENTRETURN_VALUE) {
-					if (iValue) {
+					if (iValue > 0) {
 						return CvUnitCombat::ATTACK_COMPLETED;
 					}
 
@@ -4174,7 +4174,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			if (MOD_EVENTS_UNIT_RANGEATTACK) {
 				int iValue = 0;
 				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitRangeAttackAt, kAttacker.getOwner(), kAttacker.GetID(), targetPlot.getX(), targetPlot.getY()) == GAMEEVENTRETURN_VALUE) {
-					if (iValue) {
+					if (iValue > 0) {
 						return CvUnitCombat::ATTACK_COMPLETED;
 					}
 

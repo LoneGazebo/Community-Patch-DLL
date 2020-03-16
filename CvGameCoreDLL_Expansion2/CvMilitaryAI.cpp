@@ -4414,13 +4414,13 @@ void CvMilitaryAI::UpdateOperations()
 
 	std::sort(veLandThreatWeights.begin(), veLandThreatWeights.end());
 	for(size_t iThreatCivs = 0; iThreatCivs < veLandThreatWeights.size(); iThreatCivs++)
-			{
+	{
 		PlayerTypes eLoopPlayer = veLandThreatWeights[iThreatCivs].option;
-				//Defense check.
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-				{
-					if(pThreatenedCityA == NULL)
-						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+		//Defense check.
+		if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		{
+			if(pThreatenedCityA == NULL)
+				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
 
 					CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
 					CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
@@ -4429,8 +4429,8 @@ void CvMilitaryAI::UpdateOperations()
 				DoNuke(eLoopPlayer);
 
 		if(veLandThreatWeights[iThreatCivs].score > 0)
-					DoLandAttacks(eLoopPlayer);
-				}
+			DoLandAttacks(eLoopPlayer);
+	}
 
 	//same for naval  ...
 	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
@@ -4456,23 +4456,23 @@ void CvMilitaryAI::UpdateOperations()
 	}
 
 	std::sort(veSeaThreatWeights.begin(), veSeaThreatWeights.end());
-		for(int iThreatCivs = 0; iThreatCivs < (int)veSeaThreatWeights.size(); iThreatCivs++)
-		{
+	for(int iThreatCivs = 0; iThreatCivs < (int)veSeaThreatWeights.size(); iThreatCivs++)
+	{
 		PlayerTypes eLoopPlayer = veSeaThreatWeights[iThreatCivs].option;
-				//Defense check.
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-				{
-					if (pThreatenedCoastalCityA == NULL)
-						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+		//Defense check.
+		if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		{
+			if (pThreatenedCoastalCityA == NULL)
+				m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
 
-					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityA);
-					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityB);
-				}
+			CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityA);
+			CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityB);
+		}
 
 		if(veSeaThreatWeights[iThreatCivs].score > 0)
-					DoSeaAttacks(eLoopPlayer);
-				}
-			}
+			DoSeaAttacks(eLoopPlayer);
+	}
+}
 
 /// Spend money on units/buildings for military contingencies
 //  NOTE: The defensive side of this is done in dominance zone processing in the Tactical AI; this is spending to speed operations

@@ -5,8 +5,6 @@
 
 #if defined(MOD_BALANCE_CORE)
 
-#include "CvWeightedVector.h"
-
 class CvCorporationEntry: public CvBaseInfo
 {
 public:

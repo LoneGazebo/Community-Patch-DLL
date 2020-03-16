@@ -12762,6 +12762,23 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MINOR_CIV_DISPUTE");
 			aOpinions.push_back(kOpinion);
 		}
+		
+		// tech dispute
+		iValue = pDiploAI->GetTechDisputeLevelScore(eWithPlayer);
+		if (iValue < 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NO_TECH_DISPUTE");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_TECH_DISPUTE");
+			aOpinions.push_back(kOpinion);
+		}
 
 #if defined(MOD_BALANCE_CORE)
 		// victory dispute
