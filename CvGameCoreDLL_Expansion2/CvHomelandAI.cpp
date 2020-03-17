@@ -2801,12 +2801,14 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			//find the city which is most in need of workers
 			int iMaxNeed = -100;
 			CvCity* pBestCity = NULL;
-			for (map<CvCity*, int>::iterator it = mapCityNeed.begin(); it != mapCityNeed.end(); ++it)
-				if (it->second > iMaxNeed)
+			for (map<CvCity*, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
+			{
+				if (it2->second > iMaxNeed)
 				{
-					iMaxNeed = it->second;
-					pBestCity = it->first;
+					iMaxNeed = it2->second;
+					pBestCity = it2->first;
 				}
+			}
 
 			if (pBestCity && pUnit->GeneratePath(pBestCity->plot(),CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY,23))
 			{
@@ -6218,15 +6220,15 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 	{
 		return false;
 	}
-	CvPlot* pLoopPlot;
+
 	CvHomelandTarget newTarget;
 	TeamTypes eTeam = m_pPlayer->getTeam();
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
-	int iI;
-	for(iI = 0; iI < iNumPlots; iI++)
+
+	for(int iI = 0; iI < iNumPlots; iI++)
 	{
-		pLoopPlot = theMap.plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
 		{

@@ -253,7 +253,7 @@ public:
 	void SetAllUnitsUnprocessed();
 	void DoUnitReset();
 	void DoUnitAttrition();
-	void RespositionInvalidUnits();
+	void RepositionInvalidUnits();
 	void ResetReachablePlotsForAllUnits();
 
 	void updateYield();

@@ -7901,12 +7901,16 @@ int CvReligionAI::GetNumKnownHeathenCities(int iMaxTurns, ReligionTypes eReligio
 		{
 			if (pLoopCity->plot()->isRevealed(m_pPlayer->getTeam()) && !m_pPlayer->IsAtWarWith(pLoopCity->getOwner()))
 			{
-				int iHeathens = pLoopCity->GetCityReligions()->GetNumFollowers(NO_RELIGION) + pLoopCity->GetCityReligions()->GetNumFollowers(RELIGION_PANTHEON);
-				int iPopMinusTrueReligion = pLoopCity->getPopulation() - pLoopCity->GetCityReligions()->GetNumFollowers(eReligionToSpread);
+				CvCityReligions* pRel = pLoopCity->GetCityReligions();
+				if (pRel->GetReligiousMajority() != eReligionToSpread)
+				{
+					int iHeathens = pRel->GetNumFollowers(NO_RELIGION) + pRel->GetNumFollowers(RELIGION_PANTHEON);
+					int iPopMinusTrueReligion = pLoopCity->getPopulation() - pRel->GetNumFollowers(eReligionToSpread);
 
-				//conversion targets should be the majority, ignore cities which already have significant presence from other religions
-				if (iHeathens > iPopMinusTrueReligion / 2 && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot())<iMaxTurns)
-					iCount++;
+					//conversion targets should be the majority, ignore cities which already have significant presence from other religions
+					if (iHeathens > iPopMinusTrueReligion / 2 && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopCity->plot()) < iMaxTurns)
+						iCount++;
+				}
 			}
 		}
 	}
@@ -7967,7 +7971,7 @@ bool CvReligionAI::DoFaithPurchases()
 	//should we spread or save up for a prophet?
 	bool bTooManyMissionaries = (iNumMissionaries >= iMaxMissionaries);
 	int iNumEasyTargets = GetNumKnownHeathenCities(9,eReligionToSpread);
-	bool bWantToEnhance = ((iNumEasyTargets < 2) && bAllConvertedCore && IsProphetGainRateAcceptable()) || bTooManyMissionaries;
+	bool bWantToEnhance = ((iNumEasyTargets < 1 || iDesireToSpread < 1) && bAllConvertedCore && IsProphetGainRateAcceptable()) || bTooManyMissionaries;
 
 	//FIRST PRIORITY
 	//Let's make sure our faith is enhanced.

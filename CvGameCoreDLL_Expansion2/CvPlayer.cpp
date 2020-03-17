@@ -11743,11 +11743,14 @@ void CvPlayer::SetAllUnitsUnprocessed()
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+		pLoopUnit->ClearReachablePlots();
+#endif
+
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pLoopUnit->flipDamageReceivedPerTurn();
 #endif
 	}
-
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -11846,7 +11849,7 @@ void CvPlayer::DoUnitAttrition()
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::RespositionInvalidUnits()
+void CvPlayer::RepositionInvalidUnits()
 {
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
@@ -34151,10 +34154,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			{
 				SetAllUnitsUnprocessed();
 
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-				ResetReachablePlotsForAllUnits();
-#endif
-
 				{
 					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
@@ -34261,7 +34260,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if(!isHuman())
 			{
-				RespositionInvalidUnits();
+				RepositionInvalidUnits();
 			}
 
 			if(GetNotifications())

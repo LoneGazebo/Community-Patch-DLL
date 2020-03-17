@@ -10556,8 +10556,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case A_FINISH:
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			//this is the difference to a blocked unit, we prevent anyone else from moving it
-			GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
+			//this is the difference to a blocked unit, we may prevent anyone else from moving it
+			if (!pUnit->shouldHeal(false))
+				GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
 			bPrecondition = true;
 			bPostcondition = true;
 			break;

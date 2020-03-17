@@ -48599,22 +48599,22 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		}
 
 		iApproachScore += iAverageApproachForOneMaster;
-		iApproachScore /= m_Vassals.size();
+		iApproachScore /= max(1u,m_Vassals.size());
 
 		iOpinionScore += iAverageOpinionForOneMaster;
-		iOpinionScore /= m_Vassals.size();
+		iOpinionScore /= max(1u,m_Vassals.size());
 
 		iStrengthScore += iAverageStrengthScoreForOneMaster;
-		iStrengthScore /= m_Vassals.size();
+		iStrengthScore /= max(1u,m_Vassals.size());
 
 		iEcoStrengthScore += iAverageEcoStrengthScoreForOneMaster;
-		iEcoStrengthScore /= m_Vassals.size();
+		iEcoStrengthScore /= max(1u,m_Vassals.size());
 	}
 
-	iApproachScore /= m_Masters.size();
-	iOpinionScore /= m_Masters.size();
-	iStrengthScore /= m_Masters.size();
-	iEcoStrengthScore /= m_Masters.size();
+	iApproachScore /= max(1u,m_Masters.size());
+	iOpinionScore /= max(1u,m_Masters.size());
+	iStrengthScore /= max(1u,m_Masters.size());
+	iEcoStrengthScore /= max(1u,m_Masters.size());
 
 	eMasterApproach = (MajorCivApproachTypes) iApproachScore;
 	eMasterOpinion = (MajorCivOpinionTypes) iOpinionScore;
