@@ -2218,7 +2218,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 		}
 		case ADVANCED_ACTION_GOLD_THEFT:
 		{
-			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateGrossGold() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
+			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateGrossGold() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
 			if (iSetback > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
 			{
 				iSetback = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();

@@ -18803,6 +18803,9 @@ int CvCity::getJONSCulturePerTurn(bool bStatic) const
 	iCulture *= iModifier;
 	iCulture /= 100;
 
+	// Culture from having trade routes
+	iCulture += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
+
 	return iCulture;
 }
 
@@ -18870,8 +18873,6 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	if (getProductionToYieldModifier(YIELD_CULTURE)>0)
 		iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
 
-	// Culture from having trade routes
-	iCulturePerTurn += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -20523,12 +20524,12 @@ int CvCity::GetCityAutomatonWorkersChange() const
 void CvCity::changeCityAutomatonWorkersChange(int iChange)
 {
 	VALIDATE_OBJECT
-		if (iChange != 0)
-		{
-			changeAutomatons(iChange);
+	if (iChange != 0)
+	{
+		changeAutomatons(iChange);
 
-			m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
-		}
+		m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
+	}
 }
 #endif
 
@@ -24338,7 +24339,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
-			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this, true);
+			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this);
 		}
 	}
 	SetSpecialReligionYields(eYield, iYieldValue);
@@ -28214,32 +28215,25 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iValue -= iStrengthFromGarrison;
 			}
 
-			int iModifier = 0;
+			// buildings
+			int iModifier = getCityBuildingRangeStrikeModifier();
 			if (HasGarrison())
 			{
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 			}
 
-			// buildings
-			iModifier += getCityBuildingRangeStrikeModifier();
-
 			// Religion city strike mod
-			int iReligionCityStrikeMod = 0;
 			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 			if (eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if (pReligion)
 				{
-					iReligionCityStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+					iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
 					BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
-						iReligionCityStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-					}
-					if (iReligionCityStrikeMod > 0)
-					{
-						iModifier += iReligionCityStrikeMod;
+						iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
 					}
 				}
 			}

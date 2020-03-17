@@ -459,7 +459,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	ReligionTypes GetReligionForHolyCity();
 #endif
-	bool IsReligionHereOtherThan(ReligionTypes eReligion);
+	bool IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers = 0);
 	bool HasFriendlyInquisitor(ReligionTypes eReligion, CvUnit* pUnit = NULL);
 	bool IsForeignMissionaryNearby(ReligionTypes eReligion);
 	bool IsDefendedAgainstSpread(ReligionTypes eReligion);

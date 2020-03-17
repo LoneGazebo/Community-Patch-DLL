@@ -19865,7 +19865,7 @@ void CvPlayer::DoWarVictoryBonuses()
 }
 void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
-	int iEra = GetCurrentEra();
+	int iEra = GC.getGame().getCurrentEra();
 	if(iEra <= 0)
 	{
 		iEra = 1;
@@ -26740,7 +26740,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									iKillYield += pAttackingUnit->getYieldFromKills(eYield);
 
 									// Do we get it for barbarians?
-									if (pUnit->getOwner() == BARBARIAN_PLAYER)
+									if (pUnit != NULL && pUnit->getOwner() == BARBARIAN_PLAYER)
 									{
 										iKillYield += pkAttackingUnitInfo->GetYieldFromBarbarianKills(eYield);
 										iKillYield += pAttackingUnit->getYieldFromBarbarianKills(eYield);

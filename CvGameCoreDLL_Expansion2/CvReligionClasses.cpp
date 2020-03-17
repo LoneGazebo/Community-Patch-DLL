@@ -4981,12 +4981,12 @@ ReligionTypes CvCityReligions::GetReligionForHolyCity()
 }
 #endif
 /// Is there a "heretical" religion here that can be stomped out?
-bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion)
+bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers)
 {
 	ReligionInCityList::iterator it;
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
 	{
-		if (it->m_eReligion != NO_RELIGION && it->m_eReligion != eReligion && it->m_iFollowers > 0)
+		if (it->m_eReligion != NO_RELIGION && it->m_eReligion != eReligion && it->m_iFollowers >= iMinFollowers)
 		{
 			return true;
 		}
@@ -9770,7 +9770,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				if (pLoopCity == NULL)
 					continue;
 
-				if (pLoopCity->GetCityReligions()->IsReligionHereOtherThan(eReligion))
+				if (pLoopCity->GetCityReligions()->IsReligionHereOtherThan(eReligion, 1))
 					iForeignReligions++;
 			}
 
@@ -10293,7 +10293,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 						int iSanity = pEntry->IsFollowerBelief() ? 6 : 1;
 
-						if (FaithBuildingAvailable(eReligion, pHolyCity == NULL ? m_pPlayer->getCapitalCity() : pHolyCity) == NO_BUILDING)
+						if (FaithBuildingAvailable(eReligion, pHolyCity == NULL ? m_pPlayer->getCapitalCity() : pHolyCity) == NO_BUILDINGCLASS)
 						{
 							iSanity = pEntry->IsFollowerBelief() ? 25 : 2;
 						}

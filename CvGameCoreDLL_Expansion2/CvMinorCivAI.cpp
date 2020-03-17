@@ -2868,28 +2868,29 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			pMinor->GetMinorCivAI()->SetHordeActive(true);
 		}
 
-		//Tell the AI to get over there!
-		if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
-		{
-			CvCity* pMinorCap = pMinor->getCapitalCity();
-			if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
+			//Tell the AI to get over there!
+			if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 			{
-				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
-
-				PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
-				if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
+				CvCity* pMinorCap = pMinor->getCapitalCity();
+				if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
-					int iNumRequiredSlots;
-					int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
-						pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
-					// Not willing to build units to get this off the ground
-					if (iFilledSlots >= iNumRequiredSlots)
+					CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
+
+					PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
 					{
-						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
+						int iNumRequiredSlots;
+						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
+							pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
+						// Not willing to build units to get this off the ground
+						if (iFilledSlots >= iNumRequiredSlots)
+						{
+							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
+						}
 					}
 				}
 			}
-		}
+
 	}
 	// Rebellion
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -12521,7 +12522,6 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	strSummary << GetPlayer()->getNameKey();
 	AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eLiberator);
 }
-
 #if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::SetTurnLiberated(int iValue)
 {

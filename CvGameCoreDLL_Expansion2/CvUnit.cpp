@@ -4877,9 +4877,9 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 			if(!canEnterTerritory(eRevealedTeam))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
+					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
 #else
-				if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam()))
+					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam()))
 #endif
 				{
 					return eRevealedTeam;
@@ -5428,9 +5428,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	vector<SPlotWithScore> candidates;
 	ReachablePlots reachablePlots = GC.GetStepFinder().GetPlotsInReach(plot(), data);
 
-	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+		{
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 		//plot must be empty even of civilians
 		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY))
@@ -5457,22 +5457,22 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pTestPlot = candidates[i].pPlot;
 
-		// "quick" heuristic check to make sure this is not a dead end
-		// alternatively we could verify against all plots reachable from owner's capital?
-		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
-		data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
+			// check to make sure this is not a dead end
+			// alternatively we could verify against all plots reachable from owner's capital?
+			SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+			data2.ePathType = PT_UNIT_REACHABLE_PLOTS;
+			ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
-		//want to sort by ascending area size
-		candidates[i].score = GC.getMap().numPlots() - plots2.size();
+			//want to sort by ascending area size
+			candidates[i].score = GC.getMap().numPlots() - plots2.size();
 
-		//if we have lots of room here, use the plot immediately
-		if (plots2.size() > 23)
-		{
-			pBestPlot = pTestPlot;
-			break;
+			//if we have lots of room here, use the plot immediately
+			if (plots2.size() > 23)
+			{
+				pBestPlot = pTestPlot;
+				break;
+			}
 		}
-	}
 
 	if (!pBestPlot && !candidates.empty())
 	{
@@ -7313,8 +7313,8 @@ void CvUnit::setHomelandMove(AIHomelandMove eMove)
 	}
 #endif
 
-		//clear tactical move, can't have both ...
-		m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
+	//clear tactical move, can't have both ...
+	m_eTacticalMove = AI_TACTICAL_MOVE_NONE;
 		m_iHomelandMoveSetTurn = GC.getGame().getGameTurn();
 		m_eHomelandMove = eMove;
 	}
@@ -10137,14 +10137,14 @@ bool CvUnit::canPillage(const CvPlot* pPlot, int iMovesOverride) const
 			if (pImprovementInfo->IsPermanent())
 			{
 #if defined(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
-				if (MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
-				{
-					return true;
-				}
-				else
-					return false;
-#else
+			if(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
+			{
+				return true;
+			}
+			else
 				return false;
+#else
+			return false;
 #endif
 			}
 			
@@ -14233,12 +14233,12 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if(pPlot->getOwner() != getOwner())
 			return false;
 #endif
-
 #if defined(MOD_BALANCE_CORE)
 		if(isEmbarked() || ((plot()->isWater() && getDomainType() != DOMAIN_SEA) && !isCargo()))
 		{
 			return false;
 		}
+
 
 		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
 		{
@@ -20430,7 +20430,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	//Dr. Livingstone I presume?
 	if (isHuman() && !isDelayedDeath())
 	{
-		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0){
+		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0)
+		{
 			UnitTypes eExplorer = (UnitTypes) GC.getInfoTypeForString("UNIT_EXPLORER", true /*bHideAssert*/); 
 			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), "TXT_KEY_EXPLORER_STANLEY") == 0 )
 			{
@@ -20438,9 +20439,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					CvPlot* pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
 
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL){
-						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++){
-							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0){
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+					{
+						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
+						{
+							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0)
+							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP2_52);
 							}
 						}
@@ -27069,7 +27073,6 @@ bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, bool bPretendUnit2Embarked
 
 	return CvGameQueries::AreUnitsSameType(getUnitType(), pUnit2.getUnitType());
 }
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {
@@ -27783,7 +27786,7 @@ bool CvUnit::isEnemy(TeamTypes eTeam, const CvPlot* pPlot) const
 		pPlot = plot();
 	}
 
-	if(!pPlot)
+	if(! pPlot)
 	{
 		return false;
 	}
@@ -28657,7 +28660,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			}
 			else
 				bRejectMove = true;
-		}
+			}
 
 		if(bRejectMove)
 		{
@@ -28985,18 +28988,18 @@ const char* CvUnit::GetMissionInfo()
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
-	m_strMissionInfoString += " // ";
+		m_strMissionInfoString += " // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-		m_strMissionInfoString += "no move assigned";
-	else
-	{
-		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-			m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
+			m_strMissionInfoString += "no move assigned";
+		else
+		{
+			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
 		if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
-			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
-	}
+				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
+		}
 
 	if (IsCombatUnit())
 	{

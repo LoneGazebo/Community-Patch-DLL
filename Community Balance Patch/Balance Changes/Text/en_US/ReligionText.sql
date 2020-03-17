@@ -7,7 +7,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Fertility Rites (Now Goddess of Fertility)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and [ICON_PEACE] Faith from Shrines, and +10 [ICON_FOOD] Food and [ICON_PEACE] Faith when a Building is constructed, scaling with Era. 25% faster [ICON_FOOD] Growth Rate'
+SET Text = '+1 [ICON_FOOD] Food and [ICON_PEACE] Faith from Shrines, and +8 [ICON_FOOD] Food and [ICON_PEACE] Faith when a Building is constructed, scaling with Era. 25% faster [ICON_FOOD] Growth Rate'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Messenger of the Gods (Now God of Commerce)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection. Capital/Holy City gains +2 [ICON_GREAT_PEOPLE] Great Merchant Points and +2 [ICON_GOLD] Gold and [ICON_PEACE] Faith in [ICON_CAPITAL] Capital per active Trade Route.'
+SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection and per active Trade Route to or from the City. Capital/Holy City gains +2 [ICON_PEACE] Faith and [ICON_GOLD] Gold after your second City is founded, and +2 [ICON_GREAT_PEOPLE] Great Merchant Points.'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

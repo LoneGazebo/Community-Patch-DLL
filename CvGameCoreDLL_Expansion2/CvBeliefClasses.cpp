@@ -3834,7 +3834,7 @@ int CvReligionBeliefs::GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes eP
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
-	int iNumTRs = GET_PLAYER(ePlayer).GetTrade()->GetNumberOfTradeRoutes();
+	int iNumTRs = GET_PLAYER(ePlayer).GetTrade()->GetNumberOfTradeRoutesCity(pCity);
 	if (iNumTRs <= 0)
 		return 0;
 

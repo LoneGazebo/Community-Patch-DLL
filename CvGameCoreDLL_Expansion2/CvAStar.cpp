@@ -1257,6 +1257,10 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	//when in doubt prefer the shorter path
 	iCost += PATH_STEP_WEIGHT;
 
+	//paths through "forbidden" territory should be expensive
+	if (kFromNodeCacheData.bIsAvoidPlot)
+		iCost += PATH_BASE_COST;
+
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
 		iCost += PATH_STEP_WEIGHT;
@@ -1268,7 +1272,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam)
 		{
 			if (!kToNodeCacheData.bCanEnterTerrainPermanent || !kToNodeCacheData.bCanEnterTerritoryPermanent || kToNodeCacheData.bIsNonEnemyCity)
-				return -1; //forbidden
+			return -1; //forbidden
 		}
 
 		// check stacking (if visible)

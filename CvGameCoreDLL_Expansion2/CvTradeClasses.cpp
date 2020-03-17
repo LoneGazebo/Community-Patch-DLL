@@ -4674,6 +4674,9 @@ void CvPlayerTrade::UpdateTradeStats()
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID())
 			m_tradeStats.nRoutesFromCity[connection.m_iOriginID]++;
+
+		if (connection.m_eDestOwner == m_pPlayer->GetID())
+			m_tradeStats.nRoutesToCity[connection.m_iDestID]++;
 	}
 
 	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
@@ -4716,6 +4719,15 @@ int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(CvCity* pCity)
 
 	UpdateTradeStats();
 	return m_tradeStats.nRoutesFromCity[pCity->GetID()];
+}
+
+int CvPlayerTrade::GetNumberOfTradeRoutesCity(const CvCity* pCity)
+{
+	if (!pCity)
+		return 0;
+
+	UpdateTradeStats();
+	return m_tradeStats.nRoutesToCity[pCity->GetID()];
 }
 
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)

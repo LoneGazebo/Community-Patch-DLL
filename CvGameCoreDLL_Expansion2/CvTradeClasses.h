@@ -290,6 +290,7 @@ public:
 	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
 
 	int GetNumberOfTradeRoutesFromCity(CvCity* pCity);
+	int GetNumberOfTradeRoutesCity(const CvCity* pCity);
 
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -357,8 +358,9 @@ public:
 		int iInternalTRs;
 		int iMinorTRs;
 		map<int, int> nRoutesFromCity; //city id, n outgoing routes
+		map<int, int> nRoutesToCity; //city id, n outgoing routes
 
-		void reset() { iTurnSliceBuilt = 0; iInternationalTRsOut = 0; iInternationalTRsIn = 0; iInternalTRs = 0; iMinorTRs = 0; nRoutesFromCity.clear(); }
+		void reset() { iTurnSliceBuilt = 0; iInternationalTRsOut = 0; iInternationalTRsIn = 0; iInternalTRs = 0; iMinorTRs = 0; nRoutesFromCity.clear(); nRoutesToCity.clear(); }
 	};
 
 	//some precomputed numbers for performance
