@@ -4398,7 +4398,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			
-			if (IsPlayerValid(eLoopPlayer))
+			if (IsPlayerValid(eLoopPlayer, true))
 			{
 				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMyPlayer))
 				{
