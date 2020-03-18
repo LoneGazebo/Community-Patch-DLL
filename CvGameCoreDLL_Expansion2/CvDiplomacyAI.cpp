@@ -4397,25 +4397,22 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 			
-			if (IsPlayerValid(eLoopPlayer))
+			if (IsPlayerValid(eLoopPlayer, true))
 			{
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMyPlayer))
+				if (GET_TEAM(eLoopTeam).GetMaster() == eMyTeam)
 				{
 					iNumOurVassals++;
 				}
-				else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(ePlayer))
+				else if (GET_TEAM(eLoopTeam).GetMaster() == eTeam)
 				{
 					iNumTheirVassals++;
 				}
 			}
-			
-			if (IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).getTeam() != eTeam)
+			if (eLoopTeam != eTeam && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
 			{
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
-				{
-					bAttackedOwnVassal = true;
-				}
+				bAttackedOwnVassal = true;
 			}
 		}
 	}
@@ -6338,7 +6335,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 
 		// Weight for vassalage
-		if (bIsVassal)
+		if (bIsMaster)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		}
@@ -6646,10 +6643,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			else
 			{
 				// Weight for Open Borders
+#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+				if (GET_TEAM(eMyTeam).IsAllowsOpenBordersToTeam(eTeam))
+#else
 				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eMyTeam))
+#endif
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-	
+
 					// Additional weight if we're already influential on half of the civs
 					if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
 					{
@@ -6658,7 +6659,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 
 				// Weight for vassalage
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetPlayer()->GetID()))
+				if (bIsMaster)
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
 				}
@@ -12111,13 +12112,12 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 
 int CvDiplomacyAI::GetHighestWarscore()
 {
-	PlayerTypes eLoopPlayer;
 	int iHighestWarscore = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 		{
 			int iWarscore = GetWarScore(eLoopPlayer);
 			if (iWarscore > iHighestWarscore)
@@ -12125,7 +12125,6 @@ int CvDiplomacyAI::GetHighestWarscore()
 				iHighestWarscore = iWarscore;
 			}
 		}
-
 	}
 
 	iHighestWarscore *= GetPlayer()->GetPositiveWarScoreTourismMod();
