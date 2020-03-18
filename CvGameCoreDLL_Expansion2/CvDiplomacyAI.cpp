@@ -4408,11 +4408,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				{
 					iNumTheirVassals++;
 				}
-			}
-			
-			if (IsPlayerValid(eLoopPlayer, true) && GET_PLAYER(eLoopPlayer).getTeam() != eTeam)
-			{
-				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
+				if (GET_PLAYER(eLoopPlayer).getTeam() != eTeam && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenVassalAgreement(ePlayer))
 				{
 					bAttackedOwnVassal = true;
 				}
@@ -6653,7 +6649,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #endif
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-		
+
 					// Additional weight if we're already influential on half of the civs
 					if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
 					{
