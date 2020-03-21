@@ -51869,9 +51869,9 @@ void CvDiplomacyAI::DoDetermineTaxRateForVassalOnePlayer(PlayerTypes ePlayer)
 		iAverageOpinionScore += (*it)->GetDiplomacyAI()->GetMajorCivOpinion(ePlayer);
 	}
 
-	iAverageMeanness /= std::max(1, (int)m_MasterTeam.size());
-	iAverageLoyalty /= std::max(1, (int)m_MasterTeam.size());
-	iAverageOpinionScore /= std::max(1, (int)m_MasterTeam.size());
+	iAverageMeanness /= m_MasterTeam.size();
+	iAverageLoyalty /= m_MasterTeam.size();
+	iAverageOpinionScore /= m_MasterTeam.size();
 
 	eTeamOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 
