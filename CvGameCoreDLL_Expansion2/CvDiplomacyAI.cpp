@@ -20168,7 +20168,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 			if(pUnitPlot->isVisible(eOurTeam))
 			{
 				// On our home front
-				if(pUnitPlot->IsHomeFrontForPlayer(eOurPlayerID))
+				if(pUnitPlot->IsCloseToBorder(eOurPlayerID))
 				{
 					// At war with someone?  Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
 					if(bIsAtWarWithSomeone && !bIgnoreOtherWars)
@@ -20186,7 +20186,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 								{
 									if(GET_PLAYER(eLoopOtherPlayer).isAlive())
 									{
-										if(pUnitPlot->IsHomeFrontForPlayer(eLoopOtherPlayer))
+										if(pUnitPlot->IsCloseToBorder(eLoopOtherPlayer))
 										{
 											continue;
 										}
@@ -49586,6 +49586,12 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	if (GetPlayer()->IsAITeammateOfHuman())
+		return;
+
+	//problem: on larger maps evaluating the map value every turn for every player is significant performance overhead
+	//solution: we could cache the value for the active player, saving half the effort, but it's simpler to just not even contemplate the offer every turn
+	int iRandom = GC.getGame().getSmallFakeRandNum(3, (int)ePlayer) + 3; // either 3 or 4 or 5
+	if (GC.getGame().getGameTurn() % iRandom != 0)
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)

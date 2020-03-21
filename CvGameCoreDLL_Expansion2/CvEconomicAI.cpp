@@ -4066,42 +4066,38 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 /// "Trade with City State" Player Strategy: If there is a merchant who isn't in an operation?  If so, find him a city state
 bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	int iUnitLoop;
-	CvUnit* pLoopUnit;
-	int iLooseMerchant = 0;
-	int iStrategyWeight = 0;
-
 	// Never run this strategy for a human player
-	if(!pPlayer->isHuman())
+	if (pPlayer->isHuman())
+		return false;
+
+	// Look at map for loose merchants
+	int iLooseMerchant = 0;
+	int iUnitLoop;
+	for(CvUnit* pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
 	{
-		// Look at map for loose merchants
-		for(pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
+		if(pLoopUnit != NULL)
 		{
-			if(pLoopUnit != NULL)
+			if(pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 			{
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+				if(pLoopUnit->getArmyID() == -1)
 				{
-					if(pLoopUnit->getArmyID() == -1)
-					{
-						iLooseMerchant++;
-					}
+					iLooseMerchant++;
 				}
 			}
 		}
+	}
 
-		CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-		iStrategyWeight = iLooseMerchant * 10;   // Just one merchant will trigger this
-		int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
-		int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
+	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
+	int iStrategyWeight = iLooseMerchant * 10;   // Just one merchant will trigger this
+	int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
+	int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
 
-		if(iStrategyWeight >= iWeightThreshold)
-		{
-			// Launch an operation.
-			pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION);
-
+	if(iStrategyWeight >= iWeightThreshold)
+	{
+		// Launch an operation.
+		if (pPlayer->addAIOperation(AI_OPERATION_MERCHANT_DELEGATION))
 			// Set this strategy active
 			return true;
-		}
 	}
 
 	return false;

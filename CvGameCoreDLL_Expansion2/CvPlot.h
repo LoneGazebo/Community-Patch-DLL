@@ -450,7 +450,7 @@ public:
 	int GetCityPurchaseID(void);
 	void SetCityPurchaseID(int iAcquiringCityID);
 
-	bool IsHomeFrontForPlayer(PlayerTypes ePlayer) const;
+	bool IsCloseToBorder(PlayerTypes ePlayer) const;
 
 	PlotTypes getPlotType() const
 	{

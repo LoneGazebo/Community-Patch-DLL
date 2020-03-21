@@ -266,6 +266,7 @@ public:
 	void AddNeighboringZone(int iZoneID);
 	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
 	int GetBorderScore(CvCity** ppWorstNeighborCity=NULL) const;
+	bool HasNeighborZone(PlayerTypes eOwner) const;
 #endif
 
 private:
@@ -318,12 +319,12 @@ public:
 	void Invalidate();
 
 	CvTacticalDominanceZone* GetZoneByIndex(int iIndex);
-	CvTacticalDominanceZone* GetZoneByCity(CvCity* pCity, bool bWater);
+	CvTacticalDominanceZone* GetZoneByCity(const CvCity* pCity, bool bWater);
 	CvTacticalDominanceZone* GetZoneByID(int iID);
-	CvTacticalDominanceZone* GetZoneByPlot(CvPlot* pPlot);
+	CvTacticalDominanceZone* GetZoneByPlot(const CvPlot* pPlot);
 
 	int GetDominanceZoneID(int iPlotIndex);
-	bool IsInEnemyDominatedZone(CvPlot* pPlot);
+	bool IsInEnemyDominatedZone(const CvPlot* pPlot);
 	int GetNumZones();
 
 	// quasi-const members

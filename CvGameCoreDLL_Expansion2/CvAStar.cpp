@@ -23,6 +23,7 @@
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
 #include <numeric>
+#include "LintFree.h"
 
 //PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
@@ -41,12 +42,6 @@
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*155)	//don't make it even so we don't get ties
 #define PATH_ASSUMED_MAX_DEFENSE								(100)	//MAX_DEFENSE * DEFENSE_WEIGHT + END_TURN_FOREIGN_TERRITORY + END_TURN_NO_ROUTE should be smaller than END_TURN_WATER
 #define NORM_COST_BASE											(100)	//we use a fixed point format for normalized path cost
-
-#include <xmmintrin.h>
-#include "LintFree.h"
-
-#define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
-#define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 
 //for debugging
 int giKnownCostWeight = 1;
@@ -104,8 +99,7 @@ CvAStar::CvAStar()
 	udHeuristic = NULL;
 	udCost = NULL;
 	udValid = NULL;
-	udNumExtraChildrenFunc = NULL;
-	udGetExtraChildFunc = NULL;
+	udGetExtraChildrenFunc = NULL;
 	udInitializeFunc = NULL;
 	udUninitializeFunc = NULL;
 
@@ -125,7 +119,7 @@ CvAStar::CvAStar()
 	m_strName = "AStar";
 
 	//this matches the default setting for SPathFinderUserData
-	SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL, NULL);
+	SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL);
 
 	InitializeCriticalSection(&m_cs);
 }
@@ -211,7 +205,7 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 		{
 			m_ppaaNodes[iI][iJ].m_apNeighbors = apNeighbors;
 			apNeighbors += 6;
-			PrecalcNeighbors( &(m_ppaaNodes[iI][iJ]) );
+			PrecalcNeighbors( GetNodeMutable(iI,iJ) );
 		}
 	}
 }
@@ -226,14 +220,13 @@ bool CvAStar::IsInitialized(int iXstart, int iYstart, int iXdest, int iYdest)
 }
 
 void CvAStar::SetFunctionPointers(CvAPointFunc DestValidFunc, CvAHeuristic HeuristicFunc, CvAStarConst1Func CostFunc, CvAStarConst2Func ValidFunc,  
-						CvANumExtraChildren NumExtraChildrenFunc, CvAGetExtraChild GetExtraChildFunc, CvABegin InitializeFunc, CvAEnd UninitializeFunc)
+						CvAGetExtraChildren GetExtraChildrenFunc, CvABegin InitializeFunc, CvAEnd UninitializeFunc)
 {
 	udDestValid = DestValidFunc;
 	udHeuristic = HeuristicFunc;
 	udCost = CostFunc;
 	udValid = ValidFunc;
-	udNumExtraChildrenFunc = NumExtraChildrenFunc;
-	udGetExtraChildFunc = GetExtraChildFunc;
+	udGetExtraChildrenFunc = GetExtraChildrenFunc;
 	udInitializeFunc = InitializeFunc;
 	udUninitializeFunc = UninitializeFunc;
 }
@@ -330,7 +323,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		{
 			//touched the target several times, but no success yet?
 			//that's fishy. take what we have and don't waste any more time
-			m_pBest = &(m_ppaaNodes[iXdest][iYdest]);
+			m_pBest = GetNodeMutable(iXdest,iYdest);
 			bSuccess = true;
 			break;
 		}
@@ -444,7 +437,7 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 		y = yRange(y);
 
 		if(isValid(x, y))
-			node->m_apNeighbors[i] = &(m_ppaaNodes[x][y]);
+			node->m_apNeighbors[i] = GetNodeMutable(x,y);
 		else
 			node->m_apNeighbors[i] = NULL;
 	}
@@ -468,6 +461,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	//one is enough, theoretically we could add one for every neighbor
 	bool bHaveStopNodeHere = false;
 
+	//direct neighbors
 	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
@@ -496,26 +490,27 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		}
 	}
 
-	if(udNumExtraChildrenFunc && udGetExtraChildFunc)
+	//wormholes, eg harbors
+	if(udGetExtraChildrenFunc)
 	{
-		int iExtraChildren = udNumExtraChildrenFunc(node, this);
-		for(int i = 0; i < iExtraChildren; i++)
+		vector<pair<int, int>> extraChildren;
+		GetExtraChildren(node,extraChildren);
+		for(size_t i = 0; i < extraChildren.size(); i++)
 		{
-			int x, y;
-			udGetExtraChildFunc(node, i, x, y, this);
-			PREFETCH_FASTAR_NODE(&(m_ppaaNodes[x][y]));
+			int x = extraChildren[i].first;
+			int y = extraChildren[i].second;
 
-			if(isValid(x, y))
+			if (isValid(x, y))
 			{
-				CvAStarNode* check = &(m_ppaaNodes[x][y]);
+				CvAStarNode* check = GetNodeMutable(x,y);
 				if (!check || check == node->m_pParent)
 					continue;
 
-				if(udFunc(udValid, node, check, m_sData))
+				if (udFunc(udValid, node, check, m_sData))
 				{
 					NodeState result = LinkChild(node, check);
-			
-					if (result==NS_VALID)
+
+					if (result == NS_VALID)
 						m_iProcessedNodes++;
 
 					LogNodeAction(node, m_iRounds, result);
@@ -589,6 +584,18 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	}
 	
 	return NS_VALID;
+}
+
+//  --------------------------------------------------------------------------------
+int CvAStar::GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const
+{
+	if (udGetExtraChildrenFunc)
+	{
+		udGetExtraChildrenFunc(node, this, out);
+		return (int)out.size();
+	}
+
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -672,6 +679,13 @@ SPath CvAStar::GetCurrentPath(TurnCountMode eMode) const
 	//walk backwards ...
 	while(pNode != NULL)
 	{
+		//failsafe
+		if (pNode == pNode->m_pParent)
+			break;
+		//another failsafe - turns should be decreasing! if not we have a loop
+		if (!ret.vPlots.empty() && pNode->m_iTurns > ret.vPlots.back().turns)
+			break;
+
 		//default mode TC_GAMECORE
 		ret.vPlots.push_back(SPathNode(pNode));
 
@@ -681,10 +695,6 @@ SPath CvAStar::GetCurrentPath(TurnCountMode eMode) const
 		//overwrite the turns with the costs
 		else if (eMode==TC_DEBUG)
 			ret.vPlots.back().turns = (short)pNode->m_iKnownCost;
-
-		//failsafe
-		if (pNode == pNode->m_pParent)
-			break;
 
 		pNode = pNode->m_pParent;
 	}
@@ -1548,10 +1558,22 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 			UpdateNodeCacheData(neighbor,pUnit,this);
 		}
 
-		for(int i = 0; i < GetNumExtraChildren(node); i++)
+		//non local neighbors
+		if (udGetExtraChildrenFunc)
 		{
-			CvAStarNode* neighbor = GetExtraChild(node,i);
-			UpdateNodeCacheData(neighbor,pUnit,this);
+			vector<pair<int, int>> extraChildren;
+			GetExtraChildren(node, extraChildren);
+			for (size_t i = 0; i < extraChildren.size(); i++)
+			{
+				int x = extraChildren[i].first;
+				int y = extraChildren[i].second;
+
+				if (isValid(x, y))
+				{
+					CvAStarNode* neighbor = GetNodeMutable(x, y);
+					UpdateNodeCacheData(neighbor, pUnit, this);
+				}
+			}
 		}
 	}
 }
@@ -1917,17 +1939,13 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 }
 
 //	--------------------------------------------------------------------------------
-// Route - Return the x, y plot of the node that we want to access
-int CityConnectionGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
+int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
 {
-	iX = -1;
-	iY = -1;
+	out.clear();
 
-	PlayerTypes ePlayer = finder->GetData().ePlayer;
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerAI& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-
 	if(!pPlot)
 		return 0;
 
@@ -1937,28 +1955,19 @@ int CityConnectionGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, in
 	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
 
-	int iValidCount = 0;
-	CvCityConnections::SingleCityConnectionStore cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
-	for (CvCityConnections::SingleCityConnectionStore::iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
+	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
+	for (CvCityConnections::SingleCityConnectionStore::const_iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
+		//we only care about water connections here because they are not normal routes
 		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
-			if(iValidCount == iIndex)
-			{
-				CvCity* pSecondCity = kPlayer.getCity(it->first);
-				if (pSecondCity)
-				{
-					iX = pSecondCity->getX();
-					iY = pSecondCity->getY();
-					return 1;
-				}
-			}
-
-			iValidCount++;
+			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
+			if (pSecondCity)
+				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
 
-	return 0;
+	return (int)out.size();
 }
 
 //	---------------------------------------------------------------------------
@@ -2010,36 +2019,6 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 	}
 
 	return FALSE;
-}
-
-//	---------------------------------------------------------------------------
-// Route - find the number of additional children. 
-// In this case, count the (pre-computed!) harbor connections from the city.
-int CityConnectionGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
-{
-	PlayerTypes ePlayer = finder->GetData().ePlayer;
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	TeamTypes eTeam = kPlayer.getTeam();
-	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-
-	if(!pPlot)
-		return 0;
-
-	CvCity* pFirstCity = pPlot->getPlotCity();
-
-	// if there isn't a city there or the city isn't on our team
-	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
-		return 0;
-
-	int iValidCount = 0;
-	CvCityConnections::SingleCityConnectionStore cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
-	for (CvCityConnections::SingleCityConnectionStore::iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
-	{
-		if (it->second & CvCityConnections::CONNECTION_HARBOR)
-			iValidCount++;
-	}
-
-	return iValidCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2213,7 +2192,7 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 
 	//this is our default path type
 	m_sData.ePathType = PT_UNIT_MOVEMENT;
-	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
 
 #if defined(MOD_BALANCE_CORE)
 	//for debugging
@@ -2419,11 +2398,11 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	switch(config.ePathType)
 	{
 	case PT_UNIT_MOVEMENT:
-		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UNIT_REACHABLE_PLOTS:
-		SetFunctionPointers(NULL, PathHeuristic, PathCost, PathValid, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(NULL, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	default:
@@ -2476,63 +2455,63 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 	switch(config.ePathType)
 	{
 	case PT_GENERIC_REACHABLE_PLOTS:
-		SetFunctionPointers(NULL, StepHeuristic, StepCostEstimate, StepValidAnyArea, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, StepCostEstimate, StepValidAnyArea, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_SAME_AREA:
-		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_ANY_AREA:
-		SetFunctionPointers(NULL, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, StepCost, StepValidAnyArea, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_SAME_AREA_WIDE:
-		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidWide, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(StepDestValid, StepHeuristic, StepCost, StepValidWide, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_ANY_AREA_WIDE:
-		SetFunctionPointers(NULL, StepHeuristic, StepCost, StepValidWideAnyArea, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, StepCost, StepValidWideAnyArea, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_WATER:
-		SetFunctionPointers(NULL, PathHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, PathHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, NULL, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
-		SetFunctionPointers(NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AREA_CONNECTION:
-		SetFunctionPointers(NULL, NULL, NULL, AreaValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, AreaValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_LANDMASS_CONNECTION:
-		SetFunctionPointers(NULL, NULL, NULL, LandmassValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, LandmassValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_INFLUENCE:
-		SetFunctionPointers(InfluenceDestValid, StepHeuristic, InfluenceCost, InfluenceValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(InfluenceDestValid, StepHeuristic, InfluenceCost, InfluenceValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_WATER:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionWaterValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionWaterValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_MIXED:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, CityConnectionGetNumExtraChildren, CityConnectionGetExtraChild, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, CityConnectionGetExtraChildren, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AIR_REBASE:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RebaseValid, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, RebaseValid, RebaseGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:
@@ -2896,8 +2875,11 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathF
 }
 
 //	---------------------------------------------------------------------------
-int RebaseGetNumExtraChildren(const CvAStarNode* node, const CvAStar*)
+int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
 {
+	out.clear();
+	CvPlayer& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
+
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
 	if(!pPlot)
 		return 0;
@@ -2908,53 +2890,22 @@ int RebaseGetNumExtraChildren(const CvAStarNode* node, const CvAStar*)
 
 	// if there is a city and the city is on our team
 	std::vector<int> vNeighbors = pCity->GetClosestFriendlyNeighboringCities();
-	std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
-
-	return (int)vNeighbors.size()+vAttachedUnits.size();
-}
-
-//	---------------------------------------------------------------------------
-int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
-{
-	iX = -1;
-	iY = -1;
-
-	CvPlayer& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
-
-	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if(!pPlot || iIndex<0)
-		return 0;
-
-	CvCity* pCity = pPlot->getPlotCity();
-	if (!pCity)
-		return 0;
-
-	// if there is a city and the city is on our team
-	std::vector<int> vNeighbors = pCity->GetClosestFriendlyNeighboringCities();
-	std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
-
-	if ( (size_t)iIndex<vNeighbors.size())
+	for (size_t i=0; i<vNeighbors.size(); i++)
 	{
-		CvCity* pSecondCity = kPlayer.getCity(vNeighbors[iIndex]);
+		CvCity* pSecondCity = kPlayer.getCity(vNeighbors[i]);
 		if (pSecondCity)
-		{
-			iX = pSecondCity->getX();
-			iY = pSecondCity->getY();
-			return 1;
-		}
-	}
-	else if ( (size_t)iIndex<vNeighbors.size()+vAttachedUnits.size() )
-	{
-		CvUnit* pCarrier = kPlayer.getUnit(vAttachedUnits[iIndex-vNeighbors.size()]);
-		if (pCarrier)
-		{
-			iX = pCarrier->plot()->getX();
-			iY = pCarrier->plot()->getY();
-			return 1;
-		}
+			out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 	}
 
-	return 0;
+	std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
+	for (size_t i=0; i<vAttachedUnits.size(); i++)
+	{
+		CvUnit* pCarrier = kPlayer.getUnit(vAttachedUnits[i]);
+		if (pCarrier)
+			out.push_back(make_pair(pCarrier->getX(), pCarrier->getY()));
+	}
+
+	return (int)out.size();
 }
 
 // A structure holding some unit values that are invariant during a path plan operation

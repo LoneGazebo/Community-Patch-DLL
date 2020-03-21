@@ -270,9 +270,10 @@ int CvTacticalDominanceZone::GetBorderScore(CvCity** ppWorstNeighborCity) const
 		*ppWorstNeighborCity = NULL;
 	int iWorstScore = 0;
 
+	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
 	for (size_t i = 0; i < m_vNeighboringZones.size(); i++)
 	{
-		CvTacticalDominanceZone* pNeighbor = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByID(m_vNeighboringZones[i]);
+		CvTacticalDominanceZone* pNeighbor = pTactMap->GetZoneByID(m_vNeighboringZones[i]);
 		if (!pNeighbor)
 			continue;
 
@@ -311,6 +312,19 @@ int CvTacticalDominanceZone::GetBorderScore(CvCity** ppWorstNeighborCity) const
 	}
 	
 	return iSum;
+}
+
+bool CvTacticalDominanceZone::HasNeighborZone(PlayerTypes eOwner) const
+{
+	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
+	for (size_t i = 0; i < m_vNeighboringZones.size(); i++)
+	{
+		CvTacticalDominanceZone* pNeighbor = pTactMap->GetZoneByID(m_vNeighboringZones[i]);
+		if (pNeighbor && pNeighbor->GetOwner() == eOwner)
+			return true;
+	}
+
+	return false;
 }
 
 void CvTacticalDominanceZone::AddNeighboringZone(int iZoneID)
@@ -473,8 +487,9 @@ int CvTacticalAnalysisMap::AddToDominanceZones(int iIndex)
 	newZone.SetAreaID(pPlot->getArea());
 	newZone.SetWater(pPlot->isWater());
 
-	int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
-	CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+	//using estimated turn distance is nice but a performance hog
+	int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPlot);
 	PlayerTypes eOwnerPlayer = NO_PLAYER;
 	TeamTypes eOwnerTeam = NO_TEAM;
 
@@ -972,7 +987,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 }
 
 /// Retrieve a dominance zone by closest city
-CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(CvCity* pCity, bool bWater)
+CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(const CvCity* pCity, bool bWater)
 {
 	if (!IsUpToDate())
 		Refresh();
@@ -997,7 +1012,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByID(int iID)
 	return NULL;
 }
 
-CvTacticalDominanceZone * CvTacticalAnalysisMap::GetZoneByPlot(CvPlot * pPlot)
+CvTacticalDominanceZone * CvTacticalAnalysisMap::GetZoneByPlot(const CvPlot * pPlot)
 {
 	if (!IsUpToDate())
 		Refresh();
@@ -1020,7 +1035,7 @@ int CvTacticalAnalysisMap::GetDominanceZoneID(int iPlotIndex)
 }
 
 // Is this plot in dangerous territory?
-bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(CvPlot* pPlot)
+bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 {
 	if (!IsUpToDate())
 		Refresh();

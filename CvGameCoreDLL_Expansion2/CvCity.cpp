@@ -894,7 +894,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		PlayerTypes ePlayer = (PlayerTypes)i;
 		if(GET_PLAYER(ePlayer).getTeam() == owningPlayer.getTeam())
 		{
-			GET_PLAYER(ePlayer).GetCityConnections()->Update();
+			GET_PLAYER(ePlayer).GetCityConnections()->SetDirty();
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -2915,7 +2915,7 @@ void CvCity::kill()
 	int iWorkPlotDistance = getWorkPlotDistance();
 
 	GET_PLAYER(getOwner()).deleteCity(m_iID);
-	GET_PLAYER(eOwner).GetCityConnections()->Update();
+	GET_PLAYER(eOwner).GetCityConnections()->SetDirty();
 
 	// clean up
 	PostKill(bCapital, pPlot, iWorkPlotDistance, eOwner);
@@ -26744,7 +26744,7 @@ void CvCity::DoBarbIncursion()
 	{
 		//don't steal from ourselves
 		if(GET_PLAYER(getOwner()).isBarbarian())
-		return;
+			return;
 
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
@@ -26752,12 +26752,12 @@ void CvCity::DoBarbIncursion()
 
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
+				CvUnit* pUnit = pLoopPlot->getBestDefender(BARBARIAN_PLAYER);
+				if(pUnit != NULL && pUnit->IsCombatUnit() && pLoopPlot->GetNumFriendlyUnitsAdjacent(getTeam(),pUnit->getDomainType())==0)
 				{			
-				//pretend the unit attacks this city
-				int iAttackerDamage = 0;
-				int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
+					//pretend the unit attacks this city
+					int iAttackerDamage = 0;
+					int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(this, pUnit, pLoopPlot, iAttackerDamage);
 
 					//we pay them off so they don't do damage
 					if (iDefenderDamage > 0)

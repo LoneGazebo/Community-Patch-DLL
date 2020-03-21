@@ -4949,7 +4949,8 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 		}
 
 		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-		bool bPlotIsVisibleToOtherTeam = pPlot->isVisible(eOtherTeam);
+		//we want to know whether they can still see the plot _after_ we plunder the caravan
+		bool bPlotIsVisibleToOtherTeam = (pPlot->getVisibilityCount(eOtherTeam)>1);
 
 		bool bIgnore = false;
 		if (bExcludingMe && eOtherTeam == eMyTeam)
