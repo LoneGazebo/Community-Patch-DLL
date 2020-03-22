@@ -434,7 +434,7 @@ void CvTacticalAnalysisMap::Refresh(bool force)
 			PrioritizeZones();
 
 			//only temporary measure, creates a huge amount of logs
-			LogZones();
+			//LogZones();
 		}
 	}
 }

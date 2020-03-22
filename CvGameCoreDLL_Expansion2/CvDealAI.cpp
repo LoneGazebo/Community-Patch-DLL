@@ -2165,7 +2165,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			return INT_MAX;
 		}
 		//prevent cheesy exploit: founding cities just to sell them
-		if (GC.getGame().getGameTurn() - pCity->getGameTurnFounded() < 42 + GC.getGame().getSmallFakeRandNum(5,iEconomicValue))
+		if (GC.getGame().getGameTurn() - pCity->getGameTurnFounded() < 42 + GC.getGame().getSmallFakeRandNum(5,iEconomicValue+buyingPlayer.GetID()))
 		{
 			return INT_MAX;
 		}
@@ -7020,7 +7020,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 0 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
 			int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
-			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), iCurrentNetGoldOfReceivingPlayer + iResourceLoop);
+			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), iCurrentNetGoldOfReceivingPlayer + iResourceLoop + eOtherPlayer);
 			iRand /= 2;
 			if(iRand <= 2)
 			{

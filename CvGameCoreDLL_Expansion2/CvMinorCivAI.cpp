@@ -663,12 +663,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 		{
 				
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + 1) * 2;
-			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() - 1) * 2;
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType + 1) * 2;
+			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType - 1) * 2;
 		}
 		else
 		{
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() ) * 2;
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed()+m_eType ) * 2;
 		}
 
 		//common for all yields

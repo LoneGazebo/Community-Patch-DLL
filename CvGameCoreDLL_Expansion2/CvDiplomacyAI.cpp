@@ -25045,83 +25045,76 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_SCIENCE));
 					int iThreshold = (iValue / 100);
 					if (iThreshold <= 10)
-					{
 						iThreshold = 10;
-						}
-					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iScienceFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iScienceFlavor + m_pPlayer->GetPseudoRandomSeed());
+					if (iRandRoll < iThreshold)
+						bWantsToBullyUnit = true;
+
+					break;
+				}
 				else if((iProductionFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_PRODUCTION));
 					int iThreshold = (iValue / 100);
 					if (iThreshold <= 10)
-						{
 						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iProductionFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iProductionFlavor + m_pPlayer->GetPseudoRandomSeed());
+					if (iRandRoll < iThreshold)
+						bWantsToBullyUnit = true;
+
+					break;
+				}
 				else if((iCultureFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_CULTURE));
 					int iThreshold = (iValue / 100);
 					if (iThreshold <= 10)
-						{
 						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iCultureFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iCultureFlavor + m_pPlayer->GetPseudoRandomSeed());
+					if (iRandRoll < iThreshold)
+						bWantsToBullyUnit = true;
+
+					break;
+				}
 				else if((iFaithFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FAITH));
 					int iThreshold = (iValue / 100);
 					if (iThreshold <= 10)
-					{
 						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iFaithFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iFaithFlavor + m_pPlayer->GetPseudoRandomSeed());
+					if (iRandRoll < iThreshold)
+						bWantsToBullyUnit = true;
+
+					break;
+				}
 				else if((iGrowthFlavor >  6) && GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FOOD));
 					int iThreshold = (iValue / 100);
 					if (iThreshold <= 10)
-					{
 						iThreshold = 10;
-						}
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGrowthFlavor + m_pPlayer->getGlobalAverage(YIELD_CULTURE));
 
-						if (iRandRoll < iThreshold)
-							bWantsToBullyUnit = true;
-							break;
-						}
+					int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iGrowthFlavor + m_pPlayer->GetPseudoRandomSeed());
+					if (iRandRoll < iThreshold)
+						bWantsToBullyUnit = true;
+
+					break;
+				}
 				else
 				{
 					if(GetPlayer()->GetEconomicAI()->GetWorkersToCitiesRatio() < 0.25 &&  //antonjs: todo: XML
-			        GetPlayer()->GetEconomicAI()->GetImprovedToImprovablePlotsRatio() < 0.50) //antonjs: todo: XML
-					{
-						bWantsToBullyUnit = true;
-					}
+				        GetPlayer()->GetEconomicAI()->GetImprovedToImprovablePlotsRatio() < 0.50) //antonjs: todo: XML
+							bWantsToBullyUnit = true;
 					// Otherwise, do a random roll
 					else
 					{
 						int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
-						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+						int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->GetPseudoRandomSeed());
 
 						if(iRandRoll < iThreshold)
 							bWantsToBullyUnit = true;
@@ -25142,7 +25135,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	else
 	{
 		int iThreshold = iTileImprovementFlavor; //antonjs: todo: XML
-		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->getGlobalAverage(YIELD_CULTURE));
+		int iRandRoll = GC.getGame().getSmallFakeRandNum(10, iTileImprovementFlavor+ m_pPlayer->GetPseudoRandomSeed());
 
 		if(iRandRoll < iThreshold)
 			bWantsToBullyUnit = true;

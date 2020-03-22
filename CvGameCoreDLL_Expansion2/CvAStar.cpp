@@ -1898,7 +1898,8 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		//ignore this if there's a resource here
 		if (pToPlot->getResourceType(pSourcePlot->getTeam())==NO_RESOURCE)
 		{
-			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
+			//hack: treat a lake like plains - water has a higher influence cost
+			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->isLake() ? TERRAIN_PLAINS : pToPlot->getTerrainType());
 			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
 			if (pFeature)
 				iExtraCost = max(iExtraCost, pFeature->getInfluenceCost());

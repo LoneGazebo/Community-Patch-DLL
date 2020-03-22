@@ -2137,14 +2137,9 @@ void CvEconomicAI::DoHurry()
 /// Spend money buying plots
 void CvEconomicAI::DoPlotPurchases()
 {
-	CvCity* pLoopCity = 0;
 	CvCity* pBestCity = NULL;
 	int iBestX = INVALID_PLOT_COORD;
 	int iBestY = INVALID_PLOT_COORD;
-	int iTempX = 0, iTempY = 0;
-
-	int iScore = 0;
-	int iLoop = 0;
 
 	// No plot buying for minors
 	if(m_pPlayer->isMinorCiv())
@@ -2156,12 +2151,8 @@ void CvEconomicAI::DoPlotPurchases()
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{
-#if defined(MOD_BALANCE_CORE)
 		//Losing?
 		if (m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar) && m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
-#else
-		if(m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
-#endif
 		{
 			return;
 		}
@@ -2172,51 +2163,57 @@ void CvEconomicAI::DoPlotPurchases()
 	int iCurrentCost = m_pPlayer->GetBuyPlotCost();
 	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
-#if defined(MOD_BALANCE_CORE)
 	int iBestCost = 0;
-#endif
+
 	// Let's always invest any money we have in plot purchases
 	//  (LATER -- save up money to spend at newly settled cities)
 	if(iCurrentCost < iBalance && iGoldForHalfCost > iCurrentCost)
 	{
 		// Lower our requirements if we're building up a sizable treasury
 		int iDiscountPercent = 50 * (iBalance - iCurrentCost) / (iGoldForHalfCost - iCurrentCost);
-		iBestScore = iBestScore - (iBestScore * iDiscountPercent / 100);
+		iBestScore = iBestScore - (iBestScore * iDiscountPercent) / 100;
 
 		// Find the best city to buy a plot
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		int iLoop = 0;
+		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			if(pLoopCity->CanBuyAnyPlot())
 			{
-				iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
-
+				int iTempX = 0, iTempY = 0;
+				int iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
 				if (iScore == -1)
 					continue;
 
-#if defined(MOD_BALANCE_CORE)
 				int iCost = pLoopCity->GetBuyPlotCost(iTempX, iTempY);
+
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Looking at buying plot for %s, X: %d, Y: %d, Cost: %d, Balance (before buy): %d, Priority: %d", pLoopCity->getName().c_str(), iTempX, iTempY, iCost, iBalance, iScore);
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
 
 				if(CanWithdrawMoneyForPurchase(PURCHASE_TYPE_TILE, iCost, iScore))
 				{
-#endif
+					if(GC.getLogging() && GC.getAILogging())
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage("Money available");
 
-				if(iScore > iBestScore)
-				{
-					pBestCity = pLoopCity;
-					iBestScore = iScore;
-					iBestX = iTempX;
-					iBestY = iTempY;
-#if defined(MOD_BALANCE_CORE)
-					iBestCost = iCost;
-#endif
-				}
-#if defined(MOD_BALANCE_CORE)
+					if(iScore > iBestScore)
+					{
+						pBestCity = pLoopCity;
+						iBestScore = iScore;
+						iBestX = iTempX;
+						iBestY = iTempY;
+						iBestCost = iCost;
+					}
 				}
 				else
 				{
+					if(GC.getLogging() && GC.getAILogging())
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage("Start saving ...");
+
 					StartSaveForPurchase(PURCHASE_TYPE_TILE, iCost, /*Priority*/ 2);
 				}
-#endif
 			}
 		}
 
@@ -2224,7 +2221,6 @@ void CvEconomicAI::DoPlotPurchases()
 		{
 			if(iBestX != INVALID_PLOT_COORD && iBestY != INVALID_PLOT_COORD)
 			{
-#if defined(MOD_BALANCE_CORE)
 				pBestCity->BuyPlot(iBestX, iBestY);
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2233,21 +2229,6 @@ void CvEconomicAI::DoPlotPurchases()
 						iBestCost, iBalance, iBestScore);
 					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
-#else
-				int iCost = pBestCity->GetBuyPlotCost(iBestX, iBestY);
-
-				if(CanWithdrawMoneyForPurchase(PURCHASE_TYPE_TILE, iCost, iBestScore))
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Buying plot, X: %d, Y: %d, Cost: %d, Balance (before buy): %d, Priority: %d", iBestX, iBestY,
-						                    iCost, m_pPlayer->GetTreasury()->GetGold(), iBestScore);
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-					pBestCity->BuyPlot(iBestX, iBestY);
-				}
-#endif
 			}
 		}
 	}

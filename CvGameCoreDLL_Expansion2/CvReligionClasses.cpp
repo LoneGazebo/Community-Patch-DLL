@@ -8561,14 +8561,6 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 		}
 	}
 
-	int iRand = 0;
-	if (iRtnValue > 0)
-	{
-		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue, m_pPlayer->GetPseudoRandomSeed());
-		iRand /= max(2,(GC.getGame().getHandicapInfo().getAIDifficultyBonusBase()));
-		iRtnValue += iRand;
-	}
-
 	if (GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
@@ -8589,7 +8581,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 		strBaseString += playerName + ", ";
 
 		strDesc = GetLocalizedText(pEntry->getShortDescription());
-		strTemp.Format("Belief, %s, Plot: %d, City: %d, Player: %d, Rand: %d", strDesc.GetCString(), iScorePlot, iScoreCity, iScorePlayer, iRand);
+		strTemp.Format("Belief, %s, Plot: %d, City: %d, Player: %d", strDesc.GetCString(), iScorePlot, iScoreCity, iScorePlayer);
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}

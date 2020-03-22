@@ -30009,6 +30009,10 @@ void CvUnit::AI_promote()
 				pLog->Msg(strLog);
 			}
 
+			//add some randomness
+			if(iValue > 0)
+				iValue += GC.getGame().getSmallFakeRandNum(iValue/2, plot()->GetPlotIndex() + iI);
+
 			if(iValue > iBestValue)
 			{
 				iBestValue = iValue;
@@ -31189,8 +31193,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		{
 			iValue += (iTemp * 2);
 		}
-		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-			(AI_getUnitAIType() == UNITAI_DEFENSE))
+		else if ((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_DEFENSE))
 		{
 			iValue += iTemp;
 		}
@@ -31202,11 +31205,6 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		{
 			iValue += (iTemp / 2);
 		}
-	}
-
-	if(iValue > 0)
-	{
-		iValue += GC.getGame().getSmallFakeRandNum(iValue, *plot());
 	}
 
 	return iValue;

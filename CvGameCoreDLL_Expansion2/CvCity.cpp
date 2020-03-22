@@ -28963,16 +28963,12 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(getOwner() == NO_PLAYER)
-	{
-		return;
-	}
-#endif
+
 	int iCost = GetBuyPlotCost(iPlotX, iPlotY);
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	thisPlayer.GetTreasury()->LogExpenditure("", iCost, 1);
+	thisPlayer.GetTreasury()->LogExpenditure("buy plot", iCost, 1);
 	thisPlayer.GetTreasury()->ChangeGold(-iCost);
+
 #if defined(MOD_UI_CITY_EXPANSION)
 	bool bWithGold = true;
 	if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
@@ -28985,6 +28981,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		}
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	if (iCost > 0) 
 	{
@@ -29009,26 +29006,22 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	}
 #endif
 #if defined(MOD_UI_CITY_EXPANSION)
-	if (iCost > 0) {
+	if (iCost > 0) 
+	{
 		// Only do this if we actually paid for the plot (as opposed to getting it for free via city growth)
 #endif
 		thisPlayer.ChangeNumPlotsBought(1);
 
-		// See if there's anyone else nearby that could get upset by this action
-		CvCity* pNearbyCity;
-#if defined(MOD_BALANCE_CORE)
 		//Let's look at max range for plot purchases for this City.
 		//Buying plots further and further from your city will make this more likely to trigger bad diplo.
-		CvPlot* pLoopPlot = NULL;
-
 		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
-			pLoopPlot = iterateRingPlots(iPlotX, iPlotY, iI);
+			CvPlot* pLoopPlot = iterateRingPlots(iPlotX, iPlotY, iI);
 
 			if(pLoopPlot != NULL)
 			{
-				pNearbyCity = pLoopPlot->getPlotCity();
-
+				// See if there's anyone else nearby that could get upset by this action
+				CvCity* pNearbyCity = pLoopPlot->getPlotCity();
 				if(pNearbyCity)
 				{
 					PlayerTypes ePlayer = pNearbyCity->getOwner();
@@ -29083,37 +29076,16 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 				}
 			}
 		}
-#else
-		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-		{
-			pPlot = iterateRingPlots(iPlotX, iPlotY, iI);
 
-			if(pPlot != NULL)
-			{
-				pNearbyCity = pPlot->getPlotCity();
-
-				if(pNearbyCity)
-				{
-					if(pNearbyCity->getOwner() != getOwner())
-					{
-
-						pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
-					}
-				}
-			}
-		}
-#endif
 #if defined(MOD_UI_CITY_EXPANSION)
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
-	TerrainTypes eTerrain = NO_TERRAIN;
-	if (pPlot != NULL)
-	{
-		eTerrain = pPlot->getTerrainType();
-	}
-	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_TILE_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, eTerrain);
+	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_TILE_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, 
+											0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, pPlot->getTerrainType());
 #endif
+
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -29129,6 +29101,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		strBaseString += strOutBuf;
 		pLog->Msg(strBaseString);
 	}
+
 	DoAcquirePlot(iPlotX, iPlotY);
 		
 #if defined(MOD_EVENTS_CITY)
@@ -29140,19 +29113,15 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 #endif
 	} else {
 #endif
+
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem) 
 	{
 		CvLuaArgsHandle args;
 		args->Push(getOwner());
 		args->Push(GetID());
-#if defined(MOD_BUGFIX_MINOR)
 		args->Push(iPlotX);
 		args->Push(iPlotY);
-#else
-		args->Push(plot()->getX());
-		args->Push(plot()->getY());
-#endif
 		args->Push(true); // bGold
 		args->Push(false); // bFaith/bCulture
 
@@ -30763,6 +30732,49 @@ int CvCity::getProjectCount(ProjectTypes eProject) const
 	return m_aiNumProjects[eProject];
 }
 
+bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, UnitTypes eUnitType, CvUnitEntry* pkUnitInfo)
+{
+	if (!pPlot->isValidMovePlot(ePlayer))
+		return false;
+
+	bool bAccept = false;
+	switch (pkUnitInfo->GetDomainType())
+	{
+	case DOMAIN_AIR:
+		bAccept = pPlot->isCity();
+		break;
+	case DOMAIN_LAND:
+		bAccept = !pPlot->isWater();
+		break;
+	case DOMAIN_SEA:
+		bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(ePlayer) && pPlot->isCoastalLand());
+		break;
+	case DOMAIN_HOVER:
+		bAccept = true;
+		break;
+	}
+
+	if (!bAccept)
+		return false;
+
+	bool bCanPlace = true;
+	const IDInfo* pUnitNode = pPlot->headUnitNode();
+	while(pUnitNode != NULL)
+	{
+		const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+		if(pLoopUnit != NULL)
+		{
+			// check stacking
+			if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
+				bCanPlace = false;
+		}
+
+		pUnitNode = pPlot->nextUnitNode(pUnitNode);
+	}
+	
+	return bCanPlace;
+}
+
 CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 {
 	VALIDATE_OBJECT
@@ -30779,57 +30791,17 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 		{ 0, 5, 4, 2, 1, 3, 6 },
 		{ 0, 3, 6, 4, 1, 2, 5 },
 		{ 0, 1, 2, 4, 5, 6, 3 } };
-	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *plot());
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, plot()->GetPlotIndex() + GET_PLAYER(m_eOwner).getNumUnits() );
 
 	//check city plot and adjacent plots
 	vector<CvPlot*> validChoices;
 	for (int i=0; i<RING1_PLOTS; i++)
 	{
-		bool bCanPlace = true;
 		CvPlot* pPlot = iterateRingPlots( plot(), aiShuffle[iShuffleType][i] );
-
 		if (pPlot == NULL)
 			continue;
 
-		//must be able to go there
-		if (!pPlot->isValidMovePlot(m_eOwner))
-			continue;
-
-		bool bAccept = false;
-		switch (pkUnitInfo->GetDomainType())
-		{
-		case DOMAIN_AIR:
-			bAccept = pPlot->isCity();
-			break;
-		case DOMAIN_LAND:
-			bAccept = !pPlot->isWater();
-			break;
-		case DOMAIN_SEA:
-			bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(getOwner()) && pPlot->isCoastalLand());
-			break;
-		case DOMAIN_HOVER:
-			bAccept = true;
-			break;
-		}
-
-		if (!bAccept)
-			continue;
-
-		const IDInfo* pUnitNode = pPlot->headUnitNode();
-		while(pUnitNode != NULL)
-		{
-			const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-			if(pLoopUnit != NULL)
-			{
-				// check stacking
-				if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
-					bCanPlace = false;
-			}
-
-			pUnitNode = pPlot->nextUnitNode(pUnitNode);
-		}
-
-		if (bCanPlace)
+		if (IsValidPlotForUnitType(pPlot,getOwner(),eUnitType,pkUnitInfo))
 			validChoices.push_back(pPlot);
 	}
 
@@ -30853,7 +30825,20 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 //	--------------------------------------------------------------------------------
 bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType) const
 {
-	return GetPlotForNewUnit(eUnitType)!=NULL;
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+
+	//similar to GetPlotForNewUnit but without the RNG calls
+	for (int i = 0; i < RING1_PLOTS; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(plot(), i);
+		if (!pPlot)
+			continue;
+
+		if (IsValidPlotForUnitType(pPlot,getOwner(),eUnitType,pkUnitInfo))
+			return true;
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -32804,12 +32789,14 @@ void CvCity::read(FDataStream& kStream)
 	}
 
 	m_pCityStrategyAI->Read(kStream);
+
 	if(m_eOwner != NO_PLAYER)
-	{
 		GET_PLAYER(getOwner()).GetFlavorManager()->AddFlavorRecipient(m_pCityStrategyAI, false /* bPropogateFlavorValues */);
-	}
+
 	m_pCityCitizens->Read(kStream);
+
 	kStream >> *m_pCityReligions;
+
 	m_pEmphases->Read(kStream);
 
 	kStream >> *m_pCityEspionage;
@@ -32855,6 +32842,10 @@ void CvCity::read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aiYieldPerPopInEmpire;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	GetCityStrategyAI()->PrecalcYieldAverages();
 #endif
 
 	CvCityManager::OnCityCreated(this);
