@@ -192,6 +192,9 @@ void CvHomelandAI::Update()
 		// Put together lists of places we may want to move toward
 		FindHomelandTargets();
 
+		//so that workers know where to build roads
+		m_pPlayer->GetBuilderTaskingAI()->Update();
+
 		// Loop through each move assigning units when available
 		AssignHomelandMoves();
 	}

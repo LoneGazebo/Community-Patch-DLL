@@ -283,9 +283,6 @@ void CvPlayerAI::AI_unitUpdate()
 		return;
 	}
 
-	//so that workers know where to build roads
-	GetBuilderTaskingAI()->Update();
-
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);

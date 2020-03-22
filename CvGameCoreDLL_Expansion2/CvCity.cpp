@@ -28582,7 +28582,7 @@ CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
 	if (aiPlotList.empty())
 		return NULL;
 
-	int iPickedIndex = GC.getGame().getSmallFakeRandNum( aiPlotList.size(), *plot());
+	int iPickedIndex = GC.getGame().getSmallFakeRandNum( aiPlotList.size(), getFoodTimes100() + GET_PLAYER(m_eOwner).GetNumPlots() );
 	return GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 }
 
@@ -28731,11 +28731,10 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 					if (iResourceMod == 0) //no resource or ignored resource
 					{
-
 						// Water Plots claimed later
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
 							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
-						}
+					}
 					else
 						iInfluenceCost += iResourceMod;
 

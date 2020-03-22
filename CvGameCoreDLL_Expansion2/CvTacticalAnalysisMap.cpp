@@ -432,6 +432,8 @@ void CvTacticalAnalysisMap::Refresh(bool force)
 			EstablishZoneNeighborhood();
 			CalculateMilitaryStrengths();
 			PrioritizeZones();
+
+			//only temporary measure, creates a huge amount of logs
 			LogZones();
 		}
 	}
@@ -851,90 +853,88 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 /// Log dominance zone data
 void CvTacticalAnalysisMap::LogZones()
 {
-	// -- only for special cases
+	if (GC.getLogging() && GC.getAILogging() && GET_PLAYER(m_ePlayer).isMajorCiv())
+	{
+		std::stringstream ss;
+		ss << "c:\\temp\\DominanceZones_" << GET_PLAYER(m_ePlayer).getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
+		std::ofstream of(ss.str().c_str());
+		if (of.good())
+		{
+			of << "#x,y,terrain,owner,zoneid\n";
+			for (size_t i = 0; i < m_vPlotZoneID.size(); i++)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndex(i);
+				if (pPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam()))
+				{
+					CvString dump = CvString::format("%d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotZoneID[i]);
+					of << dump.c_str();
+				}
+			}
 
-	//if (GC.getLogging() && GC.getAILogging() && GET_PLAYER(m_ePlayer).isMajorCiv())
-	//{
-	//	std::stringstream ss;
-	//	ss << "DominanceZones_" << GET_PLAYER(m_ePlayer).getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
-	//	FILogFile* pLog = LOGFILEMGR.GetLog(ss.str().c_str(), FILogFile::kDontTimeStamp);
-	//	if (pLog)
-	//	{
-	//		pLog->Msg("#x,y,terrain,owner,zoneid\n");
-	//		for (size_t i = 0; i < m_vPlotZoneID.size(); i++)
-	//		{
-	//			CvPlot* pPlot = GC.getMap().plotByIndex(i);
-	//			CvString dump = CvString::format("%d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotZoneID[i]);
-	//			pLog->Msg(dump.c_str());
-	//		}
-	//		pLog->Close();
-	//	}
-	//}
+			of << "#------------------\n";
 
-	// -- don't do this it makes the log YUGE and nobody ever looks at it
+			for (unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
+			{
+				CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
 
-	//if(GC.getLogging() && GC.getAILogging())
-	//{
-	//	CvString szLogMsg;
-	//	CvTacticalDominanceZone* pZone;
+				//don't blow up the logs for empty zones
+				if (pZone->GetOverallFriendlyStrength() == 0 && pZone->GetOverallEnemyStrength() == 0)
+					continue;
 
-	//	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
-	//	{
-	//		pZone = &m_DominanceZones[iI];
+				CvString szLogMsg;
+				szLogMsg.Format("Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
+					pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
+					pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
+					pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetDistanceOfClosestEnemyUnit());
 
-	//		//don't blow up the logs for empty zones
-	//		if ( pZone->GetOverallFriendlyStrength()==0 &&  pZone->GetOverallEnemyStrength()==0)
-	//			continue;
+				if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				{
+					szLogMsg += ", Friendly";
+				}
+				else if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+				{
+					szLogMsg += ", Enemy";
+				}
+				else if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
+				{
+					szLogMsg += ", Even";
+				}
+				else if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE)
+				{
+					szLogMsg += ", No Units Visible";
+				}
 
-	//		szLogMsg.Format("Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
-	//		                pZone->GetZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
-	//		                pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
-	//		                pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetDistanceOfClosestEnemyUnit());
-	//		if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-	//		{
-	//			szLogMsg += ", Friendly";
-	//		}
-	//		else if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-	//		{
-	//			szLogMsg += ", Enemy";
-	//		}
-	//		else if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
-	//		{
-	//			szLogMsg += ", Even";
-	//		}
-	//		else if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE)
-	//		{
-	//			szLogMsg += ", No Units Visible";
-	//		}
+				if (pZone->IsWater())
+				{
+					szLogMsg += ", Water";
+				}
+				else
+				{
+					szLogMsg += ", Land";
+				}
 
-	//		if(pZone->IsWater())
-	//		{
-	//			szLogMsg += ", Water";
-	//		}
-	//		else
-	//		{
-	//			szLogMsg += ", Land";
-	//		}
+				if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
+				{
+					szLogMsg += ", Temporary Zone";
+				}
+				else if (pZone->GetZoneCity())
+				{
+					if (GET_PLAYER(m_ePlayer).GetTacticalAI()->IsTemporaryZoneCity(pZone->GetZoneCity()))
+					{
+						szLogMsg += " (Temp)";
+					}
+				}
+				if (pZone->IsNavalInvasion())
+				{
+					szLogMsg += ", NAVAL INVASION";
+				}
 
-	//		if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
-	//		{
-	//			szLogMsg += ", Temporary Zone";
-	//		}
-	//		else if(pZone->GetZoneCity())
-	//		{
-	//			if (GET_PLAYER(m_ePlayer).GetTacticalAI()->IsTemporaryZoneCity(pZone->GetZoneCity()))
-	//			{
-	//				szLogMsg += " (Temp)";
-	//			}
-	//		}
-	//		if (pZone->IsNavalInvasion())
-	//		{
-	//			szLogMsg += ", NAVAL INVASION";
-	//		}
+				of << szLogMsg.c_str() << "\n";
+			}
 
-	//		GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szLogMsg);
-	//	}
-	//}
+			of.close();
+		}
+	}
 }
 
 /// Can this cell go in an existing dominance zone?

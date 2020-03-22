@@ -14820,6 +14820,20 @@ bool CvPlot::IsAdjacentToTradeRoute() const
 	}
 	return false;
 }
+
+bool CvPlot::IsAdjacentToRoute(RouteTypes eType) const
+{
+	int iX = getX(); int iY = getY();
+	for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++) 
+	{
+		CvPlot* pLoopPlot = plotDirection(iX, iY, (DirectionTypes) iDirection);		
+		if (pLoopPlot != NULL && pLoopPlot->isRoute())
+		{
+			return eType==ROUTE_ANY || pLoopPlot->getRouteType()==eType;
+		}
+	}
+	return false;
+}
 #endif
 
 bool CvPlot::IsAdjacentToImprovement(ImprovementTypes iImprovementType) const

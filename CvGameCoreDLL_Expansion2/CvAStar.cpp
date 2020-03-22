@@ -1872,6 +1872,11 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pSourcePlot = kMap.plotUnchecked(finder->GetStartX(), finder->GetStartY());
 
+	//ignore plots which are not adjacent to our territory
+	if (pFromPlot->getOwner() != finder->GetData().ePlayer)
+		return -1;
+
+	//look how hard it is to cross the border
 	if (pToPlot->getOwner() != pSourcePlot->getOwner())
 	{
 		bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
@@ -1905,8 +1910,12 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		if (bIsRoute)
 			iExtraCost /= 2;
 	}
-	else if (pToPlot->isImpassable(pSourcePlot->getTeam()))
-		iCost += GC.getINFLUENCE_MOUNTAIN_COST();
+	else 
+	{
+		//inside our territory everything costs the same unless it's a mountain
+		if (pToPlot->isImpassable(pSourcePlot->getTeam()))
+			iCost += GC.getINFLUENCE_MOUNTAIN_COST();
+	}
 
 	return max(1,iCost+iExtraCost)*PATH_BASE_COST;
 }
@@ -2072,7 +2081,10 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else
 	{
 		// if the tile already been tagged for building a road, then provide a discount
-		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer)
+		if(pPlot->GetBuilderAIScratchPadTurn() >= (GC.getGame().getGameTurn()-1) && 
+			pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer &&
+			pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE
+			)
 			return PATH_BASE_COST/2;
 
 		//should we prefer rough terrain because the gain in movement points is greater?
@@ -2484,6 +2496,10 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		break;
 	case PT_BUILD_ROUTE:
 		SetFunctionPointers(NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
+	case PT_BUILD_ROUTE_MIXED:
+		SetFunctionPointers(NULL, NULL, BuildRouteCost, BuildRouteValid, CityConnectionGetExtraChildren, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AREA_CONNECTION:

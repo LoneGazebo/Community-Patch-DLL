@@ -950,6 +950,7 @@ public:
 	bool IsAdjacentToUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToTradeRoute() const;
+	bool IsAdjacentToRoute(RouteTypes eType=ROUTE_ANY) const;
 #endif
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
