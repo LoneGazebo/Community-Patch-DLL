@@ -702,6 +702,10 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 					continue;
 				}
 
+				//we don't do citadel to citadel. or should we?
+				if (!pFirstCity && !pSecondCity)
+					continue;
+
 				bool bConnectOnlyCapitals = (bool)GC.getCITY_CONNECTIONS_CONNECT_TO_CAPITAL();
 				if (bConnectOnlyCapitals)
 				{
