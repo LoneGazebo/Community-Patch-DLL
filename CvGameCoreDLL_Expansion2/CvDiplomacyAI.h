@@ -469,6 +469,9 @@ public:
 	void SetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateEstimateOtherPlayerLandDisputeLevels();
 
+	double CalculateMedianNumCities();
+	double CalculateMedianNumPlots();
+	double CalculateMedianNumWondersConstructed();
 	bool IsPlayerRecklessExpander(PlayerTypes ePlayer);
 	bool IsPlayerWonderSpammer(PlayerTypes ePlayer);
 
