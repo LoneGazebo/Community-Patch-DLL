@@ -283,9 +283,6 @@ void CvPlayerAI::AI_unitUpdate()
 		return;
 	}
 
-	//so that workers know where to build roads
-	GetBuilderTaskingAI()->Update();
-
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);
@@ -1925,11 +1922,11 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	if(!pMerchant)
 		return NULL;
 
-	int iBestTurnsToReach = MAX_INT;
-	CvPlot* pBestTargetPlot = NULL;
+	// distance and plot id
+	vector< pair<int,int> > vCandidates;
 
 	// Loop through each city state
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
@@ -1943,37 +1940,24 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 		bool bMinorCivApproachIsCorrect = (GetDiplomacyAI()->GetMinorCivApproach(kPlayer.GetID()) != MINOR_CIV_APPROACH_CONQUEST);
 		bool bNotPlanningAWar = GetDiplomacyAI()->GetWarGoal(kPlayer.GetID()) == NO_WAR_GOAL_TYPE;
 
-		if(bMinorCivApproachIsCorrect && !kPlayer.IsAtWarWith(GetID()) && bNotPlanningAWar)
+		if (bMinorCivApproachIsCorrect && !kPlayer.IsAtWarWith(GetID()) && bNotPlanningAWar)
 		{
-			// Search all the plots adjacent to this city (since can't enter the minor city plot itself)
-			for(int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(pCity->plot()->getX(), pCity->plot()->getY(), ((DirectionTypes)jJ));
-				if(pAdjacentPlot != NULL)
-				{
-					if(!pAdjacentPlot->isValidMovePlot(GetID()))
-						continue;
-					if(!pMerchant->canTrade(pAdjacentPlot))
-						continue;
-
-					// Make sure this is still owned by the city state and is revealed to us and isn't a water tile
-					bool bRightOwner = (pAdjacentPlot->getOwner() == (PlayerTypes)iI);
-					bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
-					if(bRightOwner && bIsRevealed)
-					{
-						int iPathTurns = pMerchant->TurnsToReachTarget(pAdjacentPlot, false, false, iBestTurnsToReach);
-						if(iPathTurns < iBestTurnsToReach)
-						{
-							iBestTurnsToReach = iPathTurns;
-							pBestTargetPlot = pAdjacentPlot;
-						}
-					}
-				}
-			}
+			int iDistance = plotDistance(*pCity->plot(), *pMerchant->plot());
+			vCandidates.push_back(make_pair(iDistance, pCity->plot()->GetPlotIndex()));
 		}
 	}
 
-	return pBestTargetPlot;
+	sort(vCandidates.begin(), vCandidates.end());
+
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+	for (size_t i = 0; i < vCandidates.size(); i++)
+	{
+		CvPlot* pTarget = GC.getMap().plotByIndexUnchecked(vCandidates[i].second);
+		if (pMerchant->GeneratePath(pTarget, iFlags, 23, NULL, true))
+			return pMerchant->GetPathLastPlot();
+	}
+
+	return NULL;
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -2593,75 +2577,25 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	if(!pMusician)
 		return NULL;
 
-	int iBestTurnsToReach = MAX_INT;
-	CvCity* pBestTargetCity = NULL;
-
 	// Find target civ
-	PlayerTypes eTargetPlayer = NO_PLAYER;
-	if(pMusician->isRivalTerritory())
-	{
-		eTargetPlayer = GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/);
-	}
-	else
-	{
-		eTargetPlayer = GetCulture()->GetCivLowestInfluence(true /*bCheckOpenBorders*/);
-	}
-
+	PlayerTypes eTargetPlayer = GetCulture()->GetCivLowestInfluence(!pMusician->isRivalTerritory()/*bCheckOpenBorders*/);
 	if (eTargetPlayer == NO_PLAYER)
 		return NULL;
 
-	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
+	//try the closest city first
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+	CvCity* pTargetCity = GC.getGame().GetClosestCityByPlots(pMusician->plot(), eTargetPlayer);
+	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23, NULL, true))
+		return pMusician->GetPathLastPlot();
 
-	SPathFinderUserData data(pMusician, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, 23);
-	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusician->getX(), pMusician->getY(), data);
-		
-	// Loop through each of that player's cities
-	int iLoop;
-	for(CvCity *pLoopCity = kTargetPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kTargetPlayer.nextCity(&iLoop))
-	{
-		ReachablePlots::iterator it = reachablePlots.find(pLoopCity->plot()->GetPlotIndex());
-		if ( it != reachablePlots.end() )
-		{
-			if( it->iTurns < iBestTurnsToReach)
-			{
-				iBestTurnsToReach = it->iTurns;
-				pBestTargetCity = pLoopCity;
-			}
-		}
-	}
-
-	// Found a city now look at ALL the plots owned by that player near that city
-	if (pBestTargetCity)
-	{
-		int iBestDistance = INT_MAX;
-		CvPlot* pBestPlot = NULL;
-
-		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
-		{
-			CvPlot *pLoopPlot = iterateRingPlots(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
-			if(pLoopPlot != NULL)
-			{
-				// Make sure this is still owned by target and is revealed to us
-				bool bRightOwner = (pLoopPlot->getOwner() == eTargetPlayer);
-				bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-				if(bRightOwner && bIsRevealed)
-				{
-					int iDistance = ::plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),pMusician->getX(),pMusician->getY());
-					if(iDistance < iBestDistance)
-					{
-						iBestDistance = iDistance;
-						pBestPlot = pLoopPlot;
-					}
-				}
-			}	
-		}
-
-		return pBestPlot;
-	}
+	//fallback, try the capital
+	pTargetCity = GET_PLAYER(eTargetPlayer).getCapitalCity();
+	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23, NULL, true))
+		return pMusician->GetPathLastPlot();
 
 	return NULL;
 }
+
 CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
 {
 	if (!pUnit)

@@ -21,7 +21,7 @@ class CvArmyAI;
 // it is important to add a new entry whenever a new (subclassed) operation is added to the list
 enum AIOperationTypes
 {
-	INVALID_AI_OPERATION = -1,
+	AI_OPERATION_TYPE_INVALID = -1,
 	AI_OPERATION_FOUND_CITY,
     AI_OPERATION_FOUND_CITY_QUICK,
 	AI_OPERATION_FOUND_CITY_OVERSEAS, //not used anymore, too many pathfinding issues with the naval escort
@@ -58,7 +58,7 @@ enum AIOperationTypes
 
 enum AIOperationState
 {
-    INVALID_AI_OPERATION_STATE = -1,
+    AI_OPERATION_STATE_INVALID = -1,
     AI_OPERATION_STATE_ABORTED,
     AI_OPERATION_STATE_RECRUITING_UNITS,
     AI_OPERATION_STATE_GATHERING_FORCES,
@@ -69,7 +69,7 @@ enum AIOperationState
 
 enum AIOperationMovementType
 {
-    INVALID_AI_OPERATION_MOVE_TYPE = -1,
+    AI_OPERATION_MOVE_TYPE_INVALID = -1,
     AI_OPERATION_MOVETYPE_ESCORT,	//try to move somewhere while avoiding combat
     AI_OPERATION_MOVETYPE_COMBAT,	//try to move somewhere while expecting combat
 	AI_OPERATION_MOVETYPE_COMBAT_ESCORT, //Hybrid

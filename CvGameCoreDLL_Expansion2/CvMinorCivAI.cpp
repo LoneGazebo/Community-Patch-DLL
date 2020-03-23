@@ -663,12 +663,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 		{
 				
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + 1) * 2;
-			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() - 1) * 2;
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType + 1) * 2;
+			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType - 1) * 2;
 		}
 		else
 		{
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() ) * 2;
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed()+m_eType ) * 2;
 		}
 
 		//common for all yields
@@ -2868,28 +2868,29 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			pMinor->GetMinorCivAI()->SetHordeActive(true);
 		}
 
-		//Tell the AI to get over there!
-		if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
-		{
-			CvCity* pMinorCap = pMinor->getCapitalCity();
-			if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
+			//Tell the AI to get over there!
+			if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 			{
-				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
-
-				PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
-				if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
+				CvCity* pMinorCap = pMinor->getCapitalCity();
+				if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
-					int iNumRequiredSlots;
-					int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
-						pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
-					// Not willing to build units to get this off the ground
-					if (iFilledSlots >= iNumRequiredSlots)
+					CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
+
+					PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
 					{
-						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
+						int iNumRequiredSlots;
+						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
+							pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
+						// Not willing to build units to get this off the ground
+						if (iFilledSlots >= iNumRequiredSlots)
+						{
+							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
+						}
 					}
 				}
 			}
-		}
+
 	}
 	// Rebellion
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -12248,7 +12249,6 @@ void CvMinorCivAI::DoIntrusion()
 #endif
 	}
 
-	// Should not happen if MOD_CORE_HUMANS_MAY_END_TURN_IN_CS_PLOTS is false
 	vector<PlayerTypes> vIntruders;
 
 	// Look at how many Units each Major Civ has in the Minor's Territory
@@ -12424,6 +12424,10 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	// Clear the "bought out by" indicator
 	SetMajorBoughtOutBy(NO_PLAYER);
 #endif
+
+	//set this to a value > 0 so that it takes one turn until other players may not enter our territory
+	//prevents immediate teleport of AI units in the neighborhood
+	m_iNumThreateningBarbarians = 1;
 
 	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LIBERATION");
 	strMessage << GetPlayer()->getNameKey() << GET_PLAYER(eLiberator).getNameKey();

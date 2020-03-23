@@ -32,10 +32,10 @@ public:
 	void Write(FDataStream& kStream) const;
 
 	void Update(void);
-	bool Empty(void);  // if there are no cities in the route list
+	void SetDirty(void);
 
 	//we don't only connect or own cities but also some others (eg for quests)
-	std::vector<int> GetPlotsToConnect() const { return m_plotIdsToConnect; }
+	std::vector<int> GetPlotsToConnect();
 
 	enum CityConnectionTypes
 	{
@@ -46,12 +46,14 @@ public:
 		CONNECTION_HARBOR = 4,
 		CONNECTION_ANY = 7
 	};
-	typedef std::map<int,CityConnectionTypes> SingleCityConnectionStore;
+
+	//cities may be connected to other players as well, so we store a pair of owner and id
+	typedef std::map<pair<int,int>,CityConnectionTypes> SingleCityConnectionStore;
 	typedef std::map<int,SingleCityConnectionStore> AllCityConnectionStore;
 	typedef std::vector<int> PlotIndexStore;
 
-	bool AreCitiesDirectlyConnected( const CvCity* pCityA, const CvCity* pCityB, CityConnectionTypes eConnectionType ) const;
-	SingleCityConnectionStore GetDirectConnectionsFromCity(const CvCity* pOrigin) const;
+	bool AreCitiesDirectlyConnected( const CvCity* pCityA, const CvCity* pCityB, CityConnectionTypes eConnectionType );
+	const SingleCityConnectionStore& GetDirectConnectionsFromCity(const CvCity* pOrigin);
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -67,6 +69,8 @@ protected:
 	PlotIndexStore m_plotIdsToConnect;
 	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes;
 	CvPlayer* m_pPlayer;
+	bool m_bDirty;
+	SingleCityConnectionStore dummy;
 };
 
 #endif //CIV5_BUILDER_TASKING_AI_H

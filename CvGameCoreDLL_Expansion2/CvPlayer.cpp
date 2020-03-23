@@ -11743,11 +11743,14 @@ void CvPlayer::SetAllUnitsUnprocessed()
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+		pLoopUnit->ClearReachablePlots();
+#endif
+
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pLoopUnit->flipDamageReceivedPerTurn();
 #endif
 	}
-
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -11846,7 +11849,7 @@ void CvPlayer::DoUnitAttrition()
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::RespositionInvalidUnits()
+void CvPlayer::RepositionInvalidUnits()
 {
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
@@ -34137,13 +34140,16 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				sendTurnReminder();
 			}
 
+			/*
 			std::ostringstream infoStream;
 			infoStream << "setTurnActive(true) for player ";
 			infoStream << (int)GetID();	infoStream << " ";
 			infoStream << getName();
 			kGame.changeNumGameTurnActive(1, infoStream.str());
 			infoStream << std::endl;
-			//if (isMajorCiv() || isBarbarian()) OutputDebugString(infoStream.str().c_str());
+			if (isMajorCiv() || isBarbarian()) 
+				OutputDebugString(infoStream.str().c_str());
+			*/
 
 			DLLUI->PublishPlayerTurnStatus(DLLUIClass::TURN_START, GetID());
 
@@ -34151,17 +34157,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			{
 				SetAllUnitsUnprocessed();
 
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-				ResetReachablePlotsForAllUnits();
-#endif
-
-				{
-					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
-
-					// This block all has things which might change based on city connections changing
-					m_pCityConnections->Update();
-					GetTreasury()->DoUpdateCityConnectionGold();
-				}
+				//important! this sets the city connection flag for all our plots
+				//we cannot rely on a lazy update when accessing them because we would need to do it for all players, creating overhead
+				GetCityConnections()->Update();
+				GetTreasury()->DoUpdateCityConnectionGold();
 
 				if(kGame.isFinalInitialized())
 				{
@@ -34261,7 +34260,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if(!isHuman())
 			{
-				RespositionInvalidUnits();
+				RepositionInvalidUnits();
 			}
 
 			if(GetNotifications())
@@ -34279,6 +34278,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				DLLUI->PublishActivePlayerTurnEnd();
 			}
 
+			/*
 			if (!isHuman() || (isHuman() && !isAlive()) || (isHuman() && gDLL->HasReceivedTurnAllComplete(GetID())) || kGame.getAIAutoPlay())
 			{
 				std::ostringstream infoStream;
@@ -34287,8 +34287,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				infoStream << getName();
 				kGame.changeNumGameTurnActive(-1, infoStream.str());
 				infoStream << std::endl;
-				//if (isMajorCiv() || isBarbarian()) OutputDebugString(infoStream.str().c_str());
+				if (isMajorCiv() || isBarbarian()) 
+					OutputDebugString(infoStream.str().c_str());
 			}
+			*/
 
 #if defined(MOD_EVENTS_RED_TURN)
 			if (MOD_EVENTS_RED_TURN)
@@ -41191,12 +41193,24 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
 {
 	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
-	if(pNewOperation)
+	if (!pNewOperation)
+		return NULL;
+
+	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
+	m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
+
+	//check if initialization works out
+	pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
+	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID)
 	{
-		m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
-		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
-		m_iNextOperationID++;
+		pNewOperation->LogOperationEnd();
+		deleteAIOperation(pNewOperation->GetID());
+		return NULL;
 	}
+
+	//success
+	m_iNextOperationID++;
+
 	return pNewOperation;
 }
 
@@ -41404,7 +41418,7 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
-	AIOperationState eOperationState = INVALID_AI_OPERATION_STATE;
+	AIOperationState eOperationState = AI_OPERATION_STATE_INVALID;
 	if (iPercentToTarget <= 50)
 	{
 		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -41457,7 +41471,7 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 					}
 				}
 			}
-			if (eAlreadyActiveOperation == INVALID_AI_OPERATION || eAlreadyActiveOperation == pOperation->GetOperationType())
+			if (eAlreadyActiveOperation == AI_OPERATION_TYPE_INVALID || eAlreadyActiveOperation == pOperation->GetOperationType())
 			{
 				if (pOperation->GetOperationState() <= eOperationState)
 				{
@@ -41507,7 +41521,7 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 {
 	CvAIOperation* pOperation;
 	std::map<int, CvAIOperation*>::const_iterator iter;
-	AIOperationState eOperationState = INVALID_AI_OPERATION_STATE;
+	AIOperationState eOperationState = AI_OPERATION_STATE_INVALID;
 	if (iPercentToTarget <= 50)
 	{
 		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -41560,7 +41574,7 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 					}
 				}
 			}
-			if (eAlreadyActiveOperation == INVALID_AI_OPERATION || eAlreadyActiveOperation == pOperation->GetOperationType())
+			if (eAlreadyActiveOperation == AI_OPERATION_TYPE_INVALID || eAlreadyActiveOperation == pOperation->GetOperationType())
 			{
 				if (pOperation->GetOperationState() <= eOperationState)
 				{
@@ -45809,21 +45823,12 @@ void CvPlayer::Read(FDataStream& kStream)
 		}
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
 	kStream >> m_piDomainFreeExperience;
-/// MODDED ELEMENTS BELOW
-	UpdateAreaEffectUnits();
-	UpdateAreaEffectPlots();
-	GET_TEAM(getTeam()).updateTeamStatus();
-	UpdateCurrentAndFutureWars();
-
-	int iLoop=0;
-	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
-	{
-		pCity->GetClosestFriendlyNeighboringCities();
-	}
 #endif
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream >> m_pabHasGlobalMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
@@ -45841,6 +45846,17 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 	kStream >> m_noSettlingPlots;
 #endif
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateAreaEffectUnits();
+	UpdateAreaEffectPlots();
+	GET_TEAM(getTeam()).updateTeamStatus();
+	UpdateCurrentAndFutureWars();
+	int iLoop=0;
+	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
+		pCity->UpdateClosestFriendlyNeighbors();
+#endif
+
 }
 
 //	--------------------------------------------------------------------------------
@@ -47886,7 +47902,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		{
 			if(!GET_PLAYER(*it).isBarbarian())
 			{
-				if(pPlot->IsHomeFrontForPlayer(*it))
+				if(pPlot->IsCloseToBorder(*it))
 				{
 					//--------------
 					if (bLogging) 

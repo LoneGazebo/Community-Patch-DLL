@@ -3783,7 +3783,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 		if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 			continue;
 
-		if (IsHomeFrontForPlayer(eLoopPlayer))
+		if (IsCloseToBorder(eLoopPlayer))
 			return true;
 	}
 
@@ -6713,13 +6713,16 @@ void CvPlot::SetCityPurchaseID(int iAcquiringCityID)
 	m_purchaseCity.iID = iAcquiringCityID;
 }
 
-
 //	--------------------------------------------------------------------------------
 /// Is this Plot within a certain range of any of a player's Cities?
-bool CvPlot::IsHomeFrontForPlayer(PlayerTypes ePlayer) const
+bool CvPlot::IsCloseToBorder(PlayerTypes ePlayer) const
 {
+	if (ePlayer == NO_PLAYER)
+		return false;
+
+	//do not use estimated turns here, performance is not good
+	int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInPlots(this);
 	int iRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
-	int iDistance = GET_PLAYER(ePlayer).GetCityDistanceInEstimatedTurns(this);
 	return (iDistance < iRange);
 }
 
@@ -8827,6 +8830,7 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 		}
 
 		// make sure this plot is not disabled
+		// important to call this because city connection update is hooked up there
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 		SetRoutePillaged(false, false);
 #else
@@ -8895,22 +8899,8 @@ void CvPlot::SetRoutePillaged(bool bPillaged)
 	}
 #endif
 
+	//city connections will be recalculated on turn start for each player!
 	m_bRoutePillaged = bPillaged;
-
-	if(bPillaged && IsCityConnection(NO_PLAYER))
-	{
-		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)i;
-			if(GET_PLAYER(ePlayer).isAlive())
-			{
-				if(IsCityConnection(ePlayer))
-				{
-					GET_PLAYER(ePlayer).GetCityConnections()->Update();
-				}
-			}
-		}
-	}
 
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	if (bEvents && MOD_EVENTS_TILE_IMPROVEMENTS) {
@@ -11695,19 +11685,10 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentRevealed(TeamTypes eTeam) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isRevealed(eTeam))
@@ -11723,19 +11704,10 @@ bool CvPlot::isAdjacentRevealed(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentNonrevealed(TeamTypes eTeam) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isRevealed(eTeam))
@@ -11751,19 +11723,12 @@ bool CvPlot::isAdjacentNonrevealed(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 int CvPlot::getNumAdjacentNonrevealed(TeamTypes eTeam) const
 {
-	CvPlot* pAdjacentPlot;
 	int iCount = 0;
 
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int i=0; i<NUM_DIRECTION_TYPES; i++)
 	{
-		pAdjacentPlot = aPlotsToCheck[i];
-#else
-	for(int i = 0; i < NUM_DIRECTION_TYPES; ++i)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)i));
-#endif
+		CvPlot* pAdjacentPlot = aPlotsToCheck[i];
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isRevealed(eTeam))
@@ -11986,6 +11951,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						setResourceType(NO_RESOURCE, 0);
 					}
 				}
+
 				if(newImprovementEntry.GetCreatedFeature() != NO_FEATURE)
 				{
 					setImprovementType(NO_IMPROVEMENT);
@@ -14850,6 +14816,20 @@ bool CvPlot::IsAdjacentToTradeRoute() const
 		if (pLoopPlot != NULL && pLoopPlot->IsTradeUnitRoute())
 		{
 			return true;
+		}
+	}
+	return false;
+}
+
+bool CvPlot::IsAdjacentToRoute(RouteTypes eType) const
+{
+	int iX = getX(); int iY = getY();
+	for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++) 
+	{
+		CvPlot* pLoopPlot = plotDirection(iX, iY, (DirectionTypes) iDirection);		
+		if (pLoopPlot != NULL && pLoopPlot->isRoute())
+		{
+			return eType==ROUTE_ANY || pLoopPlot->getRouteType()==eType;
 		}
 	}
 	return false;

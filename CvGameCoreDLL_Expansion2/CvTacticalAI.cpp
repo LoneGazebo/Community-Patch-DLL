@@ -2085,7 +2085,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->canUseForTacticalAI())
+		if (pUnit && pUnit->getDomainType()==DOMAIN_AIR && pUnit->canUseForTacticalAI())
 		{
 			// Am I eligible to intercept? We only commandeered units which won't be rebased
 			if(pUnit->canAirPatrol(NULL))
@@ -2134,7 +2134,7 @@ void CvTacticalAI::PlotAirSweepMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 #if defined(MOD_UNITS_MAX_HP)
-		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints() && pUnit->canUseForTacticalAI())
+		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints() && pUnit->getDomainType() == DOMAIN_AIR && pUnit->canUseForTacticalAI())
 #else
 		if(pUnit && (pUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
 #endif
@@ -3021,10 +3021,9 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			//combat units
 			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot,m_pPlayer->getTeam());
 			for (size_t i = 0; i < vAttackers.size(); i++)
-				if (!vAttackers[i]->plot()->isCity())
-					allEnemyPlots.insert(vAttackers[i]->plot());
-			//there shouldn't be any cities, but if there is one and we have a chance to capture it ...
-			if (pTestPlot->isEnemyCity(*pUnit) && pTestPlot->getPlotCity()->isInDangerOfFalling())
+				allEnemyPlots.insert(vAttackers[i]->plot());
+			//there shouldn't be any cities, especially without garrison, but if there is one ...
+			if (pTestPlot->isEnemyCity(*pUnit))
 				allEnemyPlots.insert(pTestPlot);
 		}
 
@@ -4633,9 +4632,6 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 	}
 	else if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
 	{
-		//don't attack accidentally
-		iFlags |= CvUnit::MOVEFLAG_NO_ATTACKING;
-
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,NULL,true))
 		{
 			//pillage if it makes sense and we have movement points to spare
@@ -5688,7 +5684,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	if (!pUnit || !pTarget)
 		return false;
 
-	int iFlags = CvUnit::MOVEFLAG_NO_ATTACKING;
+	int iFlags = 0;
 	//can we move there directly? if not try to move to an adjacent plot
 	if (!pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
@@ -5702,7 +5698,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	//if not possible, try again with more leeway
 	if (iTurns==INT_MAX)
 	{
-		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
+		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
 		if (eDomain==pTarget->getDomain())
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
@@ -10560,8 +10556,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case A_FINISH:
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			//this is the difference to a blocked unit, we prevent anyone else from moving it
-			GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
+			//this is the difference to a blocked unit, we may prevent anyone else from moving it
+			if (!pUnit->shouldHeal(false))
+				GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
 			bPrecondition = true;
 			bPostcondition = true;
 			break;

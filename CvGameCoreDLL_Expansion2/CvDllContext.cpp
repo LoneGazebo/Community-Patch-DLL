@@ -1067,7 +1067,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
 
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR|CvUnit::MOVEFLAG_ATTACK,1);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_ATTACK,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//potential deadlock - need to use special pathfinder instance
@@ -1090,7 +1090,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
 
 	//no caching!
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
+	SPathFinderUserData data(pkUnit,0);
 	//use TC_DEBUG to see path costs in the UI
 	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data, eMode);
 

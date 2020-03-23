@@ -58,6 +58,7 @@ void CvCityConnections::Reset(void)
 	m_plotsWithConnectionToCapital.clear();
 	m_connectionState.clear();
 	m_plotIdsToConnect.clear();
+	m_bDirty = true;
 }
 
 /// Serialization read
@@ -82,16 +83,17 @@ void CvCityConnections::Read(FDataStream& kStream)
 	m_connectionState.clear();
 	for (size_t i = 0; i < nItems; i++)
 	{
-		int temp;
-		kStream >> temp;
+		int origin;
+		kStream >> origin;
 		size_t nItems2;
 		kStream >> nItems2;
 		for (size_t j = 0; j < nItems2; j++)
 		{
-			int temp2, temp3;
-			kStream >> temp2;
+			pair<int, int> destination;
+			int temp3;
+			kStream >> destination;
 			kStream >> temp3;
-			m_connectionState[temp][temp2] = (CityConnectionTypes)temp3;
+			m_connectionState[origin][destination] = (CityConnectionTypes)temp3;
 		}
 	}
 
@@ -132,10 +134,11 @@ void CvCityConnections::Write(FDataStream& kStream) const
 /// Update - called from within CvPlayer
 void CvCityConnections::Update(void)
 {
+	//important, do this first to avoid endless recursion!
+	m_bDirty = false;
+
 	if(m_pPlayer->isBarbarian())
-	{
 		return;
-	}
 
 	UpdatePlotsToConnect();
 	UpdateRouteInfo();
@@ -152,37 +155,35 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		PlayerTypes ePlayer = vTeamPlayers[i];
 
 		//cities
-			int iLoop;
-			for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-			{
-				int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
+		int iLoop;
+		for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		{
+			int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
 			m_plotIdsToConnect.push_back(iPlotIndex);
 		}
 
 		//citadels etc
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		for (size_t j=0; j<vPlots.size(); j++)
-				{
+		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
 
 			if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-						continue;
+				continue;
 						
 			//ignore plots which are not exposed
-			CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopPlot);
-			if (!pZone || pZone->GetBorderScore() < 2)
-						continue;
+			if (!pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
+				continue;
 
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 50)
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
-
 		}
 	}
 					
 	//quests
 	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)
-					{
+	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
 		if(ShouldConnectToOtherPlayer(ePlayer))
 		{
@@ -208,25 +209,32 @@ CvCityConnections::CityConnectionTypes CvCityConnections::GetConnectionState(con
 	if (it1==m_connectionState.end())
 		return CONNECTION_NONE;
 	
-	AllCityConnectionStore::value_type::second_type::const_iterator it2 = it1->second.find(pCityB->GetID());
+	pair<int, int> destination(pCityB->getOwner(), pCityB->GetID());
+	AllCityConnectionStore::value_type::second_type::const_iterator it2 = it1->second.find(destination);
 	if (it2==it1->second.end())
 		return CONNECTION_NONE;
 
 	return it2->second;
 }
 
-bool CvCityConnections::AreCitiesDirectlyConnected(const CvCity * pCityA, const CvCity * pCityB, CityConnectionTypes eConnectionType) const
+bool CvCityConnections::AreCitiesDirectlyConnected(const CvCity * pCityA, const CvCity * pCityB, CityConnectionTypes eConnectionType)
 {
+	if (m_bDirty)
+		Update();
+
 	return (GetConnectionState(pCityA,pCityB) & eConnectionType) > 0;
 }
 
-CvCityConnections::SingleCityConnectionStore CvCityConnections::GetDirectConnectionsFromCity(const CvCity* pOrigin) const
+const CvCityConnections::SingleCityConnectionStore& CvCityConnections::GetDirectConnectionsFromCity(const CvCity* pOrigin)
 {
+	if (m_bDirty)
+		Update();
+
 	AllCityConnectionStore::const_iterator it = m_connectionState.find(pOrigin->GetID());
 	if (it!=m_connectionState.end())
 		return it->second;
 
-	return SingleCityConnectionStore();
+	return dummy;
 }
 
 void CvCityConnections::UpdateRouteInfo(void)
@@ -299,12 +307,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (pEndCity->IsBlockaded(false))
 					continue;
 				
-				SingleCityConnectionStore::iterator lala = localConnections.find(pEndCity->GetID());
+				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
+				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
 				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(pEndCity->GetID(),CONNECTION_NONE) );
+					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
 
 				//a bit ugly but what can you do
-				lala = localConnections.find(pEndCity->GetID());
+				lala = localConnections.find(destination);
 				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_ROAD);
 			}
 		}
@@ -318,12 +327,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (pEndCity->IsBlockaded(false))
 					continue;
 				
-				SingleCityConnectionStore::iterator lala = localConnections.find(pEndCity->GetID());
+				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
+				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
 				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(pEndCity->GetID(),CONNECTION_NONE) );
+					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
 
 				//a bit ugly but what can you do
-				lala = localConnections.find(pEndCity->GetID());
+				lala = localConnections.find(destination);
 				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_RAILROAD);
 			}
 		}
@@ -344,12 +354,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (!bEndCityAllowsWater || pEndCity->IsBlockaded(true))
 					continue;
 				
-				SingleCityConnectionStore::iterator lala = localConnections.find(pEndCity->GetID());
+				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
+				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
 				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(pEndCity->GetID(),CONNECTION_NONE) );
+					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
 
 				//a bit ugly but what can you do
-				lala = localConnections.find(pEndCity->GetID());
+				lala = localConnections.find(destination);
 				lala->second = (CityConnectionTypes) (lala->second + CONNECTION_HARBOR);
 			}
 		}
@@ -390,7 +401,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//no matter whether "direct" or "indirect", we pretend it's a harbor
 				//this works as is with the capital connection check below
-				localConnections.insert( std::make_pair(pCityB->GetID(),CONNECTION_HARBOR) );
+				localConnections.insert( make_pair( make_pair(pCityB->getOwner(),pCityB->GetID()),CONNECTION_HARBOR));
 
 				//don't forget to save it
 				m_connectionState[pCityA->GetID()] = localConnections;
@@ -408,7 +419,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 		//need to check those later
 		std::vector<CvCity*> vConnectedCities;
 
-		//Let's check for road first (railroad also counts as road).
+		//Let's check for road first (railroad also counts as road)
+		//Very important to set up m_connectionState for direct connections first!
 		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, ROUTE_ROAD);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
@@ -464,10 +476,17 @@ void CvCityConnections::UpdateRouteInfo(void)
 	CheckPlotRouteStateChanges(previousPlotsWithConnection,m_plotsWithConnectionToCapital);
 }
 
-/// if there are no cities in the route list
-bool CvCityConnections::Empty(void)
+void CvCityConnections::SetDirty(void)
 {
-	return m_plotIdsToConnect.empty();
+	m_bDirty = true;
+}
+
+std::vector<int> CvCityConnections::GetPlotsToConnect()
+{
+	if (m_bDirty)
+		Update();
+
+	return m_plotIdsToConnect;
 }
 
 bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)

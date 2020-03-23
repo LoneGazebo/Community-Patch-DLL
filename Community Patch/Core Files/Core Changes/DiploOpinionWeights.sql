@@ -602,13 +602,17 @@ UPDATE Defines
 SET Value = '35'
 WHERE Name = 'OPINION_WEIGHT_DENOUNCED_THEM';
 
+-- Weight for excessive empire expansion
 -- 35
 UPDATE Defines
 SET Value = '20'
 WHERE Name = 'OPINION_WEIGHT_RECKLESS_EXPANDER';
 
 INSERT INTO Defines (Name, Value)
-SELECT 'RECKLESS_EXPANDER_THRESHOLD', '200'; -- % value
+SELECT 'RECKLESS_EXPANDER_CITIES_THRESHOLD', '200'; -- must have at least this % city count compared to the median
+
+INSERT INTO Defines (Name, Value)
+SELECT 'RECKLESS_EXPANDER_LAND_THRESHOLD', '250'; -- must have at least this % plot count compared to the median
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY', '10';
@@ -618,7 +622,7 @@ SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD', '20';
 
 -- Weight for spamming World Wonders
 INSERT INTO Defines (Name, Value)
-SELECT 'WONDER_SPAMMER_THRESHOLD', '3'; -- flat value
+SELECT 'WONDER_SPAMMER_THRESHOLD', '3'; -- must have constructed this many more Wonders than the median (only counting Wonder-building civs)
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_WONDER_SPAMMER', '20';

@@ -70,7 +70,7 @@ void CvAIOperation::Reset(int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
-	m_eCurrentState = INVALID_AI_OPERATION_STATE;
+	m_eCurrentState = AI_OPERATION_STATE_INVALID;
 	m_eAbortReason = NO_ABORT_REASON;
 
 	m_iTargetX = INVALID_PLOT_COORD;
@@ -1201,7 +1201,7 @@ const char* CvAIOperation::GetInfoString()
 
 	switch(m_eCurrentState)
 	{
-	case INVALID_AI_OPERATION_STATE:
+	case AI_OPERATION_STATE_INVALID:
 		strTemp2 = "Not initialized";
 		break;
 	case AI_OPERATION_STATE_ABORTED:
@@ -1267,7 +1267,7 @@ void CvAIOperation::LogOperationStart() const
 		strOutBuf = strBaseString + strTemp1;
 		switch(m_eCurrentState)
 		{
-		case INVALID_AI_OPERATION_STATE:
+		case AI_OPERATION_STATE_INVALID:
 			strTemp2 = "Not initialized";
 			break;
 		case AI_OPERATION_STATE_ABORTED:
@@ -1343,7 +1343,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 
 		switch(m_eCurrentState)
 		{
-		case INVALID_AI_OPERATION_STATE:
+		case AI_OPERATION_STATE_INVALID:
 			strTemp = "Not initialized";
 			break;
 		case AI_OPERATION_STATE_ABORTED:
@@ -2165,11 +2165,17 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		return;
 	}
 
-	CvPlot* pMusterPlot = pOurCivilian->plot();
 	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
+	if (!pTargetSite)
+	{
+		SetToAbort(AI_ABORT_NO_TARGET);
+		return;
+	}
+
 	bool bCloseTarget = (pOurCivilian->TurnsToReachTarget(pTargetSite, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) < 1);
 
 	//don't wait for the escort in the wild (happens with settlers a lot)
+	CvPlot* pMusterPlot = pOurCivilian->plot();
 	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || 
 		(pOurCivilian->GetDanger(pMusterPlot)>30 && pOurCivilian->GetDanger(pTargetSite)>30))
 	{
@@ -3709,7 +3715,7 @@ AIOperationAbortReason CvAIOperationCivilian::VerifyOrAdjustTarget(CvArmyAI* pAr
 
 bool CvAIOperationCivilian::IsEscorted()
 {
-	if (m_eCurrentState==AI_OPERATION_STATE_RECRUITING_UNITS || m_eCurrentState == INVALID_AI_OPERATION_STATE)
+	if (m_eCurrentState==AI_OPERATION_STATE_RECRUITING_UNITS || m_eCurrentState == AI_OPERATION_STATE_INVALID)
 	{
 		CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo( GetFormation() );
 
