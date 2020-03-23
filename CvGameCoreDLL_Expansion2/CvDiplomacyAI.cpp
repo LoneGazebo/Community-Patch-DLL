@@ -5345,7 +5345,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		iMultiplier++;
 		bBonus = false;
 	}
-
 	if (IsPlayerWonderSpammer(ePlayer))
 	{
 		iMultiplier++;
