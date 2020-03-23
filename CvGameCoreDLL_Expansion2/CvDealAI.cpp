@@ -122,7 +122,7 @@ int CvDealAI::GetDealPercentLeewayWithAI(PlayerTypes eOtherPlayer) const
 /// How much are we willing to back off on what our perceived value of a deal is with a human player to make something work?
 int CvDealAI::GetDealPercentLeewayWithHuman() const
 {
-	return 5;
+	return 0;
 }
 
 /// Offer up a deal to this AI, and see if he accepts
@@ -1484,8 +1484,8 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
-		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = 100 * (iNumTurns * 5) / 1000;
+		//let's assume an interest rate of 0.1% per turn, no compounding
+		int iInterestPercent = 100 * (iNumTurns * 1) / 1000;
 
 		//subtract interest. 100 gold now is better than 100 gold in the future
 		iValueTimes100 -= (iValueTimes100*iInterestPercent) / 100;
