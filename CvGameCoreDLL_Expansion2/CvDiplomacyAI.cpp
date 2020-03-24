@@ -1404,6 +1404,7 @@ void CvDiplomacyAI::Reset()
 #endif
 	}
 
+	m_eMajorDiploType = NO_MAJOR_DIPLO_TYPE;
 	m_eDemandTargetPlayer = NO_PLAYER;
 	m_eCSWarTarget = NO_PLAYER;
 	m_eCSBullyTarget = NO_PLAYER;
@@ -1864,7 +1865,7 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabPlayerBrokenCoopWarPromise(MAX_MAJOR_CIVS, m_pabPlayerBrokenCoopWarPromise);
 	kStream >> wrapm_pabPlayerBrokenCoopWarPromise;
 
-
+	kStream >> m_eMajorDiploType;
 	kStream >> m_eDemandTargetPlayer;
 	kStream >> m_bDemandReady;
 
@@ -2338,6 +2339,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerBrokenCoopWarPromise);
 
+	kStream << m_eMajorDiploType;
 	kStream << m_eDemandTargetPlayer;
 	kStream << m_bDemandReady;
 
@@ -2633,6 +2635,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 		}
 	}
 
+	DoInitializeMajorDiploType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
 	LogPersonality();
 }
 
@@ -2657,12 +2660,12 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 	return range(iRtnValue,iMin,iMax);
 }
 
-/// Retrieves this civ's "diplo type" - its diplomatic inclination towards a certain victory condition based on other flavors
-MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
+/// Decide what victory condition we will be extra sensitive to for this game
+void CvDiplomacyAI::DoInitializeMajorDiploType()
 {
 	// Failsafe
 	if (!GetPlayer()->isMajorCiv())
-		return NO_MAJOR_DIPLO_TYPE;
+		return;
 	
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	CvPlayerAI& kPlayer = GET_PLAYER(eMyPlayer);
@@ -2761,7 +2764,7 @@ MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
 	}
 #endif
 
-	return eBestDiploType;
+	SetMajorDiploType(eBestDiploType);
 }
 
 
@@ -9516,6 +9519,7 @@ void CvDiplomacyAI::ChangeMajorCivOtherPlayerApproachCounter(PlayerTypes ePlayer
 // ************************************
 // Demands and CS Targets
 // ************************************
+
 /// Is there a City-State we're targeting for war?
 PlayerTypes CvDiplomacyAI::GetCSWarTargetPlayer() const
 {
@@ -9530,6 +9534,7 @@ void CvDiplomacyAI::SetCSWarTargetPlayer(PlayerTypes ePlayer)
 
 	m_eCSWarTarget = ePlayer;
 }
+
 /// Is there a City-State we're targeting for bullying, backed with force?
 PlayerTypes CvDiplomacyAI::GetCSBullyTargetPlayer() const
 {
@@ -9548,7 +9553,7 @@ void CvDiplomacyAI::SetCSBullyTargetPlayer(PlayerTypes ePlayer)
 /// Is there a player we're targeting to make a demand from, backed with force?
 PlayerTypes CvDiplomacyAI::GetDemandTargetPlayer() const
 {
-	return (PlayerTypes)m_eDemandTargetPlayer;
+	return (PlayerTypes) m_eDemandTargetPlayer;
 }
 
 /// Sets a player we're targeting to make a demand from, backed with force
@@ -20697,6 +20702,42 @@ int CvDiplomacyAI::GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApp
 	CvAssertMsg(eApproach >= 0, "DIPLOMACY_AI: Trying to queury invalid Minor Approach for personality bias.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eApproach < NUM_MINOR_CIV_APPROACHES, "DIPLOMACY_AI: Trying to queury invalid Minor Approach for personality bias.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_paiPersonalityMinorCivApproachBiases[eApproach];
+}
+
+/// What victory condition are we extra sensitive to for this game?
+MajorDiploTypes CvDiplomacyAI::GetMajorDiploType() const
+{
+	return (MajorDiploTypes) m_eMajorDiploType;
+}
+
+/// Sets what victory condition we will be extra sensitive to for this game
+void CvDiplomacyAI::SetMajorDiploType(MajorDiploTypes eMajorDiploType)
+{
+	m_eMajorDiploType = eMajorDiploType;
+}
+
+/// Is this player a natural conqueror?
+bool CvDiplomacyAI::IsConqueror() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CONQUEROR);
+}
+
+/// Is this player a natural diplomat?
+bool CvDiplomacyAI::IsDiplomat() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_DIPLOMAT);
+}
+
+/// Is this player naturally cultural?
+bool CvDiplomacyAI::IsCultural() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CULTURAL);
+}
+
+/// Is this player naturally scientific?
+bool CvDiplomacyAI::IsScientist() const
+{
+	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_SCIENTIFIC);
 }
 
 
@@ -42624,30 +42665,6 @@ int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
 	}
 
 	return iAtWarCount;
-}
-
-/// Is this player a natural conqueror?
-bool CvDiplomacyAI::IsConqueror() const
-{
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CONQUEROR);
-}
-
-/// Is this player a natural diplomat?
-bool CvDiplomacyAI::IsDiplomat() const
-{
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_DIPLOMAT);
-}
-
-/// Is this player naturally cultural?
-bool CvDiplomacyAI::IsCultural() const
-{
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_CULTURAL);
-}
-
-/// Is this player naturally scientific?
-bool CvDiplomacyAI::IsScientist() const
-{
-	return (GetMajorDiploType() == MAJOR_DIPLO_TYPE_SCIENTIFIC);
 }
 
 /// Does this player want to conquer the world?

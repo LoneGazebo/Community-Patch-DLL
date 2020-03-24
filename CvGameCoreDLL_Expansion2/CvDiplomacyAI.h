@@ -95,11 +95,7 @@ public:
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
 	
-	MajorDiploTypes GetMajorDiploType() const;
-	bool IsConqueror() const;
-	bool IsDiplomat() const;
-	bool IsCultural() const;
-	bool IsScientist() const;
+	void DoInitializeMajorDiploType();
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -635,6 +631,13 @@ public:
 
 	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
 	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
+
+	MajorDiploTypes GetMajorDiploType() const;
+	void SetMajorDiploType(MajorDiploTypes eMajorDiploType);
+	bool IsConqueror() const;
+	bool IsDiplomat() const;
+	bool IsCultural() const;
+	bool IsScientist() const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -2057,6 +2060,8 @@ private:
 	char* m_paeOpinionTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuessCounter;
+
+	char m_eMajorDiploType;
 
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;
