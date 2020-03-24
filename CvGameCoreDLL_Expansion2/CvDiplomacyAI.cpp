@@ -42149,14 +42149,13 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 
 		int iCivDifference = GET_PLAYER(ePlayer).GetWondersConstructed() - GetPlayer()->GetWondersConstructed();
 		int iMedianDifference = GET_PLAYER(ePlayer).GetWondersConstructed() - (int) ceil(CalculateMedianNumWondersConstructed());
-		
-		// If we got this far, neither of the values above are negative
+
 		// For scaling, go with whichever value is smaller
 		int iWonderDifference = min(iCivDifference, iMedianDifference);
 
-		if (iWonderDifference > 1)
+		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1))
 		{
-			iOpinionWeight += ((iWonderDifference-1) * /*10*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
+			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1)) * /*20*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
 		}
 		if (IsCultural() || IsConqueror())
 		{
