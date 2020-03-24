@@ -25303,10 +25303,10 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-			ChangeNumHistoricEvents(HISTORIC_EVENT_GA, 1);
 			if (GetGoldenAgeTourism() > 0)
 			{
 				int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
+				ChangeNumHistoricEvents(HISTORIC_EVENT_GA, 1);
 				// Culture boost based on previous turns
 				if (iTourism > 0)
 				{
@@ -25334,6 +25334,12 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+			else if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && isMajorCiv() && getNumCities() > 0)
+			{
+				DoDifficultyBonus(HISTORIC_EVENT_GA);
+			}
+#endif
 			if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
 				int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
@@ -31553,11 +31559,12 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		return;
 	}
 	m_iNumHistoricEvent += iChange;
+
 	CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
+		if (pLoopCity != NULL)
 		{
 			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			pLoopCity->GetCityCulture()->CalculateBaseTourism();
@@ -31565,7 +31572,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	}
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();
-	if(pCapital != NULL && iEventGP > 0)
+	if (pCapital != NULL && iEventGP > 0)
 	{
 		vector<SpecialistTypes> vPossibleSpecialists;
 		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
@@ -31580,23 +31587,23 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 					vPossibleSpecialists.push_back(eSpecialist);
 
 					//boost the chance if we have a slot for the corresponding great work
-					if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+					if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{ 
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) > 0)
+						if (GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) > 0)
 						{
 							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+					else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) > 0)
+						if (GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) > 0)
 						{
 							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+					else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) > 0)
+						if (GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) > 0)
 						{
 							vPossibleSpecialists.push_back(eSpecialist);
 						}
@@ -31608,10 +31615,10 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		//choose one
 		int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleSpecialists.size(), GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iNumHistoricEvent);
 		SpecialistTypes eBestSpecialist = vPossibleSpecialists.empty() ? NO_SPECIALIST : vPossibleSpecialists[iChoice];
-		if(eBestSpecialist != NO_SPECIALIST)
+		if (eBestSpecialist != NO_SPECIALIST)
 		{
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-			if(pkSpecialistInfo)
+			if (pkSpecialistInfo)
 			{
 				int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
 				iGPThreshold *= 100;
@@ -31620,44 +31627,44 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 				iGPThreshold /= 100;
 				
 				pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
-				if(GetID() == GC.getGame().getActivePlayer())
+				if (GetID() == GC.getGame().getActivePlayer())
 				{
 					iGPThreshold /= 100;
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
 					SHOW_PLOT_POPUP(pCapital->plot(), GetID(), text);
 					CvNotifications* pNotification = GetNotifications();
-					if(pNotification)
+					if (pNotification)
 					{
 						CvString strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS", iGPThreshold);
 						CvString strSummary;
 						// Class specific specialist message.
-						if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+						if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 						{ 
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER", iGPThreshold);
 						}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-						else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+						else if (MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT", iGPThreshold);
 						}
@@ -31670,7 +31677,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && isMajorCiv() && getNumCities() > 0)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && getNumCities() > 0)
 	{
 		DoDifficultyBonus(eHistoricEvent);
 	}
