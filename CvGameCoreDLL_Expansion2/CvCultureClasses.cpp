@@ -3726,10 +3726,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	m_pPlayer->SetNumArchaeologyChoices(m_pPlayer->GetNumArchaeologyChoices() - 1);
 	m_pPlayer->GetCulture()->RemoveDigCompletePlot(pPlot);
 #if defined(MOD_BALANCE_CORE)
-	if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
+	m_pPlayer->ChangeNumHistoricEvents(HISTORIC_EVENT_DIG, 1);
+	if (m_pPlayer->GetArchaeologicalDigTourism() > 0)
 	{
 		int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
-		m_pPlayer->ChangeNumHistoricEvents(HISTORIC_EVENT_DIG, 1);
 		m_pPlayer->GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 		if(iTourism > 0)
 		{

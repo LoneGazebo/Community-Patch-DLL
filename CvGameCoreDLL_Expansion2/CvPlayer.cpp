@@ -19866,7 +19866,7 @@ void CvPlayer::DoWarVictoryBonuses()
 void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
 	int iEra = GC.getGame().getCurrentEra();
-	if(iEra <= 0)
+	if (iEra <= 0)
 	{
 		iEra = 1;
 	}
@@ -19879,7 +19879,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	CvString strLogString;
 
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-	if(pHandicapInfo)
+	if (pHandicapInfo)
 	{
 		iHandicapBase = pHandicapInfo->getAIDifficultyBonusBase();
 		iHandicapA = pHandicapInfo->getAIDifficultyBonusEarly();
@@ -19991,12 +19991,27 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				break;
 			}
 			case HISTORIC_EVENT_DIG:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: DIG - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
 			case HISTORIC_EVENT_TRADE_CS:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: TRADE (CITY-STATE) - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
 			case HISTORIC_EVENT_TRADE_LAND:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: TRADE (LAND) - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
 			case HISTORIC_EVENT_TRADE_SEA:
 			{
 				GetTreasury()->ChangeGold(iYieldHandicap);
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: DIG/TRADE - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: TRADE (SEA) - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
@@ -25288,10 +25303,10 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
+			ChangeNumHistoricEvents(HISTORIC_EVENT_GA, 1);
 			if (GetGoldenAgeTourism() > 0)
 			{
 				int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
-				ChangeNumHistoricEvents(HISTORIC_EVENT_GA, 1);
 				// Culture boost based on previous turns
 				if (iTourism > 0)
 				{
@@ -31655,7 +31670,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 0)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && isMajorCiv() && getNumCities() > 0)
 	{
 		DoDifficultyBonus(eHistoricEvent);
 	}

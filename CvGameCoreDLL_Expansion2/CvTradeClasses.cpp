@@ -2515,6 +2515,7 @@ void CvPlayerTrade::MoveUnits (void)
 								{
 									if (pTradeConnection->m_eDomain == DOMAIN_LAND)
 									{
+										GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_LAND, 1);
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_LAND, pOriginCity);
 										if (iTourism > 0)
 										{
@@ -2572,6 +2573,7 @@ void CvPlayerTrade::MoveUnits (void)
 									}
 									else if (pTradeConnection->m_eDomain == DOMAIN_SEA)
 									{
+										GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_SEA, 1);
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_SEA, pOriginCity);
 										if (iTourism > 0)
 										{
@@ -2622,8 +2624,8 @@ void CvPlayerTrade::MoveUnits (void)
 								}
 								else if (GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
 								{
-									int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_CS);
 									GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_CS, 1);
+									int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_CS);
 									if (iTourism > 0)
 									{
 										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
