@@ -8230,7 +8230,7 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 }
 
 
-/// What is the best Diplomatic Approach to take towards a minor civilization (City-State)? Can also pass in iHighestWeight by reference if you just want to know what the player feels most strongly about without actually caring about WHAT it is
+/// What is the best Diplomatic Approach to take towards a minor civilization (City-State)?
 MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog)
 {
 	CvAssertMsg(ePlayer >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -11755,27 +11755,21 @@ void CvDiplomacyAI::DoSomeoneDeclaredWarOnMe(TeamTypes eTeam)
 	PlayerTypes eLoopPlayer;
 
 	// Loop through all players on our attacker's Team
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer))
 		{
-			if(GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+			if (GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
 			{
 				// Major Civs
-				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
 					// This will be updated on turn cycling, but for now we're "shocked and disappointed!"
 					SetWarGoal(eLoopPlayer, WAR_GOAL_PEACE);
 					SetTrueApproachTowardsUsGuess(eLoopPlayer, MAJOR_CIV_APPROACH_WAR);
 					SetTrueApproachTowardsUsGuessCounter(eLoopPlayer, 0);
-//					SetMajorCivApproach(eLoopPlayer, MAJOR_CIV_APPROACH_DEFENSIVE_WAR);
-				}
-				// Minor Civs
-				else
-				{
-//					SetMinorCivApproach(eLoopPlayer, MINOR_CIV_APPROACH_WAR);
 				}
 
 				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
@@ -11783,7 +11777,6 @@ void CvDiplomacyAI::DoSomeoneDeclaredWarOnMe(TeamTypes eTeam)
 		}
 	}
 }
-
 
 /// What is the state of war with this player?
 WarStateTypes CvDiplomacyAI::GetWarState(PlayerTypes ePlayer) const
@@ -21796,23 +21789,9 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(ePlayer != GetPlayer()->GetID())
+	if (ePlayer != GetPlayer()->GetID())
 	{
 		DoFirstContactInitRelationship(ePlayer);
-
-		//// Major Civ
-		//if (!GET_PLAYER(ePlayer).isMinorCiv())
-		//{
-		//	SetPlayerMilitaryStrengthComparedToUs(ePlayer, STRENGTH_AVERAGE);
-		//	SetMajorCivApproach(ePlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-		//	SetMajorCivOpinion(ePlayer, MAJOR_CIV_OPINION_NEUTRAL);
-		//}
-		//// Minor Civ
-		//else
-		//	SetMinorCivApproach(ePlayer, MINOR_CIV_APPROACH_IGNORE);
-
-		// Default States, will be updated on turn cycling
-		//SetPlayerTargetValue(ePlayer, TARGET_VALUE_AVERAGE);
 
 		// Humans don't say hi to one another through the shadow diplo AI and, uh, don't show up in MP please
 #if defined(MOD_ACTIVE_DIPLOMACY)
