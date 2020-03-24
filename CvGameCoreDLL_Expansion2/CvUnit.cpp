@@ -28988,18 +28988,18 @@ const char* CvUnit::GetMissionInfo()
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
-		m_strMissionInfoString += " // ";
+	m_strMissionInfoString += " // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-			m_strMissionInfoString += "no move assigned";
-		else
-		{
-			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
+		m_strMissionInfoString += "no move assigned";
+	else
+	{
+		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+			m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
-		if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
-				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
-		}
+	if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
+			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
+	}
 
 	if (IsCombatUnit())
 	{
@@ -29007,28 +29007,28 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += getTacticalZoneInfo();
 	}
 	else if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		m_strMissionInfoString += " // ";
+		m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+	}
+	else if (isTrade())
+	{
+		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+		int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
+		if (iTrIndex>=0)
 		{
-			m_strMissionInfoString += " // ";
-			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
-		}
-		else if (isTrade())
-		{
-			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-			int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
-			if (iTrIndex>=0)
+			const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
+			if (pTradeConnection)
 			{
-				const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
-				if (pTradeConnection)
-				{
-					CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
-					CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
-					CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
-						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
-						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
-						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
+				CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
+				CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
+				CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
+					pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
+					pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
+					pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
 
-					m_strMissionInfoString += " // ";
-					m_strMissionInfoString += strTemp0;
+				m_strMissionInfoString += " // ";
+				m_strMissionInfoString += strTemp0;
 			}
 		}
 	}

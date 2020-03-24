@@ -538,7 +538,6 @@ void CvTacticalAI::UpdatePostures()
 	}
 
 	// New postures become current ones
-	m_Postures.clear();
 	m_Postures = newPostures;
 }
 
@@ -3012,7 +3011,6 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		}
 
 		//check for enemy units, also around the immediate neighbor plots to be sure
-		//but ignore enemy cities / garrisons here
 		for (int i = 0; i < RING1_PLOTS; i++)
 		{
 			CvPlot* pTestPlot = iterateRingPlots(pUnit->plot(), i);
@@ -3022,10 +3020,12 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot,m_pPlayer->getTeam());
 			for (size_t i = 0; i < vAttackers.size(); i++)
 				allEnemyPlots.insert(vAttackers[i]->plot());
-			//there shouldn't be any cities, especially without garrison, but if there is one ...
-			if (pTestPlot->isEnemyCity(*pUnit))
-				allEnemyPlots.insert(pTestPlot);
 		}
+
+		//if the closest city belongs to the enemy, make sure we don't ignore it
+		CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pUnit->plot(), NO_PLAYER);
+		if (pClosestCity && m_pPlayer->IsAtWarWith(pClosestCity->getOwner()))
+			allEnemyPlots.insert(pClosestCity->plot());
 
 		vUnitsInitial.push_back(pUnit);
 		pUnit = pArmy->GetNextUnit(pUnit);

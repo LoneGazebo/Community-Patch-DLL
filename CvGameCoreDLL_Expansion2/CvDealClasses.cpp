@@ -3711,11 +3711,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		// EFB: temporary delete method; recopy vector without this element
 		//
 		// Copy the deals into a temporary container
-		DealList tempDeals;
-		for(dealIt = m_ProposedDeals.begin(); dealIt != m_ProposedDeals.end(); ++dealIt)
-		{
-			tempDeals.push_back(*dealIt);
-		}
+		DealList tempDeals(m_ProposedDeals);
 
 		// Copy back in minus this element
 		m_ProposedDeals.clear();
