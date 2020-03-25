@@ -239,6 +239,10 @@ public:
 	{
 		m_bIsWater = bWater;
 	};
+	inline DomainTypes GetDomain() const
+	{
+		return m_bIsWater ? DOMAIN_SEA : DOMAIN_LAND;
+	}
 	inline bool IsNavalInvasion() const
 	{
 		return m_bIsNavalInvasion;
@@ -265,7 +269,7 @@ public:
 	const std::vector<int>& GetNeighboringZones() const { return m_vNeighboringZones; }
 	void AddNeighboringZone(int iZoneID);
 	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
-	int GetBorderScore(CvCity** ppWorstNeighborCity=NULL) const;
+	int GetBorderScore(DomainTypes eDomain, CvCity** ppWorstNeighborCity=NULL) const;
 	bool HasNeighborZone(PlayerTypes eOwner) const;
 #endif
 

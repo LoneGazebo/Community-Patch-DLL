@@ -7225,7 +7225,7 @@ bool CvUnit::canRecruitFromTacticalAI() const
 	if (IsGarrisoned())
 	{
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
-		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>7)
+		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore(NO_DOMAIN)>7)
 			return false;
 	}
 
@@ -27081,7 +27081,10 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 
 CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 {
-	VALIDATE_OBJECT
+	//don't swap into a frontline plot
+	if (swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
+		return NULL;
+
 	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
 		if (canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))

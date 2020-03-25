@@ -262,7 +262,7 @@ void CvTacticalAnalysisMap::Init(PlayerTypes ePlayer)
 
 }
 
-int CvTacticalDominanceZone::GetBorderScore(CvCity** ppWorstNeighborCity) const
+int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWorstNeighborCity) const
 {
 	int iSum = 0;
 
@@ -274,7 +274,10 @@ int CvTacticalDominanceZone::GetBorderScore(CvCity** ppWorstNeighborCity) const
 	for (size_t i = 0; i < m_vNeighboringZones.size(); i++)
 	{
 		CvTacticalDominanceZone* pNeighbor = pTactMap->GetZoneByID(m_vNeighboringZones[i]);
-		if (!pNeighbor)
+		if (!pNeighbor || pNeighbor->GetNumPlots() < 7) //ignore very small zones
+			continue;
+
+		if (eDomain != NO_DOMAIN && pNeighbor->GetDomain() != eDomain)
 			continue;
 
 		int iScore = 0;
@@ -298,13 +301,16 @@ int CvTacticalDominanceZone::GetBorderScore(CvCity** ppWorstNeighborCity) const
 			}
 		}
 
+		//try to take into account relative strength
+		iScore += (pNeighbor->GetTotalEnemyUnitCount() + pNeighbor->GetNeutralUnitCount()) / max(1,GetTotalFriendlyUnitCount());
+		
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_NO_OWNER)
 			iScore += 1;
 
 		if (iScore > iWorstScore)
 		{
 			iWorstScore = iScore;
-			if (ppWorstNeighborCity && pNeighbor->GetZoneCity())
+			if (ppWorstNeighborCity)
 				*ppWorstNeighborCity = pNeighbor->GetZoneCity();
 		}
 
@@ -363,7 +369,7 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 
 			if (iA!=-1 && iB!=-1)
 			{
-				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NO_OWNER &&
+				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NO_OWNER ||
 					GetZoneByID(iB)->GetTerritoryType()!=TACTICAL_TERRITORY_NO_OWNER)
 				{
 					GetZoneByID(iA)->AddNeighboringZone(iB);
@@ -372,7 +378,7 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 			}
 			if (iA!=-1 && iC!=-1)
 			{
-				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NO_OWNER &&
+				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NO_OWNER ||
 					GetZoneByID(iC)->GetTerritoryType()!=TACTICAL_TERRITORY_NO_OWNER)
 				{
 					GetZoneByID(iA)->AddNeighboringZone(iC);

@@ -3446,7 +3446,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	//We don't get the full value here if not the majority.
 	if (eMajorityReligion != eReligion)
 	{
-		int iNumFollowersOtherReligions = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
+		int iNumFollowersOtherReligions = pFromCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
 		if (iNumFollowersOtherReligions > 0)
 		{
 			int iCitySize = pFromCity->getPopulation();

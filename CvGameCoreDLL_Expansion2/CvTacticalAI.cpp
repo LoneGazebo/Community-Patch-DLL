@@ -271,7 +271,7 @@ void CvTacticalAI::Write(FDataStream& kStream)
 }
 
 /// Mark all the units that will be under tactical AI control this turn
-void CvTacticalAI::CommandeerUnits()
+void CvTacticalAI::RecruitUnits()
 {
 	int iLoop;
 	m_CurrentTurnUnits.clear();
@@ -369,7 +369,7 @@ void CvTacticalAI::Update()
 	FindTacticalTargets();
 
 	//do this after updating the target list!
-	CommandeerUnits();
+	RecruitUnits();
 
 	// Loop through each dominance zone assigning moves
 	ProcessDominanceZones();

@@ -487,7 +487,6 @@ public:
 	void Write(FDataStream& kStream);
 
 	// Public turn update routines
-	void CommandeerUnits();
 	void Update();
 
 	// Temporary dominance zones
@@ -517,6 +516,8 @@ public:
 
 	void UnitProcessed(int iID);
 private:
+
+	void RecruitUnits();
 
 	// Internal turn update routines - commandeered unit processing
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);

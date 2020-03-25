@@ -418,8 +418,7 @@ void CvHomelandAI::FindHomelandTargets()
 			if( !pLoopPlot->isWater() && 
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && 
-				pLoopPlot->getOwningCity() != NULL && 
-				pLoopPlot->getOwningCity()->isBorderCity())
+				pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 			{
 				if (pLoopPlot->isRevealedFortification(m_pPlayer->getTeam()))
 				{
@@ -1254,7 +1253,7 @@ void CvHomelandAI::PlotPatrolMoves()
 
 void CvHomelandAI::ExecutePatrolMoves()
 {
-//check what kind of units we have
+	//check what kind of units we have
 	int iUnitsSea = 0, iUnitsLand = 0;
 	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
@@ -1295,53 +1294,45 @@ void CvHomelandAI::ExecutePatrolMoves()
 		//the target we're looking at depends on the domain of the unit
 		vector< pair<CvPlot*,CvPlot*> >& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
 
-		int iBestTurns = INT_MAX;
 		CvPlot* pBestCity = NULL;
 		CvPlot* pWorstEnemy = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
+			//targets are sorted by threat so take the first one in range
 			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i].first].find(pUnit->plot()->GetPlotIndex());
-			if (itPlot!=mapReachablePlots[vTargets[i].first].end() && itPlot->iTurns<iBestTurns)
+			if (itPlot!=mapReachablePlots[vTargets[i].first].end())
 			{
-				iBestTurns = itPlot->iTurns;
 				pBestCity = vTargets[i].first;
 				pWorstEnemy = vTargets[i].second;
 			}
 		}
 
-		int iBestScore = INT_MAX;
 		CvPlot* pBestPlot = NULL;
-		if (pBestCity && pWorstEnemy)
+		if (pBestCity)
 		{
-			//or should we iterate around the half-way plot instead?
-			int iCityDistance = plotDistance(*pBestCity, *pWorstEnemy) + 1;
-
-				//try not to create a unit carpet without any space to move
-				int iMaxDistance = pUnit->isRanged() ? 4 : 5;
+			//try not to create a unit carpet without any space to move
+			int iMaxDistance = pUnit->isRanged() ? 4 : 5;
 			for (int iJ = RING1_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
-				{
+			{
 				CvPlot* pLoopPlot = iterateRingPlots(pBestCity, iJ);
-					if(pLoopPlot == NULL)
-						continue;
+				if(pLoopPlot == NULL)
+					continue;
 
-				//must be to the right side of our city
-				if (plotDistance(*pLoopPlot, *pWorstEnemy) > iCityDistance)
+				//must be to the right side of our city if we know where the threat comes from
+				if (pWorstEnemy && plotDistance(*pLoopPlot, *pWorstEnemy) > plotDistance(*pBestCity, *pWorstEnemy))
 					continue;
 
 				//avoid confrontations with other players, dead ends etc
 				if (!TacticalAIHelpers::IsGoodPlotForStaging(m_pPlayer, pLoopPlot, pUnit->getDomainType()))
-						continue;
+					continue;
 
 				//naturally
 				if (!pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 					continue;
 
-				int iScore = plotDistance(*pLoopPlot, *pBestCity) + plotDistance(*pLoopPlot, *pWorstEnemy);
-				if (iScore < iBestScore)
-					{
-					iBestScore = iScore;
-					pBestPlot = pLoopPlot;
-				}
+				//if we get here it's good enough
+				pBestPlot = pLoopPlot;
+				break;
 			}
 		}
 
@@ -6547,9 +6538,10 @@ vector< pair<CvPlot*,CvPlot*> > HomelandAIHelpers::GetPatrolTargets(PlayerTypes 
 			continue;
 
 		CvCity* pWorstNeighborCity = NULL;
-		int iBorderScore = pZone->GetBorderScore(&pWorstNeighborCity);
+		int iBorderScore = pZone->GetBorderScore(bWater?DOMAIN_SEA:DOMAIN_LAND,&pWorstNeighborCity);
 
-		vTargets.push_back( OptionWithScore<pair<CvPlot*,CvPlot*>> ( std::make_pair(pZoneCity->plot(),pWorstNeighborCity ? pWorstNeighborCity->plot() : NULL), iBorderScore ) );
+		if (iBorderScore>0)
+			vTargets.push_back( OptionWithScore<pair<CvPlot*,CvPlot*>> ( std::make_pair(pZoneCity->plot(), pWorstNeighborCity ? pWorstNeighborCity->plot() : NULL), iBorderScore ) );
 	}
 
 	//default sort is descending!
