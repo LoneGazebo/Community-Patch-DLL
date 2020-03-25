@@ -35385,10 +35385,22 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes ePlayer, PlayerTypes& eChose
 		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 			continue;
 
+		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).IsHasDefensivePact(GetTeam()))
+			continue;
+
+		if(GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayerLoop).getTeam()))
+			continue;
+
 		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 			continue;
 
 		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eTargetPlayerLoop).getTeam()))
+			continue;
+
+		if(IsDoFAccepted(eTargetPlayerLoop))
+			continue;
+
+		if(GET_PLAYER(eTargetPlayerLoop).GetDiplomacyAI()->IsDoFAccepted(GetPlayer()->GetID()))
 			continue;
 		
 		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayerLoop))
@@ -36164,7 +36176,7 @@ CoopWarStates CvDiplomacyAI::GetGlobalCoopWarAcceptedAgainstState(PlayerTypes eP
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer, true))
 		{
 			if (GetCoopWarAcceptedState(eLoopPlayer, ePlayer) > eBestState)
 				eBestState = GetCoopWarAcceptedState(eLoopPlayer, ePlayer);
