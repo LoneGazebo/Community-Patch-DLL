@@ -883,6 +883,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!pToTeam->isAtWar(eFromTeam))
 			return false;
+		
+		if (!GET_PLAYER(eToPlayer).isHuman() && !GET_PLAYER(eToPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(ePlayer))
+			return false;
+		
+		if (!GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(eToPlayer))
+			return false;
 			
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (MOD_EVENTS_WAR_AND_PEACE) {
