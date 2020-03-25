@@ -2410,7 +2410,7 @@
 
 		<!-- Construction -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CONSTRUCT_X_BUILDING">
-			<Text>Builders from {3_Civ} are eager to study the value of the {1_Building}. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
+			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_X_BUILDING">
 			<Text>Construction project from {@1_Civ}</Text>
@@ -5142,10 +5142,10 @@
 			<Text>{1_BuildingName} sabotaged in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+			<Text>An unidentified spy sabotaged your [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR] in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
+			<Text>An unidentified spy sabotaged your [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR] in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_S">

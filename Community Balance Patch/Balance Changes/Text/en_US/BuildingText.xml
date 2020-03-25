@@ -746,7 +746,7 @@
 			<Text>{1_Player} has begun constructing the {2_Building}, and will completed it in {3_Turns} Turn(s)! If completed, {1_Player} will achieve a [COLOR_POSITIVE_TEXT]Cultural Victory[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_PROJECT_STARTED_S">
-			<Text>Construction of {1_Building} underway!</Text>
+			<Text>Construction of [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR] underway!</Text>
 		</Row>
 
 		
