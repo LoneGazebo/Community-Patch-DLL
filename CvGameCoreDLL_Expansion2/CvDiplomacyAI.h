@@ -135,11 +135,11 @@ public:
 	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
 	// Niche cases for approach updates
-	//void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
-	//void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	//void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	//void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
-	//void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
+	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
@@ -909,7 +909,8 @@ public:
 	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
 	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	CoopWarStates GetGlobalCoopWarAcceptedState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
 	int GetGlobalCoopWarCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
 
