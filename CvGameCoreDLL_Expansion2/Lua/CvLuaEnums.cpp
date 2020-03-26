@@ -1118,7 +1118,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumEnd(L);
 
 	EnumStart(L, "MajorCivOpinionTypes");
-	RegisterEnum(NO_MAJOR_CIV_OPINION_TYPE);
+	RegisterEnum(NO_MAJOR_CIV_OPINION);
 	RegisterEnum(MAJOR_CIV_OPINION_UNFORGIVABLE);
 	RegisterEnum(MAJOR_CIV_OPINION_ENEMY);
 	RegisterEnum(MAJOR_CIV_OPINION_COMPETITOR);
