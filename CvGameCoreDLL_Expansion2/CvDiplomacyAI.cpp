@@ -15353,6 +15353,10 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
 	if (iNumMajorsLeft <= 2)
 		return false;
+
+	// If we're targeting them for a coop war, don't make a DP with them!
+	if (GetGlobalCoopWarAcceptedAgainstState(ePlayer) == COOP_WAR_STATE_SOON)
+		return false;
 	
 	int iValue = 0;
 
@@ -18583,6 +18587,16 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				
 				if (iDoFWeight > 0)
 					iDoFWeight /= 2;
+			}
+			
+			// Targeted for a coop war? Then they're not a potential friend or DP!
+			if (GetGlobalCoopWarAcceptedAgainstState(ePlayer) == COOP_WAR_STATE_SOON)
+			{
+				if (iDPWeight > 0)
+					iDPWeight = 0;
+				
+				if (iDoFWeight > 0)
+					iDoFWeight = 0;
 			}
 			
 			// At war with them? Then they're not a potential friend or DP!
@@ -36943,6 +36957,10 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	
 		// If we're willing to denounce them, don't make friends with them!
 		if (IsDenounceAcceptable(ePlayer) || IsDenounceFriendAcceptable(ePlayer))
+			bCancel = true;
+		
+		// If we're targeting them for a coop war, don't make friends with them!
+		if (GetGlobalCoopWarAcceptedAgainstState(ePlayer) == COOP_WAR_STATE_SOON)
 			bCancel = true;
 
 		// Make sure none of our AI teammates find them untrustworthy or hostile
