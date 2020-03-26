@@ -74,7 +74,7 @@
 			<Text>Hasmonean Guerilla</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HASMONEAN_HELP">
-			<Text>+25% Flank Attack and Wounded Attack Bonus. Ignores Terrain Movement Penalties, and +5 HP when healing in Friendly Territory.</Text>
+			<Text>+5% Flank Attack and +25% Wounded Attack Bonus. Ignores Terrain Movement Penalties. +5 HP when healing in Friendly Territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PROMISED_LAND">
 			<Text>Promised Land</Text>
