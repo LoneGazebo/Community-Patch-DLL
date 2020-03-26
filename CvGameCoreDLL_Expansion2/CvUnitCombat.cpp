@@ -3520,7 +3520,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				if (pCity)
 				{
 					iDefendingPlayer = pCity->getOwner();
-					defenderMaxHP = GC.getMAX_CITY_HIT_POINTS();
+					defenderMaxHP = pCity->GetMaxHitPoints();
 				}
 			}
 			if (pkAttacker)
@@ -3702,7 +3702,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 					if (pCity)
 					{
 						iDefendingPlayer = pCity->getOwner();
-						defenderMaxHP = GC.getMAX_CITY_HIT_POINTS();
+						defenderMaxHP = pCity->GetMaxHitPoints();
 					}
 				}
 				if (pkAttacker)

@@ -1268,7 +1268,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 	}
 	
 	//get the most exposed cities and the most threatening neighbor cities
-	vector< pair<CvPlot*,CvPlot*> > vLandTargets, vWaterTargets;
+	vector<SPatrolTarget> vLandTargets, vWaterTargets;
 	if (iUnitsLand>0)
 		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, iUnitsLand);
 	if (iUnitsSea>0)
@@ -1278,11 +1278,11 @@ void CvHomelandAI::ExecutePatrolMoves()
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
-		mapReachablePlots[vLandTargets[i].first] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].first,data);
+		mapReachablePlots[vLandTargets[i].pTarget] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].pTarget,data);
 	for (size_t i=0; i<vWaterTargets.size(); i++)
 		//the stepfinder works for both land and water, so do the work only if necessary
-		if (mapReachablePlots.find(vWaterTargets[i].first)==mapReachablePlots.end())
-				mapReachablePlots[vWaterTargets[i].first] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i].first,data);
+		if (mapReachablePlots.find(vWaterTargets[i].pTarget)==mapReachablePlots.end())
+				mapReachablePlots[vWaterTargets[i].pTarget] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i].pTarget,data);
 
 	//for each unit, check which city is closest
 	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
@@ -1292,18 +1292,36 @@ void CvHomelandAI::ExecutePatrolMoves()
 			continue;
 
 		//the target we're looking at depends on the domain of the unit
-		vector< pair<CvPlot*,CvPlot*> >& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
+		vector<SPatrolTarget>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
+		CvTacticalDominanceZone* pCurrentZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
 
+		int iHighestThreat = 0;
+		int iCurrentDistance = INT_MAX;
 		CvPlot* pBestCity = NULL;
 		CvPlot* pWorstEnemy = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
-			//targets are sorted by threat so take the first one in range
-			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i].first].find(pUnit->plot()->GetPlotIndex());
-			if (itPlot!=mapReachablePlots[vTargets[i].first].end())
+			//see if there's a target in range
+			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i].pTarget].find(pUnit->plot()->GetPlotIndex());
+			if (itPlot!=mapReachablePlots[vTargets[i].pTarget].end())
 			{
-				pBestCity = vTargets[i].first;
-				pWorstEnemy = vTargets[i].second;
+				//stay in the current zone if it's one of the targets
+				CvTacticalDominanceZone* pTargetZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(vTargets[i].pTarget);
+				if (pTargetZone == pCurrentZone)
+				{
+					pBestCity = vTargets[i].pTarget;
+					pWorstEnemy = vTargets[i].pWorstEnemy;
+					break;
+				}
+
+				//otherwise move to the zone with the highest threat score, using distance as tiebreaker
+				if (vTargets[i].iThreatLevel > iHighestThreat || (vTargets[i].iThreatLevel == iHighestThreat  && itPlot->iNormalizedDistanceRaw < iCurrentDistance))
+				{
+					pBestCity = vTargets[i].pTarget;
+					pWorstEnemy = vTargets[i].pWorstEnemy;
+					iHighestThreat = vTargets[i].iThreatLevel;
+					iCurrentDistance = itPlot->iNormalizedDistanceRaw;
+				}
 			}
 		}
 
@@ -1311,7 +1329,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		if (pBestCity)
 		{
 			//try not to create a unit carpet without any space to move
-			int iMaxDistance = pUnit->isRanged() ? 4 : 5;
+			int iMaxDistance = pUnit->isRanged() ? 3 : 4;
 			for (int iJ = RING1_PLOTS; iJ < RING_PLOTS[iMaxDistance]; iJ++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pBestCity, iJ);
@@ -6513,14 +6531,14 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 }
 
 //check all tactical zones to find the one we need to support most
-vector< pair<CvPlot*,CvPlot*> > HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
+vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
 {
 	if (ePlayer==NO_PLAYER)
-		return vector<pair<CvPlot*,CvPlot*>>();
+		return vector<SPatrolTarget>();
 
 	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
 
-	vector<OptionWithScore<pair<CvPlot*,CvPlot*>>> vTargets;
+	vector<SPatrolTarget> vTargets;
 	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iI);
@@ -6541,17 +6559,43 @@ vector< pair<CvPlot*,CvPlot*> > HomelandAIHelpers::GetPatrolTargets(PlayerTypes 
 		int iBorderScore = pZone->GetBorderScore(bWater?DOMAIN_SEA:DOMAIN_LAND,&pWorstNeighborCity);
 
 		if (iBorderScore>0)
-			vTargets.push_back( OptionWithScore<pair<CvPlot*,CvPlot*>> ( std::make_pair(pZoneCity->plot(), pWorstNeighborCity ? pWorstNeighborCity->plot() : NULL), iBorderScore ) );
+			vTargets.push_back( SPatrolTarget(pZoneCity->plot(), pWorstNeighborCity ? pWorstNeighborCity->plot() : NULL, iBorderScore) );
 	}
 
 	//default sort is descending!
 	std::sort( vTargets.begin(), vTargets.end() );
 
-	vector<pair<CvPlot*,CvPlot*>> vResult;
+	vector<SPatrolTarget> vResult;
 	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)
 		//copy the top N results, take care not to have duplicate cities in there
-		if (std::find(vResult.begin(),vResult.end(),vTargets[i].option)==vResult.end())
-			vResult.push_back( vTargets[i].option );
+		if (std::find(vResult.begin(),vResult.end(),vTargets[i])==vResult.end())
+			vResult.push_back( vTargets[i] );
 
 	return vResult;
+}
+
+SPatrolTarget::SPatrolTarget()
+{
+	pTarget = NULL;
+	pWorstEnemy = NULL;
+	iThreatLevel = 0;
+}
+
+SPatrolTarget::SPatrolTarget(CvPlot * target, CvPlot * neighbor, int iThreat)
+{
+	pTarget = target;
+	pWorstEnemy = neighbor;
+	iThreatLevel = iThreat;
+}
+
+bool SPatrolTarget::operator<(const SPatrolTarget & rhs) const
+{
+	//sort descending!
+	return iThreatLevel > rhs.iThreatLevel;
+}
+
+bool SPatrolTarget::operator==(const SPatrolTarget & rhs) const
+{
+	//ignore threat level for comparison
+	return pTarget == rhs.pTarget && pWorstEnemy == rhs.pWorstEnemy;
 }

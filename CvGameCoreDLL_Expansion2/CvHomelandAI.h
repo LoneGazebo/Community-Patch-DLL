@@ -352,6 +352,17 @@ extern const char* homelandMoveNames[];
 extern const char* directiveNames[];
 #endif
 
+struct SPatrolTarget {
+	CvPlot* pTarget;
+	CvPlot* pWorstEnemy; //may be null
+	int iThreatLevel;
+
+	SPatrolTarget();
+	SPatrolTarget(CvPlot* target, CvPlot* neighbor, int iThreat);
+	bool operator<(const SPatrolTarget& rhs) const;
+	bool operator==(const SPatrolTarget& rhs) const;
+};
+
 namespace HomelandAIHelpers
 {
 bool CvHomelandUnitAuxIntSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
@@ -359,7 +370,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
-vector< pair<CvPlot*,CvPlot*> > GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
+vector<SPatrolTarget> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 }
 
 #endif //CIV5_HOMELAND_AI_H

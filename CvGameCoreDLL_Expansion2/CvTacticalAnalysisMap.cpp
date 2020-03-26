@@ -578,22 +578,14 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		{
 			// Start with strength of the city itself
 			int iCityHitPoints = pZoneCity->GetMaxHitPoints() - pZoneCity->getDamage();
-			int iStrength = pZoneCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
+			int iStrength = (pZoneCity->getStrengthValue() * iCityHitPoints) / pZoneCity->GetMaxHitPoints();
 
 			if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
-			{
-				pZone->AddFriendlyMeleeStrength(iStrength);
-				pZone->AddFriendlyRangedStrength(pZoneCity->getStrengthValue(true));
-			}
+				pZone->AddFriendlyRangedStrength(iStrength);
 			else if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
-			{
-				pZone->AddEnemyMeleeStrength(iStrength);
-				pZone->AddEnemyRangedStrength(pZoneCity->getStrengthValue(true));
-			}
+				pZone->AddEnemyRangedStrength(iStrength);
 			else
-			{ 
 				pZone->AddNeutralStrength(iStrength);
-			}
 		}
 
 		// check all units in the world

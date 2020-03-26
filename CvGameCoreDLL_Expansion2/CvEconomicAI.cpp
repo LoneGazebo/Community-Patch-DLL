@@ -2208,9 +2208,6 @@ void CvEconomicAI::DoPlotPurchases()
 				}
 				else
 				{
-					if(GC.getLogging() && GC.getAILogging())
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage("Start saving ...");
-
 					StartSaveForPurchase(PURCHASE_TYPE_TILE, iCost, /*Priority*/ 2);
 				}
 			}

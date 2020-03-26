@@ -4250,6 +4250,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 				ExecuteMoveToPlot(pUnit, pTestPlot);
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+				break;
 			}
 		}
 	}
@@ -5136,12 +5137,11 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(CvUnit* pUnit, CvPlot* plotTarget, i
 //AMS: Fills m_CurrentAirSweepUnits with all units able to sweep at target plot.
 void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 {
-	list<int>::iterator it;
 	m_CurrentAirSweepUnits.clear();
 	int interceptionsOnPlot = pTarget->GetInterceptorCount(m_pPlayer->GetID(),NULL,false,true);
 
 	// Loop through all units available to tactical AI this turn
-	for (it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end() && interceptionsOnPlot > 0; ++it)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end() && interceptionsOnPlot > 0; ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if (pLoopUnit && pLoopUnit->canUseForTacticalAI())
@@ -5411,34 +5411,31 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 /// Fills m_CurrentMoveCities with all cities within bombard range of a target (returns TRUE if 1 or more found)
 bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 {
-	list<int>::iterator it;
-	CvCity* pLoopCity;
-	int iLoop;
-
-	bool rtnValue = false;
 	m_CurrentMoveCities.clear();
 
 	// Loop through all of our cities
-	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	int iLoop;
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if(pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pLoopCity->isMadeAttack())
 		{
 			CvTacticalCity city;
 			city.SetID(pLoopCity->GetID());
 			m_CurrentMoveCities.push_back(city);
-			rtnValue = true;
 		}
 	}
 
 	// Now sort them in the order we'd like them to attack
 	std::stable_sort(m_CurrentMoveCities.begin(), m_CurrentMoveCities.end());
 
-	return rtnValue;
+	return !m_CurrentMoveCities.empty();
 }
 
 
 bool CvTacticalAI::FindEmbarkedUnitsAroundTarget(CvPlot* pTarget, int iMaxDistance)
 {
+	m_CurrentMoveUnits.clear();
+
 	if (!pTarget)
 		return false;
 
@@ -5465,6 +5462,8 @@ bool CvTacticalAI::FindEmbarkedUnitsAroundTarget(CvPlot* pTarget, int iMaxDistan
 /// Fills m_CurrentMoveUnits with all paratrooper units (available to jump) to the target (returns TRUE if 1 or more found)
 bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool bCheckDanger)
 {
+	m_CurrentMoveUnits.clear();
+
 	// Loop through all units available to tactical AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
