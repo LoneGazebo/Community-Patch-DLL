@@ -911,7 +911,8 @@ public:
 
 	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
 	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
-	int GetGlobalCoopWarCounter(PlayerTypes ePlayer);
+	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
+	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
 
 	// Human Demand

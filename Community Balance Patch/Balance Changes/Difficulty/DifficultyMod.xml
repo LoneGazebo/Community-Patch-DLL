@@ -29,6 +29,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>90</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>0</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
@@ -61,7 +62,6 @@
 			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIPerEraModifier>0</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>0</ResistanceCap>
 			<DifficultyBonusBase>0</DifficultyBonusBase>
 			<DifficultyBonusA>300</DifficultyBonusA>
 			<DifficultyBonusB>170</DifficultyBonusB>
@@ -114,6 +114,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>15</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
@@ -146,7 +147,6 @@
 			<AIUnitSupplyPercent>5</AIUnitSupplyPercent>
 			<AIPerEraModifier>-2</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>15</ResistanceCap>
 			<DifficultyBonusBase>1</DifficultyBonusBase>
 			<DifficultyBonusA>310</DifficultyBonusA>
 			<DifficultyBonusB>180</DifficultyBonusB>
@@ -199,6 +199,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>25</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
@@ -231,7 +232,6 @@
 			<AIUnitSupplyPercent>10</AIUnitSupplyPercent>
 			<AIPerEraModifier>-4</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>25</ResistanceCap>
 			<DifficultyBonusBase>2</DifficultyBonusBase>
 			<DifficultyBonusA>320</DifficultyBonusA>
 			<DifficultyBonusB>190</DifficultyBonusB>
@@ -284,6 +284,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>35</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
@@ -316,7 +317,6 @@
 			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AIPerEraModifier>-6</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>35</ResistanceCap>
 			<DifficultyBonusBase>3</DifficultyBonusBase>
 			<DifficultyBonusA>330</DifficultyBonusA>
 			<DifficultyBonusB>200</DifficultyBonusB>
@@ -369,6 +369,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>45</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
@@ -401,7 +402,6 @@
 			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AIPerEraModifier>-7</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>45</ResistanceCap>
 			<DifficultyBonusBase>4</DifficultyBonusBase>
 			<DifficultyBonusA>340</DifficultyBonusA>
 			<DifficultyBonusB>220</DifficultyBonusB>
@@ -454,6 +454,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>55</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
@@ -486,7 +487,6 @@
 			<AIUnitSupplyPercent>25</AIUnitSupplyPercent>
 			<AIPerEraModifier>-8</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>55</ResistanceCap>
 			<DifficultyBonusBase>5</DifficultyBonusBase>
 			<DifficultyBonusA>350</DifficultyBonusA>
 			<DifficultyBonusB>230</DifficultyBonusB>
@@ -539,6 +539,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>65</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>2</StartingMinorDefenseUnits>
@@ -571,7 +572,6 @@
 			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIPerEraModifier>-9</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>65</ResistanceCap>
 			<DifficultyBonusBase>7</DifficultyBonusBase>
 			<DifficultyBonusA>360</DifficultyBonusA>
 			<DifficultyBonusB>240</DifficultyBonusB>
@@ -624,6 +624,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>75</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>3</StartingMinorDefenseUnits>
@@ -656,7 +657,6 @@
 			<AIUnitSupplyPercent>35</AIUnitSupplyPercent>
 			<AIPerEraModifier>-10</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>75</ResistanceCap>
 			<DifficultyBonusBase>9</DifficultyBonusBase>
 			<DifficultyBonusA>375</DifficultyBonusA>
 			<DifficultyBonusB>260</DifficultyBonusB>
@@ -709,6 +709,7 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
+			<ResistanceCap>50</ResistanceCap>
 
 			<!-- City-State Bonuses -->
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
@@ -741,7 +742,6 @@
 			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIPerEraModifier>0</AIPerEraModifier>
 			<!-- CBP Difficulty Bonus -->
-			<ResistanceCap>50</ResistanceCap>
 			<DifficultyBonusBase>0</DifficultyBonusBase>
 			<DifficultyBonusA>300</DifficultyBonusA>
 			<DifficultyBonusB>175</DifficultyBonusB>

@@ -12756,7 +12756,7 @@ void CvPlayer::findNewCapital()
 		}
 		else if (pBestCity->IsRazing() && !isHuman())
 		{
-			// For the AI, we'll stop burining our new capital!
+			// For the AI, we'll stop burning our new capital!
 			gDLL->sendDoTask(pBestCity->GetID(), TASK_UNRAZE, -1, -1, false, false, false, false);
 		}
 #endif

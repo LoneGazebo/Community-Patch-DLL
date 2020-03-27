@@ -36220,19 +36220,18 @@ CoopWarStates CvDiplomacyAI::GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlay
 	return eBestState;
 }
 
-/// What is the SHORTEST amount of time on any coop war counter?
-int CvDiplomacyAI::GetGlobalCoopWarCounter(PlayerTypes ePlayer)
+/// What is the SHORTEST amount of time on any coop war counter AGAINST this player?
+int CvDiplomacyAI::GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer)
 {
 	int iBestCount = MAX_TURNS_SAFE_ESTIMATE;
-
 	int iTempCount;
 
 	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != GetPlayer()->GetID())
 		{
 			iTempCount = GetCoopWarCounter(eLoopPlayer, ePlayer);
 
@@ -36248,6 +36247,33 @@ int CvDiplomacyAI::GetGlobalCoopWarCounter(PlayerTypes ePlayer)
 	return iBestCount;
 }
 
+/// What is the SHORTEST amount of time on any coop war counter WITH this player?
+int CvDiplomacyAI::GetGlobalCoopWarWithCounter(PlayerTypes ePlayer)
+{
+	int iBestCount = MAX_TURNS_SAFE_ESTIMATE;
+	int iTempCount;
+
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (IsPlayerValid(eLoopPlayer))
+		{
+			iTempCount = GetCoopWarCounter(ePlayer, eLoopPlayer);
+
+			// No valid count against this guy
+			if (iTempCount < 0)
+				continue;
+
+			if (iTempCount < iBestCount)
+				iBestCount = iTempCount;
+		}
+	}
+
+	return iBestCount;
+}
+
 /// Are we locked into a war with ePlayer?
 bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer)
 {
@@ -36255,14 +36281,14 @@ bool CvDiplomacyAI::IsLockedIntoCoopWar(PlayerTypes ePlayer)
 
 	if (eCoopWarState == COOP_WAR_STATE_ACCEPTED || eCoopWarState == COOP_WAR_STATE_SOON)
 	{
-		if (GetGlobalCoopWarCounter(ePlayer) <= /*20*/ GC.getCOOP_WAR_LOCKED_TURNS())
+		if (GetGlobalCoopWarAgainstCounter(ePlayer) <= /*20*/ GC.getCOOP_WAR_LOCKED_TURNS())
 			return true;
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	//Vassals will never want peace with a player if their master is at war with a player.
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
-		if(GET_TEAM(m_pPlayer->getTeam()).IsVassalOfSomeone())
+		if (GET_TEAM(m_pPlayer->getTeam()).IsVassalOfSomeone())
 		{
 			TeamTypes eMasterTeam = GET_TEAM(m_pPlayer->getTeam()).GetMaster();
 			if (eMasterTeam != NO_TEAM)

@@ -16375,7 +16375,7 @@ int CvUnit::GetEmbarkedUnitDefense() const
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
 	int iResistance = 0;
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+	if (MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 	{
 		if (pOtherUnit->getOwner() == NO_PLAYER)
 			return 0;
@@ -16386,11 +16386,12 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 		if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
 			return 0;
 
+		// No bonus if we're attacking in their territory
 		if (plot()->getOwner() == pOtherUnit->getOwner())
 			return 0;
 
 		iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
-		//Not our territory?
+		// Not our territory?
 		if (plot()->getOwner() == NO_PLAYER)
 			iResistance /= 2;
 	}
