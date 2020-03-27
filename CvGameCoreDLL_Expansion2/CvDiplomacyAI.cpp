@@ -36190,7 +36190,7 @@ CoopWarStates CvDiplomacyAI::GetGlobalCoopWarAcceptedAgainstState(PlayerTypes eP
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer, true))
+		if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != GetPlayer()->GetID())
 		{
 			if (GetCoopWarAcceptedState(eLoopPlayer, ePlayer) > eBestState)
 				eBestState = GetCoopWarAcceptedState(eLoopPlayer, ePlayer);
