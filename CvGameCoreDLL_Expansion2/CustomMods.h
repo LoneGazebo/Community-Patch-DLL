@@ -729,6 +729,10 @@
 //   GameEvents.UnitUpgraded.Add(function(iPlayer, iOldUnit, iNewUnit, bGoodyHut) end)
 #define MOD_EVENTS_UNIT_UPGRADES                    gCustomMods.isEVENTS_UNIT_UPGRADES()
 
+// Events sent as units are converted (wherever CvUnit::convert() is called, eg upgrade or barbarian capture)
+//   GameEvents.UnitConverted.Add(function(iOldPlayer, iNewPlayer, iOldUnit, iNewUnit, bIsUpgrade) return true end)
+#define MOD_EVENTS_UNIT_CONVERTS                    gCustomMods.isEVENTS_UNIT_CONVERTS()
+
 // Events sent as units are created (v51)
 //   GameEvents.UnitCanHaveName.Add(function(iPlayer, iUnit, iName) return true end)
 //   GameEvents.UnitCanHaveGreatWork.Add(function(iPlayer, iUnit, iGreatWork) return true end)
@@ -1243,6 +1247,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitPromoted					"UnitPromoted",					"iii"
 #define GAMEEVENT_UnitRangeAttackAt				"UnitRangeAttackAt",			"iiii"
 #define GAMEEVENT_UnitUpgraded					"UnitUpgraded",					"iiib"
+#define GAMEEVENT_UnitConverted					"UnitConverted",				"iiiib"
 #define GAMEEVENT_IdeologyAdopted				"IdeologyAdopted",				"ii"
 #define GAMEEVENT_IdeologySwitched				"IdeologySwitched",				"iii"
 //JFD
@@ -1658,6 +1663,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CAN_MOVE_INTO);
 	MOD_OPT_DECL(EVENTS_UNIT_ACTIONS);
 	MOD_OPT_DECL(EVENTS_UNIT_UPGRADES);
+	MOD_OPT_DECL(EVENTS_UNIT_CONVERTS);
 	MOD_OPT_DECL(EVENTS_UNIT_DATA);
 	MOD_OPT_DECL(EVENTS_TRADE_ROUTES);
 	MOD_OPT_DECL(EVENTS_TRADE_ROUTE_PLUNDERED);

@@ -737,6 +737,9 @@
     <!--   GameEvents.CanHaveUpgrade.Add(function(iPlayer, iUnit, iUnitClassType, iUnitType) return true end) -->
     <!--   GameEvents.UnitUpgraded.Add(function(iPlayer, iOldUnit, iNewUnit, bGoodyHut) end) -->
     <Row Class="3" Name="EVENTS_UNIT_UPGRADES" Value="0"/>
+    <!-- Events sent as units are converted (wherever CvUnit::convert() is called, eg upgrade or barbarian capture) -->
+    <!--   GameEvents.UnitConverted.Add(function(iOldPlayer, iNewPlayer, iOldUnit, iNewUnit, bIsUpgrade) return true end) -->
+    <Row Class="3" Name="EVENTS_UNIT_CONVERTS" Value="0"/>
     
     <!-- Events sent as units are created (v51) -->
     <!--   GameEvents.UnitCanHaveName.Add(function(iPlayer, iUnit, iName) return true end) -->
