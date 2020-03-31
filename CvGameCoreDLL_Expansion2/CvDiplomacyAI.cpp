@@ -42527,7 +42527,12 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 
 		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1))
 		{
-			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1)) * /*20*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
+			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1)) * /*5*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
+			
+			if (iOpinionWeight > /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP())
+			{
+				iOpinionWeight = /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP();
+			}
 		}
 		if (IsCultural() || IsConqueror())
 		{
