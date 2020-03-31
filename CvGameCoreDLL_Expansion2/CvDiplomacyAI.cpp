@@ -4429,15 +4429,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	MajorCivApproachTypes eApproach;
 	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
-	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 0);
-
-	// Vector to store approach bias numbers (each leader has a randomized bias for each approach)
-	vector<int> viApproachWeightsPersonality;
-	for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
-	{
-		MajorCivApproachTypes eLoopApproach = (MajorCivApproachTypes) iApproachLoop;
-		viApproachWeightsPersonality.push_back(GetPersonalityMajorCivApproachBias(eLoopApproach));
-	}
+	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 100); // use a base weight of 100 rather than 0 for all approaches (experimental, should help with weight subtraction below)
 
 	//--------------------------------//
 	// [PART 1: INITIAL WEIGHTS]	  //
@@ -4447,10 +4439,16 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// BASE PERSONALITY WEIGHT
 	////////////////////////////////////
 
+	// Vector to store approach bias numbers (each leader has a randomized bias for each approach)
+	vector<int> viApproachWeightsPersonality;
 	for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 	{
 		MajorCivApproachTypes eLoopApproach = (MajorCivApproachTypes) iApproachLoop;
-		viApproachWeights[eLoopApproach] += viApproachWeightsPersonality[eLoopApproach];
+		int iBias = GetPersonalityMajorCivApproachBias(eLoopApproach);
+		
+		// Initial personality weight
+		viApproachWeightsPersonality.push_back(iBias);
+		viApproachWeights[eLoopApproach] += iBias;
 	}
 
 	////////////////////////////////////
@@ -7250,35 +7248,31 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			MajorCivApproachTypes eLoopApproach = (MajorCivApproachTypes) iApproachLoop;
 
-			// Neutral is the default, don't subtract any weight
-			if (eLoopApproach != MAJOR_CIV_APPROACH_NEUTRAL)
+			// Create a vector to store and rank the approach weights of each player from the first pass
+			CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePlayerApproachWeights;
+
+			for (std::vector<PlayerTypes>::iterator it = vePlayersToUpdate.begin(); it != vePlayersToUpdate.end(); ++it)
 			{
-				// Create a vector to store and rank the approach weights of each player from the first pass
-				CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vePlayerApproachWeights;
-
-				for (std::vector<PlayerTypes>::iterator it = vePlayersToUpdate.begin(); it != vePlayersToUpdate.end(); ++it)
-				{
-					int iApproachWeight = GetPlayerApproachValue(*it, eLoopApproach);
-					vePlayerApproachWeights.push_back(*it, iApproachWeight);
-				}
-
-				// Sort the weights from highest to lowest
-				vePlayerApproachWeights.SortItems();
-
-				// Find this player's ranking (how far are they down the list?)
-				int iPlayerRanking;
-				for (iPlayerRanking = 0; iPlayerRanking < (int) vePlayerApproachWeights.size(); iPlayerRanking++)
-				{
-					eLoopPlayer = (PlayerTypes) vePlayerApproachWeights.GetElement(iPlayerRanking);
-					
-					if (eLoopPlayer == ePlayer)
-						break;
-				}
-
-				// If this player's ranking is greater than 0 (i.e. the highest approach weight of all players) then subtract weight
-				// Ranking of 1 = -1x bias, 2 = -2x bias, etc.
-				viApproachWeights[eLoopApproach] -= (viApproachWeightsPersonality[eLoopApproach] * iPlayerRanking);
+				int iApproachWeight = GetPlayerApproachValue(*it, eLoopApproach);
+				vePlayerApproachWeights.push_back(*it, iApproachWeight);
 			}
+
+			// Sort the weights from highest to lowest
+			vePlayerApproachWeights.SortItems();
+
+			// Find this player's ranking (how far are they down the list?)
+			int iPlayerRanking;
+			for (iPlayerRanking = 0; iPlayerRanking < (int) vePlayerApproachWeights.size(); iPlayerRanking++)
+			{
+				eLoopPlayer = (PlayerTypes) vePlayerApproachWeights.GetElement(iPlayerRanking);
+				
+				if (eLoopPlayer == ePlayer)
+					break;
+			}
+
+			// If this player's ranking is greater than 0 (i.e. the highest approach weight of all players) then subtract weight
+			// Ranking of 1 = -1x bias, 2 = -2x bias, etc.
+			viApproachWeights[eLoopApproach] -= (viApproachWeightsPersonality[eLoopApproach] * iPlayerRanking);
 
 			// Negative approach weights - cap at zero!
 			if (viApproachWeights[eLoopApproach] <= 0)
