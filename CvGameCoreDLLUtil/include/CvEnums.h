@@ -1806,7 +1806,7 @@ enum UnitAITypes
 	UNITAI_PIRATE_SEA,				// avast, ye - UNUSED
 	UNITAI_ATTACK_AIR,				// bombers
 	UNITAI_DEFENSE_AIR,				// fighters
-	UNITAI_CARRIER_AIR,				// planes on boats
+	UNITAI_CARRIER_AIR,				// planes on boats - UNUSED
 	UNITAI_MISSILE_AIR,				// cruise missiles
 	UNITAI_PARADROP,				// paratrooper
 	UNITAI_SPACESHIP_PART,			// spaceship part that needs to be taken to capital

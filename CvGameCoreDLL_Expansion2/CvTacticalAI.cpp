@@ -1071,6 +1071,9 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	//do extra sweeps _after_ setting up the necessary interceptors for defense
 	PlotAirSweepMoves();
 
+	//score some goodies
+	PlotCaptureBarbCamp();
+
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
 	PlotMovesToSafety(false);
@@ -1078,9 +1081,6 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 
 	//try again now that other blocking units might have moved
 	PlotHealMoves(false);
-
-	//score some goodies
-	PlotCaptureBarbCamp();
 
 	//harass the enemy (plundering also happens during combat sim ...)
 	PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, true);
@@ -1475,7 +1475,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 						}
 					}
 					//if danger is quite high or unit is already damaged
-					else if(iDangerLevel>pUnit->GetMaxHitPoints()/2 || ((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50)
+					else if(iDangerLevel>pUnit->GetMaxHitPoints()/2 || (pUnit->getDamage()*2)>pUnit->GetMaxHitPoints())
 					{
 						bAddUnit = true;
 					}
@@ -5497,7 +5497,7 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 		if(pLoopUnit && pLoopUnit->canUseForTacticalAI() && pLoopUnit->IsCombatUnit()) //ignore generals and the like!
 		{
 			//these units are too fragile for the moves we have in mind
-			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 				continue;
 
 			if (pLoopUnit->IsGarrisoned() || pLoopUnit->getArmyID()!=-1)
