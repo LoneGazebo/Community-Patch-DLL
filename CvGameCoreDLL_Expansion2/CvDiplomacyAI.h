@@ -135,11 +135,11 @@ public:
 	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
 	// Niche cases for approach updates
-	//void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
-	//void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	//void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	//void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
-	//void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
+	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
@@ -909,8 +909,10 @@ public:
 	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
 	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	CoopWarStates GetGlobalCoopWarAcceptedState(PlayerTypes ePlayer);
-	int GetGlobalCoopWarCounter(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
+	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
+	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
 
 	// Human Demand
@@ -1716,7 +1718,7 @@ private:
 
 		//Arrays
 		short m_aDiploLogStatementTurnCountScratchPad[NUM_DIPLO_LOG_STATEMENT_TYPES];
-		char m_aiMajorCivOpinion[MAX_MAJOR_CIVS];
+		char m_aeMajorCivOpinion[MAX_MAJOR_CIVS];
 		char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
 		char m_aeMinorCivApproach[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];

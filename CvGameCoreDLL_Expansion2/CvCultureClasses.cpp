@@ -3726,7 +3726,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	m_pPlayer->SetNumArchaeologyChoices(m_pPlayer->GetNumArchaeologyChoices() - 1);
 	m_pPlayer->GetCulture()->RemoveDigCompletePlot(pPlot);
 #if defined(MOD_BALANCE_CORE)
-	if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
+	if (m_pPlayer->GetArchaeologicalDigTourism() > 0)
 	{
 		int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
 		m_pPlayer->ChangeNumHistoricEvents(HISTORIC_EVENT_DIG, 1);
@@ -3751,6 +3751,12 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+	else if (MOD_BALANCE_CORE_DIFFICULTY && !m_pPlayer->isHuman() && m_pPlayer->isMajorCiv() && m_pPlayer->getNumCities() > 0)
+	{
+		m_pPlayer->DoDifficultyBonus(HISTORIC_EVENT_DIG);
+	}
+#endif
 	pPlot->setResourceType(NO_RESOURCE, 0);
 #endif
 }
