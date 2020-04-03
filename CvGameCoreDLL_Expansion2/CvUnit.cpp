@@ -7513,8 +7513,8 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
+#if defined(MOD_BALANCE_CORE_MILITARY_RESOURCES)
+	if (MOD_BALANCE_CORE_MILITARY_RESOURCES && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -15514,10 +15514,13 @@ bool CvUnit::IsDead() const
 /// Over strategic resource limit?
 int CvUnit::GetStrategicResourceCombatPenalty() const
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-	return 0;
-#else
+#if defined(MOD_BALANCE_CORE_MILITARY_RESOURCES)
+	if (MOD_BALANCE_CORE_MILITARY_RESOURCES)
+	{
+		// units cannot heal anymore, but strength is unaffected
+		return 0;
+	}
+#endif
 	int iPenalty = 0;
 
 	// barbs don't have resources
@@ -15562,7 +15565,6 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 
 	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 	return iPenalty;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
