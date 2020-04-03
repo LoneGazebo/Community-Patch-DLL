@@ -65,7 +65,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- God of War
 UPDATE Language_en_US
-SET Text = '+10% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +10% [ICON_PRODUCTION] Production towards Units. Gain [ICON_PEACE] Faith from killing military units'
+SET Text = '+10% increase in City [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +10% [ICON_PRODUCTION] Production towards Units. Gain [ICON_PEACE] Faith from killing military units'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Waters (Now Goddess of Purity)
@@ -88,7 +88,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 -- Religious Settlements (Now God of the Expanse)
 UPDATE Language_en_US
-SET Text = '+25% faster border growth, and gain 20 [ICON_PEACE] Faith and 10 [ICON_PRODUCTION] Production every time a city expands its borders naturally, scaling with Gamespeed'
+SET Text = '+25% faster border growth, and gain 20 [ICON_PEACE] Faith and 10 [ICON_PRODUCTION] Production every time a City expands its borders naturally, scaling with Gamespeed'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Settlements 
@@ -112,7 +112,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ORAL_TRADITION_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- Ancestor Worship
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 3 [ICON_CITIZEN] Citizens in a city. +1 [ICON_CULTURE] Culture and [ICON_PEACE] Faith from Councils'
+SET Text = '+1 [ICON_PEACE] Faith for every 3 [ICON_CITIZEN] Citizens in a City. +1 [ICON_CULTURE] Culture and [ICON_PEACE] Faith from Councils'
 WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Desert Folklore (Now Spirit of the Desert)
