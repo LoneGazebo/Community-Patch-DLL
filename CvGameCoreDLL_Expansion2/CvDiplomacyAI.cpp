@@ -42487,8 +42487,11 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
 
-		int iCivDifference = GET_PLAYER(ePlayer).getNumCities() - GetPlayer()->getNumCities();
-		int iMedianDifference = GET_PLAYER(ePlayer).getNumCities() - (int) ceil(CalculateMedianNumCities());
+		int iMedian = (int) ceil(CalculateMedianNumCities());
+		int iNumCities = GET_PLAYER(ePlayer).getNumCities();
+
+		int iCivDifference = iNumCities - GetPlayer()->getNumCities();
+		int iMedianDifference = ((iNumCities*100) - (iMedian * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD()));
 
 		// For scaling, go with whichever value is smaller
 		int iCityDifference = min(iCivDifference, iMedianDifference);
