@@ -42487,19 +42487,37 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
 
-		int iMedian = (int) ceil(CalculateMedianNumCities());
+		double fMedianCities = CalculateMedianNumCities();
+		double fMedianPlots = CalculateMedianNumPlots();
 		int iNumCities = GET_PLAYER(ePlayer).getNumCities();
+		int iNumPlots = GET_PLAYER(ePlayer).getTotalLand();
 
-		int iCivDifference = iNumCities - GetPlayer()->getNumCities();
-		int iMedianDifference = ((iNumCities*100) - (iMedian * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD()));
+		int iCivCityDifference = iNumCities - GetPlayer()->getNumCities();
+		int iCivPlotDifference = iNumPlots - GetPlayer()->getTotalLand();
+		int iMedianCityDifference = (int) (((iNumCities*100) - (fMedianCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD())) / 100);
+		int iMedianPlotDifference = (int) (((iNumPlots*100) - (fMedianPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD())) / 100);
 
 		// For scaling, go with whichever value is smaller
-		int iCityDifference = min(iCivDifference, iMedianDifference);
+		int iCityWeight = 0;
+		int iCityDifference = min(iCivCityDifference, iMedianCityDifference);
 
 		if (iCityDifference > 1)
 		{
-			iOpinionWeight += ((iCityDifference-1) * /*10*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
+			iCityWeight += ((iCityDifference-1) * /*10*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
 		}
+
+		// Since land can be a factor, also factor in tile count (scale by whichever value is smaller)
+		int iPlotWeight = 0;
+		int iPlotDifference = min(iCivPlotDifference, iMedianPlotDifference);
+
+		if (iPlotDifference > 1)
+		{
+			iPlotWeight += ((iPlotDifference-1) * /*1*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_TILE());
+		}
+
+		// Apply the highest of the two scaling weights to Opinion
+		iOpinionWeight += max(iCityWeight, iPlotWeight);
+
 		if (IsConqueror())
 		{
 			iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD();
@@ -42525,7 +42543,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1))
 		{
 			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1)) * /*5*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
-			
+
 			if (iOpinionWeight > /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP())
 			{
 				iOpinionWeight = /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP();

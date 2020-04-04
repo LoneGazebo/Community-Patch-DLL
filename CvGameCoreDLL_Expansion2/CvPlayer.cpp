@@ -17794,7 +17794,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
 
-	// Example: Player can support 8 Units, he has 12. 4 * 10 means he loses 40% of his Production
+	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
 	int iNormal = 10;
 #if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
@@ -17835,7 +17835,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
 
-	// Example: Player can support 8 Units, he has 12. 4 * 10 means he loses 40% of his Production
+	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
 	int iMaintenanceMod = min(/*70*/ GC.getMAX_UNIT_SUPPLY_PRODMOD(), iPaidUnits * 5);
 	iMaintenanceMod = -iMaintenanceMod;
 
