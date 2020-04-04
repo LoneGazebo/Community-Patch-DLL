@@ -17883,6 +17883,11 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	int iSupply = getHandicapInfo().getProductionFreeUnits() + m_pTraits->GetExtraSupply();
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	{
+		if (GC.getGame().getStartEra() > 0)
+		{
+			iSupply += (GC.getGame().getStartEra() * 2);
+		}
+		
 		if (!bIgnoreReduction)
 		{
 			iSupply -= GetCurrentEra();
