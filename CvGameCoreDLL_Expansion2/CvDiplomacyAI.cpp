@@ -4132,38 +4132,43 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
 			if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 				eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-			oldApproaches.insert(std::make_pair(eLoopPlayer, eOldApproach));
 
 			// Under certain circumstances, set the approach immediately
+			// Prioritized approach updates are done first and don't depend on each other, therefore we can fairly use the new approach in the map ...
 			if (IsTeammate(eLoopPlayer))
 			{
 				DoUpdateApproachTowardsTeammate(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (bPermaWar && IsAtWar(eLoopPlayer))
 			{
 				DoUpdatePermaWarApproachTowardsMajorCiv(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (bHuman)
 			{
 				DoUpdateHumanApproachTowardsMajorCiv(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (bNoCities)
 			{
 				DoUpdateMajorCivApproachWithNoCities(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (GET_PLAYER(eLoopPlayer).getCapitalCity() == NULL)
 			{
-				SetMajorCivApproach(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-				SetWarFaceWithPlayer(eLoopPlayer, NO_WAR_FACE_TYPE);
-				//DoUpdateApproachTowardsMajorCivWithNoCities(eLoopPlayer);
+				DoUpdateApproachTowardsMajorCivWithNoCities(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 
-			// Otherwise, add this player to the list of civs to update approaches towards this turn
+			// Otherwise, add the old approach to the map ...
+			// ... and add this player to the list of civs to update approaches for this turn
+			oldApproaches.insert(std::make_pair(eLoopPlayer, eOldApproach));
 			vePlayersToUpdate.push_back(eLoopPlayer);
 		}
 	}
