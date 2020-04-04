@@ -844,7 +844,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 
 	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam) || (finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED));
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
-	kToNodeCacheData.bIsNonNativeDomain = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
+	kToNodeCacheData.bIsNonNativeDomain = !pUnit->isNativeDomain(pPlot); 
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	kToNodeCacheData.bIsNonEnemyCity = false;
@@ -1343,7 +1343,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 				iCost += (PATH_ATTACK_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
 
 			//avoid disembarkation penalty
-			if (bFromPlotIsWater && !bToPlotIsWater && !pUnit->isAmphib())
+			if (bFromPlotIsWater && !bToPlotIsWater && !pUnit->isAmphibious())
 				iCost += (PATH_ATTACK_WEIGHT * -(GC.getAMPHIB_ATTACK_MODIFIER()));
 		}
 	}
@@ -1395,7 +1395,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//special: cannot attack out of a fort or city with melee ships (ranged ships cannot attack from cities as well)
-				if (kFromNodeCacheData.bIsNonNativeDomain && pUnit->getDomainType() == DOMAIN_SEA)
+				if (kFromNodeCacheData.bIsNonNativeDomain && !pUnit->isAmphibious())
 					return FALSE;
 			}
 
@@ -1413,13 +1413,11 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
 		//some quick checks first (redundant with canMoveInto but faster)
-		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
+		if(!kToNodeCacheData.bCanEnterTerrainIntermediate || !kToNodeCacheData.bCanEnterTerritoryIntermediate)
 			return FALSE;
-		if(!kToNodeCacheData.bCanEnterTerritoryIntermediate)
+		//make sure we could stack
+		if(kToNodeCacheData.bIsVisibleEnemyUnit && kToNodeCacheData.bIsVisibleNeutralCombatUnit)
 			return FALSE;
-		if(kToNodeCacheData.bIsVisibleNeutralCombatUnit && kToNodeCacheData.bIsVisibleEnemyUnit)
-			return FALSE;
-
 		//we check stacking once we know whether we end the turn here (in PathCost)
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
 			return FALSE;

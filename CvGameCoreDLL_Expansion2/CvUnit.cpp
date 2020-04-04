@@ -16137,9 +16137,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			}
 
 			// Amphibious attack
-			if(!isAmphib())
+			if(!isAmphibious())
 			{
-				if(pFromPlot->needsEmbarkation(this))
+				if(!isNativeDomain(pFromPlot))
 					iModifier += GC.getAMPHIB_ATTACK_MODIFIER();
 			}
 
@@ -21642,7 +21642,7 @@ int CvUnit::getAmphibCount() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isAmphib() const
+bool CvUnit::isAmphibious() const
 {
 	VALIDATE_OBJECT
 	return (getAmphibCount() > 0);

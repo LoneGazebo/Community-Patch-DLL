@@ -1071,7 +1071,7 @@ public:
 	void changeBlitzCount(int iChange);
 
 	int getAmphibCount() const;
-	bool isAmphib() const;
+	bool isAmphibious() const;
 	void changeAmphibCount(int iChange);
 
 	int getRiverCrossingNoPenaltyCount() const;
