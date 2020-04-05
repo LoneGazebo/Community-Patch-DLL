@@ -2635,7 +2635,9 @@ void CvDiplomacyAI::DoInitializePersonality()
 		}
 	}
 
-	DoInitializeMajorDiploType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
+	if (!GetPlayer()->isHuman())
+		DoInitializeMajorDiploType(); // with our flavors picked, let's decide what victory condition we'll be extra sensitive to
+
 	LogPersonality();
 }
 
