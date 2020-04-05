@@ -2518,6 +2518,7 @@ void CvPlayerTrade::MoveUnits (void)
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_LAND, pOriginCity);
 										if (iTourism > 0)
 										{
+											GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_LAND, 1);
 											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
 											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsOtherCivWithModifiers(pDestCity->getOwner(), iTourism / 3);
 
@@ -2569,12 +2570,19 @@ void CvPlayerTrade::MoveUnits (void)
 												}
 											}
 										}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+										else if (MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(pOriginCity->getOwner()).isHuman() && GET_PLAYER(pOriginCity->getOwner()).isMajorCiv() && GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
+										{
+											GET_PLAYER(pOriginCity->getOwner()).DoDifficultyBonus(HISTORIC_EVENT_TRADE_LAND);
+										}
+#endif
 									}
 									else if (pTradeConnection->m_eDomain == DOMAIN_SEA)
 									{
 										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_SEA, pOriginCity);
 										if (iTourism > 0)
 										{
+											GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_SEA, 1);
 											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
 											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsOtherCivWithModifiers(pDestCity->getOwner(), iTourism / 3);
 
@@ -2618,27 +2626,42 @@ void CvPlayerTrade::MoveUnits (void)
 												}
 											}
 										}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+										else if (MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(pOriginCity->getOwner()).isHuman() && GET_PLAYER(pOriginCity->getOwner()).isMajorCiv() && GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
+										{
+											GET_PLAYER(pOriginCity->getOwner()).DoDifficultyBonus(HISTORIC_EVENT_TRADE_SEA);
+										}
+#endif
 									}
 								}
-								else if (GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
+								else if (GET_PLAYER(pDestCity->getOwner()).isMinorCiv())
 								{
-									int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_CS);
-									GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_CS, 1);
-									if (iTourism > 0)
+									if (GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
 									{
-										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-										CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-										if (pNotification)
+										int iTourism = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(HISTORIC_EVENT_TRADE_CS);
+										GET_PLAYER(pOriginCity->getOwner()).ChangeNumHistoricEvents(HISTORIC_EVENT_TRADE_CS, 1);
+										if (iTourism > 0)
 										{
-											Localization::String strSummary;
-											Localization::String strMessage;
-											strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS");
-											strMessage << iTourism;
-											strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
-											strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS");
-											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+											CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+											if (pNotification)
+											{
+												Localization::String strSummary;
+												Localization::String strMessage;
+												strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS");
+												strMessage << iTourism;
+												strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+												strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS");
+												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+											}
 										}
 									}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+									else if (MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(pOriginCity->getOwner()).isHuman() && GET_PLAYER(pOriginCity->getOwner()).isMajorCiv() && GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
+									{
+										GET_PLAYER(pOriginCity->getOwner()).DoDifficultyBonus(HISTORIC_EVENT_TRADE_CS);
+									}
+#endif
 								}
 							}
 						}
@@ -4949,7 +4972,7 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 		}
 
 		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-		bool bPlotIsVisibleToOtherTeam = pPlot->isVisible(eOtherTeam);
+		bool bPlotIsVisibleToOtherTeam = pPlot->getVisibilityCount(eOtherTeam) > 1 ? true : false;
 
 		bool bIgnore = false;
 		if (bExcludingMe && eOtherTeam == eMyTeam)

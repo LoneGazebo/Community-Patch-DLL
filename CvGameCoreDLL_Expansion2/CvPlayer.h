@@ -253,7 +253,7 @@ public:
 	void SetAllUnitsUnprocessed();
 	void DoUnitReset();
 	void DoUnitAttrition();
-	void RespositionInvalidUnits();
+	void RepositionInvalidUnits();
 	void ResetReachablePlotsForAllUnits();
 
 	void updateYield();
@@ -2440,7 +2440,7 @@ public:
 	void deleteAIOperation(int iID);
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
-	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = INVALID_AI_OPERATION) const;
+	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = AI_OPERATION_TYPE_INVALID) const;
 
 	int GetNumOffensiveOperations(DomainTypes eDomain);
 
@@ -2451,7 +2451,7 @@ public:
 	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
 
 #if defined(MOD_BALANCE_CORE)
-	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = INVALID_AI_OPERATION) const;
+	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = AI_OPERATION_TYPE_INVALID) const;
 	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
 #endif
 

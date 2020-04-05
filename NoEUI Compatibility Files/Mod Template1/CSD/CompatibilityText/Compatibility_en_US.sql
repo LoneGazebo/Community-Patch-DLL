@@ -41,7 +41,7 @@ SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Artists
 WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RES_PAPER] Paper, and 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Emissary. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every [ICON_CITY_STATE] City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.'
+SET Text = '+1 [ICON_RES_PAPER] Paper, and 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Emissary. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every [ICON_CITY_STATE] City-State Friend, and +1 [ICON_PEACE] Faith for every Ally.'
 WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP';
 
 UPDATE Language_en_US

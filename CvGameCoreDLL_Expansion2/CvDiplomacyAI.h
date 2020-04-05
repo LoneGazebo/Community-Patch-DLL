@@ -95,11 +95,7 @@ public:
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
 	
-	MajorDiploTypes GetMajorDiploType() const;
-	bool IsConqueror() const;
-	bool IsDiplomat() const;
-	bool IsCultural() const;
-	bool IsScientist() const;
+	void DoInitializeMajorDiploType();
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -136,7 +132,7 @@ public:
 
 	// Major Civs
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, bool bIgnoreApproachCurve = false);
+	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
 	// Niche cases for approach updates
 	//void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
@@ -154,7 +150,7 @@ public:
 
 	// Minor Civs
 	void DoUpdateMinorCivApproaches();
-	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, int& iHighestWeight, bool bLookAtOtherPlayers, bool bLog);
+	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog);
 
 	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes ePlayer) const;
 	void SetMinorCivApproach(PlayerTypes ePlayer, MinorCivApproachTypes eApproach);
@@ -469,6 +465,9 @@ public:
 	void SetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, PlayerTypes eWithPlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateEstimateOtherPlayerLandDisputeLevels();
 
+	double CalculateMedianNumCities();
+	double CalculateMedianNumPlots();
+	double CalculateMedianNumWondersConstructed();
 	bool IsPlayerRecklessExpander(PlayerTypes ePlayer);
 	bool IsPlayerWonderSpammer(PlayerTypes ePlayer);
 
@@ -632,6 +631,13 @@ public:
 
 	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
 	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
+
+	MajorDiploTypes GetMajorDiploType() const;
+	void SetMajorDiploType(MajorDiploTypes eMajorDiploType);
+	bool IsConqueror() const;
+	bool IsDiplomat() const;
+	bool IsCultural() const;
+	bool IsScientist() const;
 
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
@@ -1712,7 +1718,6 @@ private:
 		short m_aDiploLogStatementTurnCountScratchPad[NUM_DIPLO_LOG_STATEMENT_TYPES];
 		char m_aiMajorCivOpinion[MAX_MAJOR_CIVS];
 		char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
-		char m_aeApproachScratchPad[REALLY_MAX_PLAYERS];
 		char m_aeMinorCivApproach[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
 		char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
@@ -2051,11 +2056,12 @@ private:
 	short** m_ppaaiOtherPlayerMajorCivApproachCounter;
 
 	char* m_paeMajorCivApproach;
-	char* m_paeApproachScratchPad;
 	char* m_paeMinorCivApproach;
 	char* m_paeOpinionTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuessCounter;
+
+	char m_eMajorDiploType;
 
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;

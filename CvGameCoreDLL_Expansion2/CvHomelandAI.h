@@ -323,7 +323,8 @@ private:
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 
 	void UnitProcessed(int iID);
-	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>* allWorkersReachablePlots = NULL);
+	CvPlot* ExecuteWorkerMove(CvUnit* pUnit);
+	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;

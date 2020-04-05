@@ -95,12 +95,14 @@ public:
 	CvCity* getOwningCity(CvPlot* pPlot);
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
 
-	int ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTypes eBuild);
+	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
 	BuildTypes GetRepairBuild(void);
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
+	BuildTypes GetRemoveRoute(void);
+	BuildTypes GetBuildRoute(void);
 
 	static void LogInfo(CvString str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(CvString strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
@@ -122,10 +124,8 @@ protected:
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
-	int m_iNumCities;
-	CvWeightedVector<BuilderDirective, 100, true> m_aDirectives;
+	vector<OptionWithScore<BuilderDirective>> m_aDirectives;
 
-	CvPlot* m_pCurrentPlot;
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];
 
@@ -133,6 +133,8 @@ protected:
 	BuildTypes m_eRepairBuild;
 	FeatureTypes m_eFalloutFeature;
 	BuildTypes m_eFalloutRemove;
+	BuildTypes m_eRemoveRouteBuild;
+	BuildTypes m_eRouteBuild;
 	//some player dependent flags for unique improvements
 	bool m_bKeepMarshes;
 	bool m_bKeepJungle;

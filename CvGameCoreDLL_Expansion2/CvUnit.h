@@ -107,7 +107,6 @@ enum AreaEffectType
 
 class CvUnit
 {
-
 	friend class CvUnitMission;
 	friend class CvUnitCombat;
 
@@ -119,14 +118,14 @@ public:
 	enum
 	{
 		//these values can be called via the dll external interface, don't modify them
-	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
-	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // allow movment into neutral territory (for manual moves)
-	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
-	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (or the target is a city)
-	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules (with owned units) don't apply (on turn end plots)
-	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
-	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
-	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x0080, // deprecated
+	    MOVEFLAG_ATTACK							= 0x0001, // flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
+	    MOVEFLAG_UNUSED1						= 0x0002, // 
+	    MOVEFLAG_DESTINATION					= 0x0004, // we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
+	    MOVEFLAG_UNUSED2						= 0x0008, // 
+	    MOVEFLAG_IGNORE_STACKING				= 0x0010, // stacking rules (with owned units) don't apply (on turn end plots)
+	    MOVEFLAG_UNUSED3						= 0x0020, //
+	    MOVEFLAG_UNUSED4						= 0x0040, // 
+	    MOVEFLAG_UNUSED5						= 0x0080, // 
 		//these values are used internally only
 		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)

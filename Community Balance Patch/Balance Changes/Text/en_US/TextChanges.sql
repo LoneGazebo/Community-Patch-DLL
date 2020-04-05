@@ -66,7 +66,7 @@
 	WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CITADEL_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Can only be built in owned territory, and cannot be adjacent to other Citadels. +100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Any enemy unit which ends its turn next to the Citadel takes 30 damage (damage does not stack with other Citadels). Constructing the Citadel will expand your Culture borders to surround the Citadel, increase your Military Unit Supply Cap by 2, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.'
+	SET Text = 'Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Citadels. +100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Any enemy unit which ends its turn next to the Citadel takes 30 damage (damage does not stack with other Citadels). Constructing the Citadel will expand your Culture borders to surround the Citadel, increase your Military Unit Supply Cap by 2, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.'
 	WHERE Tag = 'TXT_KEY_BUILD_CITADEL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 -- NW Stuff

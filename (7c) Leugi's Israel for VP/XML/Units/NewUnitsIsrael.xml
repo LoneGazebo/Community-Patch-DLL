@@ -91,7 +91,7 @@
 			<IgnoreTerrainCost>true</IgnoreTerrainCost>
 			<CannotBeChosen>true</CannotBeChosen>
 			<AttackWoundedMod>25</AttackWoundedMod>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<FlankAttackModifier>5</FlankAttackModifier>
 			<FriendlyHealChange>5</FriendlyHealChange>
 			<PortraitIndex>0</PortraitIndex>
 			<IconAtlas>ISRAEL_PROMOTION_ATLAS</IconAtlas>

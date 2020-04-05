@@ -47,7 +47,8 @@ enum PathType
 	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
 	PT_TRADE_WATER,				//water trade (path or reachable plots if dest -1)
 	PT_TRADE_LAND,				//land trade (path or reachable plots if dest -1)
-	PT_BUILD_ROUTE,				//prospective route
+	PT_BUILD_ROUTE,				//prospective route, land only
+	PT_BUILD_ROUTE_MIXED,		//prospective route, allow harbors
 	PT_AREA_CONNECTION,			//assign area IDs to connected plots (hack)
 	PT_LANDMASS_CONNECTION,		//assign landmass IDs to connected plots (hack)
 	PT_CITY_INFLUENCE,			//which plot is next for a city to expand it's borders

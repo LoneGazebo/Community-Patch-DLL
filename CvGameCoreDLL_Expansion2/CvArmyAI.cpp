@@ -404,6 +404,9 @@ int CvArmyAI::GetTurnOfLastUnitAtNextCheckpoint() const
 void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 {
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+	if (!pOperation)
+		return;
+
 	//should be updated before calling this ...
 	CvPlot* pCurrentArmyPlot = GC.getMap().plot(GetX(), GetY());
 
@@ -676,10 +679,13 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
-			CvString strMsg;
-			strMsg.Format("Added %s %d to slot %d in army %d. ETA at (%d:%d) is %d ", pThisUnit->getName().c_str(),
-				m_FormationEntries[iSlotNum].GetUnitID(), iSlotNum, GetID(), pMusterPlot->getX(), pMusterPlot->getY(), iTurnsToReachCheckpoint);
-			pOperation->LogOperationSpecialMessage(strMsg);
+			if (pOperation)
+			{
+				CvString strMsg;
+				strMsg.Format("Added %s %d to slot %d in army %d. ETA at (%d:%d) is %d ", pThisUnit->getName().c_str(),
+					m_FormationEntries[iSlotNum].GetUnitID(), iSlotNum, GetID(), pMusterPlot->getX(), pMusterPlot->getY(), iTurnsToReachCheckpoint);
+				pOperation->LogOperationSpecialMessage(strMsg);
+			}
 		}
 	}
 }
