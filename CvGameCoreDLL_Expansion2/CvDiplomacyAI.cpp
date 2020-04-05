@@ -19031,36 +19031,33 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 		
 		if (pLeague == NULL)
 			return true;
-		
-		if (pLeague != NULL && !IsNoVictoryCompetition())
+
+		int iBestVotes = 0;
+		PlayerTypes eDiploLoopPlayer;
+	
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			int iBestVotes = 0;
-			PlayerTypes eDiploLoopPlayer;
+			eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			if (IsPlayerValid(eDiploLoopPlayer))
 			{
-				eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (eDiploLoopPlayer == ePlayer)
+					continue;
 			
-				if (IsPlayerValid(eDiploLoopPlayer))
-				{
-					if (eDiploLoopPlayer == ePlayer)
-						continue;
-				
-					int iVotes = pLeague->CalculateStartingVotesForMember(eDiploLoopPlayer);
-				
-					if (iVotes > iBestVotes)
-						iBestVotes = iVotes;
-				}
+				int iVotes = pLeague->CalculateStartingVotesForMember(eDiploLoopPlayer);
+			
+				if (iVotes > iBestVotes)
+					iBestVotes = iVotes;
 			}
-			
-			// Prime competitor?
-			if (pLeague->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
-			{
-				return false;
-			}
-			
-			return true;
 		}
+		
+		// Prime competitor?
+		if (pLeague->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
+		{
+			return false;
+		}
+		
+		return true;
 	}
 	
 	return false;
