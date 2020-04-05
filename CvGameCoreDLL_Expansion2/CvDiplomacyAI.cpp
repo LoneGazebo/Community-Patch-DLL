@@ -4434,7 +4434,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	MajorCivApproachTypes eApproach;
 	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
-	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 100); // use a base weight of 100 rather than 0 for all approaches (experimental, should help with weight subtraction below)
+	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 0); // use a base weight of 100 rather than 0 for all approaches (experimental, should help with weight subtraction below)
 
 	//--------------------------------//
 	// [PART 1: INITIAL WEIGHTS]	  //
