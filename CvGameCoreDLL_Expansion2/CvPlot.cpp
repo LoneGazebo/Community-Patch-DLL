@@ -2246,7 +2246,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 #if defined(MOD_BALANCE_CORE)
 	if(getFeatureType() != NO_FEATURE)
 	{
-		if(pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && (getFeatureType() == FEATURE_JUNGLE || getFeatureType() == FEATURE_FOREST))
+		if (pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && getFeatureType() == pkImprovementInfo->GetCreatedFeature())
 		{
 			return false;
 		}
@@ -8001,6 +8001,88 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				area()->changeNumImprovements(eNewValue, 1);
 			}
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+			if (MOD_IMPROVEMENTS_EXTENSIONS)
+			{
+				// creates feature
+				if (newImprovementEntry.GetCreatedFeature() != NO_FEATURE)
+				{
+					setFeatureType(newImprovementEntry.GetCreatedFeature());
+				}
+
+				// chance to spawn a random resource, should be executed after creating feature
+				int iResourceChance = newImprovementEntry.GetRandomResourceChance();
+				if (iResourceChance > 0)
+				{
+					if (getResourceType() == NO_RESOURCE)
+					{
+						// first roll: can we get a resource on this plot?
+						if (GC.getGame().getSmallFakeRandNum(100, GET_PLAYER(getOwner()).GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iPlotIndex) < iResourceChance)
+						{
+							// get list of valid resources for the plot
+							vector<ResourceTypes> vPossibleResources;
+							for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+							{
+								ResourceTypes eResource = (ResourceTypes)iI;
+								CvResourceInfo* pResourceInfo = GC.getResourceInfo((ResourceTypes)iI);
+
+								if (eResource != NO_RESOURCE && pResourceInfo)
+								{
+									if (canHaveResource(eResource, false, true) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pResourceInfo->getTechReveal())))
+									{
+										vPossibleResources.push_back(eResource);
+									}
+								}
+							}
+
+							// second roll: which resource do we get on this plot?
+							int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), GET_PLAYER(getOwner()).GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iPlotIndex);
+							ResourceTypes eSelectedResource = vPossibleResources.empty() ? NO_RESOURCE : vPossibleResources[iChoice];
+
+							// now let's add a resource.
+							if (eSelectedResource != NO_RESOURCE)
+							{
+								int iResourceQuantity = GC.getMap().getRandomResourceQuantity(eSelectedResource);
+								setResourceType(eSelectedResource, iResourceQuantity); // note we do not need to check resource linking, as it is done in this very function later on
+								// notification stuff
+								if (getOwner() == GC.getGame().getActivePlayer())
+								{
+									if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
+									{
+										CvString strBuffer;
+										CvResourceInfo* pSelectedResourceInfo = GC.getResourceInfo(eSelectedResource);
+										CvAssert(pSelectedResourceInfo);
+										NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pSelectedResourceInfo->GetTextKey());
+
+										CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pSelectedResourceInfo->GetTextKey());
+
+										switch (pSelectedResourceInfo->getResourceUsage())
+										{
+										case RESOURCEUSAGE_LUXURY:
+											eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+											break;
+										case RESOURCEUSAGE_STRATEGIC:
+											eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+											break;
+										case RESOURCEUSAGE_BONUS:
+											eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+											break;
+										}
+
+										CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+										if (pNotifications)
+										{
+											pNotifications->Add(eNotificationType, strBuffer, strSummary, getX(), getY(), eSelectedResource);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
 			if(isOwned())
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
@@ -8135,14 +8217,40 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					SetImprovementEmbassy(false);
 #endif
 			}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE) || defined(MOD_IMPROVEMENTS_EXTENSIONS)
 			else if(!isOwned())
 			{
+#if defined(MOD_BALANCE_CORE)
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
 				}	
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS && newImprovementEntry.IsNewOwner())
+				{
+					int iBestCityID = -1;
+					int iBestCityDistance = -1;
+					int iDistance;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
+					for (pLoopCity = GET_PLAYER(eBuilder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBuilder).nextCity(&iLoop))
+					{
+						CvPlot* pPlot = pLoopCity->plot();
+						if (pPlot)
+						{
+							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+							if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+							{
+								iBestCityID = pLoopCity->GetID();
+								iBestCityDistance = iDistance;
+							}
+						}
+					}
+					setOwner(eBuilder, iBestCityID);
+				}
+#endif
 			}
 #endif
 		}
@@ -8475,6 +8583,16 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if (MOD_EVENTS_TILE_IMPROVEMENTS)
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileImprovementChanged, getX(), getY(), getOwner(), eOldImprovement, eNewValue, IsImprovementPillaged());
+		}
+#endif
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+		if (MOD_IMPROVEMENTS_EXTENSIONS && eNewValue != NO_IMPROVEMENT)
+		{
+			// this should be called last
+			if (GC.getImprovementInfo(eNewValue)->IsRemovesSelf())
+			{
+				setImprovementType(NO_IMPROVEMENT);
+			}
 		}
 #endif
 	}
@@ -11967,7 +12085,11 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 #endif
 
 				// Unowned plot, someone has to foot the bill
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+				if(getOwner() == NO_PLAYER && !(MOD_IMPROVEMENTS_EXTENSIONS && GC.getImprovementInfo(eImprovement)->IsRemovesSelf()))
+#else
 				if(getOwner() == NO_PLAYER)
+#endif
 				{
 					if(MustPayMaintenanceHere(ePlayer))
 					{
@@ -11986,72 +12108,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						setResourceType(NO_RESOURCE, 0);
 					}
 				}
-				if(newImprovementEntry.GetCreatedFeature() != NO_FEATURE)
-				{
-					setImprovementType(NO_IMPROVEMENT);
-					setFeatureType(newImprovementEntry.GetCreatedFeature());
 
-					if(getResourceType() == NO_RESOURCE)
-					{
-						int iSpeed = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent() / 67;
-						if ((GC.getGame().getSmallFakeRandNum(100, ePlayer + m_iPlotIndex) / iSpeed) < 10)
-						{
-							int iResourceNum = 0;
-							for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
-							{
-								CvResourceInfo* thisResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
-								if(thisResourceInfo)
-								{
-									if(thisResourceInfo->isFeature(newImprovementEntry.GetCreatedFeature()) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
-									{
-										if(GC.getGame().getSmallFakeRandNum(10, eBuild + iI) == 5)
-										{
-											// Good we passed. Now let's add a resource.
-											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
-											setResourceType((ResourceTypes)iI, iResourceNum);
-											this->DoFindCityToLinkResourceTo();
-											if(getOwner() == GC.getGame().getActivePlayer())
-											{
-												pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
-												if(pCity != NULL)
-												{
-													strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", thisResourceInfo->GetTextKey(), pCity->getNameKey());
-													GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
-												}
-											}
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				if(newImprovementEntry.IsNewOwner())
-				{
-					int iBestCityID = -1;
-					int iBestCityDistance = -1;
-					int iDistance;
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-					for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if(pPlot)
-						{
-							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
-							if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-							{
-								iBestCityID = pLoopCity->GetID();
-								iBestCityDistance = iDistance;
-							}
-						}
-					}
-					if(getOwner() == NO_PLAYER)
-					{
-						setOwner(GetPlayerResponsibleForImprovement(), iBestCityID);
-					}
-				}
 				// If we want to prompt the user about archaeology, let's record that
 				if (newImprovementEntry.IsPromptWhenComplete())
 				{

@@ -218,6 +218,15 @@
     <!-- Allows faith purchase of buildings in puppets -->
     <Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
 
+    <!-- 
+	Various new tables and logics for improvements. Currently, this is required to activate:
+		- Column 'CreatesFeature' in 'Improvements'.
+		- Column 'RandResourceChance' in 'Improvements'.
+		- Column 'NewOwner' in 'Improvements'.
+		- Column 'RemoveWhenComplete' in 'Improvements'.
+	-->
+    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0" DbUpdates="1"/>
+
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
     <Row Class="6" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>

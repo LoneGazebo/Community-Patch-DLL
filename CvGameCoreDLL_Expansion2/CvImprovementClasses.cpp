@@ -343,6 +343,8 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iGAUnitPlotExperience = kResults.GetInt("GAUnitPlotExperience");
 	const char* szFeatureType = kResults.GetText("CreatesFeature");
 	m_eCreatesFeature = (FeatureTypes)GC.getInfoTypeForString(szFeatureType, true);
+	m_eRandResourceChance = kResults.GetInt("RandResourceChance");
+	m_eRemovesSelf = kResults.GetBool("RemovesSelf");
 	m_bNewOwner = kResults.GetBool("NewOwner");
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
 	m_iMovesChange = kResults.GetInt("MovesChange");
@@ -953,6 +955,14 @@ int CvImprovementEntry::GetGAUnitPlotExperience() const
 FeatureTypes CvImprovementEntry::GetCreatedFeature() const
 {
 	return m_eCreatesFeature;
+}
+int CvImprovementEntry::GetRandomResourceChance() const
+{
+	return m_eRandResourceChance;
+}
+bool CvImprovementEntry::IsRemovesSelf() const
+{
+	return m_eRemovesSelf;
 }
 bool CvImprovementEntry::IsNewOwner() const
 {
