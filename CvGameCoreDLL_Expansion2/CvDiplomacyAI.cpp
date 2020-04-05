@@ -5229,7 +5229,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		iMultiplier++;
 	}
-	if (!bNoVictoryCompetition && ((iNumTheirCaps + iNumTheirVassals) > 2))
+	if (!bNoVictoryCompetition && (bTheyAreCloseToWorldConquest || ((iNumTheirCaps + iNumTheirVassals) > 2))
 	{
 		iMultiplier++;
 		bBonus = false;
@@ -5439,7 +5439,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		iMultiplier++;
 		bBonus = false;
 	}
-	if (GetNumTimesRobbedBy(ePlayer) > 0)
+	if (GetNumTimesRobbedBy(ePlayer) > 0 || IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
 	{
 		iMultiplier++;
 		bBonus = false;
@@ -20088,7 +20088,7 @@ DisputeLevelTypes CvDiplomacyAI::GetTechDisputeLevel(PlayerTypes ePlayer) const
 	// Spaceship competitor?
 	VictoryTypes eSpaceshipVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 	
-	if (GC.getGame().isVictoryValid(eSpaceshipVictory) && !GC.getGame().IsGameWon() && eSpaceshipVictory != NO_VICTORY)
+	if (GC.getGame().isVictoryValid(eSpaceshipVictory) && !IsNoVictoryCompetition() && eSpaceshipVictory != NO_VICTORY)
 	{
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetSSProjectCount() > 1)
 		{
