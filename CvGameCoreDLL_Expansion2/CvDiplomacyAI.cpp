@@ -5601,10 +5601,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 		break;
 	case AGGRESSIVE_POSTURE_MEDIUM:
-	case AGGRESSIVE_POSTURE_HIGH:
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
 		break;
+	case AGGRESSIVE_POSTURE_HIGH:
 	case AGGRESSIVE_POSTURE_INCREDIBLE:
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
@@ -5681,53 +5681,55 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
 			}
-
-			TeamTypes eLoopTeam;
-			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			else
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if (IsPlayerValid(eLoopPlayer))
+				TeamTypes eLoopTeam;
+				for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
-					if (GET_TEAM(eTeam).IsVassal(eLoopTeam))
-					{
-						// Grab our previous approach towards them from the map
-						MajorCivApproachTypes eOldLoopApproach;
-						oldApproachPointer = oldApproaches.find(eLoopPlayer);
-						if (oldApproachPointer != oldApproaches.end())
-							eOldLoopApproach = oldApproachPointer->second;
-						else
-						{
-							eOldLoopApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-							if (eOldLoopApproach == NO_MAJOR_CIV_APPROACH)
-								eOldLoopApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-						}
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-						// Add our approach towards the master into this.
-						switch (eOldLoopApproach)
+					if (IsPlayerValid(eLoopPlayer))
+					{
+						eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+						if (GET_TEAM(eTeam).IsVassal(eLoopTeam))
 						{
-						case MAJOR_CIV_APPROACH_WAR:
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-							break;
-						case MAJOR_CIV_APPROACH_HOSTILE:
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-							break;
-						case MAJOR_CIV_APPROACH_DECEPTIVE:
-							viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
-							break;
-						case MAJOR_CIV_APPROACH_GUARDED:
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-							break;
-						case MAJOR_CIV_APPROACH_AFRAID:
-							viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID];
-							break;
-						case MAJOR_CIV_APPROACH_NEUTRAL:
-							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];	
-							break;
-						case MAJOR_CIV_APPROACH_FRIENDLY:
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-							break;
+							// Grab our previous approach towards them from the map
+							MajorCivApproachTypes eOldLoopApproach;
+							oldApproachPointer = oldApproaches.find(eLoopPlayer);
+							if (oldApproachPointer != oldApproaches.end())
+								eOldLoopApproach = oldApproachPointer->second;
+							else
+							{
+								eOldLoopApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+								if (eOldLoopApproach == NO_MAJOR_CIV_APPROACH)
+									eOldLoopApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+							}
+
+							// Add our approach towards the master into this.
+							switch (eOldLoopApproach)
+							{
+							case MAJOR_CIV_APPROACH_WAR:
+								viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+								break;
+							case MAJOR_CIV_APPROACH_HOSTILE:
+								viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+								break;
+							case MAJOR_CIV_APPROACH_DECEPTIVE:
+								viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+								break;
+							case MAJOR_CIV_APPROACH_GUARDED:
+								viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
+								break;
+							case MAJOR_CIV_APPROACH_AFRAID:
+								viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID];
+								break;
+							case MAJOR_CIV_APPROACH_NEUTRAL:
+								viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];	
+								break;
+							case MAJOR_CIV_APPROACH_FRIENDLY:
+								viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+								break;
+							}
 						}
 					}
 				}
@@ -5920,7 +5922,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (IsPlayerValid(eLoopPlayer))
+			if (IsPlayerValid(eLoopPlayer) && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
 			{
 				if (IsAtWar(eLoopPlayer) || IsDenouncedPlayer(eLoopPlayer))
 				{
@@ -6008,7 +6010,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-		if (IsPlayerValid(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer) && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
 		{
 			if (IsAtWar(eLoopPlayer) || IsDenouncedPlayer(eLoopPlayer))
 			{
@@ -20715,8 +20717,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 		return;
 	}
 	
-	// We have a Defensive Pact and we don't think they're plotting against us, so don't worry about it
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam())/* && GetTrueApproachTowardsUsGuess(ePlayer) > MAJOR_CIV_APPROACH_DECEPTIVE*/)
+	// We have a Defensive Pact, so don't worry about it.
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GetTeam()))
 	{
 		SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		return;
