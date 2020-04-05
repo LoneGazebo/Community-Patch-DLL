@@ -6191,12 +6191,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 			{
-				if (GetWarState(eLoopPlayer) != WAR_STATE_NEARLY_WON)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
-				}
-
 				if (GetWarState(eLoopPlayer) == WAR_STATE_CALM || GetWarState(eLoopPlayer) == WAR_STATE_STALEMATE)
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
@@ -6211,6 +6205,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 				}
+				
+				// Is this guy a neighbor? We want neighbors on our good side if we're going to war with others
+				if (GET_PLAYER(ePlayer).GetProximityToPlayer(eMyPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+				}					
 
 				// Is the target a neighbor? We want others on our good side if we're going to war with neighbors
 				if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eMyPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
