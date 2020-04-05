@@ -4295,7 +4295,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			iTradeDelta /= 2;
 		}
-		if (!bUntrustworthy && IsStrategicTradePartner(ePlayer))
+		else if (IsStrategicTradePartner(ePlayer))
 		{
 			iTradeDelta *= 2;
 		}
@@ -18888,6 +18888,9 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
+
+	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
+		return false;
 	
 	if (GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
 		return false;
@@ -18901,9 +18904,17 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 		return false;
 
-	if (GetPlayer()->GetCurrentEra() >= 2 && IsGoingForWorldConquest() && !IsCloseToDominationVictory())
+	if (GetPlayer()->GetCurrentEra() >= 2 && (IsGoingForWorldConquest() || IsCloseToDominationVictory()))
 	{
-		if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
+		if (IsCloseToDominationVictory())
+		{
+			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+				return true;
+			else
+				return false;
+		}
+
+		else if (GetLandDisputeLevel(ePlayer) < DISPUTE_LEVEL_STRONG)
 			return true;
 	}
 	
