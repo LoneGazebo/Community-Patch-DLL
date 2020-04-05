@@ -1533,8 +1533,6 @@ public:
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
-	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
-	int GetPaidTributeToScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyProposalScore(PlayerTypes ePlayer);

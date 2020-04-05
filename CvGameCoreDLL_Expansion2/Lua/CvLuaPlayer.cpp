@@ -13925,28 +13925,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	/*
-	iValue = pDiploAI->GetGaveAssistanceToScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ASSISTANCE_FROM_THEM");
-		aOpinions.push_back(kOpinion);
-	}
-
-	iValue = pDiploAI->GetPaidTributeToScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE");
-		aOpinions.push_back(kOpinion);
-	}
-	*/
-
 	// World Congress >>> United Nations
-	if(GC.getGame().IsUnitedNationsActive())
+	if (GC.getGame().IsUnitedNationsActive())
 	{
 		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
 		if (iValue != 0)
