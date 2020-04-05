@@ -19008,8 +19008,14 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 			else
 				return false;
 		}
-
-		else if (GetLandDisputeLevel(ePlayer) < DISPUTE_LEVEL_STRONG)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetTeam())
+		{
+			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
+				return true;
+		}
+#endif
+		if (GetLandDisputeLevel(ePlayer) < DISPUTE_LEVEL_STRONG)
 			return true;
 	}
 	
