@@ -4363,6 +4363,28 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	bool bCultural = IsCultural();
 	bool bScientist = IsScientist();
 
+	// Player traits
+	bool bConquerorTraits = false;
+	bool bDiplomatTraits = false;
+	bool bCulturalTraits = false;
+	bool bScientistTraits = false;
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE)
+	{
+		if (GetPlayer()->GetPlayerTraits()->IsWarmonger())
+			bConquerorTraits = true;
+		
+		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
+			bDiplomatTraits = true;
+		
+		if (GetPlayer()->GetPlayerTraits()->IsTourism())
+			bCulturalTraits = true;
+		
+		if (GetPlayer()->GetPlayerTraits()->IsNerd())
+			bScientistTraits = true;
+	}
+#endif
+
 	// Vassalage (C4DF)
 	bool bIsMaster = false;
 	bool bIsVassal = false;
@@ -5210,10 +5232,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	int iMultiplier = 1;
 	bool bBonus = true; // territorial disputes should always play a major role ...
 	bool bVictoryConcern = false;
-	if (bConqueror)
+	if (bConqueror || bConquerorTraits)
 	{
 		iMultiplier++;
-		bVictoryConcern = true;
 	}
 	if (iEra <= 1)
 	{
@@ -5251,7 +5272,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		if (bVictoryConcern)
+		if (bVictoryConcern || bConqueror || bConquerorTraits)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		}
@@ -5268,6 +5289,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			iMultiplier *= 2;
 		}
+		else if (bConqueror || bConquerorTraits)
+		{
+			iMultiplier++;
+		}
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
 		break;
@@ -5282,11 +5307,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		iMultiplier = 1;
 		bBonus = false;
 		bVictoryConcern = false;
-		if (bDiplomat)
+		if (bDiplomat || bDiplomatTraits)
 		{
 			iMultiplier++;
 			bBonus = true;
-			bVictoryConcern = true;
 		}
 		if (iEra >= 3 && bGoingForDiploVictory)
 		{
@@ -5327,7 +5351,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 			break;
 		case DISPUTE_LEVEL_WEAK:
-			if (bVictoryConcern)
+			if (bVictoryConcern || bDiplomat || bDiplomatTraits)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 			}
@@ -5344,6 +5368,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			{
 				iMultiplier *= 2;
 			}
+			else if (bDiplomat || bDiplomatTraits)
+			{
+				iMultiplier++;
+			}
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
 			break;
@@ -5357,11 +5385,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	iMultiplier = 1;
 	bBonus = false;
 	bVictoryConcern = false;
-	if (bCultural)
+	if (bCultural || bCulturalTraits)
 	{
 		iMultiplier++;
 		bBonus = true;
-		bVictoryConcern = true;
 	}
 	if (iEra >= 3 && bGoingForCultureVictory)
 	{
@@ -5407,7 +5434,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		if (bVictoryConcern)
+		if (bVictoryConcern || bCultural || bCulturalTraits)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		}
@@ -5424,6 +5451,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			iMultiplier *= 2;
 		}
+		else if (bCultural || bCulturalTraits)
+		{
+			iMultiplier++;
+		}
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
 		break;
@@ -5436,11 +5467,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	iMultiplier = 1;
 	bBonus = false;
 	bVictoryConcern = false;
-	if (bScientist)
+	if (bScientist || bScientistTraits)
 	{
 		iMultiplier++;
 		bBonus = true;
-		bVictoryConcern = true;
 	}
 	if (iEra >= 3 && bGoingForScienceVictory)
 	{
@@ -5476,7 +5506,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		if (bVictoryConcern)
+		if (bVictoryConcern || bScientist || bScientistTraits)
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		}
@@ -5492,6 +5522,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (bVictoryConcern)
 		{
 			iMultiplier *= 2;
+		}
+		else if (bScientist || bScientistTraits)
+		{
+			iMultiplier++;
 		}
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iMultiplier);
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * iMultiplier);
@@ -7025,7 +7059,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			int iWarBonus = 0;
 
 			// Natural war inclinations?
-			if (bConqueror || GetPlayer()->GetPlayerTraits()->IsWarmonger())
+			if (bConqueror || bConquerorTraits)
 			{
 				iWarBonus += 3;
 
