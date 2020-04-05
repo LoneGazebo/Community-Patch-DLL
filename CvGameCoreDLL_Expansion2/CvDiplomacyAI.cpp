@@ -4924,6 +4924,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = (TeamTypes) GET_PLAYER(eLoopPlayer).getTeam();
 
+		if (!IsPlayerValid(eLoopPlayer))
+			continue;
+
 		// This player has a defensive pact with them? If the loop player's at least as strong as we are, let's reduce our war interest.
 		if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eTeam))
 		{
