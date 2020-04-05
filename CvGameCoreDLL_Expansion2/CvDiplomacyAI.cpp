@@ -4924,6 +4924,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = (TeamTypes) GET_PLAYER(eLoopPlayer).getTeam();
 
+		if (eTeam == eLoopTeam)
+			continue;
+
 		if (!IsPlayerValid(eLoopPlayer))
 			continue;
 
