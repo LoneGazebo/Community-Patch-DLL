@@ -1034,6 +1034,10 @@ public:
 	bool IsPlayerDoFWithAnyEnemy(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
+	
+	// Religion
+	bool IsPlayerSameReligion(PlayerTypes ePlayer) const;
+	bool IsPlayerOpposingReligion(PlayerTypes ePlayer) const;
 
 	// Ideology
 	bool IsPlayerSameIdeology(PlayerTypes ePlayer) const;

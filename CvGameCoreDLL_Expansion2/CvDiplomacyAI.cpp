@@ -5932,7 +5932,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
 
 						// Is this guy helping us take down a HERETIC?!?!
-						if (!bDifferentReligions && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != eMyReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+						if (!bDifferentReligions && IsPlayerOpposingReligion(eLoopPlayer))
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
 						}
@@ -5949,7 +5949,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 
 						// Is this a brother of the faith who denounced a HERETIC?!?!
-						if (bSameReligions && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != eMyReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+						if (bSameReligions && IsPlayerOpposingReligion(eLoopPlayer))
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
 						}
@@ -5971,7 +5971,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 
 						// Are we all brothers of the faith?
-						if (bSameReligions && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) == eMyReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+						if (bSameReligions && IsPlayerSameReligion(eLoopPlayer))
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
 						}
@@ -5990,7 +5990,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
 
 						// Are we all brothers of the faith?
-						if (bSameReligions && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) == eMyReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+						if (bSameReligions && IsPlayerSameReligion(eLoopPlayer))
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
 						}
@@ -6023,7 +6023,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
 
 					// Are they brothers of a hostile faith? Let's try to slow down their religion game.
-					if (bDifferentReligions && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) == eTheirReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+					if (bDifferentReligions && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameReligion(eLoopPlayer))
 					{
 						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
 						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisReligion;
@@ -6044,7 +6044,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
 
 					// Are they brothers of a hostile faith? Let's try to slow down their religion game.
-					if (bDifferentReligions && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) == eTheirReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+					if (bDifferentReligions && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameReligion(eLoopPlayer))
 					{
 						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
 						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisReligion;
@@ -6067,7 +6067,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 
-					if (GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) == eMyReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+					if (IsPlayerSameReligion(eLoopPlayer))
 					{
 						// Is this person attacking our brother of the faith as a HERETIC?!?! How dare they!
 						if (bDifferentReligions)
@@ -6105,7 +6105,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 
-					if (GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) == eMyReligion && GET_PLAYER(eLoopPlayer).GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+					if (IsPlayerSameReligion(eLoopPlayer))
 					{
 						// Is this person denouncing our brother of the faith as a HERETIC?!?! How dare they!
 						if (bDifferentReligions)
@@ -37874,6 +37874,40 @@ bool CvDiplomacyAI::IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const
 		if(IsDenouncedPlayer(eLoopPlayer) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
 			return true;
 	}
+	
+	return false;
+}
+
+///////////////////////////////
+// Religion
+///////////////////////////////
+
+/// Does ePlayer have the same majority religion that we do?
+bool CvDiplomacyAI::IsPlayerSameReligion(PlayerTypes ePlayer) const
+{
+	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+
+	if (eMyReligion == NO_RELIGION || eTheirReligion == NO_RELIGION)
+		return false;
+	
+	if (eMyReligion == eTheirReligion)
+		return true;
+	
+	return false;
+}
+
+/// Does ePlayer have a majority religion that opposes ours?
+bool CvDiplomacyAI::IsPlayerOpposingReligion(PlayerTypes ePlayer) const
+{
+	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
+	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+
+	if (eMyReligion == NO_RELIGION || eTheirReligion == NO_RELIGION)
+		return false;
+	
+	if (eMyReligion != eTheirReligion)
+		return true;
 	
 	return false;
 }
