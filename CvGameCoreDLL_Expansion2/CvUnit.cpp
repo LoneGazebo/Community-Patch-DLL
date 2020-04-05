@@ -7533,6 +7533,22 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 					return false;
 				}
 			}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			{
+				int iNumResource = m_pUnitInfo->GetResourceQuantityTotal(eResource);
+				if (iNumResource > 0)
+				{
+					int iTotal = kPlayer.getNumResourceTotal(eResource);
+					int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+					if (iTotal < iNumResource || iAvailable < 0)
+					{
+						return false;
+					}
+				}
+			}
+#endif
 		}
 	}
 #endif
@@ -13594,6 +13610,20 @@ bool CvUnit::build(BuildTypes eBuild)
 													break;
 												}
 											}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											{
+												iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+												if (iNumResource > 0)
+												{
+													if (kPlayer.getNumResourceTotal(eResource, true) < iNumResource || kPlayer.getNumResourceAvailable(eResource, true) < 0)
+													{
+														bBad = true;
+														break;
+													}
+												}
+											}
+#endif
 										}
 										if(bBad)
 										{
@@ -13641,6 +13671,20 @@ bool CvUnit::build(BuildTypes eBuild)
 													break;
 												}
 											}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											{
+												iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+												if (iNumResource > 0)
+												{
+													if (kPlayer.getNumResourceTotal(eResource, true) < iNumResource || kPlayer.getNumResourceAvailable(eResource, true) < 0)
+													{
+														bBad = true;
+														break;
+													}
+												}
+											}
+#endif
 										}
 										if(bBad)
 										{
@@ -14360,6 +14404,24 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 					if (iNumOfThisResourceAvailable - iNumResourceNeeded + iNumOfThisResourceFreed < 0)
 						return false;
 			}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			{
+				int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityTotal(eResource);
+
+				if (iNumResourceNeeded > 0)
+				{
+					int iResourceTotal = kPlayer.getNumResourceTotal(eResource);
+					int iResourceAvailable = kPlayer.getNumResourceAvailable(eResource);
+
+					if (iNumResourceNeeded > iResourceTotal || iResourceAvailable < 0)
+					{
+						return false;
+					}
+				}
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
@@ -15523,8 +15585,13 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 #endif
 	int iPenalty = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	// barbs and city states don't require resources
+	if(isBarbarian() || GET_PLAYER(getOwner()).isMinorCiv())
+#else
 	// barbs don't have resources
 	if(isBarbarian())
+#endif
 		return iPenalty;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -15537,10 +15604,12 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 		eResource = (ResourceTypes) iResourceLoop;
 
 		int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+#if !defined(MOD_BALANCE_CORE)
 		if (kPlayer.isMinorCiv())
 		{
 			iAvailable += kPlayer.getResourceExport(eResource);
 		}
+#endif
 
 		// Over resource limit?
 		if(iAvailable < 0)
@@ -24006,6 +24075,20 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 											break;
 										}
 									}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+									if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+									{
+										iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+										if (iNumResource > 0)
+										{
+											if (kPlayer.getNumResourceTotal(eResource, true) < iNumResource || kPlayer.getNumResourceAvailable(eResource, true) < 0)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+#endif
 								}
 								if(bBad)
 								{

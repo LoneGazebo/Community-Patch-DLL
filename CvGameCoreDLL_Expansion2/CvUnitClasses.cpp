@@ -202,6 +202,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_ppiEraUnitCombatType(NULL),
 	m_ppiEraUnitPromotions(NULL),
 #endif
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	m_piResourceQuantityTotals(),
+#endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iNumberStackingUnits(0),
 #endif
@@ -239,6 +242,9 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_paszMiddleArtDefineTags);
 	SAFE_DELETE_ARRAY(m_paszUnitNames);
 	SAFE_DELETE_ARRAY(m_paeGreatWorks);
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	m_piResourceQuantityTotals.clear();
+#endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);
 	SAFE_DELETE_ARRAY(m_piEraCombatStrength);
@@ -702,6 +708,31 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		}
 
 		pResults->Reset();
+	}
+
+	//Populate m_piResourceQuantityTotals
+	{
+		std::string strKey("Unit_ResourceQuantityTotals");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, Amount from Unit_ResourceQuantityTotals inner join Resources on Resources.Type = ResourceType where UnitType = ?");
+		}
+
+		pResults->Bind(1, szUnitType, lenUnitType, false);
+
+		while (pResults->Step())
+		{
+			const int iResource = pResults->GetInt(0);
+			const int iAmount = pResults->GetInt(1);
+
+			m_piResourceQuantityTotals[iResource] = iAmount;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_piResourceQuantityTotals).swap(m_piResourceQuantityTotals);
 	}
 #endif
 	// Calculate military Power and cache it
@@ -1648,6 +1679,23 @@ int CvUnitEntry::GetUnitNewEraPromotions(int i, int j) const
 int* CvUnitEntry::GetUnitNewEraPromotionsChangesArray(int i)
 {
 	return m_ppiEraUnitPromotions[i];
+}
+#endif
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+/// Player must have gross number of resources to build (does not consume)
+int CvUnitEntry::GetResourceQuantityTotal(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	std::map<int, int>::const_iterator itResource = m_piResourceQuantityTotals.find(i);
+	if (itResource != m_piResourceQuantityTotals.end()) // find returns the iterator to map::end if the key iResource is not present in the map
+	{
+		return itResource->second;
+	}
+
+	return 0;
 }
 #endif
 

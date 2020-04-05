@@ -2607,7 +2607,17 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, int iCount)
 								if(pUnitInfo->GetResourceQuantityRequirement(iJ) > 0)
 								{
 									bValid = false;
+#if defined(MOD_BUGFIX_MINOR)
+									break;
+#endif
 								}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pUnitInfo->GetResourceQuantityTotal(iJ) > 0)
+								{
+									bValid = false;
+									break;
+								}
+#endif
 							}
 						}
 
@@ -15077,6 +15087,28 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 							return false;
 					}
 				}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				{
+					int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
+
+					if (iNumResourceTotal > 0)
+					{
+						if (getNumResourceTotal(eResource) < iNumResourceTotal)
+						{
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_GROSS_RESOURCES", pkResourceInfo->GetIconString(), pkResourceInfo->GetTextKey(), iNumResourceTotal);
+							if (toolTipSink == NULL)
+								return false;
+						}
+						else if (getNumResourceAvailable(eResource) < 0)
+						{
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_NET_RESOURCES_NEGATIVE", pkResourceInfo->GetIconString(), pkResourceInfo->GetTextKey());
+							if (toolTipSink == NULL)
+								return false;
+						}
+					}
+				}
+#endif
 			}
 
 		}
@@ -15337,6 +15369,18 @@ bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus,
 			{
 				return false;
 			}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			{
+				int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
+
+				if (iNumResource > 0 && eResource != eResourceNearby)
+				{
+					return false;
+				}
+			}
+#endif
 		}
 
 	}
@@ -35723,6 +35767,13 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 						bBad = true;
 						break;
 					}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitEntry->GetResourceQuantityTotal(eResource) > 0)
+					{
+						bBad = true;
+						break;
+					}
+#endif
 				}
 
 				if (bBad)
@@ -44862,6 +44913,21 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 												break;
 											}
 										}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+										if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+										{
+											iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+											if (iNumResource > 0)
+											{
+												if (getNumResourceTotal(eResource, true) < iNumResource || getNumResourceAvailable(eResource, true) < 0)
+												{
+													bBad = true;
+													break;
+												}
+											}
+										}
+#endif
 									}
 									if(bBad)
 									{

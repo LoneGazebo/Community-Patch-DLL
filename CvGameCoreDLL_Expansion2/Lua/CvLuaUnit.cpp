@@ -167,6 +167,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #endif
 	Method(GetNumResourceNeededToUpgrade);
 
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	Method(GetNumResourceTotalNeededToUpgrade);
+#endif
+
 	Method(GetHandicapType);
 	Method(GetCivilizationType);
 	Method(GetSpecialUnitType);
@@ -2145,6 +2149,32 @@ int CvLuaUnit::lGetNumResourceNeededToUpgrade(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetNumResourceTotalNeededToUpgrade(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	const UnitTypes eUpgradeUnitType = (UnitTypes)luaL_optint(L, 3, pkUnit->GetUpgradeUnitType());
+#else
+	const UnitTypes eUpgradeUnitType = pkUnit->GetUpgradeUnitType();
+#endif
+
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
+	if (pkUnitInfo == NULL)
+	{
+		luaL_error(L, "Cannot find unit info (%d) for unit.", eUpgradeUnitType);
+		return 0;
+	}
+
+	const int iResult = pkUnitInfo->GetResourceQuantityTotal(eResource);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int /*HandicapTypes*/ getHandicapType();
 int CvLuaUnit::lGetHandicapType(lua_State* L)

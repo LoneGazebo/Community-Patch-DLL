@@ -422,6 +422,9 @@
     <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_MULTIPLIER" Value="1"/>
     <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_DIVISOR" Value="2"/>
 
+    <!-- Enables the table Unit_ResourceQuantityTotals -->
+    <Row Class="5" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
+
     <!-- Removes religion preference (v19) -->
     <!-- See also: "Religion - Randomise" -->
     <Row Class="5" Name="RELIGION_NO_PREFERRENCES" Value="0"/>

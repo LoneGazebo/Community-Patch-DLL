@@ -534,6 +534,17 @@ local function UnitToolTip( unit, ... )
 		end
 		tips:insertIf( #resources > 0 and L"TXT_KEY_PEDIA_REQ_RESRC_LABEL" .. " " .. resources:concat(", ") )
 
+		-- Required Total Resources:
+		if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") then
+			resources = table()
+			for resource in GameInfo.Resources() do
+				local numResourceRequired = Game.GetNumResourceTotalRequiredForUnit( unitTypeID, resource.ID )
+-- TODO				local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
+				resources:insertIf( numResourceRequired > 0 and numResourceRequired .. resource.IconString ) -- .. L(resource.Description) )
+			end
+			tips:insertIf( #resources > 0 and L"TXT_KEY_EUI_RESOURCES_QUANTITY_TOTAL_REQUIRED_UNIT_PANEL" .. ": " .. resources:concat(", ") )
+		end
+
 		-- Movement:
 		tips:insertIf( unitInfo.Domain ~= "DOMAIN_AIR" and L("TXT_KEY_UPANEL_MOVEMENT") .. (" %.3g / %g[ICON_MOVES]"):format( movesLeft, maxMoves ) )
 
@@ -1544,12 +1555,30 @@ function ActionToolTipHandler( control )
 				if iNumResourceNeededToUpgrade > 0 and iNumResourceNeededToUpgrade > g_activePlayer:GetNumResourceAvailable(iResourceLoop) then
 					resourcesNeeded:insert( iNumResourceNeededToUpgrade .. " " .. resource.IconString .. " " .. L(resource.Description) )
 				end
+				
+				if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") then
+					local iNumResourcesTotalNeeded = unit:GetNumResourceTotalNeededToUpgrade(iResourceLoop)
+					
+					if iNumResourcesTotalNeeded > 0 and iNumResourcesTotalNeeded > g_activePlayer:GetNumResourceTotal(iResourceLoop) then
+						resourcesTotalNeeded:insert( iNumResourcesTotalNeeded .. " " .. resource.IconString .. " " .. L(resource.Description) )
+					elseif iNumResourcesTotalNeeded > 0 and g_activePlayer:GetNumResourceAvailable(iResourceLoop) < 0 then
+						resourcesPositiveNeeded:insert( resource.IconString .. " " .. L(resource.Description) )
+					end
+				end
 			end
 
 			-- Build resources required string
 			if #resourcesNeeded > 0 then
 
 				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES", resourcesNeeded:concat(", ") )
+			end
+			
+			-- Build resources total required string
+			if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") and #resourcesTotalNeeded > 0 then
+				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES", resourcesTotalNeeded:concat(", ") )
+			end
+			if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") and #resourcesPositiveNeeded > 0 then
+				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE", resourcesPositiveNeeded:concat(", ") )
 			end
 
 				-- if we can't upgrade due to stacking

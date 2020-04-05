@@ -1119,7 +1119,16 @@
 		<Column name="Modifier" type="integer"/>
 	</Table>
 
+	<!-- Increases resource count when a unit is expended -->
 	<Table name="Unit_ResourceQuantityExpended">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Amount" type="integer" default="1"/>
+	</Table>
+
+	<!-- Similar to Unit_ResourceQuantityRequirements, but does not decrease the resource count. Instead, 'Amount' is the gross number of resources the player has, before exports/use. -->
+	<!-- While 'Amount' is the total gross number, the net number also needs to be positive.  -->
+	<Table name="Unit_ResourceQuantityTotals">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="Amount" type="integer" default="1"/>
