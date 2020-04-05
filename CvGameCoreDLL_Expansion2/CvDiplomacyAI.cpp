@@ -4132,38 +4132,43 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
 			if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 				eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
-			oldApproaches.insert(std::make_pair(eLoopPlayer, eOldApproach));
 
 			// Under certain circumstances, set the approach immediately
+			// Prioritized approach updates are done first and don't depend on each other, therefore we can fairly use the new approach in the map ...
 			if (IsTeammate(eLoopPlayer))
 			{
 				DoUpdateApproachTowardsTeammate(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (bPermaWar && IsAtWar(eLoopPlayer))
 			{
 				DoUpdatePermaWarApproachTowardsMajorCiv(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (bHuman)
 			{
 				DoUpdateHumanApproachTowardsMajorCiv(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (bNoCities)
 			{
 				DoUpdateMajorCivApproachWithNoCities(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 			else if (GET_PLAYER(eLoopPlayer).getCapitalCity() == NULL)
 			{
-				SetMajorCivApproach(eLoopPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
-				SetWarFaceWithPlayer(eLoopPlayer, NO_WAR_FACE_TYPE);
-				//DoUpdateApproachTowardsMajorCivWithNoCities(eLoopPlayer);
+				DoUpdateApproachTowardsMajorCivWithNoCities(eLoopPlayer);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
 				continue;
 			}
 
-			// Otherwise, add this player to the list of civs to update approaches towards this turn
+			// Otherwise, add the old approach to the map ...
+			// ... and add this player to the list of civs to update approaches for this turn
+			oldApproaches.insert(std::make_pair(eLoopPlayer, eOldApproach));
 			vePlayersToUpdate.push_back(eLoopPlayer);
 		}
 	}
@@ -42475,16 +42480,37 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
 
-		int iCivDifference = GET_PLAYER(ePlayer).getNumCities() - GetPlayer()->getNumCities();
-		int iMedianDifference = GET_PLAYER(ePlayer).getNumCities() - (int) ceil(CalculateMedianNumCities());
+		double fMedianCities = CalculateMedianNumCities();
+		double fMedianPlots = CalculateMedianNumPlots();
+		int iNumCities = GET_PLAYER(ePlayer).getNumCities();
+		int iNumPlots = GET_PLAYER(ePlayer).getTotalLand();
+
+		int iCivCityDifference = iNumCities - GetPlayer()->getNumCities();
+		int iCivPlotDifference = iNumPlots - GetPlayer()->getTotalLand();
+		int iMedianCityDifference = (int) (((iNumCities*100) - (fMedianCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD())) / 100);
+		int iMedianPlotDifference = (int) (((iNumPlots*100) - (fMedianPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD())) / 100);
 
 		// For scaling, go with whichever value is smaller
-		int iCityDifference = min(iCivDifference, iMedianDifference);
+		int iCityWeight = 0;
+		int iCityDifference = min(iCivCityDifference, iMedianCityDifference);
 
 		if (iCityDifference > 1)
 		{
-			iOpinionWeight += ((iCityDifference-1) * /*10*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
+			iCityWeight += ((iCityDifference-1) * /*10*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY());
 		}
+
+		// Since land can be a factor, also factor in tile count (scale by whichever value is smaller)
+		int iPlotWeight = 0;
+		int iPlotDifference = min(iCivPlotDifference, iMedianPlotDifference);
+
+		if (iPlotDifference > 1)
+		{
+			iPlotWeight += ((iPlotDifference-1) * /*1*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_PER_TILE());
+		}
+
+		// Apply the highest of the two scaling weights to Opinion
+		iOpinionWeight += max(iCityWeight, iPlotWeight);
+
 		if (IsConqueror())
 		{
 			iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD();
@@ -42510,7 +42536,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1))
 		{
 			iOpinionWeight += ((iWonderDifference - /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1)) * /*5*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER());
-			
+
 			if (iOpinionWeight > /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP())
 			{
 				iOpinionWeight = /*60*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER_CAP();

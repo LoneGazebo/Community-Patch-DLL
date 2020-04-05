@@ -612,10 +612,13 @@ INSERT INTO Defines (Name, Value)
 SELECT 'RECKLESS_EXPANDER_CITIES_THRESHOLD', '200'; -- must have at least this % city count compared to the median
 
 INSERT INTO Defines (Name, Value)
-SELECT 'RECKLESS_EXPANDER_LAND_THRESHOLD', '250'; -- must have at least this % plot count compared to the median
+SELECT 'RECKLESS_EXPANDER_LAND_THRESHOLD', '250'; -- OR must have at least this % plot count compared to the median
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_CITY', '10';
+
+INSERT INTO Defines (Name, Value)
+SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_PER_TILE', '1';
 
 INSERT INTO Defines (Name, Value)
 SELECT 'OPINION_WEIGHT_RECKLESS_EXPANDER_STRATEGIC_MOD', '20';
