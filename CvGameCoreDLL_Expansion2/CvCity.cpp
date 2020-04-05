@@ -15229,21 +15229,28 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							{
 								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
 								{
+									ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+									CvImprovementEntry* ImprovementEntry;
+									if (eImprovement != NO_IMPROVEMENT)
+									{
+										ImprovementEntry = GC.getImprovementInfo(eImprovement);
+										if (ImprovementEntry && ImprovementEntry->IsCreatedByGreatPerson() && ImprovementEntry->IsImprovementResourceMakesValid(eResource) == false)
+										{
+											continue;
+										}
+									}
 									int iResourceQuantityPerPlot = MAX(it->first, 1);
 									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
 									pLoopPlot->DoFindCityToLinkResourceTo();
 									iNumResourcePlotsGiven++;
-									if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+									if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 									{
-										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+										if (ImprovementEntry)
 										{
-											if (ImprovementEntry)
+											if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
 											{
-												if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
-												{
-													owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
-												}
+												owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
 											}
 										}
 									}

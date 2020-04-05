@@ -15375,7 +15375,7 @@ bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus,
 			{
 				int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
 
-				if (iNumResource > 0 && eResource != eResourceNearby)
+				if (iNumResourceTotal > 0 && eResource != eResourceNearby)
 				{
 					return false;
 				}
