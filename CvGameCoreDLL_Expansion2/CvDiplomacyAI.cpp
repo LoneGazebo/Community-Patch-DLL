@@ -4906,7 +4906,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 	}
 
-	if (GET_TEAM(eMyTeam).isDefensivePactTradingAllowed() && (GET_TEAM(eMyTeam).isDefensivePactTradingAllowedWithTeam(eTeam) || GET_TEAM(eTeam).isDefensivePactTradingAllowedWithTeam(eMyTeam)))
+	if (GET_TEAM(eMyTeam).isDefensivePactTradingAllowedWithTeam(eTeam))
 	{
 		if (GetMostValuableDefensivePact(false) == ePlayer)
 		{
@@ -4952,7 +4952,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			}
 			else if (GetMostValuableDefensivePact(false) == eLoopPlayer)
 			{
-				if (GET_TEAM(eMyTeam).isDefensivePactTradingAllowed() && (GET_TEAM(eMyTeam).isDefensivePactTradingAllowedWithTeam(eLoopTeam) || GET_TEAM(eLoopTeam).isDefensivePactTradingAllowedWithTeam(eMyTeam)))
+				if (GET_TEAM(eMyTeam).isDefensivePactTradingAllowedWithTeam(eLoopTeam))
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
