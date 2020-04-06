@@ -753,6 +753,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
+	, m_ppiSpecificGreatPersonRateChangeFromMonopoly()
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_bVassalLevy("CvPlayer::m_bVassalLevy", m_syncArchive)
@@ -1220,6 +1221,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
+	m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiBuildingClassYieldMod.clear();
@@ -2287,6 +2289,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
+		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
 
 		m_ppaaiImprovementYieldChange.clear();
@@ -38434,6 +38437,18 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue * -1);
 						}
 					}
+					iModValue = pResource->getMonopolyGreatPersonRateChange(eSpecialist, MONOPOLY_GLOBAL);
+					if (iModValue > 0)
+					{
+						if (bNewValue)
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue);
+						}
+						else
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue * -1);
+						}
+					}
 				}
 			}
 #endif
@@ -38481,6 +38496,18 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 						else
 						{
 							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue * -1);
+						}
+					}
+					iModValue = pResource->getMonopolyGreatPersonRateChange(eSpecialist, MONOPOLY_STRATEGIC);
+					if (iModValue > 0)
+					{
+						if (bNewValue)
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue);
+						}
+						else
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue * -1);
 						}
 					}
 				}
@@ -40369,6 +40396,74 @@ void CvPlayer::changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonType
 	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
 		m_ppiSpecificGreatPersonRateModifierFromMonopoly[eGreatPerson][eMonopoly] += iChange;
+	}
+}
+
+/// Does the player get a great person rate modifier from having a monopoly?
+//	--------------------------------------------------------------------------------
+int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
+	{
+		std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.find(eGreatPerson);
+		if (itGreatPerson != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end())
+		{
+			std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.find(eMonopoly);
+			if (itMonopoly != itGreatPerson->second.end())
+			{
+				return itMonopoly->second;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/// Overload to sum up modifiers from both global (including global monopoly mod flat) and strategic monopolies, for convenience
+//	--------------------------------------------------------------------------------
+int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	int iChange = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		for (int iI = 0; iI < NUM_MONOPOLY_TYPES; iI++)
+		{
+			MonopolyTypes eMonopoly = (MonopolyTypes)iI;
+			if (eMonopoly != NO_MONOPOLY)
+			{
+				iChange += getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, eMonopoly);
+				if (eMonopoly == MONOPOLY_GLOBAL)
+				{
+					iChange += GetMonopolyModFlat();
+				}
+			}
+		}
+	}
+
+	return iChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange)
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
+	{
+		m_ppiSpecificGreatPersonRateChangeFromMonopoly[eGreatPerson][eMonopoly] += iChange;
 	}
 }
 #endif
@@ -45874,6 +45969,23 @@ void CvPlayer::Read(FDataStream& kStream)
 			m_ppiSpecificGreatPersonRateModifierFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
 		}
 	}
+	{
+		int iNumEntries;
+		kStream >> iNumEntries;
+		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
+		for (int iI = 0; iI < iNumEntries; iI++)
+		{
+			int iGreatPerson;
+			int iMonopoly;
+			int iModifier;
+
+			kStream >> iGreatPerson;
+			kStream >> iMonopoly;
+			kStream >> iModifier;
+
+			m_ppiSpecificGreatPersonRateChangeFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
+		}
+	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_aistrInstantGreatPersonProgress;
@@ -46054,6 +46166,26 @@ void CvPlayer::Write(FDataStream& kStream) const
 		}
 		kStream << iSize;
 		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end(); ++itGreatPerson)
+		{
+			int iGreatPerson = (int)itGreatPerson->first;
+			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)
+			{
+				int iMonopoly = (int)itMonopoly->first;
+				int iModifier = itMonopoly->second;
+				kStream << iGreatPerson;
+				kStream << iMonopoly;
+				kStream << iModifier;
+			}
+		}
+	}
+	{
+		int iSize = 0;
+		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator it = m_ppiSpecificGreatPersonRateChangeFromMonopoly.begin(); it != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end(); ++it)
+		{
+			iSize += it->second.size();
+		}
+		kStream << iSize;
+		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end(); ++itGreatPerson)
 		{
 			int iGreatPerson = (int)itGreatPerson->first;
 			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)

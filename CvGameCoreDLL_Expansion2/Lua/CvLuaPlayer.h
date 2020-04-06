@@ -650,6 +650,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetMonopolyGreatPersonRateModifier, int);
+	LUAAPIEXTN(GetMonopolyGreatPersonRateChange, int);
 #endif
 
 	static int lGetProductionModifier(lua_State* L);

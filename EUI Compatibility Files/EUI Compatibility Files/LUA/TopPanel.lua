@@ -186,6 +186,7 @@ local function ScanGP( player )
 				end
 				-- Vox Populi
 				gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID);
+				gpChange = gpChange + player:GetMonopolyGreatPersonRateChange(specialist.ID);
 
 				local gpChangePlayerMod = player:GetGreatPeopleRateModifier()
 				local gpChangeCityMod = city:GetGreatPeopleRateModifier()
