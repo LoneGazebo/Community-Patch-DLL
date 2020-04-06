@@ -923,14 +923,10 @@ int CvLuaUnit::lCanMoveOrAttackInto(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const bool bDeclareWar = luaL_optint(L, 3, 0);
+	//const bool bDeclareWar = luaL_optint(L, 3, 0);
 	const bool bDestination = luaL_optint(L, 4, 0);
 
 	int iMoveFlags = 0;
-	if(bDeclareWar)
-	{
-		iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
-	}
 	if(bDestination)
 	{
 		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;

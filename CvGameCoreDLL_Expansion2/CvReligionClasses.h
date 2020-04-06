@@ -645,6 +645,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void DoFaithPurchasesInCities(CvCity* pCity);
 #endif
+	int GetSpreadScore() const;
+	int GetNumKnownHeathenCities(int iMaxTurnsAway, ReligionTypes eReligionToSpread) const;
 	bool DoFaithPurchases();
 	bool BuyMissionary(ReligionTypes eReligion);
 	bool BuyInquisitor(ReligionTypes eReligion);

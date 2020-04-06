@@ -310,9 +310,9 @@ UPDATE Defines
 SET Value = '66'
 WHERE Name = 'AI_STRATEGY_AREA_IS_FULL_PERCENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
--- this is in estimated turns, not plots
+-- this is in plots
 UPDATE Defines
-SET Value = '4'
+SET Value = '5'
 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- there are 6 ring1 plots but don't overemphasize the very short term

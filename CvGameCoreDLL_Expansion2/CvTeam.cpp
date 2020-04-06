@@ -1386,16 +1386,10 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 	}
 
+	//is also catches the barbarians ...
 	if (isAtWar(eTeam) || GET_TEAM(eTeam).isAtWar(GetID()))
 		return;
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	setAtWar(eTeam, true, bAggressor);
-	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
-#else
-	setAtWar(eTeam, true);
-	GET_TEAM(eTeam).setAtWar(GetID(), true);
-#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE)
 	{
@@ -1418,88 +1412,86 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	}
 #endif
 
-	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
-	if(!isBarbarian())
+	//first cancel open borders and other diplomatic agreements
+	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
+	SetAllowsOpenBordersToTeam(eTeam, false);
+	GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
+	CloseEmbassyAtTeam(eTeam);
+	GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
+	CancelResearchAgreement(eTeam);
+	GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
+	EvacuateDiplomatsAtTeam(eTeam);
+	GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
+	if (MOD_BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY && IsHasDefensivePact(eTeam))
 	{
-		GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
-		SetAllowsOpenBordersToTeam(eTeam, false);
-		GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
-		CloseEmbassyAtTeam(eTeam);
-		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
-		CancelResearchAgreement(eTeam);
-		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
-		EvacuateDiplomatsAtTeam(eTeam);
-		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
-		if (MOD_BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY && IsHasDefensivePact(eTeam))
+		SetHasDefensivePact(eTeam, false);
+		GET_TEAM(eTeam).SetHasDefensivePact(GetID(), false);
+		SetBrokenMilitaryPromise(true);
+	}
+
+	//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
+	if (!bDefensivePact && bAggressor)
+	{
+		// If we've made a peace treaty before, this is bad news (no minors though)
+		if (!GET_TEAM(eTeam).isMinorCiv())
 		{
-			SetHasDefensivePact(eTeam, false);
-			GET_TEAM(eTeam).SetHasDefensivePact(GetID(), false);
-			SetBrokenMilitaryPromise(true);
-		}
-		//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
-		if(!bDefensivePact && bAggressor)
-		{
-			// If we've made a peace treaty before, this is bad news (no minors though)
-			if(!GET_TEAM(eTeam).isMinorCiv())
+			//DPs should only cancel v. major civs.
+			cancelDefensivePacts();
+			int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
+			if (iPeaceTreatyTurn != -1)
 			{
-				//DPs should only cancel v. major civs.
-				cancelDefensivePacts();
-				int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
-				if(iPeaceTreatyTurn != -1)
+				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
+				if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
 				{
-					int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-					if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
-					{
-						SetHasBrokenPeaceTreaty(true);
-					}
+					SetHasBrokenPeaceTreaty(true);
 				}
 			}
 		}
-		GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
-		GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
+	}
+	GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
+	GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) 
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		// We declared war on our vassal!
+		if (GET_TEAM(eTeam).GetMaster() == GetID())
 		{
-			// We declared war on our vassal!
-			if (GET_TEAM(eTeam).GetMaster() == GetID())
+			// this guy is no longer our vassal
+			GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
+
+			PlayerTypes eLoopPlayer;
+			PlayerTypes eLoopPlayer2;
+			PlayerTypes eThirdParty;
+
+			// Loop through all (living) players on this team
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				// this guy is no longer our vassal
-				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
-				
-				PlayerTypes eLoopPlayer;
-				PlayerTypes eLoopPlayer2;
-				PlayerTypes eThirdParty;
-				
-				// Loop through all (living) players on this team
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
 				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					
-					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+					// Loop through all (living) players on the attacker's team - diplo penalty!
+					for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						// Loop through all (living) players on the attacker's team - diplo penalty!
-						for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
+
+						if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == GetID())
 						{
-							eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-							
-							if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_PLAYER(eLoopPlayer2).getTeam() == GetID())
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(eLoopPlayer2, true);
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
+
+							// Friends of the vassal - penalty to recent assistance!
+							for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(eLoopPlayer2, true);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
-								
-								// Friends of the vassal - penalty to recent assistance!
-								for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
+								eThirdParty = (PlayerTypes)iThirdPartyLoop;
+
+								if (eThirdParty == eLoopPlayer || eThirdParty == eLoopPlayer2 || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eLoopPlayer2).getTeam())
+									continue;
+
+								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eThirdParty))
 								{
-									eThirdParty = (PlayerTypes) iThirdPartyLoop;
-									
-									if (eThirdParty == eLoopPlayer || eThirdParty == eLoopPlayer2 || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eLoopPlayer2).getTeam())
-										continue;
-									
-									if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer2).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eThirdParty))
-									{
-										GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
-									}
+									GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer2, 300);
 								}
 							}
 						}
@@ -1507,214 +1499,221 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				}
 			}
 		}
+	}
 #endif	
 
-
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		// Bump Units out of places they shouldn't be
-		GC.getMap().verifyUnitValidPlot();
+	// Bump Units out of places they shouldn't be
+	GC.getMap().verifyUnitValidPlot();
 #endif
 
-		for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
-		{
-			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-			if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
-			{
-				for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
-				{
-					PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-					if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
-					{
-						//Setup our defenses!
-						if(!kAttackingPlayer.isHuman())
-						{
-							kAttackingPlayer.GetMilitaryAI()->SetupDefenses(eDefendingPlayer);
-						}
-						if(!kDefendingPlayer.isHuman())
-						{
-							kDefendingPlayer.GetMilitaryAI()->SetupDefenses(eAttackingPlayer);
-						}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	setAtWar(eTeam, true, bAggressor);
+	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
+#else
+	setAtWar(eTeam, true);
+	GET_TEAM(eTeam).setAtWar(GetID(), true);
+#endif
 
-						// Update Diplo.
-						kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
+	for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+	{
+		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+		if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+		{
+			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+			{
+				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+				if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
+				{
+					//Setup our defenses!
+					if(!kAttackingPlayer.isHuman())
+					{
+						kAttackingPlayer.GetMilitaryAI()->SetupDefenses(eDefendingPlayer);
+					}
+					if(!kDefendingPlayer.isHuman())
+					{
+						kDefendingPlayer.GetMilitaryAI()->SetupDefenses(eAttackingPlayer);
+					}
+
+					// Update Diplo.
+					kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
 #if defined(MOD_BALANCE_CORE)
-						//Do a golden age on war if we can
-						if(kAttackingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
+					//Do a golden age on war if we can
+					if(kAttackingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
+					{
+						kAttackingPlayer.changeGoldenAgeTurns(kAttackingPlayer.getGoldenAgeLength(), kAttackingPlayer.GetGoldenAgeProgressMeter());
+					}
+					if(kDefendingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
+					{
+						kDefendingPlayer.changeGoldenAgeTurns(kDefendingPlayer.getGoldenAgeLength(), kDefendingPlayer.GetGoldenAgeProgressMeter());
+					}
+					// Best unit on an improvement DOW?
+					if(kAttackingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
+					{
+						CvCity* pLoopCity;
+						int iLoop;
+						for(pLoopCity = kAttackingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kAttackingPlayer.nextCity(&iLoop))
 						{
-							kAttackingPlayer.changeGoldenAgeTurns(kAttackingPlayer.getGoldenAgeLength(), kAttackingPlayer.GetGoldenAgeProgressMeter());
+							kAttackingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
 						}
-						if(kDefendingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
+					}
+					if(kDefendingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
+					{
+						CvCity* pLoopCity;
+						int iLoop;
+						for(pLoopCity = kDefendingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kDefendingPlayer.nextCity(&iLoop))
 						{
-							kDefendingPlayer.changeGoldenAgeTurns(kDefendingPlayer.getGoldenAgeLength(), kDefendingPlayer.GetGoldenAgeProgressMeter());
+							kDefendingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
 						}
-						// Best unit on an improvement DOW?
-						if(kAttackingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
+					}
+					// Get a free unit on DOW?
+					for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
 						{
-							CvCity* pLoopCity;
-							int iLoop;
-							for(pLoopCity = kAttackingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kAttackingPlayer.nextCity(&iLoop))
+							CvPlot* pNewUnitPlot;
+							UnitTypes eLoopUnit;
+							int iDefaultAI;
+							int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
+							int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
+							for(int iJ = 0; iJ < iUnitAttackerClass != NULL; iJ++)
 							{
-								kAttackingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
-							}
-						}
-						if(kDefendingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
-						{
-							CvCity* pLoopCity;
-							int iLoop;
-							for(pLoopCity = kDefendingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kDefendingPlayer.nextCity(&iLoop))
-							{
-								kDefendingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
-							}
-						}
-						// Get a free unit on DOW?
-						for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-						{
-							const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-							CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-							if(pkUnitClassInfo)
-							{
-								CvPlot* pNewUnitPlot;
-								UnitTypes eLoopUnit;
-								int iDefaultAI;
-								int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
-								int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
-								for(int iJ = 0; iJ < iUnitAttackerClass != NULL; iJ++)
+								const CvCivilizationInfo& playerCivilization = kAttackingPlayer.getCivilizationInfo();
+								eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
+								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
+								bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
+								bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
+								bool bPrereqTech = GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
+								if(!bCombat)
 								{
-									const CvCivilizationInfo& playerCivilization = kAttackingPlayer.getCivilizationInfo();
-									eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
-									iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
-									bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
-									bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
-									bool bPrereqTech = GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
-									if(!bCombat)
+									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+								}
+								else if(bWarOnly && bPrereqTech)
+								{
+									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+								}
+								else
+								{
+									if(kAttackingPlayer.canTrain(eLoopUnit, false, false, true))
 									{
 										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
 									}
-									else if(bWarOnly && bPrereqTech)
-									{
-										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
-									}
-									else
-									{
-										if(kAttackingPlayer.canTrain(eLoopUnit, false, false, true))
-										{
-											pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
-										}
-									}
 								}
-								for(int iK = 0; iK < iUnitDefenderClass != NULL; iK++)
+							}
+							for(int iK = 0; iK < iUnitDefenderClass != NULL; iK++)
+							{
+								const CvCivilizationInfo& playerCivilization = kDefendingPlayer.getCivilizationInfo();
+								eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
+								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
+								bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
+								bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
+								bool bPrereqTech = GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
+								if(!bCombat)
 								{
-									const CvCivilizationInfo& playerCivilization = kDefendingPlayer.getCivilizationInfo();
-									eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
-									iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
-									bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
-									bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
-									bool bPrereqTech = GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
-									if(!bCombat)
+									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+								}
+								else if(bWarOnly && bPrereqTech)
+								{
+									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+								}
+								else
+								{
+									if(kDefendingPlayer.canTrain(eLoopUnit, false, false, true))
 									{
 										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
-									}
-									else if(bWarOnly && bPrereqTech)
-									{
-										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
-									}
-									else
-									{
-										if(kDefendingPlayer.canTrain(eLoopUnit, false, false, true))
-										{
-											pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
-										}
 									}
 								}
 							}
 						}
+					}
 #endif
 #if defined(MOD_DIPLOMACY_AUTO_DENOUNCE)
-						if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
+					if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
+					{
+						CvDiplomacyAI* pDiplomacy = kAttackingPlayer.GetDiplomacyAI();
+
+						if (!pDiplomacy->IsDenouncedPlayer(eDefendingPlayer)) 
 						{
-							CvDiplomacyAI* pDiplomacy = kAttackingPlayer.GetDiplomacyAI();
-
-							if (!pDiplomacy->IsDenouncedPlayer(eDefendingPlayer)) 
-							{
-								pDiplomacy->DoDenouncePlayer(eDefendingPlayer);
-							}
+							pDiplomacy->DoDenouncePlayer(eDefendingPlayer);
 						}
-#endif
 					}
-				}
-			}
-		}
-
-		//are we an aggressor?
-		//These only trigger on the 'first' major declaration - no chain declarations.
-		if (bAggressor && !bDefensivePact)
-		{
-			//DPs and Vassal civs - we have to DOW them as well!
-			for (iI = 0; iI < MAX_TEAMS; iI++)
-			{
-				if (!GET_TEAM((TeamTypes)iI).isAlive())
-					continue;
-				if (GET_TEAM((TeamTypes)iI).isMinorCiv())
-					continue;
-
-				//Defensive pacts and vassals trigger here.
-				if (GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) || GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
-				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, true, (TeamTypes)iI, /*bDefensivePact*/ true);
-#else
-					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
 #endif
 				}
 			}
 		}
+	}
 
-		//Secondary civs that will declare war along with us
+	//are we an aggressor?
+	//These only trigger on the 'first' major declaration - no chain declarations.
+	if (bAggressor && !bDefensivePact)
+	{
+		//DPs and Vassal civs - we have to DOW them as well!
 		for (iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			if (!GET_TEAM((TeamTypes)iI).isAlive())
 				continue;
 			if (GET_TEAM((TeamTypes)iI).isMinorCiv())
 				continue;
+
+			//Defensive pacts and vassals trigger here.
+			if (GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) || GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, true, (TeamTypes)iI, /*bDefensivePact*/ true);
+#else
+				GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
+#endif
+			}
+		}
+	}
+
+	//Secondary civs that will declare war along with us
+	for (iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		if (!GET_TEAM((TeamTypes)iI).isAlive())
+			continue;
+		if (GET_TEAM((TeamTypes)iI).isMinorCiv())
+			continue;
 				
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
-			{
+		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+		{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
+			GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
 #else
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
+			GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
-			}
+		}
+	}
+
+	//Secondary check for vassals.
+	for (iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		if (!GET_TEAM((TeamTypes)iI).isAlive())
+			continue;
+
+		if (GET_TEAM((TeamTypes)iI).isMinorCiv())
+			continue;
+
+		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+		{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, GetID(), /*bDefensivePact*/ true);
+#else
+			GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
+#endif
 		}
 
-		//Secondary check for vassals.
-		for (iI = 0; iI < MAX_TEAMS; iI++)
+		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 		{
-			if (!GET_TEAM((TeamTypes)iI).isAlive())
-				continue;
-
-			if (GET_TEAM((TeamTypes)iI).isMinorCiv())
-				continue;
-
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
-			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, GetID(), /*bDefensivePact*/ true);
+			GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
 #else
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
+			GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
-			}
-
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
-			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
-#else
-				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
-#endif
-			}
 		}
 	}
 

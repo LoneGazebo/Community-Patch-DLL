@@ -10313,9 +10313,18 @@ unsigned long hash32(unsigned long a)
 	return a;
 }
 
+static unsigned long giLastState = 0;
+
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
 	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*3;
+
+	/*
+	//safety check
+	if (iState == giLastState)
+		OutputDebugString("warning rng seed repeated\n");
+	giLastState = iState;
+	*/
 	
 	int iResult = 0;
 	if (iNum > 0)
@@ -10323,13 +10332,15 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls1.csv", FILogFile::kDontTimeStamp);
-	//if (pLog)
-	//{
-	//	char szOut[1024] = { 0 };
-	//	sprintf_s(szOut, "max %d, res %d, seed (%d:%d)\n", iNum, iResult, input.getX(), input.getY());
-	//	pLog->Msg(szOut);
-	//}
+	/*
+	FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls1.csv", FILogFile::kDontTimeStamp);
+	if (pLog)
+	{
+		char szOut[1024] = { 0 };
+		sprintf_s(szOut, "turn %d, max %d, res %d, seed (%d:%d)\n", getGameTurn(), iNum, iResult, input.getX(), input.getY());
+		pLog->Msg(szOut);
+	}
+	*/
 
 	return iResult;
 }
@@ -10338,19 +10349,28 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
 	unsigned long iState = getGameTurn() + abs(iExtraSeed);
 
+	/*
+	//safety check
+	if (iState == giLastState)
+		OutputDebugString("warning rng seed repeated\n");
+	giLastState = iState;
+	*/
+
 	int iResult = 0;
 	if (iNum > 0)
 		iResult = hash32(iState) % iNum;
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
-	//if (pLog)
-	//{
-	//	char szOut[1024] = { 0 };
-	//	sprintf_s(szOut, "max %d, res %d, seed %d\n", iNum, iResult, iExtraSeed);
-	//	pLog->Msg(szOut);
-	//}
+	/*
+	FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
+	if (pLog)
+	{
+		char szOut[1024] = { 0 };
+		sprintf_s(szOut, "turn %d, max %d, res %d, seed %d\n", getGameTurn(), iNum, iResult, iExtraSeed);
+		pLog->Msg(szOut);
+	}
+	*/
 
 	return iResult;
 }

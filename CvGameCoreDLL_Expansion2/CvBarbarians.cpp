@@ -560,7 +560,7 @@ void CvBarbarians::DoCamps()
 			if (vAllPlots.size()>1)
 			{
 				//do one iteration of a fisher-yates shuffle
-				int iSwap = kGame.isReallyNetworkMultiPlayer() ? vAllPlots.size() / 2 : kGame.getSmallFakeRandNum(vAllPlots.size(), *pLoopPlot);
+				int iSwap = kGame.isReallyNetworkMultiPlayer() ? vAllPlots.size() / 2 : kGame.getSmallFakeRandNum(vAllPlots.size(), pLoopPlot->GetPlotIndex()+vAllPlots.size());
 				std::swap(vAllPlots[iSwap],vAllPlots.back());
 			}
 #endif
@@ -573,7 +573,7 @@ void CvBarbarians::DoCamps()
 				if (vCoastalPlots.size()>1)
 				{
 					//do one iteration of a fisher-yates shuffle
-					int iSwap = kGame.isReallyNetworkMultiPlayer() ? vCoastalPlots.size() / 2 : kGame.getSmallFakeRandNum(vCoastalPlots.size(), *pLoopPlot);
+					int iSwap = kGame.isReallyNetworkMultiPlayer() ? vCoastalPlots.size() / 2 : kGame.getSmallFakeRandNum(vCoastalPlots.size(), pLoopPlot->GetPlotIndex()+vCoastalPlots.size());
 					std::swap(vCoastalPlots[iSwap],vCoastalPlots.back());
 				}
 #endif
