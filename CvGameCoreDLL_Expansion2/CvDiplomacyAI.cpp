@@ -41244,6 +41244,9 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
+
+	if (IsNoVictoryCompetition())
+		return 0;
 	
 	// Only scientific civs care about this.
 	if (!IsScientist() || IsTeammate(ePlayer))
