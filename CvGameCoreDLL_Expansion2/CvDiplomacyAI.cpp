@@ -4112,7 +4112,7 @@ void CvDiplomacyAI::DoEstimateOtherPlayerApproaches()
 	}
 }
 
-/// Updates our general Diplomatic Approach towards each major civiliation we've met
+/// Updates our general Diplomatic Approach towards each major civilization we've met
 void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = false */)
 {
 	std::vector<PlayerTypes> vePlayersToUpdate;
@@ -8486,7 +8486,7 @@ void CvDiplomacyAI::SetPlayerApproachValue(PlayerTypes ePlayer, MajorCivApproach
 	m_ppaaeApproachValues[ePlayer][eApproach] = iValue;
 }
 
-/// Updates our general Diplomatic Approach towards each minor civiliation (City-State) we've met
+/// Updates our general Diplomatic Approach towards each minor civilization (City-State) we've met
 void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 {
 	int iPlayerLoop;
