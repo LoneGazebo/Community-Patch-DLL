@@ -134,7 +134,7 @@ public:
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
 	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
-	// Niche cases for approach updates
+	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
 	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
