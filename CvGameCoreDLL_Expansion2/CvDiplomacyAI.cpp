@@ -4137,31 +4137,36 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 			if (IsTeammate(eLoopPlayer))
 			{
 				DoUpdateApproachTowardsTeammate(eLoopPlayer);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
+				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
 			}
 			else if (bPermaWar && IsAtWar(eLoopPlayer))
 			{
 				DoUpdatePermaWarApproachTowardsMajorCiv(eLoopPlayer);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
+				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
 			}
 			else if (bHuman)
 			{
 				DoUpdateHumanApproachTowardsMajorCiv(eLoopPlayer);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
+				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
 			}
 			else if (bNoCities)
 			{
 				DoUpdateMajorCivApproachWithNoCities(eLoopPlayer);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
+				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
 			}
 			else if (GET_PLAYER(eLoopPlayer).getCapitalCity() == NULL)
 			{
 				DoUpdateApproachTowardsMajorCivWithNoCities(eLoopPlayer);
-				oldApproaches.insert(std::make_pair(eLoopPlayer, (MajorCivApproachTypes) GetMajorCivApproach(eLoopPlayer, false)));
+				MajorCivApproachTypes eUpdatedApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
+				oldApproaches.insert(std::make_pair(eLoopPlayer, eUpdatedApproach));
 				continue;
 			}
 
