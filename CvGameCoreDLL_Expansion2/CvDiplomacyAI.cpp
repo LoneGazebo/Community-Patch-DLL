@@ -2581,7 +2581,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 	// Human player
 	else
 	{
-		int iDefaultFlavorValue = GC.getDEFAULT_FLAVOR_VALUE();
+		int iDefaultFlavorValue = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
 
 		m_iVictoryCompetitiveness = iDefaultFlavorValue;
 		CvAssertMsg(m_iVictoryCompetitiveness >= 0, "DIPLOMACY_AI: Victory Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -8214,7 +8214,7 @@ void CvDiplomacyAI::DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer)
 		}
 	}
 
-	viApproachWeights[eApproach] = GetPersonalityMajorCivApproachBias(eApproach);
+	viApproachWeights[eApproach] = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
 
 	// Grab the old approach and scratch values for logging
 	MajorCivApproachTypes eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
