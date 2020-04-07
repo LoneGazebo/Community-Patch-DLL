@@ -639,6 +639,10 @@ SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop expanding near them, and
 WHERE Tag = 'TXT_KEY_DIPLO_EXPANSION_PROMISE_IGNORED';
 
 UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]They asked you to stop spying on them, and you ignored them![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_SPY_PROMISE_IGNORED';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You made a promise not to declare war on them, and then broke it![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_MILITARY_PROMISE';
 
