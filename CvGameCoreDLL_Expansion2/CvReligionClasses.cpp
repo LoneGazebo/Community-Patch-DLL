@@ -8186,6 +8186,8 @@ bool CvReligionAI::BuyMissionaryOrInquisitor(ReligionTypes eReligion)
 	if (!pMyReligion)
 		return false;
 
+	ReligionTypes eReligionWeFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(); //founded or conquered
+
 	CvCity* pMissionTarget = NULL;
 	CvCity* pInquestTarget = NULL;
 
@@ -8224,7 +8226,7 @@ bool CvReligionAI::BuyMissionaryOrInquisitor(ReligionTypes eReligion)
 			pMissionTarget = pCity;
 			break;
 		}
-		else if (pMyReligion->m_bEnhanced)
+		else if (pMyReligion->m_bEnhanced && eReligionWeFounded==eReligion)
 		{
 			//prefer an inquisitor if we can get one
 			pInquestTarget = pCity;
