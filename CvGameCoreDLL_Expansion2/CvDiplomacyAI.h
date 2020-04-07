@@ -134,7 +134,7 @@ public:
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
 	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
-	// Niche cases for approach updates
+	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
 	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
 	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
@@ -1034,6 +1034,10 @@ public:
 	bool IsPlayerDoFWithAnyEnemy(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
+	
+	// Religion
+	bool IsPlayerSameReligion(PlayerTypes ePlayer) const;
+	bool IsPlayerOpposingReligion(PlayerTypes ePlayer) const;
 
 	// Ideology
 	bool IsPlayerSameIdeology(PlayerTypes ePlayer) const;
@@ -1533,8 +1537,6 @@ public:
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
-	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
-	int GetPaidTributeToScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyProposalScore(PlayerTypes ePlayer);
