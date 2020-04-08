@@ -6545,7 +6545,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 
 				// Are they protecting our allied/protected City-States?
-				if (GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0 && GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK)
+				if (!IsMinorCivTroublemaker(ePlayer))
 				{
 					int iSamePtP = 0;
 					PlayerTypes eMinorLoopPlayer;
@@ -6579,29 +6579,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 			// Is this one of our primary League competitors?
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL && !bNoVictoryCompetition)
+			if (pLeague != NULL && !bNoVictoryCompetition && !bResurrectedUs)
 			{
-				int iBestVotes = 0;
-				PlayerTypes eDiploLoopPlayer;
-
-				for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-					if (IsPlayerValid(eDiploLoopPlayer))
-					{
-						if (eDiploLoopPlayer == ePlayer)
-							continue;
-
-						int iVotes = pLeague->CalculateStartingVotesForMember(eDiploLoopPlayer);
-
-						if (iVotes > iBestVotes)
-							iBestVotes = iVotes;
-					}
-				}
-	
 				// Prime competitor?
-				if (pLeague->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
+				if (IsPrimeLeagueCompetitor(ePlayer))
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
@@ -6622,7 +6603,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					}
 				}
 				// More votes than us?
-				if (pLeague->CalculateStartingVotesForMember(ePlayer) > pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()))
+				else if (pLeague->CalculateStartingVotesForMember(ePlayer) > pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()))
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
@@ -18080,7 +18061,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						iDoFWeight -= iLoweredInfluenceCount;
 						
 						// Are they protecting our allied/protected City-States?
-						if (iLoweredInfluenceCount <= 0 && GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK)
+						if (!IsMinorCivTroublemaker(ePlayer))
 						{
 							int iSamePtP = 0;
 							PlayerTypes eMinorLoopPlayer;
@@ -18997,6 +18978,11 @@ PlayerTypes CvDiplomacyAI::GetBiggestCompetitor() const
 /// Is this major civ a strategic trade partner?
 bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 {
+	bool bGoingForConquest = IsGoingForWorldConquest();
+	bool bCloseToConquest = IsCloseToDominationVictory();
+	bool bGoingForDiplo = IsGoingForDiploVictory();
+	bool bCloseToDiplo = IsCloseToDiploVictory(); 
+	
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return false;
 
@@ -19015,9 +19001,9 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
 		return false;
 
-	if (GetPlayer()->GetCurrentEra() >= 2 && (IsGoingForWorldConquest() || IsCloseToDominationVictory()))
+	if (GetPlayer()->GetCurrentEra() >= 2 && (bGoingForConquest || bCloseToConquest || IsConqueror()))
 	{
-		if (IsCloseToDominationVictory())
+		if (bCloseToConquest)
 		{
 			if (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER)
 				return true;
@@ -19032,15 +19018,24 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 		}
 #endif
 		if (GetLandDisputeLevel(ePlayer) < DISPUTE_LEVEL_STRONG)
-			return true;
+		{
+			if (bGoingForDiplo || bCloseToDiplo || IsDiplomat())
+			{
+				if (IsMinorCivTroublemaker(ePlayer))
+					return false;
+				else
+					return true;
+			}
+			else
+			{
+				return true;
+			}
+		}
 	}
 	
-	if (GetPlayer()->GetCurrentEra() >= 3 && (IsGoingForDiploVictory() || IsCloseToDiploVictory()))
+	if (GetPlayer()->GetCurrentEra() >= 3 && (bGoingForDiplo || bCloseToDiplo || IsDiplomat()))
 	{
-		if (GetMinorCivDisputeLevel(ePlayer) > DISPUTE_LEVEL_STRONG)
-			return false;
-		
-		if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
+		if (IsMinorCivTroublemaker(ePlayer))
 			return false;
 		
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -19048,30 +19043,9 @@ bool CvDiplomacyAI::IsStrategicTradePartner(PlayerTypes ePlayer) const
 		if (pLeague == NULL)
 			return true;
 
-		int iBestVotes = 0;
-		PlayerTypes eDiploLoopPlayer;
-	
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-			if (IsPlayerValid(eDiploLoopPlayer))
-			{
-				if (eDiploLoopPlayer == ePlayer)
-					continue;
-			
-				int iVotes = pLeague->CalculateStartingVotesForMember(eDiploLoopPlayer);
-			
-				if (iVotes > iBestVotes)
-					iBestVotes = iVotes;
-			}
-		}
-		
-		// Prime competitor?
-		if (pLeague->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
-		{
+		// Our prime league competitor?
+		if (IsPrimeLeagueCompetitor(ePlayer))
 			return false;
-		}
 		
 		return true;
 	}
@@ -19157,47 +19131,12 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 		
 		if ((GetPlayer()->GetCurrentEra() >= 3 && IsGoingForDiploVictory()) || IsCloseToDiploVictory())
 		{
-			if (GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
-				return true;
-			
-			if (GetNumTimesPerformedCoupAgainstUs(ePlayer) >= 2)
+			if (IsMinorCivTroublemaker(ePlayer))
 				return true;
 			
 			// Is this our primary League competitor?
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (pLeague != NULL)
-			{
-				// More votes than us?
-				if (GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) > GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID()))
-				{
-					return true;
-				}
-				
-				int iBestVotes = 0;
-				PlayerTypes eDiploLoopPlayer;
-				
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
-					
-					if (IsPlayerValid(eDiploLoopPlayer))
-					{
-						if (eDiploLoopPlayer == ePlayer)
-							continue;
-					
-						int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(eDiploLoopPlayer);
-					
-						if (iVotes > iBestVotes)
-							iBestVotes = iVotes;
-					}
-				}
-				
-				// Prime competitor?
-				if (GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
-				{
-					return true;
-				}
-			}
+			if (IsPrimeLeagueCompetitor(ePlayer))
+				return true;
 		}
 		
 		if ((GetPlayer()->GetCurrentEra() >= 3 && IsGoingForCultureVictory()) || IsCloseToCultureVictory())
@@ -20154,6 +20093,69 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 			SetMinorCivDisputeLevel(ePlayer, eDisputeLevel);
 		}
 	}
+}
+
+/// Is this player causing trouble around our Minor Civs?
+bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer) const
+{
+	if (GetMinorCivDisputeLevel(ePlayer) > DISPUTE_LEVEL_WEAK)
+		return true;
+	
+	if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
+		return true;
+	
+	if (IsAngryAboutProtectedMinorKilled(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || IsAngryAboutProtectedMinorBullied(ePlayer))
+		return true;
+	
+	if (IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerIgnoredAttackCityStatePromise(ePlayer))
+		return true;
+	
+	if (IsPlayerBrokenBullyCityStatePromise(ePlayer) || IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+		return true;
+	
+	return false;
+}
+
+/// Is this player our prime competitor in the World Congress / United Nations by vote count?
+bool CvDiplomacyAI::IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const
+{
+	if (WasResurrectedBy(ePlayer))
+		return false;
+	
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		
+	if (pLeague == NULL)
+		return false;
+
+	int iBestVotes = 0;
+	PlayerTypes eDiploLoopPlayer;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eDiploLoopPlayer = (PlayerTypes) iPlayerLoop;
+	
+		if (IsPlayerValid(eDiploLoopPlayer))
+		{
+			if (eDiploLoopPlayer == ePlayer)
+				continue;
+			
+			if (WasResurrectedBy(eDiploLoopPlayer))
+				continue;
+		
+			int iVotes = pLeague->CalculateStartingVotesForMember(eDiploLoopPlayer);
+		
+			if (iVotes > iBestVotes)
+				iBestVotes = iVotes;
+		}
+	}
+	
+	// Prime competitor?
+	if (pLeague->CalculateStartingVotesForMember(ePlayer) > iBestVotes)
+	{
+		return true;
+	}
+	
+	return false;
 }
 
 /// What is our level of Dispute with a player over Technology?
@@ -41231,7 +41233,7 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 			{
 				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MINOR_CIV_DIPLOMAT();
 			}
-			else if (GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
+			else if (!IsMinorCivTroublemaker(ePlayer))
 			{
 				iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
 			}
@@ -41279,15 +41281,15 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 	switch (GetVictoryDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_FIERCE:
-		iOpinionWeight += /*45*/ GC.getOPINION_WEIGHT_VICTORY_FIERCE();
+		iOpinionWeight += /*40*/ GC.getOPINION_WEIGHT_VICTORY_FIERCE();
 		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
 		break;
 	case DISPUTE_LEVEL_STRONG:
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_VICTORY_STRONG();
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_STRONG();
 		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		iOpinionWeight += /*25*/ GC.getOPINION_WEIGHT_VICTORY_WEAK();
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_VICTORY_WEAK();
 		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_PER_ERA());
 		break;
 	case DISPUTE_LEVEL_NONE:
@@ -41311,15 +41313,15 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 	switch(GetVictoryBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_FIERCE:
-		iOpinionWeight += /*35*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_FIERCE();
+		iOpinionWeight += /*30*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_FIERCE();
 		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_PER_ERA());
 		break;
 	case BLOCK_LEVEL_STRONG:
-		iOpinionWeight += /*25*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_STRONG();
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_STRONG();
 		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_PER_ERA());
 		break;
 	case BLOCK_LEVEL_WEAK:
-		iOpinionWeight += /*15*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_WEAK();
+		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_WEAK();
 		iOpinionWeight += (GET_PLAYER(ePlayer).GetCurrentEra() * /*3*/ GC.getOPINION_WEIGHT_VICTORY_BLOCK_PER_ERA());
 		break;
 	case BLOCK_LEVEL_NONE:
@@ -41789,7 +41791,7 @@ int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
 		{
 			ChangeNumTimesPerformedCoupAgainstUs(ePlayer, -1);
 			SetPerformedCoupTurn(ePlayer, GC.getGame().getGameTurn());
-	}
+		}
 		else if ((GC.getGame().getGameTurn() - GetPerformedCoupTurn(ePlayer)) >= (iTurn / 2))
 		{
 			bReduction = true;
@@ -42055,7 +42057,7 @@ int CvDiplomacyAI::GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes e
 				{
 					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerBrokenAttackCityStatePromise(ePlayer))
 					{
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
+						iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_BROKEN_CITY_STATE_PROMISE_WORLD();
 						break;
 					}
 				}
@@ -42861,7 +42863,7 @@ int CvDiplomacyAI::GetPtPSameCSScore(PlayerTypes ePlayer)
 		}
 	}
 	// Diplomatic civs apply a larger bonus for this if they're not being competed with.
-	if (IsDiplomat() && GetMinorCivDisputeLevel(ePlayer) <= DISPUTE_LEVEL_WEAK && GetNumTimesPerformedCoupAgainstUs(ePlayer) <= 0)
+	if (IsDiplomat() && !IsMinorCivTroublemaker(ePlayer))
 	{
 		iSamePtP *= 2;
 	}
