@@ -6603,7 +6603,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					}
 				}
 				// More votes than us?
-				else if (pLeague->CalculateStartingVotesForMember(ePlayer) > pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()))
+				else if (pLeague->CalculateStartingVotesForMember(ePlayer) > pLeague->CalculateStartingVotesForMember(eMyPlayer))
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2);
@@ -6770,7 +6770,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (bScientist || bGoingForScienceVictory || bCloseToScienceVictory)
 		{
 			// Spaceship competitor?
-			if (GET_TEAM(eTeam).GetSSProjectCount() > 1 || (!bCloseToScienceVictory && bTheyAreCloseToScienceVictory))
+			if (GET_TEAM(eTeam).GetSSProjectCount() > 0 || (!bCloseToScienceVictory && bTheyAreCloseToScienceVictory))
 			{
 				if (!bNoVictoryCompetition)
 				{
@@ -20127,7 +20127,7 @@ bool CvDiplomacyAI::IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const
 	if (pLeague == NULL)
 		return false;
 
-	int iBestVotes = 0;
+	int iBestVotes = pLeague->GetCoreVotesForMember(GetPlayer()->GetID());
 	PlayerTypes eDiploLoopPlayer;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -43297,7 +43297,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory() const
 	if (eSpaceshipVictory != NO_VICTORY)
 	{
 		int iProjectCount = GET_TEAM(GetPlayer()->getTeam()).GetSSProjectCount();
-		if (iProjectCount > 1)
+		if (iProjectCount > 0)
 		{
 			return true;
 		}
