@@ -779,6 +779,10 @@ WHERE Tag = 'TXT_KEY_LEADER_ENRICO_DANDOLO_TRADEREQUEST_NEUTRAL';
 
 -- Offer Trade (Hostile)
 UPDATE Language_en_US
+SET Text = 'Here is our offer - and it is far better than you deserve.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADEREQUEST_ANGRY';
+
+UPDATE Language_en_US
 SET Text = 'You would do well to agree to our very fair and reasonable terms.'
 WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_ANGRY';
 
@@ -827,24 +831,223 @@ UPDATE Language_en_US
 SET Text = 'Happily agreed.'
 WHERE Tag = 'TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY';
 
+-- Accept Trade (Neutral)
+UPDATE Language_en_US
+SET Text = 'Your offer is agreeable to us. We accept.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_YES_NEUTRAL';
+
 -- Accept Trade (Hostile)
+UPDATE Language_en_US
+SET Text = 'Oh, very well; I suppose I must. We are agreed.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_YES_ANGRY';
+
 UPDATE Language_en_US
 SET Text = 'Smart move.'
 WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY';
 
 
--- Need More from Trade
+-- Need More from Trade (Friendly)
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRADE_NEEDMORE_HAPPY_4';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_ASKIA_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_AUGUSTUS_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_BISMARCK_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_BISMARCK_TRADE_NEEDMORE_HAPPY_4';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_DARIUS_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_NEEDMORE_HAPPY_4';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_GANDHI_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_HARUN_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_HIAWATHA_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_MONTEZUMA_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_NAPOLEON_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_ODA_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ODA_TRADE_NEEDMORE_HAPPY_4';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_SULEIMAN_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRADE_NEEDMORE_HAPPY_3';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRADE_NEEDMORE_HAPPY_4';
+
+UPDATE Language_en_US
+SET Text = 'You''re almost there...'
+WHERE Tag = 'TXT_KEY_LEADER_WUZETIAN_TRADE_NEEDMORE_HAPPY_3';
+
+-- Need More from Trade (Neutral)
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ASKIA_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_AUGUSTUS_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_BISMARCK_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_DARIUS_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_GANDHI_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_HARUN_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_HIAWATHA_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_MONTEZUMA_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_NAPOLEON_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ODA_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_SULEIMAN_TRADE_NEEDMORE_NEUTRAL_4';
+
 UPDATE Language_en_US
 SET Text = 'I do not think that the trade, as it is currently configured, would be in the United States'' best interests. Would you care to improve your offer?'
 WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRADE_NEEDMORE_NEUTRAL_1';
 
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRADE_NEEDMORE_NEUTRAL_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_WUZETIAN_TRADE_NEEDMORE_NEUTRAL_4';
+
+-- Need More from Trade (Hostile)
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRADE_NEEDMORE_ANGRY_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_BISMARCK_TRADE_NEEDMORE_ANGRY_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_NEEDMORE_ANGRY_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_ODA_TRADE_NEEDMORE_ANGRY_4';
+
+UPDATE Language_en_US
+SET Text = 'Almost...'
+WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_TRADE_NEEDMORE_ANGRY_4';
+
 
 -- Refuse Trade (Friendly)
+UPDATE Language_en_US
+SET Text = 'Do you seek to take advantage of our intimacy? Behave, or I shall be very cross with you.'
+WHERE Tag = 'TXT_KEY_LEADER_CATHERINE_TRADE_NO_HAPPY';
+
+UPDATE Language_en_US
+SET Text = 'My dear friend, whilst I would personally give you everything we possess, unto our very last farthing, my advisors are somewhat less generous. I therefore must regretfully decline your offer.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_NO_HAPPY';
+
 UPDATE Language_en_US
 SET Text = 'I am sorry, but the voices tell me that I must decline your offer.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_HAPPY';
 
 -- Refuse Trade (Neutral)
+UPDATE Language_en_US
+SET Text = 'We implore you not to waste our time with such foolishness.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRADE_NO_NEUTRAL';
+
 UPDATE Language_en_US
 SET Text = 'You must be insane to insult me with such an offer. We refuse.'
 WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL';
@@ -882,6 +1085,11 @@ SET Text = 'The United States would be indebted to you if you were to provide us
 WHERE Tag = 'TXT_KEY_LEADER_WASHINGTON_RESPONSE_REQUEST_1';
 
 
+-- Make Demand (Friendly)
+UPDATE Language_en_US
+SET Text = 'My beloved friend, can you assist us in our hour of need?'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_DEMANDTRIBUTE_HAPPY';
+
 -- Make Demand (Neutral)
 UPDATE Language_en_US
 SET Text = 'You have something I want. If you don''t hand it over quietly, I''ll have no choice but to take it by force.'
@@ -898,6 +1106,10 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_DEMANDTRIBUTE_NEUTRAL';
 
 -- Accept Demand (Friendly)
 UPDATE Language_en_US
+SET Text = 'It is our pleasure to assist our friend and ally in their hour of need.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRIBUTE_YES_HAPPY';
+
+UPDATE Language_en_US
 SET Text = 'Here. I am nothing but the nightmare of a mad god; what good are such things to me?'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_HAPPY';
 
@@ -906,6 +1118,10 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_HAPPY';
 UPDATE Language_en_US
 SET Text = 'You may have this bit of material wealth, yes. But such indiscretions are not easily forgotten.'
 WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL';
+
+UPDATE Language_en_US
+SET Text = 'Oh, very well; I suppose we have no choice.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRIBUTE_YES_NEUTRAL';
 
 UPDATE Language_en_US
 SET Text = 'I agree; if only to confound my advisors, who urge me to refuse.'
@@ -926,6 +1142,10 @@ SET Text = 'Very well. It appears as if I have no choice. But someday, you will 
 WHERE Tag = 'TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY';
 
 UPDATE Language_en_US
+SET Text = 'You have us at a disadvantage now, but it may not always be so. We shall remember this.'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRIBUTE_YES_ANGRY';
+
+UPDATE Language_en_US
 SET Text = 'I will agree to your reprehensible demands.'
 WHERE Tag = 'TXT_KEY_LEADER_MARIA_I_TRIBUTE_YES_ANGRY';
 
@@ -943,7 +1163,6 @@ UPDATE Language_en_US
 SET Text = 'Foolish Jackal! You would do well to go to Egypt, where such as you are worshipped. Here, you get nothing.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_NO_NEUTRAL';
 
-
 -- Refuse Demand (Hostile)
 UPDATE Language_en_US
 SET Text = 'You dare insult me in such a manner? If you want something so badly, then do your best to come and take it.'
@@ -952,6 +1171,10 @@ WHERE Tag = 'TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_1';
 UPDATE Language_en_US
 SET Text = 'If you want that, you''ll have to come and get it.'
 WHERE Tag = 'TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_3';
+
+UPDATE Language_en_US
+SET Text = 'You presume to demand tribute from us? Go away, you hateful villain!'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_TRIBUTE_NO_ANGRY';
 
 
 -- Aggressive Military Warning (Hostile)
@@ -1002,6 +1225,14 @@ SET Text = 'Declaring war was a serious error in judgement on your part. That ha
 WHERE Tag = 'TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_4';
 
 UPDATE Language_en_US
+SET Text = 'Why, you... you... worthless barren mule! I will crush you!'
+WHERE Tag = 'TXT_KEY_LEADER_DARIUS_ATTACKED_1';
+
+UPDATE Language_en_US
+SET Text = 'Unfortunately, not everybody in my country is as committed to non-violence as I am, so please let me apologize in advance if your forces are destroyed to the last man.'
+WHERE Tag = 'TXT_KEY_LEADER_GANDHI_ATTACKED_2';
+
+UPDATE Language_en_US
 SET Text = 'We shall destroy you, you know. Do you care for some cheese?'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_2';
 
@@ -1011,6 +1242,10 @@ WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED_3';
 
 
 -- AI War Bluff
+UPDATE Language_en_US
+SET Text = 'Foolish, foolish...'
+WHERE Tag = 'TXT_KEY_LEADER_HIAWATHA_WARBLUFF_1';
+
 UPDATE Language_en_US
 SET Text = 'The drums - the drums! They pound in my brain, drowning out thoughts of vengeance.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_WARBLUFF_1';
@@ -1044,6 +1279,14 @@ WHERE Tag = 'TXT_KEY_GENERIC_DOW_REGRET_1';
 UPDATE Language_en_US
 SET Text = 'So be it. My armies will extract it from your lands, then.'
 WHERE Tag = 'TXT_KEY_WAR_DEMAND_REFUSED_1';
+
+UPDATE Language_en_US
+SET Text = 'Your many insults to us and to our loyal subjects will not go unpunished - prepare for war!'
+WHERE Tag = 'TXT_KEY_LEADER_ELIZABETH_DECLAREWAR_1';
+
+UPDATE Language_en_US
+SET Text = 'I am sending a contingent of Indian soldiers on a goodwill tour of your major cities. I trust that they will be received with open arms.'
+WHERE Tag = 'TXT_KEY_LEADER_GANDHI_DECLAREWAR_2';
 
 UPDATE Language_en_US
 SET Text = 'It was inevitable that we would come to blows, and now is as good a time as another.'
@@ -1083,6 +1326,10 @@ WHERE Tag = 'TXT_KEY_GENERIC_INSULT_POPULATION_1';
 
 
 -- AI wins war
+UPDATE Language_en_US
+SET Text = 'I hope you have learned your lesson. I am invincible!'
+WHERE Tag = 'TXT_KEY_LEADER_NAPOLEON_WINWAR_1';
+
 UPDATE Language_en_US
 SET Text = 'That was refreshing. If the demons are sated, perhaps they will give us a little respite now.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_WINWAR_1';
