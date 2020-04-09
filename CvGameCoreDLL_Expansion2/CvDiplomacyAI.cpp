@@ -12506,15 +12506,18 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 	}
 }
 
-int CvDiplomacyAI::GetHighestWarscore()
+int CvDiplomacyAI::GetHighestWarscore(bool bOnlyCurrentWars /* = true */)
 {
 	int iHighestWarscore = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
+		if (IsPlayerValid(eLoopPlayer))
 		{
+			if (bOnlyCurrentWars && !IsAtWar(eLoopPlayer))
+				continue;
+
 			int iWarscore = GetWarScore(eLoopPlayer);
 			if (iWarscore > iHighestWarscore)
 			{
@@ -12530,19 +12533,14 @@ int CvDiplomacyAI::GetHighestWarscore()
 }
 
 /// What is the integer value of how well we think the war with ePlayer is going?
-#if defined(MOD_BALANCE_CORE)
-int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation, bool bDebug)
-#else
-int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
-#endif
+int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation /* = false */, bool bDebug /* = false */)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	int iWarScore = 0;
-
-#if defined(MOD_BALANCE_CORE)
 	int iAverageScore = 0;
+
 	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
 	if (bUsePeacetimeCalculation)
 	{
@@ -12728,118 +12726,6 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		}
 	}
 	return iAverageScore;
-	
-#else
-	// Military Strength compared to us
-	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
-	{
-	case STRENGTH_PATHETIC:
-		iWarScore += /*100*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_PATHETIC();
-		break;
-	case STRENGTH_WEAK:
-		iWarScore += /*60*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_WEAK();
-		break;
-	case STRENGTH_POOR:
-		iWarScore += /*25*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_POOR();
-		break;
-	case STRENGTH_AVERAGE:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_AVERAGE();
-		break;
-	case STRENGTH_STRONG:
-		iWarScore += /*-25*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_STRONG();
-		break;
-	case STRENGTH_POWERFUL:
-		iWarScore += /*-60*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_POWERFUL();
-		break;
-	case STRENGTH_IMMENSE:
-		iWarScore += /*-100*/ GC.getWAR_PROJECTION_THEIR_MILITARY_STRENGTH_IMMENSE();
-		break;
-	}
-
-	// Economic Strength compared to us
-	switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
-	{
-	case STRENGTH_PATHETIC:
-		iWarScore += /*50*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_PATHETIC();
-		break;
-	case STRENGTH_WEAK:
-		iWarScore += /*30*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_WEAK();
-		break;
-	case STRENGTH_POOR:
-		iWarScore += /*12*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_POOR();
-		break;
-	case STRENGTH_AVERAGE:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_AVERAGE();
-		break;
-	case STRENGTH_STRONG:
-		iWarScore += /*-12*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_STRONG();
-		break;
-	case STRENGTH_POWERFUL:
-		iWarScore += /*-30*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_POWERFUL();
-		break;
-	case STRENGTH_IMMENSE:
-		iWarScore += /*-50*/ GC.getWAR_PROJECTION_THEIR_ECONOMIC_STRENGTH_IMMENSE();
-		break;
-	}
-	// War Damage inflicted on US
-	switch(GetWarDamageLevel(ePlayer))
-	{
-	case WAR_DAMAGE_LEVEL_NONE:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_NONE();
-		// If they're aggressively expanding, it makes them a better target to go after, If they've hurt us, this no longer applies
-		if(IsPlayerRecklessExpander(ePlayer))
-		{
-			iWarScore += /*25*/ GC.getWAR_PROJECTION_RECKLESS_EXPANDER();
-		}
-		break;
-	case WAR_DAMAGE_LEVEL_MINOR:
-		iWarScore += /*-10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_MINOR();
-		break;
-	case WAR_DAMAGE_LEVEL_MAJOR:
-		iWarScore += /*-20*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_MAJOR();
-		break;
-	case WAR_DAMAGE_LEVEL_SERIOUS:
-		iWarScore += /*-30*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_SERIOUS();
-		break;
-	case WAR_DAMAGE_LEVEL_CRIPPLED:
-		iWarScore += /*-40*/ GC.getWAR_PROJECTION_WAR_DAMAGE_US_CRIPPLED();
-		break;
-	}
-
-	// War Damage inflicted on THEM (less than what's been inflicted on us for the same amount of damage)
-	switch(GetOtherPlayerWarDamageLevel(ePlayer, GetPlayer()->GetID()))
-	{
-	case WAR_DAMAGE_LEVEL_NONE:
-		iWarScore += /*0*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_NONE();
-		break;
-	case WAR_DAMAGE_LEVEL_MINOR:
-		iWarScore += /*5*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MINOR();
-		break;
-	case WAR_DAMAGE_LEVEL_MAJOR:
-		iWarScore += /*10*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_MAJOR();
-		break;
-	case WAR_DAMAGE_LEVEL_SERIOUS:
-		iWarScore += /*15*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_SERIOUS();
-		break;
-	case WAR_DAMAGE_LEVEL_CRIPPLED:
-		iWarScore += /*20*/ GC.getWAR_PROJECTION_WAR_DAMAGE_THEM_CRIPPLED();
-		break;
-	}
-	// the intangibles - our score vs their score
-	int iOurScore = GetPlayer()->GetScore();
-	iOurScore = iOurScore > 100 ? iOurScore : 100;
-	int iTheirScore = GET_PLAYER(ePlayer).GetScore();
-	iTheirScore = iTheirScore > 100 ? iTheirScore : 100;
-	int iRatio = ((iOurScore-iTheirScore) * 100) / (iOurScore>iTheirScore?iTheirScore:iOurScore);
-	iRatio = iRatio >= -50 ? (iRatio <= 50 ? iRatio : 50) : -50;
-	iWarScore += iRatio;
-
-	// Decrease war score if we've been fighting for a long time - after 60 turns the effect is -20 on the WarScore
-	int iTurnsAtWar = GetPlayerNumTurnsAtWar(ePlayer);
-	iTurnsAtWar /= 3;
-	iWarScore -= min(iTurnsAtWar, /*20*/ GC.getWAR_PROJECTION_WAR_DURATION_SCORE_CAP());
-	return iWarScore;
-#endif
 }
 
 
@@ -21216,11 +21102,7 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 }
 
 /// ePlayer declared war on someone, so figure out what that means
-#if defined(MOD_BALANCE_CORE)
 void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact)
-#else
-void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam)
-#endif
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
