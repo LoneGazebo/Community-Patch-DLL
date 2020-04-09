@@ -595,7 +595,7 @@ public:
 	DisputeLevelTypes GetMinorCivDisputeLevel(PlayerTypes ePlayer) const;
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
-	bool IsMinorCivTroublemaker(PlayerTypes ePlayer) const;
+	bool IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBullying = false) const;
 	bool IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const;
 	
 	// Tech Dispute (for scientific civs)

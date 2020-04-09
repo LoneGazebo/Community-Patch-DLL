@@ -19131,7 +19131,7 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 		
 		if ((GetPlayer()->GetCurrentEra() >= 3 && IsGoingForDiploVictory()) || IsCloseToDiploVictory())
 		{
-			if (IsMinorCivTroublemaker(ePlayer))
+			if (IsMinorCivTroublemaker(ePlayer, true))
 				return true;
 			
 			// Is this our primary League competitor?
@@ -20096,7 +20096,7 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 }
 
 /// Is this player causing trouble around our Minor Civs?
-bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer) const
+bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBullying /* = false */) const
 {
 	if (GetMinorCivDisputeLevel(ePlayer) > DISPUTE_LEVEL_WEAK)
 		return true;
@@ -20104,14 +20104,14 @@ bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer) const
 	if (GetNumTimesPerformedCoupAgainstUs(ePlayer) > 0)
 		return true;
 	
-	if (IsAngryAboutProtectedMinorKilled(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || IsAngryAboutProtectedMinorBullied(ePlayer))
+	if (IsAngryAboutProtectedMinorKilled(ePlayer) || IsAngryAboutProtectedMinorAttacked(ePlayer) || IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerIgnoredAttackCityStatePromise(ePlayer))
 		return true;
 	
-	if (IsPlayerBrokenAttackCityStatePromise(ePlayer) || IsPlayerIgnoredAttackCityStatePromise(ePlayer))
-		return true;
-	
-	if (IsPlayerBrokenBullyCityStatePromise(ePlayer) || IsPlayerIgnoredBullyCityStatePromise(ePlayer))
-		return true;
+	if (!bIgnoreBullying)
+	{
+		if (IsAngryAboutProtectedMinorBullied(ePlayer) || IsPlayerBrokenBullyCityStatePromise(ePlayer) || IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+			return true;
+	}
 	
 	return false;
 }
@@ -20176,15 +20176,15 @@ DisputeLevelTypes CvDiplomacyAI::GetTechDisputeLevel(PlayerTypes ePlayer) const
 		}
 	}
 
-	if (iTechDifference <= -5)
+	if (iTechDifference <= -6)
 	{
 		return DISPUTE_LEVEL_FIERCE;
 	}
-	else if (iTechDifference == -4 || iTechDifference == -3)
+	else if (iTechDifference == -5 || iTechDifference == -4)
 	{
 		return DISPUTE_LEVEL_STRONG;
 	}
-	else if (iTechDifference == -2 || iTechDifference == -1)
+	else if (iTechDifference == -3 || iTechDifference == -2)
 	{
 		return DISPUTE_LEVEL_WEAK;
 	}
@@ -41233,7 +41233,7 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 			{
 				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_MINOR_CIV_DIPLOMAT();
 			}
-			else if (!IsMinorCivTroublemaker(ePlayer))
+			else if (!IsMinorCivTroublemaker(ePlayer, true))
 			{
 				iOpinionWeight += /*-10*/ GC.getOPINION_WEIGHT_MINOR_CIV_NONE_DIPLOMAT();
 			}
@@ -41247,11 +41247,11 @@ int CvDiplomacyAI::GetTechDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsNoVictoryCompetition())
+	if (IsTeammate(ePlayer) || WasResurrectedBy(ePlayer) || IsNoVictoryCompetition())
 		return 0;
 	
 	// Only scientific civs care about this.
-	if (!IsScientist() || IsTeammate(ePlayer))
+	if (!IsScientist())
 		return 0;
 	
 	switch (GetTechDisputeLevel(ePlayer))
