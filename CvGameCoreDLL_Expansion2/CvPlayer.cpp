@@ -12756,7 +12756,7 @@ void CvPlayer::findNewCapital()
 		}
 		else if (pBestCity->IsRazing() && !isHuman())
 		{
-			// For the AI, we'll stop burining our new capital!
+			// For the AI, we'll stop burning our new capital!
 			gDLL->sendDoTask(pBestCity->GetID(), TASK_UNRAZE, -1, -1, false, false, false, false);
 		}
 #endif
@@ -17794,7 +17794,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
 
-	// Example: Player can support 8 Units, he has 12. 4 * 10 means he loses 40% of his Production
+	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
 	int iNormal = 10;
 #if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
@@ -17835,7 +17835,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
 
-	// Example: Player can support 8 Units, he has 12. 4 * 10 means he loses 40% of his Production
+	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
 	int iMaintenanceMod = min(/*70*/ GC.getMAX_UNIT_SUPPLY_PRODMOD(), iPaidUnits * 5);
 	iMaintenanceMod = -iMaintenanceMod;
 
@@ -17883,6 +17883,11 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	int iSupply = getHandicapInfo().getProductionFreeUnits() + m_pTraits->GetExtraSupply();
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	{
+		if (GC.getGame().getStartEra() > 0)
+		{
+			iSupply += (GC.getGame().getStartEra() * 2);
+		}
+		
 		if (!bIgnoreReduction)
 		{
 			iSupply -= GetCurrentEra();

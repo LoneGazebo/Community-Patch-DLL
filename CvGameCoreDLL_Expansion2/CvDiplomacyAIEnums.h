@@ -12,7 +12,7 @@
 
 enum MajorCivOpinionTypes
 {
-    NO_MAJOR_CIV_OPINION_TYPE = -1,
+    NO_MAJOR_CIV_OPINION = -1,
 
     MAJOR_CIV_OPINION_UNFORGIVABLE,
     MAJOR_CIV_OPINION_ENEMY,
@@ -22,7 +22,7 @@ enum MajorCivOpinionTypes
     MAJOR_CIV_OPINION_FRIEND,
     MAJOR_CIV_OPINION_ALLY,
 
-    NUM_MAJOR_CIV_OPINION_TYPES,
+    NUM_MAJOR_CIV_OPINIONS,
 };
 
 enum MajorCivApproachTypes
