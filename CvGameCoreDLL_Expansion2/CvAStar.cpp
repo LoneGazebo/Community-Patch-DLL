@@ -1395,7 +1395,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//special: cannot attack out of a fort or city with melee ships (ranged ships cannot attack from cities as well)
-				if (kFromNodeCacheData.bIsNonNativeDomain && !pUnit->isAmphibious())
+				if (kFromNodeCacheData.bIsNonNativeDomain && pUnit->getDomainType()==DOMAIN_SEA)
 					return FALSE;
 			}
 
