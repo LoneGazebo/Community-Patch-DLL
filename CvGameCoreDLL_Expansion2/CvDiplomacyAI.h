@@ -279,13 +279,8 @@ public:
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
 
-	int GetHighestWarscore();
-
-#if defined(MOD_BALANCE_CORE)
-	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug=false);
-#else
-	int GetWarScore(PlayerTypes ePlayer);
-#endif
+	int GetHighestWarscore(bool bOnlyCurrentWars = true);
+	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug = false);
 
 	// War Goal: What is is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
 	WarGoalTypes GetWarGoal(PlayerTypes ePlayer) const;
@@ -595,6 +590,8 @@ public:
 	DisputeLevelTypes GetMinorCivDisputeLevel(PlayerTypes ePlayer) const;
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
+	bool IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBullying = false) const;
+	bool IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const;
 	
 	// Tech Dispute (for scientific civs)
 	DisputeLevelTypes GetTechDisputeLevel(PlayerTypes ePlayer) const;
@@ -646,11 +643,7 @@ public:
 	// Someone had some kind of interaction with another player
 
 	void DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam);
-#if defined(MOD_BALANCE_CORE)
 	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact);
-#else
-	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam);
-#endif
 	void DoPlayerKilledSomeone(PlayerTypes ePlayer, PlayerTypes eDeadPlayer);
 	void DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	void DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
@@ -1268,8 +1261,6 @@ public:
 	bool EverMadeExpansionPromise(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	void SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	int GetPlayerMadeBorderPromise(PlayerTypes ePlayer);
 #endif
 	bool IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGameTurn = -1);

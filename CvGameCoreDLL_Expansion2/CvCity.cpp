@@ -13829,13 +13829,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			bool bIsWonder = ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo());
 			if (bIsWonder)
+			{
 				owningPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_US);
+				if (!pBuildingInfo->IsUnlockedByLeague() && !pBuildingInfo->IsCorp())
+					owningPlayer.ChangeWondersConstructed(1);
+			}
 			if (!bNoBonus && bIsWonder)
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
 				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
-				owningPlayer.ChangeWondersConstructed(1);
-				if(iTourism > 0)
+
+				if (iTourism > 0)
 				{
 					owningPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
