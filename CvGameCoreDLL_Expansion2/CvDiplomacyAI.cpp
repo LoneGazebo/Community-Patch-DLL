@@ -38,6 +38,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aePeaceTreatyWillingToAccept()
 	, m_aiNumWondersBeatenTo()
 	, m_abArmyInPlaceForAttack()
+	, m_abEasyTarget()
 	, m_abWantsResearchAgreementWithPlayer()
 	, m_abWantToRouteToMinor()
 	, m_aeWarFace()
@@ -243,6 +244,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paePeaceTreatyWillingToAccept(NULL),
 	m_paiNumWondersBeatenTo(NULL),
 	m_pabArmyInPlaceForAttack(NULL),
+	m_pabEasyTarget(NULL),
 	m_pabWantsResearchAgreementWithPlayer(NULL),
 	m_pabWantToRouteToMinor(NULL),
 	m_paeWarFace(NULL),
@@ -517,6 +519,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paePeaceTreatyWillingToAccept = &m_pDiploData->m_aePeaceTreatyWillingToAccept[0];
 	m_paiNumWondersBeatenTo = &m_pDiploData->m_aiNumWondersBeatenTo[0];
 	m_pabArmyInPlaceForAttack = &m_pDiploData->m_abArmyInPlaceForAttack[0];
+	m_pabEasyTarget = &m_pDiploData->m_abEasyTarget[0];
 	m_pabWantsResearchAgreementWithPlayer = &m_pDiploData->m_abWantsResearchAgreementWithPlayer[0];
 	m_pabWantToRouteToMinor = &m_pDiploData->m_abWantToRouteToMinor[0];
 	m_paeWarFace = &m_pDiploData->m_aeWarFace[0];
@@ -854,6 +857,7 @@ void CvDiplomacyAI::Uninit()
 	m_paePeaceTreatyWillingToAccept = NULL;
 	m_paiNumWondersBeatenTo = NULL;
 	m_pabArmyInPlaceForAttack = NULL;
+	m_pabEasyTarget = NULL;
 	m_pabWantsResearchAgreementWithPlayer = NULL;
 	m_pabWantToRouteToMinor = NULL;
 	m_paeWarFace = NULL;
@@ -1348,6 +1352,7 @@ void CvDiplomacyAI::Reset()
 	{
 		m_paiNumWondersBeatenTo[iI] = 0;
 		m_pabArmyInPlaceForAttack[iI] = false;
+		m_pabEasyTarget[iI] = false;
 
 		m_paeWantPeaceCounter[iI] = 0;
 
@@ -1506,6 +1511,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<bool> wrapm_pabArmyInPlaceForAttack(MAX_CIV_PLAYERS, m_pabArmyInPlaceForAttack);
 	kStream >> wrapm_pabArmyInPlaceForAttack;
+	
+	ArrayWrapper<bool> wrapm_pabEasyTarget(MAX_CIV_PLAYERS, m_pabEasyTarget);
+	kStream >> wrapm_pabEasyTarget;
 
 
 	ArrayWrapper<bool> wrapm_pabWantsResearchAgreementWithPlayer(MAX_MAJOR_CIVS, m_pabWantsResearchAgreementWithPlayer);
@@ -2190,6 +2198,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumWondersBeatenTo);
 	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabArmyInPlaceForAttack);
+	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabEasyTarget);
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabWantsResearchAgreementWithPlayer);
 	kStream << ArrayWrapper<bool>(MAX_MINOR_CIVS, m_pabWantToRouteToMinor);
@@ -2822,6 +2831,7 @@ void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 	DoUpdatePlotBuyingAggressivePostures();
 	DoTestPromises(); // Has any player gone back on any promises he made?
 	DoTestUntrustworthyFriends(); // Do we consider any players backstabbers?
+	DoUpdateEasyTargets(); // Are any players easy to attack?
 	
 	// Our guess as to other players' diplomatic stances
 	//DoUpdateOpinionTowardsUsGuesses();
@@ -4213,17 +4223,36 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	bool bAtWar = IsAtWar(ePlayer);
 
 	// Precalculate some expensive or otherwise useful checks
-	bool bEasyTarget = IsEasyTarget(ePlayer);
-	bool bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
-	// They're only an easy target if we're not already at war with somebody else.
-	// ...however, if we're already at war with them, let's keep this weight.
-	if (!bAtWar)
-	{
-		bEasyTarget = bEasyTarget && !bAtWarWithAtLeastOneMajor;
-	}
 	bool bUntrustworthy = IsTeamUntrustworthy(eTeam);
 	bool bRecklessExpander = IsPlayerRecklessExpander(ePlayer);
 	bool bWonderSpammer = IsPlayerWonderSpammer(ePlayer);
+	bool bEasyTarget = IsEasyTarget(ePlayer);
+	// They're only an easy target if we're not already at war with somebody else.
+	// ...however, if we're already at war with them, let's keep this weight.
+	if (bEasyTarget && !bAtWar)
+	{
+		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			
+			if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).getTeam() != eTeam && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWar(eLoopPlayer))
+			{
+				// Ignore players who aren't a serious threat.
+				if (IsEasyTarget(eLoopPlayer))
+					continue;
+				
+				// Disregard players who are far away and have no significant military near us (that we can tell)
+				if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
+				{
+					if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
+						continue;
+				}
+				
+				bEasyTarget = false;
+				break;
+			}
+		}
+	}
 
 	// Possessions
 	int iNumOurCaps = GetPlayer()->GetNumCapitalCities();
@@ -6243,21 +6272,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
 			{
-				if (GetWarState(eLoopPlayer) == WAR_STATE_CALM || GetWarState(eLoopPlayer) == WAR_STATE_STALEMATE)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
-				}
-				else if (GetWarState(eLoopPlayer) == WAR_STATE_DEFENSIVE || GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_DEFEATED)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
-				}
-
 				// Fighting together against a common foe?
 				if (GET_TEAM(eTeam).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) && (!bIsVassal || bVoluntaryVassalage))
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 				}
-				
+
 				// Is this guy a neighbor? We want neighbors on our good side if we're going to war with others
 				if (GET_PLAYER(ePlayer).GetProximityToPlayer(eMyPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
@@ -6270,6 +6290,40 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
+				}
+
+				////////////////////////////////////
+				// WAR STATE
+				////////////////////////////////////
+
+				// Not significantly war weary? We should ignore certain players for the war state check.
+				if (GetStateAllWars() != STATE_ALL_WARS_LOSING && !GetPlayer()->IsEmpireUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() < 10)
+				{
+					// Ignore players who aren't a serious threat.
+					if (IsEasyTarget(eLoopPlayer))
+					{
+						continue;
+					}
+					// Disregard players who are far away and have no significant military near us (that we can tell)
+					else if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
+					{
+						if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
+							continue;
+					}
+				}
+
+				// Let's not get into too many wars ...
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+
+				// Not winning? Let's be nicer.
+				if (GetWarState(eLoopPlayer) == WAR_STATE_CALM || GetWarState(eLoopPlayer) == WAR_STATE_STALEMATE)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
+				}
+				else if (GetWarState(eLoopPlayer) == WAR_STATE_DEFENSIVE || GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_DEFEATED)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2);
 				}
 			}
 		}
@@ -7006,7 +7060,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// WAR WEARINESS
 	////////////////////////////////////
 
-	if (GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireVeryUnhappy())
+	if (GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + (GetPlayer()->GetCulture()->GetWarWeariness() / 5));
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + (GetPlayer()->GetCulture()->GetWarWeariness() / 5));
@@ -11537,52 +11591,95 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		int iOurDanger = 0;
 		int iTheirDanger = 0;
 		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			if(pLoopCity == NULL)
+			if (pLoopCity == NULL)
 				continue;
+			
+			int iDangerMod = 0;
 
 			//look at the tactical map (is it up to date?)
 			CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
 			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iOurDanger++;
+				iDangerMod++;
 			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iOurDanger++;
+				iDangerMod++;
 
 			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBlockadedWaterAndLand())
-				iOurDanger++;
+				iDangerMod++;
 
 			if (pLoopCity->IsInDanger(ePlayer))
-				iOurDanger++;
+				iDangerMod++;
+			
+			if (pLoopCity->isCapital())
+				iDangerMod *= 3;
+			else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+				iDangerMod *= 2;
+			
+			iOurDanger += iDangerMod;
 		}
 
-		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
-			if(pLoopCity == NULL)
+			if (pLoopCity == NULL)
 				continue;
+			
+			int iDangerMod = 0;
 
 			//look at the tactical map (is it up to date?)
 			CvTacticalDominanceZone* pLandZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
 			
 			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iTheirDanger++;
+				iDangerMod++;
 			else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-				iTheirDanger++;
+				iDangerMod++;
 
 			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBlockadedWaterAndLand())
-				iTheirDanger++;
+				iDangerMod++;
 
 			if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
-				iTheirDanger++;
+				iDangerMod++;
+			
+			if (pLoopCity->isCapital())
+				iDangerMod *= 3;
+			else if (pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
+				iDangerMod *= 2;
+			
+			iTheirDanger += iDangerMod;
 		}
 		
 		iWantPeace += iOurDanger;
 		iWantPeace += (iTheirDanger * -1);
+		
+		// They're in danger and we're not? Let's hold out for a bit.
+		if (iOurDanger == 0 && iTheirDanger > 0)
+		{
+			iWantPeace -= 5;
+		}
 
-		//Lack of progress in war increases desire for peace.
-		iWantPeace += max(0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12 ); 
+		// If we want to destroy them, let's hold out longer.
+		if (GetWarGoal(ePlayer) == WAR_GOAL_CONQUEST)
+		{
+			iWantPeace -= 10;
+		}
+
+		// If they're about to win the game, let's hold out for a while.
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+		{
+			iWantPeace -= 20;
+		}
+
+		// Lack of progress in war increases desire for peace (doubly so if far away).
+		if (GetPlayer()->GetProximityToPlayer(ePlayer) < PLAYER_PROXIMITY_CLOSE)
+		{
+			iWantPeace += max(0, (GetPlayerNumTurnsSinceCityCapture(ePlayer) * 2) - 12);
+		}
+		else
+		{
+			iWantPeace += max(0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12);
+		}
 
 		//Num of turns since they captured a city?
 		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
@@ -11715,7 +11812,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		bWantToAttack = (GetMinorCivApproach(eTargetPlayer) == MINOR_CIV_APPROACH_CONQUEST);
 		
 		// Don't get into multiple wars at once (unless this is an easy target)
-		if (bWantToAttack && !IsEasyTarget(eTargetPlayer, /*bOtherPlayerEstimate*/ false))
+		if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
 		{
 			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
 		}
@@ -11742,7 +11839,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 		
 		// Don't get into multiple wars at once (unless this is an easy target)
-		if (bWantToAttack && !IsEasyTarget(eTargetPlayer, /*bOtherPlayerEstimate*/ false))
+		if (bWantToAttack && !IsEasyTarget(eTargetPlayer))
 		{
 			bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor;
 		}
@@ -12175,6 +12272,397 @@ void CvDiplomacyAI::SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue)
 
 	if (bValue)
 		DoTestDemandReady();
+}
+
+/// Is this player an easy attack target?
+bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabEasyTarget[ePlayer];
+}
+
+/// Sets whether or not this player is an easy attack target
+void CvDiplomacyAI::SetEasyTarget(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_pabEasyTarget[ePlayer] = bValue;
+}
+
+/// Updates whether all players are easy attack targets
+void CvDiplomacyAI::DoUpdateEasyTargets()
+{
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (IsPlayerValid(eLoopPlayer))
+		{
+			bool bValue = DoTestOnePlayerEasyTarget(eLoopPlayer);
+			SetEasyTarget(eLoopPlayer, bValue);
+		}
+	}
+}
+
+/// Is this player an easy attack target?
+bool CvDiplomacyAI::DoTestOnePlayerEasyTarget(PlayerTypes ePlayer)
+{
+	if (!IsPlayerValid(ePlayer))
+		return false;
+	
+	WarStateTypes eWarState = GetWarState(ePlayer);
+	
+	if (eWarState == WAR_STATE_NEARLY_WON)
+		return true;
+	
+	// If we're defensive in our war against them, they can't be an easy target
+	if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+		return false;
+	
+	// If we're doing very badly, they can't be an easy target
+	if (GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
+		return false;
+	
+#if defined(MOD_BALANCE_CORE)
+	// Nuclear Gandhi always sees vulnerability in his opponents...
+	if (IsNuclearGandhiEnabled() && !GetPlayer()->isHuman() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0 && GetPlayer()->getNumNukeUnits() > 0)
+		return true;
+#endif
+	
+	// If they're too far away, they can't be an easy target
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
+		return false;
+	
+	// If we've been at war for a while without capturing any of their cities, they can't be an easy target
+	if (GetPlayerNumTurnsAtWar(ePlayer) >= 30 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 30)
+		return false;
+	
+	// War score too negative?
+	if (GetWarScore(ePlayer) < -15)
+		return false;
+	
+	// If we're bankrupt, they can't be an easy target
+	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
+	{
+		if (GET_PLAYER(ePlayer).isMajorCiv())
+		{
+			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	// If we're at a stalemate or defensive in a war against any other players, they can't be an easy target
+	int iPlayerLoop;
+	PlayerTypes eLoopPlayer;
+	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		// Don't look at the guy we're already thinking about
+		if (IsPlayerValid(eLoopPlayer) && ePlayer != eLoopPlayer)
+		{
+			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			{
+				// Disregard players who are far away and have no significant military near us (that we can tell)
+				if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) <= PLAYER_PROXIMITY_FAR)
+				{
+					if (GetWarScore(eLoopPlayer) >= -10 && GetMilitaryAggressivePosture(eLoopPlayer) <= AGGRESSIVE_POSTURE_LOW && GetNumberOfThreatenedCities(eLoopPlayer) <= 0)
+						continue;
+				}
+				
+				if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
+				{
+					if (GetWarState(eLoopPlayer) == WAR_STATE_DEFENSIVE || GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_DEFEATED)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (GetWarState(eLoopPlayer) <= WAR_STATE_STALEMATE) // if we're at a stalemate in this war, don't open ourselves up to dogpiling
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+	
+	// Minor civ
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if (GetBoldness() > 6)
+		{
+			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	
+	// Major civ
+	// First check the overall strength estimate (bold AIs will be more aggressive)
+	if (GetBoldness() > 6)
+	{
+		if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_IMPOSSIBLE)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (GetPlayerTargetValue(ePlayer) <= TARGET_VALUE_BAD)
+		{
+			return false;
+		}
+	}
+	
+	bool bWantsConquest = false;
+	
+	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
+	
+	if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_SOFT || GetWarProjection(ePlayer) == WAR_PROJECTION_VERY_GOOD ||
+		eMilitaryStrength == STRENGTH_PATHETIC || eEconomicStrength == STRENGTH_PATHETIC)
+	{
+		return true;
+	}
+	
+	if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
+	{
+		// If we would go bankrupt by declaring war on them, they can't be an easy target
+		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
+		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
+		
+		if (iLostGoldPerTurn > 0 && iAdjustedGoldPerTurn < 0)
+		{
+#if defined(MOD_BALANCE_CORE)
+			// Factor in instant yields into our income as well (average of recent turns)
+			int iTurn = GC.getGame().getGameTurn();
+			int iGoldAverage = 0;
+			for (int iI = 0; iI < 10; iI++)
+			{
+				int iYieldTurn = iTurn - iI;
+				if (iYieldTurn <= 0)
+					continue;
+
+				iGoldAverage += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
+			}
+
+			iGoldAverage /= 10;
+
+			iAdjustedGoldPerTurn += iGoldAverage;
+#endif
+
+			iAdjustedGoldPerTurn *= 100; // multiply x100 to avoid rounding errors
+
+			if (iAdjustedGoldPerTurn < 0)
+			{
+				// Flip it!
+				iAdjustedGoldPerTurn *= -1;
+
+				int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max(iAdjustedGoldPerTurn, 1);
+
+				if (iTurnsUntilBankruptcy <= 30)
+				{
+					return false;
+				}
+			}
+		}
+	}
+	
+	bool bUnhappinessBoost = false;
+	bool bUnhappinessKnown = false;
+	
+	if (GET_PLAYER(ePlayer).IsEmpireUnhappy())
+	{
+		// Do we know this player's unhappiness level? No cheating!
+		// At war with them?
+		if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+		{
+			bUnhappinessKnown = true;
+		}
+		// Spying on them?
+		else if (GetPlayer()->GetEspionage()->IsAnySurveillanceEstablished(ePlayer))
+		{
+			bUnhappinessKnown = true;
+		}
+		// Lowest happiness of any civ? Humans can check this in the Demographics panel.
+		else
+		{
+			int iWorst = 100;
+			int iHappiness = 0;
+			
+			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				// Don't look at the guy we're already thinking about
+				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && ePlayer != eLoopPlayer)
+				{
+					iHappiness = GET_PLAYER(eLoopPlayer).GetExcessHappiness();
+					
+					if (iHappiness < iWorst)
+					{
+						iWorst = iHappiness;
+					}
+				}
+			}
+			
+			if (GET_PLAYER(ePlayer).GetExcessHappiness() < iWorst)
+			{
+				bUnhappinessKnown = true;
+			}
+		}
+		
+		if (bUnhappinessKnown) // note that if we've come this far in the function, we can't be very unhappy or worse
+		{
+			// If they're super unhappy, easy target
+			if (GET_PLAYER(ePlayer).IsEmpireSuperUnhappy())
+			{
+				return true;
+			}
+			// If we're at 100% approval and they're unhappy, easy target
+			else if (GetPlayer()->GetExcessHappiness() >= 100)
+			{
+				return true;
+			}
+			// If we're not unhappy and they're very unhappy, easy target
+			else if (!GetPlayer()->IsEmpireUnhappy() && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
+			{
+				return true;
+			}
+			// If we're unhappy and they're very unhappy, boost target value
+			else if (GetPlayer()->IsEmpireUnhappy() && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
+			{
+				bUnhappinessBoost = true;
+			}
+			// If they're unhappy and we're not, let's boost target value
+			else if (!GetPlayer()->IsEmpireUnhappy())
+			{
+				bUnhappinessBoost = true;
+			}
+		}
+	}
+	
+	if (GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN && GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
+	{
+		bWantsConquest = true;
+	}
+	else if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
+	{
+		bWantsConquest = true;
+	}
+	else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
+	{
+		bWantsConquest = true;
+	}
+	else if (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer))
+	{
+		bWantsConquest = true;
+	}
+	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+	{
+		bWantsConquest = true;
+	}
+	
+	bool bAtWarWithAtLeastOneMajor = false;
+	bool bAtLeastTwoConditions = false;
+	
+	if (!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
+	}
+	
+	// Compare military and economic strengths to look for opportunities to strike
+	// We sense more opportunities to attack our biggest competitor, people we want to conquer, or players with unhappy empires
+	if ((GetBiggestCompetitor() == ePlayer || bWantsConquest || bUnhappinessBoost) && !bAtWarWithAtLeastOneMajor)
+	{
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
+		{
+			bAtLeastTwoConditions = true;
+		}
+		else if (GetBiggestCompetitor() == ePlayer)
+		{
+			if (bWantsConquest || bUnhappinessBoost)
+			{
+				bAtLeastTwoConditions = true;
+			}
+		}
+		else if (bWantsConquest)
+		{
+			if (GetBiggestCompetitor() == ePlayer || bUnhappinessBoost)
+			{
+				bAtLeastTwoConditions = true;
+			}
+		}
+		else if (bUnhappinessBoost)
+		{
+			if (GetBiggestCompetitor() == ePlayer || bWantsConquest)
+			{
+				bAtLeastTwoConditions = true;
+			}
+		}
+		
+		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POOR)
+		{
+			return true;
+		}
+		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_POWERFUL)
+		{
+			return true;
+		}
+		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_POWERFUL)
+		{
+			return true;
+		}
+		
+		if (bAtLeastTwoConditions)
+		{
+			if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_STRONG)
+			{
+				return true;
+			}
+			if (eEconomicStrength <= STRENGTH_POOR && eMilitaryStrength <= STRENGTH_STRONG)
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_AVERAGE)
+		{
+			return true;
+		}
+		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_AVERAGE)
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 /// Player was attacked by another!  Change appropriate diplomacy stuff
@@ -15003,7 +15491,7 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 		return false;
 	
 	// They're an easy target, so play offensively!
-	if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false))
+	if (GetPlayer()->GetDiplomacyAI()->IsEasyTarget(ePlayer))
 	{
 		return true;
 	}
@@ -17330,7 +17818,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDoFWeight += -10;
 			}
 
-			bool bEasyTarget = IsEasyTarget(ePlayer, /*bOtherPlayerEstimate*/ false);
+			bool bEasyTarget = IsEasyTarget(ePlayer);
 			
 			// Easy targets don't make good DPs
 			if (bEasyTarget)
@@ -19090,354 +19578,6 @@ bool CvDiplomacyAI::IsMajorCompetitor(PlayerTypes ePlayer) const
 		}
 	}
 
-	return false;
-}
-
-/// Is this player an easy attack target?
-bool CvDiplomacyAI::IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate)
-{
-	if (!IsPlayerValid(ePlayer))
-		return false;
-	
-	if (GetWarState(ePlayer) == WAR_STATE_NEARLY_WON)
-		return true;
-	
-	// If we're defensive in our war against them, they can't be an easy target
-	if (GetWarState(ePlayer) != NO_WAR_STATE_TYPE && GetWarState(ePlayer) <= WAR_STATE_DEFENSIVE)
-		return false;
-	
-	// If we're doing very badly, they can't be an easy target
-	if (GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
-		return false;
-	
-#if defined(MOD_BALANCE_CORE)
-	// Nuclear Gandhi always sees vulnerability in his opponents...
-	if (IsNuclearGandhiEnabled() && !GetPlayer()->isHuman() && GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0 && GetPlayer()->getNumNukeUnits() > 0)
-		return true;
-#endif
-	
-	// If they're too far away, they can't be an easy target
-	if (GetPlayer()->GetProximityToPlayer(ePlayer) <= PLAYER_PROXIMITY_FAR)
-		return false;
-	
-	// If we're bankrupt, they can't be an easy target
-	if (GetPlayer()->GetTreasury()->GetGold() <= 0 && GetPlayer()->calculateGoldRate() <= 0)
-	{
-		if (GET_PLAYER(ePlayer).isMajorCiv())
-		{
-			if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition())
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-	
-	// If we're at a stalemate or defensive in a war against any other players, they can't be an easy target
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
-	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		// Don't look at the guy we're already thinking about
-		if (IsPlayerValid(eLoopPlayer) && ePlayer != eLoopPlayer)
-		{
-			if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-				if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
-				{
-					if (GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
-					{
-						return false;
-					}
-				}
-				else
-				{
-					if (GetWarState(eLoopPlayer) <= WAR_STATE_CALM) // if we're not offensive in this war, don't open ourselves up to dogpiling
-					{
-						return false;
-					}
-				}
-			}
-		}
-	}
-	
-	// Minor civ
-	if (GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		if (GetBoldness() > 6)
-		{
-			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_FAVORABLE)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-	}
-	
-	// Major civ
-	// First check the overall strength estimate (bold AIs will be more aggressive)
-	if (GetBoldness() > 6)
-	{
-		if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_IMPOSSIBLE)
-		{
-			return false;
-		}
-	}
-	else
-	{
-		if (GetPlayerTargetValue(ePlayer) <= TARGET_VALUE_BAD)
-		{
-			return false;
-		}
-	}
-	
-	bool bWantsConquest = false;
-	
-	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
-	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
-	
-	if (GetPlayerTargetValue(ePlayer) == TARGET_VALUE_SOFT || GetWarProjection(ePlayer) == WAR_PROJECTION_VERY_GOOD ||
-		eMilitaryStrength == STRENGTH_PATHETIC || eEconomicStrength == STRENGTH_PATHETIC)
-	{
-		return true;
-	}
-	
-	if (!bOtherPlayerEstimate && (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() || IsNoVictoryCompetition()))
-	{
-		// If we would go bankrupt by declaring war on them, they can't be an easy target
-		int iLostGoldPerTurn = CalculateGoldPerTurnLostFromWar(ePlayer, /*bOtherPlayerEstimate*/ false, /*bIgnoreDPs*/ false);
-		int iAdjustedGoldPerTurn = GetPlayer()->calculateGoldRate() - iLostGoldPerTurn;
-		
-		if (iLostGoldPerTurn > 0 && iAdjustedGoldPerTurn < 0)
-		{
-#if defined(MOD_BALANCE_CORE)
-			// Factor in instant yields into our income as well (average of recent turns)
-			int iTurn = GC.getGame().getGameTurn();
-			int iGoldAverage = 0;
-			for (int iI = 0; iI < 10; iI++)
-			{
-				int iYieldTurn = iTurn - iI;
-				if (iYieldTurn <= 0)
-					continue;
-
-				iGoldAverage += GetPlayer()->getInstantYieldValue(YIELD_GOLD, iYieldTurn);
-			}
-
-			iGoldAverage /= 10;
-
-			iAdjustedGoldPerTurn += iGoldAverage;
-#endif
-
-			iAdjustedGoldPerTurn *= 100; // multiply x100 to avoid rounding errors
-
-			if (iAdjustedGoldPerTurn < 0)
-			{
-				// Flip it!
-				iAdjustedGoldPerTurn *= -1;
-
-				int iTurnsUntilBankruptcy = GetPlayer()->GetTreasury()->GetGoldTimes100() / max(iAdjustedGoldPerTurn, 1);
-
-				if (iTurnsUntilBankruptcy <= 30)
-				{
-					return false;
-				}
-			}
-		}
-	}
-	
-	bool bUnhappinessBoost = false;
-	bool bUnhappinessKnown = false;
-	
-	if (GET_PLAYER(ePlayer).IsEmpireUnhappy())
-	{
-		// Do we know this player's unhappiness level? No cheating!
-		// At war with them?
-		if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-		{
-			bUnhappinessKnown = true;
-		}
-		// Spying on them?
-		else if (GetPlayer()->GetEspionage()->IsAnySurveillanceEstablished(ePlayer))
-		{
-			bUnhappinessKnown = true;
-		}
-		// Lowest happiness of any civ? Humans can check this in the Demographics panel.
-		else
-		{
-			int iWorst = 100;
-			int iHappiness = 0;
-			
-			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				// Don't look at the guy we're already thinking about
-				if (GET_PLAYER(eLoopPlayer).isMajorCiv() && ePlayer != eLoopPlayer)
-				{
-					iHappiness = GET_PLAYER(eLoopPlayer).GetExcessHappiness();
-					
-					if (iHappiness < iWorst)
-					{
-						iWorst = iHappiness;
-					}
-				}
-			}
-			
-			if (GET_PLAYER(ePlayer).GetExcessHappiness() < iWorst)
-			{
-				bUnhappinessKnown = true;
-			}
-		}
-		
-		if (bUnhappinessKnown) // note that if we've come this far in the function, we can't be very unhappy or worse
-		{
-			// If they're super unhappy, easy target
-			if (GET_PLAYER(ePlayer).IsEmpireSuperUnhappy())
-			{
-				return true;
-			}
-			// If we're at 100% approval and they're unhappy, easy target
-			else if (GetPlayer()->GetExcessHappiness() >= 100)
-			{
-				return true;
-			}
-			// If we're not unhappy and they're very unhappy, easy target
-			else if (!GetPlayer()->IsEmpireUnhappy() && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
-			{
-				return true;
-			}
-			// If we're unhappy and they're very unhappy, boost target value
-			else if (GetPlayer()->IsEmpireUnhappy() && GET_PLAYER(ePlayer).IsEmpireVeryUnhappy())
-			{
-				bUnhappinessBoost = true;
-			}
-			// If they're unhappy and we're not, let's boost target value
-			else if (!GetPlayer()->IsEmpireUnhappy())
-			{
-				bUnhappinessBoost = true;
-			}
-		}
-	}
-	
-	if (GetWarProjection(ePlayer) > WAR_PROJECTION_UNKNOWN && GetMajorCivOpinion(ePlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
-	{
-		bWantsConquest = true;
-	}
-	else if (IsGoingForWorldConquest() || IsCloseToDominationVictory())
-	{
-		bWantsConquest = true;
-	}
-	else if (GetPlayer()->GetDiplomacyAI()->IsLockedIntoCoopWar(ePlayer))
-	{
-		bWantsConquest = true;
-	}
-	else if (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer))
-	{
-		bWantsConquest = true;
-	}
-	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
-	{
-		bWantsConquest = true;
-	}
-	
-	bool bAtWarWithAtLeastOneMajor = false;
-	bool bAtLeastTwoConditions = false;
-	
-	if (!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-	{
-		bAtWarWithAtLeastOneMajor = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer, false);
-	}
-	
-	// Compare military and economic strengths to look for opportunities to strike
-	// We sense more opportunities to attack our biggest competitor, people we want to conquer, or players with unhappy empires
-	if ((GetBiggestCompetitor() == ePlayer || bWantsConquest || bUnhappinessBoost) && !bAtWarWithAtLeastOneMajor && !bOtherPlayerEstimate)
-	{
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition() && !IsNoVictoryCompetition())
-		{
-			bAtLeastTwoConditions = true;
-		}
-		else if (GetBiggestCompetitor() == ePlayer)
-		{
-			if (bWantsConquest || bUnhappinessBoost)
-			{
-				bAtLeastTwoConditions = true;
-			}
-		}
-		else if (bWantsConquest)
-		{
-			if (GetBiggestCompetitor() == ePlayer || bUnhappinessBoost)
-			{
-				bAtLeastTwoConditions = true;
-			}
-		}
-		else if (bUnhappinessBoost)
-		{
-			if (GetBiggestCompetitor() == ePlayer || bWantsConquest)
-			{
-				bAtLeastTwoConditions = true;
-			}
-		}
-		
-		if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_POOR)
-		{
-			return true;
-		}
-		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_POWERFUL)
-		{
-			return true;
-		}
-		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_POWERFUL)
-		{
-			return true;
-		}
-		
-		if (bAtLeastTwoConditions)
-		{
-			if (eMilitaryStrength <= STRENGTH_POOR && eEconomicStrength <= STRENGTH_STRONG)
-		{
-			return true;
-		}
-			if (eEconomicStrength <= STRENGTH_POOR && eMilitaryStrength <= STRENGTH_STRONG)
-		{
-			return true;
-		}
-	}
-	}
-	else
-	{
-		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_WEAK)
-		{
-			return true;
-		}
-		if (eMilitaryStrength <= STRENGTH_WEAK && eEconomicStrength <= STRENGTH_AVERAGE)
-		{
-			return true;
-		}
-		if (eEconomicStrength <= STRENGTH_WEAK && eMilitaryStrength <= STRENGTH_AVERAGE)
-		{
-			return true;
-		}
-	}
-	
 	return false;
 }
 #endif
@@ -35536,7 +35676,11 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		return 0;
 #endif
 	// Only players we've met, are alive, etc.
-	if(!IsPlayerValid(eTargetPlayer))
+	if (!IsPlayerValid(eTargetPlayer))
+		return 0;
+	
+	// We have no cities? Yeah, we're not going to war anytime soon.
+	if (GetPlayer()->getNumCities() == 0)
 		return 0;
 	
 	// Not our friends or DPs
@@ -35551,7 +35695,7 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		return 0;
 
 	// Don't start wars with backstabbers.
-	if (IsUntrustworthyFriend(ePlayer))
+	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
 		return 0;
 	
 	// AI teammates of humans should never do this on their own.
@@ -35567,16 +35711,24 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 			PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
 			if (IsPlayerValid(eWarPlayer) && eWarPlayer != eTargetPlayer && !GET_PLAYER(eWarPlayer).isMinorCiv())
 			{
-				if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
+				if (GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 				{
-					WarStateTypes eWarState = GetWarState(eWarPlayer);
-					if (eWarState <= WAR_STATE_STALEMATE)
+					if (!IsEasyTarget(eWarPlayer))
 					{
-						return 0;
-					}
-					else if (eWarState == WAR_STATE_CALM && GetWarProjection(eWarPlayer) <= WAR_PROJECTION_STALEMATE)
-					{
-						return 0;
+						WarStateTypes eWarState = GetWarState(eWarPlayer);
+						if (eWarState <= WAR_STATE_CALM)
+						{
+							if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED)
+								return 0;
+
+							if (GetWarProjection(eWarPlayer) <= WAR_PROJECTION_STALEMATE)
+							{
+								if (GetPlayer()->GetProximityToPlayer(eWarPlayer) >= PLAYER_PROXIMITY_CLOSE)
+									return 0;
+								else if (GetWarScore(eWarPlayer) < -10 || GetMilitaryAggressivePosture(eWarPlayer) > AGGRESSIVE_POSTURE_LOW || GetNumberOfThreatenedCities(eWarPlayer) > 0)
+									return 0;
+							}
+						}
 					}
 				}
 			}

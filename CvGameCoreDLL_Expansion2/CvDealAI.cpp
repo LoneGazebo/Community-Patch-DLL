@@ -3346,7 +3346,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		
 		// Not an easy target? Halve the value.
-		if (!pDiploAI->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
+		if (!pDiploAI->IsEasyTarget(eWithPlayer))
 		{
 			iItemValue /= 2;
 		}
@@ -3449,20 +3449,9 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		
 		// Not an easy target? Halve the value.
-		if (GET_PLAYER(eOtherPlayer).isHuman())
+		if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer))
 		{
-			if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
-			{
-				iItemValue /= 2;
-			}
-		}
-		// Assume AIs will share relevant information with each other when deciding on a price.
-		else
-		{
-			if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
-			{
-				iItemValue /= 2;
-			}
+			iItemValue /= 2;
 		}
 	}
 #endif
@@ -3923,7 +3912,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			
 			// Easy target? Halve the value.
-			if (pDiploAI->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
+			if (pDiploAI->IsEasyTarget(eWithPlayer))
 			{
 				iItemValue /= 2;
 			}
@@ -4141,20 +4130,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		}
 
 		// Easy target? Halve the value.
-		if (GET_PLAYER(eOtherPlayer).isHuman())
+		if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer))
 		{
-			if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ true))
-			{
-				iItemValue /= 2;
-			}
-		}
-		// Assume AIs will share relevant information with each other when deciding on a price.
-		else
-		{
-			if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsEasyTarget(eWithPlayer, /*bOtherPlayerEstimate*/ false))
-			{
-				iItemValue /= 2;
-			}
+			iItemValue /= 2;
 		}
 #endif
 	}
