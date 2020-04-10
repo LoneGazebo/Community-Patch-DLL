@@ -7928,12 +7928,15 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				GetPlayer()->SetApproachScratchValue(ePlayer, eLoopApproach, iAverage);
 			}
 		}
-		else if (bUpdate) // ignoring the approach curve for some reason, so just use this turn's value as the average
+		else
 		{
-			GetPlayer()->SetApproachScratchValue(ePlayer, eLoopApproach, iApproachValue);
-			
 			if (iApproachValue > 0)
 				bAllZero = false;
+
+			if (bUpdate) // ignoring the approach curve for some reason, so just use this turn's value as the average
+			{
+				GetPlayer()->SetApproachScratchValue(ePlayer, eLoopApproach, iApproachValue);
+			}
 		}
 	}
 
