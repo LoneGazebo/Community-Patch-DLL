@@ -5390,7 +5390,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (bCultural || bCulturalTraits)
 	{
 		iMultiplier++;
-		if (iEra >= 3 || bDiplomatTraits)
+		if (iEra >= 3 || bCulturalTraits)
 			bBonus = true;
 	}
 	if (iEra >= 3 && bGoingForCultureVictory)
