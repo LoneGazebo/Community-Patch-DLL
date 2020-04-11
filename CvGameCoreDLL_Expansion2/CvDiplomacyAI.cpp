@@ -6580,12 +6580,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		{
 			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 			viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2);
-			
-			// Bold/mean AIs and those with war bonuses like people who mind their own business
-			if (GetBoldness() > 6 || GetMeanness() > 6 || bConqueror || bConquerorTraits)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-			}
 
 			// Diplomatic/cultural civs are more likely to be friendly
 			if (bDiplomat || bCultural)
