@@ -566,6 +566,7 @@ public:
 	
 	bool IsStrategicTradePartner(PlayerTypes ePlayer) const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
+	bool IsEarlyGameCompetitor(PlayerTypes ePlayer);
 #endif
 
 	// Victory Dispute
