@@ -5021,21 +5021,24 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				iStrengthFactor *= 2; // Strong: +2, Powerful: +4, Immense: +6
 				
 				// Proximity is important
-				if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				switch (GetPlayer()->GetProximityToPlayer(eLoopPlayer))
 				{
+				case PLAYER_PROXIMITY_NEIGHBORS:
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iStrengthFactor);
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iStrengthFactor);
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iStrengthFactor);
-				}
-				else if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_CLOSE)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iStrengthFactor) / 2);
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iStrengthFactor) / 2);
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iStrengthFactor) / 2);
-				}
-				else
-				{
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2) + iStrengthFactor);
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] / 2) + iStrengthFactor);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] / 2) + iStrengthFactor);
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2) + iStrengthFactor);
+					break;
+				case PLAYER_PROXIMITY_DISTANT:
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2);
+					break;
 				}
 			}
 		}
