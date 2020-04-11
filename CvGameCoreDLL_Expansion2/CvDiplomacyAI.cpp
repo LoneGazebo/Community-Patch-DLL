@@ -5020,8 +5020,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				int iStrengthFactor = ((int) GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) - 3);
 				iStrengthFactor *= 2; // Strong: +2, Powerful: +4, Immense: +6
 				
-				viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iStrengthFactor);
-				
 				// Proximity is important
 				if (GetPlayer()->GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
@@ -5034,6 +5032,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iStrengthFactor) / 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iStrengthFactor) / 2);
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= ((viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iStrengthFactor) / 2);
+				}
+				else
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] / 2);
 				}
 			}
 		}
