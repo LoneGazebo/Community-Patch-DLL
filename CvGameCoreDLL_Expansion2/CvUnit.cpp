@@ -2398,43 +2398,43 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 #if defined(MOD_BALANCE_CORE)
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-			if(iEra <= 0)
-			{
-				iEra = 1;
-			}
+			if (iEra < 0)
+				iEra = 0;
+
+			// AI cares less about lost workers / etc in lategame
+			int iEraFactor = 8 - iEra;
+			if (iEraFactor <= 0)
+				iEraFactor = 1;
+
 			int iCivValue = 0;
-			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
+			if (IsCivilianUnit() && pPlot && !pPlot->isCity()) // Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
 			{
 				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
 				{
-					if(IsGreatPerson())
-						iCivValue = 3 * iEra;
-					else
-						iCivValue = iEra;
-				}
-			}
-			else if (IsCivilianUnit() && pPlot && pPlot->isCity() && GetOriginalOwner() == getOwner())
-			{
-				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
-				{
-					if(IsGreatPerson())
+					if (IsGreatPerson())
 					{
-						iCivValue = 2 * iEra;
+						iCivValue = 5 * iEraFactor;
+					}
+					else if (isFound() || IsFoundAbroad())
+					{
+						iCivValue = 3 * iEraFactor;
+					}
+					else
+					{
+						iCivValue = iEraFactor;
 					}
 				}
 			}
 
 			if (GC.getGame().getGameTurn() <= 100)
-				iCivValue *= 10;
+			{
+				iCivValue *= 2;
+			}
 
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			// Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
-			if (!plot()->isCity())
-			{
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
-			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)

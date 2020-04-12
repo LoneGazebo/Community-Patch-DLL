@@ -260,6 +260,12 @@ public:
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
 	void SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue);
+	
+	// Easy Target: Is this player an easy attack target?
+	bool IsEasyTarget(PlayerTypes ePlayer) const;
+	void SetEasyTarget(PlayerTypes ePlayer, bool bValue);
+	void DoUpdateEasyTargets();
+	bool DoTestOnePlayerEasyTarget(PlayerTypes ePlayer);
 
 	// Set default values when we're attacked and its not our turn
 	void DoSomeoneDeclaredWarOnMe(TeamTypes eTeam);
@@ -560,7 +566,7 @@ public:
 	
 	bool IsStrategicTradePartner(PlayerTypes ePlayer) const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
-	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate = false);
+	bool IsEarlyGameCompetitor(PlayerTypes ePlayer);
 #endif
 
 	// Victory Dispute
@@ -1722,6 +1728,7 @@ private:
 		char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
 		short m_aiNumWondersBeatenTo[REALLY_MAX_PLAYERS];
 		bool m_abArmyInPlaceForAttack[REALLY_MAX_PLAYERS];
+		bool m_abEasyTarget[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDoFWithPlayer[MAX_MAJOR_CIVS];
@@ -2070,6 +2077,7 @@ private:
 
 	short* m_paiNumWondersBeatenTo;
 	bool* m_pabArmyInPlaceForAttack;
+	bool* m_pabEasyTarget;
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
 #if defined(MOD_BALANCE_CORE_DEALS)
