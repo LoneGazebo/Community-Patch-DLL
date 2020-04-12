@@ -1029,7 +1029,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		//check terrain and territory - only if not visible, otherwise it has been checked above already
 		if (!pToPlot->isVisible(eTeam))
 		{
-			if(!pUnit->canEnterTerrain(*pToPlot))
+			if(!pUnit->canEnterTerrain(*pToPlot,CvUnit::MOVEFLAG_DESTINATION))
 				return FALSE;
 
 			if(!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) && !pUnit->canEnterTerritory(pToPlot->getTeam(),true))
@@ -1395,7 +1395,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//special: cannot attack out of a fort or city with melee ships (ranged ships cannot attack from cities as well)
-				if (kFromNodeCacheData.bIsNonNativeDomain && pUnit->getDomainType()==DOMAIN_SEA)
+				if (bNextNodeHostile && kFromNodeCacheData.bIsNonNativeDomain && pUnit->getDomainType()==DOMAIN_SEA)
 					return FALSE;
 			}
 
