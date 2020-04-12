@@ -386,6 +386,7 @@
 
 #define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
 #define MOD_ISKA_PANTHEONS							gCustomMods.isISKA_PANTHEONS()
+#define MOD_ISKA_GAMEOPTIONS							gCustomMods.isISKA_GAMEOPTIONS()
 
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -1718,6 +1719,7 @@ public:
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
+	MOD_OPT_DECL(ISKA_GAMEOPTIONS);
 
 	MOD_OPT_DECL(BATTLE_ROYALE);
 
