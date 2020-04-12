@@ -19786,9 +19786,6 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
 		return true;
 
-	if (IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer))
-		return true;
-
 	return false;
 }
 #endif
