@@ -16262,123 +16262,6 @@ void CvDiplomacyAI::SetEstimateOtherPlayerLandDisputeLevel(PlayerTypes ePlayer, 
 	m_ppaaeOtherPlayerLandDisputeLevel[ePlayer][eWithPlayer] = eDisputeLevel;
 }
 
-double CvDiplomacyAI::CalculateMedianNumCities()
-{
-	if (GC.getGame().countMajorCivsAlive() < 2)
-		return GetPlayer()->getNumCities();
-
-	double fMedianNumCities = 0;
-	vector<int> viCityCounts;
-	int iNumPlayers = 0;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer* pPlayer = &GET_PLAYER(eLoopPlayer);
-
-		// Dead or no cities
-		if (!pPlayer->isMajorCiv() || !pPlayer->isAlive() || pPlayer->getNumCities() == 0)
-			continue;
-
-		iNumPlayers++;
-		viCityCounts.push_back(pPlayer->getNumCities());
-	}
-
-	// Find the median value for city count
-	std::sort(viCityCounts.begin(), viCityCounts.end());
-
-	int iElement = (iNumPlayers / 2);
-
-	if (iNumPlayers % 2 == 0) // even
-	{
-		fMedianNumCities = ((viCityCounts.at(iElement) + viCityCounts.at(iElement+1)) / 2);
-	}
-	else // odd
-	{
-		fMedianNumCities = viCityCounts.at(iElement+1);
-	}
-
-	return fMedianNumCities;
-}
-
-double CvDiplomacyAI::CalculateMedianNumPlots()
-{
-	if (GC.getGame().countMajorCivsAlive() < 2)
-		return GetPlayer()->getTotalLand();
-
-	double fMedianNumPlots = 0;
-	vector<int> viPlotCounts;
-	int iNumPlayers = 0;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer* pPlayer = &GET_PLAYER(eLoopPlayer);
-
-		// Dead or no plots
-		if (!pPlayer->isMajorCiv() || !pPlayer->isAlive() || pPlayer->getTotalLand() == 0)
-			continue;
-
-		iNumPlayers++;
-		viPlotCounts.push_back(pPlayer->getTotalLand());
-	}
-
-	// Find the median value for plot count
-	std::sort(viPlotCounts.begin(), viPlotCounts.end());
-
-	int iElement = (iNumPlayers / 2);
-
-	if (iNumPlayers % 2 == 0) // even
-	{
-		fMedianNumPlots = ((viPlotCounts.at(iElement) + viPlotCounts.at(iElement+1)) / 2);
-	}
-	else // odd
-	{
-		fMedianNumPlots = viPlotCounts.at(iElement+1);
-	}
-
-	return fMedianNumPlots;
-}
-
-double CvDiplomacyAI::CalculateMedianNumWondersConstructed()
-{
-	if (GC.getGame().countMajorCivsAlive() < 2)
-		return GetPlayer()->GetWondersConstructed();
-
-	double fMedianNumWonders = 0;
-	vector<int> viWonderCounts;
-	int iNumPlayers = 0;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer* pPlayer = &GET_PLAYER(eLoopPlayer);
-
-		// Only major civs who have built Wonders are counted
-		if (!pPlayer->isMajorCiv() || pPlayer->GetWondersConstructed() <= 0)
-			continue;
-
-		iNumPlayers++;
-		viWonderCounts.push_back(pPlayer->GetWondersConstructed());
-	}
-
-	// Find the median value for Wonders built
-	std::sort(viWonderCounts.begin(), viWonderCounts.end());
-
-	int iElement = (iNumPlayers / 2);
-
-	if (iNumPlayers % 2 == 0) // even
-	{
-		fMedianNumWonders = ((viWonderCounts.at(iElement) + viWonderCounts.at(iElement+1)) / 2);
-	}
-	else // odd
-	{
-		fMedianNumWonders = viWonderCounts.at(iElement+1);
-	}
-
-	return fMedianNumWonders;
-}
-
 /// Is ePlayer expanding recklessly?
 bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 {
@@ -16413,8 +16296,8 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 			return false;
 	}
 
-	double fMedianNumCities = CalculateMedianNumCities();
-	double fMedianNumPlots = CalculateMedianNumPlots();
+	int iMedianNumCities = GC.getGame().CalculateMedianNumCities();
+	int iMedianNumPlots = GC.getGame().CalculateMedianNumPlots();
 	double fAverageNumCities = 0;
 	double fAverageNumPlots = 0;
 	int iNumPlayers = 0;
@@ -16442,31 +16325,25 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	fAverageNumCities /= max(1, iNumPlayers);
 	fAverageNumPlots /= max(1, iNumPlayers);
 
-	bool bTooManyCities = false;
-	bool bTooManyPlots = false;
-
 	// Do they have way more cities than the average player in the game?
-	if ((iNumCities*100) < (fMedianNumCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD()))
+	if ((iNumCities*100) < (iMedianNumCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD()))
 	{
 		// Must also have at least 50% more than the global average, just to prevent anything stupid
 		if (iNumCities < (fAverageNumCities * 1.5))
 		{
-			bTooManyCities = true;
+			return true;
 		}
 	}
 
 	// Do they have way more land than the average player in the game?
-	if ((iNumPlots*100) < (fMedianNumPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD()))
+	if ((iNumPlots*100) < (iMedianNumPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD()))
 	{
 		// Must also have at least 50% more than the global average, just to prevent anything stupid
 		if (iNumPlots < (fAverageNumPlots * 1.5))
 		{
-			bTooManyPlots = true;
+			return true;
 		}
 	}
-
-	if (bTooManyCities || bTooManyPlots)
-		return true;
 
 	return false;
 }
@@ -16510,7 +16387,7 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 		}
 	}
 
-	double fMedianNumWonders = CalculateMedianNumWondersConstructed();
+	int iMedianNumWonders = GC.getGame().CalculateMedianNumWondersConstructed();
 	double fAverageNumWonders = 0;
 	int iNumPlayers = 0;
 
@@ -16536,7 +16413,7 @@ bool CvDiplomacyAI::IsPlayerWonderSpammer(PlayerTypes ePlayer)
 	fAverageNumWonders /= max(1, iNumPlayers);
 
 	// Must have built several more Wonders than the median player in this game
-	if (iNumWonders < (fMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD()))
+	if (iNumWonders < (iMedianNumWonders + /*3*/ GC.getWONDER_SPAMMER_THRESHOLD()))
 	{
 		// Must also have at least 50% more than the global average, just to prevent anything stupid
 		if (iNumWonders < fAverageNumWonders * 1.5)
@@ -42922,15 +42799,15 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_RECKLESS_EXPANDER();
 
-		double fMedianCities = CalculateMedianNumCities();
-		double fMedianPlots = CalculateMedianNumPlots();
+		int iMedianCities = GC.getGame().CalculateMedianNumCities();
+		int iMedianPlots = GC.getGame().CalculateMedianNumPlots();
 		int iNumCities = GET_PLAYER(ePlayer).getNumCities();
 		int iNumPlots = GET_PLAYER(ePlayer).getTotalLand();
 
 		int iCivCityDifference = iNumCities - GetPlayer()->getNumCities();
 		int iCivPlotDifference = iNumPlots - GetPlayer()->getTotalLand();
-		int iMedianCityDifference = (int) (((iNumCities*100) - (fMedianCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD())) / 100);
-		int iMedianPlotDifference = (int) (((iNumPlots*100) - (fMedianPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD())) / 100);
+		int iMedianCityDifference = (((iNumCities*100) - (iMedianCities * /*200*/ GC.getRECKLESS_EXPANDER_CITIES_THRESHOLD())) / 100);
+		int iMedianPlotDifference = (((iNumPlots*100) - (iMedianPlots * /*250*/ GC.getRECKLESS_EXPANDER_LAND_THRESHOLD())) / 100);
 
 		// For scaling, go with whichever value is smaller
 		int iCityWeight = 0;
@@ -42970,7 +42847,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_WONDER_SPAMMER();
 
 		int iCivDifference = GET_PLAYER(ePlayer).GetWondersConstructed() - GetPlayer()->GetWondersConstructed();
-		int iMedianDifference = GET_PLAYER(ePlayer).GetWondersConstructed() - (int) ceil(CalculateMedianNumWondersConstructed());
+		int iMedianDifference = GET_PLAYER(ePlayer).GetWondersConstructed() - GC.getGame().CalculateMedianNumWondersConstructed();
 
 		// For scaling, go with whichever value is smaller
 		int iWonderDifference = min(iCivDifference, iMedianDifference);
