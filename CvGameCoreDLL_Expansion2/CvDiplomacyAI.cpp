@@ -13978,8 +13978,7 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 	// If below average, apply half the % difference as a negative modifier to strength, cap below at -50%
 	else if (iCivRating < iAverageRating)
 	{
-		iValue *= -1; // flip the sign
-		iValue /= 2;
+		iValue /= -2; // flip the sign
 		return max(iValue, -50);
 	}
 	else
@@ -14105,13 +14104,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 		}
 		if (iDPThem > 0)
 		{
-			iOtherPlayerMilitaryStrength *= (int)((iDPThem * .1f) + 100);
-			iOtherPlayerMilitaryStrength /= 100;
+			iOtherPlayerMilitaryStrength += (iDPThem / 10);
 		}
 		if (iDPUs > 0)
 		{
-			iMilitaryStrength *= (int)((iDPUs * .1f) + 100);
-			iMilitaryStrength /= 100;
+			iMilitaryStrength += (iDPUs / 10);
 		}
 #endif
 		// Example: If another player has double the Military strength of us, the Ratio will be 200
