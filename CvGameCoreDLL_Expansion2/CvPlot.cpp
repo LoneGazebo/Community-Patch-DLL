@@ -4769,6 +4769,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
+				//for enemy units, treat embarked as combat because we cannot stack
 				if (bCombat != pLoopUnit->IsCanDefend())
 					continue;
 
@@ -4806,8 +4807,12 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
-				if (bCombat != pLoopUnit->IsCanDefend())
-					continue;
+				if (bCombat)
+				{
+					//for neutral units, treat embarked as civilian because we can stack
+					if (!pLoopUnit->IsCanDefend() || pLoopUnit->isEmbarked())
+						continue;
+				}
 
 				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
 					continue;

@@ -702,6 +702,10 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 					continue;
 				}
 
+				//we don't do citadel to citadel. or should we?
+				if (!pFirstCity && !pSecondCity)
+					continue;
+
 				bool bConnectOnlyCapitals = (bool)GC.getCITY_CONNECTIONS_CONNECT_TO_CAPITAL();
 				if (bConnectOnlyCapitals)
 				{
@@ -2469,7 +2473,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	//Does this improvement connect a resource? Increase the score!
 	if(eResource != NO_RESOURCE)
 	{
-		if(pImprovement->IsImprovementResourceMakesValid(eResource))
+		//for GPTI hooking up a resource is just a side benefit ... so no bonus
+		if(pImprovement->IsImprovementResourceMakesValid(eResource) && !pImprovement->IsCreatedByGreatPerson())
 		{
 			iYieldScore += iBigBuff;
 			//a new one? really buff it!!

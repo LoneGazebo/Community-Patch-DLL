@@ -4711,7 +4711,7 @@ int CvLuaUnit::lGetAmphibCount(lua_State* L)
 int CvLuaUnit::lIsAmphib(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isAmphib();
+	const bool bResult = pkUnit->isAmphibious();
 
 	lua_pushboolean(L, bResult);
 	return 1;

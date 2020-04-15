@@ -297,22 +297,23 @@ class CvTacticalPosture
 public:
 	CvTacticalPosture(PlayerTypes ePlayer, bool bIsWater, int iCityID, AITacticalPosture ePosture)
 	{
-		m_iPlayerWaterInfo = (int)ePlayer * 2 + (int)bIsWater;
-		m_iCityID = iCityID;
+		m_ePlayer = ePlayer;
+		//same scheme as for tactical zones - water is negative
+		m_iCityID = bIsWater ? -iCityID : iCityID;
 		m_ePosture = ePosture;
 	}
 
 	PlayerTypes GetPlayer() const
 	{
-		return (PlayerTypes)(m_iPlayerWaterInfo / 2);
+		return m_ePlayer;
 	};
 	bool IsWater()
 	{
-		return m_iPlayerWaterInfo & 0x1;
+		return (m_iCityID<0);
 	};
 	int GetCityID()
 	{
-		return m_iCityID;
+		return abs(m_iCityID);
 	};
 	AITacticalPosture GetPosture()
 	{
@@ -320,7 +321,7 @@ public:
 	};
 
 private:
-	int m_iPlayerWaterInfo;
+	PlayerTypes m_ePlayer;
 	int m_iCityID;
 	AITacticalPosture m_ePosture;
 };
@@ -486,7 +487,6 @@ public:
 	void Write(FDataStream& kStream);
 
 	// Public turn update routines
-	void CommandeerUnits();
 	void Update();
 
 	// Temporary dominance zones
@@ -516,6 +516,8 @@ public:
 
 	void UnitProcessed(int iID);
 private:
+
+	void RecruitUnits();
 
 	// Internal turn update routines - commandeered unit processing
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);

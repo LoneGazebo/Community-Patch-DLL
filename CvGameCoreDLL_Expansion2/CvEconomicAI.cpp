@@ -2186,18 +2186,17 @@ void CvEconomicAI::DoPlotPurchases()
 
 				int iCost = pLoopCity->GetBuyPlotCost(iTempX, iTempY);
 
+				/*
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					strLogString.Format("Looking at buying plot for %s, X: %d, Y: %d, Cost: %d, Balance (before buy): %d, Priority: %d", pLoopCity->getName().c_str(), iTempX, iTempY, iCost, iBalance, iScore);
 					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
+				*/
 
 				if(CanWithdrawMoneyForPurchase(PURCHASE_TYPE_TILE, iCost, iScore))
 				{
-					if(GC.getLogging() && GC.getAILogging())
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage("Money available");
-
 					if(iScore > iBestScore)
 					{
 						pBestCity = pLoopCity;
@@ -2209,9 +2208,6 @@ void CvEconomicAI::DoPlotPurchases()
 				}
 				else
 				{
-					if(GC.getLogging() && GC.getAILogging())
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage("Start saving ...");
-
 					StartSaveForPurchase(PURCHASE_TYPE_TILE, iCost, /*Priority*/ 2);
 				}
 			}
