@@ -607,6 +607,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(ISKA_HERITAGE);
 		MOD_OPT_CACHE(ISKA_PANTHEONS);
+		MOD_OPT_CACHE(ISKA_GAMEOPTIONS);
 
 		MOD_OPT_CACHE(BATTLE_ROYALE);
 
