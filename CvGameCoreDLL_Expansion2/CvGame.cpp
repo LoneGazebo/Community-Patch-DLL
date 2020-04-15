@@ -8509,7 +8509,13 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 						bValid = false;
 						break;
 					}
-					
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitInfo->GetResourceQuantityTotal(eResource) > 0)
+					{
+						bValid = false;
+						break;
+					}
+#endif
 				}
 			}
 		}

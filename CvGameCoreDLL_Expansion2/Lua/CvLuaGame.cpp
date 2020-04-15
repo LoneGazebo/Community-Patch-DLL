@@ -296,6 +296,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetResourceUsageType);
 
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	Method(GetNumResourceTotalRequiredForUnit);
+#endif
+
 	Method(GetNumResourceRequiredForUnit);
 	Method(GetNumResourceRequiredForBuilding);
 
@@ -2028,6 +2032,26 @@ int CvLuaGame::lGetResourceUsageType(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetNumResourceTotalRequiredForUnit(lua_State* L)
+{
+	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 1);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	if (pkUnitInfo == NULL)
+	{
+		luaL_error(L, "Unit row at ID %d is empty.", eUnit);
+		return 0;
+	}
+	const int iNumNeeded = pkUnitInfo->GetResourceQuantityTotal(eResource);
+
+	lua_pushinteger(L, iNumNeeded);
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForUnit(lua_State* L)
 {

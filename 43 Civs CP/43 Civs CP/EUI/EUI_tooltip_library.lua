@@ -358,6 +358,31 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 		end
 	end
 
+	-- Resources total required:
+	if Game and Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") then
+		local isFirstLine = true
+		for resource in GameInfo.Resources() do
+			local numResource = Game.GetNumResourceTotalRequiredForUnit( unitID, resource.ID )
+			if isFirstLine and resource and numResource ~= 0 then
+				tips:insertIf( resource and numResource ~= 0 and S( "%s: [NEWLINE][ICON_BULLET] %s: %i%s", L"TXT_KEY_EUI_RESOURCES_QUANTITY_TOTAL_REQUIRED", L(resource.Description), numResource, tostring(resource.IconString) ) )
+				isFirstLine = false
+			else
+				tips:insertIf( resource and numResource ~= 0 and S( "[NEWLINE][ICON_BULLET] %s: %i%s", L(resource.Description), numResource, tostring(resource.IconString) ) )
+			end
+		end
+	else
+		local isFirstLine = true
+		for row in GameInfo.Unit_ResourceQuantityTotals( thisUnitType ) do
+			local resource = GameInfo.Resources[ row.ResourceType ]
+			if isFirstLine and resource and (row.Cost or 0) ~= 0 then
+				tips:insertIf( resource and (row.Cost or 0)~=0 and S( "%s [NEWLINE][ICON_BULLET] %s: %i%s", L"TXT_KEY_EUI_RESOURCES_QUANTITY_TOTAL_REQUIRED", L(resource.Description), row.Cost, tostring(resource.IconString) ) )
+				isFirstLine = false
+			else
+				tips:insertIf( resource and numResource ~= 0 and S( "[NEWLINE][ICON_BULLET] %s: %i%s", L(resource.Description), numResource, tostring(resource.IconString) ) )
+			end
+		end
+	end
+
 	tips:insert( "----------------" )
 
 	-- Cost:

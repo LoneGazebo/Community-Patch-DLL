@@ -4159,6 +4159,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					}
 				}
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+				// GPP from resource monopolies
+				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+				if (eGreatPerson != NO_GREATPERSON)
+				{
+					iGPPChange += pCity->GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
+				}
+#endif
+
 				if (iGPPChange > 0)
 				{
 					int iMod = 0;

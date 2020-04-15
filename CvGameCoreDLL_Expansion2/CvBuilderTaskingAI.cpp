@@ -2211,11 +2211,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 						}
 					}
 				}
-				// if it's Iroquois building forests give it even more weight since it connects cities.
-				else if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && pkImprovementInfo->GetCreatedFeature() != NO_FEATURE)
-				{
-					iSecondaryScore += iBigBuff;
-				}
 				else
 				{
 					iSecondaryScore += iSmallBuff;
@@ -2241,21 +2236,57 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				case YIELD_FOOD:
 					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+					}
+#endif
 					break;
 				case YIELD_PRODUCTION:
 					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+					}
+#endif
 					break;
 				case YIELD_GOLD:
 					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+					}
+#endif
 					break;
 				case YIELD_SCIENCE:
 					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+					}
+#endif
 					break;
 				case YIELD_CULTURE:
 					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+					}
+#endif
 					break;
 				case YIELD_FAITH:
 					iTempWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+					if (MOD_IMPROVEMENTS_EXTENSIONS)
+					{
+						iTempWeight += GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getFeatureInfo(GC.getImprovementInfo(eImprovement)->GetCreatedFeature())->getYieldChange(iI);
+					}
+#endif
 					break;
 			}
 
@@ -2340,6 +2371,26 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		if(iAdjacentGood > 0)
 		{
 			iSecondaryScore += 100 * iAdjacentGood;
+		}
+	}
+#endif
+
+#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+	if (MOD_IMPROVEMENTS_EXTENSIONS)
+	{
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
+		// improvement spawns resource?
+		int iResourceChance = GC.getImprovementInfo(eImprovement)->GetRandomResourceChance();
+		if (iResourceChance > 0 && m_pCurrentPlot->getResourceType() == NO_RESOURCE)
+		{
+			iSecondaryScore += 5 * iResourceChance;
+		}
+
+		// if it's Iroquois building forests give it even more weight since it connects cities.
+		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pkImprovementInfo->GetCreatedFeature() == FEATURE_FOREST || pkImprovementInfo->GetCreatedFeature() == FEATURE_JUNGLE))
+		{
+			iSecondaryScore += iBigBuff;
 		}
 	}
 #endif

@@ -2811,6 +2811,29 @@
 			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
 		</Row>
 		
+		<!-- Lack of gross resource (before deductions) -->
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_LACKS_GROSS_RESOURCES">
+			<Text>[NEWLINE]Access to {1_Num} {2_ResourceIcon} {3_ResourceName:textkey} needed to build this unit.</Text>
+		</Row>
+	
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES">
+			<Text>You need access to {1_ResourcesString} to upgrade this Unit.</Text>
+		</Row>
+
+		<!-- Resources is net negative (after deductions) -->
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_NET_RESOURCES_NEGATIVE">
+			<Text>[NEWLINE]Positive {1_ResourceIcon} {2_ResourceName:textkey} count needed to build this unit.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE">
+			<Text>You need positive {1_ResourcesString} count to upgrade this Unit.</Text>
+		</Row>
+
+		<!-- Unit requires total resources (before deductions) -->
+		<Row Tag="TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED">
+			<Text>[ICON_BULLET] Access required:</Text>
+		</Row>
+		
 		<!-- Opinion Indicator for Human Teammate -->
 		<Row Tag="TXT_KEY_DIPLO_HUMAN_TEAMMATE">
 			<Text>[COLOR_POSITIVE_TEXT]We are on the same team.[ENDCOLOR]</Text>

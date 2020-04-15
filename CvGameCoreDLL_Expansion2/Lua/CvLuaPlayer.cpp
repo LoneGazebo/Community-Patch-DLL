@@ -586,6 +586,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetMonopolyGreatPersonRateModifier);
+	Method(GetMonopolyGreatPersonRateChange);
 #endif
 
 	Method(GetProductionModifier);
@@ -7443,7 +7444,8 @@ int CvLuaPlayer::lGetPolicyGreatDiplomatRateModifier(lua_State* L)
 #endif
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
-// int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, bool bGlobalMonopoly, bool bStrategicMonopoly) const;
+//------------------------------------------------------------------------------
+// int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist) const;
 int CvLuaPlayer::lGetMonopolyGreatPersonRateModifier(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -7454,6 +7456,24 @@ int CvLuaPlayer::lGetMonopolyGreatPersonRateModifier(lua_State* L)
 	if (eGreatPerson != NO_GREATPERSON)
 	{
 		iModifier = pkPlayer->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// int getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist) const;
+int CvLuaPlayer::lGetMonopolyGreatPersonRateChange(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	int iModifier = 0;
+	// Do we get increased great person rate from a resource monopoly?
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iModifier = pkPlayer->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson);
 	}
 
 	lua_pushinteger(L, iModifier);
