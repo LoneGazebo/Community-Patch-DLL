@@ -2257,6 +2257,13 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	}
 #endif
 
+#if defined(MOD_EVENTS_UNIT_CONVERTS)
+	if (MOD_EVENTS_UNIT_CONVERTS)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitConverted, pUnit->getOwner(),getOwner(), pUnit->GetID(), GetID(), bIsUpgrade);
+	}
+#endif
+
 	pUnit->kill(true, NO_PLAYER);
 }
 
