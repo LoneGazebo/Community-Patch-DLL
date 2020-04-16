@@ -125,6 +125,10 @@ void CvLuaScopedInstance<Derived, InstanceType>::Push(lua_State* L, InstanceType
 template<class Derived, class InstanceType>
 InstanceType* CvLuaScopedInstance<Derived, InstanceType>::GetInstance(lua_State* L, int idx, bool bErrorOnFail)
 {
+#ifdef STACKWALKER
+	gLuaState = L;
+#endif
+
 	const int stack_size = lua_gettop(L);
 	bool bFail = true;
 
@@ -150,6 +154,7 @@ InstanceType* CvLuaScopedInstance<Derived, InstanceType>::GetInstance(lua_State*
 			luaL_error(L, "Not a valid instance.  Either the instance is NULL or you used '.' instead of ':'.");
 		Derived::HandleMissingInstance(L);
 	}
+
 	return pkInstance;
 }
 //------------------------------------------------------------------------------
