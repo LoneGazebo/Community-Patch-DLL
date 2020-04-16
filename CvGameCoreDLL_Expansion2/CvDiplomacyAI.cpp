@@ -5962,18 +5962,24 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// RELIGION
 	////////////////////////////////////
+
 	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
 	ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
-	int iDiploEmphasisReligion = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	bool bSameReligions = false;
 	bool bDifferentReligions = false;
+
+	int iReligiosityScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) + GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion());
+	
+	if (iGameEra != 2 && iGameEra != 3) // Religion matters most in the Medieval and Renaissance Eras!
+		iReligiosityScore /= 2;
+
 	if (eMyReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
 	{
 		// Have they been converting our cities? Grr...
 		if (GetNegativeReligiousConversionPoints(ePlayer) > 0 && (!IsPlayerMadeNoConvertPromise(ePlayer) || IsPlayerIgnoredNoConvertPromise(ePlayer) || IsPlayerBrokenNoConvertPromise(ePlayer)))
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisReligion);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDiploEmphasisReligion);
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iReligiosityScore);
 		}
 
 		// Do we have the same religion?
@@ -5982,23 +5988,17 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			if (!IsHolyCityCapturedBy(ePlayer) && !bUntrustworthy)
 			{
 				bSameReligions = true;
-				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisReligion);
-				
-				// Additional bonus for Medieval and Renaissance eras
-				if (iGameEra == 2 || iGameEra == 3)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
-				}
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iReligiosityScore);
 
 				// If it's the World Religion and we control its Holy City, we should work together
 				if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(eMyPlayer, eMyReligion) > 0)
 				{
-					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisReligion);
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iReligiosityScore);
 				}
 				// The same applies if they're its controller, since we get extra League votes
 				else if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eMyReligion) > 0)
 				{
-					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisReligion);
+					viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iReligiosityScore);
 				}
 			}
 		}
@@ -6007,23 +6007,16 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		if (eMyReligion != eTheirReligion)
 		{
 			bDifferentReligions = true;
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisReligion);
-			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iDiploEmphasisReligion);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iDiploEmphasisReligion);
-
-			// Additional bonus for Medieval and Renaissance eras
-			if (iGameEra == 2 || iGameEra == 3)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisReligion;
-			}
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] + iReligiosityScore);
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iReligiosityScore);
 
 			// If it's the World Religion and they control its Holy City, we should work against them
 			if (GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(ePlayer, eTheirReligion) > 0)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisReligion);
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDiploEmphasisReligion);
-				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iDiploEmphasisReligion);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iReligiosityScore);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iReligiosityScore);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iReligiosityScore);
 			}
 		}
 	}
@@ -6031,34 +6024,25 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	////////////////////////////////////
 	// IDEOLOGY
 	////////////////////////////////////
-	int iDiploEmphasisLatePolicies = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+
+	int iIdeologueScore = (GET_PLAYER(eMyPlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) + GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion());
+
+	if (iGameEra != 6) // Ideology matters most in the Atomic Era!
+		iIdeologueScore /= 2;
 
 	if (IsPlayerSameIdeology(ePlayer) && !bUntrustworthy)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisLatePolicies);
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisLatePolicies);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDiploEmphasisLatePolicies);
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iDiploEmphasisLatePolicies);
-		
-		// Additional bonus for Atomic era
-		if (iGameEra == 6)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisLatePolicies;
-		}
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
 	}
 	else if (IsPlayerOpposingIdeology(ePlayer))
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisLatePolicies);
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisLatePolicies);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDiploEmphasisLatePolicies);
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iDiploEmphasisLatePolicies);
-		
-		// Additional bonus for Atomic Era
-		if (iGameEra == 6)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisLatePolicies;
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisLatePolicies;
-		}
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
 	}
 
 	////////////////////////////////////
@@ -6085,12 +6069,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						// Is this guy helping us take down a HERETIC?!?!
 						if (!bDifferentReligions && IsPlayerOpposingReligion(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iReligiosityScore;
 						}
 						// Is this guy helping to take down our ideological opponents?
 						if (!IsPlayerOpposingIdeology(ePlayer) && IsPlayerOpposingIdeology(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iIdeologueScore;
 						}
 					}
 					// Denounced an enemy of ours
@@ -6102,12 +6086,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						// Is this a brother of the faith who denounced a HERETIC?!?!
 						if (bSameReligions && IsPlayerOpposingReligion(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iReligiosityScore;
 						}
 						// Is this an ideological partner who denounced an ideological opponent?
 						if (IsPlayerSameIdeology(ePlayer) && IsPlayerOpposingIdeology(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iIdeologueScore;
 						}
 					}
 				}
@@ -6124,12 +6108,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						// Are we all brothers of the faith?
 						if (bSameReligions && IsPlayerSameReligion(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iReligiosityScore;
 						}
 						// Are we all of the same ideology?
 						if (IsPlayerSameIdeology(ePlayer) && IsPlayerSameIdeology(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iIdeologueScore;
 						}
 					}
 					// Made a DP with a DP of ours
@@ -6143,12 +6127,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						// Are we all brothers of the faith?
 						if (bSameReligions && IsPlayerSameReligion(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iReligiosityScore;
 						}
 						// Are we all of the same ideology?
 						if (IsPlayerSameIdeology(ePlayer) && IsPlayerSameIdeology(eLoopPlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += iIdeologueScore;
 						}
 					}
 				}
@@ -6176,14 +6160,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					// Are they brothers of a hostile faith? Let's try to slow down their religion game.
 					if (bDifferentReligions && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameReligion(eLoopPlayer))
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisReligion;
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iReligiosityScore;
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iReligiosityScore;
 					}
 					// Are they allied ideological foes? Let's try to slow down their ideological spread.
 					if (IsPlayerOpposingIdeology(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eLoopPlayer))
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisLatePolicies;
-						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisLatePolicies;
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologueScore;
 					}
 				}
 				// Made a DP with an enemy of ours
@@ -6197,14 +6181,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					// Are they brothers of a hostile faith? Let's try to slow down their religion game.
 					if (bDifferentReligions && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameReligion(eLoopPlayer))
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
-						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisReligion;
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iReligiosityScore;
+						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iReligiosityScore;
 					}
 					// Are they allied ideological foes? Let's try to slow down their ideological spread.
 					if (IsPlayerOpposingIdeology(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerSameIdeology(eLoopPlayer))
 					{
-						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisLatePolicies;
-						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisLatePolicies;
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
+						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologueScore;
 					}
 				}					
 			}
@@ -6223,14 +6207,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						// Is this person attacking our brother of the faith as a HERETIC?!?! How dare they!
 						if (bDifferentReligions)
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iReligiosityScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iReligiosityScore;
 						}
 						// Are they a traitor to the faith? EVEN WORSE! (but don't up war weight, we don't want to be considered a traitor ourselves...)
 						else if (bSameReligions)
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iDiploEmphasisReligion;
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iReligiosityScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iReligiosityScore;
 						}
 					}
 					// Same for ideology
@@ -6238,13 +6222,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					{
 						if (IsPlayerOpposingIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisLatePolicies;
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologueScore;
 						}
 						else if (IsPlayerSameIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iDiploEmphasisLatePolicies;
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisLatePolicies;							
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologueScore;							
 						}
 					}
 				}
@@ -6261,14 +6245,14 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						// Is this person denouncing our brother of the faith as a HERETIC?!?! How dare they!
 						if (bDifferentReligions)
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisReligion;
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iReligiosityScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iReligiosityScore;
 						}
 						// Are they a traitor to the faith? EVEN WORSE! (but don't up war weight, we don't want to be considered a traitor ourselves...)
 						else if (bSameReligions)
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iDiploEmphasisReligion;
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisReligion;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iReligiosityScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iReligiosityScore;
 						}
 					}
 					// Same for ideology
@@ -6276,13 +6260,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					{
 						if (IsPlayerOpposingIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iDiploEmphasisLatePolicies;
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += iIdeologueScore;
 						}
 						else if (IsPlayerSameIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iDiploEmphasisLatePolicies;
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iDiploEmphasisLatePolicies;
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= iIdeologueScore;
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += iIdeologueScore;
 						}
 					}
 				}
@@ -6416,9 +6400,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			{
 				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(eTeam))
 				{
-					bOtherWarPlayerCloseToTarget = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE ? true : false;
+					bOtherWarPlayerCloseToTarget = GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE;
 
 					if (IsMajorCompetitor(ePlayer))
+					{
+						bThinkingAboutDogpiling = true;
+					}
+					else if (iEra <= 2 && IsEarlyGameCompetitor(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 					}
@@ -6436,7 +6424,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 					if (bThinkingAboutDogpiling)
 					{
-						iBonus += (int)GetVictoryBlockLevel(ePlayer) + (int)GetVictoryDisputeLevel(ePlayer) + (int)eWarProjection + (int)GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarProjection(ePlayer);
+						int iBonusMod = (int)GetVictoryBlockLevel(ePlayer) + (int)GetVictoryDisputeLevel(ePlayer) + (int)eWarProjection + (int)GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarProjection(ePlayer);
+
+						if (!bOtherWarPlayerCloseToTarget)
+							iBonusMod /= 2;
+						
+						iBonus += iBonusMod;
 					}
 				}
 			}
@@ -7261,7 +7254,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 	////////////////////////////////////
-	// Is this player spamming Wonders?
+	// Is this player spamming World Wonders?
 	////////////////////////////////////
 
 	if (bWonderSpammer)
@@ -7566,19 +7559,19 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					{
 						if (IsPlayerSameIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iDiploEmphasisLatePolicies);
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
 						}
 						else if (IsPlayerOpposingIdeology(ePlayer))
 						{
-							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iDiploEmphasisLatePolicies);
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iDiploEmphasisLatePolicies);
+							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] -= (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + iIdeologueScore);
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + iIdeologueScore);
 						}
 					}
 				}
@@ -13981,10 +13974,8 @@ int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer)
 		iValue /= -2; // flip the sign
 		return max(iValue, -50);
 	}
-	else
-	{
-		return 0;
-	}
+
+	return 0;
 }
 
 
@@ -17899,7 +17890,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 			
 			// Religion weight
-			int iReligionWeight = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+			int iReligionWeight = (GET_PLAYER(GetPlayer()->GetID()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) + GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion());
+			iReligionWeight /= 2;
+
 			ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetCurrentReligion(false);
 			ReligionTypes eTheirReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
 			
@@ -17957,7 +17950,8 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 			
 			// Ideology weight
-			int iIdeologyWeight = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies();
+			int iIdeologyWeight = (GET_PLAYER(GetPlayer()->GetID()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) + GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisLatePolicies());
+			iIdeologyWeight /= 2;
 			
 			if (IsPlayerSameIdeology(ePlayer) && !bUntrustworthyFriend)
 			{
@@ -19659,6 +19653,33 @@ bool CvDiplomacyAI::IsEarlyGameCompetitor(PlayerTypes ePlayer)
 
 	if (IsTeamUntrustworthy(GET_PLAYER(ePlayer).getTeam()))
 		return true;
+
+	// Are they a juicy target?
+	if (IsEasyTarget(ePlayer))
+	{
+		PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
+		bool bRecklessExpander = IsPlayerRecklessExpander(ePlayer);
+		bool bWonderSpammer = IsPlayerWonderSpammer(ePlayer);
+
+		if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+		{
+			if (bRecklessExpander || bWonderSpammer)
+				return true;
+		}
+		else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+		{
+			if (IsConqueror())
+			{
+				if (bRecklessExpander || bWonderSpammer)
+					return true;
+			}
+			else if (IsCultural())
+			{
+				if (bWonderSpammer)
+					return true;
+			}
+		}
+	}
 
 	return false;
 }
