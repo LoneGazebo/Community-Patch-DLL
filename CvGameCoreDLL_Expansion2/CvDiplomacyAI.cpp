@@ -91,6 +91,8 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiNumLandmarksBuiltForMe()
 	, m_aiResurrectedOnTurn()
 	, m_abPlayerLiberatedCapital()
+	, m_abPlayerCapturedCapital()
+	, m_abPlayerCapturedHolyCity()
 	, m_aiNumTimesCultureBombed()
 	, m_paiNegativeReligiousConversionPoints()
 	, m_paiNegativeArchaeologyPoints()
@@ -330,6 +332,8 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiIgnoredBorderPromiseValue(NULL),
 	m_paiDeclaredWarOnFriendValue(NULL),
 	m_pabPlayerLiberatedCapital(NULL),
+	m_pabPlayerCapturedCapital(NULL),
+	m_pabPlayerCapturedHolyCity(NULL),
 	m_paiNumCitiesLiberated(NULL),
 	m_paiTradeValue(NULL),
 	m_paiCommonFoeValue(NULL),
@@ -597,6 +601,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiIgnoredBorderPromiseValue = &m_pDiploData->m_aiIgnoredBorderPromiseValue[0];
 	m_paiDeclaredWarOnFriendValue = &m_pDiploData->m_aiDeclaredWarOnFriendValue[0];
 	m_pabPlayerLiberatedCapital = &m_pDiploData->m_abPlayerLiberatedCapital[0];
+	m_pabPlayerCapturedCapital = &m_pDiploData->m_abPlayerCapturedCapital[0];
+	m_pabPlayerCapturedHolyCity = &m_pDiploData->m_abPlayerCapturedHolyCity[0];
 	m_paiNumCitiesLiberated = &m_pDiploData->m_aiNumCitiesLiberated[0];
 	m_paiTradeValue = &m_pDiploData->m_aiTradeValue[0];
 	m_paiCommonFoeValue = &m_pDiploData->m_aiCommonFoeValue[0];
@@ -934,6 +940,8 @@ void CvDiplomacyAI::Uninit()
 	m_paiIgnoredBorderPromiseValue = NULL;
 	m_paiDeclaredWarOnFriendValue = NULL;
 	m_pabPlayerLiberatedCapital = NULL;
+	m_pabPlayerCapturedCapital = NULL;
+	m_pabPlayerCapturedHolyCity = NULL;
 	m_paiNumCitiesLiberated = NULL;
 	m_paiTradeValue = NULL;
 	m_paiCommonFoeValue = NULL;
@@ -1212,6 +1220,8 @@ void CvDiplomacyAI::Reset()
 		m_paiIgnoredBorderPromiseValue[iI] = 0;
 		m_paiDeclaredWarOnFriendValue[iI] = 0;
 		m_pabPlayerLiberatedCapital[iI] = false;
+		m_pabPlayerCapturedCapital[iI] = false;
+		m_pabPlayerCapturedHolyCity[iI] = false;
 		m_paiNumCitiesLiberated[iI] = 0;
 		m_paiTradeValue[iI] = 0;
 		m_paiCommonFoeValue[iI] = 0;
@@ -1981,6 +1991,12 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<bool> wrapm_pabPlayerLiberatedCapital(MAX_MAJOR_CIVS, m_pabPlayerLiberatedCapital);
 	kStream >> wrapm_pabPlayerLiberatedCapital;
+	
+	ArrayWrapper<bool> wrapm_pabPlayerCapturedCapital(MAX_MAJOR_CIVS, m_pabPlayerCapturedCapital);
+	kStream >> wrapm_pabPlayerCapturedCapital;
+
+	ArrayWrapper<bool> wrapm_pabPlayerCapturedHolyCity(MAX_MAJOR_CIVS, m_pabPlayerCapturedHolyCity);
+	kStream >> wrapm_pabPlayerCapturedHolyCity;
 
 	ArrayWrapper<short> wrapm_paiNumCitiesLiberated(MAX_MAJOR_CIVS, m_paiNumCitiesLiberated);
 	kStream >> wrapm_paiNumCitiesLiberated;
@@ -2403,6 +2419,8 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiOtherPlayerTurnsSinceTheySupportedOurHosting);
 
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerLiberatedCapital);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerCapturedCapital);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerCapturedHolyCity);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumCitiesLiberated);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

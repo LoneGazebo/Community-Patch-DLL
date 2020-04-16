@@ -48,10 +48,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING">
-			<Text>Unfortunately they have nothing to offer you.</Text>
+			<Text>Unfortunately, they have nothing to offer you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP">
-			<Text>Unfortunately they have nothing to offer you, but as {2: gender *:an?an; other?a;} {2_Personality} City State your [COLOR_POSITIVE_TEXT]friendship increases by {1_NumFriendship}[ENDCOLOR].</Text>
+			<Text>Unfortunately, they have nothing to offer you, but as {2: gender *:an?an; other?a;} {2_Personality} City State your [COLOR_POSITIVE_TEXT]friendship increases by {1_NumFriendship}[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE">
