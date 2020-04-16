@@ -8071,6 +8071,10 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 			result.iScore -= (iDanger * GC.getCOMBAT_AI_DEFENSE_DANGERWEIGHT()) / max(1,iSpreadFactor) / (pUnit->GetCurrHitPoints() + 1);
 		}
 
+		//sometimes danger is zero, but maybe we're wrong, so look at plot defense too
+		int iDefenseMod = pTestPlot->defenseModifier(pUnit->getTeam(),false,false);
+		result.iScore += iDefenseMod / 10;
+
 		if (testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),unit.iPlotIndex) > 0)
 			result.iScore++;
 
