@@ -43571,6 +43571,10 @@ bool CvDiplomacyAI::IsCloseToCultureVictory() const
 	if(iNumCivsInfluential > 0)
 	{
 		int iNumCivsAlive = GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn();
+
+		if (iNumCivsInfluential == iNumCivsAlive)
+			return true;
+
 		int iPercentToGo = iNumCivsInfluential * 100 / max(1,iNumCivsAlive);
 		int iPercentToCheck = 0;
 		if (iNumCivsAlive >= 4)
