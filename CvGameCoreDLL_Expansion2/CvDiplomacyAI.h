@@ -1860,6 +1860,8 @@ private:
 
 		short m_aiDeclaredWarOnFriendValue[MAX_MAJOR_CIVS];
 		bool m_abPlayerLiberatedCapital[MAX_MAJOR_CIVS];
+		bool m_abPlayerCapturedCapital[MAX_MAJOR_CIVS];
+		bool m_abPlayerCapturedHolyCity[MAX_MAJOR_CIVS];
 		short m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];
 
 		short m_aiTradeValue[MAX_MAJOR_CIVS];
@@ -2214,6 +2216,8 @@ private:
 	short* m_paiAssistValue;
 
 	bool* m_pabPlayerLiberatedCapital;
+	bool* m_pabPlayerCapturedCapital;
+	bool* m_pabPlayerCapturedHolyCity;
 	short* m_paiNumCitiesLiberated;
 
 	char** m_ppaacCoopWarAcceptedState;
