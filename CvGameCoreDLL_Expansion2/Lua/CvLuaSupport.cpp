@@ -52,21 +52,22 @@ void LuaSupport::RegisterScriptData(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-void LuaSupport::DumpCallStack(lua_State* L)
+void LuaSupport::DumpCallStack(lua_State* L, FILogFile* pLog)
 {
-	for(int i = 1; i < 10; ++i)
+	FStringFixedBuffer(szTemp, 512);
+    lua_Debug entry;
+    int depth = 0; 
+
+	while (lua_getstack(L, depth, &entry))
 	{
-		lua_Debug ar;
-		if(lua_getstack(L, i, &ar))
-		{
-			lua_getinfo(L, "Sl", &ar);
-			if(ar.currentline > 0)
-			{
-				FStringFixedBuffer(szTemp, 512);
-				szTemp.Format("%s:%d\n", (ar.source)?ar.source:"", ar.currentline);
-				OutputDebugString(szTemp.c_str());
-			}
-		}
+		int status = lua_getinfo(L, "Sln", &entry);
+		szTemp.Format("%s (%d): %s\n", entry.source ? entry.source : "?", entry.currentline, entry.name ? entry.name : "?");
+		depth++;
+
+		if (pLog)
+			pLog->Msg(szTemp.c_str());
+		else
+			OutputDebugString(szTemp.c_str());
 	}
 }
 

@@ -2353,6 +2353,7 @@ CvGlobals::~CvGlobals()
 
 #ifdef STACKWALKER
 MyStackWalker gStackWalker;
+lua_State* gLuaState = NULL;
 #endif
 
 //cannot use GC.getGame().getActivePlayer() in observer mode
@@ -2385,8 +2386,15 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
 		if (pLog)
 		{
+			pLog->Msg("Gamecore Callstack\n");
+
 			gStackWalker.SetLog(pLog);	
 			gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+
+			pLog->Msg("\nLua Callstack\n");
+			if (gLuaState)
+				LuaSupport::DumpCallStack(gLuaState,pLog);
+
 			pLog->Close();
 		}
 	}

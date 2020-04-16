@@ -11614,6 +11614,8 @@ protected:
 };
 
 extern MyStackWalker gStackWalker;
+extern lua_State* gLuaState;
 #endif
+
 
 #endif //CIV5_GLOBALS_H
