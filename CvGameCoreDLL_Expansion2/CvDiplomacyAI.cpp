@@ -19225,7 +19225,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 						}
 
 						// Killed or conquered other players? We might be next! (Ignore if the two players are on good terms)
-						if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != GET_PLAYER(eOtherPlayer).getTeam() && !GetPlayer()->IsAtWarWith(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer)
+						if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != GET_PLAYER(eOtherPlayer).getTeam() && !GetPlayer()->IsAtWarWith(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer) && !bUntrustworthyFriend
 							&& GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsTeammate(eOtherPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetMaster() != GET_PLAYER(eOtherPlayer).getTeam())
 						{
 							int iDangerMod = GetOtherPlayerNumMajorsConquered(eOtherPlayer) + GET_PLAYER(eOtherPlayer).GetNumCapitalCities() + GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals();
