@@ -36293,12 +36293,19 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 	// If it's a request from them, factor in our coop war history
 	if (bAskedByPlayer)
 	{
-		iWeight -= GetNumTimesCoopWarDenied(ePlayer);
+		if (GetNumTimesCoopWarDenied(ePlayer) > 0)
+		{
+			iWeight -= GetNumTimesCoopWarDenied(ePlayer);
+		}
+		else if (GetNumTimesCoopWarDenied(ePlayer) < 0)
+		{
+			iWeight -= max(GetNumTimesCoopWarDenied(ePlayer), -5);
+		}
 	}
 	// Have they accepted our request before? We're more likely to ask again!
 	else if (GetNumTimesCoopWarDenied(ePlayer) < 0)
 	{
-		iWeight += (2 + -GetNumTimesCoopWarDenied(ePlayer));
+		iWeight += min((-GetNumTimesCoopWarDenied(ePlayer) + 2), 5);
 	}
 
 	// Weight for victory issues
