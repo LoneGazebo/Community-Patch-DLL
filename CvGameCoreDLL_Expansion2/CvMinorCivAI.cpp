@@ -16958,7 +16958,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
 		if (!pMajorLoop) continue;
 
-		if (pMajorLoop->isAlive() && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()))
+		if (pMajorLoop->isAlive() && eMajorLoop != eBully && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()))
 		{
 			if(GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
 			{
