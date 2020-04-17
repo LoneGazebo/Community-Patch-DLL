@@ -6519,7 +6519,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	// Are they conquering the world? We could be next!
 	int iDangerScore = max(iNumTheirCaps, iNumTheirVassals) + GetOtherPlayerNumMajorsConquered(ePlayer);
-	if (iDangerScore > 0)
+	if (iDangerScore > 0 && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
 	{
 		// Be extremely wary of early game conquerors
 		if (iGameEra == 0)
