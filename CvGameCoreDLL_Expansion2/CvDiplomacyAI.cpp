@@ -5817,7 +5817,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 
 		// They're a vassal of someone other than us? What do we think of their masters?
-		else if (GET_TEAM(eTeam).IsVassalOfSomeone() && GET_TEAM(eTeam).GetMaster() != eMyTeam)
+		else if (GET_TEAM(eTeam).IsVassalOfSomeone() && !bIsMaster)
 		{
 			// We have the same master
 			if (GET_TEAM(eMyTeam).GetMaster() == GET_TEAM(eTeam).GetMaster())
@@ -6510,124 +6510,127 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// THEY'RE CLOSE TO WINNING!
 	////////////////////////////////////
 
-	if (bTheyAreCloseToWorldConquest)
+	if (!bIsVassal)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4);
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4);
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 4);
-	}
-
-	// Are they conquering the world? We could be next!
-	int iDangerScore = max(iNumTheirCaps, iNumTheirVassals) + GetOtherPlayerNumMajorsConquered(ePlayer);
-	if (iDangerScore > 0 && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
-	{
-		// Be extremely wary of early game conquerors
-		if (iGameEra == 0)
+		if (bTheyAreCloseToWorldConquest)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3 * iDangerScore);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3 * iDangerScore);
-			
-			if (bEasyTarget)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5);
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4);
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4);
+			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 4);
+		}
 
-				// Easy target and we have war bonuses? Attack!
-				if (bCloseToWorldConquest || bConquerorTraits)
+		// Are they conquering the world? We could be next!
+		int iDangerScore = max(iNumTheirCaps, iNumTheirVassals) + GetOtherPlayerNumMajorsConquered(ePlayer);
+		if (iDangerScore > 0 && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
+		{
+			// Be extremely wary of early game conquerors
+			if (iGameEra == 0)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3 * iDangerScore);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3 * iDangerScore);
+				
+				if (bEasyTarget)
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5);
-				}					
+
+					// Easy target and we have war bonuses? Attack!
+					if (bCloseToWorldConquest || bConquerorTraits)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5);
+					}					
+				}
 			}
-		}
-		else if (iGameEra == 1)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2 * iDangerScore);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2 * iDangerScore);
-
-			if (bEasyTarget)
+			else if (iGameEra == 1)
 			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3);
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3);
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2 * iDangerScore);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2 * iDangerScore);
 
-				// Easy target and we have war bonuses? Attack!
-				if (bCloseToWorldConquest || bConquerorTraits)
+				if (bEasyTarget)
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3);
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3);
+
+					// Easy target and we have war bonuses? Attack!
+					if (bCloseToWorldConquest || bConquerorTraits)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 3);
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 3);
+					}
+				}
+			}
+			else if (iGameEra == 2)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iDangerScore);
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iDangerScore);
+
+				if (bEasyTarget)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+
+					// Easy target and we have war bonuses? Attack!
+					if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest || bConquerorTraits)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+					}
+				}
+			}
+			else
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iDangerScore * 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + (iDangerScore * 2));
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iDangerScore * 2));
+				
+				if (bEasyTarget)
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+
+					// Easy target and we have war bonuses? Attack!
+					if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest || bConquerorTraits)
+					{
+						viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+					}
 				}
 			}
 		}
-		else if (iGameEra == 2)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * iDangerScore);
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * iDangerScore);
 
-			if (bEasyTarget)
+		if (!bNoVictoryCompetition)
+		{
+			if (bTheyAreCloseToScienceVictory)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+			}
+			if (bTheyAreCloseToDiploVictory)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+			}
+			if (bTheyAreCloseToCultureVictory)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+			}
+			// Are we both close to a victory condition?
+			if (bCloseToAnyVictory && bTheyAreCloseToAnyVictory)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
 				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
 
-				// Easy target and we have war bonuses? Attack!
-				if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest || bConquerorTraits)
+				if (bEasyTarget)
 				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 				}
 			}
-		}
-		else
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] + (iDangerScore * 2));
-			viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] + (iDangerScore * 2));
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] + (iDangerScore * 2));
-			
-			if (bEasyTarget)
-			{
-				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-
-				// Easy target and we have war bonuses? Attack!
-				if (bConqueror || bGoingForWorldConquest || bCloseToWorldConquest || bConquerorTraits)
-				{
-					viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-				}
-			}
-		}
-	}
-
-	if (!bNoVictoryCompetition)
-	{
-		if (bTheyAreCloseToScienceVictory)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
-		}
-		if (bTheyAreCloseToDiploVictory)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
-		}
-		if (bTheyAreCloseToCultureVictory)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
-		}
-		// Are we both close to a victory condition?
-		if (bCloseToAnyVictory && bTheyAreCloseToAnyVictory)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2);
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2);
-
-			if (bEasyTarget)
+			else if (bTheyAreCloseToAnyVictory && bEasyTarget)
 			{
 				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 			}
-		}
-		else if (bTheyAreCloseToAnyVictory && bEasyTarget)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5);
 		}
 	}
 
@@ -8183,16 +8186,24 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					{
 						viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 						viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+						viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+						viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 						viScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
 						viScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+						viScratchValueOverrides[MAJOR_CIV_APPROACH_GUARDED] = 0;
+						viScratchValueOverrides[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 					}
 				}
 				else
 				{
 					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
 					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] = 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 					viScratchValueOverrides[MAJOR_CIV_APPROACH_WAR] = 0;
 					viScratchValueOverrides[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+					viScratchValueOverrides[MAJOR_CIV_APPROACH_GUARDED] = 0;
+					viScratchValueOverrides[MAJOR_CIV_APPROACH_DECEPTIVE] = 0;
 				}
 			}
 		}
