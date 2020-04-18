@@ -1107,6 +1107,24 @@ function TipHandler( control )
 					
 					strResourcesNeeded = strResourcesNeeded .. iNumResourceNeededToUpgrade .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
 				end
+
+				if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") then
+					local iNumResourcesTotalNeeded = unit:GetNumResourceTotalNeededToUpgrade(iResourceLoop)
+					
+					if iNumResourcesTotalNeeded > 0 and iNumResourcesTotalNeeded > pActivePlayer:GetNumResourceTotal(iResourceLoop) then
+						-- Add separator for non-initial entries
+						if (strResourcesTotalNeeded ~= "") then
+							strResourcesTotalNeeded = strResourcesTotalNeeded .. ", ";
+						end
+						strResourcesTotalNeeded = strResourcesTotalNeeded .. iNumResourcesTotalNeeded .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+					elseif iNumResourcesTotalNeeded > 0 and pActivePlayer:GetNumResourceAvailable(iResourceLoop) < 0 then
+						-- Add separator for non-initial entries
+						if (strResourcesNetPositiveNeeded ~= "") then
+							strResourcesNetPositiveNeeded = strResourcesNetPositiveNeeded .. ", ";
+						end
+						strResourcesNetPositiveNeeded = strResourcesNetPositiveNeeded .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+					end
+				end
 			end
 			
 			-- Build resources required string
@@ -1120,6 +1138,28 @@ function TipHandler( control )
 				end
 				
 				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES", strResourcesNeeded);
+			end
+
+			if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") and (strResourcesTotalNeeded ~= "") then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+				
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES", strResourcesTotalNeeded);
+			end
+
+			if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") and (strResourcesNetPositiveNeeded ~= "") then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+				
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE", strResourcesNetPositiveNeeded);
 			end
     
     	        -- if we can't upgrade due to stacking

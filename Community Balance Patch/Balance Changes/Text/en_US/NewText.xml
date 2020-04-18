@@ -67,7 +67,7 @@
 			<Text>Ogma, the Learned</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN">
-			<Text>+25% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +10 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born, scaling with Era. +1 [ICON_HAPPINESS_1] Happiness per following City. +4 [ICON_PEACE] Faith from Ceilidh Hall</Text>
+			<Text>+25% increase in City [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +10 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born, scaling with Era. +1 [ICON_HAPPINESS_1] Happiness per following City. +4 [ICON_PEACE] Faith from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
 			<Text>Bran, the Sleeping Guardian</Text>

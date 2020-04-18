@@ -71,6 +71,27 @@ function GetHelpTextForUnit(iUnitID, bIncludeRequirementsInfo)
 			--iNumResourcesNeededSoFar = iNumResourcesNeededSoFar + 1;
 		end
  	end
+
+	if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") then
+		local iNumResourceTotalNeeded;
+		for pResource in GameInfo.Resources() do
+			iResourceID = pResource.ID;
+			iNumResourceTotalNeeded = Game.GetNumResourceTotalRequiredForUnit(iUnitID, iResourceID);
+			if (iNumResourceTotalNeeded > 0) then
+				-- First resource required
+				if (iNumResourcesNeededSoFar == 0) then
+					strHelpText = strHelpText .. "[NEWLINE]";
+					strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED");
+					strHelpText = strHelpText .. " " .. iNumResourceTotalNeeded .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+				else
+					strHelpText = strHelpText .. ", " .. iNumResourceTotalNeeded .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+				end
+				
+				-- JON: Not using this for now, the formatting is better when everything is on the same line
+				--iNumResourcesNeededSoFar = iNumResourcesNeededSoFar + 1;
+			end
+		end
+	end
 	
 	-- Pre-written Help text
 	if (not pUnitInfo.Help) then

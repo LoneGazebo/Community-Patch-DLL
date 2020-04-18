@@ -57,9 +57,9 @@ SELECT 'DIPLO_AI_HIDE_NEUTRAL_OPINION_VALUES', '0';
 
 -- Debug
 
--- Debug variable to enable certain AI logging and/or behavior changes for personal testing.
+-- Debug variable to enable certain AI logging and/or behavior changes for testing.
 -- Added to avoid needing to make database changes for test builds.
 -- Might also be used by players to diagnose certain problems.
--- Keep this set to 0 unless you A) were instructed to change this or B) know what you're doing, otherwise unexpected results may occur. - HW
+-- Keep this set to 0 unless you A) were instructed to change this or B) know what you're doing, otherwise unexpected results may occur.
 INSERT INTO Defines (Name, Value)
-SELECT 'HW_DEBUG_ENABLED', '0';
+SELECT 'DIPLO_DEBUG_ENABLED', '0';

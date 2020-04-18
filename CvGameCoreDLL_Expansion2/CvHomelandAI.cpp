@@ -1451,6 +1451,16 @@ void CvHomelandAI::PlotUpgradeMoves()
 								{
 									bMissingResource = true;
 								}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+								{
+									int iResourceTotal = GC.getUnitInfo(eUpgradeUnitType)->GetResourceQuantityTotal(eResource);
+									if (m_pPlayer->getNumResourceTotal(eResource) < iResourceTotal || m_pPlayer->getNumResourceAvailable(eResource) + iNumResourceInUnit < 0)
+									{
+										bMissingResource = true;
+									}
+								}
+#endif
 							}
 						}
 					}

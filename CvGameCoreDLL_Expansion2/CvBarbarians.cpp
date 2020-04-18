@@ -847,6 +847,19 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eU
 						iValue += 100;
 						break;
 					}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					{
+						int iNumResourceTotal = GC.getUnitInfo(eLoopUnit)->GetResourceQuantityTotal(eResource);
+
+						if (iNumResourceTotal > 0)
+						{
+							iValue += 100;
+							break;
+						}
+					}
+#endif
 				}
 			}
 

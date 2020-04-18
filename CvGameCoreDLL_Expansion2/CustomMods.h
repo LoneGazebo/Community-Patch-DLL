@@ -266,6 +266,8 @@
 #define MOD_GLOBAL_TRULY_FREE_GP                    gCustomMods.isGLOBAL_TRULY_FREE_GP()
 // Allows faith purchase of buildings in puppets
 #define MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS	gCustomMods.isGLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS()
+// Various new tables and logics for improvements
+#define MOD_IMPROVEMENTS_EXTENSIONS					gCustomMods.isIMPROVEMENTS_EXTENSIONS()
 // No auto spawn great prophets for human players, must select pulldown menu in Lua when you are ready to spawn one, only pre-Industrial era
 #define MOD_NO_AUTO_SPAWN_PROPHET					gCustomMods.isNO_AUTO_SPAWN_PROPHET()
 // Change Assyria's trait to choosing a free tech upon city conquest
@@ -360,6 +362,7 @@
 #define MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_NEW_GP_ATTRIBUTES())
 #define MOD_BALANCE_CORE_JFD						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_JFD())
 #define MOD_BALANCE_CORE_MILITARY_RESISTANCE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESISTANCE())
+#define MOD_BALANCE_CORE_MILITARY_RESOURCES			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESOURCES()) // lack of strategic resources causes units to be unable to heal, rather than decrease their combat strength
 #define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
 #define MOD_BALANCE_CORE_VICTORY_GAME_CHANGES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_VICTORY_GAME_CHANGES())
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
@@ -386,6 +389,7 @@
 
 #define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
 #define MOD_ISKA_PANTHEONS							gCustomMods.isISKA_PANTHEONS()
+#define MOD_ISKA_GAMEOPTIONS							gCustomMods.isISKA_GAMEOPTIONS()
 
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -493,6 +497,8 @@
 #define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
+// Enables the table Unit_ResourceQuantityTotals - AFFECTS SAVE GAME DATA FORMAT
+#define MOD_UNITS_RESOURCE_QUANTITY_TOTALS			gCustomMods.isUNITS_RESOURCE_QUANTITY_TOTALS()
 
 // Removes religion preference
 #define MOD_RELIGION_NO_PREFERRENCES                gCustomMods.isRELIGION_NO_PREFERRENCES()
@@ -728,6 +734,10 @@
 //   GameEvents.UnitCanHaveUpgrade.Add(function(iPlayer, iUnit, iUnitClassType, iUnitType) return true end)
 //   GameEvents.UnitUpgraded.Add(function(iPlayer, iOldUnit, iNewUnit, bGoodyHut) end)
 #define MOD_EVENTS_UNIT_UPGRADES                    gCustomMods.isEVENTS_UNIT_UPGRADES()
+
+// Events sent as units are converted (wherever CvUnit::convert() is called, eg upgrade or barbarian capture)
+//   GameEvents.UnitConverted.Add(function(iOldPlayer, iNewPlayer, iOldUnit, iNewUnit, bIsUpgrade) return true end)
+#define MOD_EVENTS_UNIT_CONVERTS                    gCustomMods.isEVENTS_UNIT_CONVERTS()
 
 // Events sent as units are created (v51)
 //   GameEvents.UnitCanHaveName.Add(function(iPlayer, iUnit, iName) return true end)
@@ -1241,6 +1251,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitPromoted					"UnitPromoted",					"iii"
 #define GAMEEVENT_UnitRangeAttackAt				"UnitRangeAttackAt",			"iiii"
 #define GAMEEVENT_UnitUpgraded					"UnitUpgraded",					"iiib"
+#define GAMEEVENT_UnitConverted					"UnitConverted",				"iiiib"
 #define GAMEEVENT_IdeologyAdopted				"IdeologyAdopted",				"ii"
 #define GAMEEVENT_IdeologySwitched				"IdeologySwitched",				"iii"
 //JFD
@@ -1431,6 +1442,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
 	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
 	MOD_OPT_DECL(GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS);
+	MOD_OPT_DECL(IMPROVEMENTS_EXTENSIONS);
 	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
@@ -1503,6 +1515,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_NEW_GP_ATTRIBUTES);
 	MOD_OPT_DECL(BALANCE_CORE_JFD);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_RESISTANCE);
+	MOD_OPT_DECL(BALANCE_CORE_MILITARY_RESOURCES);
 	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);
 	MOD_OPT_DECL(BALANCE_CORE_VICTORY_GAME_CHANGES);
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
@@ -1582,6 +1595,7 @@ public:
 	MOD_OPT_DECL(UNITS_LOCAL_WORKERS);
 	MOD_OPT_DECL(UNITS_HOVERING_LAND_ONLY_HEAL);
 	MOD_OPT_DECL(UNITS_HOVERING_COASTAL_ATTACKS);
+	MOD_OPT_DECL(UNITS_RESOURCE_QUANTITY_TOTALS);
 
 	MOD_OPT_DECL(RELIGION_NO_PREFERRENCES);
 	MOD_OPT_DECL(RELIGION_RANDOMISE);
@@ -1656,6 +1670,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CAN_MOVE_INTO);
 	MOD_OPT_DECL(EVENTS_UNIT_ACTIONS);
 	MOD_OPT_DECL(EVENTS_UNIT_UPGRADES);
+	MOD_OPT_DECL(EVENTS_UNIT_CONVERTS);
 	MOD_OPT_DECL(EVENTS_UNIT_DATA);
 	MOD_OPT_DECL(EVENTS_TRADE_ROUTES);
 	MOD_OPT_DECL(EVENTS_TRADE_ROUTE_PLUNDERED);
@@ -1718,6 +1733,7 @@ public:
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
 	MOD_OPT_DECL(ISKA_PANTHEONS);
+	MOD_OPT_DECL(ISKA_GAMEOPTIONS);
 
 	MOD_OPT_DECL(BATTLE_ROYALE);
 

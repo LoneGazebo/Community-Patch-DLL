@@ -109,7 +109,7 @@
 			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
-			<Text>{1_Building} destroyed in {2_City} due to Event Choice!</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] destroyed in {2_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
 			<Text>MAKE EVENT CHOICE</Text>

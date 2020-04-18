@@ -218,6 +218,15 @@
     <!-- Allows faith purchase of buildings in puppets -->
     <Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
 
+    <!-- 
+	Various new tables and logics for improvements. Currently, this is required to activate:
+		- Column 'CreatesFeature' in 'Improvements'.
+		- Column 'RandResourceChance' in 'Improvements'.
+		- Column 'NewOwner' in 'Improvements'.
+		- Column 'RemoveWhenComplete' in 'Improvements'.
+	-->
+    <Row Class="4" Name="IMPROVEMENTS_EXTENSIONS" Value="0" DbUpdates="1"/>
+
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
     <Row Class="6" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>
@@ -421,6 +430,9 @@
     <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_RANGE" Value="1"/>
     <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_MULTIPLIER" Value="1"/>
     <Row Class="0" Name="UNITS_HOVERING_COASTAL_ATTACKS_DIVISOR" Value="2"/>
+
+    <!-- Enables the table Unit_ResourceQuantityTotals -->
+    <Row Class="5" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
 
     <!-- Removes religion preference (v19) -->
     <!-- See also: "Religion - Randomise" -->
@@ -737,6 +749,9 @@
     <!--   GameEvents.CanHaveUpgrade.Add(function(iPlayer, iUnit, iUnitClassType, iUnitType) return true end) -->
     <!--   GameEvents.UnitUpgraded.Add(function(iPlayer, iOldUnit, iNewUnit, bGoodyHut) end) -->
     <Row Class="3" Name="EVENTS_UNIT_UPGRADES" Value="0"/>
+    <!-- Events sent as units are converted (wherever CvUnit::convert() is called, eg upgrade or barbarian capture) -->
+    <!--   GameEvents.UnitConverted.Add(function(iOldPlayer, iNewPlayer, iOldUnit, iNewUnit, bIsUpgrade) return true end) -->
+    <Row Class="3" Name="EVENTS_UNIT_CONVERTS" Value="0"/>
     
     <!-- Events sent as units are created (v51) -->
     <!--   GameEvents.UnitCanHaveName.Add(function(iPlayer, iUnit, iName) return true end) -->
@@ -1053,6 +1068,8 @@
 	<Row Class="6" Name="BALANCE_CORE_JFD" Value="0"/>
 	<!-- Resistance Mod for Units based on # of capitals controlled. -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
+	<!-- Lack of strategic resources causes units to be unable to heal, rather than decrease their combat strength -->
+	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESOURCES" Value="0"/>
 	<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->
 	<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
 	<!-- Removes era-specific messages for civ influence. Useful for mods like Unique Cultural Influence that add special notifications. -->

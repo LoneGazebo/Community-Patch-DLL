@@ -472,6 +472,10 @@ public:
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
+
+	int CalculateMedianNumCities();
+	int CalculateMedianNumPlots();
+	int CalculateMedianNumWondersConstructed();
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void updateEconomicTotal();
 	void updateGlobalAverage();

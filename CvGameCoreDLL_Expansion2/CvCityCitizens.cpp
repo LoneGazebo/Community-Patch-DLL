@@ -3450,6 +3450,15 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				}
 			}
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+			// GPP from resource monopolies
+			GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+			if (eGreatPerson != NO_GREATPERSON)
+			{
+				iGPPChange += GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
+			}
+#endif
+
 			if (iGPPChange > 0)
 			{
 				int iMod = 0;

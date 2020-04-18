@@ -474,5 +474,13 @@
 		<Row Tag="TXT_KEY_EUI_EMPIRE">
 			<Text>[COLOR_HIGHLIGHT_TEXT]Empire[ENDCOLOR]</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_EUI_RESOURCES_QUANTITY_TOTAL_REQUIRED">
+			<Text>Access required</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EUI_RESOURCES_QUANTITY_TOTAL_REQUIRED_UNIT_PANEL">
+			<Text>Resource Access Required:</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

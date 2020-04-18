@@ -203,6 +203,17 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 						bBad = true;
 						break;
 					}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					{
+						iNumResource = pkUnitInfo->GetResourceQuantityTotal(eResource);
+						if (iNumResource > 0)
+						{
+							bBad = true;
+							break;
+						}
+					}
+#endif
 				}
 			}
 			if(bBad)
