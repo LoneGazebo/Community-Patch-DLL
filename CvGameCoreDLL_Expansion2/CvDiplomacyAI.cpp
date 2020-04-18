@@ -42692,23 +42692,26 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 	if (IsAngryAboutSidedWithTheirProtectedMinor(ePlayer))
 	{
 		iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_SIDED_WITH_THEIR_MINOR();
-		
-		if (GetBoldness() > 7 || GetMeanness() > 7)
-			iOpinionWeight += 10;
+
+		if (!IsDoFAccepted(ePlayer))
+		{
+			if (GetBoldness() > 7 || GetMeanness() > 7)
+				iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD();
 
 #if defined(MOD_BALANCE_CORE)
-		else if (MOD_BALANCE_CORE)
-		{
-			if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 ||
-				GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0 ||
-				GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 ||
-				GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties() ||
-				GetPlayer()->IsCanBullyFriendlyCS())
+			else if (MOD_BALANCE_CORE)
 			{
-				iOpinionWeight += 10;
+				if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 ||
+					GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0 ||
+					GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 ||
+					GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties() ||
+					GetPlayer()->IsCanBullyFriendlyCS())
+				{
+					iOpinionWeight += /*10*/ GC.getOPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD();
+				}
 			}
-		}
 #endif
+		}
 	}
 	
 	return iOpinionWeight;
