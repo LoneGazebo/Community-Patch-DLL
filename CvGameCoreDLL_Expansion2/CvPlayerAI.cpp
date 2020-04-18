@@ -349,16 +349,29 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 				{
 					bLiberate = true;
 				}
-				// if the player is a friend and we're going for diplo victory, then liberate to score some friend points
-				else if (GetDiplomacyAI()->IsDoFAccepted(eOriginalOwner) && GetDiplomacyAI()->IsGoingForDiploVictory())
+				// if the player is a friend and we're going for diplo victory or really like them, then liberate to score some friend points
+				else if (GetDiplomacyAI()->IsDoFAccepted(eOriginalOwner) && (GetDiplomacyAI()->IsGoingForDiploVictory() || GetDiplomacyAI()->IsCloseToDiploVictory() || GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_FRIEND)
+				{
+					bLiberate = true;
+				}
+				// ally?
+				else if (GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) == MAJOR_CIV_OPINION_ALLY)
 				{
 					bLiberate = true;
 				}
 			}
 			// if the player isn't human and we're going for diplo victory, resurrect players to get super diplo bonuses
-			else if (!GET_PLAYER(eOriginalOwner).isHuman() && GetDiplomacyAI()->IsGoingForDiploVictory())
+			else if (!GET_PLAYER(eOriginalOwner).isHuman())
 			{
-				bLiberate = true;
+				if (GetDiplomacyAI()->IsGoingForDiploVictory() || || GetDiplomacyAI()->IsCloseToDiploVictory())
+				{
+					bLiberate = true;
+				}
+				// also resurrect if our Opinion of them was positive
+				else if (GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_FRIEND)
+				{
+					bLiberate = true;
+				}
 			}
 #if defined(MOD_BALANCE_CORE)
 			if(isMinorCiv() && GetMinorCivAI()->GetAlly() == eOriginalOwner)
