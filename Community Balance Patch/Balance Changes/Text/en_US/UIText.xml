@@ -311,7 +311,7 @@
 		
 
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
-			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
+			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">

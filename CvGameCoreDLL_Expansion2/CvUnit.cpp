@@ -226,6 +226,7 @@ CvUnit::CvUnit() :
 	, m_iAirSweepCombatModifier("CvUnit::m_iAirSweepCombatModifier", m_syncArchive)
 	, m_iAttackModifier("CvUnit::m_iAttackModifier", m_syncArchive)
 	, m_iDefenseModifier("CvUnit::m_iDefenseModifier", m_syncArchive)
+	, m_iGroundAttackDamage("CvUnit::m_iGroundAttackDamage", m_syncArchive)
 	, m_iExtraCombatPercent("CvUnit::m_iExtraCombatPercent", m_syncArchive)
 	, m_iExtraCityAttackPercent("CvUnit::m_iExtraCityAttackPercent", m_syncArchive)
 	, m_iExtraCityDefensePercent("CvUnit::m_iExtraCityDefensePercent", m_syncArchive)
@@ -1514,6 +1515,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAirSweepCombatModifier = 0;
 	m_iAttackModifier = 0;
 	m_iDefenseModifier = 0;
+	m_iGroundAttackDamage = 0;
 	m_iExtraCityAttackPercent = 0;
 	m_iExtraCityDefensePercent = 0;
 	m_iExtraRangedDefenseModifier = 0;
@@ -11125,9 +11127,12 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 #endif
 
 	// Blocked by Inquisitor?
-	if(pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+	if (!MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
-		return false;
+		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+		{
+			return false;
+		}
 	}
 
 	if(isDelayedDeath())
@@ -11430,6 +11435,39 @@ bool CvUnit::DoRemoveHeresy()
 				}
 			}
 
+			if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+			{
+				bool bNoPenalty = false;
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
+				if (pReligion)
+				{
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
+					{
+						pHolyCity = pHolyCityPlot->getPlotCity();
+					}
+					if (pHolyCity != NULL)
+					{	
+						for (int i = 0; i < NUM_YIELD_TYPES; i++)
+						{
+							int iTempVal = pReligion->m_Beliefs.GetYieldFromRemoveHeresy((YieldTypes)i, getOwner(), pHolyCity, true);
+							if (iTempVal > 0)
+							{
+								bNoPenalty = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if (!bNoPenalty)
+				{
+					pCity->changePopulation(-1);
+					pCity->ChangeResistanceTurns(1);
+				}
+			}
+
 #if !defined(NO_ACHIEVEMENTS)
 			//Achievements
 			if(getOwner() == GC.getGame().getActivePlayer())
@@ -11587,8 +11625,17 @@ int CvUnit::GetConversionStrength() const
 		}
 	}
 	// CUSTOMLOG("Unit conversion str: %i", iReligiousStrength);
-
 #endif
+
+	// Blocked by Inquisitor?
+	if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+	{
+		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+		{
+			iReligiousStrength /= 2;
+		}
+	}
+
 	return iReligiousStrength;
 }
 
@@ -18850,6 +18897,25 @@ void CvUnit::changeDefenseModifier(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getGroundAttackDamage() const
+{
+	VALIDATE_OBJECT
+		return m_iGroundAttackDamage;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeGroundAttackDamage(int iValue)
+{
+	VALIDATE_OBJECT
+	if (iValue != 0)
+	{
+		m_iGroundAttackDamage += iValue;
+	}
+}
+
+
+
+//	--------------------------------------------------------------------------------
 int CvUnit::cityAttackModifier() const
 {
 	VALIDATE_OBJECT
@@ -21322,12 +21388,12 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 #endif
 #endif
 		// Great General & Unit XP mod in borders
-		if (bInBorders && getDomainType() == DOMAIN_LAND)
+		if (bInBorders)
 		{
 			// In-borders GG mod
-			iCombatExperienceMod += kPlayer.getDomesticGreatGeneralRateModifier() + kPlayer.getExpInBorderModifier();
+			iCombatExperienceMod += (getDomainType() == DOMAIN_LAND ? kPlayer.getDomesticGreatGeneralRateModifier() : 0) + kPlayer.getExpInBorderModifier();
 #if defined(MOD_UNITS_XP_TIMES_100)
-			int iBorderBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpInBorderModifier()) / 100;
+			int iBorderBonusXpTimes100 = (iChangeTimes100 * iCombatExperienceMod) / 100;
 			if (!MOD_UNITS_XP_TIMES_100) {
 				// If NOT using XP times 100, remove any fractional part
 				iBorderBonusXpTimes100 -= (iBorderBonusXpTimes100 % 100);
@@ -26908,6 +26974,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeAdjacentModifier(thisPromotion.GetAdjacentMod() * iChange);
 		changeAttackModifier(thisPromotion.GetAttackMod() * iChange);
 		changeDefenseModifier(thisPromotion.GetDefenseMod() * iChange);
+		changeGroundAttackDamage(thisPromotion.GetGroundAttackDamage() * iChange);
 		changeExtraCombatPercent(thisPromotion.GetCombatPercent() * iChange);
 		changeExtraCityAttackPercent(thisPromotion.GetCityAttackPercent() * iChange);
 		changeExtraCityDefensePercent(thisPromotion.GetCityDefensePercent() * iChange);
@@ -27808,9 +27875,7 @@ bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
 	if (!IsAirSweepCapable())
 		return bFoundSomething;
 
-	int iAirSweepDamage = getUnitInfo().GetRangedCombat() / 10;
-	iAirSweepDamage *= 100 + GetAirSweepCombatModifier();
-	iAirSweepDamage /= 100;
+	int iAirSweepDamage = getGroundAttackDamage();
 
 	CvString strAppendText = GetLocalizedText("TXT_KEY_PROMOTION_AIR_SWEEP");
 

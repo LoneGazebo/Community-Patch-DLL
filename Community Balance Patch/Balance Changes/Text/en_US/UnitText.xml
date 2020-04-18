@@ -82,19 +82,19 @@
 			<Text>Air Defense I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP">
-			<Text>+10 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes. Available once you have researched Flight.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. +15 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes. Available once you have researched Flight.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II">
 			<Text>Air Defense II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP">
-			<Text>+15 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. +20 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III">
 			<Text>Air Defense III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP">
-			<Text>+20 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR]. +25 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
 		</Row>
 			
 		<Row Tag="TXT_KEY_UNIT_GUERILLA">
@@ -437,7 +437,7 @@
 			<Text>Stealth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]90%[ENDCOLOR] chance to evade Interception. [COLOR_POSITIVE_TEXT]-50%[ENDCOLOR] Damage received from Interceptions.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to evade Interception. [COLOR_POSITIVE_TEXT]-25%[ENDCOLOR] Damage received from Interceptions. +50 Hit Points.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HELI_REPAIR">
@@ -638,7 +638,7 @@
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR], and [NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]-15%[ENDCOLOR] [ICON_RANGE_STRENGTH] Ranged Combat Strength per adjacent [COLOR_POSITIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Indomitable</Text>
@@ -665,7 +665,7 @@
 			<Text>Piracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PIRACY_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated enemies as [ICON_GOLD] Gold.[NEWLINE]20% chance to withdraw from Melee combat.</Text>
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated enemies as [ICON_GOLD] Gold.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BREACHER">
@@ -870,19 +870,19 @@
 			<Text>Field I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_I_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open[ENDCOLOR] Terrain.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II">
 			<Text>Field II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_II_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open[ENDCOLOR] Terrain</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III">
 			<Text>Field III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_III_HELP">
-			<Text>+5% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open[ENDCOLOR] Terrain</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">

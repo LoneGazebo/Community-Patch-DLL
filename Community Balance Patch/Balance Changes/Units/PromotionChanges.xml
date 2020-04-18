@@ -509,9 +509,10 @@
 			<Description>TXT_KEY_PROMOTION_LOGISTICS</Description>
 			<Help>TXT_KEY_PROMOTION_LOGISTICS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_4</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_TARGETING_3</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_FIELD_III</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_4</PromotionPrereqOr4>
 			<OrderPriority>7</OrderPriority>
 			<ExtraAttacks>1</ExtraAttacks>
 			<RangedAttackModifier>-30</RangedAttackModifier>
@@ -562,7 +563,7 @@
 			<Help>TXT_KEY_PROMOTION_INTERCEPTION_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<InterceptionCombatModifier>33</InterceptionCombatModifier>
+			<InterceptChanceChange>25</InterceptChanceChange>
 			<PortraitIndex>27</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -575,6 +576,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
+			<InterceptChanceChange>25</InterceptChanceChange>
 			<InterceptionCombatModifier>33</InterceptionCombatModifier>
 			<RangeChange>1</RangeChange>
 			<PortraitIndex>28</PortraitIndex>
@@ -589,8 +591,9 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<InterceptionCombatModifier>34</InterceptionCombatModifier>
-			<NumInterceptionChange>1</NumInterceptionChange>
+			<InterceptChanceChange>25</InterceptChanceChange>
+			<InterceptionCombatModifier>33</InterceptionCombatModifier>
+			<RangeChange>1</RangeChange>
 			<PortraitIndex>29</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -603,6 +606,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<AirSweepCombatModifier>33</AirSweepCombatModifier>
+			<GetGroundAttackDamage>5</GetGroundAttackDamage>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -616,6 +620,7 @@
 			<PromotionPrereqOr1>PROMOTION_DOGFIGHTING_1</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<AirSweepCombatModifier>33</AirSweepCombatModifier>
+			<GetGroundAttackDamage>10</GetGroundAttackDamage>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -629,6 +634,7 @@
 			<PromotionPrereqOr1>PROMOTION_DOGFIGHTING_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<AirSweepCombatModifier>34</AirSweepCombatModifier>
+			<GetGroundAttackDamage>15</GetGroundAttackDamage>
 			<PortraitIndex>18</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -766,9 +772,9 @@
 			<Description>TXT_KEY_PROMOTION_AIR_RANGE</Description>
 			<Help>TXT_KEY_PROMOTION_AIR_RANGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_1</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_2</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr3>
+			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_3</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_3</PromotionPrereqOr3>
 			<OrderPriority>5</OrderPriority>
 			<RangeChange>2</RangeChange>
 			<PortraitIndex>34</PortraitIndex>
@@ -781,8 +787,9 @@
 			<Description>TXT_KEY_PROMOTION_SORTIE</Description>
 			<Help>TXT_KEY_PROMOTION_SORTIE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_2</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_3</PromotionPrereqOr1>
 			<OrderPriority>6</OrderPriority>
+			<InterceptionCombatModifier>34</InterceptionCombatModifier>
 			<NumInterceptionChange>1</NumInterceptionChange>
 			<RangeChange>1</RangeChange>
 			<PortraitIndex>47</PortraitIndex>
@@ -1678,7 +1685,7 @@
 			<Help>TXT_KEY_PROMOTION_EVASION_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_AIR_TARGETING_2</PromotionPrereqOr1>
-			<EvasionChange>25</EvasionChange>
+			<EvasionChange>33</EvasionChange>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -1690,7 +1697,7 @@
 			<Help>TXT_KEY_PROMOTION_EVASION_II_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_EVASION_I</PromotionPrereqOr1>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<EvasionChange>25</EvasionChange>
+			<EvasionChange>33</EvasionChange>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -3266,8 +3273,9 @@
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIELD_III</PromotionPrereqOr2>
-			<OutsideFriendlyLandsModifier>15</OutsideFriendlyLandsModifier>
-			<AttackWoundedMod>15</AttackWoundedMod>
+			<OutsideFriendlyLandsModifier>25</OutsideFriendlyLandsModifier>
+			<AttackWoundedMod>25</AttackWoundedMod>
+			<AdjacentMod>15</AdjacentMod>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3366,7 +3374,7 @@
 			<PortraitIndex>6</PortraitIndex>
 			<OrderPriority>3</OrderPriority>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
-			<ExtraWithdrawal>25</ExtraWithdrawal>
+			<ExtraWithdrawal>50</ExtraWithdrawal>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PIRACY</PediaEntry>
 		</Row>
@@ -3766,7 +3774,8 @@
 			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
-			<LandAirDefenseBonus>10</LandAirDefenseBonus>
+			<LandAirDefenseBonus>15</LandAirDefenseBonus>
+			<RangedDefenseMod>10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_ACCURACY_1</PromotionPrereqOr3>
@@ -3787,7 +3796,8 @@
 			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
-			<LandAirDefenseBonus>15</LandAirDefenseBonus>
+			<LandAirDefenseBonus>20</LandAirDefenseBonus>
+			<RangedDefenseMod>10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_ANTIAIR_LAND_I</PromotionPrereqOr1>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3800,7 +3810,8 @@
 			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
-			<LandAirDefenseBonus>20</LandAirDefenseBonus>
+			<LandAirDefenseBonus>25</LandAirDefenseBonus>
+			<RangedDefenseMod>10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_ANTIAIR_LAND_II</PromotionPrereqOr1>
 			<PortraitIndex>18</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -4178,8 +4189,9 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>1</OrderPriority>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<EvasionChange>90</EvasionChange>
-			<InterceptionDefenseDamageModifier>-50</InterceptionDefenseDamageModifier>
+			<EvasionChange>25</EvasionChange>
+			<InterceptionDefenseDamageModifier>-25</InterceptionDefenseDamageModifier>
+			<MaxHitPointsChange>50</MaxHitPointsChange>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>

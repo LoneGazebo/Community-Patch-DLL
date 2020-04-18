@@ -128,8 +128,12 @@
 -- Adjust Sortie
 	
 	UPDATE Language_en_US
-	SET Text = '+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].[NEWLINE]+1 operational range.'
+	SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft. [NEWLINE]+1 operational range. +1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = 'Ace Pilot IV'
+	WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- March
 	UPDATE Language_en_US
@@ -730,14 +734,26 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.'
+	SET Text = '+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
-	SET Text = '+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.[NEWLINE]+1 operational range.'
+	SET Text = '+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units. +33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Language_en_US
-	SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft.[NEWLINE]+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
+	SET Text = '+25% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] enemy Air Units. +33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] enemy aircraft. [NEWLINE]+1 operational range.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
+
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. If this Air Sweep is not Intercepted, deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Aircraft units adjacent to Air Sweep target.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. If this Air Sweep is not Intercepted, deal [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] to all Aircraft units adjacent to Air Sweep target.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = '+34% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. If this Air Sweep is not Intercepted, deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Aircraft units adjacent to Air Sweep target.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

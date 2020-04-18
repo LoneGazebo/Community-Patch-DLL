@@ -2386,7 +2386,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 		// improvement spawns resource?
 		int iResourceChance = GC.getImprovementInfo(eImprovement)->GetRandomResourceChance();
-		if (iResourceChance > 0 && m_pCurrentPlot->getResourceType() == NO_RESOURCE)
+		if (iResourceChance > 0 && pPlot->getResourceType() == NO_RESOURCE)
 		{
 			iSecondaryScore += 5 * iResourceChance;
 		}

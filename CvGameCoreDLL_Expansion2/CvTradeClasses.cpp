@@ -4750,7 +4750,7 @@ int CvPlayerTrade::GetNumberOfTradeRoutesCity(const CvCity* pCity)
 		return 0;
 
 	UpdateTradeStats();
-	return m_tradeStats.nRoutesToCity[pCity->GetID()];
+	return m_tradeStats.nRoutesToCity[pCity->GetID()] + m_tradeStats.nRoutesFromCity[pCity->GetID()];
 }
 
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)

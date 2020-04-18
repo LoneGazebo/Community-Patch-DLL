@@ -5571,23 +5571,11 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, NO_PLAYER);
 			if(pReligion)
 			{
-				if(eResponsiblePlayer != NO_PLAYER)
+				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
+				if (iPressureRetention > 0)
 				{
-					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-					if (iPressureRetention > 0)
-					{
-						ePressureRetainedReligion = it->m_eReligion;
-						iPressureRetained = it->m_iPressure * iPressureRetention / 100;
-					}
-				}
-				else
-				{
-					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-					if (iPressureRetention > 0)
-					{
-						ePressureRetainedReligion = it->m_eReligion;
-						iPressureRetained = it->m_iPressure * iPressureRetention / 100;
-					}
+					ePressureRetainedReligion = it->m_eReligion;
+					iPressureRetained = it->m_iPressure * iPressureRetention / 100;
 				}
 			}
 		}
@@ -7740,7 +7728,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 		}
 	}
 
-	// THIRD PRIORITY - OTHER UNITS
+	// FOURTH PRIORITY - OTHER UNITS
 	// Try to build other units with Faith if we took that belief
 	if((eReligion != NO_RELIGION) && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
 	{
@@ -10890,6 +10878,10 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 	int iHeathens = pCity->getPopulation() - pCR->GetFollowersOtherReligions(eMyReligion) - pCR->GetNumFollowers(eMyReligion);
 	iScore += (iHeathens * iPressureRatio) / 100;
 
+	//don't target inquisitor cities right away.
+	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
+		iScore /= 2;
+
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	if(MOD_BALANCE_CORE_HAPPINESS && pCity->getOwner() == m_pPlayer->GetID())
 	{
@@ -11183,7 +11175,6 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	if (m_pPlayer->GetPlayerTraits()->IsReconquista() && m_pPlayer->GetPlayerTraits()->IsForeignReligionSpreadImmune())
 		return true;
 #endif
-
 	// Need one for every city in our realm that is of another religion, plus more for defense
 	int iNumNeeded = 1;
 

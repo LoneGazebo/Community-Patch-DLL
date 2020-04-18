@@ -3065,12 +3065,16 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
+		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			return;
+
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestCityForQuest(m_eAssignedPlayer);
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
 		if (!pCity)
 			return;
+
 		m_iData1 = pCity->plot()->getX();
 		m_iData2 = pCity->plot()->getY();
 		m_iData3 = pCity->getOwner();
