@@ -11628,7 +11628,7 @@ int CvUnit::GetConversionStrength() const
 #endif
 
 	// Blocked by Inquisitor?
-	if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+	if (pCity != NULL && MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
