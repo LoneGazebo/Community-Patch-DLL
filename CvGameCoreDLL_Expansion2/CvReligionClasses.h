@@ -648,6 +648,7 @@ private:
 	int GetSpreadScore() const;
 	int GetNumKnownHeathenCities(int iMaxTurnsAway, ReligionTypes eReligionToSpread) const;
 	bool DoFaithPurchases();
+	bool BuyMissionaryOrInquisitor(ReligionTypes eReligion);
 	bool BuyMissionary(ReligionTypes eReligion);
 	bool BuyInquisitor(ReligionTypes eReligion);
 	bool BuyGreatPerson(UnitTypes eUnit, ReligionTypes eReligion = NO_RELIGION);

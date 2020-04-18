@@ -586,6 +586,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetMonopolyGreatPersonRateModifier);
+	Method(GetMonopolyGreatPersonRateChange);
 #endif
 
 	Method(GetProductionModifier);
@@ -4134,17 +4135,17 @@ int CvLuaPlayer::lSetWarWeariness(lua_State* L)
 int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness();
 	int iSupply = pkPlayer->GetNumUnitsSuppliedByHandicap();
 	iSupply += pkPlayer->GetNumUnitsSuppliedByCities();
 	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
-	int iMod = iSupply;
-	iMod *= (100 - iWarWeariness);
-	iMod /= 100;
 
-	iSupply -= iMod;
+	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness() / 2;
+	int iMod = (100 - min(75, iWarWeariness));
+	int iSupplyReduction = iSupply;
+	iSupplyReduction *= iMod;
+	iSupplyReduction /= 100;
 
-	lua_pushinteger(L, min(75, iSupply));
+	lua_pushinteger(L, iSupply - iSupplyReduction);
 	return 1;
 }
 
@@ -7443,7 +7444,8 @@ int CvLuaPlayer::lGetPolicyGreatDiplomatRateModifier(lua_State* L)
 #endif
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
-// int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, bool bGlobalMonopoly, bool bStrategicMonopoly) const;
+//------------------------------------------------------------------------------
+// int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist) const;
 int CvLuaPlayer::lGetMonopolyGreatPersonRateModifier(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -7454,6 +7456,24 @@ int CvLuaPlayer::lGetMonopolyGreatPersonRateModifier(lua_State* L)
 	if (eGreatPerson != NO_GREATPERSON)
 	{
 		iModifier = pkPlayer->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// int getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist) const;
+int CvLuaPlayer::lGetMonopolyGreatPersonRateChange(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	int iModifier = 0;
+	// Do we get increased great person rate from a resource monopoly?
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iModifier = pkPlayer->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson);
 	}
 
 	lua_pushinteger(L, iModifier);
@@ -13925,28 +13945,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
-	/*
-	iValue = pDiploAI->GetGaveAssistanceToScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_ASSISTANCE_FROM_THEM");
-		aOpinions.push_back(kOpinion);
-	}
-
-	iValue = pDiploAI->GetPaidTributeToScore(eWithPlayer);
-	if (iValue != 0)
-	{
-		Opinion kOpinion;
-		kOpinion.m_iValue = iValue;
-		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_PAID_TRIBUTE");
-		aOpinions.push_back(kOpinion);
-	}
-	*/
-
 	// World Congress >>> United Nations
-	if(GC.getGame().IsUnitedNationsActive())
+	if (GC.getGame().IsUnitedNationsActive())
 	{
 		iValue = pDiploAI->GetLikedTheirProposalScore(eWithPlayer);
 		if (iValue != 0)

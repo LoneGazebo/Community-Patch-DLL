@@ -4801,6 +4801,7 @@ CvResourceInfo::CvResourceInfo() :
 	m_piCityYieldModFromMonopoly(NULL),
 	m_piiMonopolyCombatModifiers(),
 	m_piMonopolyGreatPersonRateModifiers(),
+	m_piMonopolyGreatPersonRateChanges(),
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal(),
@@ -4823,6 +4824,7 @@ CvResourceInfo::~CvResourceInfo()
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
 	m_piiMonopolyCombatModifiers.clear();
 	m_piMonopolyGreatPersonRateModifiers.clear();
+	m_piMonopolyGreatPersonRateChanges.clear();
 #endif
 #if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal.clear();
@@ -5283,7 +5285,7 @@ int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpeciali
 		}
 	}
 
-	if (eMonopoly == MONOPOLY_GLOBAL)
+	else if (eMonopoly == MONOPOLY_GLOBAL)
 	{
 		sKey.m_sMonopoly.m_bGlobalMonopoly = true;
 		sKey.m_sMonopoly.m_bStrategicMonopoly = false;
@@ -5300,6 +5302,61 @@ int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpeciali
 		it = m_piMonopolyGreatPersonRateModifiers.find(sKey);
 
 		if (it != m_piMonopolyGreatPersonRateModifiers.end())
+		{
+			iMod += it->second;
+		}
+	}
+
+	return iMod;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
+{
+	MonopolyGreatPersonRateModifierKey sKey;
+	sKey.m_iSpecialist = (int)eSpecialist;
+	int iMod = 0;
+
+	std::map<MonopolyGreatPersonRateModifierKey, int>::const_iterator it;
+
+	if (eMonopoly == MONOPOLY_STRATEGIC)
+	{
+		sKey.m_sMonopoly.m_bGlobalMonopoly = true;
+		sKey.m_sMonopoly.m_bStrategicMonopoly = true;
+
+		it = m_piMonopolyGreatPersonRateChanges.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateChanges.end())
+		{
+			iMod += it->second;
+		}
+
+		sKey.m_sMonopoly.m_bGlobalMonopoly = false;
+
+		it = m_piMonopolyGreatPersonRateChanges.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateChanges.end())
+		{
+			iMod += it->second;
+		}
+	}
+
+	else if (eMonopoly == MONOPOLY_GLOBAL)
+	{
+		sKey.m_sMonopoly.m_bGlobalMonopoly = true;
+		sKey.m_sMonopoly.m_bStrategicMonopoly = false;
+
+		it = m_piMonopolyGreatPersonRateChanges.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateChanges.end())
+		{
+			iMod += it->second;
+		}
+
+		sKey.m_sMonopoly.m_bStrategicMonopoly = true;
+
+		it = m_piMonopolyGreatPersonRateChanges.find(sKey);
+
+		if (it != m_piMonopolyGreatPersonRateChanges.end())
 		{
 			iMod += it->second;
 		}
@@ -5629,7 +5686,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		std::map<ResourceMonopolySettings, CombatModifiers>(m_piiMonopolyCombatModifiers).swap(m_piiMonopolyCombatModifiers);
 	}
 
-	//Resource_GreatPersonRateModifiers
+	//Resource_MonopolyGreatPersonRateModifiers
 	{
 
 		std::string sqlKey = "Resource_MonopolyGreatPersonRateModifiers";
@@ -5661,6 +5718,40 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<MonopolyGreatPersonRateModifierKey, int>(m_piMonopolyGreatPersonRateModifiers).swap(m_piMonopolyGreatPersonRateModifiers);
+	}
+
+	//Resource_MonopolyGreatPersonRateChanges
+	{
+
+		std::string sqlKey = "Resource_MonopolyGreatPersonRateChanges";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Specialists.ID as SpecialistID, IsGlobalMonopoly, IsStrategicMonopoly, Value from Resource_MonopolyGreatPersonRateChanges inner join Specialists on Specialists.Type = SpecialistType where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const int iSpecialist = pResults->GetInt(0);
+			const bool bGlobalMonopoly = pResults->GetBool(1);
+			const bool bStrategicMonopoly = pResults->GetBool(2);
+			const int iValue = pResults->GetInt(3);
+
+			MonopolyGreatPersonRateModifierKey sKey;
+			sKey.m_iSpecialist = iSpecialist;
+			sKey.m_sMonopoly.m_bGlobalMonopoly = bGlobalMonopoly;
+			sKey.m_sMonopoly.m_bStrategicMonopoly = bStrategicMonopoly;
+
+			m_piMonopolyGreatPersonRateChanges[sKey] += iValue;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<MonopolyGreatPersonRateModifierKey, int>(m_piMonopolyGreatPersonRateChanges).swap(m_piMonopolyGreatPersonRateChanges);
 	}
 #endif
 

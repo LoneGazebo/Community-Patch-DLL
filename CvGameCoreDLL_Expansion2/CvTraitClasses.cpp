@@ -6302,6 +6302,20 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 								break;
 							}
 						}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+						{
+							iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+							if (iNumResource > 0)
+							{
+								if (m_pPlayer->getNumResourceTotal(eResource, true) < iNumResource || m_pPlayer->getNumResourceAvailable(eResource, true) < 0)
+								{
+									bBad = true;
+									break;
+								}
+							}
+						}
+#endif
 					}
 					if(bBad)
 					{

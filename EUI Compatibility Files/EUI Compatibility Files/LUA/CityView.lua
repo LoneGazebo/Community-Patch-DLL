@@ -1875,6 +1875,7 @@ local function UpdateCityViewNow()
 					end
 
 					gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID)
+					gpChange = gpChange + cityOwner:GetMonopolyGreatPersonRateChange(specialist.ID)
 
 					local gpChangePlayerMod = cityOwner:GetGreatPeopleRateModifier()
 					local gpChangeCityMod = city:GetGreatPeopleRateModifier()

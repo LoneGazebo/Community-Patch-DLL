@@ -5583,7 +5583,6 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 /// Accessor: How much of this yield are we generating from Great Works in our buildings?
 int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
-
 	//Simplification - errata yields not worth considering.
 	if(eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 	{

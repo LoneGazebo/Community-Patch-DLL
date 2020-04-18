@@ -2410,7 +2410,7 @@
 
 		<!-- Construction -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CONSTRUCT_X_BUILDING">
-			<Text>Builders from {3_Civ} are eager to study the value of the {1_Building}. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
+			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_X_BUILDING">
 			<Text>Construction project from {@1_Civ}</Text>
@@ -2809,6 +2809,29 @@
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
 			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
+		</Row>
+		
+		<!-- Lack of gross resource (before deductions) -->
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_LACKS_GROSS_RESOURCES">
+			<Text>[NEWLINE]Access to {1_Num} {2_ResourceIcon} {3_ResourceName:textkey} needed to build this unit.</Text>
+		</Row>
+	
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES">
+			<Text>You need access to {1_ResourcesString} to upgrade this Unit.</Text>
+		</Row>
+
+		<!-- Resources is net negative (after deductions) -->
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_NET_RESOURCES_NEGATIVE">
+			<Text>[NEWLINE]Positive {1_ResourceIcon} {2_ResourceName:textkey} count needed to build this unit.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE">
+			<Text>You need positive {1_ResourcesString} count to upgrade this Unit.</Text>
+		</Row>
+
+		<!-- Unit requires total resources (before deductions) -->
+		<Row Tag="TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED">
+			<Text>[ICON_BULLET] Access required:</Text>
 		</Row>
 		
 		<!-- Opinion Indicator for Human Teammate -->
@@ -5142,10 +5165,10 @@
 			<Text>{1_BuildingName} sabotaged in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+			<Text>An unidentified spy sabotaged your [COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
+			<Text>An unidentified spy sabotaged your [COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_S">
@@ -5484,7 +5507,7 @@
 		
 		<!--Revolutions-->
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
-			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in {1_Turns} turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will restore the sovereignty of {3_CivName}. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will restore the sovereignty of {3_CivName}. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
 			<Text>Revolutionary Unrest Brewing</Text>
@@ -5497,7 +5520,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
-			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in {1_Turns} turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will become an independent City-State. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will become an independent City-State. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
 			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
@@ -6128,6 +6151,12 @@
 		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN">
+			<Text>A City has revolted and joined {3_CivName}!</Text>
+		</Row>
+
+		
 
 		<!-- Production cost reduction from resources at city level -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">

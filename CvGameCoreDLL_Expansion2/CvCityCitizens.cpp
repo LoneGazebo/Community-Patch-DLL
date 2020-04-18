@@ -908,11 +908,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iYield *= 2;
+				iYield += 5;
 			}
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 			{
-				iYield *= 2;
+				iYield += 5;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
 			if (eYield == YIELD_FOOD)
@@ -947,11 +947,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 				{
-					iYield *= 5;
+					iYield += 10;
 				}
 				else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
-					iYield *= 3;
+					iYield += 5;
 				}
 
 				iYield *= 100 + iFoodEmphasisModifier;
@@ -962,11 +962,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYield *= GC.getAI_CITIZEN_VALUE_PRODUCTION();
 				if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bCityFoodProduction)
 				{
-					iYield *= 6;
+					iYield += 10;
 				}
 				if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
 				{
-					iYield *= 3;
+					iYield += 5;
 				}
 			}
 			else if (eYield == YIELD_GOLD)
@@ -974,11 +974,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYield *= GC.getAI_CITIZEN_VALUE_GOLD();
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 				{
-					iYield *= 6;
+					iYield += 10;
 				}
 				if (eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 				{
-					iYield *= 3;
+					iYield += 5;
 				}
 			}
 			else if (eYield == YIELD_SCIENCE)
@@ -986,7 +986,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYield *= GC.getAI_CITIZEN_VALUE_SCIENCE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 				{
-					iYield *= 6;
+					iYield += 10;
 				}
 			}
 			else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
@@ -994,7 +994,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYield *= GC.getAI_CITIZEN_VALUE_CULTURE();
 				if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 				{
-					iYield *= 6;
+					iYield += 10;
 				}
 			}
 			else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
@@ -1002,12 +1002,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
 				if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 				{
-					iYield *= 6;
+					iYield += 10;
 				}
-			}
-			else
-			{
-				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
 			}
 
 			if (iYield > 0)
@@ -1017,32 +1013,32 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 				case YIELD_GOLD:
 					if (store.iUnhappinessFromGold > 0)
 					{
-						iYield *= 2;
+						iYield += store.iUnhappinessFromGold;
 					}
 					break;
 				case YIELD_SCIENCE:
 					if (store.iUnhappinessFromScience > 0)
 					{
-						iYield *= 2;
+						iYield += store.iUnhappinessFromScience;
 					}
 					break;
 				case YIELD_CULTURE:
 					if (store.iUnhappinessFromCulture> 0)
 					{
-						iYield *= 2;
+						iYield += store.iUnhappinessFromCulture;
 					}
 					break;
 				case YIELD_FAITH:
 					if (store.iUnhappinessFromReligion > 0)
 					{
-						iYield *= 2;
+						iYield += store.iUnhappinessFromReligion;
 					}
 					break;
 				case YIELD_PRODUCTION:
 				case YIELD_FOOD:
 					if (store.iUnhappinessFromDistress > 0)
 					{
-						iYield *= 2;
+						iYield += store.iUnhappinessFromDistress;
 					}
 					break;
 				}
@@ -1050,7 +1046,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers sto
 
 			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
 			{
-				iYield *= (pkProcessInfo->getProductionToYieldModifier(eYield) / 5);
+				iYield += (pkProcessInfo->getProductionToYieldModifier(eYield) / 5);
 			}
 			
 			if (eTargetYield != NO_YIELD && eTargetYield != eYield)
@@ -3449,6 +3445,15 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
 				}
 			}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES) && defined(MOD_API_LUA_EXTENSIONS)
+			// GPP from resource monopolies
+			GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+			if (eGreatPerson != NO_GREATPERSON)
+			{
+				iGPPChange += GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
+			}
+#endif
 
 			if (iGPPChange > 0)
 			{

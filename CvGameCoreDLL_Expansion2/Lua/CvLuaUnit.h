@@ -172,6 +172,10 @@ protected:
 #endif
 	static int lGetNumResourceNeededToUpgrade(lua_State* L);
 
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	static int lGetNumResourceTotalNeededToUpgrade(lua_State* L);
+#endif
+
 	static int lGetHandicapType(lua_State* L);
 	static int lGetCivilizationType(lua_State* L);
 	static int lGetSpecialUnitType(lua_State* L);

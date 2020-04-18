@@ -900,6 +900,9 @@ public:
 	int getDefenseModifier() const;
 	void changeDefenseModifier(int iValue);
 
+	int getGroundAttackDamage() const;
+	void changeGroundAttackDamage(int iValue);
+
 	int cityAttackModifier() const;
 	int cityDefenseModifier() const;
 	int rangedDefenseModifier() const;
@@ -1071,7 +1074,7 @@ public:
 	void changeBlitzCount(int iChange);
 
 	int getAmphibCount() const;
-	bool isAmphib() const;
+	bool isAmphibious() const;
 	void changeAmphibCount(int iChange);
 
 	int getRiverCrossingNoPenaltyCount() const;
@@ -2046,6 +2049,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAirSweepCombatModifier;
 	FAutoVariable<int, CvUnit> m_iAttackModifier;
 	FAutoVariable<int, CvUnit> m_iDefenseModifier;
+	FAutoVariable<int, CvUnit> m_iGroundAttackDamage;
 	FAutoVariable<int, CvUnit> m_iExtraCombatPercent;
 	FAutoVariable<int, CvUnit> m_iExtraCityAttackPercent;
 	FAutoVariable<int, CvUnit> m_iExtraCityDefensePercent;

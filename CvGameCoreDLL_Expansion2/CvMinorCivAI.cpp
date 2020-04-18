@@ -3065,12 +3065,16 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
+		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			return;
+
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestCityForQuest(m_eAssignedPlayer);
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
 		if (!pCity)
 			return;
+
 		m_iData1 = pCity->plot()->getX();
 		m_iData2 = pCity->plot()->getY();
 		m_iData3 = pCity->getOwner();
@@ -16958,7 +16962,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
 		if (!pMajorLoop) continue;
 
-		if (pMajorLoop->isAlive() && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()))
+		if (pMajorLoop->isAlive() && eMajorLoop != eBully && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()))
 		{
 			if(GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
 			{

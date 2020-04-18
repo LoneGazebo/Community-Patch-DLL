@@ -203,6 +203,17 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 						bBad = true;
 						break;
 					}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					{
+						iNumResource = pkUnitInfo->GetResourceQuantityTotal(eResource);
+						if (iNumResource > 0)
+						{
+							bBad = true;
+							break;
+						}
+					}
+#endif
 				}
 			}
 			if(bBad)
@@ -794,7 +805,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND)
 					{
-						iWarValue += 5;
+						iWarValue += 15;
 					}
 
 					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)

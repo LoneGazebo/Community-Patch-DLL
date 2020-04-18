@@ -251,6 +251,9 @@ public:
 	int* GetUnitNewEraCombatTypeChangesArray(int i);
 	int GetUnitNewEraPromotions(int i, int j) const;
 	int* GetUnitNewEraPromotionsChangesArray(int i);
+#endif'
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	int GetResourceQuantityTotal(int i) const;
 #endif
 	bool GetFreePromotions(int i) const;
 
@@ -475,6 +478,9 @@ private:
 	int* m_piEraCombatStrength;
 	int** m_ppiEraUnitCombatType;
 	int** m_ppiEraUnitPromotions;
+#endif
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+	std::map<int, int> m_piResourceQuantityTotals;
 #endif
 	bool* m_pbFreePromotions;
 

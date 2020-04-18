@@ -226,6 +226,7 @@ CvUnit::CvUnit() :
 	, m_iAirSweepCombatModifier("CvUnit::m_iAirSweepCombatModifier", m_syncArchive)
 	, m_iAttackModifier("CvUnit::m_iAttackModifier", m_syncArchive)
 	, m_iDefenseModifier("CvUnit::m_iDefenseModifier", m_syncArchive)
+	, m_iGroundAttackDamage("CvUnit::m_iGroundAttackDamage", m_syncArchive)
 	, m_iExtraCombatPercent("CvUnit::m_iExtraCombatPercent", m_syncArchive)
 	, m_iExtraCityAttackPercent("CvUnit::m_iExtraCityAttackPercent", m_syncArchive)
 	, m_iExtraCityDefensePercent("CvUnit::m_iExtraCityDefensePercent", m_syncArchive)
@@ -1514,6 +1515,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAirSweepCombatModifier = 0;
 	m_iAttackModifier = 0;
 	m_iDefenseModifier = 0;
+	m_iGroundAttackDamage = 0;
 	m_iExtraCityAttackPercent = 0;
 	m_iExtraCityDefensePercent = 0;
 	m_iExtraRangedDefenseModifier = 0;
@@ -2257,6 +2259,13 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	}
 #endif
 
+#if defined(MOD_EVENTS_UNIT_CONVERTS)
+	if (MOD_EVENTS_UNIT_CONVERTS)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitConverted, pUnit->getOwner(),getOwner(), pUnit->GetID(), GetID(), bIsUpgrade);
+	}
+#endif
+
 	pUnit->kill(true, NO_PLAYER);
 }
 
@@ -2398,43 +2407,43 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 #if defined(MOD_BALANCE_CORE)
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-			if(iEra <= 0)
-			{
-				iEra = 1;
-			}
+			if (iEra < 0)
+				iEra = 0;
+
+			// AI cares less about lost workers / etc in lategame
+			int iEraFactor = 8 - iEra;
+			if (iEraFactor <= 0)
+				iEraFactor = 1;
+
 			int iCivValue = 0;
-			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
+			if (IsCivilianUnit() && pPlot && !pPlot->isCity()) // Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
 			{
 				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
 				{
-					if(IsGreatPerson())
-						iCivValue = 3 * iEra;
-					else
-						iCivValue = iEra;
-				}
-			}
-			else if (IsCivilianUnit() && pPlot && pPlot->isCity() && GetOriginalOwner() == getOwner())
-			{
-				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
-				{
-					if(IsGreatPerson())
+					if (IsGreatPerson())
 					{
-						iCivValue = 2 * iEra;
+						iCivValue = 5 * iEraFactor;
+					}
+					else if (isFound() || IsFoundAbroad())
+					{
+						iCivValue = 3 * iEraFactor;
+					}
+					else
+					{
+						iCivValue = iEraFactor;
 					}
 				}
 			}
 
 			if (GC.getGame().getGameTurn() <= 100)
-				iCivValue *= 10;
+			{
+				iCivValue *= 2;
+			}
 
 			iCivValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCivValue /= 100;
 
-			// Don't apply the diplo penalty for units stationed in a city, since civilians aren't being targeted in particular
-			if (!plot()->isCity())
-			{
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iCivValue);
-			}
 #endif
 			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
 			if (iWarscoremod != 0)
@@ -2974,7 +2983,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 				if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 				{
-					MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
+					MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION;
 					MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
 					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 					{
@@ -3014,7 +3023,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 			if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
 			{
-				MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
+				MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION;
 				MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;
 				if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 				{
@@ -7225,7 +7234,7 @@ bool CvUnit::canRecruitFromTacticalAI() const
 	if (IsGarrisoned())
 	{
 		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(plot()->getPlotCity(),false);
-		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>7)
+		if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore(NO_DOMAIN)>7)
 			return false;
 	}
 
@@ -7483,8 +7492,8 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
+#if defined(MOD_BALANCE_CORE_MILITARY_RESOURCES)
+	if (MOD_BALANCE_CORE_MILITARY_RESOURCES && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -7503,6 +7512,22 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 					return false;
 				}
 			}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			{
+				int iNumResource = m_pUnitInfo->GetResourceQuantityTotal(eResource);
+				if (iNumResource > 0)
+				{
+					int iTotal = kPlayer.getNumResourceTotal(eResource);
+					int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+					if (iTotal < iNumResource || iAvailable < 0)
+					{
+						return false;
+					}
+				}
+			}
+#endif
 		}
 	}
 #endif
@@ -11102,9 +11127,12 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 #endif
 
 	// Blocked by Inquisitor?
-	if(pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+	if (!MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
-		return false;
+		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+		{
+			return false;
+		}
 	}
 
 	if(isDelayedDeath())
@@ -11407,6 +11435,39 @@ bool CvUnit::DoRemoveHeresy()
 				}
 			}
 
+			if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+			{
+				bool bNoPenalty = false;
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
+				if (pReligion)
+				{
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
+					{
+						pHolyCity = pHolyCityPlot->getPlotCity();
+					}
+					if (pHolyCity != NULL)
+					{	
+						for (int i = 0; i < NUM_YIELD_TYPES; i++)
+						{
+							int iTempVal = pReligion->m_Beliefs.GetYieldFromRemoveHeresy((YieldTypes)i, getOwner(), pHolyCity, true);
+							if (iTempVal > 0)
+							{
+								bNoPenalty = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if (!bNoPenalty)
+				{
+					pCity->changePopulation(-1);
+					pCity->ChangeResistanceTurns(1);
+				}
+			}
+
 #if !defined(NO_ACHIEVEMENTS)
 			//Achievements
 			if(getOwner() == GC.getGame().getActivePlayer())
@@ -11564,8 +11625,17 @@ int CvUnit::GetConversionStrength() const
 		}
 	}
 	// CUSTOMLOG("Unit conversion str: %i", iReligiousStrength);
-
 #endif
+
+	// Blocked by Inquisitor?
+	if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+	{
+		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+		{
+			iReligiousStrength /= 2;
+		}
+	}
+
 	return iReligiousStrength;
 }
 
@@ -13533,6 +13603,20 @@ bool CvUnit::build(BuildTypes eBuild)
 													break;
 												}
 											}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											{
+												iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+												if (iNumResource > 0)
+												{
+													if (kPlayer.getNumResourceTotal(eResource, true) < iNumResource || kPlayer.getNumResourceAvailable(eResource, true) < 0)
+													{
+														bBad = true;
+														break;
+													}
+												}
+											}
+#endif
 										}
 										if(bBad)
 										{
@@ -13580,6 +13664,20 @@ bool CvUnit::build(BuildTypes eBuild)
 													break;
 												}
 											}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+											{
+												iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+												if (iNumResource > 0)
+												{
+													if (kPlayer.getNumResourceTotal(eResource, true) < iNumResource || kPlayer.getNumResourceAvailable(eResource, true) < 0)
+													{
+														bBad = true;
+														break;
+													}
+												}
+											}
+#endif
 										}
 										if(bBad)
 										{
@@ -14299,6 +14397,24 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 					if (iNumOfThisResourceAvailable - iNumResourceNeeded + iNumOfThisResourceFreed < 0)
 						return false;
 			}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			{
+				int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityTotal(eResource);
+
+				if (iNumResourceNeeded > 0)
+				{
+					int iResourceTotal = kPlayer.getNumResourceTotal(eResource);
+					int iResourceAvailable = kPlayer.getNumResourceAvailable(eResource);
+
+					if (iNumResourceNeeded > iResourceTotal || iResourceAvailable < 0)
+					{
+						return false;
+					}
+				}
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
@@ -15453,14 +15569,22 @@ bool CvUnit::IsDead() const
 /// Over strategic resource limit?
 int CvUnit::GetStrategicResourceCombatPenalty() const
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-	return 0;
-#else
+#if defined(MOD_BALANCE_CORE_MILITARY_RESOURCES)
+	if (MOD_BALANCE_CORE_MILITARY_RESOURCES)
+	{
+		// units cannot heal anymore, but strength is unaffected
+		return 0;
+	}
+#endif
 	int iPenalty = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	// barbs and city states don't require resources
+	if(isBarbarian() || GET_PLAYER(getOwner()).isMinorCiv())
+#else
 	// barbs don't have resources
 	if(isBarbarian())
+#endif
 		return iPenalty;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -15473,10 +15597,12 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 		eResource = (ResourceTypes) iResourceLoop;
 
 		int iAvailable = kPlayer.getNumResourceAvailable(eResource);
+#if !defined(MOD_BALANCE_CORE)
 		if (kPlayer.isMinorCiv())
 		{
 			iAvailable += kPlayer.getResourceExport(eResource);
 		}
+#endif
 
 		// Over resource limit?
 		if(iAvailable < 0)
@@ -15501,7 +15627,6 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 
 	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 	return iPenalty;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -16137,9 +16262,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			}
 
 			// Amphibious attack
-			if(!isAmphib())
+			if(!isAmphibious())
 			{
-				if(pFromPlot->needsEmbarkation(this))
+				if(!isNativeDomain(pFromPlot))
 					iModifier += GC.getAMPHIB_ATTACK_MODIFIER();
 			}
 
@@ -16375,7 +16500,7 @@ int CvUnit::GetEmbarkedUnitDefense() const
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
 	int iResistance = 0;
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
+	if (MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 	{
 		if (pOtherUnit->getOwner() == NO_PLAYER)
 			return 0;
@@ -16386,11 +16511,12 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 		if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
 			return 0;
 
+		// No bonus if we're attacking in their territory
 		if (plot()->getOwner() == pOtherUnit->getOwner())
 			return 0;
 
 		iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
-		//Not our territory?
+		// Not our territory?
 		if (plot()->getOwner() == NO_PLAYER)
 			iResistance /= 2;
 	}
@@ -18769,6 +18895,25 @@ void CvUnit::changeDefenseModifier(int iValue)
 		m_iDefenseModifier += iValue;
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getGroundAttackDamage() const
+{
+	VALIDATE_OBJECT
+		return m_iGroundAttackDamage;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeGroundAttackDamage(int iValue)
+{
+	VALIDATE_OBJECT
+	if (iValue != 0)
+	{
+		m_iGroundAttackDamage += iValue;
+	}
+}
+
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::cityAttackModifier() const
@@ -21243,12 +21388,12 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 #endif
 #endif
 		// Great General & Unit XP mod in borders
-		if (bInBorders && getDomainType() == DOMAIN_LAND)
+		if (bInBorders)
 		{
 			// In-borders GG mod
-			iCombatExperienceMod += kPlayer.getDomesticGreatGeneralRateModifier() + kPlayer.getExpInBorderModifier();
+			iCombatExperienceMod += (getDomainType() == DOMAIN_LAND ? kPlayer.getDomesticGreatGeneralRateModifier() : 0) + kPlayer.getExpInBorderModifier();
 #if defined(MOD_UNITS_XP_TIMES_100)
-			int iBorderBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpInBorderModifier()) / 100;
+			int iBorderBonusXpTimes100 = (iChangeTimes100 * iCombatExperienceMod) / 100;
 			if (!MOD_UNITS_XP_TIMES_100) {
 				// If NOT using XP times 100, remove any fractional part
 				iBorderBonusXpTimes100 -= (iBorderBonusXpTimes100 % 100);
@@ -21641,7 +21786,7 @@ int CvUnit::getAmphibCount() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isAmphib() const
+bool CvUnit::isAmphibious() const
 {
 	VALIDATE_OBJECT
 	return (getAmphibCount() > 0);
@@ -23947,6 +24092,20 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 											break;
 										}
 									}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+									if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+									{
+										iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+										if (iNumResource > 0)
+										{
+											if (kPlayer.getNumResourceTotal(eResource, true) < iNumResource || kPlayer.getNumResourceAvailable(eResource, true) < 0)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+#endif
 								}
 								if(bBad)
 								{
@@ -26815,6 +26974,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeAdjacentModifier(thisPromotion.GetAdjacentMod() * iChange);
 		changeAttackModifier(thisPromotion.GetAttackMod() * iChange);
 		changeDefenseModifier(thisPromotion.GetDefenseMod() * iChange);
+		changeGroundAttackDamage(thisPromotion.GetGroundAttackDamage() * iChange);
 		changeExtraCombatPercent(thisPromotion.GetCombatPercent() * iChange);
 		changeExtraCityAttackPercent(thisPromotion.GetCityAttackPercent() * iChange);
 		changeExtraCityDefensePercent(thisPromotion.GetCityDefensePercent() * iChange);
@@ -27081,7 +27241,10 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 
 CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 {
-	VALIDATE_OBJECT
+	//don't swap into a frontline plot
+	if (swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
+		return NULL;
+
 	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
 		if (canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -27712,9 +27875,7 @@ bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
 	if (!IsAirSweepCapable())
 		return bFoundSomething;
 
-	int iAirSweepDamage = getUnitInfo().GetRangedCombat() / 10;
-	iAirSweepDamage *= 100 + GetAirSweepCombatModifier();
-	iAirSweepDamage /= 100;
+	int iAirSweepDamage = getGroundAttackDamage();
 
 	CvString strAppendText = GetLocalizedText("TXT_KEY_PROMOTION_AIR_SWEEP");
 
@@ -28988,18 +29149,18 @@ const char* CvUnit::GetMissionInfo()
 	m_strMissionInfoString.clear();
 	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
 
-		m_strMissionInfoString += " // ";
+	m_strMissionInfoString += " // ";
 
 	if ( (m_eTacticalMove==AI_TACTICAL_MOVE_NONE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-			m_strMissionInfoString += "no move assigned";
-		else
-		{
-			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
-				m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
+		m_strMissionInfoString += "no move assigned";
+	else
+	{
+		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+			m_strMissionInfoString += tacticalMoveNames[m_eTacticalMove];
 
-		if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
-				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
-		}
+	if (m_eTacticalMove==AI_TACTICAL_MOVE_NONE)
+			m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
+	}
 
 	if (IsCombatUnit())
 	{
@@ -29007,28 +29168,28 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += getTacticalZoneInfo();
 	}
 	else if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		m_strMissionInfoString += " // ";
+		m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+	}
+	else if (isTrade())
+	{
+		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+		int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
+		if (iTrIndex>=0)
 		{
-			m_strMissionInfoString += " // ";
-			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
-		}
-		else if (isTrade())
-		{
-			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-			int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
-			if (iTrIndex>=0)
+			const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
+			if (pTradeConnection)
 			{
-				const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
-				if (pTradeConnection)
-				{
-					CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
-					CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
-					CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
-						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
-						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
-						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
+				CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
+				CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
+				CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
+					pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
+					pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
+					pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
 
-					m_strMissionInfoString += " // ";
-					m_strMissionInfoString += strTemp0;
+				m_strMissionInfoString += " // ";
+				m_strMissionInfoString += strTemp0;
 			}
 		}
 	}

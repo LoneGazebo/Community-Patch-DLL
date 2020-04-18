@@ -10215,11 +10215,28 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer)
 	{
 		if(GET_TEAM(GetPlayer()->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
 		{
-			iAlignment += 3;
+			iAlignment += ALIGNMENT_SELF;
 		}
 		else
 		{
-			iAlignment += 1;
+			switch (GetPlayer()->GetDiplomacyAI()->GetVassalTreatmentLevel(ePlayer))
+			{
+				case VASSAL_TREATMENT_CONTENT:
+					iAlignment += ALIGNMENT_ALLY;
+					break;
+				case VASSAL_TREATMENT_DISAGREE:
+					iAlignment += ALIGNMENT_NEUTRAL;
+					break;
+				case VASSAL_TREATMENT_MISTREATED:
+					iAlignment += 1;
+					break;
+				case VASSAL_TREATMENT_UNHAPPY:
+					iAlignment += -1;
+					break;
+				case VASSAL_TREATMENT_ENSLAVED:
+					iAlignment += -2;
+					break;
+			}
 		}
 	}
 #endif

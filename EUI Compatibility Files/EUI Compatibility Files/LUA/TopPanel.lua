@@ -186,6 +186,7 @@ local function ScanGP( player )
 				end
 				-- Vox Populi
 				gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID);
+				gpChange = gpChange + player:GetMonopolyGreatPersonRateChange(specialist.ID);
 
 				local gpChangePlayerMod = player:GetGreatPeopleRateModifier()
 				local gpChangeCityMod = city:GetGreatPeopleRateModifier()
@@ -2060,7 +2061,7 @@ if civ5_mode and gk_mode then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 		end
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction);
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction);
 
 		if(strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;

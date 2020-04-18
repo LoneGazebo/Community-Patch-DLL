@@ -12747,7 +12747,11 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		{
 			for (int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 			{
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				if (pkUnitInfo->GetResourceQuantityRequirement(iResource) > 0 || (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitInfo->GetResourceQuantityTotal(iResource) > 0))
+#else
 				if (pkUnitInfo->GetResourceQuantityRequirement(iResource) > 0)
+#endif
 				{
 					iTempMod = pkCorporationInfo->GetUnitResourceProductionModifier(iResource);
 					iMultiplier += iTempMod;
@@ -13829,13 +13833,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			bool bIsWonder = ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo());
 			if (bIsWonder)
+			{
 				owningPlayer.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_US);
+				if (!pBuildingInfo->IsUnlockedByLeague() && !pBuildingInfo->IsCorp())
+					owningPlayer.ChangeWondersConstructed(1);
+			}
 			if (!bNoBonus && bIsWonder)
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
 				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
-				owningPlayer.ChangeWondersConstructed(1);
-				if(iTourism > 0)
+
+				if (iTourism > 0)
 				{
 					owningPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
@@ -15226,14 +15234,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							{
 								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
 								{
-									int iResourceQuantityPerPlot = MAX(it->first, 1);
-									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
-									pLoopPlot->DoFindCityToLinkResourceTo();
-									iNumResourcePlotsGiven++;
-									if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+									ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+									if (eImprovement != NO_IMPROVEMENT)
 									{
-										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(eImprovement);
+										if (ImprovementEntry && ImprovementEntry->IsCreatedByGreatPerson() && ImprovementEntry->IsImprovementResourceMakesValid(eResource) == false)
+										{
+											continue;
+										}
+
+										int iResourceQuantityPerPlot = MAX(it->first, 1);
+										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+										pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
+										pLoopPlot->DoFindCityToLinkResourceTo();
+										iNumResourcePlotsGiven++;
+										if (!pLoopPlot->IsImprovementPillaged())
 										{
 											if (ImprovementEntry)
 											{
@@ -15243,42 +15258,42 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 												}
 											}
 										}
-									}
-									if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
-									{
-										if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
+										if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 										{
-											CvString strBuffer;
-											CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-											CvAssert(pResourceInfo);
-											NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
-											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
-
-											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
-
-											switch (pResourceInfo->getResourceUsage())
+											if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
 											{
-											case RESOURCEUSAGE_LUXURY:
-												eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
-												break;
-											case RESOURCEUSAGE_STRATEGIC:
-												eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
-												break;
-											case RESOURCEUSAGE_BONUS:
-												eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
-												break;
-											}
+												CvString strBuffer;
+												CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+												CvAssert(pResourceInfo);
+												NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+												strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
-											CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-											if (pNotifications)
-											{
-												pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+												CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+
+												switch (pResourceInfo->getResourceUsage())
+												{
+												case RESOURCEUSAGE_LUXURY:
+													eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+													break;
+												case RESOURCEUSAGE_STRATEGIC:
+													eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+													break;
+												case RESOURCEUSAGE_BONUS:
+													eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+													break;
+												}
+
+												CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+												if (pNotifications)
+												{
+													pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+												}
 											}
 										}
-									}
-									if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-									{
-										break;
+										if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+										{
+											break;
+										}
 									}
 								}
 							}
@@ -16183,7 +16198,8 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
 		//Also mountains, because they aren't called anywhere else!
-		UpdateYieldPerXTerrainFromReligion(eYield, TERRAIN_MOUNTAIN);
+		UpdateYieldPerXTerrainFromReligion(eYield);
+		UpdateYieldPerXFeature(eYield);
 		UpdateYieldPerXTerrain(eYield, TERRAIN_MOUNTAIN);
 		UpdateYieldPerXFeature(eYield);
 		updateExtraSpecialistYield(eYield);
@@ -24340,7 +24356,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
-			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this);
+			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR(eYield, getOwner(), this);
 		}
 	}
 	SetSpecialReligionYields(eYield, iYieldValue);
@@ -28149,29 +28165,23 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST);
 
 	// Garrisoned Unit
-	int iMinCombatStrength = 0;
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
+		int iStrengthFromGarrisonRaw = pGarrisonedUnit->GetBaseCombatStrength();
 		if (!pGarrisonedUnit->isNativeDomain(plot()))
 			iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
 
-		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
-		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
-		iStrengthValue += iStrengthFromGarrison;
+		iStrengthValue += (iStrengthFromGarrison * 100);
 	}
 
 	// Generals / Admirals also help (both the city and the garrison)
 	if (GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_GREAT_GENERAL, NO_DOMAIN, plot()) > 0)
 	{
-		iMinCombatStrength += GC.getCITY_STRENGTH_HILL_CHANGE();
 		iStrengthValue += GC.getCITY_STRENGTH_HILL_CHANGE();
 	}
-
-	// Can't be weaker than the garrison alone
-	iStrengthValue = max(iMinCombatStrength, iStrengthValue);
 
 	//finally
 	if (iStrengthValue != m_iStrengthValue)
@@ -28212,8 +28222,8 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				if (!pGarrisonedUnit->isNativeDomain(plot()))
 					iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
 
-				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
-				iValue -= iStrengthFromGarrison;
+				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+				iValue -= (iStrengthFromGarrison * 100);
 			}
 
 			// buildings
@@ -30031,11 +30041,11 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 							if (!canTrain(eUnit))
 							{
 								continue;
-	}
+							}
 							if (pUnitEntry->GetRangedCombat() > 0)
-	{
+							{
 								continue;
-	}
+							}
 							if (pUnitEntry->GetDomainType() == DOMAIN_LAND)
 							{
 								bool bBad = false;
@@ -30047,72 +30057,58 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 									if (iNumResource > 0)
 									{
 										if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < iNumResource)
-	{
+										{
 											bBad = true;
 											break;
 										}
 									}
-	}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+									if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+									{
+										iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+										if (iNumResource > 0)
+										{
+											if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource, true) < iNumResource || GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < 0)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+#endif
+								}
 								if (bBad)
-	{
+								{
 									continue;
-	}
+								}
 								int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
 								if (iCombatLandStrength > iStrengthBestLandCombat)
-	{
+								{
 									iStrengthBestLandCombat = iCombatLandStrength;
 									eBestLandUnit = eUnit;
 								}
-	}
-	}
-		}
-	}
+							}
+						}
+					}
+				}
 				if (eBestLandUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
 					if (pkbUnitEntry)
-	{
+					{
 						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
 						int iResult = CreateUnit(eBestLandUnit, eUnitAI, REASON_TRAIN);
 						CvAssertMsg(iResult != -1, "Unable to create unit");
 						if (iResult != -1)
-		{
+						{
 							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
 							if (!pUnit2->jumpToNearestValidPlot())
-			{
-								pUnit2->kill(false);	// Could not find a valid spot!
-			}
-							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-							if (pNotifications)
-			{
-								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
-								strText << pUnit2->getNameKey() << getNameKey();
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
-								strSummary << getNameKey();
-								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
-							}
-			}
-		}
-	}
-				else
-				{
-					UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
-					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
-					if (pkbUnitEntry)
-	{
-						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
-						int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-						if (iResult != -1)
-		{
-							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
-							if (!pUnit2->jumpToNearestValidPlot())
-			{
+							{
 								pUnit2->kill(false);	// Could not find a valid spot!
 							}
 							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 							if (pNotifications)
-				{
+							{
 								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
 								strText << pUnit2->getNameKey() << getNameKey();
 								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
@@ -30120,10 +30116,38 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
 							}
 						}
+					}
+				}
+				else
+				{
+					UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+					CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+					if (pkbUnitEntry)
+					{
+						UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+						int iResult = CreateUnit(eWarrior, eUnitAI, REASON_TRAIN);
+						CvAssertMsg(iResult != -1, "Unable to create unit");
+						if (iResult != -1)
+						{
+							CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
+							if (!pUnit2->jumpToNearestValidPlot())
+							{
+								pUnit2->kill(false);	// Could not find a valid spot!
+							}
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
+								strText << pUnit2->getNameKey() << getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
+								strSummary << getNameKey();
+								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
+							}
+						}
+					}
 				}
 			}
-				}
-			}
+		}
 		if (kOwner.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 		{
 			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
@@ -30132,19 +30156,19 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 			{
 				CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 				if (pkcUnitEntry)
-			{
+				{
 					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 					CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
 					pZuluImpi->convert(pUnit, true);
+				}
 			}
 		}
-	}
 #endif
 #if defined(MOD_EVENTS_CITY)
 		if (MOD_EVENTS_CITY)
-	{
+		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
-	}
+		}
 		else
 		{
 #endif
@@ -30160,40 +30184,40 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 				bool bResult;
 				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
-	}
+			}
 #if defined(MOD_EVENTS_CITY)
-}
+		}
 #endif
 
 		int iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 #if defined(MOD_BALANCE_CORE)
 		if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
-{
+		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 		}
 #endif
 		if (bCanOverflow)
 		{
-		// max overflow is the value of the item produced (to eliminate prebuild exploits)
-		int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
-		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
-		iOverflow = std::min(iMaxOverflow, iOverflow);
+			// max overflow is the value of the item produced (to eliminate prebuild exploits)
+			int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
+			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
+			iOverflow = std::min(iMaxOverflow, iOverflow);
 
-		if (iOverflow > 0)
-	{
-			changeOverflowProductionTimes100(iOverflow);
-	}
-		setUnitProduction(eTrainUnit, 0);
+			if (iOverflow > 0)
+			{
+				changeOverflowProductionTimes100(iOverflow);
+			}
+			setUnitProduction(eTrainUnit, 0);
 
-		int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
-		if (iProductionGold > 0)
-	{
-			kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+			int iProductionGold = ((iLostProduction * GC.getMAXED_UNIT_GOLD_PERCENT()) / 100);
+			if (iProductionGold > 0)
+			{
+				kOwner.GetTreasury()->ChangeGoldTimes100(iProductionGold);
+			}
 		}
-	}
-	else
-	{
+		else
+		{
 			changeUnitProductionTimes100(eTrainUnit, -iProductionNeeded);
 		}
 	}
@@ -30204,7 +30228,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 
 		CvNotifications* pNotifications = kOwner.GetNotifications();
 		if (pNotifications)
-	{
+		{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_REMOVED_UNIT");
 			strText << getNameKey();
 			strText << GC.getUnitInfo(eTrainUnit)->GetDescription();

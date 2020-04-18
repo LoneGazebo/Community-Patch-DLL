@@ -1286,6 +1286,13 @@ enum GameOptionTypes
 	NUM_GAMEOPTION_TYPES
 };
 
+#if defined(MOD_ISKA_GAMEOPTIONS)
+// Ayyy lmao
+#define GAMEOPTION_6PCS					"GAMEOPTION_6PCS"
+#define GAMEOPTION_NO_COLONIES			"GAMEOPTION_NO_COLONIES"
+#define GAMEOPTION_AI_ONLY				"GAMEOPTION_AI_ONLY"
+#endif
+
 #define GAMEOPTION_QUICK_COMBAT_KEY		"GAMEOPTION_QUICK_COMBAT"
 #define GAMEOPTION_QUICK_MOVEMENT_KEY	"GAMEOPTION_QUICK_MOVEMENT"
 #define GAMEOPTION_NO_ESPIONAGE			"GAMEOPTION_NO_ESPIONAGE"
@@ -1806,7 +1813,7 @@ enum UnitAITypes
 	UNITAI_PIRATE_SEA,				// avast, ye - UNUSED
 	UNITAI_ATTACK_AIR,				// bombers
 	UNITAI_DEFENSE_AIR,				// fighters
-	UNITAI_CARRIER_AIR,				// planes on boats
+	UNITAI_CARRIER_AIR,				// planes on boats - UNUSED
 	UNITAI_MISSILE_AIR,				// cruise missiles
 	UNITAI_PARADROP,				// paratrooper
 	UNITAI_SPACESHIP_PART,			// spaceship part that needs to be taken to capital

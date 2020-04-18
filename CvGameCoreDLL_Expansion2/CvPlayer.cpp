@@ -753,6 +753,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
+	, m_ppiSpecificGreatPersonRateChangeFromMonopoly()
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_bVassalLevy("CvPlayer::m_bVassalLevy", m_syncArchive)
@@ -1220,6 +1221,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
+	m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiBuildingClassYieldMod.clear();
@@ -2287,6 +2289,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
+		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
 #endif
 
 		m_ppaaiImprovementYieldChange.clear();
@@ -2607,7 +2610,17 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, int iCount)
 								if(pUnitInfo->GetResourceQuantityRequirement(iJ) > 0)
 								{
 									bValid = false;
+#if defined(MOD_BUGFIX_MINOR)
+									break;
+#endif
 								}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+								if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pUnitInfo->GetResourceQuantityTotal(iJ) > 0)
+								{
+									bValid = false;
+									break;
+								}
+#endif
 							}
 						}
 
@@ -12756,7 +12769,7 @@ void CvPlayer::findNewCapital()
 		}
 		else if (pBestCity->IsRazing() && !isHuman())
 		{
-			// For the AI, we'll stop burining our new capital!
+			// For the AI, we'll stop burning our new capital!
 			gDLL->sendDoTask(pBestCity->GetID(), TASK_UNRAZE, -1, -1, false, false, false, false);
 		}
 #endif
@@ -13629,6 +13642,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			pBestCity->changeProduction(iProduction);
 			changeInstantYieldValue(YIELD_PRODUCTION, iProduction);
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+			strBuffer += " ";
 			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION", iProduction);
 #endif
 		}
@@ -15080,6 +15094,28 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 							return false;
 					}
 				}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+				{
+					int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
+
+					if (iNumResourceTotal > 0)
+					{
+						if (getNumResourceTotal(eResource) < iNumResourceTotal)
+						{
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_GROSS_RESOURCES", pkResourceInfo->GetIconString(), pkResourceInfo->GetTextKey(), iNumResourceTotal);
+							if (toolTipSink == NULL)
+								return false;
+						}
+						else if (getNumResourceAvailable(eResource) < 0)
+						{
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_NET_RESOURCES_NEGATIVE", pkResourceInfo->GetIconString(), pkResourceInfo->GetTextKey());
+							if (toolTipSink == NULL)
+								return false;
+						}
+					}
+				}
+#endif
 			}
 
 		}
@@ -15340,6 +15376,18 @@ bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus,
 			{
 				return false;
 			}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+			{
+				int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
+
+				if (iNumResourceTotal > 0 && eResource != eResourceNearby)
+				{
+					return false;
+				}
+			}
+#endif
 		}
 
 	}
@@ -17794,7 +17842,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
 
-	// Example: Player can support 8 Units, he has 12. 4 * 10 means he loses 40% of his Production
+	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
 	int iNormal = 10;
 #if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
@@ -17835,7 +17883,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
 	int iPaidUnits = GetNumUnitsOutOfSupply();
 
-	// Example: Player can support 8 Units, he has 12. 4 * 10 means he loses 40% of his Production
+	// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
 	int iMaintenanceMod = min(/*70*/ GC.getMAX_UNIT_SUPPLY_PRODMOD(), iPaidUnits * 5);
 	iMaintenanceMod = -iMaintenanceMod;
 
@@ -17883,6 +17931,11 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	int iSupply = getHandicapInfo().getProductionFreeUnits() + m_pTraits->GetExtraSupply();
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	{
+		if (GC.getGame().getStartEra() > 0)
+		{
+			iSupply += (GC.getGame().getStartEra() * 2);
+		}
+		
 		if (!bIgnoreReduction)
 		{
 			iSupply -= GetCurrentEra();
@@ -19465,13 +19518,13 @@ void CvPlayer::ChangeReformationFollowerReduction(int iValue)
 #endif
 //	--------------------------------------------------------------------------------
 /// Handle earning yields from a combat win
-void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
+void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, CvCity* pCity)
 {
 #if defined(MOD_BALANCE_CORE)
 	//Bonus resource in a city every time you win a battle.
 	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
-		CvCity* pOriginCity = NULL;
+		CvCity* pOriginCity = pCity;
 		if (pAttackingUnit != NULL)
 		{
 			pOriginCity = pAttackingUnit->getOriginCity();
@@ -19866,7 +19919,7 @@ void CvPlayer::DoWarVictoryBonuses()
 void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
 	int iEra = GC.getGame().getCurrentEra();
-	if(iEra <= 0)
+	if (iEra <= 0)
 	{
 		iEra = 1;
 	}
@@ -19879,7 +19932,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	CvString strLogString;
 
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-	if(pHandicapInfo)
+	if (pHandicapInfo)
 	{
 		iHandicapBase = pHandicapInfo->getAIDifficultyBonusBase();
 		iHandicapA = pHandicapInfo->getAIDifficultyBonusEarly();
@@ -19991,12 +20044,27 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				break;
 			}
 			case HISTORIC_EVENT_DIG:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: DIG - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
 			case HISTORIC_EVENT_TRADE_CS:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: TRADE (CITY-STATE) - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
 			case HISTORIC_EVENT_TRADE_LAND:
+			{
+				GetTreasury()->ChangeGold(iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: TRADE (LAND) - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				break;
+			}
 			case HISTORIC_EVENT_TRADE_SEA:
 			{
 				GetTreasury()->ChangeGold(iYieldHandicap);
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: DIG/TRADE - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: TRADE (SEA) - Received Handicap Bonus (%d in Yields): GOLD.", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
@@ -21393,14 +21461,21 @@ void CvPlayer::DoCityRevolt()
 				CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
 				if (pNotifications)
 				{
+					if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eNotifyPlayer).getTeam()))
+						continue;
+
 					Localization::String strMessage;
 					if (eNotifyPlayer == GetID())
 					{
 						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_REVOLT", pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
 					}
-					else
+					else if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eNotifyPlayer).getTeam()))
 					{
 						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT", getCivilizationAdjective(), pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
+					}
+					else
+					{
+						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN", kRecipient.getCivilizationShortDescription());
 					}
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_REVOLT_SUMMARY");
 					pNotifications->Add(NOTIFICATION_CITY_REVOLT, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
@@ -22124,7 +22199,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 {
 	int iTotalResourceWeight = 0;
 
-	int iCityScaler = getNumCities() * GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER();
+	int iCityScaler = getNumCities() * (GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER() + GetCurrentEra());
 	iCityScaler /= 100;
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -25129,7 +25204,24 @@ void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 		return;
 	}
 	SetGoldenAgeProgressMeter(GetGoldenAgeProgressMeter() + iChange);
+	if (MOD_ISKA_GOLDENAGEPOINTS_TO_PRESTIGE)
+	{
+		if (iChange > 0)
+		{
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetID());
+				args->Push(iChange);
 
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "ChangeGoldenAgeProgressMeter", args.get(), bResult);
+			}
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -25319,6 +25411,12 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+			else if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && isMajorCiv() && getNumCities() > 0)
+			{
+				DoDifficultyBonus(HISTORIC_EVENT_GA);
+			}
+#endif
 			if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
 				int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
@@ -31538,11 +31636,12 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		return;
 	}
 	m_iNumHistoricEvent += iChange;
+
 	CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
+		if (pLoopCity != NULL)
 		{
 			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 			pLoopCity->GetCityCulture()->CalculateBaseTourism();
@@ -31550,7 +31649,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	}
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();
-	if(pCapital != NULL && iEventGP > 0)
+	if (pCapital != NULL && iEventGP > 0)
 	{
 		vector<SpecialistTypes> vPossibleSpecialists;
 		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
@@ -31565,23 +31664,23 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 					vPossibleSpecialists.push_back(eSpecialist);
 
 					//boost the chance if we have a slot for the corresponding great work
-					if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+					if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{ 
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) > 0)
+						if (GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) > 0)
 						{
 							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+					else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) > 0)
+						if (GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) > 0)
 						{
 							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+					else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) > 0)
+						if (GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) > 0)
 						{
 							vPossibleSpecialists.push_back(eSpecialist);
 						}
@@ -31593,10 +31692,10 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		//choose one
 		int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleSpecialists.size(), GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iNumHistoricEvent);
 		SpecialistTypes eBestSpecialist = vPossibleSpecialists.empty() ? NO_SPECIALIST : vPossibleSpecialists[iChoice];
-		if(eBestSpecialist != NO_SPECIALIST)
+		if (eBestSpecialist != NO_SPECIALIST)
 		{
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-			if(pkSpecialistInfo)
+			if (pkSpecialistInfo)
 			{
 				int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
 				iGPThreshold *= 100;
@@ -31605,44 +31704,44 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 				iGPThreshold /= 100;
 				
 				pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
-				if(GetID() == GC.getGame().getActivePlayer())
+				if (GetID() == GC.getGame().getActivePlayer())
 				{
 					iGPThreshold /= 100;
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
 					SHOW_PLOT_POPUP(pCapital->plot(), GetID(), text);
 					CvNotifications* pNotification = GetNotifications();
-					if(pNotification)
+					if (pNotification)
 					{
 						CvString strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS", iGPThreshold);
 						CvString strSummary;
 						// Class specific specialist message.
-						if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+						if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 						{ 
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT", iGPThreshold);
 						}
-						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+						else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER", iGPThreshold);
 						}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-						else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+						else if (MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT", iGPThreshold);
 						}
@@ -31655,7 +31754,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && !isBarbarian() && getNumCities() > 0)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isHuman() && getNumCities() > 0)
 	{
 		DoDifficultyBonus(eHistoricEvent);
 	}
@@ -35725,6 +35824,13 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 						bBad = true;
 						break;
 					}
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && pkUnitEntry->GetResourceQuantityTotal(eResource) > 0)
+					{
+						bBad = true;
+						break;
+					}
+#endif
 				}
 
 				if (bBad)
@@ -38385,6 +38491,18 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue * -1);
 						}
 					}
+					iModValue = pResource->getMonopolyGreatPersonRateChange(eSpecialist, MONOPOLY_GLOBAL);
+					if (iModValue > 0)
+					{
+						if (bNewValue)
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue);
+						}
+						else
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_GLOBAL, iModValue * -1);
+						}
+					}
 				}
 			}
 #endif
@@ -38432,6 +38550,18 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 						else
 						{
 							changeSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue * -1);
+						}
+					}
+					iModValue = pResource->getMonopolyGreatPersonRateChange(eSpecialist, MONOPOLY_STRATEGIC);
+					if (iModValue > 0)
+					{
+						if (bNewValue)
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue);
+						}
+						else
+						{
+							changeSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, MONOPOLY_STRATEGIC, iModValue * -1);
 						}
 					}
 				}
@@ -40320,6 +40450,74 @@ void CvPlayer::changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonType
 	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
 		m_ppiSpecificGreatPersonRateModifierFromMonopoly[eGreatPerson][eMonopoly] += iChange;
+	}
+}
+
+/// Does the player get a great person rate modifier from having a monopoly?
+//	--------------------------------------------------------------------------------
+int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
+	{
+		std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.find(eGreatPerson);
+		if (itGreatPerson != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end())
+		{
+			std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.find(eMonopoly);
+			if (itMonopoly != itGreatPerson->second.end())
+			{
+				return itMonopoly->second;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/// Overload to sum up modifiers from both global (including global monopoly mod flat) and strategic monopolies, for convenience
+//	--------------------------------------------------------------------------------
+int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	int iChange = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		for (int iI = 0; iI < NUM_MONOPOLY_TYPES; iI++)
+		{
+			MonopolyTypes eMonopoly = (MonopolyTypes)iI;
+			if (eMonopoly != NO_MONOPOLY)
+			{
+				iChange += getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson, eMonopoly);
+				if (eMonopoly == MONOPOLY_GLOBAL)
+				{
+					iChange += GetMonopolyModFlat();
+				}
+			}
+		}
+	}
+
+	return iChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange)
+{
+	CvAssertMsg(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvAssertMsg(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
+	{
+		m_ppiSpecificGreatPersonRateChangeFromMonopoly[eGreatPerson][eMonopoly] += iChange;
 	}
 }
 #endif
@@ -44876,6 +45074,21 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 												break;
 											}
 										}
+
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+										if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+										{
+											iNumResource = pUnitEntry->GetResourceQuantityTotal(eResource);
+											if (iNumResource > 0)
+											{
+												if (getNumResourceTotal(eResource, true) < iNumResource || getNumResourceAvailable(eResource, true) < 0)
+												{
+													bBad = true;
+													break;
+												}
+											}
+										}
+#endif
 									}
 									if(bBad)
 									{
@@ -45822,6 +46035,23 @@ void CvPlayer::Read(FDataStream& kStream)
 			m_ppiSpecificGreatPersonRateModifierFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
 		}
 	}
+	{
+		int iNumEntries;
+		kStream >> iNumEntries;
+		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
+		for (int iI = 0; iI < iNumEntries; iI++)
+		{
+			int iGreatPerson;
+			int iMonopoly;
+			int iModifier;
+
+			kStream >> iGreatPerson;
+			kStream >> iMonopoly;
+			kStream >> iModifier;
+
+			m_ppiSpecificGreatPersonRateChangeFromMonopoly[(GreatPersonTypes)iGreatPerson][(MonopolyTypes)iMonopoly] = iModifier;
+		}
+	}
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -46004,6 +46234,26 @@ void CvPlayer::Write(FDataStream& kStream) const
 		}
 		kStream << iSize;
 		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end(); ++itGreatPerson)
+		{
+			int iGreatPerson = (int)itGreatPerson->first;
+			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)
+			{
+				int iMonopoly = (int)itMonopoly->first;
+				int iModifier = itMonopoly->second;
+				kStream << iGreatPerson;
+				kStream << iMonopoly;
+				kStream << iModifier;
+			}
+		}
+	}
+	{
+		int iSize = 0;
+		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator it = m_ppiSpecificGreatPersonRateChangeFromMonopoly.begin(); it != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end(); ++it)
+		{
+			iSize += it->second.size();
+		}
+		kStream << iSize;
+		for (std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.begin(); itGreatPerson != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end(); ++itGreatPerson)
 		{
 			int iGreatPerson = (int)itGreatPerson->first;
 			for (std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.begin(); itMonopoly != itGreatPerson->second.end(); ++itMonopoly)

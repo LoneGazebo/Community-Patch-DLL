@@ -4752,9 +4752,18 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 					{
 						ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
+#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+						int iNumResourceTotalNeeded = 0;
+						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
+						{
+							iNumResourceTotalNeeded = pUpgradeUnitInfo->GetResourceQuantityTotal(eResource);
+						}
 
 						// Minor issue: this only works correctly if a unit has only one required resource ...
+						if(iNumResourceNeeded > 0 || (MOD_UNITS_RESOURCE_QUANTITY_TOTALS && iNumResourceTotalNeeded > 0))
+#else
 						if(iNumResourceNeeded > 0)
+#endif
 						{
 							if(m_pPlayer->getNumResourceTotal(eResource) > 0)
 							{

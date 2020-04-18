@@ -1023,6 +1023,15 @@
 		<Column name="Modifier" type="integer" default="0"/>
 	</Table>
 
+	<!-- RESOURCES: Allows Resources to grant great person rate points to all cities if you control a monopoly of the resource. Can be configured to require strategic or global monopoly. Must have DEALS functions enabled to use. -->
+	<Table name="Resource_MonopolyGreatPersonRateChanges">
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+
 	<!-- RESOURCES: Resources grant production cost modifiers to the city which own them. Era refers to the era of the unit, not the current era of the player. Requires RESOURCES_PRODUCTION_COST_MODIFIERS to be enabled in CustomModOptions -->
 	<Table name="Resource_UnitCombatProductionCostModifiersLocal">
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
@@ -1119,7 +1128,16 @@
 		<Column name="Modifier" type="integer"/>
 	</Table>
 
+	<!-- Increases resource count when a unit is expended -->
 	<Table name="Unit_ResourceQuantityExpended">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Amount" type="integer" default="1"/>
+	</Table>
+
+	<!-- Similar to Unit_ResourceQuantityRequirements, but does not decrease the resource count. Instead, 'Amount' is the gross number of resources the player has, before exports/use. -->
+	<!-- While 'Amount' is the total gross number, the net number also needs to be positive.  -->
+	<Table name="Unit_ResourceQuantityTotals">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="Amount" type="integer" default="1"/>

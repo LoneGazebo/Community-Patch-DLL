@@ -579,7 +579,7 @@ public:
 	void ChangeReformationFollowerReduction(int iValue);
 #endif
 
-	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit);
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, CvCity* pCity = NULL);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)
@@ -2360,6 +2360,10 @@ public:
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1) const;
 	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
+
+	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
+	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eIndex1) const;
+	void changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
 #endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -3608,7 +3612,8 @@ protected:
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly; // Note that m_ppiSpecificGreatPersonRateModifierFromMonopoly does not have to be saved in kStream because setHasGlobalMonopoly and setHasStrategicMonopoly are called on game load
+	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
+	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 

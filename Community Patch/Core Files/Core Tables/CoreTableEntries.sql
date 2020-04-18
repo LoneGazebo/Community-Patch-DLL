@@ -960,6 +960,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'DisembarkFlatCost' BOOLEAN DEFAULT 0;
 -- Admirals can use their repair fleet action multiple times before expending.
 ALTER TABLE UnitPromotions ADD COLUMN 'NumRepairCharges' INTEGER DEFAULT 0;
 
+-- Base damage dealth to adjacent air units after an unintercepted air sweep
+ALTER TABLE UnitPromotions ADD COLUMN 'GetGroundAttackDamage' INTEGER DEFAULT 0;
+
 -- Allows for Unit to increase your supply cap when expended.
 ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryCapChange' INTEGER DEFAULT 0;
 
@@ -1352,8 +1355,14 @@ ALTER TABLE Buildings ADD COLUMN 'AnyWater' BOOLEAN DEFAULT 0;
 -- Promotion grants additional combat strength if on a pillaged improvement
 ALTER TABLE UnitPromotions ADD COLUMN 'PillageBonusStrength' INTEGER DEFAULT 0;
 
--- Improvement can create a feature. Best implemented on Tiles that don't have features.
+-- Improvement creates a feature. Will remove the improvement when complete, leaving only the feature.
 ALTER TABLE Improvements ADD COLUMN 'CreatesFeature' TEXT DEFAULT NULL REFERENCES Features(Type);
+
+-- What is the chance to get a random resource? Resource spawned is random and selected based on the various resource boolean tables.
+ALTER TABLE Improvements ADD COLUMN 'RandResourceChance' INTEGER DEFAULT 0;
+
+-- Removes the improvement when built. Useful in combination with CreatesFeature.
+ALTER TABLE Improvements ADD COLUMN 'RemoveWhenComplete' BOOLEAN DEFAULT 0;
 
 -- Start a WLTKD when this unit is born or gained. GP's only.
 ALTER TABLE Units ADD COLUMN 'WLTKDFromBirth' BOOLEAN DEFAULT 0;

@@ -95,11 +95,7 @@ public:
 	void DoInitializePersonality();
 	int GetRandomPersonalityWeight(int iOriginalValue) const;
 	
-	MajorDiploTypes GetMajorDiploType() const;
-	bool IsConqueror() const;
-	bool IsDiplomat() const;
-	bool IsCultural() const;
-	bool IsScientist() const;
+	void DoInitializeMajorDiploType();
 
 	/////////////////////////////////////////////////////////
 	// Turn Stuff
@@ -136,14 +132,14 @@ public:
 
 	// Major Civs
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, bool bIgnoreApproachCurve = false);
+	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
-	// Niche cases for approach updates
-	//void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
-	//void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	//void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
-	//void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
-	//void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
+	// Special case approach updates
+	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
+	void DoUpdatePermaWarApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateHumanApproachTowardsMajorCiv(PlayerTypes ePlayer);
+	void DoUpdateMajorCivApproachWithNoCities(PlayerTypes ePlayer);
+	void DoUpdateApproachTowardsMajorCivWithNoCities(PlayerTypes ePlayer);
 
 	MajorCivApproachTypes GetMajorCivApproach(PlayerTypes ePlayer, bool bHideTrueFeelings = false) const;
 	void SetMajorCivApproach(PlayerTypes ePlayer, MajorCivApproachTypes eApproach);
@@ -154,7 +150,7 @@ public:
 
 	// Minor Civs
 	void DoUpdateMinorCivApproaches();
-	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, int& iHighestWeight, bool bLookAtOtherPlayers, bool bLog);
+	MinorCivApproachTypes GetBestApproachTowardsMinorCiv(PlayerTypes ePlayer, bool bLookAtOtherPlayers, std::map<PlayerTypes, MinorCivApproachTypes>& oldApproaches, bool bLog);
 
 	MinorCivApproachTypes GetMinorCivApproach(PlayerTypes ePlayer) const;
 	void SetMinorCivApproach(PlayerTypes ePlayer, MinorCivApproachTypes eApproach);
@@ -264,6 +260,12 @@ public:
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
 	void SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue);
+	
+	// Easy Target: Is this player an easy attack target?
+	bool IsEasyTarget(PlayerTypes ePlayer) const;
+	void SetEasyTarget(PlayerTypes ePlayer, bool bValue);
+	void DoUpdateEasyTargets();
+	bool DoTestOnePlayerEasyTarget(PlayerTypes ePlayer);
 
 	// Set default values when we're attacked and its not our turn
 	void DoSomeoneDeclaredWarOnMe(TeamTypes eTeam);
@@ -283,13 +285,8 @@ public:
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
 
-	int GetHighestWarscore();
-
-#if defined(MOD_BALANCE_CORE)
-	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug=false);
-#else
-	int GetWarScore(PlayerTypes ePlayer);
-#endif
+	int GetHighestWarscore(bool bOnlyCurrentWars = true);
+	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug = false);
 
 	// War Goal: What is is our objective in the war against ePlayer (NO_WAR_GOAL_TYPE if at peace)
 	WarGoalTypes GetWarGoal(PlayerTypes ePlayer) const;
@@ -566,7 +563,7 @@ public:
 	
 	bool IsStrategicTradePartner(PlayerTypes ePlayer) const;
 	bool IsMajorCompetitor(PlayerTypes ePlayer) const;
-	bool IsEasyTarget(PlayerTypes ePlayer, bool bOtherPlayerEstimate = false);
+	bool IsEarlyGameCompetitor(PlayerTypes ePlayer);
 #endif
 
 	// Victory Dispute
@@ -596,6 +593,8 @@ public:
 	DisputeLevelTypes GetMinorCivDisputeLevel(PlayerTypes ePlayer) const;
 	void SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
 	void DoUpdateMinorCivDisputeLevels();
+	bool IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBullying = false) const;
+	bool IsPrimeLeagueCompetitor(PlayerTypes ePlayer) const;
 	
 	// Tech Dispute (for scientific civs)
 	DisputeLevelTypes GetTechDisputeLevel(PlayerTypes ePlayer) const;
@@ -633,6 +632,13 @@ public:
 	int GetPersonalityMajorCivApproachBias(MajorCivApproachTypes eApproach) const;
 	int GetPersonalityMinorCivApproachBias(MinorCivApproachTypes eApproach) const;
 
+	MajorDiploTypes GetMajorDiploType() const;
+	void SetMajorDiploType(MajorDiploTypes eMajorDiploType);
+	bool IsConqueror() const;
+	bool IsDiplomat() const;
+	bool IsCultural() const;
+	bool IsScientist() const;
+
 	/////////////////////////////////////////////////////////
 	// Evaluation of Other Players' Tendencies
 	/////////////////////////////////////////////////////////
@@ -640,11 +646,7 @@ public:
 	// Someone had some kind of interaction with another player
 
 	void DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam);
-#if defined(MOD_BALANCE_CORE)
 	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact);
-#else
-	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam);
-#endif
 	void DoPlayerKilledSomeone(PlayerTypes ePlayer, PlayerTypes eDeadPlayer);
 	void DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	void DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
@@ -903,8 +905,10 @@ public:
 	bool DoTestContinueCoopWarsDesire(PlayerTypes ePlayer, PlayerTypes& eAgainstPlayer);
 	bool IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	CoopWarStates GetGlobalCoopWarAcceptedState(PlayerTypes ePlayer);
-	int GetGlobalCoopWarCounter(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAcceptedAgainstState(PlayerTypes ePlayer);
+	CoopWarStates GetGlobalCoopWarAcceptedWithState(PlayerTypes ePlayer);
+	int GetGlobalCoopWarAgainstCounter(PlayerTypes ePlayer);
+	int GetGlobalCoopWarWithCounter(PlayerTypes ePlayer);
 	bool IsLockedIntoCoopWar(PlayerTypes ePlayer);
 
 	// Human Demand
@@ -1026,6 +1030,10 @@ public:
 	bool IsPlayerDoFWithAnyEnemy(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyFriend(PlayerTypes ePlayer) const;
 	bool IsPlayerDPWithAnyEnemy(PlayerTypes ePlayer) const;
+	
+	// Religion
+	bool IsPlayerSameReligion(PlayerTypes ePlayer) const;
+	bool IsPlayerOpposingReligion(PlayerTypes ePlayer) const;
 
 	// Ideology
 	bool IsPlayerSameIdeology(PlayerTypes ePlayer) const;
@@ -1256,8 +1264,6 @@ public:
 	bool EverMadeExpansionPromise(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	void SetEverMadeExpansionPromise(PlayerTypes ePlayer, bool bValue);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	int GetPlayerMadeBorderPromise(PlayerTypes ePlayer);
 #endif
 	bool IsPlayerMadeBorderPromise(PlayerTypes ePlayer, int iTestGameTurn = -1);
@@ -1525,8 +1531,6 @@ public:
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
-	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
-	int GetPaidTributeToScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetDislikedTheirProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyProposalScore(PlayerTypes ePlayer);
@@ -1710,9 +1714,8 @@ private:
 
 		//Arrays
 		short m_aDiploLogStatementTurnCountScratchPad[NUM_DIPLO_LOG_STATEMENT_TYPES];
-		char m_aiMajorCivOpinion[MAX_MAJOR_CIVS];
+		char m_aeMajorCivOpinion[MAX_MAJOR_CIVS];
 		char m_aeMajorCivApproach[MAX_MAJOR_CIVS];
-		char m_aeApproachScratchPad[REALLY_MAX_PLAYERS];
 		char m_aeMinorCivApproach[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
 		char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
@@ -1722,6 +1725,7 @@ private:
 		char m_aePeaceTreatyWillingToAccept[MAX_MAJOR_CIVS];
 		short m_aiNumWondersBeatenTo[REALLY_MAX_PLAYERS];
 		bool m_abArmyInPlaceForAttack[REALLY_MAX_PLAYERS];
+		bool m_abEasyTarget[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDoFWithPlayer[MAX_MAJOR_CIVS];
@@ -1856,6 +1860,8 @@ private:
 
 		short m_aiDeclaredWarOnFriendValue[MAX_MAJOR_CIVS];
 		bool m_abPlayerLiberatedCapital[MAX_MAJOR_CIVS];
+		bool m_abPlayerCapturedCapital[MAX_MAJOR_CIVS];
+		bool m_abPlayerCapturedHolyCity[MAX_MAJOR_CIVS];
 		short m_aiNumCitiesLiberated[MAX_MAJOR_CIVS];
 
 		short m_aiTradeValue[MAX_MAJOR_CIVS];
@@ -2051,11 +2057,12 @@ private:
 	short** m_ppaaiOtherPlayerMajorCivApproachCounter;
 
 	char* m_paeMajorCivApproach;
-	char* m_paeApproachScratchPad;
 	char* m_paeMinorCivApproach;
 	char* m_paeOpinionTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuess;
 	char* m_paeApproachTowardsUsGuessCounter;
+
+	char m_eMajorDiploType;
 
 	char m_eDemandTargetPlayer;
 	bool m_bDemandReady;
@@ -2069,6 +2076,7 @@ private:
 
 	short* m_paiNumWondersBeatenTo;
 	bool* m_pabArmyInPlaceForAttack;
+	bool* m_pabEasyTarget;
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -2208,6 +2216,8 @@ private:
 	short* m_paiAssistValue;
 
 	bool* m_pabPlayerLiberatedCapital;
+	bool* m_pabPlayerCapturedCapital;
+	bool* m_pabPlayerCapturedHolyCity;
 	short* m_paiNumCitiesLiberated;
 
 	char** m_ppaacCoopWarAcceptedState;

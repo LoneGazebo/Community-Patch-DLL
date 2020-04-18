@@ -1448,7 +1448,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 
 						// Earn bonuses for kills?
 						CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
-						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender);
+						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender, pkAttacker);
 					}
 
 					//set damage but don't update entity damage visibility
@@ -3520,7 +3520,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				if (pCity)
 				{
 					iDefendingPlayer = pCity->getOwner();
-					defenderMaxHP = GC.getMAX_CITY_HIT_POINTS();
+					defenderMaxHP = pCity->GetMaxHitPoints();
 				}
 			}
 			if (pkAttacker)
@@ -3702,7 +3702,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 					if (pCity)
 					{
 						iDefendingPlayer = pCity->getOwner();
-						defenderMaxHP = GC.getMAX_CITY_HIT_POINTS();
+						defenderMaxHP = pCity->GetMaxHitPoints();
 					}
 				}
 				if (pkAttacker)
