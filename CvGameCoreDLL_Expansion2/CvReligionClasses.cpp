@@ -7728,7 +7728,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 		}
 	}
 
-	// THIRD PRIORITY - OTHER UNITS
+	// FOURTH PRIORITY - OTHER UNITS
 	// Try to build other units with Faith if we took that belief
 	if((eReligion != NO_RELIGION) && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
 	{
@@ -11175,7 +11175,6 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	if (m_pPlayer->GetPlayerTraits()->IsReconquista() && m_pPlayer->GetPlayerTraits()->IsForeignReligionSpreadImmune())
 		return true;
 #endif
-
 	// Need one for every city in our realm that is of another religion, plus more for defense
 	int iNumNeeded = 1;
 

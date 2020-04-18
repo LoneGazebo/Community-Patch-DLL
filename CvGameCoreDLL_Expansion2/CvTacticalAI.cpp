@@ -1028,6 +1028,7 @@ void CvTacticalAI::ProcessDominanceZones()
 				PlotSurgicalCityStrikeMoves(pZone);
 				break;
 			case AI_TACTICAL_POSTURE_COUNTERATTACK: //concentrated fire on enemy attackers
+			default:
 				PlotCounterattackMoves(pZone);
 				break;
 			}
@@ -3520,17 +3521,29 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 			if(pZone == NULL || it->GetDominanceZone() == pZone->GetZoneID())
 			{
 				m_ZoneTargets.push_back(*it);
+				continue;
 			}
 
 			// Not obviously in this zone, but if within 2 of city we want them anyway
-			else
+			CvCity* pCity = pZone->GetZoneCity();
+			if(pCity && plotDistance(pCity->getX(), pCity->getY(), it->GetTargetX(), it->GetTargetY()) <= 2)
 			{
-				CvCity* pCity = pZone->GetZoneCity();
-				if(pCity)
+				m_ZoneTargets.push_back(*it);
+				continue;
+			}
+
+			// Last chance, adjacent to the current zone is also ok, zone boundaries are approximate only
+			CvPlot* pCheck = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots(pCheck, i);
+				if (pNeighbor)
 				{
-					if(plotDistance(pCity->getX(), pCity->getY(), it->GetTargetX(), it->GetTargetY()) <= 2)
+					CvTacticalDominanceZone* pNeighborZone = GetTacticalAnalysisMap()->GetZoneByPlot(pNeighbor);
+					if (pNeighborZone && pNeighborZone->GetZoneID() == pZone->GetZoneID())
 					{
 						m_ZoneTargets.push_back(*it);
+						continue;
 					}
 				}
 			}

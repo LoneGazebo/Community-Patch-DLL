@@ -1267,10 +1267,6 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	//when in doubt prefer the shorter path
 	iCost += PATH_STEP_WEIGHT;
 
-	//paths through "forbidden" territory should be expensive
-	if (kFromNodeCacheData.bIsAvoidPlot)
-		iCost += PATH_BASE_COST;
-
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
 		iCost += PATH_STEP_WEIGHT;

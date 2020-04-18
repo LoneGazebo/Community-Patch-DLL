@@ -11628,7 +11628,7 @@ int CvUnit::GetConversionStrength() const
 #endif
 
 	// Blocked by Inquisitor?
-	if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+	if (pCity != NULL && MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
@@ -16572,13 +16572,13 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
+int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking,
 	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
-	if (pMyPlot == NULL)
-		pMyPlot = plot();
+		if (pMyPlot == NULL)
+			pMyPlot = plot();
 
 	if (pOtherPlot == NULL)
 	{
@@ -16593,7 +16593,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 
 	const CvPlot* pTargetPlot = bAttacking ? pOtherPlot : pMyPlot;
-	
+
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -16610,7 +16610,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if (isRangedSupportFire())
 		iBaseStrength = GetBaseCombatStrength() / 2;
 
-	if(iBaseStrength == 0)
+	if (iBaseStrength == 0)
 	{
 		return 0;
 	}
@@ -16619,11 +16619,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
 
 	// Kamikaze attack
-	if(getKamikazePercent() != 0)
+	if (getKamikazePercent() != 0)
 		iModifier += getKamikazePercent();
 
 	// If the empire is unhappy, then Units get a combat penalty
-	if(kPlayer.IsEmpireUnhappy())
+	if (kPlayer.IsEmpireUnhappy())
 	{
 		iModifier += GetUnhappinessCombatPenalty();
 	}
@@ -16637,6 +16637,25 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
 		iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
+	}
+
+	if (!bIgnoreUnitAdjacencyBoni && GetAdjacentModifier() != 0)
+	{
+		// Adjacent Friendly military Unit?
+		if (pMyPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+		{
+			iModifier += GetAdjacentModifier();
+			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
+			{
+				const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+				int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
+				if (iModPerAdjacent != 0)
+				{
+					int iNumFriendliesAdjacent = pMyPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+					iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
+				}
+			}
+		}
 	}
 
 	// sometimes we want to ignore the finer points
