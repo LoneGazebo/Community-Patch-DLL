@@ -9830,17 +9830,15 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 #endif
 	}
 
-	if (!GET_PLAYER(ePlayer).isMinorCiv())
+	if (!GET_PLAYER(ePlayer).isMinorCiv() && !bForced)
 	{
 		// slewis - if the player we're liberating the city for is dead, give the liberating player a resurrection mark in the once-defeated player's book
 		if (!GET_PLAYER(ePlayer).isAlive())
 		{
 			CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 			PlayerTypes eMePlayer = GetID();
-			if (!bForced)
-			{
-				pDiploAI->SetResurrectedBy(eMePlayer, true);
-			}
+
+			pDiploAI->SetResurrectedBy(eMePlayer, true);
 			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -10004,7 +10002,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
+		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
 		{
 			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 			{
