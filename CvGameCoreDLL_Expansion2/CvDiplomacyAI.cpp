@@ -27739,16 +27739,33 @@ void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 		{
 			if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyKilled[ePlayer] == GC.getGame().getGameTurn())
 			{
-				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_YOUR_SPY;
-#if defined(MOD_BALANCE_CORE_SPIES)
-				int iTurnsBetweenStatements = 40;
-#else
-				int iTurnsBetweenStatements = 1;
-#endif
-
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				// Have we asked you to make a promise before?
+				if(IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
 				{
-					eStatement = eTempStatement;
+					// We don't even want to bother with you again, so do nothing
+				}
+				else if(IsPlayerMadeSpyPromise(ePlayer))
+				{
+					// You broke the promise you made!
+					SetPlayerBrokenSpyPromise(ePlayer, true);
+					SetPlayerMadeSpyPromise(ePlayer, false);
+	#if defined(MOD_BALANCE_CORE)
+					SetPlayerBackstabCounter(ePlayer, 0);
+	#endif
+				}
+				// Otherwise, ask you to make a promise
+				else
+				{
+					DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_YOUR_SPY;
+#if defined(MOD_BALANCE_CORE_SPIES)
+					int iTurnsBetweenStatements = 40;
+#else
+					int iTurnsBetweenStatements = 1;
+#endif
+					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					{
+						eStatement = eTempStatement;
+					}
 				}
 			}
 		}
