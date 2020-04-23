@@ -9728,7 +9728,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+		if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
 		{
 			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 			{
@@ -9744,7 +9744,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// add notification
 			Localization::String strMessage;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == getTeam())
+			if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == getTeam())
 			{
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
 			}
