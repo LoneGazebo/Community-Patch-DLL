@@ -49647,7 +49647,7 @@ void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploState
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						// Modify player view to all AI teammates
-						if (IsTeammate(eLoopPlayer))
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxRaised(eLoopPlayer, false);
@@ -49695,7 +49695,7 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						// Modify player view to all AI teammates
-						if (IsTeammate(eLoopPlayer))
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxLowered(eLoopPlayer, false);
