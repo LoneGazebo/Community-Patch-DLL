@@ -9690,16 +9690,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
-#if defined(MOD_BALANCE_CORE)
-	if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
+	if (ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
 	{
 		ePlayer = pCity->getOriginalOwner();
 	}
-	if(ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER)
 	{
 		return;
 	}
-#endif
 
 	// Set that this team has been liberated
 	TeamTypes eTeam = getTeam();
@@ -9728,11 +9726,35 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 #endif
 			}
 		}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+		{
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
+			{
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+			}
+		}
+#endif
 	
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{
 			// add notification
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
+			Localization::String strMessage;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == getTeam())
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
+			}
+			else
+			{
+#endif
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			}
+#endif
 			strMessage << getCivilizationShortDescriptionKey(); // LIBERATING CIV NAME
 			strMessage << pCity->getNameKey(); // CITY NAME
 			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
@@ -10001,17 +10023,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			if (eUnit != NO_UNIT)
 				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
-		{
-			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
-			{
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
-			}
-		}
-#endif
 	}
 
 	// slewis
