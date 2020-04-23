@@ -27765,22 +27765,7 @@ void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTy
 	{
 		if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyDied[ePlayer] == GC.getGame().getGameTurn() - 1)
 		{
-			// Have we asked you to make a promise before?
-			if(IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
-			{
-				// We don't even want to bother with you again, so do nothing
-			}
-			else if(IsPlayerMadeSpyPromise(ePlayer))
-			{
-				// You broke the promise you made!
-				SetPlayerBrokenSpyPromise(ePlayer, true);
-				SetPlayerMadeSpyPromise(ePlayer, false);
-#if defined(MOD_BALANCE_CORE)
-				SetPlayerBackstabCounter(ePlayer, 0);
-#endif
-			}
-			// Otherwise, ask you to make a promise
-			else
+			if (!IsPlayerBrokenSpyPromise(ePlayer) && !IsPlayerIgnoredSpyPromise(ePlayer)) // Ignore if they refuse to stop spying on us
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_MY_SPY;
 #if defined(MOD_BALANCE_CORE_SPIES)
