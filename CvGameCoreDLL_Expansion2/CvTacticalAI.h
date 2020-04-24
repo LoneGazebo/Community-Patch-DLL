@@ -572,7 +572,7 @@ private:
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
-	bool ClearEnemiesNearArmy(CvArmyAI* pArmy);
+	bool CheckForEnemiesNearArmy(CvArmyAI* pArmy);
 	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets

@@ -1028,6 +1028,7 @@ void CvTacticalAI::ProcessDominanceZones()
 				PlotSurgicalCityStrikeMoves(pZone);
 				break;
 			case AI_TACTICAL_POSTURE_COUNTERATTACK: //concentrated fire on enemy attackers
+			default:
 				PlotCounterattackMoves(pZone);
 				break;
 			}
@@ -2961,7 +2962,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
 		//no matter if successful or not
-		ClearEnemiesNearArmy(pThisArmy);
+		CheckForEnemiesNearArmy(pThisArmy);
 
 		// This is where we try to gather. Don't use the center of mass here, it may drift anywhere 
 		ExecuteGatherMoves(pThisArmy,pThisTurnTarget);
@@ -2978,7 +2979,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		}
 
 		//no matter if successful or not
-		ClearEnemiesNearArmy(pThisArmy);
+		CheckForEnemiesNearArmy(pThisArmy);
 
 		//try to arrage the units somewhat closer to the target
 		ExecuteGatherMoves(pThisArmy,pThisTurnTarget);
@@ -2993,7 +2994,7 @@ void CvTacticalAI::AddCurrentTurnUnit(CvUnit * pUnit)
 }
 
 /// Queues up attacks on enemy units on or adjacent to army's desired center
-bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
+bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 {
 	if (!pArmy)
 		return false;
@@ -3064,14 +3065,23 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 			vUnitsFinal.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
-	//don't be too agressive if we're weak
-	eAggressionLevel eLvl = vUnitsFinal.size() > allEnemyPlots.size() ? AL_MEDIUM : AL_LOW;
+	//we probably didn't see all enemy units, so doublecheck ...
+	bool bAggressive = true;
+	CvPlot* pTargetPlot = pClosestEnemyPlot;
+	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pClosestEnemyPlot);
+	if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+	{
+		bAggressive = false;
+		pTargetPlot = pArmy->GetCenterOfMass();
+	}
 
 	int iCount = 0;
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pClosestEnemyPlot, eLvl, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = bAggressive ?
+			TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_LOW, gTactPosStorage):
+			TacticalAIHelpers::FindBestDefensiveAssignment(vUnitsFinal, pTargetPlot, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -3511,17 +3521,29 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 			if(pZone == NULL || it->GetDominanceZone() == pZone->GetZoneID())
 			{
 				m_ZoneTargets.push_back(*it);
+				continue;
 			}
 
 			// Not obviously in this zone, but if within 2 of city we want them anyway
-			else
+			CvCity* pCity = pZone->GetZoneCity();
+			if(pCity && plotDistance(pCity->getX(), pCity->getY(), it->GetTargetX(), it->GetTargetY()) <= 2)
 			{
-				CvCity* pCity = pZone->GetZoneCity();
-				if(pCity)
+				m_ZoneTargets.push_back(*it);
+				continue;
+			}
+
+			// Last chance, adjacent to the current zone is also ok, zone boundaries are approximate only
+			CvPlot* pCheck = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots(pCheck, i);
+				if (pNeighbor)
 				{
-					if(plotDistance(pCity->getX(), pCity->getY(), it->GetTargetX(), it->GetTargetY()) <= 2)
+					CvTacticalDominanceZone* pNeighborZone = GetTacticalAnalysisMap()->GetZoneByPlot(pNeighbor);
+					if (pNeighborZone && pNeighborZone->GetZoneID() == pZone->GetZoneID())
 					{
 						m_ZoneTargets.push_back(*it);
+						continue;
 					}
 				}
 			}
@@ -8061,6 +8083,10 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 			//use normalized danger for scoring (don't need to consider self damage here, we're not attacking)
 			result.iScore -= (iDanger * GC.getCOMBAT_AI_DEFENSE_DANGERWEIGHT()) / max(1,iSpreadFactor) / (pUnit->GetCurrHitPoints() + 1);
 		}
+
+		//sometimes danger is zero, but maybe we're wrong, so look at plot defense too
+		int iDefenseMod = pTestPlot->defenseModifier(pUnit->getTeam(),false,false);
+		result.iScore += iDefenseMod / 10;
 
 		if (testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),unit.iPlotIndex) > 0)
 			result.iScore++;

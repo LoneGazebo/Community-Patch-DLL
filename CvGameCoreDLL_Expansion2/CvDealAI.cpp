@@ -122,7 +122,7 @@ int CvDealAI::GetDealPercentLeewayWithAI(PlayerTypes eOtherPlayer) const
 /// How much are we willing to back off on what our perceived value of a deal is with a human player to make something work?
 int CvDealAI::GetDealPercentLeewayWithHuman() const
 {
-	return 0;
+	return 3;
 }
 
 /// Offer up a deal to this AI, and see if he accepts

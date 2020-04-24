@@ -4135,17 +4135,17 @@ int CvLuaPlayer::lSetWarWeariness(lua_State* L)
 int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness();
 	int iSupply = pkPlayer->GetNumUnitsSuppliedByHandicap();
 	iSupply += pkPlayer->GetNumUnitsSuppliedByCities();
 	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
-	int iMod = iSupply;
-	iMod *= (100 - iWarWeariness);
-	iMod /= 100;
 
-	iSupply -= iMod;
+	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness() / 2;
+	int iMod = (100 - min(75, iWarWeariness));
+	int iSupplyReduction = iSupply;
+	iSupplyReduction *= iMod;
+	iSupplyReduction /= 100;
 
-	lua_pushinteger(L, min(75, iSupply));
+	lua_pushinteger(L, iSupply - iSupplyReduction);
 	return 1;
 }
 

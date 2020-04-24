@@ -13642,6 +13642,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			pBestCity->changeProduction(iProduction);
 			changeInstantYieldValue(YIELD_PRODUCTION, iProduction);
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+			strBuffer += " ";
 			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION", iProduction);
 #endif
 		}
@@ -19517,13 +19518,13 @@ void CvPlayer::ChangeReformationFollowerReduction(int iValue)
 #endif
 //	--------------------------------------------------------------------------------
 /// Handle earning yields from a combat win
-void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
+void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, CvCity* pCity)
 {
 #if defined(MOD_BALANCE_CORE)
 	//Bonus resource in a city every time you win a battle.
 	if (MOD_BALANCE_CORE && pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
-		CvCity* pOriginCity = NULL;
+		CvCity* pOriginCity = pCity;
 		if (pAttackingUnit != NULL)
 		{
 			pOriginCity = pAttackingUnit->getOriginCity();
@@ -21460,14 +21461,21 @@ void CvPlayer::DoCityRevolt()
 				CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
 				if (pNotifications)
 				{
+					if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eNotifyPlayer).getTeam()))
+						continue;
+
 					Localization::String strMessage;
 					if (eNotifyPlayer == GetID())
 					{
 						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_REVOLT", pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
 					}
-					else
+					else if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eNotifyPlayer).getTeam()))
 					{
 						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT", getCivilizationAdjective(), pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
+					}
+					else
+					{
+						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN", kRecipient.getCivilizationShortDescription());
 					}
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_REVOLT_SUMMARY");
 					pNotifications->Add(NOTIFICATION_CITY_REVOLT, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
@@ -22191,7 +22199,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 {
 	int iTotalResourceWeight = 0;
 
-	int iCityScaler = getNumCities() * GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER();
+	int iCityScaler = getNumCities() * (GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER() + GetCurrentEra());
 	iCityScaler /= 100;
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -25196,7 +25204,24 @@ void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 		return;
 	}
 	SetGoldenAgeProgressMeter(GetGoldenAgeProgressMeter() + iChange);
+	if (MOD_ISKA_GOLDENAGEPOINTS_TO_PRESTIGE)
+	{
+		if (iChange > 0)
+		{
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetID());
+				args->Push(iChange);
 
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "ChangeGoldenAgeProgressMeter", args.get(), bResult);
+			}
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------

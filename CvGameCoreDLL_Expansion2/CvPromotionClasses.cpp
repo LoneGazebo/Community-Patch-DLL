@@ -106,6 +106,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAdjacentMod(0),
 	m_iAttackMod(0),
 	m_iDefenseMod(0),
+	m_iGetGroundAttackDamage(0),
 	m_iDropRange(0),
 	m_iExtraNavalMoves(0),
 	m_iHPHealedIfDefeatEnemy(0),
@@ -627,6 +628,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAdjacentMod = kResults.GetInt("AdjacentMod");
 	m_iAttackMod = kResults.GetInt("AttackMod");
 	m_iDefenseMod = kResults.GetInt("DefenseMod");
+	m_iGetGroundAttackDamage = kResults.GetInt("GetGroundAttackDamage");
 	m_iDropRange = kResults.GetInt("DropRange");
 	m_iExtraNavalMoves = kResults.GetInt("ExtraNavalMovement");
 	m_iHPHealedIfDefeatEnemy = kResults.GetInt("HPHealedIfDestroyEnemy");
@@ -1763,6 +1765,12 @@ int CvPromotionEntry::GetAttackMod() const
 int CvPromotionEntry::GetDefenseMod() const
 {
 	return m_iDefenseMod;
+}
+
+/// Accessor: Percent defense change
+int CvPromotionEntry::GetGroundAttackDamage() const
+{
+	return m_iGetGroundAttackDamage;
 }
 
 /// Accessor: Number of tiles away a unit may paradrop

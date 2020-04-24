@@ -6152,6 +6152,12 @@
 			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN">
+			<Text>A City has revolted and joined {3_CivName}!</Text>
+		</Row>
+
+		
+
 		<!-- Production cost reduction from resources at city level -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! [ICON_PRODUCTION] Production Cost reduced for:{3_Details}</Text>

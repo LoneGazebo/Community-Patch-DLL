@@ -674,7 +674,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 #if defined(MOD_ISKA_HERITAGE)
 	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetReligionCreatedByPlayer();
-	if (MOD_ISKA_HERITAGE && ePlayerReligion > RELIGION_PANTHEON)
+	if (MOD_ISKA_HERITAGE && pPlayer->GetReligions()->HasReligionInMostCities(ePlayerReligion) && ePlayerReligion > RELIGION_PANTHEON)
 	{
 		eChosenBranch = eHeritageBranch;
 		if (iAutocracyPriority >= (iFreedomPriority + iOrderPriority) * 2)

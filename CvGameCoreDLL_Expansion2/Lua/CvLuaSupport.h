@@ -39,7 +39,7 @@ namespace LuaSupport
 //!	Called to register all game script data into Lua.
 void RegisterScriptData(lua_State* L);
 //! Dump the Lua callstack to the output stream
-void DumpCallStack(lua_State* L);
+void DumpCallStack(lua_State* L, FILogFile* pLog);
 
 bool CallHook(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, bool& value);
 bool CallTestAll(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, bool& value);

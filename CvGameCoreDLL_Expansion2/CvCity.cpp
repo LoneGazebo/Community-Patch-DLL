@@ -15235,65 +15235,62 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
 								{
 									ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-									CvImprovementEntry* ImprovementEntry;
 									if (eImprovement != NO_IMPROVEMENT)
 									{
-										ImprovementEntry = GC.getImprovementInfo(eImprovement);
+										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(eImprovement);
 										if (ImprovementEntry && ImprovementEntry->IsCreatedByGreatPerson() && ImprovementEntry->IsImprovementResourceMakesValid(eResource) == false)
 										{
 											continue;
 										}
-									}
-									int iResourceQuantityPerPlot = MAX(it->first, 1);
-									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-									pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
-									pLoopPlot->DoFindCityToLinkResourceTo();
-									iNumResourcePlotsGiven++;
-									if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
-									{
-										if (ImprovementEntry)
+
+										int iResourceQuantityPerPlot = MAX(it->first, 1);
+										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+										pLoopPlot->setResourceType(eResource, iResourceQuantityPerPlot, false);
+										pLoopPlot->DoFindCityToLinkResourceTo();
+										iNumResourcePlotsGiven++;
+										if (!pLoopPlot->IsImprovementPillaged())
 										{
 											if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
 											{
 												owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
 											}
 										}
-									}
-									if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
-									{
-										if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
+										if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 										{
-											CvString strBuffer;
-											CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-											CvAssert(pResourceInfo);
-											NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
-											strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
-
-											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
-
-											switch (pResourceInfo->getResourceUsage())
+											if (!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
 											{
-											case RESOURCEUSAGE_LUXURY:
-												eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
-												break;
-											case RESOURCEUSAGE_STRATEGIC:
-												eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
-												break;
-											case RESOURCEUSAGE_BONUS:
-												eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
-												break;
-											}
+												CvString strBuffer;
+												CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+												CvAssert(pResourceInfo);
+												NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+												strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
-											CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-											if (pNotifications)
-											{
-												pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+												CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+
+												switch (pResourceInfo->getResourceUsage())
+												{
+												case RESOURCEUSAGE_LUXURY:
+													eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+													break;
+												case RESOURCEUSAGE_STRATEGIC:
+													eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+													break;
+												case RESOURCEUSAGE_BONUS:
+													eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+													break;
+												}
+
+												CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+												if (pNotifications)
+												{
+													pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+												}
 											}
 										}
-									}
-									if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-									{
-										break;
+										if (iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+										{
+											break;
+										}
 									}
 								}
 							}
@@ -16198,7 +16195,8 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
 		//Also mountains, because they aren't called anywhere else!
-		UpdateYieldPerXTerrainFromReligion(eYield, TERRAIN_MOUNTAIN);
+		UpdateYieldPerXTerrainFromReligion(eYield);
+		UpdateYieldPerXFeature(eYield);
 		UpdateYieldPerXTerrain(eYield, TERRAIN_MOUNTAIN);
 		UpdateYieldPerXFeature(eYield);
 		updateExtraSpecialistYield(eYield);
@@ -24355,7 +24353,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
-			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR((YieldTypes)iYield, getOwner(), this);
+			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR(eYield, getOwner(), this);
 		}
 	}
 	SetSpecialReligionYields(eYield, iYieldValue);
@@ -28164,29 +28162,23 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST);
 
 	// Garrisoned Unit
-	int iMinCombatStrength = 0;
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
+		int iStrengthFromGarrisonRaw = pGarrisonedUnit->GetBaseCombatStrength();
 		if (!pGarrisonedUnit->isNativeDomain(plot()))
 			iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
 
-		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+		int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
-		iMinCombatStrength = iStrengthFromGarrisonRaw*100; //need this later
-		iStrengthValue += iStrengthFromGarrison;
+		iStrengthValue += (iStrengthFromGarrison * 100);
 	}
 
 	// Generals / Admirals also help (both the city and the garrison)
 	if (GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_GREAT_GENERAL, NO_DOMAIN, plot()) > 0)
 	{
-		iMinCombatStrength += GC.getCITY_STRENGTH_HILL_CHANGE();
 		iStrengthValue += GC.getCITY_STRENGTH_HILL_CHANGE();
 	}
-
-	// Can't be weaker than the garrison alone
-	iStrengthValue = max(iMinCombatStrength, iStrengthValue);
 
 	//finally
 	if (iStrengthValue != m_iStrengthValue)
@@ -28227,8 +28219,8 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				if (!pGarrisonedUnit->isNativeDomain(plot()))
 					iStrengthFromGarrisonRaw /= 2; //see getBestGarrison ... naval units make weaker garrisons
 
-				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
-				iValue -= iStrengthFromGarrison;
+				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
+				iValue -= (iStrengthFromGarrison * 100);
 			}
 
 			// buildings

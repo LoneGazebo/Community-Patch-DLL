@@ -579,7 +579,7 @@ public:
 	void ChangeReformationFollowerReduction(int iValue);
 #endif
 
-	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit);
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, CvCity* pCity = NULL);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)

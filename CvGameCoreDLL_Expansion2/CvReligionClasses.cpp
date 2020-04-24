@@ -5571,23 +5571,11 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, NO_PLAYER);
 			if(pReligion)
 			{
-				if(eResponsiblePlayer != NO_PLAYER)
+				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
+				if (iPressureRetention > 0)
 				{
-					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-					if (iPressureRetention > 0)
-					{
-						ePressureRetainedReligion = it->m_eReligion;
-						iPressureRetained = it->m_iPressure * iPressureRetention / 100;
-					}
-				}
-				else
-				{
-					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
-					if (iPressureRetention > 0)
-					{
-						ePressureRetainedReligion = it->m_eReligion;
-						iPressureRetained = it->m_iPressure * iPressureRetention / 100;
-					}
+					ePressureRetainedReligion = it->m_eReligion;
+					iPressureRetained = it->m_iPressure * iPressureRetention / 100;
 				}
 			}
 		}
@@ -10889,6 +10877,10 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 	int iPressureRatio = (iPressureFromUnit*100) / (pCR->GetTotalPressure() - pCR->GetPressure(eMyReligion));
 	int iHeathens = pCity->getPopulation() - pCR->GetFollowersOtherReligions(eMyReligion) - pCR->GetNumFollowers(eMyReligion);
 	iScore += (iHeathens * iPressureRatio) / 100;
+
+	//don't target inquisitor cities right away.
+	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
+		iScore /= 2;
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	if(MOD_BALANCE_CORE_HAPPINESS && pCity->getOwner() == m_pPlayer->GetID())

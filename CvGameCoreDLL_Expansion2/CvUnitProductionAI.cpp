@@ -805,7 +805,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND)
 					{
-						iWarValue += 5;
+						iWarValue += 15;
 					}
 
 					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)

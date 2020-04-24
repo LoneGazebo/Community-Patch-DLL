@@ -1448,7 +1448,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 
 						// Earn bonuses for kills?
 						CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
-						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender);
+						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender, pkAttacker);
 					}
 
 					//set damage but don't update entity damage visibility
