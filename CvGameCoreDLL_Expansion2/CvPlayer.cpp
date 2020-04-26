@@ -19984,7 +19984,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				GetTreasury()->ChangeGold(iYieldHandicap);
 				ChangeGoldenAgeProgressMeter(iYieldHandicap);
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GP - Received Handicap Bonus (%d in Yields): GOLD, GAP", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus (%d in Yields): GOLD, GAP", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_WAR:
@@ -20039,7 +20039,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 				}
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GA - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, CULTURE, SCIENCE.", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, CULTURE, SCIENCE.", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_DIG:
