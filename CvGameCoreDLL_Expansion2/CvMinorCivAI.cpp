@@ -2814,6 +2814,9 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	// Liberate a City State
 	else if(m_eType == MINOR_CIV_QUEST_LIBERATION)
 	{
+		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			return;
+
 		PlayerTypes eTargetCityState = pMinor->GetMinorCivAI()->GetBestCityStateLiberate(m_eAssignedPlayer);
 
 		FAssertMsg(eTargetCityState != NO_PLAYER, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
@@ -3002,7 +3005,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(eBuilding != NO_BUILDING, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
 
-		int iCities = GET_PLAYER(m_eAssignedPlayer).getNumCities() - GET_PLAYER(m_eAssignedPlayer).GetNumPuppetCities();
+		int iCities = pAssignedPlayer->getNumCities() - pAssignedPlayer->GetNumPuppetCities();
 		int iActionAmount = 1 + GC.getGame().getSmallFakeRandNum(iCities, iCities);
 		if (iActionAmount > iCities)
 		{
@@ -3065,12 +3068,12 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
-		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 			return;
 
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestCityForQuest(m_eAssignedPlayer);
 
-		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
+		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to capture a city.");
 
 		if (!pCity)
 			return;
