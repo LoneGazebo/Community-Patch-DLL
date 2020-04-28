@@ -15250,9 +15250,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										iNumResourcePlotsGiven++;
 										if (!pLoopPlot->IsImprovementPillaged())
 										{
-											if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
+											if (ImprovementEntry)
 											{
-												owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
+												if (ImprovementEntry->IsImprovementResourceMakesValid(eResource))
+												{
+													owningPlayer.changeNumResourceTotal(eResource, iResourceQuantityPerPlot);
+												}
 											}
 										}
 										if (pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
