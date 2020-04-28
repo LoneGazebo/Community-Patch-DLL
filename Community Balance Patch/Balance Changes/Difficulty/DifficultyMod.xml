@@ -672,7 +672,7 @@
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianBonus>0</BarbarianBonus>
-			<AIBarbarianBonus>25</AIBarbarianBonus>
+			<AIBarbarianBonus>0</AIBarbarianBonus>
 			<BarbCampGold>50</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>

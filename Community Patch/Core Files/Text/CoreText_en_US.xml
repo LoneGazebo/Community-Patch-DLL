@@ -2490,6 +2490,11 @@
 		<Row Tag="TXT_KEY_CITY_STATE_FIND_PLOT_QUEST_LONG">
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
+
+		<!-- Update resurrection text (voluntary vassals) -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL">
+			<Text>{1_PlayerName} has conquered {2_CityName} and restored {3_CivAdj} sovereignty. The flame of the {4_CivName}, once extinguished, burns again. The {4_CivName} is now the vassal of {1_PlayerName}.</Text>
+		</Row>
 		
 		<!-- Automation -->
 		<!-- Automation Text -->
