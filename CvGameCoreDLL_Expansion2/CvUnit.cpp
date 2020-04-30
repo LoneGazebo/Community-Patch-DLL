@@ -4856,6 +4856,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			return false;
 		}
+		else if (kPlayer.isMinorCiv() && enterPlot.getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		{
+			//vp special: minors cannot enter/clear barbarian camps
+			return false;
+		}
 
 		//ok, seems there are no objections. let's go!
 		return true;
@@ -27241,8 +27246,8 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 
 CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 {
-	//don't swap into a frontline plot
-	if (swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
+	//AI shouldn't swap into a frontline plot
+	if (!isHuman() && swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
 		return NULL;
 
 	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
@@ -28303,8 +28308,8 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 //	--------------------------------------------------------------------------------
 bool CvUnit::ReadyToSelect() const
 {
-	VALIDATE_OBJECT
-	return (ReadyToMove() && !IsAutomated());
+	//note that units with the turn processed flag are ok here!
+	return (ReadyToMove() && !IsAutomated() && !isDelayedDeath());
 }
 
 

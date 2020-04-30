@@ -2809,7 +2809,10 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			//Let's grab embassies if we can!
 			if (pAdjacentPlot->IsImprovementEmbassy())
 			{
-				iWeightFactor += 5;
+				if (pAdjacentPlot->GetPlayerThatBuiltImprovement() != pUnit->getOwner())
+					iWeightFactor += 5;
+				else //don't steal our own embassy
+					iWeightFactor = 1;
 			}
 
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
