@@ -4157,8 +4157,6 @@ void CvDiplomacyAI::DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve /* = fa
 		if (eLoopPlayer != NO_PLAYER && eLoopPlayer != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && ((GetTeam() == eLoopTeam) || GET_TEAM(GetTeam()).isHasMet(eLoopTeam)))
 		{
 			MajorCivApproachTypes eOldApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-			if (eOldApproach == NO_MAJOR_CIV_APPROACH)
-				eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 
 			// Under certain circumstances, set the approach immediately
 			// Prioritized approach updates are done first and don't depend on each other, therefore we can fairly use the new approach in the map ...
@@ -4496,19 +4494,25 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 #endif
 
 	// Previous approach
+	bool bNoOldApproach = false;
 	MajorCivApproachTypes eOldApproach;
 	std::map<PlayerTypes, MajorCivApproachTypes>::iterator oldApproachPointer;
 	oldApproachPointer = oldApproaches.find(ePlayer);
 	if (oldApproachPointer != oldApproaches.end())
+	{
 		eOldApproach = oldApproachPointer->second;
+	}
 	else
 	{
 		eOldApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
-		if (eOldApproach == NO_MAJOR_CIV_APPROACH)
-			eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 	}
 
-	MajorCivApproachTypes eApproach;
+	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
+	{
+		bNoOldApproach = true;
+		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
+	}
+
 	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
 	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 0);
 
@@ -4542,34 +4546,26 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// LAST TURN APPROACH BIASES
 	////////////////////////////////////
 
-	if (eOldApproach == MAJOR_CIV_APPROACH_WAR)
+	if (!bNoOldApproach && !bIgnoreApproachCurve)
 	{
-		// If we're planning a war then give it a bias so that we don't get away from it too easily
-		if (eWarGoal == WAR_GOAL_PREPARE)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		}
-		// Also apply this bias if we want to wipe them off the planet
-		else if (eWarGoal == WAR_GOAL_CONQUEST)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		}
-	}
-	else if (eOldApproach == MAJOR_CIV_APPROACH_HOSTILE)
-	{
-		// Same for demand
-		if (eWarGoal == WAR_GOAL_DEMAND)
-		{
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
-		}
-	}
+		// Add 1x approach bias for our current approach, to make it less likely to flip from turn to turn
+		viApproachWeights[eOldApproach] += viApproachWeightsPersonality[eOldApproach];
 
-	// Conquest bias: must be a stalemate or better to apply (or not at war yet)
-	if (bConqueror || bGoingForWorldConquest)
-	{
-		if (eWarState == NO_WAR_STATE_TYPE || eWarState > WAR_STATE_DEFENSIVE)
+		if (eOldApproach == MAJOR_CIV_APPROACH_WAR)
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			// If we're planning a war (or want to wipe them off the planet) then add WAR bias so that we don't get away from it too easily
+			if (eWarGoal == WAR_GOAL_PREPARE || eWarGoal == WAR_GOAL_CONQUEST)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+			}
+		}
+		else if (eOldApproach == MAJOR_CIV_APPROACH_HOSTILE)
+		{
+			// Same for demand
+			if (eWarGoal == WAR_GOAL_DEMAND)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+			}
 		}
 	}
 
@@ -4580,6 +4576,19 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (bEasyTarget)
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+	}
+
+	////////////////////////////////////
+	// WORLD CONQUEST
+	////////////////////////////////////
+
+	// Conquest bias: must be a stalemate or better to apply (or not at war yet)
+	if (bGoingForWorldConquest || bCloseToWorldConquest)
+	{
+		if (eWarState == NO_WAR_STATE_TYPE || eWarState > WAR_STATE_DEFENSIVE)
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
+		}
 	}
 
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
@@ -5762,7 +5771,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (MOD_DIPLOMACY_CIV4_FEATURES)
 	{
 		// They have vassals? Let's consider our opinion of them.
-		if (GET_TEAM(eTeam).GetNumVassals() > 0)
+		if (GET_TEAM(eTeam).GetNumVassals() > 0 && !bIgnoreApproachCurve)
 		{
 			TeamTypes eLoopTeam;
 			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -5778,13 +5787,16 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						MajorCivApproachTypes eOldLoopApproach;
 						oldApproachPointer = oldApproaches.find(eLoopPlayer);
 						if (oldApproachPointer != oldApproaches.end())
+						{
 							eOldLoopApproach = oldApproachPointer->second;
+						}
 						else
 						{
 							eOldLoopApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-							if (eOldLoopApproach == NO_MAJOR_CIV_APPROACH)
-								eOldLoopApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 						}
+
+						if (eOldLoopApproach == NO_MAJOR_CIV_APPROACH)
+							continue;
 
 						// Add our approach towards the vassal into this.
 						switch (eOldLoopApproach)
@@ -5817,7 +5829,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		}
 
 		// They're a vassal of someone other than us? What do we think of their masters?
-		else if (GET_TEAM(eTeam).IsVassalOfSomeone() && !bIsMaster)
+		else if (GET_TEAM(eTeam).IsVassalOfSomeone() && !bIsMaster && !bIgnoreApproachCurve)
 		{
 			// We have the same master
 			if (GET_TEAM(eMyTeam).GetMaster() == GET_TEAM(eTeam).GetMaster())
@@ -5840,13 +5852,16 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 							MajorCivApproachTypes eOldLoopApproach;
 							oldApproachPointer = oldApproaches.find(eLoopPlayer);
 							if (oldApproachPointer != oldApproaches.end())
+							{
 								eOldLoopApproach = oldApproachPointer->second;
+							}
 							else
 							{
 								eOldLoopApproach = GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-								if (eOldLoopApproach == NO_MAJOR_CIV_APPROACH)
-									eOldLoopApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 							}
+
+							if (eOldLoopApproach == NO_MAJOR_CIV_APPROACH)
+								continue;
 
 							// Add our approach towards the master into this.
 							switch (eOldLoopApproach)
@@ -8278,7 +8293,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 		int iApproachValue = viApproachWeights[eLoopApproach];
 
-		if (!bIgnoreApproachCurve)
+		if (!bNoOldApproach && !bIgnoreApproachCurve)
 		{
 			float fAlpha = 0.10f;
 			int  iAverage = int(0.5f + (iApproachValue * fAlpha) + (iLastTurnValue * (1 - fAlpha)));
@@ -8319,6 +8334,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//--------------------------------//
 	// [PART 12: APPROACH SELECTION]  //
 	//--------------------------------//
+
+	MajorCivApproachTypes eApproach;
 
 	// This vector is what we'll use to sort
 	CvWeightedVector< MajorCivApproachTypes, 128 > vApproachWeightsForSorting;
@@ -27739,16 +27756,33 @@ void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 		{
 			if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyKilled[ePlayer] == GC.getGame().getGameTurn())
 			{
-				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_YOUR_SPY;
-#if defined(MOD_BALANCE_CORE_SPIES)
-				int iTurnsBetweenStatements = 40;
-#else
-				int iTurnsBetweenStatements = 1;
-#endif
-
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+				// Have we asked you to make a promise before?
+				if(IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
 				{
-					eStatement = eTempStatement;
+					// We don't even want to bother with you again, so do nothing
+				}
+				else if(IsPlayerMadeSpyPromise(ePlayer))
+				{
+					// You broke the promise you made!
+					SetPlayerBrokenSpyPromise(ePlayer, true);
+					SetPlayerMadeSpyPromise(ePlayer, false);
+	#if defined(MOD_BALANCE_CORE)
+					SetPlayerBackstabCounter(ePlayer, 0);
+	#endif
+				}
+				// Otherwise, ask you to make a promise
+				else
+				{
+					DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_YOUR_SPY;
+#if defined(MOD_BALANCE_CORE_SPIES)
+					int iTurnsBetweenStatements = 40;
+#else
+					int iTurnsBetweenStatements = 1;
+#endif
+					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					{
+						eStatement = eTempStatement;
+					}
 				}
 			}
 		}
@@ -27765,22 +27799,7 @@ void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTy
 	{
 		if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyDied[ePlayer] == GC.getGame().getGameTurn() - 1)
 		{
-			// Have we asked you to make a promise before?
-			if(IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
-			{
-				// We don't even want to bother with you again, so do nothing
-			}
-			else if(IsPlayerMadeSpyPromise(ePlayer))
-			{
-				// You broke the promise you made!
-				SetPlayerBrokenSpyPromise(ePlayer, true);
-				SetPlayerMadeSpyPromise(ePlayer, false);
-#if defined(MOD_BALANCE_CORE)
-				SetPlayerBackstabCounter(ePlayer, 0);
-#endif
-			}
-			// Otherwise, ask you to make a promise
-			else
+			if (!IsPlayerBrokenSpyPromise(ePlayer) && !IsPlayerIgnoredSpyPromise(ePlayer)) // Ignore if they refuse to stop spying on us
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_MY_SPY;
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -49645,7 +49664,7 @@ void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploState
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						// Modify player view to all AI teammates
-						if (IsTeammate(eLoopPlayer))
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxRaised(eLoopPlayer, false);
@@ -49693,7 +49712,7 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						// Modify player view to all AI teammates
-						if (IsTeammate(eLoopPlayer))
+						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxLowered(eLoopPlayer, false);

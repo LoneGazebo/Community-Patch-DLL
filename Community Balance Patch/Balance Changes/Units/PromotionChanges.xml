@@ -578,7 +578,6 @@
 			<OrderPriority>1</OrderPriority>
 			<InterceptChanceChange>25</InterceptChanceChange>
 			<InterceptionCombatModifier>33</InterceptionCombatModifier>
-			<RangeChange>1</RangeChange>
 			<PortraitIndex>28</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -3275,7 +3274,7 @@
 			<PromotionPrereqOr2>PROMOTION_FIELD_III</PromotionPrereqOr2>
 			<OutsideFriendlyLandsModifier>25</OutsideFriendlyLandsModifier>
 			<AttackWoundedMod>25</AttackWoundedMod>
-			<AdjacentMod>15</AdjacentMod>
+			<AdjacentMod>-15</AdjacentMod>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3603,8 +3602,8 @@
 			<Help>TXT_KEY_PROMOTION_FIELD_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<RangedAttackModifier>5</RangedAttackModifier>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<RangedAttackModifier>10</RangedAttackModifier>
+			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SIEGE</PediaType>
@@ -3617,8 +3616,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_FIELD_I</PromotionPrereqOr1>
-			<RangedAttackModifier>5</RangedAttackModifier>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<RangedAttackModifier>10</RangedAttackModifier>
+			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>7</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SIEGE</PediaType>
@@ -3631,8 +3630,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_FIELD_II</PromotionPrereqOr1>
-			<RangedAttackModifier>5</RangedAttackModifier>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<RangedAttackModifier>10</RangedAttackModifier>
+			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SIEGE</PediaType>

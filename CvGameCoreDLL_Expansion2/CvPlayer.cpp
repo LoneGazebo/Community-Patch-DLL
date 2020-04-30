@@ -9690,16 +9690,14 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
-#if defined(MOD_BALANCE_CORE)
-	if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
+	if (ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isBarbarian())
 	{
 		ePlayer = pCity->getOriginalOwner();
 	}
-	if(ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER)
 	{
 		return;
 	}
-#endif
 
 	// Set that this team has been liberated
 	TeamTypes eTeam = getTeam();
@@ -9728,11 +9726,35 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 #endif
 			}
 		}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+		{
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
+			{
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+			}
+		}
+#endif
 	
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{
 			// add notification
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
+			Localization::String strMessage;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if (MOD_DIPLOMACY_CIV4_FEATURES && !bForced && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == getTeam())
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
+			}
+			else
+			{
+#endif
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED");
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			}
+#endif
 			strMessage << getCivilizationShortDescriptionKey(); // LIBERATING CIV NAME
 			strMessage << pCity->getNameKey(); // CITY NAME
 			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
@@ -9830,17 +9852,15 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 #endif
 	}
 
-	if (!GET_PLAYER(ePlayer).isMinorCiv())
+	if (!GET_PLAYER(ePlayer).isMinorCiv() && !bForced)
 	{
 		// slewis - if the player we're liberating the city for is dead, give the liberating player a resurrection mark in the once-defeated player's book
 		if (!GET_PLAYER(ePlayer).isAlive())
 		{
 			CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 			PlayerTypes eMePlayer = GetID();
-			if (!bForced)
-			{
-				pDiploAI->SetResurrectedBy(eMePlayer, true);
-			}
+
+			pDiploAI->SetResurrectedBy(eMePlayer, true);
 			
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -10003,17 +10023,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			if (eUnit != NO_UNIT)
 				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
-		{
-			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
-			{
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
-			}
-		}
-#endif
 	}
 
 	// slewis
@@ -19984,7 +19993,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				GetTreasury()->ChangeGold(iYieldHandicap);
 				ChangeGoldenAgeProgressMeter(iYieldHandicap);
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GP - Received Handicap Bonus (%d in Yields): GOLD, GAP", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus (%d in Yields): GOLD, GAP", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_WAR:
@@ -20028,7 +20037,6 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					}
 				}
 				GetTreasury()->ChangeGold(iYieldHandicap);
-				ChangeGoldenAgeProgressMeter(iYieldHandicap);
 				changeJONSCulture(iYieldHandicap);
 
 				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
@@ -20040,7 +20048,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 				}
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GA - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, CULTURE, SCIENCE.", iYieldHandicap);
 				break;
 			}
 			case HISTORIC_EVENT_DIG:

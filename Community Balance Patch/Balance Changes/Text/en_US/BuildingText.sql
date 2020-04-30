@@ -112,8 +112,7 @@ SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COP
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from all Forests worked by this City, and +1 [ICON_PRODUCTION] Production for every 10 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.'
-WHERE Tag = 'TXT_KEY_BUILDING_WORKSHOP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from all Forests worked by this City, and +1 [ICON_PRODUCTION] Production for every 10 [ICON_CITIZEN] Citizens in the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.' WHERE Tag = 'TXT_KEY_BUILDING_WORKSHOP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
 SET Text = 'Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have at least one of these resources improved.'
