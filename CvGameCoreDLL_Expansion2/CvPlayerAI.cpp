@@ -2733,6 +2733,14 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, false);
 					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
 
+					// Don't steal from our friends.
+					if (GetDiplomacyAI()->IsDoFAccepted(eOwner) || GET_TEAM(getTeam()).IsHasDefensivePact(GET_PLAYER(eOwner).getTeam()) || GetDiplomacyAI()->WasResurrectedBy(eOwner)
+						|| eMajorApproach == MAJOR_CIV_APPROACH_FRIENDLY || GetDiplomacyAI()->GetMajorCivOpinion(eOwner) >= MAJOR_CIV_OPINION_FRIEND)
+					{
+						bGoodCandidate = false;
+						break;
+					}
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					// AI vassals shouldn't culture bomb their masters.
 					if (MOD_DIPLOMACY_CIV4_FEATURES)
