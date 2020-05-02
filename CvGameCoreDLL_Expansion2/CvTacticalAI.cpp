@@ -3066,22 +3066,16 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 			vUnitsFinal.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
 	//we probably didn't see all enemy units, so doublecheck ...
-	bool bAggressive = true;
 	CvPlot* pTargetPlot = pClosestEnemyPlot;
 	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pClosestEnemyPlot);
-	if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-	{
-		bAggressive = false;
-		pTargetPlot = pArmy->GetCenterOfMass();
-	}
+	if (pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+		return false;
 
 	int iCount = 0;
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = bAggressive ?
-			TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_LOW, gTactPosStorage):
-			TacticalAIHelpers::FindBestDefensiveAssignment(vUnitsFinal, pTargetPlot, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_LOW, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -8765,8 +8759,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 		}
 	}
 
-	//ranged attacks
-	if (pUnit->isRanged() && eAggression>AL_NONE && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
+	//ranged attacks (also if aggression level is NONE!)
+	if (pUnit->isRanged() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
 		const vector<int>& rangeAttackPlots = getRangeAttackPlotsForUnit(unit);
 		for (vector<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
@@ -8779,7 +8773,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			{
 				STacticalAssignment newAssignment(ScorePlotForRangedAttack(unit,assumedUnitPlot,enemyPlot,*this));
 				if (newAssignment.iScore > 0)
+				{
+					//if we're not looking to pick a fight, de-emphasize attacks
+					if (eAggression == AL_NONE)
+						newAssignment.iScore /= 3;
+
 					possibleMoves.push_back(newAssignment);
+				}
 			}
 		}
 
