@@ -7834,15 +7834,9 @@ int CvReligionAI::GetSpreadScore() const
 			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
 			if (eMinor != NO_PLAYER)
 			{
-				CvPlayer* pMinor = &GET_PLAYER(eMinor);
-				if (pMinor)
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_CONTEST_FAITH))
 				{
-					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-
-					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_CONTEST_FAITH))
-					{
-						iScore += 1;
-					}
+					iScore++;
 				}
 			}
 		}
@@ -7888,13 +7882,10 @@ bool CvReligionAI::DoFaithPurchases()
 	if (eReligionWeFounded != NO_RELIGION)
 		eReligionToSpread = eReligionWeFounded;
 
-	CvString strLogMsg = m_pPlayer->getCivilizationShortDescription();
+	CvString strPlayer = m_pPlayer->getCivilizationShortDescription();
 	UnitTypes eProphetType = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 	bool bAllConvertedCore = AreAllOurCitiesConverted(eReligionToSpread, false /*bIncludePuppets*/);
 	bool bAllConvertedInclPuppets = AreAllOurCitiesConverted(eReligionToSpread, true /*bIncludePuppets*/);
-
-	// Do we get benefits from spreading our religion?
-	int iDesireToSpread = GetSpreadScore();
 
 	// Count missionaries / prophets
 	int iNumMissionaries = 0;
@@ -7910,8 +7901,8 @@ bool CvReligionAI::DoFaithPurchases()
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	int iFlavorReligion = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 
-	//Religion bonuses should artificially boost flavors.
-	iFlavorReligion += iDesireToSpread;
+	// Do we get benefits from spreading our religion?
+	int iDesireToSpread = GetSpreadScore();
 
 	//exceptions from the rule
 	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
@@ -7945,7 +7936,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				strLogMsg += ", Bought a Prophet for religion enhancement.";
+				CvString strLogMsg = strPlayer + ", Bought a Prophet for religion enhancement.";
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 				strLogMsg += strFaith;
@@ -7956,7 +7947,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				strLogMsg += ", Saving up for a Prophet for religion enhancement.";
+				CvString strLogMsg = strPlayer + ", Saving up for a Prophet for religion enhancement.";
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 				strLogMsg += strFaith;
@@ -7976,7 +7967,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				strLogMsg += ", Bought a Great Person, as it is the Industrial age.";
+				CvString strLogMsg = strPlayer + ", Bought a Great Person, as it is the Industrial age.";
 				strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
@@ -7988,7 +7979,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				strLogMsg += ", Waiting to buy a Great Person, as it is the Industrial age.";
+				CvString strLogMsg = strPlayer + ", Waiting to buy a Great Person, as it is the Industrial age.";
 				strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
@@ -8010,7 +8001,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Bought a Prophet, badly need to Convert Non-Puppet Cities";
+					CvString strLogMsg = strPlayer + ", Bought a Prophet, badly need to Convert our Non-Puppet Cities";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8021,7 +8012,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Saving up for a Prophet, as we need to convert Non-Puppet Cities.";
+					CvString strLogMsg = strPlayer + ", Saving up for a Prophet, need to convert our Non-Puppet Cities.";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8037,7 +8028,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Bought a Missionary/Inquisitor, need to Convert Non-Puppet Cities";
+					CvString strLogMsg = strPlayer + ", Bought a Missionary/Inquisitor, need to Convert our Non-Puppet Cities";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8048,7 +8039,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Saving up for a Prophet or Missionary, as we need to convert Non-Puppet Cities.";
+					CvString strLogMsg = strPlayer + ", Saving up for a Missionary/Inquisitor, need to convert our Non-Puppet Cities.";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8068,7 +8059,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				strLogMsg += ", Bought a Missionary/Inquisitor, Need to Convert Puppet Cities";
+				CvString strLogMsg = strPlayer + ", Bought a Missionary/Inquisitor, Need to Convert our Puppet Cities";
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 				strLogMsg += strFaith;
@@ -8079,7 +8070,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if (GC.getLogging())
 			{
-				strLogMsg += ", Saving up for a Missionary, as we need to convert Puppet Cities.";
+				CvString strLogMsg = strPlayer + ", Saving up for a Missionary/Inquisitor, need to convert our Puppet Cities.";
 				CvString strFaith;
 				strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 				strLogMsg += strFaith;
@@ -8111,7 +8102,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Focusing on Missionaries, Need to Convert EVERYONE because religious zealotry";
+					CvString strLogMsg = strPlayer + ", Focusing on Missionaries, Need to Convert EVERYONE because religious zealotry";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8122,7 +8113,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Saving up for Missionaries, Need to Convert EVERYONE because religious zealotry";
+					CvString strLogMsg = strPlayer + ", Saving up for Missionaries, Need to Convert EVERYONE because religious zealotry";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8135,13 +8126,13 @@ bool CvReligionAI::DoFaithPurchases()
 
 		//SECOND PRIORITY
 		// Have civs nearby to target who didn't start a religion?
-		if ((iFlavorReligion >= 7) && HaveNearbyConversionTarget(eReligionWeFounded, false /*bCanIncludeReligionStarter*/))
+		else if ((iFlavorReligion+iNumEasyTargets/2 >= 7) && HaveNearbyConversionTarget(eReligionWeFounded, false /*bCanIncludeReligionStarter*/))
 		{
 			if (BuyMissionary(eReligionWeFounded))
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Focusing on Missionaries, Need to Convert Cities of Non-Religion Starters";
+					CvString strLogMsg = strPlayer + ", Focusing on Missionaries, Need to Convert Cities of Non-Religion Starters";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8152,7 +8143,7 @@ bool CvReligionAI::DoFaithPurchases()
 			{
 				if (GC.getLogging())
 				{
-					strLogMsg += ", Saving up for Missionaries, Need to Convert Cities of Non-Religion Starters";
+					CvString strLogMsg = strPlayer + ", Saving up for Missionaries, Need to Convert Cities of Non-Religion Starters";
 					CvString strFaith;
 					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
 					strLogMsg += strFaith;
@@ -8234,19 +8225,19 @@ bool CvReligionAI::BuyMissionaryOrInquisitor(ReligionTypes eReligion)
 /// Pick the right city to purchase a missionary in
 bool CvReligionAI::BuyMissionary(ReligionTypes eReligion)
 {
-	CvPlayer &kPlayer = GET_PLAYER(m_pPlayer->GetID());
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-	UnitTypes eMissionary = kPlayer.GetSpecificUnitType("UNITCLASS_MISSIONARY");
+	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
 #else
 	UnitTypes eMissionary = (UnitTypes)GC.getInfoTypeForString("UNIT_MISSIONARY");
 #endif
-	CvCity *pCapital = kPlayer.getCapitalCity();
+
+	CvCity *pCapital = m_pPlayer->getCapitalCity();
 	if (pCapital)
 	{
 		int iCost = pCapital->GetFaithPurchaseCost(eMissionary, true /*bIncludeBeliefDiscounts*/);
-		if (iCost <= kPlayer.GetFaith())
+		if (iCost <= m_pPlayer->GetFaith())
 		{
-			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eMissionary, eReligion);
+			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(*m_pPlayer, eMissionary, eReligion);
 			if (pBestCity)
 			{
 				pBestCity->Purchase(eMissionary, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
@@ -8260,19 +8251,18 @@ bool CvReligionAI::BuyMissionary(ReligionTypes eReligion)
 /// Pick the right city to purchase an inquisitor in
 bool CvReligionAI::BuyInquisitor(ReligionTypes eReligion)
 {
-	CvPlayer &kPlayer = GET_PLAYER(m_pPlayer->GetID());
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-	UnitTypes eInquisitor = kPlayer.GetSpecificUnitType("UNITCLASS_INQUISITOR");
+	UnitTypes eInquisitor = m_pPlayer->GetSpecificUnitType("UNITCLASS_INQUISITOR");
 #else
 	UnitTypes eInquisitor = (UnitTypes)GC.getInfoTypeForString("UNIT_INQUISITOR");
 #endif
-	CvCity *pCapital = kPlayer.getCapitalCity();
+	CvCity *pCapital = m_pPlayer->getCapitalCity();
 	if (pCapital)
 	{
 		int iCost = pCapital->GetFaithPurchaseCost(eInquisitor, true /*bIncludeBeliefDiscounts*/);
-		if (iCost <= kPlayer.GetFaith())
+		if (iCost <= m_pPlayer->GetFaith())
 		{
-			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eInquisitor, eReligion);
+			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(*m_pPlayer, eInquisitor, eReligion);
 			if (pBestCity)
 			{
 				pBestCity->Purchase(eInquisitor, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
