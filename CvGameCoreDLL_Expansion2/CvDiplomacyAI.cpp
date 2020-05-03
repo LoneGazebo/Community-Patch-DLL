@@ -27297,6 +27297,10 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 #endif
 			return;
 
+		// If we're a vassal and the other player is an AI, don't send the statement
+		if (!GET_PLAYER(ePlayer).isHuman() && GET_TEAM(GetTeam()).IsVassalOfSomeone())
+			return;
+
 		// Don't threaten if this person resurrected us
 		if (WasResurrectedBy(ePlayer))
 		{
@@ -41149,6 +41153,11 @@ void CvDiplomacyAI::ChangeNegativeArchaeologyPoints(PlayerTypes ePlayer, int iCh
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
 
+		if (iChange > 0)
+		{
+			ChangeNumArtifactsEverDugUp(ePlayer, 1);
+		}
+
 		m_paiNegativeArchaeologyPoints[ePlayer] += iChange;
 		CvAssertMsg(m_paiNegativeArchaeologyPoints[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Digs in Other Player's Lands returned. Please send Ed this with your last 5 autosaves and what changelist # you're playing.");
 	}
@@ -41167,7 +41176,6 @@ void CvDiplomacyAI::SetNegativeArchaeologyPoints(PlayerTypes ePlayer, int iValue
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// How many times has this player dug up our artifacts?
 int CvDiplomacyAI::GetNumArtifactsEverDugUp(PlayerTypes ePlayer) const
 {
@@ -41220,7 +41228,6 @@ void CvDiplomacyAI::SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue)
 		CvAssertMsg(m_paiArtifactsEverDugUp[ePlayer] >= 0, "DIPLOMACY_AI: Invalid # of Artifacts Dug Up returned. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	}
 }
-#endif
 
 /// How many times has this player converted the religion of our cities? (if we care)
 int CvDiplomacyAI::GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) const

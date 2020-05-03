@@ -13500,19 +13500,6 @@ bool CvUnit::build(BuildTypes eBuild)
 		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
 #endif
 		NewBuild = true;
-
-#if defined(MOD_BALANCE_CORE)
-		if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER)
-		{
-			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
-			if (pPlot->getResourceType(pPlot->getTeam()) == eArtifactResourceType || (pPlot->getResourceType(pPlot->getTeam()) == eHiddenArtifactResourceType))
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(getOwner(), 5);
-			}
-		}
-#endif
-
 	}
 
 	bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner(), NewBuild);
