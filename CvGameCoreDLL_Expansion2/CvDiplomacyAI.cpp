@@ -27297,6 +27297,10 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 #endif
 			return;
 
+		// If we're a vassal and the other player is an AI, don't send the statement
+		if (!GET_PLAYER(ePlayer).isHuman() && GET_TEAM(GetTeam()).IsVassalOfSomeone())
+			return;
+
 		// Don't threaten if this person resurrected us
 		if (WasResurrectedBy(ePlayer))
 		{
