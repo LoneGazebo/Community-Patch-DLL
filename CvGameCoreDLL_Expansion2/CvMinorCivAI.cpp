@@ -12119,8 +12119,14 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	Localization::String strSummaryOthers;
 
 	// We need to do this because this function is recursive, and if we're UNDOING someone else, we don't yet know who the new guy is because it hasn't been set yet
-	if(bPassedBySomeone)
+	if (bPassedBySomeone)
+	{
 		ePlayer = eNewAlly;
+
+		// Notify diplo AI (competition penalty)
+		if (eOldAlly != NO_PLAYER && eNewAlly != NO_PLAYER && eOldAlly != eNewAlly)
+			GET_PLAYER(eOldAlly).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eNewAlly, 1);
+	}
 
 	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
 		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
@@ -12139,19 +12145,18 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		const char* strOldBestPlayersNameKey = "";
 
 		// Someone got passed up
-		if(eOldAlly != NO_PLAYER)
+		if (eOldAlly != NO_PLAYER)
 		{
 			// Notify player has met the old Ally
-			if(pNotifyTeam->isHasMet(eOldAllyTeam))
+			if (pNotifyTeam->isHasMet(eOldAllyTeam))
 			{
 				strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
-
-				if (bPassedBySomeone && eNewAlly != NO_PLAYER)
-					GET_PLAYER(eOldAlly).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eNewAlly, 1);
 			}
 			// Notify player has NOT met the old Ally
 			else
+			{
 				strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
+			}
 		}
 
 		const char* strMinorsNameKey = GetPlayer()->getNameKey();
