@@ -1626,6 +1626,8 @@ private:
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
 	bool IsTeammate(PlayerTypes eOtherPlayer);
+	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer);
+	bool IsHasDefensivePact(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 
 	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);

@@ -357,8 +357,18 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 					{
 						bLiberate = true;
 					}
+					// opinion at least friend and liberated some of our cities before?
+					else if (GetDiplomacyAI()->GetNumCitiesLiberatedBy(eOriginalOwner) > 0 && GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_FRIEND)
+					{
+						bLiberate = true;
+					}
 					// ally?
 					else if (GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) == MAJOR_CIV_OPINION_ALLY)
+					{
+						bLiberate = true;
+					}
+					// if they resurrected us or liberated our capital before, let's return the favor
+					else if (GET_TEAM(getTeam()).GetLiberatedByTeam() == GET_PLAYER(eOriginalOwner).getTeam() || GetDiplomacyAI()->IsPlayerLiberatedCapital(eOriginalOwner))
 					{
 						bLiberate = true;
 					}
@@ -372,6 +382,11 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 					}
 					// also resurrect if our Opinion of them was positive
 					else if (GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) >= MAJOR_CIV_OPINION_FRIEND)
+					{
+						bLiberate = true;
+					}
+					// if they resurrected us or liberated our capital before, let's return the favor
+					else if (GET_TEAM(getTeam()).GetLiberatedByTeam() == GET_PLAYER(eOriginalOwner).getTeam() || GetDiplomacyAI()->IsPlayerLiberatedCapital(eOriginalOwner))
 					{
 						bLiberate = true;
 					}
@@ -2734,7 +2749,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
 
 					// Don't steal from our friends.
-					if (GetDiplomacyAI()->IsDoFAccepted(eOwner) || GET_TEAM(getTeam()).IsHasDefensivePact(GET_PLAYER(eOwner).getTeam()) || GetDiplomacyAI()->WasResurrectedBy(eOwner)
+					if (GetDiplomacyAI()->IsDoFAccepted(eOwner) || GET_TEAM(getTeam()).IsHasDefensivePact(GET_PLAYER(eOwner).getTeam()) || GET_TEAM(getTeam()).GetLiberatedByTeam() == GET_PLAYER(eOwner).getTeam()
 						|| eMajorApproach == MAJOR_CIV_APPROACH_FRIENDLY || GetDiplomacyAI()->GetMajorCivOpinion(eOwner) >= MAJOR_CIV_OPINION_FRIEND)
 					{
 						bGoodCandidate = false;
@@ -2742,10 +2757,16 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 					}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					// AI vassals shouldn't culture bomb their masters.
 					if (MOD_DIPLOMACY_CIV4_FEATURES)
 					{
+						// AI vassals shouldn't culture bomb their masters.
 						if (GET_TEAM(getTeam()).GetMaster() == GET_PLAYER(eOwner).getTeam())
+						{
+							bGoodCandidate = false;
+							break;
+						}
+						// We agreed to move our troops from their borders, don't be dumb.
+						if (GetDiplomacyAI()->IsPlayerMoveTroopsRequestAccepted(eOwner))
 						{
 							bGoodCandidate = false;
 							break;

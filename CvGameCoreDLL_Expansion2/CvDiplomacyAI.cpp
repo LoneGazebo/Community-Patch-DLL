@@ -44987,8 +44987,7 @@ void CvDiplomacyAI::KilledPlayerCleanup (PlayerTypes eKilledPlayer)
 /// Helper function to determine if we're at war with a player
 bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer)
 {
-	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsAtWar.");
 
 	return GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam());
 }
@@ -44996,8 +44995,7 @@ bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer)
 /// Helper function to determine if a player is a teammate
 bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer)
 {
-	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index (< 0) when calling function IsTeammate.");
-	CvAssertMsg(eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index (>= MAX_CIV_PLAYERS) when calling function IsTeammate.");
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "DIPLOMACY AI: Invalid Player Index when calling function IsTeammate.");
 	
 	if (eOtherPlayer == GetPlayer()->GetID())
 	{
@@ -45007,6 +45005,21 @@ bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer)
 	return (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam());
 }
 
+/// Helper function to determine if a player's team has a Research Agreement with this player's team
+bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer)
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasResearchAgreement.");
+
+	return (GET_TEAM(GetPlayer()->getTeam()).IsHasResearchAgreement(GET_PLAYER(eOtherPlayer).getTeam()));
+}
+
+/// Helper function to determine if a player's team has a Defensive Pact with this player's team
+bool CvDiplomacyAI::IsHasDefensivePact(PlayerTypes eOtherPlayer)
+{
+	CvAssertMsg(eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY AI: Invalid Player Index when calling function IsHasDefensivePact.");
+
+	return (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()));
+}
 
 
 // ************************************
