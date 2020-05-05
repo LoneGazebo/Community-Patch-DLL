@@ -4995,6 +4995,8 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 					
 					if (m_pPlayer->GetDiplomacyAI()->IsDoFAccepted(pConnection->m_eOriginOwner))
 						bIgnore = true;
+					else if (GET_TEAM(m_pPlayer->getTeam()).GetLiberatedByTeam() == GET_PLAYER(pConnection->m_eOriginOwner).getTeam() || m_pPlayer->GetDiplomacyAI()->GetNumCitiesLiberatedBy(pConnection->m_eOriginOwner) > 0)
+						bIgnore = true;
 					else if (eTrueApproach == MAJOR_CIV_APPROACH_AFRAID || eTrueApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 						bIgnore = true;
 					else if (eTrueApproach == MAJOR_CIV_APPROACH_NEUTRAL && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
@@ -5005,11 +5007,19 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 					else if (eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL && eOpinion >= MAJOR_CIV_OPINION_FAVORABLE && bPlotIsVisibleToOtherTeam)
 						bIgnore = true;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					// Don't plunder our master's trade routes if they're treating us well
-					else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(pConnection->m_eOriginOwner).getTeam())
+					else if (MOD_DIPLOMACY_CIV4_FEATURES)
 					{
-						if (m_pPlayer->GetDiplomacyAI()->GetVassalTreatmentLevel(pConnection->m_eOriginOwner) == VASSAL_TREATMENT_CONTENT)
+						// Don't plunder our master's trade routes if they're treating us well
+						if (GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(pConnection->m_eOriginOwner).getTeam())
+						{
+							if (m_pPlayer->GetDiplomacyAI()->GetVassalTreatmentLevel(pConnection->m_eOriginOwner) == VASSAL_TREATMENT_CONTENT)
+								bIgnore = true;
+						}
+						// If we agreed to move troops from their borders, don't plunder their trade routes.
+						if (m_pPlayer->GetDiplomacyAI()->IsPlayerMoveTroopsRequestAccepted(pConnection->m_eOriginOwner))
+						{
 							bIgnore = true;
+						}
 					}
 #endif
 				}
