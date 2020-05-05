@@ -5287,9 +5287,7 @@ bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed, bool bForc
 int CvPlayer::getBuyPlotDistance() const
 {
 	int iDistance = GC.getMAXIMUM_BUY_PLOT_DISTANCE();
-	
-	iDistance = std::min(MAX_CITY_RADIUS, std::max(getWorkPlotDistance(), iDistance));
-	return iDistance;
+	return std::min(MAX_CITY_RADIUS, std::max(getWorkPlotDistance(), iDistance));
 }
 
 //	--------------------------------------------------------------------------------
@@ -5308,8 +5306,7 @@ int CvPlayer::getWorkPlotDistance() const
 		iDistance += GET_TEAM(getTeam()).GetCityWorkingChange();
 #endif
 	
-	iDistance = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance));
-	return iDistance;
+	return std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance));
 }
 
 //	--------------------------------------------------------------------------------
@@ -14592,26 +14589,12 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetNoSettling(int iPlotIndex)
-{
-	m_noSettlingPlots.insert(iPlotIndex);
-}
-bool CvPlayer::IsNoSettling(int iPlotIndex) const
-{
-	return m_noSettlingPlots.find(iPlotIndex)!= m_noSettlingPlots.end();
-}
-void CvPlayer::ClearNoSettling()
-{
-	m_noSettlingPlots.clear();
-}
-
-//	--------------------------------------------------------------------------------
 bool CvPlayer::canFound(int iX, int iY) const
 {
-	return canFound(iX,iY,false,false,NULL);
+	return canFoundExt(iX,iY,false,false);
 }
 
-bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
+bool CvPlayer::canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -14630,16 +14613,12 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 		}
 	}
 #endif
-
-	// Has the AI agreed to not settle here?
-	if(IsNoSettling(pPlot->GetPlotIndex()))
-		return false;
-
+	
 	// Settlers cannot found cities while empire is very unhappy
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
 
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
 }
 
 //	--------------------------------------------------------------------------------
@@ -46082,7 +46061,6 @@ void CvPlayer::Read(FDataStream& kStream)
 			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop, true);
 		}
 	}
-	kStream >> m_noSettlingPlots;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -46282,7 +46260,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;
 	kStream << m_pabHasStrategicMonopoly;
-	kStream << m_noSettlingPlots;
 #endif
 }
 
@@ -48221,7 +48198,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent)
 		{
 			if (!pPlot->isCoastalLand())
-			iScale = 1;
+				iScale = 1;
 		}
 		else
 		{
@@ -50815,17 +50792,21 @@ void CvPlayer::updatePlotFoundValues()
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
+	//these are the plots whose yield we ignore
+	vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
+
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pPlot->isOwned())
 		{
-			if (pPlot->getOwner() != m_eID) //if we own it, it's fine
-				ignorePlots[iI] = 1;
+			if (pPlot->getOwner() != m_eID) //if we own it ourselves it's fine
+				ignoreYieldPlots[iI] = 1;
 		}
-		else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
-			ignorePlots[iI] = 1;
+		else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot) < GC.getMIN_CITY_RANGE())
+		{
+			ignoreYieldPlots[iI] = 1;
+		}
 	}
 
 	// first pass: precalculate found values
@@ -50836,7 +50817,8 @@ void CvPlayer::updatePlotFoundValues()
 		if (!pPlot->isRevealed(getTeam()))
 			continue;
 
-		int iValue = pCalc->PlotFoundValue(pPlot, this, ignorePlots);
+		//this does not check CvPlayer::CanFound() because it would be recursion, therefore we do basic checks before
+		int iValue = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots);
 		if (iValue > m_iReferenceFoundValue)
 			m_viPlotFoundValues[iI] = iValue;
 	}

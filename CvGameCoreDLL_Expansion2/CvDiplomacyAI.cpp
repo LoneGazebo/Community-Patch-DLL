@@ -37253,6 +37253,18 @@ bool CvDiplomacyAI::IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const
 	return true;
 }
 
+vector<PlayerTypes> CvDiplomacyAI::GetPlayersWithNoSettlePolicy() const
+{
+	vector<PlayerTypes> result;
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
+		if (IsPlayerNoSettleRequestAccepted((PlayerTypes)iPlayer))
+			result.push_back((PlayerTypes)iPlayer);
+	}
+	
+	return result;
+}
+
 /// Has this AI accepted a request from ePlayer to not settle near them?
 bool CvDiplomacyAI::IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const
 {
@@ -37266,52 +37278,7 @@ void CvDiplomacyAI::SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool b
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if(bValue != IsPlayerNoSettleRequestAccepted(ePlayer))
-	{
-		m_pabPlayerNoSettleRequestAccepted[ePlayer] = bValue;
-
-		int iPlotLoop;
-
-		// Add blocker to plots nearby ePlayer
-		if(bValue)
-		{
-			int iLoopX, iLoopY;
-			CvPlot* pNearbyPlot;
-			int iRange = 6;
-
-			// Loop through all of this player's Cities and create a barrier around them
-			CvCity* pLoopCity;
-			int iCityLoop;
-			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-			{
-				for(iLoopX = -(iRange); iLoopX <= iRange; iLoopX++)
-				{
-					for(iLoopY = -(iRange); iLoopY <= iRange; iLoopY++)
-					{
-						pNearbyPlot = plotXY(pLoopCity->getX(), pLoopCity->getY(), iLoopX, iLoopY);
-
-						if(pNearbyPlot != NULL)
-						{
-							if(plotDistance(pNearbyPlot->getX(), pNearbyPlot->getY(), pLoopCity->getX(), pLoopCity->getY()) <= iRange)
-							{
-								GetPlayer()->SetNoSettling( pNearbyPlot->GetPlotIndex() );
-							}
-						}
-					}
-				}
-			}
-		}
-		// Remove blocker from all plots
-		else
-		{
-			int iNumPlots = GC.getMap().numPlots();
-			for(iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
-			{
-				GetPlayer()->ClearNoSettling();
-			}
-		}
-	}
+	m_pabPlayerNoSettleRequestAccepted[ePlayer] = bValue;
 }
 
 /// How many turns has it been since ePlayer asked us not to settle near them?

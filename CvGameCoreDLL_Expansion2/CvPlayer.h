@@ -334,11 +334,7 @@ public:
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 
-	void SetNoSettling(int iPlotIndex);
-	bool IsNoSettling(int iPlotIndex) const;
-	void ClearNoSettling();
-
-	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
+	bool canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFound(int iX, int iY) const;
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
@@ -3660,9 +3656,6 @@ protected:
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;
 #endif
-
-	//plots we have pledged no to settle
-	std::set<int> m_noSettlingPlots;
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;

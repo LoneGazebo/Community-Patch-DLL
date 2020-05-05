@@ -10544,7 +10544,12 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities,
 		return false;
 
 	if (pPlot)
-		return GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, this);
+	{
+		if (!canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+			return false;
+
+		return GET_PLAYER(getOwner()).canFoundExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness);
+	}
 	else
 		return true;
 }

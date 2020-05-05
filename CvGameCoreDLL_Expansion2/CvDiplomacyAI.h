@@ -933,10 +933,10 @@ public:
 	bool IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const;
 
 	bool IsPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer) const;
-
 	bool IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const;
 	bool IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool bValue);
+	vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
 
 	short GetPlayerNoSettleRequestCounter(PlayerTypes ePlayer) const;
 	void SetPlayerNoSettleRequestCounter(PlayerTypes ePlayer, int iValue);
