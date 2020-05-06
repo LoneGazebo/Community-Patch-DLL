@@ -130,7 +130,7 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 		}
 
 		// Has the AI agreed to not settle here?
-		if (pPlayer->isMajorCiv())
+		if (!pPlayer->isHuman() && pPlayer->isMajorCiv())
 		{
 			vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
 			for (size_t i = 0; i < vNoSettlePlayers.size(); i++)
