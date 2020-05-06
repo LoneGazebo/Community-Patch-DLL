@@ -242,6 +242,18 @@ enum MajorDiploTypes
 	
 	NUM_MAJOR_DIPLO_TYPES,
 };
+
+enum TheftTypes
+{
+	NO_THEFT_TYPE = -1,
+
+	THEFT_TYPE_CITADEL,
+	THEFT_TYPE_SPY,
+	THEFT_TYPE_TRADE_ROUTE,
+	THEFT_TYPE_PLOT,
+
+	NUM_THEFT_TYPES,
+};
 #endif
 
 enum AgreementLevelTypes
@@ -378,6 +390,17 @@ enum VassalTreatmentTypes
 	VASSAL_TREATMENT_ENSLAVED,
 
 	NUM_VASSAL_TREATMENT_TYPES
+};
+
+enum MoveTroopsResponseTypes
+{
+	NO_MOVE_TROOPS_RESPONSE = -1,
+
+	MOVE_TROOPS_RESPONSE_ACCEPT,
+	MOVE_TROOPS_RESPONSE_NEUTRAL,
+	MOVE_TROOPS_RESPONSE_REFUSE,
+
+	NUM_MOVE_TROOPS_RESPONSES,
 };
 //----------------------
 #endif

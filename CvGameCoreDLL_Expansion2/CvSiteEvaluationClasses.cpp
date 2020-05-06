@@ -130,12 +130,15 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 		}
 
 		// Has the AI agreed to not settle here?
-		vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
-		for (size_t i = 0; i < vNoSettlePlayers.size(); i++)
+		if (pPlayer->isMajorCiv())
 		{
-			int iDistanceToOtherPlayer = GET_PLAYER(vNoSettlePlayers[i]).GetCityDistanceInPlots(pPlot);
-			if (iDistanceToOtherPlayer <= 2 * GC.getMAXIMUM_WORK_PLOT_DISTANCE())
-				return false;
+			vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
+			for (size_t i = 0; i < vNoSettlePlayers.size(); i++)
+			{
+				int iDistanceToOtherPlayer = GET_PLAYER(vNoSettlePlayers[i]).GetCityDistanceInPlots(pPlot);
+				if (iDistanceToOtherPlayer <= 2 * GC.getMAXIMUM_WORK_PLOT_DISTANCE())
+					return false;
+			}
 		}
 	}
 
