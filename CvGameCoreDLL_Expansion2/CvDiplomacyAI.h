@@ -1950,7 +1950,7 @@ private:
 		short m_aiOtherPlayerTurnsSinceTheySupportedOurHosting[MAX_MAJOR_CIVS];
 
 		//2D Arrays
-		char* m_apaeApproachValues[MAX_MAJOR_CIVS];
+		int* m_apaeApproachValues[MAX_MAJOR_CIVS];
 		char* m_apaeOtherPlayerMajorCivOpinion[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerMajorCivApproach[REALLY_MAX_PLAYERS];
 		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
@@ -1968,7 +1968,7 @@ private:
 		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
 
-		char m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
+		int m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
 		char m_aaeOtherPlayerMajorCivOpinion[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		char m_aaeOtherPlayerMajorCivApproach[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiOtherPlayerMajorCivApproachCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -2057,7 +2057,7 @@ private:
 	short* m_paDiploLogStatementTurnCountScratchPad;
 
 	char* m_paeMajorCivOpinion;
-	char** m_ppaaeApproachValues;
+	int** m_ppaaeApproachValues;
 	char** m_ppaaeOtherPlayerMajorCivOpinion;
 	char** m_ppaaeOtherPlayerMajorCivApproach;
 	short** m_ppaaiOtherPlayerMajorCivApproachCounter;
