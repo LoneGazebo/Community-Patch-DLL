@@ -9769,8 +9769,8 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				}
 				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
 				{
-					// if we promised not to spy, make it less likely that we will spy
-					if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
+					// if we promised not to spy or it's a bad idea to spy on them, make it less likely that we will spy
+					if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
 					{
 						// target far less frequently
 						iDiploModifier -= 750;

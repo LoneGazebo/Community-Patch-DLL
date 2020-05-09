@@ -132,7 +132,7 @@ public:
 
 	// Major Civs
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
+	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
@@ -1216,7 +1216,7 @@ public:
 	//void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJustChecking = false);
+	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
 	
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
@@ -1548,6 +1548,9 @@ public:
 	/////////////////////////////////////////////////////////
 
 	bool DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID);
+	bool DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eOldOwner, CvCity* pCity);
+
+	bool IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
 
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer);
 
@@ -1624,10 +1627,11 @@ public:
 private:
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
 
-	bool IsAtWar(PlayerTypes eOtherPlayer);
-	bool IsTeammate(PlayerTypes eOtherPlayer);
-	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer);
-	bool IsHasDefensivePact(PlayerTypes eOtherPlayer);
+	bool IsAtWar(PlayerTypes eOtherPlayer) const;
+	bool IsTeammate(PlayerTypes eOtherPlayer) const;
+	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
+	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 
 	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);

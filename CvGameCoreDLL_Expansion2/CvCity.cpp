@@ -28464,6 +28464,9 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
 				return false;
 #endif
+			// Bad idea for AI to steal?
+			if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).GetDiplomacyAI()->IsPlayerBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
+				return false;
 		}
 		else
 		{
