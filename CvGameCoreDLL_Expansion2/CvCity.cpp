@@ -31239,7 +31239,9 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 									return false;
 								}
 								else if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+								{
 									return false;
+								}
 
 								if (!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 								{
@@ -31261,7 +31263,9 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						}
 					}
 					if (bSpecificBeliefBlocked)
+					{
 						return false;
+					}
 #endif
 					// Missionaries, Inquisitors and Prophets
 					// We need a full religion and not just a pantheon,
@@ -31408,7 +31412,10 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			}
 #endif
 			iFaithCost = GetFaithPurchaseCost(eBuildingType);
-			if(iFaithCost < 1) return false;
+			if (iFaithCost < 1)
+			{
+				return false;
+			}
 		}
 
 		if(iFaithCost > 0)

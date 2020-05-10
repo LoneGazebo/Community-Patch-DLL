@@ -7912,7 +7912,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		}
 
 		//avoid these plots
-		if (testPlot.isNextToCitadel())
+		if (testPlot.isNextToEnemyCitadel())
 		{
 			if (iDanger>=pUnit->GetCurrHitPoints())
 				return result; //no suicide ...
@@ -7958,6 +7958,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		//often there are multiple identical units which could move into a plot (eg in naval battles)
 		//in that case we want to prefer the one which has more movement points left to make the movement animation look better
 		iDamageScore -= result.iRemainingMoves / GC.getMOVE_DENOMINATOR();
+
+		//sometimes danger is zero, but maybe we're wrong, so look at plot defense too
+		int iDefenseMod = pTestPlot->defenseModifier(pUnit->getTeam(),false,false);
+		iDamageScore += iDefenseMod / 10;
 
 		//todo: take into account mobility at the proposed plot
 		//todo: take into account ZOC when ending the turn
@@ -9251,7 +9255,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 
 			CvTacticalPlot& tactPlot = getTactPlotMutable(pNeighbor->GetPlotIndex());
 			if (tactPlot.isValid())
-				tactPlot.setNextToCitadel(true);
+				tactPlot.setNextToEnemyCitadel(true);
 		}
 	}
 }

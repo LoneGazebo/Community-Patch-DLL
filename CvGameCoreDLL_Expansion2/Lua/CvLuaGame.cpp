@@ -2883,11 +2883,7 @@ int CvLuaGame::lGetHolyCityForReligion(lua_State* L)
 	CvCity* pkHolyCity = NULL;
 	if(pkReligion)
 	{
-		CvPlot* pkPlot = GC.getMap().plot(pkReligion->m_iHolyCityX, pkReligion->m_iHolyCityY);
-		if(pkPlot)
-		{
-			pkHolyCity = pkPlot->getPlotCity();
-		}
+		pkHolyCity = pkReligion->GetHolyCity();
 	}
 
 	if(pkHolyCity)

@@ -1700,26 +1700,6 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	if (GetEffects()->iHolyCityTourism != 0)
 	{
 		CvAssertMsg(eTargetReligion != NO_RELIGION, "No target religion when one was expected. Please send Anton your save file and version.");
-		/*
-		if (eTargetReligion != NO_RELIGION)
-		{
-			const CvReligion* pTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, ePlayer);
-			if (pTargetReligion != NULL)
-			{
-				CvPlot* pHolyCityPlot = GC.getMap().plot(pTargetReligion->m_iHolyCityX, pTargetReligion->m_iHolyCityY);
-				if (pHolyCityPlot != NULL && pHolyCityPlot->isCity())
-				{
-					CvCity* pHolyCity = pHolyCityPlot->getPlotCity();
-					if (pHolyCity != NULL && pHolyCity->getOwner() == ePlayer)
-					{
-						//antonjs: temp:
-						GET_PLAYER(ePlayer).GetTreasury()->ChangeGoldPerTurnFromDiplomacy(GetEffects()->iHolyCityTourism);
-					}
-				}
-			}
-		}
-		//antonjs: todo: OnHolyCityCaptured()
-		*/
 	}
 	if (GetEffects()->iReligionSpreadStrengthMod != 0)
 	{
@@ -1978,26 +1958,6 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 	if (GetEffects()->iHolyCityTourism != 0)
 	{
 		CvAssertMsg(eTargetReligion != NO_RELIGION, "No target religion when one was expected. Please send Anton your save file and version.");
-		/*
-		if (eTargetReligion != NO_RELIGION)
-		{
-			const CvReligion* pTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, ePlayer);
-			if (pTargetReligion != NULL)
-			{
-				CvPlot* pHolyCityPlot = GC.getMap().plot(pTargetReligion->m_iHolyCityX, pTargetReligion->m_iHolyCityY);
-				if (pHolyCityPlot != NULL && pHolyCityPlot->isCity())
-				{
-					CvCity* pHolyCity = pHolyCityPlot->getPlotCity();
-					if (pHolyCity != NULL && pHolyCity->getOwner() == ePlayer)
-					{
-						//antonjs: temp:
-						GET_PLAYER(ePlayer).GetTreasury()->ChangeGoldPerTurnFromDiplomacy(-1 * 100);
-					}
-				}
-			}
-		}
-		//antonjs: todo: OnHolyCityCaptured()
-		*/
 	}
 	if (GetEffects()->iReligionSpreadStrengthMod != 0)
 	{
@@ -4399,12 +4359,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 				if(pReligion)
 				{
-					CvCity* pHolyCity = NULL;
-					CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-					if (pPlot)
-					{
-						pHolyCity = bFounded ? pPlot->getPlotCity() : GET_PLAYER(ePlayer).getCapitalCity();
-					}
+					CvCity* pHolyCity = bFounded ? pReligion->GetHolyCity() : GET_PLAYER(ePlayer).getCapitalCity();
 					if (pHolyCity != NULL)
 					{
 						int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);
@@ -12165,28 +12120,24 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvAssertMsg(pkTargetReligion, "Evaluating World Religion for an invalid religion. Please send Anton your save file and version.");
 		if (pkTargetReligion)
 		{
-			CvPlot* pPlot = GC.getMap().plot(pkTargetReligion->m_iHolyCityX, pkTargetReligion->m_iHolyCityY);
-			if(pPlot)
+			CvCity* pHolyCity = pkTargetReligion->GetHolyCity();
+			if (pHolyCity && pHolyCity->getOwner() != GetPlayer()->GetID())
 			{
-				CvCity* pHolyCity = pPlot->getPlotCity();
-				if (pHolyCity && pHolyCity->getOwner() != GetPlayer()->GetID())
+				// Don't let someone going for culture get away with a world religion easily
+				if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE)
 				{
-					// Don't let someone going for culture get away with a world religion easily
-					if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE)
+					if (GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
 					{
-						if (GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
+						if (bMajorityReligion)
 						{
-							if (bMajorityReligion)
-							{
-								iScore += -100;
-							}
-							else
-							{
-								iScore += -300;
-							}
+							iScore += -100;
 						}
-
+						else
+						{
+							iScore += -300;
+						}
 					}
+
 				}
 			}
 		}

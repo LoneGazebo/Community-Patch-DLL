@@ -15698,12 +15698,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 					if (pReligion)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -15729,12 +15724,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 								eEra = (EraTypes)pEntry->GetEra();
 								if (eEra != NO_ERA)
 								{
-									CvCity* pHolyCity = NULL;
-									CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-									if (pHolyCityPlot)
-									{
-										pHolyCity = pHolyCityPlot->getPlotCity();
-									}
+									CvCity* pHolyCity = pReligion->GetHolyCity();
 									if (pHolyCity == NULL)
 									{
 										pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -15789,12 +15779,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 				{
 					if (pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -15819,12 +15804,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 					}
 					if(pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -18953,12 +18933,7 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 			}
 #endif
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace, GetID(), pHolyCity, true);
 
 			if (iMod != 0)
@@ -21887,13 +21862,7 @@ int CvPlayer::GetHappinessFromReligion()
 		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 		if (pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
-
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			iHappinessFromReligion += pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace, GetID(), pHolyCity, true);
 
@@ -26792,12 +26761,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 								if (pMyReligion)
 								{
-									CvCity* pHolyCity = NULL;
-									CvPlot* pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-									if (pHolyCityPlot)
-									{
-										pHolyCity = pHolyCityPlot->getPlotCity();
-									}
+									CvCity* pHolyCity = pMyReligion->GetHolyCity();
 									if (pHolyCity == NULL)
 									{
 										pHolyCity = getCapitalCity();
@@ -37320,25 +37284,23 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				}
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-				if (MOD_GLOBAL_RELIGIOUS_SETTLERS) {
+				if (MOD_GLOBAL_RELIGIOUS_SETTLERS)
+				{
 					ReligionTypes eReligion = pUnit->GetReligionData()->GetReligion();
-
-					if (eReligion > RELIGION_PANTHEON) {
+					if (eReligion > RELIGION_PANTHEON)
+					{
 						const CvReligion* pkReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-
-						if (pkReligion) {
-							CvPlot* pPlot = GC.getMap().plot(pkReligion->m_iHolyCityX, pkReligion->m_iHolyCityY);
-
-							if (pPlot) {
-								CvCity* pHolyCity = pPlot->getPlotCity();
-
-								if (pHolyCity->getOriginalOwner() == GetID()) {
+						if (pkReligion)
+						{
+							CvCity* pHolyCity = pkReligion->GetHolyCity();
+							if (pHolyCity)
+							{
+								if (pHolyCity->getOriginalOwner() == GetID())
 									// Bonus if the liberator founded their holy city
 									iPercent += gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_HOLYCITY_FOUNDER", 20);
-								} else if (pHolyCity->getOwner() == GetID()) {
+								else if (pHolyCity->getOwner() == GetID())
 									// Serious bad karma if the liberator has captured their holy city
 									iPercent += gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_HOLYCITY_OCCUPIER", -20);
-								}
 							}
 						}
 					}
@@ -38097,12 +38059,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
 	if (pReligion)
 	{
-		CvCity* pHolyCity = NULL;
-		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-		if (pHolyCityPlot)
-		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-		}
+		CvCity* pHolyCity = pReligion->GetHolyCity();
 		if (pHolyCity == NULL)
 		{
 			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -38216,12 +38173,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
 	if (pReligion)
 	{
-		CvCity* pHolyCity = NULL;
-		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-		if (pHolyCityPlot)
-		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-		}
+		CvCity* pHolyCity = pReligion->GetHolyCity();
 		if (pHolyCity == NULL)
 		{
 			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();

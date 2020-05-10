@@ -3270,12 +3270,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			if (iEra <= 0)
 				iEra = 1;
 
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
 				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;

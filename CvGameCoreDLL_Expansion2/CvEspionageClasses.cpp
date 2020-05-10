@@ -9850,11 +9850,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 				const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
 
-				CvCity* pHolyCity = NULL;
-				CvPlot* pPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-				if (pPlot != NULL)
-					pHolyCity = pPlot->getPlotCity();
-
+				CvCity* pHolyCity = pMyReligion->GetHolyCity();
 				iDiploModifier += pMyReligion->m_Beliefs.GetHappinessFromForeignSpies(m_pPlayer->GetID(), pHolyCity, true) * 25;
 			}
 
