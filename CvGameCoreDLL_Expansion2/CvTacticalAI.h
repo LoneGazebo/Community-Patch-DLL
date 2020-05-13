@@ -870,8 +870,8 @@ public:
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
 
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
-	bool isNextToCitadel() const { return bAdjacentToEnemyCitadel; }
-	void setNextToCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
+	bool isNextToEnemyCitadel() const { return bAdjacentToEnemyCitadel; }
+	void setNextToEnemyCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
 	bool isBlockedForCombatUnit() const { return bBlockedForCombatUnit; }

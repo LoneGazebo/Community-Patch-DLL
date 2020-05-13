@@ -116,8 +116,6 @@
 #define AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
 /// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
 #define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (100.0 / 3.0)
-/// Fixes the bug where the AI scores inquisitors if it already has enough, not when it needs them
-#define AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
 /// When comparing the final score for beliefs, the score of the lowest scored belief will be subtracted from all beliefs
 #define AUI_RELIGION_RELATIVE_BELIEF_SCORE
 /// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets

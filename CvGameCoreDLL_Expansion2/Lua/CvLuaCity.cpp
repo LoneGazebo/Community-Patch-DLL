@@ -1922,12 +1922,7 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkCity->getOwner());
 					if (pReligion)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(pkCity->getOwner()).getCapitalCity();

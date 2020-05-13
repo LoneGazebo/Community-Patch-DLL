@@ -3880,8 +3880,6 @@ void CvHomelandAI::ExecuteProphetMoves()
 void CvHomelandAI::ExecuteGeneralMoves()
 {
 	CHomelandUnitArray::iterator it;
-	CvPlot* pHolyCityPlot = NULL;
-	CvCity* pHolyCity = NULL;
 
 	// Do we have an Apollo program to stay clear of?
 	bool bHaveApolloInCapital = false;
@@ -3902,6 +3900,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #endif
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
+	CvCity* pHolyCity = NULL;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) 
 	{
@@ -3911,14 +3910,10 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
 		if(pMyReligion)
 		{
-			pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-			if(pHolyCityPlot != NULL)
+			pHolyCity = pMyReligion->GetHolyCity();
+			if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
 			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-				if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
-				{
-					bKeepHolyCityClear = true;
-				}
+				bKeepHolyCityClear = true;
 			}
 		}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
@@ -4322,8 +4317,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 void CvHomelandAI::ExecuteAdmiralMoves()
 {
 	CHomelandUnitArray::iterator it;
-	CvPlot* pHolyCityPlot = NULL;
-	CvCity* pHolyCity = NULL;
 	// Do we have an Apollo program to stay clear of?
 	bool bHaveApolloInCapital = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
@@ -4342,6 +4335,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 #endif
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
+	CvCity* pHolyCity = NULL;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
 	{
@@ -4351,14 +4345,10 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
 		if(pMyReligion)
 		{
-			pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-			if (pHolyCityPlot != NULL)
+			pHolyCity = pMyReligion->GetHolyCity();
+			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
 			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-				if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
-				{
-					bKeepHolyCityClear = true;
-				}
+				bKeepHolyCityClear = true;
 			}
 		}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)

@@ -73,7 +73,7 @@ void CvCitySiteEvaluator::Init()
 }
 
 /// Is it valid for this player to found a city here?
-bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit) const
+bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -94,31 +94,15 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 		}
 	}
 
-	if (pUnit)
-	{
-		if(!pUnit->canMoveInto(*pPlot))
-		{
-			return false;
-		}
-	}
-	else if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
+	if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
 	{
 		return false;
 	}
 
-	if(pPlot->IsNaturalWonder())
-		return false;
-
-	//need at least one conventionally accessible plot around the city
-	bool bAccessible = false;
-	for (int i = 0; i < RING1_PLOTS; i++)
+	if (pPlot->IsNaturalWonder())
 	{
-		CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
-		if (pNeighbor && !pNeighbor->isImpassable(BARBARIAN_TEAM))
-			bAccessible = true;
-	}
-	if (!bAccessible)
 		return false;
+	}
 
 	if(pPlot->getFeatureType() != NO_FEATURE)
 	{
@@ -130,9 +114,31 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 
 	if(pPlayer)
 	{
+		if (!pPlot->isRevealed(pPlayer->getTeam()))
+		{
+			return false;
+		}
+
 		if(pPlot->isOwned() && (pPlot->getOwner() != pPlayer->GetID()))
 		{
 			return false;
+		}
+
+		if(pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam()))
+		{
+			return false;
+		}
+
+		// Has the AI agreed to not settle here?
+		if (!pPlayer->isHuman() && pPlayer->isMajorCiv())
+		{
+			vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
+			for (size_t i = 0; i < vNoSettlePlayers.size(); i++)
+			{
+				int iDistanceToOtherPlayer = GET_PLAYER(vNoSettlePlayers[i]).GetCityDistanceInPlots(pPlot);
+				if (iDistanceToOtherPlayer <= 2 * GC.getMAXIMUM_WORK_PLOT_DISTANCE())
+					return false;
+			}
 		}
 	}
 
@@ -182,11 +188,6 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer && pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam()))
-	{
-		return false;
-	}
-
 	if(!bIgnoreDistanceToExistingCities)
 	{
 		int iMinDist = /*3*/ GC.getMIN_CITY_RANGE();
@@ -203,22 +204,10 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 			iMinDist = GC.getMap().getWorldInfo().getMinDistanceCities();
 		}
 
-		CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pPlot);
-		if (pClosestCity)
-		{
-			int iDist = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pPlot->getX(), pPlot->getY());
-			//watch out, it's <=
-			if (pClosestCity->getArea() == pPlot->getArea())
-			{
-				if (iDist <= iMinDist)
-					return false;
-			}
-			else
-			{
-				if (iDist <= iMinDist-1) //one less for islands
-					return false;
-			}
-		}
+		int iDistanceToExisting = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+		//watch out, it's <=
+		if (iDistanceToExisting <= iMinDist)
+			return false;
 	}
 #endif
 

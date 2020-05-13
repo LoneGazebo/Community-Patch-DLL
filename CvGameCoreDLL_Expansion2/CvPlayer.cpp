@@ -5287,9 +5287,7 @@ bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed, bool bForc
 int CvPlayer::getBuyPlotDistance() const
 {
 	int iDistance = GC.getMAXIMUM_BUY_PLOT_DISTANCE();
-	
-	iDistance = std::min(MAX_CITY_RADIUS, std::max(getWorkPlotDistance(), iDistance));
-	return iDistance;
+	return std::min(MAX_CITY_RADIUS, std::max(getWorkPlotDistance(), iDistance));
 }
 
 //	--------------------------------------------------------------------------------
@@ -5308,8 +5306,7 @@ int CvPlayer::getWorkPlotDistance() const
 		iDistance += GET_TEAM(getTeam()).GetCityWorkingChange();
 #endif
 	
-	iDistance = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance));
-	return iDistance;
+	return std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance));
 }
 
 //	--------------------------------------------------------------------------------
@@ -12048,7 +12045,7 @@ bool CvPlayer::hasReadyUnit() const
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			return true;
 		}
@@ -14592,26 +14589,12 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetNoSettling(int iPlotIndex)
-{
-	m_noSettlingPlots.insert(iPlotIndex);
-}
-bool CvPlayer::IsNoSettling(int iPlotIndex) const
-{
-	return m_noSettlingPlots.find(iPlotIndex)!= m_noSettlingPlots.end();
-}
-void CvPlayer::ClearNoSettling()
-{
-	m_noSettlingPlots.clear();
-}
-
-//	--------------------------------------------------------------------------------
 bool CvPlayer::canFound(int iX, int iY) const
 {
-	return canFound(iX,iY,false,false,NULL);
+	return canFoundExt(iX,iY,false,false);
 }
 
-bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
+bool CvPlayer::canFoundExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -14630,16 +14613,12 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 		}
 	}
 #endif
-
-	// Has the AI agreed to not settle here?
-	if(IsNoSettling(pPlot->GetPlotIndex()))
-		return false;
-
+	
 	// Settlers cannot found cities while empire is very unhappy
 	if(!bIgnoreHappiness && IsEmpireVeryUnhappy())
 		return false;
 
-	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities, pUnit);
+	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bIgnoreDistanceToExistingCities);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15719,12 +15698,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 					if (pReligion)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -15750,12 +15724,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 								eEra = (EraTypes)pEntry->GetEra();
 								if (eEra != NO_ERA)
 								{
-									CvCity* pHolyCity = NULL;
-									CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-									if (pHolyCityPlot)
-									{
-										pHolyCity = pHolyCityPlot->getPlotCity();
-									}
+									CvCity* pHolyCity = pReligion->GetHolyCity();
 									if (pHolyCity == NULL)
 									{
 										pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -15810,12 +15779,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 				{
 					if (pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -15840,12 +15804,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 					}
 					if(pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
 					{
-						CvCity* pHolyCity = NULL;
-						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pHolyCityPlot)
-						{
-							pHolyCity = pHolyCityPlot->getPlotCity();
-						}
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
 							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -18974,12 +18933,7 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 			}
 #endif
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace, GetID(), pHolyCity, true);
 
 			if (iMod != 0)
@@ -21908,13 +21862,7 @@ int CvPlayer::GetHappinessFromReligion()
 		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 		if (pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
-
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			iHappinessFromReligion += pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace, GetID(), pHolyCity, true);
 
@@ -26813,12 +26761,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 								if (pMyReligion)
 								{
-									CvCity* pHolyCity = NULL;
-									CvPlot* pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-									if (pHolyCityPlot)
-									{
-										pHolyCity = pHolyCityPlot->getPlotCity();
-									}
+									CvCity* pHolyCity = pMyReligion->GetHolyCity();
 									if (pHolyCity == NULL)
 									{
 										pHolyCity = getCapitalCity();
@@ -37341,25 +37284,23 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				}
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-				if (MOD_GLOBAL_RELIGIOUS_SETTLERS) {
+				if (MOD_GLOBAL_RELIGIOUS_SETTLERS)
+				{
 					ReligionTypes eReligion = pUnit->GetReligionData()->GetReligion();
-
-					if (eReligion > RELIGION_PANTHEON) {
+					if (eReligion > RELIGION_PANTHEON)
+					{
 						const CvReligion* pkReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
-
-						if (pkReligion) {
-							CvPlot* pPlot = GC.getMap().plot(pkReligion->m_iHolyCityX, pkReligion->m_iHolyCityY);
-
-							if (pPlot) {
-								CvCity* pHolyCity = pPlot->getPlotCity();
-
-								if (pHolyCity->getOriginalOwner() == GetID()) {
+						if (pkReligion)
+						{
+							CvCity* pHolyCity = pkReligion->GetHolyCity();
+							if (pHolyCity)
+							{
+								if (pHolyCity->getOriginalOwner() == GetID())
 									// Bonus if the liberator founded their holy city
 									iPercent += gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_HOLYCITY_FOUNDER", 20);
-								} else if (pHolyCity->getOwner() == GetID()) {
+								else if (pHolyCity->getOwner() == GetID())
 									// Serious bad karma if the liberator has captured their holy city
 									iPercent += gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_HOLYCITY_OCCUPIER", -20);
-								}
 							}
 						}
 					}
@@ -38118,12 +38059,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
 	if (pReligion)
 	{
-		CvCity* pHolyCity = NULL;
-		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-		if (pHolyCityPlot)
-		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-		}
+		CvCity* pHolyCity = pReligion->GetHolyCity();
 		if (pHolyCity == NULL)
 		{
 			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -38237,12 +38173,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
 	if (pReligion)
 	{
-		CvCity* pHolyCity = NULL;
-		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-		if (pHolyCityPlot)
-		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-		}
+		CvCity* pHolyCity = pReligion->GetHolyCity();
 		if (pHolyCity == NULL)
 		{
 			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
@@ -46082,7 +46013,6 @@ void CvPlayer::Read(FDataStream& kStream)
 			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop, true);
 		}
 	}
-	kStream >> m_noSettlingPlots;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -46282,7 +46212,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasGlobalMonopoly;
 	kStream << m_pabHasStrategicMonopoly;
-	kStream << m_noSettlingPlots;
 #endif
 }
 
@@ -48221,7 +48150,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent)
 		{
 			if (!pPlot->isCoastalLand())
-			iScale = 1;
+				iScale = 1;
 		}
 		else
 		{
@@ -50815,17 +50744,21 @@ void CvPlayer::updatePlotFoundValues()
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
+	//these are the plots whose yield we ignore
+	vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
+
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pPlot->isOwned())
 		{
-			if (pPlot->getOwner() != m_eID) //if we own it, it's fine
-				ignorePlots[iI] = 1;
+			if (pPlot->getOwner() != m_eID) //if we own it ourselves it's fine
+				ignoreYieldPlots[iI] = 1;
 		}
-		else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<GC.getMIN_CITY_RANGE())
-			ignorePlots[iI] = 1;
+		else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot) < GC.getMIN_CITY_RANGE())
+		{
+			ignoreYieldPlots[iI] = 1;
+		}
 	}
 
 	// first pass: precalculate found values
@@ -50836,7 +50769,8 @@ void CvPlayer::updatePlotFoundValues()
 		if (!pPlot->isRevealed(getTeam()))
 			continue;
 
-		int iValue = pCalc->PlotFoundValue(pPlot, this, ignorePlots);
+		//this does not check CvPlayer::CanFound() because it would be recursion, therefore we do basic checks before
+		int iValue = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots);
 		if (iValue > m_iReferenceFoundValue)
 			m_viPlotFoundValues[iI] = iValue;
 	}

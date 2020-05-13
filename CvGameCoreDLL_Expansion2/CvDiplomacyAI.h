@@ -132,7 +132,7 @@ public:
 
 	// Major Civs
 	void DoUpdateMajorCivApproaches(bool bIgnoreApproachCurve = false);
-	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vePlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
+	MajorCivApproachTypes GetBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bFirstPass, bool bUpdate, vector<PlayerTypes>& vPlayersToUpdate, std::map<PlayerTypes, MajorCivApproachTypes>& oldApproaches, bool bIgnoreApproachCurve = false);
 	
 	// Special case approach updates
 	void DoUpdateApproachTowardsTeammate(PlayerTypes ePlayer);
@@ -933,10 +933,10 @@ public:
 	bool IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const;
 
 	bool IsPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer) const;
-
 	bool IsPlayerNoSettleRequestRejected(PlayerTypes ePlayer) const;
 	bool IsPlayerNoSettleRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerNoSettleRequestAccepted(PlayerTypes ePlayer, bool bValue);
+	vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
 
 	short GetPlayerNoSettleRequestCounter(PlayerTypes ePlayer) const;
 	void SetPlayerNoSettleRequestCounter(PlayerTypes ePlayer, int iValue);
@@ -1216,7 +1216,7 @@ public:
 	//void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	int IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJustChecking = false);
+	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
 	
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
@@ -1548,6 +1548,9 @@ public:
 	/////////////////////////////////////////////////////////
 
 	bool DoPossibleMinorLiberation(PlayerTypes eMinor, int iCityID);
+	bool DoPossibleMajorLiberation(PlayerTypes eMajor, PlayerTypes eOldOwner, CvCity* pCity);
+
+	bool IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
 
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer);
 
@@ -1624,8 +1627,11 @@ public:
 private:
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
 
-	bool IsAtWar(PlayerTypes eOtherPlayer);
-	bool IsTeammate(PlayerTypes eOtherPlayer);
+	bool IsAtWar(PlayerTypes eOtherPlayer) const;
+	bool IsTeammate(PlayerTypes eOtherPlayer) const;
+	bool IsHasDefensivePact(PlayerTypes eOtherPlayer) const;
+	bool IsHasResearchAgreement(PlayerTypes eOtherPlayer) const;
+
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
 
 	void LogPublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1, PlayerTypes eForSpecificPlayer = NO_PLAYER);
@@ -1944,7 +1950,7 @@ private:
 		short m_aiOtherPlayerTurnsSinceTheySupportedOurHosting[MAX_MAJOR_CIVS];
 
 		//2D Arrays
-		char* m_apaeApproachValues[MAX_MAJOR_CIVS];
+		int* m_apaeApproachValues[MAX_MAJOR_CIVS];
 		char* m_apaeOtherPlayerMajorCivOpinion[REALLY_MAX_PLAYERS];
 		char* m_apaeOtherPlayerMajorCivApproach[REALLY_MAX_PLAYERS];
 		short* m_apaiOtherPlayerMajorCivApproachCounter[REALLY_MAX_PLAYERS];
@@ -1962,7 +1968,7 @@ private:
 		char* m_apacCoopWarAcceptedState[MAX_MAJOR_CIVS];
 		short* m_apaiCoopWarCounter[MAX_MAJOR_CIVS];
 
-		char m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
+		int m_aaeApproachValues[MAX_MAJOR_CIVS* NUM_MAJOR_CIV_APPROACHES];
 		char m_aaeOtherPlayerMajorCivOpinion[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		char m_aaeOtherPlayerMajorCivApproach[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiOtherPlayerMajorCivApproachCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
@@ -2051,7 +2057,7 @@ private:
 	short* m_paDiploLogStatementTurnCountScratchPad;
 
 	char* m_paeMajorCivOpinion;
-	char** m_ppaaeApproachValues;
+	int** m_ppaaeApproachValues;
 	char** m_ppaaeOtherPlayerMajorCivOpinion;
 	char** m_ppaaeOtherPlayerMajorCivApproach;
 	short** m_ppaaiOtherPlayerMajorCivApproachCounter;

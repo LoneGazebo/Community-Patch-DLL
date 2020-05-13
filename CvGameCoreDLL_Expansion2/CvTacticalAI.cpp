@@ -773,9 +773,9 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... barbarian camp? typically revealed but not visible, so don't even check for defenders
 				// (also the camp might since have been cleared but we don't know yet - so check if it is owned now)
-				// minors only care for camps adjacent to their borders
+				// minors ignore barb camps, cannot clear them anyway
 				if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && 
-					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian() || pLoopPlot->isAdjacentPlayer(m_pPlayer->GetID())))
+					!pLoopPlot->isOwned() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()))
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
@@ -3066,22 +3066,16 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 			vUnitsFinal.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
 
 	//we probably didn't see all enemy units, so doublecheck ...
-	bool bAggressive = true;
 	CvPlot* pTargetPlot = pClosestEnemyPlot;
 	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pClosestEnemyPlot);
-	if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-	{
-		bAggressive = false;
-		pTargetPlot = pArmy->GetCenterOfMass();
-	}
+	if (pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+		return false;
 
 	int iCount = 0;
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = bAggressive ?
-			TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_LOW, gTactPosStorage):
-			TacticalAIHelpers::FindBestDefensiveAssignment(vUnitsFinal, pTargetPlot, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestOffensiveAssignment(vUnitsFinal, pTargetPlot, AL_LOW, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -7918,7 +7912,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		}
 
 		//avoid these plots
-		if (testPlot.isNextToCitadel())
+		if (testPlot.isNextToEnemyCitadel())
 		{
 			if (iDanger>=pUnit->GetCurrHitPoints())
 				return result; //no suicide ...
@@ -7964,6 +7958,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		//often there are multiple identical units which could move into a plot (eg in naval battles)
 		//in that case we want to prefer the one which has more movement points left to make the movement animation look better
 		iDamageScore -= result.iRemainingMoves / GC.getMOVE_DENOMINATOR();
+
+		//sometimes danger is zero, but maybe we're wrong, so look at plot defense too
+		int iDefenseMod = pTestPlot->defenseModifier(pUnit->getTeam(),false,false);
+		iDamageScore += iDefenseMod / 10;
 
 		//todo: take into account mobility at the proposed plot
 		//todo: take into account ZOC when ending the turn
@@ -8765,8 +8763,8 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 		}
 	}
 
-	//ranged attacks
-	if (pUnit->isRanged() && eAggression>AL_NONE && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
+	//ranged attacks (also if aggression level is NONE!)
+	if (pUnit->isRanged() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
 		const vector<int>& rangeAttackPlots = getRangeAttackPlotsForUnit(unit);
 		for (vector<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
@@ -8779,7 +8777,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 			{
 				STacticalAssignment newAssignment(ScorePlotForRangedAttack(unit,assumedUnitPlot,enemyPlot,*this));
 				if (newAssignment.iScore > 0)
+				{
+					//if we're not looking to pick a fight, de-emphasize attacks
+					if (eAggression == AL_NONE)
+						newAssignment.iScore /= 3;
+
 					possibleMoves.push_back(newAssignment);
+				}
 			}
 		}
 
@@ -9251,7 +9255,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 
 			CvTacticalPlot& tactPlot = getTactPlotMutable(pNeighbor->GetPlotIndex());
 			if (tactPlot.isValid())
-				tactPlot.setNextToCitadel(true);
+				tactPlot.setNextToEnemyCitadel(true);
 		}
 	}
 }

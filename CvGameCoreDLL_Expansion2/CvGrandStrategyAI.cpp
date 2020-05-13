@@ -747,12 +747,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if (pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for (int iI = 0; iI < iNumBeliefs; iI++)
@@ -1000,12 +995,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
@@ -1201,12 +1191,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
@@ -1579,12 +1564,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if (pHolyCityPlot)
-			{
-				pHolyCity = pHolyCityPlot->getPlotCity();
-			}
+			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
