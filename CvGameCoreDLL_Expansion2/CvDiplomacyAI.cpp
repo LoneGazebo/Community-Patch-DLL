@@ -7707,6 +7707,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//--------------------------------//
 
 	////////////////////////////////////
+	// CUSTOM DLL MOD BONUS/PENALTY
+	////////////////////////////////////
+
+	// Modders can add flat weight to approaches based on custom conditions (if a certain Custom Mod is #defined) here.
+
+	////////////////////////////////////
 	// LUA BONUS/PENALTY
 	////////////////////////////////////
 
@@ -7745,7 +7751,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	// Prioritize our approaches to avoid adopting the same approach towards too many players and allow more variance/strategy
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
-	if (!bFirstPass && bUpdate && vPlayersToUpdate.size() > 1)
+	if (!bFirstPass && vPlayersToUpdate.size() > 1)
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 		{
@@ -8054,7 +8060,13 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//--------------------------------//
 
 	////////////////////////////////////
-	// MODDER BONUS/PENALTY
+	// CUSTOM DLL MOD BONUS/PENALTY
+	////////////////////////////////////
+
+	// Modders can add % weight to approaches based on custom conditions (if a certain Custom Mod is #defined) here.
+
+	////////////////////////////////////
+	// LUA BONUS/PENALTY
 	////////////////////////////////////
 
 	// Modders can add % weight to approaches based on custom conditions here.
