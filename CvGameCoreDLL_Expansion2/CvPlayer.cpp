@@ -9984,16 +9984,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 #endif
 			// Update diplo stuff.
-			pDiploAI->DoUpdateTrueApproachTowardsUsGuesses(true);
-			pDiploAI->SetTrueApproachTowardsUsGuess(eMePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-			pDiploAI->SetTrueApproachTowardsUsGuessCounter(eMePlayer, 0);
 			pDiploAI->DoUpdateOpinions();
 			pDiploAI->DoUpdateMajorCivApproaches();
 			if (!isHuman())
 			{
-				GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
-				GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(ePlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-				GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(ePlayer, 0);
 				GetDiplomacyAI()->DoUpdateOpinions();
 				GetDiplomacyAI()->DoUpdateMajorCivApproaches(/*bIgnoreApproachCurve*/ true);
 			}
@@ -47702,7 +47696,7 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 
 			//how is the general diplomatic climate?
 			MajorCivApproachTypes eApproach = GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false);
-			MajorCivApproachTypes eTheirApproach = GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer);
+			MajorCivApproachTypes eTheirApproach = GetDiplomacyAI()->GetVisibleApproachTowardsUs(eLoopPlayer);
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
 			if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE || 
 				eApproach == MAJOR_CIV_APPROACH_AFRAID || eApproach == MAJOR_CIV_APPROACH_GUARDED ||

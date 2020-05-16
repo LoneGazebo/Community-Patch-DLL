@@ -3319,7 +3319,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 				{
 					if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 					{
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 					}
@@ -3355,8 +3354,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 					{
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -300);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
 					}
 					// Other players' reactions
 					for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -3452,8 +3449,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedToPlayer, 2);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_WAR);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
 								}
 							}
 							else if (!bTargetTeamIsMinor && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(eTargetTeam))
@@ -3477,8 +3472,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedToPlayer, 2);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_WAR);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
 								}
 							}
 							// If the brokering was detected, run a second loop for diplo purposes
@@ -4032,7 +4025,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 							}
@@ -4068,8 +4060,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							else if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 							{
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, -300);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_FRIENDLY);
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
 							}
 							// Other players' reactions
 							for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
@@ -4172,8 +4162,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedToPlayer, 2);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_WAR);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
 								}
 							}
 							else if (!bTargetTeamIsMinor && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(eTargetTeam))
@@ -4197,8 +4185,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedToPlayer, 2);
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eAcceptedFromPlayer, 2);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuess(eAcceptedToPlayer, MAJOR_CIV_APPROACH_WAR);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetTrueApproachTowardsUsGuessCounter(eAcceptedToPlayer, 0);
 								}
 							}
 							// If the brokering was detected, run a second loop for diplo purposes
@@ -4325,7 +4311,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						{
 							if (GET_PLAYER(eLoopPlayer).getTeam() == eFromTeam || GET_PLAYER(eLoopPlayer).getTeam() == eToTeam)
 							{
-								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateTrueApproachTowardsUsGuesses(true);
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateOpinions();
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateMajorCivApproaches();
 							}
